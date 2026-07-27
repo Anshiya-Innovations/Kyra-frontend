@@ -1,0 +1,169 @@
+<mvc:View
+    controllerName="kyra001.pages.dashboard.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+
+    <Page showHeader="false" enableScrolling="true" class="fioriDashboardBg">
+        <!-- Top Shell Bar -->
+        <f:ShellBar
+            title="{i18n>appTitle}"
+            secondTitle="Dashboard"
+            homeIcon="sap-icon://shield"
+            showCopilot="false"
+            showSearch="true"
+            showNotifications="true"
+            notificationsNumber="3">
+            <f:profile>
+                <Avatar initials="{dashboard>/userInitials}" backgroundColor="Accent6" />
+            </f:profile>
+            <f:additionalContent>
+                <Button
+                    icon="sap-icon://log-out"
+                    text="{i18n>logoutButton}"
+                    type="Transparent"
+                    press=".onLogout"
+                    tooltip="{i18n>logoutButton}" />
+            </f:additionalContent>
+        </f:ShellBar>
+
+        <!-- Main Dashboard Content -->
+        <VBox class="sapUiResponsiveMargin">
+            <!-- Welcome Banner Card -->
+            <VBox class="fioriWelcomeCard sapUiSmallMarginBottom sapUiResponsivePadding">
+                <HBox justifyContent="SpaceBetween" alignItems="Center">
+                    <VBox>
+                        <Title
+                            text="{parts: [{path: 'i18n>welcomeMessage'}, {path: 'dashboard>/userEmpId'}], formatter: '.formatWelcome'}"
+                            level="H2"
+                            class="fioriWelcomeTitle" />
+                        <Text text="{i18n>userRole}" class="fioriWelcomeSubtitle" />
+                    </VBox>
+                    <HBox alignItems="Center">
+                        <ObjectStatus
+                            title="System Status"
+                            text="Operational"
+                            state="Success"
+                            icon="sap-icon://sys-enter-2"
+                            class="sapUiSmallMarginEnd" />
+                        <Button
+                            icon="sap-icon://refresh"
+                            type="Transparent"
+                            press=".onRefreshData"
+                            tooltip="Refresh Dashboard" />
+                    </HBox>
+                </HBox>
+            </VBox>
+
+            <!-- KPI Tiles Container -->
+            <Title text="Key Performance Indicators" level="H3" class="sapUiSmallMarginBottom" />
+            <HBox wrap="Wrap" class="fioriTileRow sapUiSmallMarginBottom">
+                <GenericTile
+                    header="{i18n>kpiTile1Title}"
+                    subheader="{i18n>kpiTile1Subtitle}"
+                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom fioriKpiTile"
+                    press=".onTilePress">
+                    <TileContent footer="Updated 5 mins ago">
+                        <NumericContent
+                            value="{i18n>kpiTile1Value}"
+                            icon="sap-icon://group"
+                            valueColor="Neutral" />
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile
+                    header="{i18n>kpiTile2Title}"
+                    subheader="{i18n>kpiTile2Subtitle}"
+                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom fioriKpiTile"
+                    press=".onTilePress">
+                    <TileContent footer="Requires action">
+                        <NumericContent
+                            value="{i18n>kpiTile2Value}"
+                            icon="sap-icon://approvals"
+                            valueColor="Critical" />
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile
+                    header="{i18n>kpiTile3Title}"
+                    subheader="{i18n>kpiTile3Subtitle}"
+                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom fioriKpiTile"
+                    press=".onTilePress">
+                    <TileContent footer="Uptime 30 days">
+                        <NumericContent
+                            value="{i18n>kpiTile3Value}"
+                            icon="sap-icon://electrocardiogram"
+                            valueColor="Good" />
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile
+                    header="{i18n>kpiTile4Title}"
+                    subheader="{i18n>kpiTile4Subtitle}"
+                    class="sapUiTinyMarginEnd sapUiTinyMarginBottom fioriKpiTile"
+                    press=".onTilePress">
+                    <TileContent footer="On track">
+                        <NumericContent
+                            value="{i18n>kpiTile4Value}"
+                            icon="sap-icon://project-definition-triangle"
+                            valueColor="Neutral" />
+                    </TileContent>
+                </GenericTile>
+            </HBox>
+
+            <!-- Quick Actions Bar -->
+            <VBox class="fioriQuickActionsBox sapUiSmallMarginBottom sapUiResponsivePadding">
+                <Title text="{i18n>quickActionsTitle}" level="H4" class="sapUiSmallMarginBottom" />
+                <HBox wrap="Wrap">
+                    <Button
+                        text="{i18n>actionNewRequest}"
+                        icon="sap-icon://add-document"
+                        type="Default"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                        press=".onQuickAction" />
+                    <Button
+                        text="{i18n>actionTimeTracking}"
+                        icon="sap-icon://time-entry-request"
+                        type="Default"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                        press=".onQuickAction" />
+                    <Button
+                        text="{i18n>actionSupport}"
+                        icon="sap-icon://sys-help"
+                        type="Default"
+                        class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                        press=".onQuickAction" />
+                </HBox>
+            </VBox>
+
+            <!-- Recent Activity Table -->
+            <VBox class="fioriTableCard sapUiResponsivePadding">
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                    <Title text="{i18n>recentActivityTitle}" level="H4" />
+                    <Button icon="sap-icon://filter" type="Transparent" tooltip="Filter Activity" />
+                </HBox>
+
+                <Table items="{dashboard>/activities}" id="activityTable" noDataText="No recent activities">
+                    <columns>
+                        <Column><Text text="Timestamp" /></Column>
+                        <Column><Text text="Activity Description" /></Column>
+                        <Column><Text text="Source / IP" /></Column>
+                        <Column><Text text="Status" /></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{dashboard>timestamp}" />
+                                <Text text="{dashboard>description}" />
+                                <Text text="{dashboard>source}" />
+                                <ObjectStatus text="{dashboard>status}" state="{dashboard>state}" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+        </VBox>
+    </Page>
+</mvc:View>

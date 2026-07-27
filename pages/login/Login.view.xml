@@ -1,0 +1,135 @@
+<mvc:View
+    controllerName="kyra001.pages.login.Login"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+    
+    <Page showHeader="false" enableScrolling="true" class="fioriLoginBg">
+        <content>
+            <VBox justifyContent="Center" alignItems="Center" class="fioriLoginWrapper">
+                <VBox class="fioriLoginCard">
+                    <!-- Top Centered Header -->
+                    <VBox alignItems="Center" class="fioriBrandHeader">
+                        <!-- Shield Logo Avatar -->
+                        <Avatar
+                            src="sap-icon://shield"
+                            displaySize="L"
+                            type="Icon"
+                            backgroundColor="Accent6"
+                            class="fioriShieldCircle" />
+                        <Title text="KYRA Enterprise" level="H1" class="fioriMainTitle" />
+                        <Text text="Secure Employee Access Portal" class="fioriMainSubtitle" />
+                        <Text text="Sign in using your enterprise credentials." class="fioriDescriptionText" />
+                    </VBox>
+
+                    <!-- Two Separate Mode Buttons with a small gap -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="fioriModeButtonsRow">
+                        <Button
+                            id="btnEmployeeMode"
+                            text="👤 Employee"
+                            press=".onSelectEmployeeMode"
+                            class="{= ${login>/isEmployeeMode} ? 'fioriModeBtn fioriModeBtnSelected' : 'fioriModeBtn fioriModeBtnInactive' }" />
+                        <Button
+                            id="btnAdminMode"
+                            text="🛡 Administrator"
+                            press=".onSelectAdminMode"
+                            class="{= ${login>/isEmployeeMode} ? 'fioriModeBtn fioriModeBtnInactive' : 'fioriModeBtn fioriModeBtnSelected' }" />
+                    </HBox>
+
+                    <!-- Error Notification MessageStrip -->
+                    <MessageStrip
+                        visible="{login>/hasError}"
+                        text="{login>/errorMessage}"
+                        type="Error"
+                        showIcon="true"
+                        showCloseButton="true"
+                        close=".onDismissError"
+                        class="sapUiSmallMarginBottom" />
+
+                    <!-- Form Controls -->
+                    <VBox width="100%">
+                        <!-- Dynamic ID Input -->
+                        <VBox class="fioriInputGroup" width="100%">
+                            <Label text="{login>/idLabel}" required="true" labelFor="idInput" class="fioriFormLabel" />
+                            <Input
+                                id="idInput"
+                                value="{login>/userId}"
+                                placeholder="{login>/idPlaceholder}"
+                                valueState="{login>/idState}"
+                                valueStateText="{login>/idStateText}"
+                                liveChange=".onInputChange"
+                                change=".onInputChange"
+                                showValueHelp="true"
+                                valueHelpIconSrc="sap-icon://customer"
+                                showClearButton="true"
+                                class="fioriFormInput"
+                                width="100%" />
+                        </VBox>
+
+                        <!-- Password Field -->
+                        <VBox class="fioriInputGroup" width="100%">
+                            <Label text="{i18n>passwordLabel}" required="true" labelFor="passwordInput" class="fioriFormLabel" />
+                            <Input
+                                id="passwordInput"
+                                value="{login>/password}"
+                                type="{= ${login>/showPassword} ? 'Text' : 'Password' }"
+                                placeholder="{i18n>passwordPlaceholder}"
+                                valueState="{login>/passwordState}"
+                                valueStateText="{login>/passwordStateText}"
+                                liveChange=".onInputChange"
+                                change=".onInputChange"
+                                submit=".onLogin"
+                                showValueHelp="true"
+                                valueHelpIconSrc="{= ${login>/showPassword} ? 'sap-icon://hide' : 'sap-icon://show' }"
+                                valueHelpRequest=".onTogglePasswordVisibility"
+                                class="fioriFormInput"
+                                width="100%" />
+                        </VBox>
+
+                        <!-- Remember Me & Forgot Password FlexBox Row -->
+                        <FlexBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="fioriFlexRow">
+                            <CheckBox text="{i18n>rememberMeLabel}" selected="{login>/rememberMe}" class="fioriCheckBox" />
+                            <Link text="{i18n>forgotPasswordLabel}" press=".onForgotPassword" class="fioriForgotLink" />
+                        </FlexBox>
+
+                        <!-- SAP Emphasized Sign In Button -->
+                        <Button
+                            id="signInButton"
+                            text="{i18n>signInButton}"
+                            type="Emphasized"
+                            width="100%"
+                            press=".onLogin"
+                            busy="{login>/isBusy}"
+                            class="fioriEmphasizedBtn" />
+
+                        <!-- Or Divider Row -->
+                        <HBox alignItems="Center" justifyContent="Center" width="100%" class="fioriOrDividerRow">
+                            <VBox class="fioriOrLine" />
+                            <Text text="or" class="fioriOrText" />
+                            <VBox class="fioriOrLine" />
+                        </HBox>
+
+                        <!-- IT Support Section -->
+                        <HBox alignItems="Center" justifyContent="Center" width="100%" class="fioriSupportBox">
+                            <Avatar
+                                src="sap-icon://headset"
+                                displaySize="M"
+                                type="Icon"
+                                class="fioriSupportHeadsetCircle" />
+                            <VBox>
+                                <Text text="Need Help? Contact IT Support" class="fioriSupportTitle" />
+                                <Link text="support@kyraenterprise.com" href="mailto:support@kyraenterprise.com" class="fioriSupportEmail" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Footer Section -->
+                        <VBox alignItems="Center" class="fioriFooterBox">
+                            <Text text="Version 1.0.0  •  © 2026 KYRA Enterprise" class="fioriFooterText" />
+                        </VBox>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
