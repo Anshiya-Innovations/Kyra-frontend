@@ -1,0 +1,348 @@
+<mvc:View
+    controllerName="kyra001.pages.addAccess.AddAccess"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form"
+    displayBlock="true">
+
+    <Page showHeader="false" enableScrolling="true" class="fioriDashboardBg">
+        <content>
+            <!-- Enterprise ShellBar Header -->
+            <f:ShellBar
+                title="KYRA Enterprise"
+                secondTitle="New Access Request Wizard"
+                homeIcon="sap-icon://shield"
+                showCopilot="false"
+                showSearch="true"
+                showNotifications="true"
+                notificationsNumber="3">
+                <f:profile>
+                    <Avatar initials="ADM" backgroundColor="Accent1" />
+                </f:profile>
+                <f:additionalContent>
+                    <Button
+                        icon="sap-icon://navigation-left-arrow"
+                        text="Back to User Portal"
+                        type="Transparent"
+                        press=".onNavBackToPortal"
+                        tooltip="Back to Access Portal" />
+                </f:additionalContent>
+            </f:ShellBar>
+
+            <!-- Main Content Container -->
+            <VBox class="sapUiResponsiveMargin">
+                <!-- Page Title Header Card -->
+                <VBox class="fioriWelcomeCard sapUiSmallMarginBottom sapUiResponsivePadding">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center">
+                        <VBox>
+                            <Title text="Add Access Request - Business Governance" level="H2" class="fioriWelcomeTitle" />
+                            <Text text="Step-by-step role entitlement wizard for enterprise systems and business sectors." class="fioriWelcomeSubtitle" />
+                        </VBox>
+                        <ObjectStatus
+                            title="Wizard Progress"
+                            text="{= ${addAccessModel>/step3Visible} ? 'Step 3 of 3 (Summary)' : (${addAccessModel>/step2Visible} ? 'Step 2 of 3' : 'Step 1 of 3') }"
+                            state="Information"
+                            icon="sap-icon://process" />
+                    </HBox>
+                </VBox>
+
+                <!-- STEP 1 CONTAINER: BUSINESS SECTOR & BUSINESS FUNCTION -->
+                <VBox
+                    visible="{addAccessModel>/step1Visible}"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Avatar src="sap-icon://building" backgroundColor="Accent1" displaySize="S" class="sapUiTinyMarginEnd" />
+                        <VBox>
+                            <Title text="Step 1: Business Sector and Business Function Selection" level="H4" />
+                            <Text text="Select your target enterprise sector and operational business function below." class="fioriDescriptionText" />
+                        </VBox>
+                    </HBox>
+
+                    <form:SimpleForm
+                        editable="true"
+                        layout="ColumnLayout"
+                        columnsM="2"
+                        columnsL="2"
+                        singleContainerFullWidth="false">
+                        <form:content>
+                            <core:Title text="Business Sector Configuration" />
+                            
+                            <Label text="Business Sector" />
+                            <Select
+                                id="businessSectorSelect"
+                                selectedKey="{addAccessModel>/sector}"
+                                change=".onSectorChange"
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" icon="sap-icon://money-bills" />
+                                <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" icon="sap-icon://shipping-status" />
+                                <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" icon="sap-icon://group" />
+                                <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" icon="sap-icon://shield" />
+                                <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" icon="sap-icon://customer-briefing" />
+                            </Select>
+
+                            <core:Title text="Business Function Alignment" />
+
+                            <Label text="Business Function" />
+                            <Select
+                                id="businessFunctionSelect"
+                                selectedKey="{addAccessModel>/function}"
+                                items="{addAccessModel>/functionsList}"
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="{addAccessModel>key}" text="{addAccessModel>text}" icon="{addAccessModel>icon}" />
+                            </Select>
+                        </form:content>
+                    </form:SimpleForm>
+
+                    <HBox justifyContent="End" class="sapUiSmallMarginTop">
+                        <Button
+                            text="Cancel"
+                            type="Transparent"
+                            press=".onNavBackToPortal"
+                            class="sapUiTinyMarginEnd" />
+                        <Button
+                            text="Next Step"
+                            type="Emphasized"
+                            icon="sap-icon://navigation-right-arrow"
+                            press=".onGoToStep2"
+                            class="fioriEmphasizedBtn" />
+                    </HBox>
+                </VBox>
+
+                <!-- STEP 2 CONTAINER: ADD ACCESS REQUEST (REGION, SYSTEMS, SERVICES, TEAM & PERSONA) -->
+                <VBox
+                    visible="{addAccessModel>/step2Visible}"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Avatar src="sap-icon://system" backgroundColor="Accent2" displaySize="S" class="sapUiTinyMarginEnd" />
+                        <VBox>
+                            <Title text="Add Access Request" level="H4" />
+                            <Text text="Configure region, multiple systems, services, team roles, and persona details." class="fioriDescriptionText" />
+                        </VBox>
+                    </HBox>
+
+                    <form:SimpleForm
+                        editable="true"
+                        layout="ColumnLayout"
+                        columnsM="2"
+                        columnsL="2"
+                        singleContainerFullWidth="false">
+                        <form:content>
+                            <core:Title text="Region and Systems Selection" />
+                            
+                            <Label text="Region" />
+                            <Select
+                                id="regionSelect"
+                                selectedKey="{addAccessModel>/region}"
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="North America (NA)" text="North America (NA)" icon="sap-icon://globe" />
+                                <core:Item key="Europe, Middle East &amp; Africa (EMEA)" text="Europe, Middle East &amp; Africa (EMEA)" icon="sap-icon://globe" />
+                                <core:Item key="Asia-Pacific (APAC)" text="Asia-Pacific (APAC)" icon="sap-icon://globe" />
+                                <core:Item key="Latin America (LATAM)" text="Latin America (LATAM)" icon="sap-icon://globe" />
+                                <core:Item key="Global Enterprise (ALL)" text="Global Enterprise (ALL)" icon="sap-icon://world" />
+                            </Select>
+
+                            <Label text="Systems" />
+                            <MultiComboBox
+                                id="systemsMultiSelect"
+                                selectedKeys="{addAccessModel>/selectedSystems}"
+                                placeholder="Select one or multiple systems..."
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" />
+                                <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" />
+                                <core:Item key="KYRA Central Governance" text="KYRA Central Governance" />
+                                <core:Item key="Active Directory / IAM" text="Active Directory / IAM" />
+                                <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" />
+                                <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" />
+                            </MultiComboBox>
+
+                            <Label text="Services" />
+                            <MultiComboBox
+                                id="servicesMultiSelectStep2"
+                                selectedKeys="{addAccessModel>/selectedServices}"
+                                selectionChange=".onServicesSelectionChange"
+                                placeholder="Select one or multiple services..."
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="System Administrator" text="System Administrator" />
+                                <core:Item key="System Owners" text="System Owners" />
+                                <core:Item key="Stakeholders" text="Stakeholders" />
+                            </MultiComboBox>
+
+                            <Label text="Team" />
+                            <MultiComboBox
+                                id="teamMultiSelectStep2"
+                                selectedKeys="{addAccessModel>/selectedRoles}"
+                                items="{addAccessModel>/subRolesList}"
+                                placeholder="Select one or multiple team roles..."
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="{addAccessModel>key}" text="{addAccessModel>text}" icon="{addAccessModel>icon}" />
+                            </MultiComboBox>
+
+                            <Label text="Persona" />
+                            <MultiComboBox
+                                id="personaMultiSelectStep2"
+                                selectedKeys="{addAccessModel>/selectedPersonas}"
+                                placeholder="Select one or multiple personas..."
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="Engineering &amp; Developer Persona" text="Engineering &amp; Developer Persona" />
+                                <core:Item key="System Administrator Persona" text="System Administrator Persona" />
+                                <core:Item key="Product Owner &amp; Lead Persona" text="Product Owner &amp; Lead Persona" />
+                                <core:Item key="Security &amp; Compliance Auditor Persona" text="Security &amp; Compliance Auditor Persona" />
+                                <core:Item key="Enterprise Business User Persona" text="Enterprise Business User Persona" />
+                            </MultiComboBox>
+
+                            <core:Title text="Duration and Justification" />
+
+                            <Label text="Access Duration" />
+                            <Select
+                                id="durationSelectStep2"
+                                selectedKey="{addAccessModel>/duration}"
+                                width="100%"
+                                class="fioriFormSelect">
+                                <core:Item key="Permanent (Default)" text="Permanent (Default)" />
+                                <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" />
+                                <core:Item key="90 Days (Project)" text="90 Days (Project)" />
+                            </Select>
+
+                            <Label text="Business Justification" />
+                            <TextArea
+                                value="{addAccessModel>/justification}"
+                                placeholder="Provide detailed justification for granting these system roles..."
+                                rows="3"
+                                width="100%" />
+                        </form:content>
+                    </form:SimpleForm>
+
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+                        <Button
+                            text="Back to Step 1"
+                            icon="sap-icon://navigation-left-arrow"
+                            type="Default"
+                            press=".onBackToStep1" />
+                        <HBox>
+                            <Button
+                                text="Cancel"
+                                type="Transparent"
+                                press=".onNavBackToPortal"
+                                class="sapUiTinyMarginEnd" />
+                            <Button
+                                text="Next"
+                                type="Emphasized"
+                                icon="sap-icon://navigation-right-arrow"
+                                press=".onGoToStep3Summary"
+                                class="fioriEmphasizedBtn" />
+                        </HBox>
+                    </HBox>
+                </VBox>
+
+                <!-- STEP 3 CONTAINER: ACCESS REQUEST SUMMARY & REVIEW PAGE -->
+                <VBox
+                    visible="{addAccessModel>/step3Visible}"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
+                        <Avatar src="sap-icon://summary-detail" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
+                        <VBox>
+                            <Title text="Access Request Summary and Review" level="H4" />
+                            <Text text="Review all configured business governance details clearly before submitting." class="fioriDescriptionText" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Summary Separated Detail Cards -->
+                    <VBox class="sapUiSmallMarginBottom">
+                        <!-- Card 1: Business Sector & Function -->
+                        <VBox class="fioriTableCard sapUiSmallMarginBottom sapUiResponsivePadding" style="border-left: 4px solid #0066E8;">
+                            <Title text="1. Business Sector &amp; Function Alignment" level="H5" class="sapUiTinyMarginBottom" />
+                            <HBox wrap="Wrap">
+                                <VBox width="50%" class="sapUiTinyMarginBottom">
+                                    <Label text="Business Sector" class="fioriFormLabel" />
+                                    <Text text="{addAccessModel>/sector}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                </VBox>
+                                <VBox width="50%" class="sapUiTinyMarginBottom">
+                                    <Label text="Business Function" class="fioriFormLabel" />
+                                    <Text text="{addAccessModel>/function}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Card 2: Region & Systems -->
+                        <VBox class="fioriTableCard sapUiSmallMarginBottom sapUiResponsivePadding" style="border-left: 4px solid #10B981;">
+                            <Title text="2. Region &amp; Target Systems" level="H5" class="sapUiTinyMarginBottom" />
+                            <HBox wrap="Wrap">
+                                <VBox width="50%" class="sapUiTinyMarginBottom">
+                                    <Label text="Operating Region" class="fioriFormLabel" />
+                                    <Text text="{addAccessModel>/region}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                </VBox>
+                                <VBox width="50%" class="sapUiTinyMarginBottom">
+                                    <Label text="Target Systems (Multi-Selected)" class="fioriFormLabel" />
+                                    <Text text="{addAccessModel>/summarySystemsText}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Card 3: Services, Team Roles & Personas -->
+                        <VBox class="fioriTableCard sapUiSmallMarginBottom sapUiResponsivePadding" style="border-left: 4px solid #8B5CF6;">
+                            <Title text="3. Services, Team Roles &amp; Personas" level="H5" class="sapUiTinyMarginBottom" />
+                            <VBox class="sapUiTinyMarginBottom">
+                                <Label text="Selected Services" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/summaryServicesText}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox class="sapUiTinyMarginBottom">
+                                <Label text="Team Roles Selected (Multi-Selected)" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/summaryRolesText}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox class="sapUiTinyMarginBottom">
+                                <Label text="Selected Personas (Multi-Selected)" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/summaryPersonasText}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                        </VBox>
+
+                        <!-- Card 4: Duration & Justification -->
+                        <VBox class="fioriTableCard sapUiResponsivePadding" style="border-left: 4px solid #F59E0B;">
+                            <Title text="4. Access Duration &amp; Business Justification" level="H5" class="sapUiTinyMarginBottom" />
+                            <HBox wrap="Wrap">
+                                <VBox width="30%" class="sapUiTinyMarginBottom">
+                                    <Label text="Access Duration" class="fioriFormLabel" />
+                                    <Text text="{addAccessModel>/duration}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                </VBox>
+                                <VBox width="70%" class="sapUiTinyMarginBottom">
+                                    <Label text="Business Justification" class="fioriFormLabel" />
+                                    <Text text="{addAccessModel>/justification}" class="sapUiTinyMarginTop" style="font-style: italic;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- Summary Down Side Action Buttons -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+                        <Button
+                            text="Back to Configuration"
+                            icon="sap-icon://navigation-left-arrow"
+                            type="Default"
+                            press=".onBackToStep2" />
+                        <HBox>
+                            <Button
+                                text="Cancel Request"
+                                type="Transparent"
+                                press=".onNavBackToPortal"
+                                class="sapUiTinyMarginEnd" />
+                            <Button
+                                text="Submit Access Request"
+                                type="Emphasized"
+                                icon="sap-icon://paper-plane"
+                                press=".onFinalSubmitRequest"
+                                class="fioriEmphasizedBtn" />
+                        </HBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
