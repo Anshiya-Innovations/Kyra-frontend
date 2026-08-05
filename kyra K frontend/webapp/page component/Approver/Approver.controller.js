@@ -19,11 +19,11 @@ sap.ui.define([
     return Controller.extend("kyra001.pages.Approver.Approver", {
 
         onOpenAddAccessDialog() {
-            this.getOwnerComponent().getRouter().navTo("AddAccess");
+            this.getOwnerComponent().getRouter().navTo("AddAccessBusinessSector");
         },
 
         onOpenRemoveAccessDialog() {
-            MessageToast.show("Select an active entitlement above to request removal.");
+            MessageToast.show("Select an active entitlement below to request removal.");
         },
 
         onToggleApprovalHistory() {
@@ -43,21 +43,9 @@ sap.ui.define([
         onOpenRequestSummaryDialog(oEvent) {
             const oItem = oEvent.getSource();
             const oData = oItem.getBindingContext("accessModel").getObject();
-            const sPath = oItem.getBindingContext("accessModel").getPath();
-            const oModel = this.getView().getModel("accessModel");
-
-            if (oModel) {
-                oModel.setProperty("/selectedRequest", oData);
-                oModel.setProperty("/selectedPath", sPath);
-                oModel.setProperty("/showRequestDetailView", true);
-            }
-        },
-
-        onCloseRequestSummaryView() {
-            const oModel = this.getView().getModel("accessModel");
-            if (oModel) {
-                oModel.setProperty("/showRequestDetailView", false);
-            }
+            this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
+                requestId: oData.requestId
+            });
         },
 
         onAcceptEntitlement(oEvent) {
@@ -116,10 +104,11 @@ sap.ui.define([
                 headerText: "Approved System Entitlements (" + aFinalApproved.length + ")",
                 items: aFinalApproved.map(e => new StandardListItem({
                     title: e.system,
-                    description: e.roleName + " (" + e.team + ")",
+                    description: e.roleName + " (" + e.team + ") - Persona: " + (e.selectedPersona || oData.selectedPersona || "Engineering & Developer Persona"),
                     info: "Approved",
                     infoState: "Success",
-                    icon: "sap-icon://sys-enter-2"
+                    icon: "sap-icon://sys-enter-2",
+                    wrapping: true
                 }))
             });
 
@@ -128,10 +117,11 @@ sap.ui.define([
                 noDataText: "No entitlements were rejected.",
                 items: aRejectedItems.map(e => new StandardListItem({
                     title: e.system,
-                    description: e.roleName + " (" + e.team + ")",
+                    description: e.roleName + " (" + e.team + ") - Persona: " + (e.selectedPersona || oData.selectedPersona || "Engineering & Developer Persona"),
                     info: "Rejected",
                     infoState: "Error",
-                    icon: "sap-icon://error"
+                    icon: "sap-icon://error",
+                    wrapping: true
                 }))
             });
 
@@ -142,14 +132,6 @@ sap.ui.define([
 
             if (bReadOnly) {
                 aButtons = [
-                    new Button({
-                        text: "Back",
-                        type: "Default",
-                        icon: "sap-icon://navigation-left-arrow",
-                        press: () => {
-                            oDialog.close();
-                        }
-                    }),
                     new Button({
                         text: "Okay",
                         type: "Emphasized",
@@ -232,7 +214,7 @@ sap.ui.define([
             oDialog.open();
         },
 
-        _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
+        async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) {
                 return;
@@ -302,8 +284,146 @@ sap.ui.define([
             oModel.setProperty("/notifications", aNotifs);
             oModel.setProperty("/notificationCount", aNotifs.length);
 
+            // Persist the decision to the database
+            const aDecisionsPayload = (oData.entitlements || []).map(e => ({
+                targetSystem: e.system,
+                roleName: e.roleName,
+                selectedPersona: oData.persona,
+                status: e.status === "Rejected" ? "REJECTED" : "APPROVED"
+            }));
+
+            try {
+                const response = await fetch("/odata/v4/auth/submitAccessDecision", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        requestNumber: oData.requestId,
+                        decisions: aDecisionsPayload
+                    })
+                });
+                const data = await response.json();
+                console.log("Successfully persisted approval decision to database:", data);
+            } catch (err) {
+                console.error("Database persistence approval decision error:", err);
+            }
+
+            // Sync with backend database states
+            await this._reloadAllRequests(oModel);
+
             MessageToast.show("Decision submitted for User Id " + oData.requestId);
             oModel.setProperty("/showRequestDetailView", false);
+        },
+
+        async _reloadAllRequests(oModel) {
+            if (!oModel) return;
+
+            let aDbRequests = [];
+            try {
+                const response = await fetch("/odata/v4/auth/Requests");
+                const data = await response.json();
+                if (data && data.value) {
+                    aDbRequests = data.value.map(r => {
+                        const isPending = (r.status || "").toLowerCase().includes("pending");
+                        return {
+                            requestId: r.request_number,
+                            requesterId: r.requester_username,
+                            requesterUsername: r.requester_username,
+                            type: "Addition",
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            serviceTopic: r.service_topic,
+                            selectedPersona: r.selected_persona,
+                            accessDuration: r.access_duration,
+                            submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                            createdAtRaw: r.created_at || new Date().toISOString(),
+                            approver: "Line Manager / ISRM Team",
+                            status: r.status || "Pending Approval",
+                            statusState: isPending ? "Warning" : "Success",
+                            statusIcon: isPending ? "sap-icon://pending" : "sap-icon://sys-enter-2"
+                        };
+                    });
+                    
+                    const oGrouped = {};
+                    data.value.forEach(r => {
+                        const sReqId = r.request_number;
+                        const sStatus = r.status || "PENDING";
+                        const isPending = sStatus.toUpperCase().includes("PENDING");
+                        
+                        if (!oGrouped[sReqId]) {
+                            oGrouped[sReqId] = {
+                                requestId: sReqId,
+                                requesterId: r.requester_username || "User003",
+                                requesterUsername: r.requester_username || "User003",
+                                persona: r.selected_persona || "Engineering & Developer Persona",
+                                selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                                system: r.target_system || "SAP BTP Cloud Platform",
+                                serviceAndRole: (r.role_name || "IT Developers") + " (" + (r.service_topic || "System Administrator") + ")",
+                                submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                                createdAtRaw: r.created_at || new Date().toISOString(),
+                                duration: r.access_duration || "Permanent",
+                                sector: r.business_sector || "Information Technology & Security",
+                                function: r.business_function || "Identity & Access Governance",
+                                region: r.operating_region || "Global Enterprise (ALL)",
+                                justification: r.justification || "Business Access Request",
+                                status: isPending ? "Pending Approval" : (sStatus === "APPROVED" ? "Approved" : (sStatus === "REJECTED" ? "Rejected" : sStatus)),
+                                statusState: isPending ? "Warning" : (sStatus === "APPROVED" ? "Success" : "Error"),
+                                statusIcon: isPending ? "sap-icon://pending" : (sStatus === "APPROVED" ? "sap-icon://sys-enter-2" : (sStatus === "REJECTED" ? "sap-icon://error" : "sap-icon://error")),
+                                entitlements: []
+                            };
+                        }
+                        
+                        oGrouped[sReqId].entitlements.push({
+                            requestId: r.request_number,
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: r.service_topic,
+                            selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                            grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                            expiryDate: r.access_duration,
+                            status: isPending ? "Pending" : (sStatus === "APPROVED" ? "Approved" : (sStatus === "REJECTED" ? "Rejected" : sStatus)),
+                            statusState: isPending ? "Warning" : (sStatus === "APPROVED" ? "Success" : "Error"),
+                            statusIcon: isPending ? "sap-icon://pending" : (sStatus === "APPROVED" ? "sap-icon://sys-enter-2" : "sap-icon://error")
+                        });
+                    });
+                    
+                    const aAllGrouped = Object.values(oGrouped);
+                    // Sort request groups ascending so the latest request is at the bottom
+                    aAllGrouped.sort((a, b) => a.requestId.localeCompare(b.requestId));
+
+                    oModel.setProperty("/pendingRequests", aAllGrouped.filter(r => r.status.toLowerCase().includes("pending")));
+                    oModel.setProperty("/processedRequests", aAllGrouped.filter(r => !r.status.toLowerCase().includes("pending")));
+                }
+            } catch (err) {
+                console.error("Error reloading requests:", err);
+            }
+
+            const aSubmitted = JSON.parse(sessionStorage.getItem("kyra_submitted_requests") || "[]");
+            let aCombined = [];
+
+            aDbRequests.forEach(dbReq => {
+                if (!aCombined.some(item => item.requestId === dbReq.requestId)) {
+                    aCombined.push(dbReq);
+                }
+            });
+
+            aSubmitted.forEach(sessReq => {
+                const idx = aCombined.findIndex(item => item.requestId === sessReq.requestId);
+                if (idx !== -1) {
+                    aCombined[idx] = Object.assign({}, sessReq, aCombined[idx]);
+                } else {
+                    aCombined.push(sessReq);
+                }
+            });
+
+            // Sort request history ascending so the latest request is at the bottom
+            aCombined.sort((a, b) => {
+                const dateA = a.createdAtRaw ? new Date(a.createdAtRaw) : new Date(a.submissionDate || 0);
+                const dateB = b.createdAtRaw ? new Date(b.createdAtRaw) : new Date(b.submissionDate || 0);
+                return dateA - dateB;
+            });
+
+            oModel.setProperty("/requestHistory", aCombined);
         },
 
         onOpenDecisionBreakdownDialog(oEvent) {
