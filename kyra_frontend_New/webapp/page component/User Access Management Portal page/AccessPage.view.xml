@@ -1,0 +1,1173 @@
+<mvc:View
+    controllerName="kyra001.pages.access.AccessPage"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:l="sap.ui.layout"
+    xmlns:core="sap.ui.core"
+    xmlns:form="sap.ui.layout.form"
+    displayBlock="true">
+
+    <Page id="accessPortalPage" showHeader="false" enableScrolling="true" class="fioriDashboardBg">
+        <content>
+            <!-- Enterprise Access ShellBar Header -->
+            <f:ShellBar
+                title="KYRA Enterprise"
+                secondTitle="User Access Management Portal"
+                homeIcon="sap-icon://shield"
+                showCopilot="false"
+                showSearch="true"
+                showNotifications="true"
+                notificationsNumber="{accessModel>/notificationsCount}"
+                notificationsPress=".onOpenNotificationsPopover">
+                <f:profile>
+                    <Avatar initials="ADM" backgroundColor="Accent1" />
+                </f:profile>
+                <f:additionalContent>
+                    <Button
+                        icon="sap-icon://log-out"
+                        text="Sign Out"
+                        type="Transparent"
+                        press=".onLogout"
+                        tooltip="Sign Out" />
+                </f:additionalContent>
+            </f:ShellBar>
+
+            <!-- Main Content Area Centered with Bottom Scroll Protection -->
+            <VBox class="fioriMainContentBox fioriBottomPaddingBox">
+                <!-- Enterprise Blue Top Header Banner -->
+                <VBox class="fioriWelcomeCard sapUiSmallMarginBottom sapUiResponsivePadding">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center">
+                        <HBox alignItems="Center">
+                            <!-- Shield Avatar Icon Box -->
+                            <Avatar src="sap-icon://shield" backgroundColor="Accent6" displaySize="M" class="sapUiMediumMarginEnd" />
+                            <VBox>
+                                <Title text="Enterprise Identity &amp; Access Governance" level="H2" class="fioriWelcomeTitle" />
+                                <Text text="Role: {accessModel>/activeRole}" class="fioriWelcomeSubtitle" />
+                            </VBox>
+                        </HBox>
+                        <HBox alignItems="Center">
+                            <HBox alignItems="Center" class="sapUiMediumMarginEnd">
+                                <core:HTML content="&lt;span class='pulseDotGreen'&gt;&lt;/span&gt;" />
+                                <ObjectStatus
+                                    text="100% Active &amp; Compliant"
+                                    state="Success"
+                                    class="sapUiTinyMarginBegin" />
+                            </HBox>
+                            <Text text="|" class="sapUiMediumMarginEnd fioriDividerText" />
+                            <Button
+                                icon="sap-icon://refresh"
+                                text="Refresh"
+                                type="Transparent"
+                                press=".onRefreshAccess"
+                                class="fioriHeaderRefreshBtn"
+                                tooltip="Refresh Access Data" />
+                        </HBox>
+                    </HBox>
+                </VBox>
+
+                <!-- STYLISH PILL DIRECTORY TABS: MY ACCESS & MY REQUESTS -->
+                <IconTabBar id="accessIconTabBar" visible="{= !${accessModel>/showMyAccessMasterSection} }" selectedKey="{accessModel>/selectedTabKey}" select=".onTabSelect" headerMode="Inline" class="fioriPillTabBar sapUiNoContentPadding sapUiSmallMarginBottom">
+                    <items>
+                        <!-- TAB 1: MY ACCESS -->
+                        <IconTabFilter text="My Access" icon="sap-icon://user-settings" key="myAccess">
+                            <VBox class="fioriTableCard sapUiResponsivePadding">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center">
+                                        <Title text="{= 'Active Entitlements (' + (${accessModel>/activeRoles} ? ${accessModel>/activeRoles}.length : 4) + ')' }" level="H4" class="fioriCardHeaderTitle sapUiSmallMarginEnd" />
+                                        <Link text="View" press=".onNavToMyAccessMasterPage" class="fioriViewAllHeaderLink" tooltip="Open complete master view of all entitlements and audit logs" />
+                                    </HBox>
+                                    <HBox alignItems="Center">
+                                        <SearchField
+                                            placeholder="Search entitlements"
+                                            width="260px"
+                                            liveChange=".onSearchMyAccess" />
+                                    </HBox>
+                                </HBox>
+
+                                <Table
+                                    id="myAccessTable"
+                                    items="{accessModel>/activeRoles}"
+                                    noDataText="No active permissions found."
+                                    class="sapUiNoMargin">
+                                    <columns>
+                                        <Column width="15%"><Text text="System Name" /></Column>
+                                        <Column width="18%"><Text text="Role Title" /></Column>
+                                        <Column width="15%"><Text text="Category" /></Column>
+                                        <Column width="14%"><Text text="Persona" /></Column>
+                                        <Column width="11%"><Text text="Granted Date" /></Column>
+                                        <Column width="10%"><Text text="Expiry Date" /></Column>
+                                        <Column width="10%"><Text text="Status" /></Column>
+                                        <Column width="7%" hAlign="Center"><Text text="Action" /></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem vAlign="Middle">
+                                            <cells>
+                                                <Text text="{accessModel>system}" class="fioriCellBold" />
+                                                <Text text="{accessModel>roleName}" />
+                                                <Text text="{= ${accessModel>category} || 'System Administrator' }" />
+                                                <Text text="{accessModel>persona}" />
+                                                <Text text="{accessModel>grantedDate}" />
+                                                <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
+                                                <ObjectStatus
+                                                    text="{accessModel>status}"
+                                                    state="{accessModel>statusState}"
+                                                    icon="{accessModel>statusIcon}" />
+                                                <Button
+                                                    icon="sap-icon://overflow"
+                                                    type="Transparent"
+                                                    press=".onViewAccessDetails"
+                                                    tooltip="View entitlement &amp; audit summary"
+                                                    class="fioriThreeDotBtn" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </VBox>
+                        </IconTabFilter>
+
+                        <!-- TAB 2: MY HISTORY -->
+                        <IconTabFilter text="{= 'My History (' + (${accessModel>/requestHistory} ? ${accessModel>/requestHistory}.length : 0) + ')' }" icon="sap-icon://history" key="myRequests">
+                            <VBox class="fioriTableCard sapUiResponsivePadding">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                                    <Title text="My History Audit Log" level="H4" class="fioriCardHeaderTitle" />
+                                    <HBox alignItems="Center">
+                                        <SearchField
+                                            placeholder="Search request ID or role..."
+                                            width="220px"
+                                            liveChange=".onSearchRequests"
+                                            class="sapUiTinyMarginEnd" />
+                                        
+                                        <!-- FILTER BOX -->
+                                        <Button
+                                            icon="sap-icon://filter"
+                                            text="Filter"
+                                            type="Emphasized"
+                                            press=".onFilterHistoryDialog"
+                                            tooltip="Filter History by Status &amp; Duration"
+                                            class="sapUiTinyMarginEnd" />
+
+                                        <Button
+                                            icon="sap-icon://excel-attachment"
+                                            press=".onExportRequests"
+                                            tooltip="Export Audit Log" />
+                                    </HBox>
+                                </HBox>
+
+                                <!-- SINGLE CLEAN ALL-IN-ONE MY REQUESTS TABLE WITH PERSONA COLUMN -->
+                                <Table
+                                    id="myRequestsUnifiedTable"
+                                    items="{
+                                        path: 'accessModel>/requestHistory',
+                                        filters: [
+                                            { path: 'status', operator: 'NE', value1: 'Pending Approval' },
+                                            { path: 'status', operator: 'NE', value1: 'Pending' },
+                                            { path: 'status', operator: 'NE', value1: 'PENDING' }
+                                        ]
+                                    }"
+                                    noDataText="No finalized access requests in history."
+                                    class="sapUiNoMargin">
+                                    <columns>
+                                        <Column width="14%"><Text text="Request ID" /></Column>
+                                        <Column width="10%"><Text text="Type" /></Column>
+                                        <Column width="12%"><Text text="Persona" /></Column>
+                                        <Column width="16%"><Text text="Systems" /></Column>
+                                        <Column width="14%"><Text text="Services" /></Column>
+                                        <Column width="14%"><Text text="Team / Role" /></Column>
+                                        <Column width="10%"><Text text="Duration" /></Column>
+                                        <Column width="10%"><Text text="Submitted" /></Column>
+                                        <Column width="10%"><Text text="Status" /></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem vAlign="Middle">
+                                            <cells>
+                                                <ObjectIdentifier title="{accessModel>requestId}" />
+                                                <ObjectStatus
+                                                    text="{accessModel>type}"
+                                                    state="{= ${accessModel>type} === 'Revocation' ? 'Error' : 'None' }" />
+                                                <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Frontend &amp; UI Developer Persona' }" />
+                                                <Text text="{accessModel>system}" />
+                                                <Text text="{accessModel>serviceTopic}" />
+                                                <Text text="{accessModel>roleName}" />
+                                                <Text text="{accessModel>accessDuration}" />
+                                                <Text text="{accessModel>submissionDate}" />
+                                                <ObjectStatus
+                                                    text="{accessModel>status}"
+                                                    state="{accessModel>statusState}"
+                                                    icon="{accessModel>statusIcon}" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </VBox>
+                        </IconTabFilter>
+                    </items>
+                </IconTabBar>
+
+                <!-- DEDICATED SEPARATE PAGE VIEW: MY ACCESS MASTER DETAILS & AUDIT GOVERNANCE -->
+                <VBox id="myAccessMasterSectionContainer" visible="{= ${accessModel>/showMyAccessMasterSection} }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://user-edit" backgroundColor="Accent6" displaySize="S" class="sapUiSmallMarginEnd" />
+                            <VBox>
+                                <Title text="My Access - Complete Master Entitlements &amp; Audit Governance" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="Comprehensive audit log &amp; active permission matrix for all enterprise roles" class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <HBox alignItems="Center">
+                            <Button icon="sap-icon://excel-attachment" text="Export Audit Log" type="Transparent" press=".onExportAccess" class="sapUiTinyMarginEnd fioriExportLinkBtn" />
+                            <Button icon="sap-icon://decline" text="Close View" type="Transparent" press=".onCloseMyAccessMasterSection" class="fioriCloseLinkBtn" />
+                        </HBox>
+                    </HBox>
+
+                    <Table
+                        id="myAccessMasterSectionTable"
+                        items="{accessModel>/userAccessList}"
+                        noDataText="No active entitlements found."
+                        class="sapUiNoMargin">
+                        <columns>
+                            <Column width="16%"><Text text="SYSTEM" class="fioriConflictTableHeader" /></Column>
+                            <Column width="18%"><Text text="ROLE TITLE" class="fioriConflictTableHeader" /></Column>
+                            <Column width="15%"><Text text="CATEGORY" class="fioriConflictTableHeader" /></Column>
+                            <Column width="21%"><Text text="PERSONA" class="fioriConflictTableHeader" /></Column>
+                            <Column width="10%"><Text text="GRANTED DATE" class="fioriConflictTableHeader" /></Column>
+                            <Column width="10%"><Text text="EXPIRY DATE" class="fioriConflictTableHeader" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="ACTION" class="fioriConflictTableHeader" /></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem vAlign="Middle">
+                                <cells>
+                                    <Text text="{accessModel>system}" class="fioriCellBold" />
+                                    <Text text="{accessModel>roleName}" class="fioriCellBold" />
+                                    <Text text="{= ${accessModel>category} || 'System Administrator' }" />
+                                    <Text text="{accessModel>persona}" />
+                                    <Text text="{accessModel>grantedDate}" />
+                                    <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
+                                    <Button
+                                        text="View Details"
+                                        icon="sap-icon://hint"
+                                        type="Default"
+                                        press=".onViewAccessDetails"
+                                        tooltip="View entitlement summary"
+                                        class="fioriViewDetailsBtn" />
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+
+                <!-- 4 FEATURE ACTION CARDS GRID - ALWAYS VISIBLE OUTSIDE TABS IN 1 SINGLE ROW -->
+                <HBox width="100%" class="fioriSingleRowCardsGrid">
+                    <!-- CARD 1: PENDING ACCESS REQUESTS -->
+                    <VBox id="cardPendingRequests" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
+                        <HBox alignItems="Start" class="fioriCardHeaderRow">
+                            <Avatar src="sap-icon://history" backgroundColor="Accent3" displaySize="M" class="fioriCardAvatar fioriAmberAvatar" />
+                            <VBox class="fioriCardTitleBox">
+                                <Title text="Pending Access Requests" level="H5" class="fioriActionCardTitle" />
+                                <Text text="Awaiting approval" class="fioriActionCardSub" />
+                            </VBox>
+                        </HBox>
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
+                            <Link text="{= ${accessModel>/myPendingRequests} &amp;&amp; ${accessModel>/myPendingRequests}.length &gt; 0 ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : ${accessModel>/myPendingRequests}.length) : '03' }" press=".onNavToPendingRequests" class="fioriPendingNumber" />
+                            <Button icon="sap-icon://chevron-right" type="Transparent" press=".onNavToPendingRequests" class="fioriChevronBtn" tooltip="View Pending Requests" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- CARD 2: APPROVED ACCESS REQUESTS -->
+                    <VBox id="cardApprovedRequests" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
+                        <HBox alignItems="Start" class="fioriCardHeaderRow">
+                            <Avatar src="sap-icon://sys-enter-2" backgroundColor="Accent8" displaySize="M" class="fioriCardAvatar fioriGreenAvatar" />
+                            <VBox class="fioriCardTitleBox">
+                                <Title text="Approved Access Requests" level="H5" class="fioriActionCardTitle" />
+                                <Text text="Successfully approved" class="fioriActionCardSub" />
+                            </VBox>
+                        </HBox>
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
+                            <Link text="{= ${accessModel>/myApprovedRequests} &amp;&amp; ${accessModel>/myApprovedRequests}.length &gt; 0 ? ${accessModel>/myApprovedRequests}.length : '12' }" press=".onNavToApprovedRequests" class="fioriApprovedNumber" />
+                            <Button icon="sap-icon://chevron-right" type="Transparent" press=".onNavToApprovedRequests" class="fioriChevronBtn" tooltip="View Approved Requests" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- CARD 3: ADD ACCESS -->
+                    <VBox id="cardAddAccess" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
+                        <HBox alignItems="Start" class="fioriCardHeaderRow">
+                            <Avatar src="sap-icon://add" backgroundColor="Accent1" displaySize="M" class="fioriCardAvatar fioriBlueAvatar" />
+                            <VBox class="fioriCardTitleBox">
+                                <Title text="Add Access" level="H5" class="fioriActionCardTitle" />
+                                <Text text="Request new access" class="fioriActionCardSub" />
+                            </VBox>
+                        </HBox>
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
+                            <Link text="Create Request" press=".onNavToAddAccess" class="fioriActionLink" />
+                            <Button icon="sap-icon://chevron-right" type="Transparent" press=".onNavToAddAccess" class="fioriChevronBtn" tooltip="Create Request" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- CARD 4: REMOVE ACCESS -->
+                    <VBox id="cardRemoveAccess" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
+                        <HBox alignItems="Start" class="fioriCardHeaderRow">
+                            <Avatar src="sap-icon://delete" backgroundColor="Accent2" displaySize="M" class="fioriCardAvatar fioriPurpleAvatar" />
+                            <VBox class="fioriCardTitleBox">
+                                <Title text="Remove Access" level="H5" class="fioriActionCardTitle" />
+                                <Text text="Remove existing access" class="fioriActionCardSub" />
+                            </VBox>
+                        </HBox>
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
+                            <Link text="Remove Access" press=".onNavToRemoveAccess" class="fioriActionLink" />
+                            <Button icon="sap-icon://chevron-right" type="Transparent" press=".onNavToRemoveAccess" class="fioriChevronBtn" tooltip="Remove Access" />
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- IN-PAGE PENDING ACCESS REQUESTS TABLE (Toggled by Card 1 Click) -->
+                <VBox id="pendingSectionContainer"
+                    visible="{accessModel>/showPendingSection}"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://history" backgroundColor="Accent3" displaySize="S" class="sapUiTinyMarginEnd fioriCardAvatar fioriAmberAvatar" />
+                            <VBox>
+                                <Title text="{= 'Pending Access Requests (' + ${accessModel>/myPendingRequests}.length + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="Requests currently awaiting manager or security approval." class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button icon="sap-icon://decline" type="Transparent" press=".onClosePendingSection" tooltip="Close Section" />
+                    </HBox>
+
+                    <Table
+                        id="pendingRequestsInPageTable"
+                        items="{accessModel>/myPendingRequests}"
+                        noDataText="No pending access requests at this time."
+                        class="sapUiNoMargin">
+                        <columns>
+                            <Column width="14%"><Text text="Request ID" /></Column>
+                            <Column width="10%"><Text text="Type" /></Column>
+                            <Column width="12%"><Text text="Persona" /></Column>
+                            <Column width="16%"><Text text="System" /></Column>
+                            <Column width="14%"><Text text="Service / Topic" /></Column>
+                            <Column width="14%"><Text text="Business Role" /></Column>
+                            <Column width="10%"><Text text="Duration" /></Column>
+                            <Column width="10%"><Text text="Status" /></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem vAlign="Middle">
+                                <cells>
+                                    <ObjectIdentifier title="{accessModel>requestId}" />
+                                    <ObjectStatus
+                                        text="{accessModel>type}"
+                                        state="{= ${accessModel>type} === 'Revocation' ? 'Error' : 'None' }" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Frontend &amp; UI Developer Persona' }" />
+                                    <Text text="{accessModel>system}" />
+                                    <Text text="{accessModel>serviceTopic}" />
+                                    <Text text="{accessModel>roleName}" />
+                                    <Text text="{accessModel>accessDuration}" />
+                                    <ObjectStatus
+                                        text="Pending Approval"
+                                        state="Warning"
+                                        icon="sap-icon://pending" />
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+
+                <!-- IN-PAGE APPROVED ACCESS REQUESTS TABLE (Toggled by Card 2 Click) -->
+                <VBox id="approvedSectionContainer"
+                    visible="{accessModel>/showApprovedSection}"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://sys-enter-2" backgroundColor="Accent8" displaySize="S" class="sapUiTinyMarginEnd fioriCardAvatar fioriGreenAvatar" />
+                            <VBox>
+                                <Title text="{= 'Approved Access Requests (' + ${accessModel>/myApprovedRequests}.length + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="Successfully granted and active access permissions." class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseApprovedSection" tooltip="Close Section" />
+                    </HBox>
+
+                    <Table
+                        id="approvedRequestsInPageTable"
+                        items="{accessModel>/myApprovedRequests}"
+                        noDataText="No approved access requests found."
+                        class="sapUiNoMargin">
+                        <columns>
+                            <Column width="14%"><Text text="Request ID" /></Column>
+                            <Column width="10%"><Text text="Type" /></Column>
+                            <Column width="12%"><Text text="Persona" /></Column>
+                            <Column width="16%"><Text text="System" /></Column>
+                            <Column width="14%"><Text text="Service / Topic" /></Column>
+                            <Column width="14%"><Text text="Business Role" /></Column>
+                            <Column width="10%"><Text text="Duration" /></Column>
+                            <Column width="10%"><Text text="Status" /></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem vAlign="Middle">
+                                <cells>
+                                    <ObjectIdentifier title="{accessModel>requestId}" />
+                                    <ObjectStatus
+                                        text="{accessModel>type}"
+                                        state="{= ${accessModel>type} === 'Revocation' ? 'Error' : 'None' }" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Frontend &amp; UI Developer Persona' }" />
+                                    <Text text="{accessModel>system}" />
+                                    <Text text="{accessModel>serviceTopic}" />
+                                    <Text text="{accessModel>roleName}" />
+                                    <Text text="{accessModel>accessDuration}" />
+                                    <ObjectStatus
+                                        text="Approved"
+                                        state="Success"
+                                        icon="sap-icon://sys-enter-2" />
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+
+
+
+                <!-- DYNAMIC FLOATING 3-STEP ADD ACCESS WIZARD OVERLAY -->
+                <VBox id="addAccessSectionContainer"
+                    visible="{accessModel>/showAddAccessSector}"
+                    class="fioriFloatingWizardCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                    
+                    <!-- Floating Header with Dynamic Title & 4-Step Progress Indicator -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriFloatingHeader">
+                        <HBox alignItems="Center">
+                            <Avatar src="{= ${accessModel>/addAccessStep} === 5 ? 'sap-icon://summary-detail' : (${accessModel>/addAccessStep} === 4 ? 'sap-icon://alert' : (${accessModel>/addAccessStep} === 3 ? 'sap-icon://user-settings' : (${accessModel>/addAccessStep} === 2 ? 'sap-icon://globe' : 'sap-icon://building'))) }"
+                                backgroundColor="{= ${accessModel>/addAccessStep} === 5 ? 'Accent6' : (${accessModel>/addAccessStep} === 4 ? 'Accent7' : (${accessModel>/addAccessStep} === 3 ? 'Accent3' : (${accessModel>/addAccessStep} === 2 ? 'Accent2' : 'Accent1'))) }"
+                                displaySize="S"
+                                class="sapUiTinyMarginEnd fioriCardAvatar" />
+                            <VBox>
+                                <Title text="{= ${accessModel>/addAccessStep} === 5 ? 'Step 5: Summary' : (${accessModel>/addAccessStep} === 4 ? 'Step 4: Conflict Analysis' : (${accessModel>/addAccessStep} === 3 ? 'Step 3: Config' : (${accessModel>/addAccessStep} === 2 ? 'Step 2: Region' : 'Step 1: Scope'))) }" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="{= ${accessModel>/addAccessStep} === 5 ? 'Review configured target entitlements and submit request.' : (${accessModel>/addAccessStep} === 4 ? 'Review Segregation of Duties (SoD) conflicts and governance threshold limits.' : (${accessModel>/addAccessStep} === 3 ? 'Configure target systems, services, team roles, personas, duration, and justification.' : (${accessModel>/addAccessStep} === 2 ? 'Select target operating region.' : 'Select enterprise sector and operational function.'))) }" class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button
+                            icon="sap-icon://decline"
+                            type="Transparent"
+                            press=".onCloseAddAccessSector"
+                            tooltip="Close Add Access Section" />
+                    </HBox>
+
+                    <!-- ANIMATED 5-STEP PROGRESS TRACKER BAR -->
+                    <HBox justifyContent="Center" alignItems="Center" class="sapUiSmallMarginBottom fioriWizardProgressTrack">
+                        <!-- Step 1 Pill -->
+                        <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} ? 'fioriStepPill fioriStepPillActive' : 'fioriStepPill fioriStepPillDone' }">
+                            <Avatar src="{= ${accessModel>/addAccessStep} > 1 ? 'sap-icon://sys-enter-2' : 'sap-icon://building' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                            <Text text="1. Scope" class="fioriStepPillText" />
+                        </HBox>
+                        
+                        <HBox class="{= ${accessModel>/addAccessStep} > 1 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
+                        
+                        <!-- Step 2 Pill -->
+                        <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 2 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 2 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
+                            <Avatar src="{= ${accessModel>/addAccessStep} > 2 ? 'sap-icon://sys-enter-2' : 'sap-icon://globe' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                            <Text text="2. Region" class="fioriStepPillText" />
+                        </HBox>
+
+                        <HBox class="{= ${accessModel>/addAccessStep} > 2 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
+
+                        <!-- Step 3 Pill -->
+                        <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 3 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 3 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
+                            <Avatar src="{= ${accessModel>/addAccessStep} > 3 ? 'sap-icon://sys-enter-2' : 'sap-icon://user-settings' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                            <Text text="3. Config" class="fioriStepPillText" />
+                        </HBox>
+
+                        <HBox class="{= ${accessModel>/addAccessStep} > 3 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
+
+                        <!-- Step 4 Pill (Conflict) -->
+                        <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 4 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 4 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
+                            <Avatar src="{= ${accessModel>/addAccessStep} > 4 ? 'sap-icon://sys-enter-2' : 'sap-icon://alert' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                            <Text text="4. Conflict" class="fioriStepPillText" />
+                        </HBox>
+
+                        <HBox class="{= ${accessModel>/addAccessStep} > 4 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
+
+                        <!-- Step 5 Pill (Summary) -->
+                        <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 5 ? 'fioriStepPill fioriStepPillActive' : 'fioriStepPill' }">
+                            <Avatar src="sap-icon://summary-detail" displaySize="XS" class="sapUiTinyMarginEnd" />
+                            <Text text="5. Summary" class="fioriStepPillText" />
+                        </HBox>
+                    </HBox>
+
+                    <!-- STEP 1: BUSINESS SECTOR & FUNCTION -->
+                    <VBox visible="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} }" class="fioriStepSlideAnim">
+                        <form:SimpleForm
+                            editable="true"
+                            layout="ColumnLayout"
+                            columnsM="2"
+                            columnsL="2"
+                            singleContainerFullWidth="false"
+                            class="fioriScopeGlassForm sapUiSmallMarginBottom">
+                            <form:content>
+                                <core:Title text="Enterprise Scope Selection" />
+                                
+                                <Label text="Business Sector" required="true" />
+                                <Select
+                                    id="inPageBusinessSectorSelect"
+                                    selectedKey="{accessModel>/selectedSector}"
+                                    change=".onInPageSectorChange"
+                                    forceSelection="false"
+                                    width="100%"
+                                    class="fioriFormSelect fioriSelectGlow">
+                                    <core:Item key="" text="Select Business Sector..." />
+                                    <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" icon="sap-icon://money-bills" />
+                                    <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" icon="sap-icon://shipping-status" />
+                                    <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" icon="sap-icon://group" />
+                                    <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" icon="sap-icon://shield" />
+                                    <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" icon="sap-icon://customer-briefing" />
+                                </Select>
+
+                                <Label text="Business Function" required="true" />
+                                <Select
+                                    id="inPageBusinessFunctionSelect"
+                                    selectedKey="{accessModel>/selectedFunction}"
+                                    items="{accessModel>/availableFunctions}"
+                                    forceSelection="false"
+                                    width="100%"
+                                    class="fioriFormSelect fioriSelectGlow">
+                                    <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                </Select>
+                            </form:content>
+                        </form:SimpleForm>
+
+                        <HBox justifyContent="End" class="sapUiSmallMarginTop">
+                            <Button
+                                text="Cancel"
+                                type="Transparent"
+                                press=".onCloseAddAccessSector"
+                                class="sapUiTinyMarginEnd" />
+                            <Button
+                                text="Next"
+                                type="Emphasized"
+                                icon="sap-icon://navigation-right-arrow"
+                                press=".onGoToAddAccessStep2"
+                                class="fioriEmphasizedBtn" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- STEP 2: REGION SELECTION (EXACT COMPONENT FROM REGION FOLDER) -->
+                    <VBox visible="{= ${accessModel>/addAccessStep} === 2 }" class="fioriStepSlideAnim">
+                        <VBox alignContent="Center" alignItems="Center" justifyContent="Center" fitContainer="true" class="mapContainerVBox sapUiSmallMarginBottom">
+                            <!-- Map Area -->
+                            <core:HTML content='&lt;div id="mapWrapper" class="map-wrapper"&gt;
+                                    &lt;img src="world-map.jpg" alt="World Map" class="world-map-img"&gt;
+                                    &lt;div id="pinsLayer" class="map-pins-layer"&gt;&lt;/div&gt;
+                                    
+                                    &lt;!-- Select All button resembling location labels --&gt;
+                                    &lt;div id="selectAllBtn" class="select-all-btn-wrapper"&gt;
+                                      &lt;div class="select-all-icon"&gt;
+                                        &lt;svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"&gt;
+                                          &lt;path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/&gt;
+                                        &lt;/svg&gt;
+                                      &lt;/div&gt;
+                                      &lt;span class="select-all-text"&gt;Select All Regions&lt;/span&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;'>
+                            </core:HTML>
+
+                            <!-- Selected Regions list container under the map -->
+                            <VBox class="sapUiMediumMarginTop selected-regions-container" alignContent="Center" alignItems="Center">
+                                <Text text="Selected Regions" class="selected-regions-header sapUiTinyMarginBottom" />
+                                <HBox id="selectedChipsList" items="{accessModel>/mapSelectedRegions}" class="selected-chips-list" justifyContent="Center" wrap="Wrap">
+                                    <Button 
+                                        text="{accessModel>name}" 
+                                        icon="sap-icon://decline" 
+                                        iconFirst="false" 
+                                        press=".onRemoveMapRegionChip"
+                                        class="region-chip-btn sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+                                </HBox>
+                                <Text text="No regions selected" class="no-selection-text" visible="{= !${accessModel>/hasMapRegionSelection} }" />
+                            </VBox>
+                        </VBox>
+
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+                            <Button
+                                text="Back to Step 1"
+                                icon="sap-icon://navigation-left-arrow"
+                                type="Default"
+                                press=".onGoToAddAccessStep1" />
+                            <HBox>
+                                <Button
+                                    text="Cancel"
+                                    type="Transparent"
+                                    press=".onCloseAddAccessSector"
+                                    class="sapUiTinyMarginEnd" />
+                                <Button
+                                    text="Next"
+                                    type="Emphasized"
+                                    icon="sap-icon://navigation-right-arrow"
+                                    press=".onGoToAddAccessStep3"
+                                    class="fioriEmphasizedBtn" />
+                            </HBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- STEP 3: ACCESS CONFIGURATION (SEQUENTIAL TARGET SYSTEM SLIDES & DURATION/JUSTIFICATION) -->
+                    <VBox visible="{= ${accessModel>/addAccessStep} === 3 }" class="fioriStepSlideAnim">
+                        
+                        <!-- SUB-STEP 3.1: TARGET SYSTEMS SLIDE CONFIGURATION -->
+                        <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 1 || !${accessModel>/addAccessConfigSubStep} }">
+                            <form:SimpleForm
+                                editable="true"
+                                layout="ColumnLayout"
+                                columnsM="2"
+                                columnsL="2"
+                                singleContainerFullWidth="false"
+                                class="sapUiSmallMarginBottom">
+                                <form:content>
+                                    <core:Title text="Target Systems &amp; Process Selection" />
+                                    
+                                    <Label text="Select Target Systems &amp; Processes" required="true" />
+                                    <MultiComboBox
+                                        id="inPageSystemsMultiSelect"
+                                        selectedKeys="{accessModel>/addAccessSelectedSystems}"
+                                        selectionChange=".onInPageTargetSystemsSelectionChange"
+                                        placeholder="Select target system processes..."
+                                        width="100%"
+                                        class="fioriFormSelect">
+                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" icon="sap-icon://cloud" />
+                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" icon="sap-icon://database" />
+                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" icon="sap-icon://shield" />
+                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" icon="sap-icon://user-settings" />
+                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" icon="sap-icon://group" />
+                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" icon="sap-icon://shipping-status" />
+                                    </MultiComboBox>
+                                </form:content>
+                            </form:SimpleForm>
+
+                            <!-- PER-TARGET SYSTEM SLIDE CARD -->
+                            <VBox visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                                <!-- Target System Slide Header Banner -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
+                                    <HBox alignItems="Center">
+                                        <Avatar src="sap-icon://action-settings" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
+                                        <VBox>
+                                            <Title text="{= 'Target System Slide (' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' of ' + ${accessModel>/addAccessSelectedSystems}.length + '): ' + ${accessModel>/currentSystemSlideName} }" level="H4" class="fioriCardHeaderTitle" />
+                                            <Text text="Configure specific services, team roles, and personas for this target system." class="fioriDescriptionText" />
+                                        </VBox>
+                                    </HBox>
+                                    <ObjectStatus
+                                        text="{= 'Slide ' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' / ' + ${accessModel>/addAccessSelectedSystems}.length }"
+                                        state="Information" />
+                                </HBox>
+
+                                <form:SimpleForm
+                                    editable="true"
+                                    layout="ColumnLayout"
+                                    columnsM="2"
+                                    columnsL="2"
+                                    singleContainerFullWidth="false">
+                                    <form:content>
+                                        <core:Title text="{= 'Entitlements &amp; Personas for ' + ${accessModel>/currentSystemSlideName} }" />
+                                        
+                                        <Label text="Service / Topic" required="true" />
+                                        <MultiComboBox
+                                            id="inPageServicesMultiSelect"
+                                            selectedKeys="{accessModel>/addAccessSelectedServices}"
+                                            selectionChange=".onInPageServicesSelectionChange"
+                                            placeholder="Select service topics for this system..."
+                                            width="100%"
+                                            class="fioriFormSelect">
+                                            <core:Item key="System Administrator" text="System Administrator" />
+                                            <core:Item key="System Owners" text="System Owners" />
+                                            <core:Item key="Stakeholders" text="Stakeholders" />
+                                        </MultiComboBox>
+
+                                        <Label text="Team Role" required="true" />
+                                        <MultiComboBox
+                                            id="inPageTeamMultiSelect"
+                                            selectedKeys="{accessModel>/addAccessSelectedRoles}"
+                                            selectionChange=".onInPageTeamSelectionChange"
+                                            items="{accessModel>/addAccessSubRolesList}"
+                                            placeholder="Select team roles for this system..."
+                                            width="100%"
+                                            class="fioriFormSelect">
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                        </MultiComboBox>
+
+                                        <Label text="Assigned Persona" required="true" />
+                                        <MultiComboBox
+                                            id="inPagePersonaMultiSelect"
+                                            selectedKeys="{accessModel>/addAccessSelectedPersonas}"
+                                            items="{accessModel>/addAccessPersonasList}"
+                                            placeholder="Select personas for this system..."
+                                            width="100%"
+                                            class="fioriFormSelect">
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                        </MultiComboBox>
+                                    </form:content>
+                                </form:SimpleForm>
+
+                                <!-- Slide Navigation Buttons -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+                                    <Button
+                                        text="Previous System Slide"
+                                        icon="sap-icon://navigation-left-arrow"
+                                        type="Default"
+                                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/addAccessCurrentSystemIndex} &gt; 0 }"
+                                        press=".onPrevSystemSlide" />
+                                    <Text text="" visible="{= ${accessModel>/isEditingFromSummary} || ${accessModel>/addAccessCurrentSystemIndex} === 0 }" />
+                                    
+                                    <HBox>
+                                        <Button
+                                            text="✓ OK"
+                                            type="Emphasized"
+                                            icon="sap-icon://accept"
+                                            visible="{accessModel>/isEditingFromSummary}"
+                                            press=".onSaveAndReturnToSummary"
+                                            class="saasPrimaryBtn"
+                                            tooltip="Save configuration changes and return directly to Summary page" />
+                                        <Button
+                                            text="Next System Slide"
+                                            type="Emphasized"
+                                            icon="sap-icon://navigation-right-arrow"
+                                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) &lt; ${accessModel>/addAccessSelectedSystems}.length }"
+                                            press=".onNextSystemSlide"
+                                            class="fioriEmphasizedBtn sapUiTinyMarginEnd" />
+                                        <Button
+                                            text="Submit System Configs &amp; Set Duration"
+                                            type="Default"
+                                            icon="sap-icon://accept"
+                                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) === ${accessModel>/addAccessSelectedSystems}.length }"
+                                            press=".onCompleteSystemSlides"
+                                            class="fioriSubmitConfigBtn" />
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop" visible="{= !${accessModel>/isEditingFromSummary} }">
+                                <Button
+                                    text="Back to Step 2 (Region)"
+                                    icon="sap-icon://navigation-left-arrow"
+                                    type="Default"
+                                    press=".onGoToAddAccessStep2" />
+                                <Button
+                                    text="Cancel"
+                                    type="Transparent"
+                                    press=".onCloseAddAccessSector" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- SUB-STEP 3.2: DURATION & BUSINESS JUSTIFICATION -->
+                        <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
+                            <form:SimpleForm
+                                editable="true"
+                                layout="ColumnLayout"
+                                columnsM="2"
+                                columnsL="2"
+                                singleContainerFullWidth="false"
+                                class="sapUiSmallMarginBottom">
+                                <form:content>
+                                    <core:Title text="Access Duration &amp; Business Justification" />
+                                    
+                                    <Label text="Access Duration" required="true" />
+                                    <Select
+                                        id="inPageDurationSelect"
+                                        selectedKey="{accessModel>/addAccessDuration}"
+                                        forceSelection="false"
+                                        width="100%"
+                                        class="fioriFormSelect">
+                                        <core:Item key="" text="Select Access Duration..." />
+                                        <core:Item key="Permanent (Default)" text="Permanent (Default)" />
+                                        <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" />
+                                        <core:Item key="90 Days (Project)" text="90 Days (Project)" />
+                                    </Select>
+
+                                    <Label text="Business Justification" required="true" />
+                                    <TextArea
+                                        value="{accessModel>/addAccessJustification}"
+                                        placeholder="Provide detailed business justification for granting these system roles..."
+                                        rows="4"
+                                        width="100%" />
+                                </form:content>
+                            </form:SimpleForm>
+
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+                                <Button
+                                    text="Back to System Slides"
+                                    icon="sap-icon://navigation-left-arrow"
+                                    type="Default"
+                                    visible="{= !${accessModel>/isEditingFromSummary} }"
+                                    press=".onBackToSystemSlides" />
+                                <Text text="" visible="{accessModel>/isEditingFromSummary}" />
+                                <HBox>
+                                    <Button
+                                        text="✓ OK"
+                                        type="Emphasized"
+                                        icon="sap-icon://accept"
+                                        visible="{accessModel>/isEditingFromSummary}"
+                                        press=".onSaveAndReturnToSummary"
+                                        class="saasPrimaryBtn"
+                                        tooltip="Save configuration changes and return directly to Summary page" />
+                                    <Button
+                                        text="Cancel"
+                                        type="Transparent"
+                                        visible="{= !${accessModel>/isEditingFromSummary} }"
+                                        press=".onCloseAddAccessSector"
+                                        class="sapUiTinyMarginEnd" />
+                                    <Button
+                                        text="Proceed to Conflict Review (Step 4)"
+                                        type="Emphasized"
+                                        icon="sap-icon://navigation-right-arrow"
+                                        visible="{= !${accessModel>/isEditingFromSummary} }"
+                                        press=".onGoToAddAccessStep4"
+                                        class="fioriEmphasizedBtn" />
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+
+                    <!-- STEP 4: CONFLICT ANALYSIS & VALIDATION SPLIT INTO 2 SLIDES -->
+
+                    <!-- SLIDE 1: ACCESS VALIDATION (3 COMPACT SUMMARY CARDS) -->
+                    <VBox visible="{= ${accessModel>/addAccessStep} === 4 &amp;&amp; (${accessModel>/addAccessStep4SubStep} || 1) === 1 }" class="fioriStepSlideAnim sapUiResponsivePadding">
+                        <!-- Top Header Banner -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
+                            <HBox alignItems="Center">
+                                <Link text="&lt; Back to Duration &amp; Justification" press=".onGoBackToDurationSlide" class="fioriConflictBackLink sapUiSmallMarginEnd" />
+                                <Title text="Step 4: Access Validation" level="H4" class="fioriBannerTitle sapUiSmallMarginBegin" />
+                            </HBox>
+                            <HBox alignItems="Center">
+                                <Text text="Requester ID: " class="fioriRequestForLabel" />
+                                <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
+                                <Button icon="sap-icon://home" type="Transparent" class="sapUiTinyMarginBegin" />
+                            </HBox>
+                        </HBox>
+
+                        <!-- COMPACT SUMMARY CARD 1: Threshold Limits -->
+                        <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
+                                <HBox alignItems="Center">
+                                    <Avatar src="sap-icon://chain-link" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
+                                    <Title text="Threshold Limits" level="H5" class="fioriConflictSectionTitle" />
+                                </HBox>
+                                <ObjectStatus text="0 Issues" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
+                            </HBox>
+                            <Table id="thresholdLimitsTable" class="fioriConflictTable" noDataText="No Threshold Limits">
+                                <columns>
+                                    <Column width="25%"><Text text="System" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="25%"><Text text="Sector" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="25%"><Text text="Limit" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="25%"><Text text="Excessive Percentage" class="fioriConflictTableHeader" /></Column>
+                                </columns>
+                                <items>
+                                </items>
+                            </Table>
+                        </VBox>
+
+                        <!-- COMPACT SUMMARY CARD 2: Restricted Records -->
+                        <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
+                                <HBox alignItems="Center">
+                                    <Avatar src="sap-icon://security-risk" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
+                                    <Title text="Restricted Records" level="H5" class="fioriConflictSectionTitle" />
+                                </HBox>
+                                <ObjectStatus text="0 Records" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
+                            </HBox>
+                            <Table id="restrictedRecordsTable" class="fioriConflictTable" noDataText="No Restricted Records">
+                                <columns>
+                                    <Column width="14%"><Text text="System" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Sector" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Position" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Module Name" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Security Group" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="15%"><Text text="Team Name" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="15%"><Text text="Ad Group Name" class="fioriConflictTableHeader" /></Column>
+                                </columns>
+                                <items>
+                                </items>
+                            </Table>
+                        </VBox>
+
+                        <!-- COMPACT SUMMARY CARD 3: Duplicate Roles -->
+                        <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
+                                <HBox alignItems="Center">
+                                    <Avatar src="sap-icon://copy" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
+                                    <Title text="Duplicate Roles" level="H5" class="fioriConflictSectionTitle" />
+                                </HBox>
+                                <ObjectStatus text="0 Duplicates" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
+                            </HBox>
+                            <Table id="duplicateRolesTable" class="fioriConflictTable" noDataText="No Duplicate Roles">
+                                <columns>
+                                    <Column width="14%"><Text text="System" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Functional Role" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Module Name" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="16%"><Text text="Selected Security Groups" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Team Name" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Ad Group Name" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="14%"><Text text="Existing Group/ Roles" class="fioriConflictTableHeader" /></Column>
+                                </columns>
+                                <items>
+                                </items>
+                            </Table>
+                        </VBox>
+
+                        <!-- Slide 1 Footer Action Bar -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictFooterBar sapUiSmallMarginTop">
+                            <Link text="&lt; Back to Duration &amp; Justification" press=".onGoBackToDurationSlide" class="fioriConflictBackLink" />
+                            <HBox alignItems="Center">
+                                <Button text="Cancel" type="Transparent" press=".onCloseAddAccessSector" class="sapUiTinyMarginEnd" />
+                                <Button text="Continue" type="Emphasized" icon="sap-icon://navigation-right-arrow" press=".onGoToStep4Slide2" class="fioriEmphasizedBtn" />
+                            </HBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- SLIDE 2: SOD CONFLICT REVIEW -->
+                    <VBox visible="{= ${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 }" class="fioriStepSlideAnim sapUiResponsivePadding">
+                        <!-- Top Header Banner -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
+                            <HBox alignItems="Center">
+                                <Link text="&lt; Back to Access Validation" press=".onGoToStep4Slide1" class="fioriConflictBackLink sapUiSmallMarginEnd" />
+                                <Title text="Step 4: SoD Conflict Review" level="H4" class="fioriBannerTitle sapUiSmallMarginBegin" />
+                            </HBox>
+                            <HBox alignItems="Center">
+                                <Text text="Requester ID: " class="fioriRequestForLabel" />
+                                <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
+                                <Button icon="sap-icon://home" type="Transparent" class="sapUiTinyMarginBegin" />
+                            </HBox>
+                        </HBox>
+
+                        <!-- SOD Conflicts/Conflicting Personas Section -->
+                        <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
+                                <Title text="SOD Conflicts/Conflicting Personas" level="H5" class="fioriConflictSectionTitle" />
+                                <SegmentedButton selectedKey="{accessModel>/sodConflictToggle}" selectionChange=".onSodConflictToggleChange" class="fioriSodSegmentedBtn">
+                                    <items>
+                                        <SegmentedButtonItem key="existing" text="Existing Access" />
+                                        <SegmentedButtonItem key="new" text="New Access" />
+                                    </items>
+                                </SegmentedButton>
+                            </HBox>
+
+                            <Table id="sodConflictsTable" class="fioriConflictTable">
+                                <columns>
+                                    <Column width="35%"><Text text="Configured Target Role" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="35%"><Text text="Conflicting Active Role" class="fioriConflictTableHeader" /></Column>
+                                    <Column width="30%"><Text text="Segregation of Duties (SoD) Conflict Detail" class="fioriConflictTableHeader" /></Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem vAlign="Middle">
+                                        <cells>
+                                            <HBox class="fioriAppBoxPill">
+                                                <Text text="SAP S/4HANA Enterprise — IT Developers (System Administrator)" class="fioriAppBoxText" />
+                                            </HBox>
+                                            <HBox class="fioriAppBoxPill">
+                                                <Text text="Active Directory / IAM — IT Security (System Administrator)" class="fioriAppBoxText" />
+                                            </HBox>
+                                            <Text text="Critical: S/4HANA System Administrator vs. Active Directory IAM Security Governance" class="fioriConflictDetailText" />
+                                        </cells>
+                                    </ColumnListItem>
+                                    <ColumnListItem vAlign="Middle">
+                                        <cells>
+                                            <HBox class="fioriAppBoxPill">
+                                                <Text text="SAP BTP Cloud Platform — Lead Engineer (System Administrator)" class="fioriAppBoxText" />
+                                            </HBox>
+                                            <HBox class="fioriAppBoxPill">
+                                                <Text text="KYRA Central Governance — Compliance Manager (Stakeholders)" class="fioriAppBoxText" />
+                                            </HBox>
+                                            <Text text="High: BTP Lead Engineer Code Deployer vs. Central Governance Compliance Auditor" class="fioriConflictDetailText" />
+                                        </cells>
+                                    </ColumnListItem>
+                                    <ColumnListItem vAlign="Middle">
+                                        <cells>
+                                            <HBox class="fioriAppBoxPill">
+                                                <Text text="SAP Ariba Supply Network — Business Product Owner (Stakeholders)" class="fioriAppBoxText" />
+                                            </HBox>
+                                            <HBox class="fioriAppBoxPill">
+                                                <Text text="SAP SuccessFactors — Line Manager (Stakeholders)" class="fioriAppBoxText" />
+                                            </HBox>
+                                            <Text text="Medium: Ariba Procurement Approval Rights vs. SuccessFactors HR Line Manager Duties" class="fioriConflictDetailText" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+
+                        <!-- Slide 2 Footer Action Bar -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictFooterBar sapUiSmallMarginTop">
+                            <Button text="Previous" icon="sap-icon://navigation-left-arrow" type="Default" press=".onGoToStep4Slide1" class="sapUiTinyMarginEnd" />
+                            <HBox alignItems="Center">
+                                <Button text="Cancel" type="Transparent" press=".onCloseAddAccessSector" class="sapUiTinyMarginEnd" />
+                                <Button text="Continue" type="Emphasized" icon="sap-icon://navigation-right-arrow" press=".onGoToAddAccessStep5" class="fioriEmphasizedBtn" />
+                            </HBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- STEP 5: ACCESS REQUEST REVIEW & SUMMARY (CLEAN PROJECT-SPECIFIC SPECIFICATION) -->
+                    <VBox visible="{= ${accessModel>/addAccessStep} === 5 }" class="fioriStepSlideAnim sapUiResponsivePadding">
+                        <!-- Top Header Banner -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
+                            <HBox alignItems="Center">
+                                <Link text="&lt; Conflict Analysis" press=".onGoToAddAccessStep4" class="fioriConflictBackLink sapUiSmallMarginEnd" />
+                            </HBox>
+                            <HBox alignItems="Center">
+                                <Text text="Requester ID: " class="fioriRequestForLabel" />
+                                <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
+                            </HBox>
+                        </HBox>
+
+                        <!-- Enterprise Scope & Governance Context Metadata Card -->
+                        <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom" style="border-left: 4px solid #2563EB;">
+                            <Title text="Enterprise Scope &amp; Governance Summary" level="H5" class="fioriConflictSectionTitle sapUiTinyMarginBottom" />
+                            <HBox wrap="Wrap" class="sapUiTinyMarginTop">
+                                <VBox width="25%" class="sapUiTinyMarginBottom">
+                                    <Label text="Requester User ID" class="fioriConflictTableHeader" />
+                                    <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="sapUiTinyMarginTop fioriCellBold" style="color: #2563EB;" />
+                                </VBox>
+                                <VBox width="25%" class="sapUiTinyMarginBottom">
+                                    <Label text="Business Sector" class="fioriConflictTableHeader" />
+                                    <Text text="{accessModel>/selectedSector}" class="sapUiTinyMarginTop fioriCellBold" />
+                                </VBox>
+                                <VBox width="25%" class="sapUiTinyMarginBottom">
+                                    <Label text="Business Function" class="fioriConflictTableHeader" />
+                                    <Text text="{accessModel>/selectedFunction}" class="sapUiTinyMarginTop fioriCellBold" />
+                                </VBox>
+                                <VBox width="25%" class="sapUiTinyMarginBottom">
+                                    <Label text="Operating Region" class="fioriConflictTableHeader" />
+                                    <Text text="{accessModel>/addAccessRegion}" class="sapUiTinyMarginTop fioriCellBold" />
+                                </VBox>
+                                <VBox width="25%" class="sapUiTinyMarginBottom">
+                                    <Label text="Access Duration" class="fioriConflictTableHeader" />
+                                    <ObjectStatus text="{accessModel>/addAccessDuration}" state="Information" class="sapUiTinyMarginTop" />
+                                </VBox>
+                                <VBox width="75%" class="sapUiTinyMarginBottom">
+                                    <Label text="Business Justification" class="fioriConflictTableHeader" />
+                                    <Text text="{accessModel>/addAccessJustification}" class="sapUiTinyMarginTop" style="font-style: italic; color: #475569;" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Configured Entitlements Separated Target Tables Container -->
+                        <VBox items="{accessModel>/addAccessSummaryTables}">
+                            <items>
+                                <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
+                                    <!-- Target System Table Card Header -->
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom fioriConflictHeaderBanner">
+                                        <HBox alignItems="Center">
+                                            <Avatar src="{accessModel>systemIcon}" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
+                                            <VBox>
+                                                <Title text="{= 'Target System ' + ${accessModel>systemIndex} + ': ' + ${accessModel>systemName} }" level="H5" class="fioriConflictSectionTitle" />
+                                                <Text text="{= ${accessModel>items}.length + ' Configured Entitlement(s)' }" class="fioriDescriptionText" />
+                                            </VBox>
+                                        </HBox>
+                                        <Button
+                                            text="Edit Configuration"
+                                            icon="sap-icon://edit"
+                                            type="Transparent"
+                                            press=".onEditSystemConfiguration"
+                                            tooltip="Modify configuration for this target system" />
+                                    </HBox>
+
+                                    <!-- Separate Table for this Target System -->
+                                    <Table
+                                        items="{accessModel>items}"
+                                        noDataText="No access items configured for this system."
+                                        class="fioriConflictTable">
+                                        <columns>
+                                             <Column width="18%"><Text text="Request ID" class="fioriConflictTableHeader" /></Column>
+                                             <Column width="30%"><Text text="Role Title &amp; Topic" class="fioriConflictTableHeader" /></Column>
+                                             <Column width="30%"><Text text="Assigned Persona" class="fioriConflictTableHeader" /></Column>
+                                             <Column width="14%"><Text text="Access Duration" class="fioriConflictTableHeader" /></Column>
+                                             <Column width="8%" hAlign="End"><Text text="Action" class="fioriConflictTableHeader" /></Column>
+                                         </columns>
+                                         <items>
+                                             <ColumnListItem vAlign="Middle">
+                                                 <cells>
+                                                     <ObjectIdentifier title="{accessModel>requestId}" />
+                                                     <ObjectIdentifier title="{accessModel>roleName}" subtitle="{accessModel>sector}" />
+                                                     <Text text="{accessModel>persona}" />
+                                                     <Text text="{accessModel>duration}" />
+                                                     <HBox justifyContent="End">
+                                                         <Button
+                                                             icon="sap-icon://delete"
+                                                             type="Reject"
+                                                             press=".onRemoveInPageSummaryItem"
+                                                             tooltip="Remove this access item from request list" />
+                                                     </HBox>
+                                                 </cells>
+                                             </ColumnListItem>
+                                         </items>
+                                     </Table>
+                                </VBox>
+                            </items>
+                        </VBox>
+
+                        <!-- Footer Action Bar -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictFooterBar sapUiSmallMarginTop">
+                            <Link text="&lt; Back to Conflict Analysis" press=".onGoToAddAccessStep4" class="fioriStartOverLink" />
+                            <HBox alignItems="Center">
+                                <Button text="Cancel Request" type="Transparent" press=".onCloseAddAccessSector" class="sapUiTinyMarginEnd" />
+                                <Button
+                                    text="Submit Access Request"
+                                    type="Emphasized"
+                                    icon="sap-icon://paper-plane"
+                                    press=".onFinalSubmitInPageAddAccess"
+                                    class="fioriEmphasizedBtn" />
+                            </HBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver and Add Access is NOT active) -->
+                <mvc:XMLView 
+                    id="approverSectionView"
+                    viewName="kyra001.pages.Approver.Approver"
+                    visible="{= ${accessModel>/activeRole} === 'Approver' &amp;&amp; !${accessModel>/showAddAccessSector} }" />
+
+                <!-- DYNAMIC IN-PAGE REMOVE ACCESS SECTOR (Toggled via Remove Access Square Box) -->
+                <VBox
+                    visible="{accessModel>/showRemoveAccessSector}"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://delete" backgroundColor="Accent3" displaySize="S" class="sapUiTinyMarginEnd" />
+                            <VBox>
+                                <Title text="Revoke / Remove System Access Entitlements" level="H4" />
+                                <Text text="Select an active granted entitlement below to request revocation." class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button
+                            icon="sap-icon://decline"
+                            type="Transparent"
+                            press=".onCloseRemoveAccessSector"
+                            tooltip="Close Remove Access Form" />
+                    </HBox>
+
+                    <Table
+                        id="removeAccessTable"
+                        items="{accessModel>/activeRoles}"
+                        noDataText="No active entitlements available for removal."
+                        class="sapUiNoMargin">
+                        <columns>
+                            <Column><Text text="System Name" /></Column>
+                            <Column><Text text="Role Title" /></Column>
+                            <Column><Text text="Category" /></Column>
+                            <Column><Text text="Granted Date" /></Column>
+                            <Column hAlign="Center"><Text text="Action" /></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem vAlign="Middle">
+                                <cells>
+                                    <Text text="{accessModel>system}" />
+                                    <ObjectIdentifier title="{accessModel>roleName}" subtitle="{accessModel>roleId}" />
+                                    <Text text="{accessModel>category}" />
+                                    <Text text="{accessModel>grantedDate}" />
+                                    <HBox justifyContent="Center">
+                                        <Button
+                                            text="Remove Access"
+                                            icon="sap-icon://delete"
+                                            type="Reject"
+                                            press=".onRemoveAccessClick"
+                                            tooltip="Revoke Access" />
+                                    </HBox>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>
