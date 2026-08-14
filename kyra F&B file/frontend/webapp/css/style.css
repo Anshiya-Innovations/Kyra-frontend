@@ -1,0 +1,771 @@
+/* KYRA Enterprise 2026 - Master SAP Fiori Horizon LIGHT THEME Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* COMPLETELY REMOVE & HIDE SIDE SCROLLBARS FULLY ACROSS ALL BROWSERS */
+html, body, .sapMPage, .sapMPageScroll, .sapMPageBg {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -ms-overflow-style: none !important; /* IE and Edge */
+    scrollbar-width: none !important; /* Firefox */
+    font-family: 'Inter', "72", "72full", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+}
+
+* {
+    box-sizing: border-box !important;
+}
+
+/* Hide WebKit Scrollbars (Chrome, Safari, Edge) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.sapMPageScroll::-webkit-scrollbar,
+div::-webkit-scrollbar,
+::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+    background: transparent !important;
+}
+
+/* Master Canvas Background */
+.fioriDashboardBg {
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%) !important;
+    min-height: 100vh;
+    padding-bottom: 140px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+.sapMPageScroll {
+    padding-bottom: 140px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Perfectly Centered Enterprise Page Container */
+.fioriMainContentBox {
+    max-width: 1440px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    margin-top: 20px !important;
+    box-sizing: border-box !important;
+}
+
+.fioriBottomPaddingBox {
+    margin-bottom: 140px !important;
+    padding-bottom: 140px !important;
+}
+
+/* Keyframe Animations for Smooth Transitions */
+@keyframes slideDownFade {
+    0% { opacity: 0; transform: translateY(-16px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUpFade {
+    0% { opacity: 0; transform: translateY(16px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.fioriSlideDownAnim {
+    animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.fioriSlideUpAnim {
+    animation: slideUpFade 0.4s ease-out !important;
+}
+
+/* Prominent ShellBar Header Overrides - Light Theme */
+.sapFShellBar,
+.fioriMainShellBar {
+    background: #FFFFFF !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+    border-bottom: 2px solid #E2E8F0 !important;
+    padding: 4px 28px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.sapFShellBarTitle,
+.fioriMainShellBar .sapFShellBarTitle {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 1.25rem !important;
+    letter-spacing: -0.01em !important;
+}
+
+.sapFShellBarSubtitle,
+.fioriMainShellBar .sapFShellBarSubtitle {
+    color: #2563EB !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+}
+
+/* Hero Welcome Banner - Clean Professional Gradient */
+.fioriWelcomeCard {
+    background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%) !important;
+    border-radius: 16px !important;
+    border: 1px solid #BFDBFE !important;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.06) !important;
+    padding: 1.25rem 1.75rem !important;
+    position: relative !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    animation: slideDownFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.fioriWelcomeCard::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -40% !important;
+    right: -10% !important;
+    width: 320px !important;
+    height: 320px !important;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0) 70%) !important;
+    pointer-events: none !important;
+    animation: floatAura 6s infinite alternate ease-in-out !important;
+}
+
+@keyframes floatAura {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-20px, 20px); }
+}
+
+.fioriWelcomeTitle {
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 1.4rem !important;
+}
+
+.fioriWelcomeSubtitle {
+    color: #1E40AF !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+}
+
+/* Pulsing Status Dot */
+.pulseDotGreen {
+    display: inline-block !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-radius: 50% !important;
+    background-color: #10B981 !important;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7) !important;
+    animation: pulseDot 2s infinite !important;
+    margin-right: 6px !important;
+}
+
+@keyframes pulseDot {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Stylish Pill Directory Tabs */
+.fioriPillTabBar .sapMIconTabBarHeader {
+    background-color: transparent !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-bottom: 1.25rem !important;
+    width: 100% !important;
+}
+
+.fioriPillTabBar .sapMIconTabFilter {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 12px !important;
+    padding: 8px 24px !important;
+    margin: 0 8px !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+.fioriPillTabBar .sapMIconTabFilter:hover {
+    border-color: #2563EB !important;
+    transform: translateY(-2px) !important;
+}
+
+.fioriPillTabBar .sapMIconTabFilter.sapMIconTabFilterSelected,
+.fioriPillTabBar .sapMIconTabFilter[aria-selected="true"] {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+    border-color: #1D4ED8 !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+}
+
+.fioriPillTabBar .sapMIconTabFilter.sapMIconTabFilterSelected .sapMIconTabFilterText,
+.fioriPillTabBar .sapMIconTabFilter.sapMIconTabFilterSelected .sapMIconTabFilterIcon {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+.fioriPillTabBar .sapMIconTabFilterText {
+    color: #0F172A !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+}
+
+.fioriPillTabBar .sapMIconTabFilterIcon {
+    color: #2563EB !important;
+}
+
+/* Section Header View All Link */
+.fioriViewAllHeaderLink {
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    color: #2563EB !important;
+    margin-left: 12px !important;
+}
+
+/* Master Table Styling Overrides - 100% Width Responsive Card */
+.fioriTableCard {
+    background: #FFFFFF !important;
+    border-radius: 16px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+    padding: 1.75rem 2rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    animation: slideUpFade 0.4s ease-out !important;
+}
+
+.sapMListTblHeader .sapMListTblCell {
+    background-color: #F8FAFC !important;
+    border-bottom: 2px solid #E2E8F0 !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+}
+
+.sapMListTblHeader .sapMText {
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+}
+
+.sapMListTblRow {
+    transition: background-color 0.15s ease !important;
+}
+
+.sapMListTblRow:hover {
+    background-color: #F1F5F9 !important;
+}
+
+/* 4 FEATURE ACTION CARDS - SAP FIORI RESPONSIVE HORIZON FLEXBOX */
+.fioriSingleRowCardsGrid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 20px !important;
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+    box-sizing: border-box !important;
+}
+
+.fioriSingleRowCardsGrid > div,
+.fioriActionCard {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    background: #FFFFFF !important;
+    border-radius: 16px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
+    padding: 18px 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    cursor: pointer !important;
+    position: relative !important;
+    overflow: visible !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.fioriActionCard:hover,
+.fioriClickableCard:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.12) !important;
+    border-color: #2563EB !important;
+}
+
+/* Header Row inside Card */
+.fioriCardHeaderRow {
+    display: flex !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+}
+
+/* Slim Compact Circle Icon Container (40px x 40px) */
+.fioriCardAvatar,
+.sapFAvatar.fioriCardAvatar {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    max-height: 40px !important;
+    border-radius: 50% !important;
+    margin-right: 12px !important;
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.fioriCardAvatar .sapFAvatarIcon {
+    font-size: 19px !important;
+    line-height: 40px !important;
+}
+
+.fioriAmberAvatar {
+    background-color: #FFF7ED !important;
+    color: #F97316 !important;
+    border: 1px solid #FFEDD5 !important;
+}
+
+.fioriGreenAvatar {
+    background-color: #ECFDF5 !important;
+    color: #10B981 !important;
+    border: 1px solid #D1FAE5 !important;
+}
+
+.fioriBlueAvatar {
+    background-color: #EFF6FF !important;
+    color: #3B82F6 !important;
+    border: 1px solid #DBEAFE !important;
+}
+
+.fioriPurpleAvatar {
+    background-color: #F3E8FF !important;
+    color: #A855F7 !important;
+    border: 1px solid #E9D5FF !important;
+}
+
+/* Title Box & Typography */
+.fioriCardTitleBox {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.fioriActionCardTitle {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    line-height: 1.2 !important;
+    margin: 0 0 2px 0 !important;
+    white-space: normal !important;
+    word-wrap: break-word !important;
+}
+
+.fioriActionCardSub {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #64748B !important;
+    margin: 0 !important;
+}
+
+/* Footer Row inside Card */
+.fioriCardFooterRow {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: auto !important;
+    padding-top: 8px !important;
+}
+
+/* Count Font Size (28px) */
+.fioriPendingNumber {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: #EA580C !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+}
+
+.fioriApprovedNumber {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: #16A34A !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+}
+
+/* Action Link Font Size (13px) */
+.fioriActionLink {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #2563EB !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+.fioriChevronBtn {
+    color: #2563EB !important;
+}
+
+.fioriCellBold {
+    font-weight: 600 !important;
+    color: #0F172A !important;
+}
+
+.fioriDividerText {
+    color: #94A3B8 !important;
+    font-size: 1.2rem !important;
+}
+
+.fioriHeaderRefreshBtn .sapMBtnInner {
+    color: #1E40AF !important;
+    font-weight: 600 !important;
+}
+
+/* PROMINENT LARGE ENTERPRISE ACTION CONTROLS: ✓ APPROVE & ✕ REJECT */
+.fioriRowActionBtnBox {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.fioriRowApproveBtnLarge,
+.fioriRowRejectBtnLarge {
+    min-width: 110px !important;
+    height: 38px !important;
+    border-radius: 6px !important;
+}
+
+.fioriRowApproveBtnLarge .sapMBtnInner,
+.fioriRowRejectBtnLarge .sapMBtnInner {
+    border-radius: 6px !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    padding: 0 12px !important;
+    height: 38px !important;
+    line-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Active Approved State (Solid Enterprise Green) */
+.fioriRowApproveBtnLarge.sapMBtnAccept .sapMBtnInner,
+.fioriRowApproveBtnLarge.sapMBtnSuccess .sapMBtnInner {
+    background-color: #15803D !important;
+    border-color: #166534 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 6px rgba(21, 128, 61, 0.3) !important;
+}
+
+/* Active Rejected State (Solid Enterprise Red) */
+.fioriRowRejectBtnLarge.sapMBtnReject .sapMBtnInner,
+.fioriRowRejectBtnLarge.sapMBtnError .sapMBtnInner {
+    background-color: #DC2626 !important;
+    border-color: #991B1B !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3) !important;
+}
+
+/* Default / Unselected State */
+.fioriRowApproveBtnLarge.sapMBtnDefault .sapMBtnInner {
+    color: #16A34A !important;
+    border: 1.5px solid #16A34A !important;
+    background-color: #F0FDF4 !important;
+}
+
+.fioriRowRejectBtnLarge.sapMBtnDefault .sapMBtnInner {
+    color: #DC2626 !important;
+    border: 1.5px solid #DC2626 !important;
+    background-color: #FEF2F2 !important;
+}
+
+.fioriRowApproveBtnLarge.sapMBtnDefault:hover .sapMBtnInner {
+    background-color: #DCFCE7 !important;
+}
+
+.fioriRowRejectBtnLarge.sapMBtnDefault:hover .sapMBtnInner {
+    background-color: #FEE2E2 !important;
+}
+
+/* ==========================================================================
+   GLOBAL REGIONS MAP COMPONENT STYLES (FROM REGION FOLDER)
+   ========================================================================== */
+/* ==========================================================================
+   GLOBAL REGIONS MAP COMPONENT STYLES (MATCHING USER UPLOADED IMAGE 2)
+   ========================================================================== */
+
+/* Outer Step Progress Bar fixes to prevent icon/text overlap (Image 1 fix) */
+.fioriWizardProgressTrack {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin: 16px 0 24px 0 !important;
+    padding: 12px 24px !important;
+    background: #F1F5F9 !important;
+    border-radius: 40px !important;
+}
+
+.fioriStepPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #64748B !important;
+    background: transparent !important;
+    white-space: nowrap !important;
+}
+
+.fioriStepPillActive {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+.fioriStepPillDone {
+    color: #059669 !important;
+}
+
+.fioriStepPillText {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    display: inline-block !important;
+}
+
+.fioriStepConnectorLine {
+    height: 2px !important;
+    width: 24px !important;
+    background: #CBD5E1 !important;
+}
+
+.fioriStepConnectorActive {
+    background: #0284C7 !important;
+}
+
+/* Card 1: World Map Container Box (Matching Image 2) */
+.fioriMapCardOuter {
+    background: #FFFFFF !important;
+    width: 100% !important;
+    max-width: 920px !important;
+    margin: 0 auto 20px auto !important;
+    padding: 24px !important;
+    border-radius: 12px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+}
+
+.map-wrapper {
+    position: relative !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+}
+
+.world-map-img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    background-color: #FFFFFF !important;
+    filter: contrast(4.2) brightness(1.15) !important;
+}
+
+.map-pins-layer {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
+}
+
+.map-pin-container {
+    position: absolute !important;
+    transform: translate(-50%, 0) !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+/* Pin Marker (Matching Image 2 blue circle pin icon) */
+.map-pin {
+    width: 28px !important;
+    height: 28px !important;
+    margin-top: -14px !important;
+    background: #0284C7 !important;
+    border: 2px solid #FFFFFF !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4), 0 0 0 4px rgba(2, 132, 199, 0.15) !important;
+    transition: all 0.15s ease-out !important;
+}
+
+.map-pin-container:hover .map-pin,
+.map-pin-container.active .map-pin {
+    background: #059669 !important;
+    transform: scale(1.15) !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.45), 0 0 0 5px rgba(5, 150, 105, 0.2) !important;
+}
+
+.map-pin svg {
+    width: 12px !important;
+    height: 12px !important;
+    fill: #FFFFFF !important;
+    color: #FFFFFF !important;
+    transform: none !important;
+}
+
+/* Pin White Label Badge (Matching Image 2 rounded rectangle badges) */
+.pin-label {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin-top: 6px !important;
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    padding: 4px 10px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #1E293B !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    pointer-events: none !important;
+    transition: all 0.15s ease-out !important;
+}
+
+.map-pin-container:hover .pin-label,
+.map-pin-container.active .pin-label {
+    background: #059669 !important;
+    border-color: #047857 !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3) !important;
+    transform: none !important;
+}
+
+/* Select All Button (Matching Image 2 bottom-centered pill button) */
+.select-all-btn-wrapper {
+    position: absolute !important;
+    bottom: 14px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #1E293B !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    z-index: 20 !important;
+    pointer-events: auto !important;
+    transition: all 0.15s ease-out !important;
+}
+
+.select-all-btn-wrapper:hover {
+    background: #F1F5F9 !important;
+    border-color: #94A3B8 !important;
+    color: #0F172A !important;
+}
+
+.select-all-btn-wrapper.active {
+    background: #059669 !important;
+    border-color: #047857 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+}
+
+/* Card 2: Selected Regions Box (Matching Image 2 bottom card) */
+.selected-regions-card-box {
+    width: 100% !important;
+    max-width: 920px !important;
+    margin: 0 auto !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+
+.selected-regions-header {
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    color: #0F172A !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+    border-bottom: none !important;
+}
+
+.selected-chips-list {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+}
+
+.no-selection-text {
+    color: #64748B !important;
+    font-size: 13px !important;
+    font-style: italic !important;
+    margin-top: 4px !important;
+}
+
+.region-chip-btn {
+    height: 32px !important;
+    border-radius: 16px !important;
+    background-color: #EFF6FF !important;
+    border: 1px solid #BFDBFE !important;
+    color: #1D4ED8 !important;
+    font-weight: 600 !important;
+    padding: 0 12px !important;
+}
+
+.region-chip-btn:hover {
+    background-color: #DBEAFE !important;
+    border-color: #93C5FD !important;
+}

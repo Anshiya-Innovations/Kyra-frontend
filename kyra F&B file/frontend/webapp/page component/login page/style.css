@@ -1,0 +1,238 @@
+/* Official SAP Fiori Horizon Enterprise Styles - KYRA Enterprise */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden !important;
+    font-family: "72", "72full", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    background-color: #F5F7FA !important;
+}
+
+/* Light SAP Background with subtle SAP-inspired pattern */
+.fioriLoginBg {
+    background-color: #F5F7FA !important;
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 102, 232, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(0, 102, 232, 0.05) 0%, transparent 40%) !important;
+    min-height: 100vh;
+    width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.fioriLoginWrapper {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Centered White Login Card: 460px width, 12px radius, soft shadow, 36px 32px padding */
+.fioriLoginCard {
+    width: 100% !important;
+    max-width: 460px !important;
+    background: #FFFFFF !important;
+    border-radius: 12px !important;
+    border: 1px solid #E4E7ED !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+    box-sizing: border-box !important;
+    padding: 36px 32px !important;
+    margin: auto !important;
+}
+
+@media (max-width: 480px) {
+    .fioriLoginCard {
+        max-width: 100% !important;
+        padding: 24px 16px !important;
+    }
+}
+
+/* Header & Shield Avatar */
+.fioriBrandHeader {
+    text-align: center;
+    margin-bottom: 24px !important;
+}
+
+.fioriShieldCircle {
+    width: 64px !important;
+    height: 64px !important;
+    border-radius: 50% !important;
+    background-color: #0066E8 !important;
+    box-shadow: 0 4px 12px rgba(0, 102, 232, 0.25) !important;
+    margin-bottom: 12px !important;
+}
+
+.fioriShieldCircle .sapFAvatarIcon {
+    font-size: 32px !important;
+    color: #FFFFFF !important;
+}
+
+.fioriMainTitle {
+    font-size: 28px !important;
+    font-weight: 700 !important;
+    color: #1D2D3E !important;
+    letter-spacing: -0.5px !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.2 !important;
+}
+
+.fioriMainSubtitle {
+    font-size: 15px !important;
+    color: #556B82 !important;
+    font-weight: 500 !important;
+    margin: 0 0 4px 0 !important;
+}
+
+.fioriDescriptionText {
+    font-size: 13px !important;
+    color: #6A7D95 !important;
+    margin: 0 !important;
+}
+
+/* Form Controls & Labels */
+.fioriFormLabel {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1D2D3E !important;
+    margin-bottom: 6px !important;
+}
+
+.fioriFormInput {
+    margin-bottom: 20px !important;
+}
+
+.fioriFormInput .sapMInputBaseInner {
+    font-size: 15px !important;
+    color: #1D2D3E !important;
+    padding: 0 12px !important;
+}
+
+/* Select Dropdown Control Styling */
+.fioriFormSelect {
+    margin-bottom: 20px !important;
+}
+
+.fioriFormSelect .sapMSelInner,
+.fioriFormSelect .sapMSel {
+    height: 44px !important;
+    border-radius: 8px !important;
+    border: 1px solid #CBD5E1 !important;
+    font-size: 14px !important;
+    color: #1D2D3E !important;
+    background-color: #FFFFFF !important;
+}
+
+/* Options Row: Remember Me & Forgot Password */
+.fioriFlexRow {
+    margin-top: 4px;
+    margin-bottom: 24px !important;
+}
+
+.fioriCheckBox .sapMCbLbl {
+    font-size: 14px !important;
+    color: #1D2D3E !important;
+}
+
+.fioriForgotLink {
+    font-size: 14px !important;
+    color: #0066E8 !important;
+    font-weight: 500 !important;
+}
+
+/* Vibrant Solid SAP Blue Sign In Button */
+.fioriEmphasizedBtn {
+    height: 46px !important;
+    border-radius: 8px !important;
+    background-color: #0066E8 !important;
+    background-image: none !important;
+    border: none !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(0, 102, 232, 0.3) !important;
+    margin-bottom: 20px !important;
+    transition: background-color 0.2s ease, transform 0.1s ease !important;
+}
+
+.fioriEmphasizedBtn:hover {
+    background-color: #0052C2 !important;
+}
+
+.fioriEmphasizedBtn:active {
+    transform: scale(0.99);
+}
+
+.fioriEmphasizedBtn .sapMBtnContent,
+.fioriEmphasizedBtn .sapMBtnInner {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+/* Or Divider Row */
+.fioriOrDividerRow {
+    margin-bottom: 20px !important;
+}
+
+.fioriOrLine {
+    height: 1px;
+    background-color: #E2E8F0;
+    flex-grow: 1;
+}
+
+.fioriOrText {
+    font-size: 13px !important;
+    color: #94A3B8 !important;
+    padding: 0 12px;
+}
+
+/* Support Section */
+.fioriSupportBox {
+    margin-bottom: 24px !important;
+    text-align: center;
+}
+
+.fioriSupportHeadsetCircle {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    background-color: #EBF3FF !important;
+    margin-right: 12px !important;
+}
+
+.fioriSupportHeadsetCircle .sapFAvatarIcon {
+    font-size: 22px !important;
+    color: #0066E8 !important;
+}
+
+.fioriSupportTitle {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1D2D3E !important;
+    margin-bottom: 2px !important;
+}
+
+.fioriSupportEmail {
+    font-size: 14px !important;
+    color: #0066E8 !important;
+    font-weight: 600 !important;
+}
+
+/* Footer Section */
+.fioriFooterBox {
+    text-align: center;
+    border-top: 1px solid #F1F5F9;
+    padding-top: 16px;
+}
+
+.fioriFooterText {
+    font-size: 12px !important;
+    color: #8C9BAE !important;
+}

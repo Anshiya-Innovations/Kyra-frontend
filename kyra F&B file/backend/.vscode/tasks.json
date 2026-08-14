@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Backend (CAP)",
+      "type": "shell",
+      "command": "npm run start",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start Frontend (UI5)",
+      "type": "shell",
+      "command": "npm run frontend",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "npm install && npm install --prefix app",
+      "problemMatcher": []
+    }
+  ]
+}
