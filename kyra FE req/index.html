@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>KYRA Frontend Add Access Component Preview</title>
+    <link rel="stylesheet" href="style.css">
+    <script
+        id="sap-ui-bootstrap"
+        src="../frontend/webapp/resources/sap-ui-core.js"
+        data-sap-ui-theme="sap_horizon"
+        data-sap-ui-libs="sap.m,sap.ui.layout,sap.ui.core"
+        data-sap-ui-compat-version="edge"
+        data-sap-ui-async="true"
+        data-sap-ui-frame-options="trusted"
+    ></script>
+</head>
+<body class="sapUiBody sapUiSizeCompact" id="content" style="background: #F8FAFC; padding: 20px;">
+    <div id="uiArea"></div>
+
+    <script>
+        sap.ui.getCore().attachInit(function () {
+            sap.ui.require([
+                "sap/ui/core/mvc/XMLView",
+                "sap/ui/model/json/JSONModel"
+            ], function (XMLView, JSONModel) {
+                
+                const oModel = new JSONModel({
+                    addAccessStep: 1,
+                    addAccessConfigSubStep: 1,
+                    selectedSector: "",
+                    selectedFunction: "",
+                    availableFunctions: [],
+                    mapSelectedRegions: [],
+                    hasMapRegionSelection: false,
+                    addAccessRegion: "",
+                    addAccessSelectedSystems: ["SAP S/4HANA Enterprise", "SAP BTP Cloud Platform"],
+                    addAccessSelectedServices: ["System Administrator"],
+                    addAccessSelectedRoles: ["IT Developers (System Administrator)"],
+                    addAccessSelectedPersonas: ["Frontend & UI Developer Persona (IT Developers)"],
+                    addAccessDuration: "Permanent (Default)",
+                    addAccessJustification: "Requires administrative development and testing permissions.",
+                    addAccessCurrentSystemIndex: 0,
+                    currentSystemSlideName: "SAP S/4HANA Enterprise",
+                    addAccessSummaryTables: []
+                });
+
+                XMLView.create({
+                    viewName: "kyra001.pages.kyraFEReq.KyraAddAccess",
+                    definition: document.getElementById("embeddedView") ? document.getElementById("embeddedView").textContent : undefined
+                }).then(function (oView) {
+                    oView.setModel(oModel, "accessModel");
+                    oView.placeAt("uiArea");
+                }).catch(function(err) {
+                    console.log("Loading standalone view:", err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
