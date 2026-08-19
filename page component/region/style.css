@@ -1,0 +1,302 @@
+/* SAP UI5 Custom Stylesheet - Isolated Compact World Map Component */
+
+:root {
+  --sap-primary: #0a6ed1;          /* Horizon Brand Blue */
+  --sap-success: #107e3e;          /* Horizon Success Green */
+  --sap-border-color: #d9d9d9;
+  --sap-text-primary: #222222;
+  --sap-text-secondary: #556b82;
+  --sap-text-muted: #7f7f7f;
+  --sap-accent-glow: rgba(10, 110, 209, 0.15);
+  --sap-transition: 0.1s ease-out; /* Super fast transition for instant color feedback */
+}
+
+/* Page body styling - Centers the map-wrapper directly */
+.sapUiBody {
+  background-color: #f5f6f8 !important;
+  margin: 0;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Centered map outer container (Compact) */
+.mapContainerVBox {
+  background: #ffffff;
+  width: 100%;
+  max-width: 640px; /* Reduced from 1024px to 640px for small spaces */
+  margin: 0 auto;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--sap-border-color);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* Map Wrapper (Compact reference) */
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px; /* Compact width */
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--sap-border-color);
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+
+.map-wrapper ::selection,
+.world-map-img ::selection {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* World Map Image with checkers removed */
+.world-map-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  background-color: #ffffff;
+  filter: contrast(3.8) brightness(1.22);
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  -webkit-user-drag: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+
+/* Absolute Pins Layer */
+.map-pins-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Pin Overlay Container */
+.map-pin-container {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Location Pinpoint Icon (Smaller: 18px instead of 26px) */
+.map-pin {
+  width: 18px;
+  height: 18px;
+  background: var(--sap-primary);
+  border: 1.5px solid #ffffff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), 0 0 6px var(--sap-accent-glow);
+  transition: all var(--sap-transition);
+}
+
+.map-pin-container:hover .map-pin,
+.map-pin-container.active .map-pin {
+  background: var(--sap-success);
+  transform: rotate(-45deg) scale(1.1) translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2), 0 0 8px rgba(16, 126, 62, 0.35);
+}
+
+/* Glowing Pulse Ripple (Smaller: 24px instead of 34px) */
+.map-pin::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--sap-primary);
+  border-radius: 50%;
+  animation: pulse-sap 2s infinite ease-out;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.map-pin-container:hover .map-pin::after,
+.map-pin-container.active .map-pin::after {
+  border-color: var(--sap-success);
+}
+
+/* SVG Inside Pin (Smaller) */
+.map-pin svg {
+  transform: rotate(45deg);
+  width: 7px;
+  height: 7px;
+  color: #ffffff;
+}
+
+/* Pin Label (Smaller, placed closer under the Pin) */
+.pin-label {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: 4px; /* Reduced from 6px */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(2px);
+  border: 1px solid var(--sap-border-color);
+  padding: 0.15rem 0.4rem; /* Smaller padding */
+  border-radius: 4px;
+  white-space: nowrap;
+  font-size: 0.625rem; /* Smaller font: 10px instead of 12px */
+  font-weight: 600;
+  color: var(--sap-text-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  pointer-events: none;
+  transition: all var(--sap-transition);
+}
+
+.map-pin-container:hover .pin-label,
+.map-pin-container.active .pin-label {
+  background: var(--sap-success);
+  border-color: transparent;
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(16, 126, 62, 0.25);
+  transform: translateX(-50%) scale(1.03);
+}
+
+/* Select All Button resembling region labels (Smaller) */
+.select-all-btn-wrapper {
+  position: absolute;
+  bottom: 10px; /* Closer to bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(2px);
+  border: 1px solid var(--sap-border-color);
+  padding: 0.25rem 0.5rem; /* Smaller padding */
+  border-radius: 4px;
+  white-space: nowrap;
+  font-size: 0.65rem; /* Smaller text */
+  font-weight: 600;
+  color: var(--sap-text-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 20;
+  pointer-events: auto;
+  transition: all var(--sap-transition);
+}
+
+.select-all-btn-wrapper:hover {
+  background: var(--sap-primary);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 2px 6px var(--sap-accent-glow);
+}
+
+.select-all-btn-wrapper.active {
+  background: var(--sap-success);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 126, 62, 0.25);
+}
+
+.select-all-icon {
+  display: flex;
+  align-items: center;
+}
+
+.select-all-icon svg {
+  width: 8px;
+  height: 8px;
+}
+
+/* Selected Regions Container (Smaller) */
+.selected-regions-container {
+  width: 100%;
+  max-width: 600px; /* Matches map width */
+  margin-top: 1rem !important;
+  background: #ffffff;
+  border: 1px solid var(--sap-border-color);
+  border-radius: 8px;
+  padding: 0.75rem; /* Smaller padding */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.selected-regions-header {
+  font-weight: 700;
+  font-size: 0.72rem; /* Smaller font */
+  color: var(--sap-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #f0f0f0;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.5rem !important;
+}
+
+.selected-chips-list {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.no-selection-text {
+  color: var(--sap-text-muted);
+  font-size: 0.72rem;
+  font-style: italic;
+  margin-top: 0.15rem !important;
+}
+
+/* Fiori Chip Button Custom Styling (Smaller) */
+.region-chip-btn {
+  height: 1.5rem !important; /* Smaller button */
+  border-radius: 10px !important;
+  background-color: rgba(10, 110, 209, 0.06) !important;
+  border: 1px solid rgba(10, 110, 209, 0.12) !important;
+  color: var(--sap-primary) !important;
+  font-weight: 600 !important;
+  transition: all var(--sap-transition) !important;
+}
+
+.region-chip-btn:hover {
+  background-color: rgba(10, 110, 209, 0.12) !important;
+  border-color: var(--sap-primary) !important;
+}
+
+.region-chip-btn .sapMBtnContent {
+  font-size: 0.65rem !important; /* Smaller text */
+}
+
+.region-chip-btn .sapMBtnIcon {
+  font-size: 0.65rem !important;
+  color: var(--sap-primary) !important;
+}
+
+/* Pulse Keyframes (Scaled down) */
+@keyframes pulse-sap {
+  0% {
+    transform: rotate(45deg) scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(45deg) scale(1.8);
+    opacity: 0;
+  }
+}
