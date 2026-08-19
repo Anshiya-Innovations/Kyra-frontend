@@ -476,30 +476,30 @@ sap.ui.define([
                 comments: e.comment || e.comments || ((e.status || "").toLowerCase().includes("reject") ? "Rejected by Approver" : "Approved by Approver")
             }));
 
+            // Persist decision into localStorage via RequestStorage
+            if (window.KyraRequestStorage) {
+                window.KyraRequestStorage.updateRequestStatus(oData.requestId, sOverallStatus, `Decision: ${sOverallStatus}`, aDecisionsPayload);
+            }
+
+            // Optional background backend sync
             try {
-                // Post decision to backend service (inserts into access_management.approvals and updates access_management.requests)
-                const response = await fetch("/odata/v4/auth/submitAccessDecision", {
+                fetch("/odata/v4/auth/submitAccessDecision", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         requestNumber: oData.requestId,
                         decisions: aDecisionsPayload
                     })
-                });
-                const data = await response.json();
-                console.log("Decision persisted into database successfully:", data);
+                }).catch(() => {});
+            } catch (err) {}
 
-                // Reload all request data directly from database
-                await this._reloadAllRequests(oModel);
+            sap.ui.core.BusyIndicator.hide();
 
-                // Broadcast decision mutation event so user dashboards update live instantly
-                this._notifyDatabaseMutation();
+            // Reload all request data directly from localStorage
+            await this._reloadAllRequests(oModel);
 
-            } catch (err) {
-                console.error("Database persistence approval decision error:", err);
-            } finally {
-                sap.ui.core.BusyIndicator.hide();
-            }
+            // Broadcast decision mutation event
+            this._notifyDatabaseMutation();
 
             // Create user notification for the requester
             const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
@@ -518,7 +518,10 @@ sap.ui.define([
 
             sessionStorage.setItem("kyra_show_approval_history", "true");
             MessageToast.show("Decision submitted for Request Id " + oData.requestId);
-            this.onCloseRequestSummaryView();
+
+            setTimeout(() => {
+                this.getOwnerComponent().getRouter().navTo("AccessPage");
+            }, 600);
         },
 
         _setSmartProperty(oModel, sPath, vNewVal) {
@@ -534,66 +537,69 @@ sap.ui.define([
         async _reloadAllRequests(oModel) {
             if (!oModel) return;
 
-            let aDbRequests = [];
-            let aRawDbRequests = [];
+            const oStorage = window.KyraRequestStorage;
+            let aRawDbRequests = oStorage ? oStorage.loadRequests() : [];
+
             try {
                 const response = await fetch("/odata/v4/auth/Requests");
                 const data = await response.json();
-                if (data && data.value) {
+                if (data && data.value && data.value.length > 0) {
                     aRawDbRequests = data.value;
-                    // Sort strictly in descending order for frontend list views (newest first)
-                    aRawDbRequests.sort((a, b) => {
-                        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
-                        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
-                        if (tA !== tB) return tB - tA;
-                        return (b.request_number || "").localeCompare(a.request_number || "");
-                    });
-                    aDbRequests = aRawDbRequests.map(r => {
-                        const sDbStatus = (r.status || "PENDING").toUpperCase();
-                        let sStatusText = "Pending Approval";
-                        let sState = "Warning";
-                        let sIcon = "sap-icon://pending";
-                        
-                        if (sDbStatus === "APPROVED") {
-                            sStatusText = "Approved";
-                            sState = "Success";
-                            sIcon = "sap-icon://sys-enter-2";
-                        } else if (sDbStatus === "REJECTED") {
-                            sStatusText = "Rejected";
-                            sState = "Error";
-                            sIcon = "sap-icon://error";
-                        }
-
-                        let sPersonaText = r.requester_persona || "Requester";
-                        if (sPersonaText.toUpperCase().includes("ADMIN") || sPersonaText.toUpperCase().includes("COMPLIANCE")) {
-                            sPersonaText = "Compliance Reviewer";
-                        } else {
-                            sPersonaText = "Requester";
-                        }
-
-                        return {
-                            requestId: r.request_number,
-                            requesterId: r.requester_username,
-                            requesterUsername: r.requester_username,
-                            type: "Addition",
-                            system: r.target_system,
-                            roleName: r.role_name,
-                            serviceTopic: r.service_topic,
-                            selectedPersona: r.selected_persona,
-                            accessDuration: r.access_duration,
-                            submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                            createdAtRaw: r.created_at || new Date().toISOString(),
-                            approver: "Line Manager / ISRM Team",
-                            persona: sPersonaText,
-                            status: sStatusText,
-                            statusState: sState,
-                            statusIcon: sIcon
-                        };
-                    });
                 }
             } catch (err) {
-                console.error("Error reloading requests:", err);
+                // Standalone mode: use localStorage requests
             }
+
+            // Sort strictly in descending order (newest first)
+            aRawDbRequests.sort((a, b) => {
+                const tA = (a.created_at || a.timestamp) ? new Date(a.created_at || a.timestamp).getTime() : 0;
+                const tB = (b.created_at || b.timestamp) ? new Date(b.created_at || b.timestamp).getTime() : 0;
+                if (tA !== tB) return tB - tA;
+                return (b.request_number || b.requestId || "").localeCompare(a.request_number || a.requestId || "");
+            });
+
+            const aDbRequests = aRawDbRequests.map(r => {
+                const sDbStatus = (r.status || "PENDING").toUpperCase();
+                let sStatusText = "Pending Approval";
+                let sState = "Warning";
+                let sIcon = "sap-icon://pending";
+                
+                if (sDbStatus === "APPROVED") {
+                    sStatusText = "Approved";
+                    sState = "Success";
+                    sIcon = "sap-icon://sys-enter-2";
+                } else if (sDbStatus === "REJECTED") {
+                    sStatusText = "Rejected";
+                    sState = "Error";
+                    sIcon = "sap-icon://error";
+                }
+
+                let sPersonaText = r.requester_persona || "Requester";
+                if (sPersonaText.toUpperCase().includes("ADMIN") || sPersonaText.toUpperCase().includes("COMPLIANCE")) {
+                    sPersonaText = "Compliance Reviewer";
+                } else {
+                    sPersonaText = "Requester";
+                }
+
+                return {
+                    requestId: r.request_number || r.requestId || ("REQ-" + r.ID),
+                    requesterId: r.requester_username || r.requesterId || "Dev001",
+                    requesterUsername: r.requester_username || r.requesterId || "Dev001",
+                    type: r.request_type || r.type || "Addition",
+                    system: r.target_system || r.system || "SAP System",
+                    roleName: r.role_name || r.roleName || "",
+                    serviceTopic: r.service_topic || r.serviceTopic || "",
+                    selectedPersona: r.selected_persona || r.selectedPersona || "Requester",
+                    accessDuration: r.access_duration || r.accessDuration || "Permanent",
+                    submissionDate: (r.created_at || r.timestamp) ? (r.created_at || r.timestamp).split("T")[0] : new Date().toISOString().split("T")[0],
+                    createdAtRaw: r.created_at || r.timestamp || new Date().toISOString(),
+                    approver: "Line Manager / ISRM Team",
+                    persona: sPersonaText,
+                    status: sStatusText,
+                    statusState: sState,
+                    statusIcon: sIcon
+                };
+            });
 
             const oGrouped = {};
             aRawDbRequests.forEach(r => {

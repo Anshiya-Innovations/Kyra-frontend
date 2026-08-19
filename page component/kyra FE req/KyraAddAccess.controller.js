@@ -1243,6 +1243,201 @@ sap.ui.define([
             }
         },
 
+"IT Security (System Administrator)": [
+                         { key: "Security Audit & GRC Persona (IT Security)" },
+                         { key: "Cybersecurity Operations Persona (IT Security)" }
+                     ],
+                     "Technical Product Owner (System Owner)": [
+                         { key: "Technical Product Manager Persona (Technical Product Owner)" },
+                         { key: "Solution Architecture Owner Persona (Technical Product Owner)" }
+                     ],
+                     "Product Group Engineer (System Owner)": [
+                         { key: "Product Suite Engineer Persona (Product Group Engineer)" },
+                         { key: "Integration Engineering Lead Persona (Product Group Engineer)" }
+                     ],
+                     "Business Product Owner (Stakeholders)": [
+                         { key: "Business Strategy Lead Persona (Business Product Owner)" },
+                         { key: "Enterprise Process Owner Persona (Business Product Owner)" }
+                     ],
+                     "Line Manager (Stakeholders)": [
+                         { key: "Department Resource Manager Persona (Line Manager)" },
+                         { key: "People Operations Lead Persona (Line Manager)" }
+                     ],
+                     "Compliance Manager (Stakeholders)": [
+                         { key: "Regulatory Compliance Officer Persona (Compliance Manager)" },
+                         { key: "Data Privacy Auditor Persona (Compliance Manager)" }
+                     ],
+                     "Role Owner (Stakeholders)": [
+                         { key: "Entitlement & Role Custodian Persona (Role Owner)" },
+                         { key: "Access Governance Approver Persona (Role Owner)" }
+                     ],
+                     "ISRM (Stakeholders)": [
+                         { key: "Information Security Risk Manager Persona (ISRM)" },
+                         { key: "Risk & Assessment Analyst Persona (ISRM)" }
+                     ],
+                     "IAM / GRC Team (Stakeholders)": [
+                         { key: "Identity Management Specialist Persona (IAM / GRC Team)" },
+                         { key: "Governance Risk Compliance Lead Persona (IAM / GRC Team)" }
+                     ]
+                 };
+
+                 const aItems = [];
+                 aPersonas.forEach(sPers => {
+                     let sRole = oCfg.roles[0] || "IT Developers (System Administrator)";
+                     let sTopic = oCfg.services[0] || "System Administrator";
+
+                     // Dynamically look up the correct parent role for the persona
+                     for (const rKey of Object.keys(oTeamPersonasMap)) {
+                         const hasPers = oTeamPersonasMap[rKey].some(p => p.key === sPers);
+                         if (hasPers) {
+                             sRole = rKey;
+                             break;
+                         }
+                     }
+
+                     // Dynamically look up the correct parent service topic for the role
+                     for (const sKey of Object.keys(oServicesRolesMap)) {
+                         const hasRole = oServicesRolesMap[sKey].some(r => r.key === sRole);
+                         if (hasRole) {
+                             sTopic = sKey;
+                             break;
+                         }
+                     }
+
+                    const bAlreadyActive = aExistingRoles.some(r => r.system === sSys && r.roleName === sRole);
+                    const bAlreadyPending = aPendingReqs.some(r => r.system === sSys && r.roleName === sRole);
+
+                    let sStatus = "New Request";
+                    let sStatusType = "new";
+                    let sState = "Success";
+                    let sIcon = "sap-icon://add";
+
+                    if (bAlreadyActive) {
+                        sStatus = "Already has this access";
+                        sStatusType = "existing";
+                        sState = "Information";
+                        sIcon = "sap-icon://sys-enter-2";
+                    } else if (bAlreadyPending) {
+                        sStatus = "Already Requested";
+                        sStatusType = "pending";
+                        sState = "Warning";
+                        sIcon = "sap-icon://pending";
+                    }
+
+                    aItems.push({
+                        requestId: "REQ-2026-" + Math.floor(100000 + Math.random() * 900000),
+                        system: sSys,
+                        topic: sTopic,
+                        roleTitle: sRole.replace(/\s*\([^)]*\)/g, ""),
+                        roleName: sRole,
+                        persona: sPers,
+                        duration: sDuration,
+                        existingStatus: sStatus,
+                        statusType: sStatusType,
+                        existingState: sState,
+                        existingIcon: sIcon
+                    });
+                });
+
+                if (aItems.length > 0) {
+                    aSummaryTables.push({
+                        systemName: sSys,
+                        systemIndex: iSysCounter++,
+                        systemIcon: "sap-icon://database",
+                        items: aItems
+                    });
+                }
+            });
+
+            oModel.setProperty("/addAccessSummaryTables", aSummaryTables);
+        },
+
+        onEditSystemConfiguration: function (oEvent) {
+            const oContext = oEvent.getSource().getBindingContext("accessModel");
+            if (!oContext) return;
+
+            const sTargetSys = oContext.getProperty("systemName");
+            const oModel = this.getView().getModel("accessModel");
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+
+            const iIndex = aSystems.indexOf(sTargetSys);
+            if (iIndex !== -1) {
+                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
+                oModel.setProperty("/isEditingFromSummary", true);
+                oModel.setProperty("/addAccessStep", 3);
+                oModel.setProperty("/addAccessConfigSubStep", 1);
+                this._loadCurrentSystemSlideConfig();
+            }
+        },
+
+        onSaveAndReturnToSummary: function () {
+            this._saveCurrentSystemSlideConfig();
+            this._compileSummaryTableData();
+            this._calculateValidationAndConflicts();
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/isEditingFromSummary", false);
+                oModel.setProperty("/addAccessStep", 5);
+            }
+        },
+
+        onRemoveInPageSummaryItem: function (oEvent) {
+            const oItem = oEvent.getSource().getParent().getParent();
+            const oRowData = oItem.getBindingContext("accessModel").getObject();
+            const oModel = this.getView().getModel("accessModel");
+
+            MessageBox.confirm(`Remove entitlement '${oRowData.roleTitle}' from request?`, {
+                title: "Remove Item",
+                onClose: (sAction) => {
+                    if (sAction === MessageBox.Action.OK) {
+                        const aTables = oModel.getProperty("/addAccessSummaryTables") || [];
+                        aTables.forEach(tbl => {
+                            if (tbl.systemName === oRowData.system) {
+                                tbl.items = tbl.items.filter(i => (i.persona ? i.persona !== oRowData.persona : i.roleName !== oRowData.roleName));
+                            }
+                        });
+                        const aFilteredTables = aTables.filter(tbl => tbl.items.length > 0);
+                        oModel.setProperty("/addAccessSummaryTables", aFilteredTables);
+
+                        // Synchronize with addAccessSystemSlideConfigs
+                        const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
+                        if (oSlideConfigsMap[oRowData.system]) {
+                            const oSysCfg = oSlideConfigsMap[oRowData.system];
+                            oSysCfg.personas = (oSysCfg.personas || []).filter(p => p !== oRowData.persona);
+                            if (oSysCfg.personas.length === 0) {
+                                delete oSlideConfigsMap[oRowData.system];
+                                const aSystems = (oModel.getProperty("/addAccessSelectedSystems") || []).filter(s => s !== oRowData.system);
+                                oModel.setProperty("/addAccessSelectedSystems", aSystems);
+                            }
+                            oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
+                        }
+
+                        // Re-calculate Validation and Conflicts so removal immediately reflects on Conflict section
+                        this._calculateValidationAndConflicts();
+                        MessageToast.show("Item removed.");
+                    }
+                }
+            });
+        },
+
+        onGoBackToConflictSlide: function () {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                this._calculateValidationAndConflicts();
+                oModel.setProperty("/addAccessStep", 4);
+                oModel.setProperty("/addAccessStep4SubStep", 2);
+            }
+        },
+
+        onGoBackToDurationSlide: function () {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                this._calculateValidationAndConflicts();
+                oModel.setProperty("/addAccessStep", 3);
+                oModel.setProperty("/addAccessConfigSubStep", 2);
+            }
+        },
+
         onCloseAddAccessSector: function () {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
@@ -1284,7 +1479,7 @@ sap.ui.define([
                 return;
             }
 
-            // DB Integration: Post requests to backend CAP service
+            // Save valid items directly into browser localStorage via RequestStorage
             if (aValidItems.length > 0) {
                 sap.ui.core.BusyIndicator.show(0);
                 const sSector = oModel.getProperty("/selectedSector");
@@ -1311,55 +1506,45 @@ sap.ui.define([
                     justification: sJustification || "Access Request"
                 }));
 
+                // Save valid items directly into browser localStorage via RequestStorage
+                if (window.KyraRequestStorage) {
+                    window.KyraRequestStorage.addRequest(aPayload);
+                }
+
+                // Optional background backend sync
                 try {
-                    const response = await fetch("/odata/v4/auth/submitAccessRequest", {
+                    fetch("/odata/v4/auth/submitAccessRequest", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ requests: aPayload })
-                    });
+                    }).catch(() => {});
+                } catch (err) {}
 
-                    const data = await response.json();
+                sap.ui.core.BusyIndicator.hide();
 
-                    sap.ui.core.BusyIndicator.hide();
-
-                    if (!response.ok || (data.error && data.error.message)) {
-                        const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
-                        MessageBox.error("Database Error:\n\n" + sErrMsg);
-                        return;
-                    }
-
-                    console.log("Successfully persisted request into PostgreSQL database:", data);
-
-                    // Sync database states and broadcast channel
-                    if (typeof BroadcastChannel !== "undefined") {
-                        try {
-                            const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                            syncChannel.postMessage({ type: "NEW_REQUEST_SUBMITTED", timestamp: Date.now() });
-                            syncChannel.close();
-                        } catch(e) {}
-                    }
+                // Broadcast mutation event to all open components
+                if (typeof BroadcastChannel !== "undefined") {
                     try {
-                        localStorage.setItem("kyra_last_db_mutation", String(Date.now()));
+                        const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
+                        syncChannel.postMessage({ type: "NEW_REQUEST_SUBMITTED", timestamp: Date.now() });
+                        syncChannel.close();
                     } catch(e) {}
-
-                } catch (err) {
-                    sap.ui.core.BusyIndicator.hide();
-                    console.error("Database connection failure:", err);
-                    MessageBox.error("Failed to connect to the backend database server.");
-                    return;
                 }
+                try {
+                    localStorage.setItem("kyra_last_db_mutation", String(Date.now()));
+                } catch(e) {}
             }
 
             let sPopupHtml = `<div style="font-family: inherit;">
                 <p style="margin: 0 0 14px 0; color: #475569; font-size: 13.5px;">
-                    Your access request review is complete. Only new, non-duplicate requests have been submitted to the database.
+                    Your access request review is complete. Only new, non-duplicate requests have been submitted.
                 </p>`;
 
             if (aValidItems.length > 0) {
                 sPopupHtml += `
                 <div class="kyra-dialog-section-header" style="color: #15803D; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span>✔ Successfully Submitted (${aValidItems.length})</span>
-                    <span class="kyra-dialog-badge kyra-dialog-badge-success" style="background: #DCFCE7; color: #15803D; padding: 2px 8px; border-radius: 12px; font-size: 11px;">Persisted to Database</span>
+                    <span class="kyra-dialog-badge kyra-dialog-badge-success" style="background: #DCFCE7; color: #15803D; padding: 2px 8px; border-radius: 12px; font-size: 11px;">Saved to Local Storage</span>
                 </div>
                 <div class="kyra-dialog-list" style="margin-bottom: 14px;">
                     ${aValidItems.map(i => `
