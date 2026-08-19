@@ -464,43 +464,47 @@ sap.ui.define([
         async _loadSubmittedRequests(oModel) {
             if (!oModel) return;
 
-            // Load requests from localStorage via RequestStorage helper
-            const oStorage = window.KyraRequestStorage;
-            let aRawDbRequests = oStorage ? oStorage.loadRequests() : [];
+            // Clear old local mock cache to ensure 100% fresh database state
+            localStorage.removeItem("kyra_submitted_my_pending");
+            localStorage.removeItem("kyra_submitted_approver_requests");
+            localStorage.removeItem("kyra_processed_requests");
+            localStorage.removeItem("kyra_submitted_my_history");
+            sessionStorage.removeItem("kyra_submitted_requests");
+            sessionStorage.removeItem("kyra_pending_requests");
 
-            // Optional background backend sync if online
+            let aRawDbRequests = [];
             try {
                 const response = await fetch("/odata/v4/auth/Requests");
                 const data = await response.json();
-                if (data && data.value && data.value.length > 0) {
+                if (data && data.value) {
                     aRawDbRequests = data.value;
+
+                    // Filter out persisted deleted requests & entitlements across page refreshes
+                    const aDeletedKeys = JSON.parse(sessionStorage.getItem("kyra_deleted_entitlements") || "[]");
+                    const aDeletedRequestIds = JSON.parse(sessionStorage.getItem("kyra_deleted_requests") || "[]");
+
+                    if (aDeletedKeys.length > 0 || aDeletedRequestIds.length > 0) {
+                        aRawDbRequests = aRawDbRequests.filter(r => {
+                            const sId = r.request_number || ("REQ-" + r.ID);
+                            const sKey = `${r.target_system}:::${r.role_name}:::${r.selected_persona || ''}`;
+                            const sRoleKey = `${r.target_system}:::${r.role_name}`;
+                            if (aDeletedRequestIds.includes(sId) || (r.ID && aDeletedRequestIds.includes(String(r.ID)))) return false;
+                            if (aDeletedKeys.includes(sKey) || aDeletedKeys.includes(sRoleKey)) return false;
+                            return true;
+                        });
+                    }
+
+                    // Sort strictly in descending order for frontend list views (newest first)
+                    aRawDbRequests.sort((a, b) => {
+                        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                        if (tA !== tB) return tB - tA;
+                        return (b.request_number || "").localeCompare(a.request_number || "");
+                    });
                 }
             } catch (err) {
-                // Standalone mode: seamlessly use localStorage requests
+                console.error("Error loading requests from database:", err);
             }
-
-            // Filter out persisted deleted requests & entitlements across page refreshes
-            const aDeletedKeys = JSON.parse(sessionStorage.getItem("kyra_deleted_entitlements") || "[]");
-            const aDeletedRequestIds = JSON.parse(sessionStorage.getItem("kyra_deleted_requests") || "[]");
-
-            if (aDeletedKeys.length > 0 || aDeletedRequestIds.length > 0) {
-                aRawDbRequests = aRawDbRequests.filter(r => {
-                    const sId = r.request_number || r.requestId || ("REQ-" + r.ID);
-                    const sKey = `${r.target_system || r.system}:::${r.role_name || r.roleName}:::${r.selected_persona || r.selectedPersona || ''}`;
-                    const sRoleKey = `${r.target_system || r.system}:::${r.role_name || r.roleName}`;
-                    if (aDeletedRequestIds.includes(sId) || (r.ID && aDeletedRequestIds.includes(String(r.ID)))) return false;
-                    if (aDeletedKeys.includes(sKey) || aDeletedKeys.includes(sRoleKey)) return false;
-                    return true;
-                });
-            }
-
-            // Sort strictly in descending order for frontend list views (newest first)
-            aRawDbRequests.sort((a, b) => {
-                const tA = (a.created_at || a.timestamp) ? new Date(a.created_at || a.timestamp).getTime() : 0;
-                const tB = (b.created_at || b.timestamp) ? new Date(b.created_at || b.timestamp).getTime() : 0;
-                if (tA !== tB) return tB - tA;
-                return (b.request_number || b.requestId || "").localeCompare(a.request_number || a.requestId || "");
-            });
 
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
@@ -2805,27 +2809,38 @@ sap.ui.define([
                 justification: sJustification || "Access Request"
             }));
 
-            // Save valid items directly into browser localStorage via RequestStorage
-            if (window.KyraRequestStorage) {
-                window.KyraRequestStorage.addRequest(aPayload);
-            }
-
-            // Optional background attempt if backend service is available
             try {
-                fetch("/odata/v4/auth/submitAccessRequest", {
+                // Post valid items directly to backend PostgreSQL database endpoint
+                const response = await fetch("/odata/v4/auth/submitAccessRequest", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ requests: aPayload })
-                }).catch(() => {});
-            } catch (err) {}
+                });
 
-            sap.ui.core.BusyIndicator.hide();
+                const data = await response.json();
 
-            // Immediately reload all request tables from localStorage
-            await this._loadSubmittedRequests(oModel);
+                if (!response.ok || (data.error && data.error.message)) {
+                    const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
+                    sap.ui.core.BusyIndicator.hide();
+                    MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
+                    return;
+                }
 
-            // Broadcast mutation event to all components
-            this._notifyDatabaseMutation();
+                console.log("Successfully persisted request into PostgreSQL database:", data);
+                
+                // Immediately reload all request tables from PostgreSQL database
+                await this._loadSubmittedRequests(oModel);
+
+                // Broadcast real-time mutation event to all open tabs/views
+                this._notifyDatabaseMutation();
+
+            } catch (err) {
+                sap.ui.core.BusyIndicator.hide();
+                MessageBox.error("Failed to connect to database: " + err.message);
+                return;
+            } finally {
+                sap.ui.core.BusyIndicator.hide();
+            }
 
             // Reset wizard overlay state
             oModel.setProperty("/addAccessStep", 1);
