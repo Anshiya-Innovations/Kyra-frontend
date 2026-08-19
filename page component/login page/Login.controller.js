@@ -139,19 +139,25 @@ sap.ui.define([
             const oModel = oView.getModel("login");
             const oComponent = this.getOwnerComponent();
 
-            const sEffectiveTitle = oModel.getProperty("/selectedRole") || "Requester";
-            let sUserId = (oView.byId("idInput") ? oView.byId("idInput").getValue() : "") || oModel.getProperty("/userId") || "";
-            sUserId = sUserId.trim() || "Dev001";
-            let sPassword = (oView.byId("passwordInput") ? oView.byId("passwordInput").getValue() : "") || oModel.getProperty("/password") || "";
-            sPassword = sPassword.trim() || "password";
+            const sEffectiveTitle = oModel ? (oModel.getProperty("/selectedRole") || "Requester") : "Requester";
+            let sUserId = ((oView.byId("idInput") ? oView.byId("idInput").getValue() : "") || (oModel ? oModel.getProperty("/userId") : "") || "").trim();
+            if (!sUserId) {
+                sUserId = "Dev001";
+            }
+            let sPassword = ((oView.byId("passwordInput") ? oView.byId("passwordInput").getValue() : "") || (oModel ? oModel.getProperty("/password") : "") || "").trim();
+            if (!sPassword) {
+                sPassword = "password";
+            }
 
-            oModel.setProperty("/userId", sUserId);
-            oModel.setProperty("/password", sPassword);
-            const bRemember = oModel.getProperty("/rememberMe");
+            if (oModel) {
+                oModel.setProperty("/userId", sUserId);
+                oModel.setProperty("/password", sPassword);
+                oModel.setProperty("/isBusy", false);
+            }
 
             this._resetErrorStates();
-            oModel.setProperty("/isBusy", false);
 
+            const bRemember = oModel ? oModel.getProperty("/rememberMe") : false;
             if (bRemember) {
                 localStorage.setItem("kyra_remember_role", sEffectiveTitle);
                 localStorage.setItem("kyra_remember_id", sUserId);
@@ -175,7 +181,7 @@ sap.ui.define([
             MessageToast.show(`Welcome, ${sUserId}! Logged in as ${sEffectiveTitle}`);
 
             // Seamless, instant navigation to the dashboard
-            const oRouter = oComponent ? oComponent.getRouter() : null;
+            const oRouter = (oComponent && oComponent.getRouter) ? oComponent.getRouter() : sap.ui.core.UIComponent.getRouterFor(this);
             if (oRouter) {
                 oRouter.navTo("AccessPage");
             }
