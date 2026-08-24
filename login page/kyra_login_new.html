@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KYRA Enterprise - Login</title>
+  
+  <!-- SAP UI5 Bootstrapper with Official Fiori Horizon Theme -->
+  <script id="sap-ui-bootstrap"
+    src="https://sdk.openui5.org/resources/sap-ui-core.js"
+    data-sap-ui-theme="sap_horizon"
+    data-sap-ui-libs="sap.m, sap.ui.layout, sap.ui.core"
+    data-sap-ui-compatVersion="edge"
+    data-sap-ui-async="true">
+  </script>
+
+  <style>
+    /* =========================================================================
+       KYRA ENTERPRISE - STANDALONE MASTER LIGHT THEME LOGIN STYLES
+       ========================================================================= */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root, html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden !important;
+      font-family: 'Inter', "72", "72full", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      background-color: #0B1739 !important;
+    }
+
+    * {
+      box-sizing: border-box !important;
+    }
+
+    .kyraDesktopLoginPage, .sapMPage, .sapMPageScroll {
+      height: 100vh !important;
+      width: 100vw !important;
+      overflow: hidden !important;
+      background: transparent !important;
+    }
+
+    .kyraLoginLayoutWrapper {
+      height: 100vh !important;
+      width: 100% !important;
+      display: flex !important;
+      flex-direction: row !important;
+      overflow: hidden !important;
+    }
+
+    /* ================= LEFT HERO PANEL (45% WIDTH) ================= */
+    .kyraLoginLeftPanel {
+      width: 45% !important;
+      min-width: 45% !important;
+      max-width: 45% !important;
+      height: 100vh !important;
+      background: linear-gradient(145deg, #09122C 0%, #0F204E 50%, #162B68 100%) !important;
+      color: #FFFFFF !important;
+      padding: 40px 52px !important;
+      box-sizing: border-box !important;
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      overflow: hidden !important;
+      box-shadow: 10px 0 35px rgba(0, 0, 0, 0.25) !important;
+      z-index: 10 !important;
+    }
+
+    .kyraLoginLeftPanel::before {
+      content: "" !important;
+      position: absolute !important;
+      top: -120px;
+      left: -120px;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.35) 0%, rgba(37, 99, 235, 0) 70%) !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+    }
+
+    .kyraLoginLeftPanel::after {
+      content: "" !important;
+      position: absolute !important;
+      bottom: -100px;
+      right: -100px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.25) 0%, rgba(14, 165, 233, 0) 70%) !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+    }
+
+    .kyraLeftBrandHeader {
+      position: relative !important;
+      z-index: 2 !important;
+      display: flex !important;
+      align-items: center !important;
+    }
+
+    .kyraBrandShieldIcon {
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+      border-radius: 12px !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+    }
+
+    .kyraBrandShieldIcon .sapFAvatarIcon {
+      color: #FFFFFF !important;
+      font-size: 20px !important;
+    }
+
+    .kyraBrandLogoText {
+      color: #FFFFFF !important;
+      font-size: 20px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      line-height: 1.1 !important;
+    }
+
+    .kyraBrandLogoSub {
+      color: #93C5FD !important;
+      font-size: 10.5px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.14em !important;
+      text-transform: uppercase !important;
+    }
+
+    .kyraLeftCenteredBlock {
+      position: relative !important;
+      z-index: 2 !important;
+      max-width: 480px !important;
+      margin: auto 0 !important;
+    }
+
+    .kyraHeroTitle, .kyraHeroTitle.sapMTitle {
+      color: #FFFFFF !important;
+      font-size: 36px !important;
+      font-weight: 800 !important;
+      line-height: 1.15 !important;
+      letter-spacing: -0.02em !important;
+      margin-bottom: 12px !important;
+    }
+
+    .kyraHeroDescription {
+      color: #CBD5E1 !important;
+      font-size: 13.5px !important;
+      line-height: 1.55 !important;
+      margin-bottom: 20px !important;
+      max-width: 440px !important;
+    }
+
+    /* Futuristic Shield Center Graphic */
+    .kyraHeroShieldGraphicWrapper {
+      margin: 16px 0 !important;
+    }
+
+    .kyra-futuristic-shield-container {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kyra-shield-outer-glow {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(37, 99, 235, 0) 70%);
+      border-radius: 50%;
+      animation: kyraPulseGlow 3s ease-in-out infinite alternate;
+    }
+
+    .kyra-shield-orbital-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px dashed rgba(147, 197, 253, 0.4);
+      pointer-events: none;
+    }
+
+    .kyra-shield-orbital-ring.ring-1 {
+      width: 150px;
+      height: 150px;
+      animation: kyraRotateRing 24s linear infinite;
+    }
+
+    .kyra-shield-orbital-ring.ring-2 {
+      width: 125px;
+      height: 125px;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      animation: kyraRotateRing 16s linear infinite reverse;
+    }
+
+    .kyra-shield-core {
+      position: relative;
+      z-index: 5;
+      filter: drop-shadow(0 10px 20px rgba(37, 99, 235, 0.5));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kyra-shield-badge {
+      position: absolute;
+      z-index: 6;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(147, 197, 253, 0.3);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+    }
+
+    .kyra-shield-badge.badge-top-left {
+      top: 6px;
+      left: -20px;
+    }
+
+    .kyra-shield-badge.badge-bottom-right {
+      bottom: 6px;
+      right: -20px;
+    }
+
+    .kyra-shield-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #3B82F6;
+      display: inline-block;
+    }
+
+    .kyra-shield-badge .dot.green {
+      background: #10B981;
+    }
+
+    @keyframes kyraRotateRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes kyraPulseGlow {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      100% { transform: scale(1.15); opacity: 1; }
+    }
+
+    /* Minimal Connected Flow Row */
+    .kyraLeftFlowContainer {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      margin-top: 18px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(220, 228, 240, 0.2) !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .kyraFlowIconBox {
+      color: #1463FF !important;
+      font-size: 16px !important;
+      background: #FFFFFF !important;
+      width: 38px !important;
+      height: 38px !important;
+      min-width: 38px !important;
+      min-height: 38px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      text-align: center !important;
+      border-radius: 10px !important;
+      border: 1px solid #DCE4F0 !important;
+      box-shadow: 0 2px 6px rgba(11, 23, 57, 0.04) !important;
+      position: relative !important;
+      z-index: 2 !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    .kyraFlowIconBox:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 10px rgba(20, 99, 255, 0.12) !important;
+      border-color: #BFDBFE !important;
+    }
+
+    .kyraFlowLine {
+      flex: 1 1 0 !important;
+      max-width: 80px !important;
+      min-width: 28px !important;
+      height: 1.5px !important;
+      min-height: 1.5px !important;
+      max-height: 1.5px !important;
+      background: #93C5FD !important;
+      border-radius: 2px !important;
+      margin: 0 12px !important;
+      position: relative !important;
+      z-index: 1 !important;
+    }
+
+    /* ================= RIGHT FORM PANEL (55% WIDTH) ================= */
+    .kyraLoginRightPanel {
+      width: 55% !important;
+      min-width: 55% !important;
+      max-width: 55% !important;
+      flex: 1 !important;
+      height: 100vh !important;
+      background: #F8FAFC !important;
+      padding: 32px !important;
+      box-sizing: border-box !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow-y: auto !important;
+    }
+
+    .kyraLoginCardContainer {
+      background: #FFFFFF !important;
+      border-radius: 20px !important;
+      border: 1px solid #E2E8F0 !important;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06) !important;
+      padding: 36px 40px !important;
+      width: 100% !important;
+      max-width: 480px !important;
+      box-sizing: border-box !important;
+      animation: kyraFadeInCard 0.4s ease-out !important;
+    }
+
+    @keyframes kyraFadeInCard {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .kyraCardHeaderBox {
+      text-align: center !important;
+      margin-bottom: 24px !important;
+    }
+
+    .kyraCardShieldAvatar {
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+      border-radius: 50% !important;
+      margin-bottom: 12px !important;
+    }
+
+    .kyraCardShieldAvatar .sapFAvatarIcon {
+      color: #FFFFFF !important;
+      font-size: 28px !important;
+    }
+
+    .kyraCardBrandTitle {
+      font-size: 24px !important;
+      font-weight: 800 !important;
+      color: #0F172A !important;
+      letter-spacing: -0.02em !important;
+      margin: 0 0 4px 0 !important;
+    }
+
+    .kyraCardBrandSub {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      color: #2563EB !important;
+      margin-bottom: 4px !important;
+    }
+
+    .kyraCardWelcomeText {
+      font-size: 13px !important;
+      color: #64748B !important;
+    }
+
+    .kyraFormGroup {
+      margin-bottom: 16px !important;
+    }
+
+    .kyraFormLabel {
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      color: #1E293B !important;
+      margin-bottom: 6px !important;
+    }
+
+    .kyraModernSelect .sapMSel,
+    .kyraModernSelect .sapMSelInner {
+      height: 44px !important;
+      line-height: 42px !important;
+      border-radius: 10px !important;
+      border: 1px solid #CBD5E1 !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      background: #FFFFFF !important;
+    }
+
+    .kyraModernInput .sapMInputBaseInner {
+      height: 44px !important;
+      border-radius: 10px !important;
+      border: 1px solid #CBD5E1 !important;
+      font-size: 14px !important;
+      color: #0F172A !important;
+      padding: 0 14px !important;
+    }
+
+    .kyraModernInput .sapMInputBaseInner:focus {
+      border-color: #2563EB !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    }
+
+    .kyraRememberRow {
+      margin: 4px 0 20px 0 !important;
+    }
+
+    .kyraModernCheckBox .sapMCbLbl {
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      color: #475569 !important;
+    }
+
+    .kyraHelpLink {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #2563EB !important;
+    }
+
+    .kyraPrimarySignInBtn {
+      height: 46px !important;
+      margin-bottom: 18px !important;
+    }
+
+    .kyraPrimarySignInBtn .sapMBtnInner {
+      height: 46px !important;
+      line-height: 44px !important;
+      border-radius: 10px !important;
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+      border: 1px solid #1D4ED8 !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      color: #FFFFFF !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3) !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .kyraPrimarySignInBtn:hover .sapMBtnInner {
+      background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .kyraSecurityFooterNote {
+      margin-top: 6px !important;
+      text-align: center !important;
+    }
+
+    .kyraLockIconSmall {
+      font-size: 13px !important;
+      color: #10B981 !important;
+      margin-right: 6px !important;
+    }
+
+    .kyraSecurityNoteText {
+      font-size: 11.5px !important;
+      color: #64748B !important;
+      font-weight: 500 !important;
+    }
+  </style>
+
+  <script>
+    // Inline View Template definition in standard SAPUI5 XML View syntax
+    const sLoginViewXml = `<mvc:View
+      controllerName="kyra.login.new.Controller"
+      xmlns:mvc="sap.ui.core.mvc"
+      xmlns="sap.m"
+      xmlns:core="sap.ui.core"
+      displayBlock="true">
+      
+      <Page showHeader="false" enableScrolling="false" class="kyraDesktopLoginPage">
+        <content>
+          <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="NoWrap" height="100%" width="100%">
+            
+            <!-- LEFT HERO PANEL (45% WIDTH) -->
+            <VBox class="kyraLoginLeftPanel">
+              <HBox alignItems="Center" class="kyraLeftBrandHeader">
+                <Avatar
+                  src="sap-icon://shield"
+                  displaySize="S"
+                  type="Icon"
+                  backgroundColor="Accent6"
+                  class="kyraBrandShieldIcon" />
+                <VBox class="sapUiTinyMarginBegin">
+                  <Text text="KYRA" class="kyraBrandLogoText" />
+                  <Text text="ENTERPRISE ACCESS" class="kyraBrandLogoSub" />
+                </VBox>
+              </HBox>
+
+              <VBox class="kyraLeftCenteredBlock" justifyContent="Center" alignItems="Start">
+                <Title text="Secure Access.&#10;Total Control." level="H1" class="kyraHeroTitle" />
+                <Text
+                  text="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your hybrid cloud ecosystem."
+                  class="kyraHeroDescription" />
+
+                <!-- Futuristic Shield Graphic Visual -->
+                <VBox class="kyraHeroShieldGraphicWrapper" alignItems="Center" justifyContent="Center" width="100%">
+                  <core:HTML content='&lt;div class="kyra-futuristic-shield-container"&gt;&lt;div class="kyra-shield-outer-glow"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-1"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-2"&gt;&lt;/div&gt;&lt;div class="kyra-shield-core"&gt;&lt;svg width="88" height="88" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path d="M12 2L3 7V12C3 17.52 6.84 22.74 12 24C17.16 22.74 21 17.52 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round"/&gt;&lt;path d="M9 12L11 14L15 10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/&gt;&lt;defs&gt;&lt;linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="24" gradientUnits="userSpaceOnUse"&gt;&lt;stop stop-color="#2563EB"/&gt;&lt;stop offset="1" stop-color="#1D4ED8"/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div class="kyra-shield-badge badge-top-left"&gt;&lt;span class="dot"&gt;&lt;/span&gt; Access Protected&lt;/div&gt;&lt;div class="kyra-shield-badge badge-bottom-right"&gt;&lt;span class="dot green"&gt;&lt;/span&gt; Compliance Ready&lt;/div&gt;&lt;/div&gt;' />
+                </VBox>
+
+                <!-- Minimal Connected Access Flow: User → Shield → Approval Check -->
+                <HBox class="kyraLeftFlowContainer" justifyContent="Center" alignItems="Center" width="100%">
+                  <core:Icon src="sap-icon://person-placeholder" class="kyraFlowIconBox" tooltip="User" />
+                  <HBox class="kyraFlowLine" />
+                  <core:Icon src="sap-icon://shield" class="kyraFlowIconBox" tooltip="Role &amp; Security" />
+                  <HBox class="kyraFlowLine" />
+                  <core:Icon src="sap-icon://accept" class="kyraFlowIconBox" tooltip="Approval Check" />
+                </HBox>
+              </VBox>
+            </VBox>
+
+            <!-- RIGHT FORM PANEL (55% WIDTH) -->
+            <VBox class="kyraLoginRightPanel" justifyContent="Center" alignItems="Center">
+              <VBox class="kyraLoginCardContainer">
+                
+                <VBox alignItems="Center" class="kyraCardHeaderBox">
+                  <Avatar
+                    src="sap-icon://shield"
+                    displaySize="M"
+                    type="Icon"
+                    backgroundColor="Accent6"
+                    class="kyraCardShieldAvatar" />
+                  <Title text="KYRA Enterprise" level="H2" class="kyraCardBrandTitle" />
+                  <Text text="Secure Admin Access Portal" class="kyraCardBrandSub" />
+                  <Text text="Welcome back! Please sign in to continue." class="kyraCardWelcomeText" />
+                </VBox>
+
+                <MessageStrip
+                  visible="{login>/hasError}"
+                  text="{login>/errorMessage}"
+                  type="Error"
+                  showIcon="true"
+                  showCloseButton="true"
+                  close=".onDismissError"
+                  class="sapUiSmallMarginBottom" />
+
+                <VBox width="100%" class="kyraLoginFormBody">
+                  <!-- Login As Dropdown -->
+                  <VBox class="kyraFormGroup" width="100%">
+                    <Label text="Login As" labelFor="roleSelect" class="kyraFormLabel" />
+                    <Select
+                      id="roleSelect"
+                      selectedKey="{login>/selectedRole}"
+                      change=".onRoleChange"
+                      width="100%"
+                      class="kyraModernSelect">
+                      <items>
+                        <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
+                        <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
+                        <core:Item key="Compliance Review" text="Compliance Review" icon="sap-icon://user-settings" />
+                      </items>
+                    </Select>
+                  </VBox>
+
+                  <!-- Dynamic ID Input Field -->
+                  <VBox class="kyraFormGroup" width="100%">
+                    <Label text="{login>/idLabel}" labelFor="idInput" class="kyraFormLabel" />
+                    <Input
+                      id="idInput"
+                      value="{login>/userId}"
+                      placeholder="{login>/idPlaceholder}"
+                      valueState="{login>/idState}"
+                      valueStateText="{login>/idStateText}"
+                      liveChange=".onInputChange"
+                      change=".onInputChange"
+                      submit=".onLogin"
+                      showClearButton="true"
+                      class="kyraModernInput"
+                      width="100%" />
+                  </VBox>
+
+                  <!-- Remember Me Row -->
+                  <FlexBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraRememberRow">
+                    <CheckBox text="Remember Me" selected="{login>/rememberMe}" class="kyraModernCheckBox" />
+                    <Link text="Need Help?" press=".onForgotPassword" class="kyraHelpLink" />
+                  </FlexBox>
+
+                  <!-- Sign In Button -->
+                  <Button
+                    id="signInButton"
+                    text="Sign In"
+                    icon="sap-icon://navigation-right-arrow"
+                    iconFirst="false"
+                    type="Emphasized"
+                    width="100%"
+                    press=".onLogin"
+                    busy="{login>/isBusy}"
+                    class="kyraPrimarySignInBtn" />
+
+                  <!-- Bottom Security Note -->
+                  <HBox justifyContent="Center" alignItems="Center" class="kyraSecurityFooterNote">
+                    <core:Icon src="sap-icon://unwired" class="kyraLockIconSmall" />
+                    <Text text="Protected by 256-Bit SSL Enterprise Identity Security" class="kyraSecurityNoteText" />
+                  </HBox>
+                </VBox>
+              </VBox>
+            </VBox>
+
+          </FlexBox>
+        </content>
+      </Page>
+    </mvc:View>`;
+
+    // SAPUI5 Bootstrapped Controller Logic
+    sap.ui.getCore().attachInit(function () {
+      sap.ui.define("kyra.login.new.Controller", [
+        "sap/ui/core/mvc/Controller",
+        "sap/ui/model/json/JSONModel",
+        "sap/m/MessageToast",
+        "sap/m/MessageBox",
+        "sap/m/Dialog",
+        "sap/m/Button",
+        "sap/m/Label",
+        "sap/m/Input",
+        "sap/m/VBox",
+        "sap/m/Text"
+      ], function (Controller, JSONModel, MessageToast, MessageBox, Dialog, Button, Label, Input, VBox, Text) {
+        "use strict";
+
+        return Controller.extend("kyra.login.new.Controller", {
+          onInit: function () {
+            var oModel = new JSONModel({
+              selectedRole: "Requester",
+              userId: "",
+              rememberMe: true,
+              isBusy: false,
+              hasError: false,
+              errorMessage: "",
+              idLabel: "Requester ID",
+              idPlaceholder: "Enter your Requester ID",
+              idState: "None",
+              idStateText: ""
+            });
+
+            this.getView().setModel(oModel, "login");
+          },
+
+          onRoleChange: function (oEvent) {
+            var sSelectedRole = oEvent.getParameter("selectedItem").getKey();
+            var oModel = this.getView().getModel("login");
+
+            var sLabel = "Requester ID";
+            var sPlaceholder = "Enter your Requester ID";
+
+            if (sSelectedRole === "Approver") {
+              sLabel = "Approver ID";
+              sPlaceholder = "Enter your Approver ID";
+            } else if (sSelectedRole === "Compliance Review" || sSelectedRole === "Compliance Approver") {
+              sLabel = "Compliance Review ID";
+              sPlaceholder = "Enter your Compliance Review ID";
+            } else if (sSelectedRole === "Administrator") {
+              sLabel = "Administrator ID";
+              sPlaceholder = "Enter your Administrator ID";
+            }
+
+            oModel.setProperty("/selectedRole", sSelectedRole);
+            oModel.setProperty("/idLabel", sLabel);
+            oModel.setProperty("/idPlaceholder", sPlaceholder);
+
+            this._resetErrorStates();
+          },
+
+          _resetErrorStates: function () {
+            var oModel = this.getView().getModel("login");
+            oModel.setProperty("/idState", "None");
+            oModel.setProperty("/idStateText", "");
+            oModel.setProperty("/hasError", false);
+            oModel.setProperty("/errorMessage", "");
+          },
+
+          onInputChange: function () {
+            var oModel = this.getView().getModel("login");
+            var sUserId = oModel.getProperty("/userId");
+
+            if (sUserId && sUserId.trim().length > 0) {
+              oModel.setProperty("/idState", "None");
+              oModel.setProperty("/idStateText", "");
+            }
+
+            if (sUserId && oModel.getProperty("/hasError")) {
+              oModel.setProperty("/hasError", false);
+              oModel.setProperty("/errorMessage", "");
+            }
+          },
+
+          onDismissError: function () {
+            var oModel = this.getView().getModel("login");
+            oModel.setProperty("/hasError", false);
+            oModel.setProperty("/errorMessage", "");
+          },
+
+          onLogin: function () {
+            var oView = this.getView();
+            var oModel = oView.getModel("login");
+
+            var sEffectiveTitle = oModel.getProperty("/selectedRole") || "Requester";
+            var sUserId = (oView.byId("idInput").getValue() || "").trim();
+            oModel.setProperty("/userId", sUserId);
+            var bRemember = oModel.getProperty("/rememberMe");
+
+            this._resetErrorStates();
+
+            // 1. Validation
+            if (!sUserId) {
+              var sErr = "Please enter your Requester ID.";
+              if (sEffectiveTitle === "Approver") {
+                sErr = "Please enter your Approver ID.";
+              } else if (sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver") {
+                sErr = "Please enter your Compliance Review ID.";
+              } else if (sEffectiveTitle === "Administrator") {
+                sErr = "Please enter your Administrator ID.";
+              }
+              oModel.setProperty("/idState", "Error");
+              oModel.setProperty("/idStateText", sErr);
+              return;
+            }
+
+            // 2. Loading State
+            oModel.setProperty("/isBusy", true);
+
+            if (bRemember) {
+              localStorage.setItem("kyra_remember_role", sEffectiveTitle);
+              localStorage.setItem("kyra_remember_id", sUserId);
+            } else {
+              localStorage.removeItem("kyra_remember_role");
+              localStorage.removeItem("kyra_remember_id");
+            }
+
+            // Store session
+            sessionStorage.setItem("kyra_active_user", sUserId);
+            sessionStorage.setItem("kyra_active_role", sEffectiveTitle);
+
+            // Execute Login Processing
+            setTimeout(function () {
+              oModel.setProperty("/isBusy", false);
+              MessageToast.show("Login successful! Welcome to KYRA Enterprise, " + sUserId, { duration: 3500 });
+
+              // Redirect to main Access Portal or preview
+              setTimeout(function () {
+                if (window.location.href.includes("test/flp.html")) {
+                  window.location.hash = "#app-preview";
+                } else if (window.opener || window.parent !== window) {
+                  window.location.href = "../../index.html";
+                } else {
+                  window.location.href = "../../index.html";
+                }
+              }, 1000);
+            }, 600);
+          },
+
+          onForgotPassword: function () {
+            var oView = this.getView();
+            var oLoginModel = oView.getModel("login");
+            var sEffectiveTitle = oLoginModel.getProperty("/selectedRole") || "Requester";
+            var sCurrentId = oLoginModel.getProperty("/userId") || "";
+
+            var oInput = new Input({
+              placeholder: "Enter ID or Email",
+              value: sCurrentId,
+              width: "100%"
+            });
+
+            var oDialog = new Dialog({
+              title: "Reset Password",
+              type: "Message",
+              contentWidth: "360px",
+              content: [
+                new VBox({
+                  class: "sapUiSmallMargin",
+                  items: [
+                    new Text({
+                      text: "Enter your registered ID or email to receive password reset instructions.",
+                      class: "sapUiSmallMarginBottom"
+                    }),
+                    new Label({
+                      text: sEffectiveTitle + " ID / Email",
+                      required: true,
+                      labelFor: oInput
+                    }),
+                    oInput
+                  ]
+                })
+              ],
+              beginButton: new Button({
+                text: "Send Reset Link",
+                type: "Emphasized",
+                press: function () {
+                  var sVal = oInput.getValue().trim();
+                  if (!sVal) {
+                    oInput.setValueState("Error");
+                    oInput.setValueStateText("ID or Email is required.");
+                    return;
+                  }
+                  oInput.setValueState("None");
+                  oDialog.close();
+                  MessageToast.show("Password reset link sent to your registered contact!", { duration: 4000 });
+                }
+              }),
+              endButton: new Button({
+                text: "Cancel",
+                press: function () {
+                  oDialog.close();
+                }
+              })
+            });
+
+            oDialog.open();
+          }
+        });
+      });
+
+      // Render the standalone XML View directly to the DOM
+      sap.ui.core.mvc.XMLView.create({
+        definition: sLoginViewXml
+      }).then(function (oView) {
+        oView.placeAt("content");
+      });
+    });
+  </script>
+</head>
+<body class="sapUiBody" id="content">
+</body>
+</html>
