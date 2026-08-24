@@ -1,0 +1,164 @@
+<mvc:View
+    controllerName="kyra001.pages.login.Login"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+    
+    <Page showHeader="false" enableScrolling="false" class="kyraDesktopLoginPage">
+        <content>
+            <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="NoWrap" height="100%" width="100%">
+                
+                <!-- ================= LEFT SECTION (45% WIDTH) ================= -->
+                <VBox class="kyraLoginLeftPanel">
+                    
+                    <!-- Top-Left Branding -->
+                    <HBox alignItems="Center" class="kyraLeftBrandHeader">
+                        <Avatar
+                            src="sap-icon://shield"
+                            displaySize="S"
+                            type="Icon"
+                            backgroundColor="Accent6"
+                            class="kyraBrandShieldIcon" />
+                        <VBox class="sapUiTinyMarginBegin">
+                            <Text text="KYRA" class="kyraBrandLogoText" />
+                            <Text text="ENTERPRISE ACCESS" class="kyraBrandLogoSub" />
+                        </VBox>
+                    </HBox>
+
+                    <!-- Vertically Centered Main Block: Headline, Description, Shield Visual & 3 Features -->
+                    <VBox class="kyraLeftCenteredBlock" justifyContent="Center" alignItems="Start">
+                        <Title text="Secure Access.&#10;Total Control." level="H1" class="kyraHeroTitle" />
+                        <Text
+                            text="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your hybrid cloud ecosystem."
+                            class="kyraHeroDescription" />
+
+                        <!-- Futuristic Large Blue Security Shield Graphic Visual -->
+                        <VBox class="kyraHeroShieldGraphicWrapper" alignItems="Center" justifyContent="Center" width="100%">
+                            <core:HTML content='&lt;div class="kyra-futuristic-shield-container"&gt;&lt;div class="kyra-shield-outer-glow"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-1"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-2"&gt;&lt;/div&gt;&lt;div class="kyra-shield-core"&gt;&lt;svg width="88" height="88" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path d="M12 2L3 7V12C3 17.52 6.84 22.74 12 24C17.16 22.74 21 17.52 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round"/&gt;&lt;path d="M9 12L11 14L15 10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/&gt;&lt;defs&gt;&lt;linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="24" gradientUnits="userSpaceOnUse"&gt;&lt;stop stop-color="#2563EB"/&gt;&lt;stop offset="1" stop-color="#1D4ED8"/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div class="kyra-shield-badge badge-top-left"&gt;&lt;span class="dot"&gt;&lt;/span&gt; 256-Bit TLS&lt;/div&gt;&lt;div class="kyra-shield-badge badge-bottom-right"&gt;&lt;span class="dot green"&gt;&lt;/span&gt; Zero Trust Ready&lt;/div&gt;&lt;/div&gt;' />
+                        </VBox>
+
+                        <!-- 3 Security Features Placed Together Right Below Shield -->
+                        <HBox class="kyraLeftFeaturesRow" justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                            <HBox alignItems="Center" class="kyraFeatureItem">
+                                <core:Icon src="sap-icon://shield-check" class="kyraFeatureIcon" />
+                                <VBox class="sapUiTinyMarginBegin">
+                                    <Text text="Enterprise Grade" class="kyraFeatureTitle" />
+                                    <Text text="Security" class="kyraFeatureSub" />
+                                </VBox>
+                            </HBox>
+
+                            <HBox alignItems="Center" class="kyraFeatureItem">
+                                <core:Icon src="sap-icon://user-settings" class="kyraFeatureIcon" />
+                                <VBox class="sapUiTinyMarginBegin">
+                                    <Text text="Role Based" class="kyraFeatureTitle" />
+                                    <Text text="Access" class="kyraFeatureSub" />
+                                </VBox>
+                            </HBox>
+
+                            <HBox alignItems="Center" class="kyraFeatureItem">
+                                <core:Icon src="sap-icon://activity-assigned-to-goal" class="kyraFeatureIcon" />
+                                <VBox class="sapUiTinyMarginBegin">
+                                    <Text text="Real-time" class="kyraFeatureTitle" />
+                                    <Text text="Monitoring" class="kyraFeatureSub" />
+                                </VBox>
+                            </HBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- ================= RIGHT SECTION (55% WIDTH) ================= -->
+                <VBox class="kyraLoginRightPanel" justifyContent="Center" alignItems="Center">
+                    <VBox class="kyraLoginCardContainer">
+                        
+                        <!-- Top Card Header -->
+                        <VBox alignItems="Center" class="kyraCardHeaderBox">
+                            <Avatar
+                                src="sap-icon://shield"
+                                displaySize="M"
+                                type="Icon"
+                                backgroundColor="Accent6"
+                                class="kyraCardShieldAvatar" />
+                            <Title text="KYRA Enterprise" level="H2" class="kyraCardBrandTitle" />
+                            <Text text="Secure Admin Access Portal" class="kyraCardBrandSub" />
+                            <Text text="Welcome back! Please sign in to continue." class="kyraCardWelcomeText" />
+                        </VBox>
+
+                        <!-- Error Notification MessageStrip -->
+                        <MessageStrip
+                            visible="{login>/hasError}"
+                            text="{login>/errorMessage}"
+                            type="Error"
+                            showIcon="true"
+                            showCloseButton="true"
+                            close=".onDismissError"
+                            class="sapUiSmallMarginBottom" />
+
+                        <!-- Form Controls Container -->
+                        <VBox width="100%" class="kyraLoginFormBody">
+                            
+                            <!-- Login As Dropdown -->
+                            <VBox class="kyraFormGroup" width="100%">
+                                <Label text="Login As" labelFor="roleSelect" class="kyraFormLabel" />
+                                <Select
+                                    id="roleSelect"
+                                    selectedKey="{login>/selectedRole}"
+                                    change=".onRoleChange"
+                                    width="100%"
+                                    class="kyraModernSelect">
+                                    <items>
+                                        <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
+                                        <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
+                                        <core:Item key="Compliance Approver" text="Compliance Approver" icon="sap-icon://user-settings" />
+                                    </items>
+                                </Select>
+                            </VBox>
+
+                            <!-- Dynamic ID Input Field (No Password) -->
+                            <VBox class="kyraFormGroup" width="100%">
+                                <Label text="{login>/idLabel}" labelFor="idInput" class="kyraFormLabel" />
+                                <Input
+                                    id="idInput"
+                                    value="{login>/userId}"
+                                    placeholder="{login>/idPlaceholder}"
+                                    valueState="{login>/idState}"
+                                    valueStateText="{login>/idStateText}"
+                                    liveChange=".onInputChange"
+                                    change=".onInputChange"
+                                    submit=".onLogin"
+                                    showClearButton="true"
+                                    class="kyraModernInput"
+                                    width="100%" />
+                            </VBox>
+
+                            <!-- Remember Me Row -->
+                            <FlexBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraRememberRow">
+                                <CheckBox text="Remember Me" selected="{login>/rememberMe}" class="kyraModernCheckBox" />
+                                <Link text="Need Help?" press=".onForgotPassword" class="kyraHelpLink" />
+                            </FlexBox>
+
+                            <!-- Full Width Primary Blue Sign In Button -->
+                            <Button
+                                id="signInButton"
+                                text="Sign In"
+                                icon="sap-icon://navigation-right-arrow"
+                                iconFirst="false"
+                                type="Emphasized"
+                                width="100%"
+                                press=".onLogin"
+                                busy="{login>/isBusy}"
+                                class="kyraPrimarySignInBtn" />
+
+                            <!-- Bottom Security Verification Note -->
+                            <HBox justifyContent="Center" alignItems="Center" class="kyraSecurityFooterNote">
+                                <core:Icon src="sap-icon://unwired" class="kyraLockIconSmall" />
+                                <Text text="Protected by 256-Bit SSL Enterprise Identity Security" class="kyraSecurityNoteText" />
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </VBox>
+
+            </FlexBox>
+        </content>
+    </Page>
+</mvc:View>

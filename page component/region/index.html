@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Operations Directory - SAP UI5 Fiori Selector</title>
+  
+  <!-- SAP UI5 Bootstrapper -->
+  <script id="sap-ui-bootstrap"
+    src="https://sdk.openui5.org/resources/sap-ui-core.js"
+    data-sap-ui-theme="sap_horizon"
+    data-sap-ui-libs="sap.m, sap.ui.layout, sap.ui.core"
+    data-sap-ui-compatVersion="edge"
+    data-sap-ui-async="true">
+  </script>
+
+  <!-- Custom CSS for map overlays and styles -->
+  <link rel="stylesheet" href="style.css?v=5">
+
+  <script>
+    // Inline Controller definition
+    sap.ui.define("myApp.Controller", [
+      "sap/ui/core/mvc/Controller",
+      "sap/ui/model/json/JSONModel"
+    ], function (Controller, JSONModel) {
+      "use strict";
+
+      return Controller.extend("myApp.Controller", {
+        onInit: function () {
+          var oData = {
+            list: [
+              { id: "na", name: "North America", left: "20.5%", top: "32%" },
+              { id: "latam", name: "Latin America", left: "32.2%", top: "68%" },
+              { id: "eu", name: "Europe", left: "52%", top: "28%" },
+              { id: "me", name: "Middle East", left: "60%", top: "43.5%" },
+              { id: "af", name: "Africa", left: "53.2%", top: "58.5%" },
+              { id: "as", name: "Asia", left: "73%", top: "35%" },
+              { id: "apac", name: "Oceania / Australia", left: "84.5%", top: "72%" }
+            ],
+            selectedRegions: [],
+            hasSelection: false
+          };
+
+          var oModel = new JSONModel(oData);
+          this.getView().setModel(oModel, "regions");
+          this._aSelectedRegionIds = []; // Track multi-selected IDs
+        },
+
+        onAfterRendering: function () {
+          this._renderPins();
+          this._attachSelectAllListener();
+          this._updateSelectedChips();
+        },
+
+        // Click listener for the Select All button inside the map
+        _attachSelectAllListener: function () {
+          var oSelectAll = document.getElementById("selectAllBtn");
+          if (!oSelectAll) {
+            setTimeout(this._attachSelectAllListener.bind(this), 100);
+            return;
+          }
+
+          oSelectAll.addEventListener("click", function () {
+            var oModel = this.getView().getModel("regions");
+            var aRegions = oModel.getProperty("/list");
+            
+            // Toggle all regions
+            if (this._aSelectedRegionIds.length === aRegions.length) {
+              this._aSelectedRegionIds = [];
+              oSelectAll.classList.remove("active");
+            } else {
+              this._aSelectedRegionIds = aRegions.map(function(r) { return r.id; });
+              oSelectAll.classList.add("active");
+            }
+
+            this._updatePinSelectionStates();
+            this._updateSelectedChips();
+          }.bind(this));
+        },
+
+        // Render Location Pins on Map
+        _renderPins: function () {
+          var oPinsLayer = document.getElementById("pinsLayer");
+          if (!oPinsLayer) {
+            setTimeout(this._renderPins.bind(this), 100);
+            return;
+          }
+
+          oPinsLayer.innerHTML = "";
+          var aRegions = this.getView().getModel("regions").getProperty("/list");
+          var self = this;
+
+          aRegions.forEach(function (region) {
+            var oPinContainer = document.createElement("div");
+            oPinContainer.className = "map-pin-container";
+            oPinContainer.style.left = region.left;
+            oPinContainer.style.top = region.top;
+            oPinContainer.setAttribute("data-id", region.id);
+
+            if (self._aSelectedRegionIds.indexOf(region.id) !== -1) {
+              oPinContainer.classList.add("active");
+            }
+
+            oPinContainer.innerHTML = `
+              <div class="map-pin">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+              </div>
+              <div class="pin-label">${region.name}</div>
+            `;
+
+            // Toggle selection on clicking either pinpoint or region label
+            oPinContainer.addEventListener("click", function () {
+              self.toggleRegionSelection(region.id);
+            });
+
+            oPinsLayer.appendChild(oPinContainer);
+          });
+        },
+
+        // Toggle individual selection state
+        toggleRegionSelection: function (sId) {
+          var idx = this._aSelectedRegionIds.indexOf(sId);
+          if (idx === -1) {
+            this._aSelectedRegionIds.push(sId);
+          } else {
+            this._aSelectedRegionIds.splice(idx, 1);
+          }
+
+          this._updatePinSelectionStates();
+          this._updateSelectedChips();
+          this._updateSelectAllButtonState();
+        },
+
+        // Update pin class states in DOM
+        _updatePinSelectionStates: function () {
+          var self = this;
+          document.querySelectorAll(".map-pin-container").forEach(function (el) {
+            var sId = el.getAttribute("data-id");
+            var bSelected = self._aSelectedRegionIds.indexOf(sId) !== -1;
+            el.classList.toggle("active", bSelected);
+          });
+        },
+
+        // Update Select All Button Visual active state
+        _updateSelectAllButtonState: function () {
+          var oSelectAll = document.getElementById("selectAllBtn");
+          if (oSelectAll) {
+            var aRegions = this.getView().getModel("regions").getProperty("/list");
+            var bAllSelected = this._aSelectedRegionIds.length === aRegions.length;
+            oSelectAll.classList.toggle("active", bAllSelected);
+          }
+        },
+
+        // Update bound JSON model to show chips
+        _updateSelectedChips: function () {
+          var oModel = this.getView().getModel("regions");
+          var aRegions = oModel.getProperty("/list");
+          var self = this;
+
+          var aSelected = aRegions.filter(function (r) {
+            return self._aSelectedRegionIds.indexOf(r.id) !== -1;
+          });
+
+          oModel.setProperty("/selectedRegions", aSelected);
+          oModel.setProperty("/hasSelection", aSelected.length > 0);
+        },
+
+        // Remove a region selection via clicking its Fiori chip button
+        onRemoveChip: function (oEvent) {
+          var oSource = oEvent.getSource();
+          var oContext = oSource.getBindingContext("regions");
+          if (oContext) {
+            var sId = oContext.getProperty("id");
+            this.toggleRegionSelection(sId);
+          }
+        }
+      });
+    });
+
+    // Boot view
+    sap.ui.getCore().attachInit(function () {
+      sap.ui.require([
+        "sap/ui/core/mvc/XMLView"
+      ], function (XMLView) {
+        XMLView.create({
+          definition: `
+            <mvc:View
+              controllerName="myApp.Controller"
+              xmlns:mvc="sap.ui.core.mvc"
+              xmlns:core="sap.ui.core"
+              xmlns="sap.m"
+              displayBlock="true">
+              
+              <VBox alignContent="Center" alignItems="Center" justifyContent="Center" fitContainer="true" class="mapContainerVBox">
+                <!-- Map Area -->
+                <core:HTML content='&lt;div id="mapWrapper" class="map-wrapper"&gt;
+                        &lt;img src="world-map.jpg" alt="World Map" class="world-map-img"&gt;
+                        &lt;div id="pinsLayer" class="map-pins-layer"&gt;&lt;/div&gt;
+                        
+                        &lt;!-- Select All button resembling location labels --&gt;
+                        &lt;div id="selectAllBtn" class="select-all-btn-wrapper"&gt;
+                          &lt;div class="select-all-icon"&gt;
+                            &lt;svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor"&gt;
+                              &lt;path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/&gt;
+                            &lt;/svg&gt;
+                          &lt;/div&gt;
+                          &lt;span class="select-all-text"&gt;Select All Regions&lt;/span&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;'>
+                </core:HTML>
+
+                <!-- Selected Regions list container under the map -->
+                <VBox class="sapUiMediumMarginTop selected-regions-container" alignContent="Center" alignItems="Center">
+                  <Text text="Selected Regions" class="selected-regions-header sapUiTinyMarginBottom" />
+                  <HBox id="selectedChipsList" items="{regions>/selectedRegions}" class="selected-chips-list" justifyContent="Center" wrap="Wrap">
+                    <Button 
+                      text="{regions>name}" 
+                      icon="sap-icon://decline" 
+                      iconFirst="false" 
+                      press=".onRemoveChip"
+                      class="region-chip-btn sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+                  </HBox>
+                  <Text text="No regions selected" class="no-selection-text" visible="{= !\${regions>/hasSelection} }" />
+                </VBox>
+              </VBox>
+            </mvc:View>
+          `
+        }).then(function (oView) {
+          oView.placeAt("content");
+        }).catch(function (oError) {
+          console.error("Error creating view: ", oError);
+        });
+      });
+    });
+  </script>
+</head>
+<body class="sapUiBody" id="content">
+</body>
+</html>
