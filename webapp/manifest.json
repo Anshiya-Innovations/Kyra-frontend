@@ -44,11 +44,11 @@
   },
   "sap.ui5": {
     "resourceRoots": {
-      "kyra001.pages.login": "./page component/login page",
-      "kyra001.pages.access": "./page component/User Access Management Portal page",
-      "kyra001.pages.addAccessBusinessSector": "./page component/Add Access Business Sector Page",
-      "kyra001.pages.addAccess": "./page component/Add access",
-      "kyra001.pages.Approver": "./page component/Approver"
+      "kyra001.pages.login": "./page%20component/login%20page",
+      "kyra001.pages.access": "./page%20component/User%20Access%20Management%20Portal%20page",
+      "kyra001.pages.addAccessBusinessSector": "./page%20component/Add%20Access%20Business%20Sector%20Page",
+      "kyra001.pages.addAccess": "./page%20component/Add%20access",
+      "kyra001.pages.Approver": "./page%20component/Approver"
     },
     "flexEnabled": true,
     "dependencies": {
