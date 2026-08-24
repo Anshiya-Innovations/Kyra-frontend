@@ -744,21 +744,21 @@ sap.ui.define([
 
             if (aSkippedItems.length > 0) {
                 sPopupHtml += `
-                <div class="kyra-dialog-section-header" style="color: #B45309; margin-top: 14px;">
-                    <span>Excluded / Already Configured</span>
-                    <span class="kyra-dialog-badge kyra-dialog-badge-warning">${aSkippedItems.length} Item(s)</span>
+                <div class="kyra-dialog-section-header" style="margin-top: 18px;">
+                    <span class="kyra-dialog-section-title kyra-text-amber">Excluded / Already Configured</span>
+                    <span class="kyra-dialog-badge kyra-dialog-badge-warning">${aSkippedItems.length} Items</span>
                 </div>
                 <div class="kyra-dialog-list">
                     ${aSkippedItems.map(i => `
                         <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-warning">
                             <div class="kyra-dialog-card-left">
                                 <div class="kyra-dialog-card-top-row">
-                                    <span class="kyra-dialog-req-id" style="color: #92400E;">${i.requestId}</span>
+                                    <span class="kyra-dialog-req-id kyra-req-id-warning">${i.requestId}</span>
                                     <span class="kyra-dialog-sys-tag kyra-sys-tag-warning">${i.system}</span>
                                 </div>
                                 <div class="kyra-dialog-card-role-row">
-                                    <span class="kyra-dialog-role-title" style="color: #78350F;"><strong>${i.roleTitle || i.roleName}</strong></span>
-                                    <span class="kyra-dialog-topic-label">(${i.topic || 'System'})</span>
+                                    <span class="kyra-dialog-role-title kyra-role-title-warning">${i.roleTitle || i.roleName}</span>
+                                    <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
                                 </div>
                                 ${i.persona ? `
                                 <div class="kyra-dialog-card-persona-row">
@@ -770,7 +770,7 @@ sap.ui.define([
                                 ` : ''}
                             </div>
                             <div class="kyra-dialog-card-right">
-                                <span class="kyra-dialog-item-status-pill kyra-status-skipped">ℹ ${i.existingStatus}</span>
+                                <span class="kyra-dialog-item-status-pill kyra-status-skipped">Already has this access</span>
                             </div>
                         </div>
                     `).join("")}
@@ -784,7 +784,7 @@ sap.ui.define([
                     title: "Access Request Submitted",
                     messageHtml: sPopupHtml,
                     type: "success",
-                    maxWidth: "640px",
+                    maxWidth: "700px",
                     buttonText: "Done"
                 });
             } else {

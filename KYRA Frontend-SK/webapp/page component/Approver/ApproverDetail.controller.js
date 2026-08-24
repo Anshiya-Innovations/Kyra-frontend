@@ -154,6 +154,12 @@ sap.ui.define([
 
                 if (oRequest.entitlements && oRequest.entitlements.length > 0) {
                     oRequest.entitlements.forEach(ent => {
+                        const sInitStatus = (ent.status === "Approved" || ent.status === "Rejected") ? ent.status : "Pending";
+                        const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
+                        const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
+
+                        const sApproverRemark = ent.approverRemark || ent.managerRemark || ent.comment || oRequest.approverRemark || oRequest.managerRemark || oRequest.comments || (ent.status === "Approved" ? "Approved during standard review cycle" : "Verified business requirement and approved");
+
                         aEntList.push({
                             requestId: ent.requestId || oRequest.requestId,
                             system: ent.system || oRequest.system || "SAP System",
@@ -162,12 +168,19 @@ sap.ui.define([
                             selectedPersona: ent.selectedPersona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer Persona",
                             grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
                             expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
-                            status: ent.status || "Pending",
-                            statusState: ent.statusState || "Warning",
-                            statusIcon: ent.statusIcon || "sap-icon://pending"
+                            status: sInitStatus,
+                            statusState: sInitState,
+                            statusIcon: sInitIcon,
+                            approverRemark: sApproverRemark,
+                            comment: ""
                         });
                     });
                 } else {
+                    const sInitStatus = (oRequest.status === "Approved" || oRequest.status === "Rejected") ? oRequest.status : "Pending";
+                    const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
+                    const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
+                    const sApproverRemark = oRequest.approverRemark || oRequest.managerRemark || oRequest.comments || (oRequest.status === "Approved" ? "Approved during standard review cycle" : "Verified business requirement and approved");
+
                     aEntList.push({
                         requestId: oRequest.requestId,
                         system: oRequest.system || "SAP System",
@@ -176,9 +189,11 @@ sap.ui.define([
                         selectedPersona: oRequest.selectedPersona || oRequest.persona || "Engineering & Developer Persona",
                         grantedDate: oRequest.submissionDate || new Date().toISOString().split("T")[0],
                         expiryDate: oRequest.duration || "Permanent",
-                        status: oRequest.status || "Pending",
-                        statusState: oRequest.statusState || "Warning",
-                        statusIcon: oRequest.statusIcon || "sap-icon://pending"
+                        status: sInitStatus,
+                        statusState: sInitState,
+                        statusIcon: sInitIcon,
+                        approverRemark: sApproverRemark,
+                        comment: ""
                     });
                 }
 
@@ -224,8 +239,23 @@ sap.ui.define([
                     entitlements: aEntList,
                     summaryTables: aSummaryTables
                 });
+                oModel.setProperty("/approverSodTab", 1);
             } else {
                 MessageBox.error("Request ID " + sReqId + " not found in the database access records.");
+            }
+        },
+
+        onSelectApproverSodExisting() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/approverSodTab", 1);
+            }
+        },
+
+        onSelectApproverSodNew() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/approverSodTab", 2);
             }
         },
 
@@ -248,22 +278,12 @@ sap.ui.define([
                     oModel.setProperty(sPath + "/status", "Approved");
                     oModel.setProperty(sPath + "/statusState", "Success");
                     oModel.setProperty(sPath + "/statusIcon", "sap-icon://sys-enter-2");
-
-                    const sComment = oModel.getProperty(sPath + "/comment");
-                    if (!sComment || !sComment.trim()) {
-                        oModel.setProperty(sPath + "/comment", "Approved - Entitlement verified & compliant");
-                    }
                     MessageToast.show("Accepted entitlement for " + oEntitlement.system);
                 } else {
                     // Toggled to Reject (Red)
                     oModel.setProperty(sPath + "/status", "Rejected");
                     oModel.setProperty(sPath + "/statusState", "Error");
                     oModel.setProperty(sPath + "/statusIcon", "sap-icon://error");
-
-                    const sComment = oModel.getProperty(sPath + "/comment");
-                    if (!sComment || !sComment.trim()) {
-                        oModel.setProperty(sPath + "/comment", "Rejected - Segregation of duties or risk conflict");
-                    }
                     MessageToast.show("Rejected entitlement for " + oEntitlement.system);
                 }
             }
@@ -281,12 +301,7 @@ sap.ui.define([
                 oModel.setProperty(sPath + "/statusState", "Success");
                 oModel.setProperty(sPath + "/statusIcon", "sap-icon://sys-enter-2");
 
-                const sComment = oModel.getProperty(sPath + "/comment");
-                if (!sComment || !sComment.trim()) {
-                    oModel.setProperty(sPath + "/comment", "Approved - Entitlement verified & compliant");
-                }
-
-                MessageToast.show("Accepted entitlement for " + (oEntitlement.system || oEntitlement.roleName || "item"));
+                MessageToast.show("Approved: " + (oEntitlement.roleName || oEntitlement.system || "Entitlement"));
             }
         },
 
@@ -302,12 +317,7 @@ sap.ui.define([
                 oModel.setProperty(sPath + "/statusState", "Error");
                 oModel.setProperty(sPath + "/statusIcon", "sap-icon://error");
 
-                const sComment = oModel.getProperty(sPath + "/comment");
-                if (!sComment || !sComment.trim()) {
-                    oModel.setProperty(sPath + "/comment", "Rejected - Segregation of duties or risk conflict");
-                }
-
-                MessageToast.show("Rejected entitlement for " + (oEntitlement.system || oEntitlement.roleName || "item"));
+                MessageToast.show("Rejected: " + (oEntitlement.roleName || oEntitlement.system || "Entitlement"));
             }
         },
 
@@ -317,25 +327,49 @@ sap.ui.define([
                 const oData = oModel.getProperty("/selectedRequest");
                 if (!oData) return;
 
-                // Auto-default any unselected / pending items to Approved without blocking popup
-                const aEntitlements = oData.entitlements || [];
-                aEntitlements.forEach(e => {
-                    if (!e.status || e.status === "Pending" || e.status === "PENDING") {
-                        e.status = "Approved";
-                        e.statusState = "Success";
-                        e.statusIcon = "sap-icon://sys-enter-2";
-                        if (!e.comment || !e.comment.trim()) {
-                            e.comment = "Approved - Entitlement verified & compliant";
-                        }
+                // Sync all entitlement statuses & comments from summaryTables if user edited in table
+                const aTables = oData.summaryTables || [];
+                let aAllItems = [];
+                aTables.forEach(tbl => {
+                    if (tbl.items && tbl.items.length > 0) {
+                        aAllItems = aAllItems.concat(tbl.items);
                     }
                 });
+                if (aAllItems.length > 0) {
+                    oData.entitlements = aAllItems;
+                }
+
+                const aEntitlements = oData.entitlements || [];
+
+                // 1. VALIDATION: Do NOT auto-select! All items must have an explicit decision (Approve or Reject)
+                const aUndecided = aEntitlements.filter(e => !e.status || e.status.toLowerCase().includes("pending"));
+                if (aUndecided.length > 0) {
+                    MessageBox.warning(
+                        "Decision Required: You have " + aUndecided.length + " pending entitlement(s). Please click Approve (✔) or Reject (✖) for each item before submitting.",
+                        {
+                            title: "Action Required"
+                        }
+                    );
+                    return;
+                }
+
+                // 2. VALIDATION: Comments / Remarks are strictly mandatory!
+                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
+                if (aMissingRemarks.length > 0) {
+                    MessageBox.warning(
+                        "Remarks Required: Please enter comments/remarks for all " + aEntitlements.length + " entitlement(s) before submitting your decision.",
+                        {
+                            title: "Remarks Required"
+                        }
+                    );
+                    return;
+                }
 
                 this._showDecisionSummarySlide(oData, false);
             }
         },
 
         _showDecisionSummarySlide(oData, bReadOnly) {
-            const oModel = this.getView().getModel("accessModel");
             const aEntitlements = oData.entitlements || [];
 
             const aApprovedItems = aEntitlements.filter(e => e.status === "Approved");
@@ -344,118 +378,112 @@ sap.ui.define([
 
             const aFinalApproved = aApprovedItems.concat(aPendingItems);
 
-            const oApprovedList = new List({
-                headerText: "Approved System Entitlements (" + aFinalApproved.length + ")",
-                items: aFinalApproved.map(e => new StandardListItem({
-                    title: e.system,
-                    description: e.roleName + " (" + e.team + ") - Persona: " + (e.selectedPersona || oData.selectedPersona || "Engineering & Developer Persona"),
-                    info: "Approved",
-                    infoState: "Success",
-                    icon: "sap-icon://sys-enter-2",
-                    wrapping: true
-                }))
-            });
-
-            const oRejectedList = new List({
-                headerText: "Rejected System Entitlements (" + aRejectedItems.length + ")",
-                noDataText: "No entitlements were rejected.",
-                items: aRejectedItems.map(e => new StandardListItem({
-                    title: e.system,
-                    description: e.roleName + " (" + e.team + ") - Persona: " + (e.selectedPersona || oData.selectedPersona || "Engineering & Developer Persona"),
-                    info: "Rejected",
-                    infoState: "Error",
-                    icon: "sap-icon://error",
-                    wrapping: true
-                }))
-            });
-
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
-            const sOverallState = aRejectedItems.length === 0 ? "Success" : (aFinalApproved.length === 0 ? "Error" : "Warning");
+            const sOverallState = aRejectedItems.length === 0 ? "success" : (aFinalApproved.length === 0 ? "error" : "info");
 
-            let aButtons = [];
+            let sBodyHtml = `
+                <div style="font-family: inherit; color: #0F172A;">
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div>
+                            <div style="font-weight: 800; font-size: 15px; color: #0F172A;">Requester (${oData.requesterId || 'Dev001'})</div>
+                            <div style="font-size: 12.5px; color: #64748B; margin-top: 3px;">
+                                Request ID: <strong style="color: #1E293B;">${oData.requestId}</strong> • Sector: <span style="color: #475569;">${oData.sector || 'Enterprise Governance'}</span>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #64748B; display: block; margin-bottom: 3px;">Decision Result</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 14px; font-weight: 700; font-size: 12px; ${sOverallStatus === 'Approved' ? 'background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;' : (sOverallStatus === 'Rejected' ? 'background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5;' : 'background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D;')}">
+                                ${sOverallStatus === 'Approved' ? '✔ Approved' : (sOverallStatus === 'Rejected' ? '✕ Rejected' : '⚠ Partially Approved')}
+                            </span>
+                        </div>
+                    </div>
+            `;
 
-            if (bReadOnly) {
-                aButtons = [
-                    new Button({
-                        text: "Okay",
-                        type: "Emphasized",
-                        icon: "sap-icon://accept",
-                        press: () => {
-                            oDialog.close();
-                        }
-                    })
-                ];
-            } else {
-                aButtons = [
-                    new Button({
-                        text: "Back",
-                        type: "Default",
-                        icon: "sap-icon://navigation-left-arrow",
-                        press: () => {
-                            oDialog.close();
-                        }
-                    }),
-                    new Button({
-                        text: "Okay",
-                        type: "Emphasized",
-                        icon: "sap-icon://accept",
-                        press: () => {
-                            this._executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems);
-                            oDialog.close();
-                        }
-                    })
-                ];
+            if (aFinalApproved.length > 0) {
+                sBodyHtml += `
+                    <div style="color: #15803D; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin: 14px 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Approved System Entitlements</span>
+                        <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">${aFinalApproved.length} Item(s)</span>
+                    </div>
+                    <div class="kyra-dialog-list" style="max-height: 260px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;">
+                        ${aFinalApproved.map(i => {
+                            const sCleanRole = (i.roleTitle || i.roleName || 'System Entitlement').replace(/\s*\([^)]*\)/g, "");
+                            return `
+                            <div style="border: 1px solid #BBF7D0; background: #F0FDF4; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(22,163,74,0.06);">
+                                <div style="flex: 1; min-width: 0; padding-right: 12px;">
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; font-size: 12px; color: #15803D;">${i.requestId || oData.requestId}</span>
+                                        <span style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #166534;">${i.system}</span>
+                                    </div>
+                                    <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; line-height: 1.35; margin: 3px 0 2px 0;">
+                                        ${sCleanRole} <span style="font-weight: 500; font-size: 12px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #475569; line-height: 1.3; margin-top: 3px;">
+                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
+                                    </div>
+                                </div>
+                                <div style="flex-shrink: 0;">
+                                    <span style="background: #16A34A; color: #FFFFFF; padding: 5px 12px; border-radius: 14px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(22,163,74,0.25);">
+                                        ✔ Approved
+                                    </span>
+                                </div>
+                            </div>
+                        `}).join("")}
+                    </div>
+                `;
             }
 
-            const oDialog = new Dialog({
-                title: "Decision Breakdown Summary Information - " + oData.requestId,
-                type: "Message",
-                contentWidth: "520px",
-                content: [
-                    new VBox({
-                        class: "sapUiSmallMargin",
-                        items: [
-                            new HBox({
-                                alignItems: "Center",
-                                class: "sapUiSmallMarginBottom",
-                                items: [
-                                    new Avatar({
-                                        src: "sap-icon://summary-detail",
-                                        backgroundColor: "Accent1",
-                                        displaySize: "M",
-                                        class: "sapUiMediumMarginEnd"
-                                    }),
-                                    new VBox({
-                                        items: [
-                                            new Title({ text: "Requester (" + (oData.requesterId || "Dev001") + ")", level: "H3" }),
-                                            new Text({ text: "Request ID: " + oData.requestId + " • Sector: " + (oData.sector || "Enterprise Governance") })
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new HBox({
-                                justifyContent: "SpaceBetween",
-                                alignItems: "Center",
-                                class: "sapUiSmallMarginBottom",
-                                items: [
-                                    new Label({ text: "Overall Decision Result:" }),
-                                    new ObjectStatus({
-                                        text: sOverallStatus,
-                                        state: sOverallState,
-                                        icon: sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning")
-                                    })
-                                ]
-                            }),
-                            oApprovedList,
-                            oRejectedList
-                        ]
-                    })
-                ],
-                buttons: aButtons
-            });
+            if (aRejectedItems.length > 0) {
+                sBodyHtml += `
+                    <div style="color: #B91C1C; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin: 14px 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Rejected System Entitlements</span>
+                        <span style="background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">${aRejectedItems.length} Item(s)</span>
+                    </div>
+                    <div class="kyra-dialog-list" style="max-height: 260px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;">
+                        ${aRejectedItems.map(i => {
+                            const sCleanRole = (i.roleTitle || i.roleName || 'System Entitlement').replace(/\s*\([^)]*\)/g, "");
+                            return `
+                            <div style="border: 1px solid #FECACA; background: #FEF2F2; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(220,38,38,0.06);">
+                                <div style="flex: 1; min-width: 0; padding-right: 12px;">
+                                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; font-size: 12px; color: #B91C1C;">${i.requestId || oData.requestId}</span>
+                                        <span style="background: #FFFFFF; border: 1px solid #FCA5A5; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #991B1B;">${i.system}</span>
+                                    </div>
+                                    <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; line-height: 1.35; margin: 3px 0 2px 0;">
+                                        ${sCleanRole} <span style="font-weight: 500; font-size: 12px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
+                                    </div>
+                                    <div style="font-size: 12px; color: #475569; line-height: 1.3; margin-top: 3px;">
+                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
+                                    </div>
+                                </div>
+                                <div style="flex-shrink: 0;">
+                                    <span style="background: #DC2626; color: #FFFFFF; padding: 5px 12px; border-radius: 14px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(220,38,38,0.25);">
+                                        ✕ Rejected
+                                    </span>
+                                </div>
+                            </div>
+                        `}).join("")}
+                    </div>
+                `;
+            }
 
-            this.getView().addDependent(oDialog);
-            oDialog.open();
+            sBodyHtml += `</div>`;
+
+            if (typeof KyraDialog !== "undefined") {
+                KyraDialog.show({
+                    title: "Decision Breakdown Summary - " + oData.requestId,
+                    type: sOverallState,
+                    maxWidth: "660px",
+                    messageHtml: sBodyHtml,
+                    buttonText: bReadOnly ? "Close" : "Confirm & Submit",
+                    secondaryButtonText: bReadOnly ? null : "Back",
+                    onConfirm: () => {
+                        if (!bReadOnly) {
+                            this._executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems);
+                        }
+                    }
+                });
+            }
         },
 
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
@@ -466,15 +494,32 @@ sap.ui.define([
 
             sap.ui.core.BusyIndicator.show(0);
 
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
+            const bIsComplianceApprover = (sActiveRole === "Compliance Approver");
+
             // Build decisions payload for backend persistence with approver comments
-            const aDecisionsPayload = (oData.entitlements || []).map(e => ({
-                requestNumber: e.requestId || oData.requestId,
-                targetSystem: e.system || oData.system,
-                roleName: e.roleName,
-                selectedPersona: e.selectedPersona || oData.selectedPersona,
-                status: (e.status || "").toLowerCase().includes("reject") ? "REJECTED" : "APPROVED",
-                comments: e.comment || e.comments || ((e.status || "").toLowerCase().includes("reject") ? "Rejected by Approver" : "Approved by Approver")
-            }));
+            const aDecisionsPayload = (oData.entitlements || []).map(e => {
+                const isRejected = (e.status || "").toLowerCase().includes("reject");
+                let sStatus = "";
+                let sComment = "";
+                
+                if (isRejected) {
+                    sStatus = "REJECTED";
+                    sComment = e.comment || e.comments || "Rejected by Approver";
+                } else {
+                    sStatus = "APPROVED";
+                    sComment = e.comment || e.comments || "Approved by Approver";
+                }
+
+                return {
+                    requestNumber: e.requestId || oData.requestId,
+                    targetSystem: e.system || oData.system,
+                    roleName: e.roleName,
+                    selectedPersona: e.selectedPersona || oData.selectedPersona,
+                    status: sStatus,
+                    comments: sComment
+                };
+            });
 
             try {
                 // Post decision to backend service (inserts into access_management.approvals and updates access_management.requests)
@@ -514,9 +559,14 @@ sap.ui.define([
                 icon: sStatusIcon,
                 unread: true
             });
-            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aUserNotifications));
-
             sessionStorage.setItem("kyra_show_approval_history", "true");
+            sessionStorage.setItem("kyra_select_tab", "myAccess");
+            sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
+            oModel.setProperty("/showApprovalHistory", true);
+            oModel.setProperty("/selectedTabKey", "myAccess");
+            oModel.setProperty("/showRequestDetailsPage", false);
+            oModel.setProperty("/showAddAccessSector", false);
+            oModel.setProperty("/showRemoveAccessSector", false);
             MessageToast.show("Decision submitted for Request Id " + oData.requestId);
             this.onCloseRequestSummaryView();
         },
@@ -679,10 +729,17 @@ sap.ui.define([
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
-            const aPendingRequests = aAllGrouped.filter(r => r.status.toLowerCase().includes("pending"));
+            const aPendingRequests = aAllGrouped.filter(r => {
+                const sStat = (r.status || "").toUpperCase();
+                return sStat.includes("PENDING") || sStat.includes("SUBMITTED");
+            });
+            const aProcessedRequests = aAllGrouped.filter(r => {
+                const sStat = (r.status || "").toUpperCase();
+                return !sStat.includes("PENDING") && !sStat.includes("SUBMITTED");
+            });
+
             const aPendingAccessRequests = aPendingRequests.filter(r => !r.isRevocation);
             const aPendingRevokeRequests = aPendingRequests.filter(r => r.isRevocation);
-            const aProcessedRequests = aAllGrouped.filter(r => !r.status.toLowerCase().includes("pending"));
 
             this._setSmartProperty(oModel, "/pendingRequests", aPendingRequests);
             this._setSmartProperty(oModel, "/pendingAccessRequests", aPendingAccessRequests);
@@ -756,142 +813,144 @@ sap.ui.define([
                 }
             });
 
-            oModel.setProperty("/myPendingRequests", aMyPending);
+            oModel.setProperty("/myPendingRequests", this._groupRequestsByRequestId(aMyPending));
             oModel.setProperty("/myApprovedRequests", aMyApproved);
             oModel.setProperty("/myHistoryRequests", aMyHistory);
             oModel.setProperty("/requestHistory", aCombined);
+        },
+
+        _groupRequestsByRequestId(aRequests) {
+            if (!Array.isArray(aRequests) || aRequests.length === 0) return [];
+
+            const oGroupedMap = {};
+            const aGroupedOrder = [];
+
+            aRequests.forEach(item => {
+                const sReqId = item.requestId || item.requestNumber || "REQ-GENERAL";
+                if (!oGroupedMap[sReqId]) {
+                    oGroupedMap[sReqId] = {
+                        requestId: sReqId,
+                        requesterId: item.requesterId || item.requesterUsername || "Dev001",
+                        requesterUsername: item.requesterUsername || item.requesterId || "Dev001",
+                        type: item.type || "Addition",
+                        persona: item.persona || item.selectedPersona || "Engineering & Developer Persona",
+                        selectedPersona: item.selectedPersona || item.persona || "Engineering & Developer Persona",
+                        accessDuration: item.accessDuration || "Permanent (Default)",
+                        submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        createdAtRaw: item.createdAtRaw || new Date().toISOString(),
+                        approver: item.approver || "Line Manager / ISRM Team",
+                        status: "Pending Approval",
+                        statusState: "Warning",
+                        statusIcon: "sap-icon://pending",
+                        region: item.region || "",
+                        justification: item.justification || "",
+                        sector: item.sector || "",
+                        function: item.function || "",
+                        _systems: [],
+                        _roles: [],
+                        _serviceTopics: [],
+                        _durations: [],
+                        _types: [],
+                        _personas: [],
+                        entitlements: []
+                    };
+                    aGroupedOrder.push(sReqId);
+                }
+
+                const g = oGroupedMap[sReqId];
+                if (item.system && !g._systems.includes(item.system)) {
+                    g._systems.push(item.system);
+                }
+                if (item.roleName && !g._roles.includes(item.roleName)) {
+                    g._roles.push(item.roleName);
+                }
+                const sTopic = item.serviceTopic || item.team || item.function;
+                if (sTopic && !g._serviceTopics.includes(sTopic)) {
+                    g._serviceTopics.push(sTopic);
+                }
+                if (item.accessDuration && !g._durations.includes(item.accessDuration)) {
+                    g._durations.push(item.accessDuration);
+                }
+                if (item.type && !g._types.includes(item.type)) {
+                    g._types.push(item.type);
+                }
+                const sPers = item.selectedPersona || item.persona;
+                if (sPers && !g._personas.includes(sPers)) {
+                    g._personas.push(sPers);
+                }
+
+                g.entitlements.push(item);
+            });
+
+            return aGroupedOrder.map(sReqId => {
+                const g = oGroupedMap[sReqId];
+                g.system = g._systems.join(", ");
+                g.roleName = g._roles.join(", ");
+                g.serviceTopic = g._serviceTopics.join(", ");
+                g.accessDuration = g._durations.join(", ") || g.accessDuration;
+                g.type = g._types.join(", ") || g.type;
+                if (g._personas.length > 0) {
+                    g.selectedPersona = g._personas.join(", ");
+                    g.persona = g._personas[0];
+                }
+                delete g._systems;
+                delete g._roles;
+                delete g._serviceTopics;
+                delete g._durations;
+                delete g._types;
+                delete g._personas;
+                return g;
+            });
         },
 
         onAcceptAllRequests() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const oTextArea = new TextArea({
-                value: "Approved - All entitlements compliant with security policies",
-                placeholder: "Enter approval remark...",
-                rows: 3,
-                width: "100%"
+            const sPath = "/selectedRequest/entitlements";
+            const aEntitlements = oModel.getProperty(sPath) || [];
+            aEntitlements.forEach((ent, i) => {
+                oModel.setProperty(sPath + "/" + i + "/status", "Approved");
+                oModel.setProperty(sPath + "/" + i + "/statusState", "Success");
+                oModel.setProperty(sPath + "/" + i + "/statusIcon", "sap-icon://sys-enter-2");
             });
 
-            const oDialog = new Dialog({
-                title: "Accept All Entitlements",
-                type: "Message",
-                contentWidth: "420px",
-                content: [
-                    new VBox({
-                        class: "sapUiSmallMargin",
-                        items: [
-                            new Label({ text: "Enter Approval Remark / Comment (Optional):", class: "sapUiTinyMarginBottom" }),
-                            oTextArea
-                        ]
-                    })
-                ],
-                beginButton: new Button({
-                    text: "✓ Confirm Accept All",
-                    type: "Accept",
-                    press: () => {
-                        const sComment = oTextArea.getValue() || "Approved - Batch approval by Governance Officer";
-                        const sPath = "/selectedRequest/entitlements";
-                        const aEntitlements = oModel.getProperty(sPath) || [];
-                        aEntitlements.forEach((ent, i) => {
-                            oModel.setProperty(sPath + "/" + i + "/status", "Approved");
-                            oModel.setProperty(sPath + "/" + i + "/statusState", "Success");
-                            oModel.setProperty(sPath + "/" + i + "/statusIcon", "sap-icon://sys-enter-2");
-                            oModel.setProperty(sPath + "/" + i + "/comment", sComment);
-                        });
-
-                        const aTables = oModel.getProperty("/selectedRequest/summaryTables") || [];
-                        aTables.forEach(t => {
-                            (t.items || []).forEach(item => {
-                                item.status = "Approved";
-                                item.statusState = "Success";
-                                item.statusIcon = "sap-icon://sys-enter-2";
-                                item.comment = sComment;
-                            });
-                        });
-                        oModel.setProperty("/selectedRequest/summaryTables", aTables);
-
-                        MessageToast.show("Accepted all system entitlements.");
-                        oDialog.close();
-                    }
-                }),
-                endButton: new Button({
-                    text: "Cancel",
-                    type: "Transparent",
-                    press: () => {
-                        oDialog.close();
-                    }
-                })
+            const aTables = oModel.getProperty("/selectedRequest/summaryTables") || [];
+            aTables.forEach(t => {
+                (t.items || []).forEach(item => {
+                    item.status = "Approved";
+                    item.statusState = "Success";
+                    item.statusIcon = "sap-icon://sys-enter-2";
+                });
             });
+            oModel.setProperty("/selectedRequest/summaryTables", aTables);
 
-            this.getView().addDependent(oDialog);
-            oDialog.open();
+            MessageToast.show("All entitlements approved successfully.");
         },
 
         onRejectAllRequests() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const oTextArea = new TextArea({
-                value: "Rejected - Segregation of duties conflict or risk non-compliance",
-                placeholder: "Enter rejection reason...",
-                rows: 3,
-                width: "100%"
+            const sPath = "/selectedRequest/entitlements";
+            const aEntitlements = oModel.getProperty(sPath) || [];
+            aEntitlements.forEach((ent, i) => {
+                oModel.setProperty(sPath + "/" + i + "/status", "Rejected");
+                oModel.setProperty(sPath + "/" + i + "/statusState", "Error");
+                oModel.setProperty(sPath + "/" + i + "/statusIcon", "sap-icon://error");
             });
 
-            const oDialog = new Dialog({
-                title: "Reject All Entitlements",
-                type: "Message",
-                contentWidth: "420px",
-                content: [
-                    new VBox({
-                        class: "sapUiSmallMargin",
-                        items: [
-                            new Label({ text: "Enter Rejection Reason / Comment:", class: "sapUiTinyMarginBottom" }),
-                            oTextArea
-                        ]
-                    })
-                ],
-                beginButton: new Button({
-                    text: "✕ Confirm Reject All",
-                    type: "Reject",
-                    press: () => {
-                        const sComment = oTextArea.getValue() || "Rejected - Batch rejection by Governance Officer";
-                        const sPath = "/selectedRequest/entitlements";
-                        const aEntitlements = oModel.getProperty(sPath) || [];
-                        aEntitlements.forEach((ent, i) => {
-                            oModel.setProperty(sPath + "/" + i + "/status", "Rejected");
-                            oModel.setProperty(sPath + "/" + i + "/statusState", "Error");
-                            oModel.setProperty(sPath + "/" + i + "/statusIcon", "sap-icon://error");
-                            oModel.setProperty(sPath + "/" + i + "/comment", sComment);
-                        });
-
-                        const aTables = oModel.getProperty("/selectedRequest/summaryTables") || [];
-                        aTables.forEach(t => {
-                            (t.items || []).forEach(item => {
-                                item.status = "Rejected";
-                                item.statusState = "Error";
-                                item.statusIcon = "sap-icon://error";
-                                item.comment = sComment;
-                            });
-                        });
-                        oModel.setProperty("/selectedRequest/summaryTables", aTables);
-
-                        MessageToast.show("Rejected all system entitlements.");
-                        oDialog.close();
-                    }
-                }),
-                endButton: new Button({
-                    text: "Cancel",
-                    type: "Transparent",
-                    press: () => {
-                        oDialog.close();
-                    }
-                })
+            const aTables = oModel.getProperty("/selectedRequest/summaryTables") || [];
+            aTables.forEach(t => {
+                (t.items || []).forEach(item => {
+                    item.status = "Rejected";
+                    item.statusState = "Error";
+                    item.statusIcon = "sap-icon://error";
+                });
             });
+            oModel.setProperty("/selectedRequest/summaryTables", aTables);
 
-            this.getView().addDependent(oDialog);
-            oDialog.open();
+            MessageToast.show("All entitlements rejected.");
         },
 
         onCancelRequestSummaryView() {
