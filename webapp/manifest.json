@@ -1,0 +1,187 @@
+{
+  "_version": "1.86.0",
+  "sap.app": {
+    "id": "kyra001",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.29.0",
+      "toolsId": "a657b8c8-88b8-4ce7-9e8f-cc7eb68b3739"
+    },
+    "dataSources": {
+      "authService": {
+        "uri": "odata/v4/auth/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "resourceRoots": {
+      "kyra001.pages.login": "./page component/login page",
+      "kyra001.pages.access": "./page component/User Access Management Portal page",
+      "kyra001.pages.addAccessBusinessSector": "./page component/Add Access Business Sector Page",
+      "kyra001.pages.addAccess": "./page component/Add access",
+      "kyra001.pages.Approver": "./page component/Approver"
+    },
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.150.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "kyra001.i18n.i18n"
+        }
+      },
+      "auth": {
+        "dataSource": "authService",
+        "type": "sap.ui.model.odata.v4.ODataModel",
+        "settings": {
+          "operationMode": "Server",
+          "synchronizationMode": "None"
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        },
+        {
+          "uri": "page component/login page/style.css"
+        },
+        {
+          "uri": "page component/User Access Management Portal page/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "kyra001.pages",
+        "async": true,
+        "viewPath": "kyra001.pages"
+      },
+      "routes": [
+        {
+          "name": "Login",
+          "pattern": "",
+          "target": [
+            "TargetLogin"
+          ]
+        },
+        {
+          "name": "AccessPage",
+          "pattern": "accessPage",
+          "target": [
+            "TargetAccessPage"
+          ]
+        },
+        {
+          "name": "UserDashboard",
+          "pattern": "userDashboard",
+          "target": [
+            "TargetAccessPage"
+          ]
+        },
+        {
+          "name": "AdminDashboard",
+          "pattern": "adminDashboard",
+          "target": [
+            "TargetAccessPage"
+          ]
+        },
+        {
+          "name": "AddAccessBusinessSector",
+          "pattern": "addAccessBusinessSector",
+          "target": [
+            "TargetAddAccessBusinessSector"
+          ]
+        },
+        {
+          "name": "AddAccess",
+          "pattern": "addAccess",
+          "target": [
+            "TargetAddAccess"
+          ]
+        },
+        {
+          "name": "ApproverDetail",
+          "pattern": "approverDetail/{requestId}",
+          "target": [
+            "TargetApproverDetail"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetLogin": {
+          "id": "Login",
+          "name": "login.Login"
+        },
+        "TargetAccessPage": {
+          "id": "AccessPage",
+          "name": "access.AccessPage"
+        },
+        "TargetAddAccessBusinessSector": {
+          "id": "AddAccessBusinessSector",
+          "name": "addAccessBusinessSector.AddAccess"
+        },
+        "TargetAddAccess": {
+          "id": "AddAccess",
+          "name": "addAccess.AddAccess"
+        },
+        "TargetApproverDetail": {
+          "id": "ApproverDetail",
+          "name": "Approver.ApproverDetail"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "kyra001.pages.app.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}
