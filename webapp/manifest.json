@@ -84,10 +84,10 @@
           "uri": "css/style.css"
         },
         {
-          "uri": "page component/login page/style.css"
+          "uri": "page%20component/login%20page/style.css"
         },
         {
-          "uri": "page component/User Access Management Portal page/style.css"
+          "uri": "page%20component/User%20Access%20Management%20Portal%20page/style.css"
         }
       ]
     },

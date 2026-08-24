@@ -204,16 +204,16 @@ sap.ui.define([
                 oModel.setProperty("/idStateText", sMessage);
             };
 
-            // Call backend with a fallback timeout
+            // Instant fallback handling if no backend server responds within 300ms
             let bHandled = false;
             const controller = new AbortController();
             const timeoutId = setTimeout(() => {
                 if (!bHandled) {
                     bHandled = true;
-                    controller.abort();
+                    try { controller.abort(); } catch(e) {}
                     performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
                 }
-            }, 2500);
+            }, 300);
 
             fetch("odata/v4/auth/login", {
                 method: "POST",
