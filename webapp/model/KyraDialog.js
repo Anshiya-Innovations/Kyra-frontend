@@ -292,10 +292,171 @@
     // Export globally
     global.KyraDialog = KyraDialog;
 
+    /**
+     * =========================================================================
+     * KYRA Universal Enterprise Loading Screen & Popup Slide System
+     * Matching the exact Shield & Orbit Spinner design from media_1787652709745
+     * =========================================================================
+     */
+    let activeLoadingOverlay = null;
+    let loadingHideTimer = null;
+    let loadingShowTimestamp = 0;
+
+    const KyraLoading = {
+        /**
+         * Show Kyra Loading Screen
+         * @param {Object|string} [options]
+         * @param {string} [options.title="Loading Access Data..."]
+         * @param {string} [options.subtitle="Please wait while we synchronize and update permissions..."]
+         * @param {number} [options.duration] - Optional auto-dismiss duration in ms
+         * @param {Function} [options.onComplete] - Callback on auto-dismiss
+         */
+        show(options) {
+            if (typeof options === "string") {
+                options = { title: options };
+            }
+            options = options || {};
+            const title = options.title || "Loading Access Data...";
+            const subtitle = options.subtitle || "Please wait while we synchronize and update permissions...";
+
+            if (loadingHideTimer) {
+                clearTimeout(loadingHideTimer);
+                loadingHideTimer = null;
+            }
+
+            const existing = document.getElementById("kyra_loading_slide_overlay");
+            if (existing) {
+                existing.remove();
+            }
+
+            const overlay = document.createElement("div");
+            overlay.id = "kyra_loading_slide_overlay";
+            overlay.className = "kyraLoadingSlideOverlay";
+
+            overlay.innerHTML = `
+                <div class="kyraLoadingSlideCard">
+                    <!-- Clean Single Circle Loading -->
+                    <div class="kyraSimpleCircleSpinner"></div>
+
+                    <!-- Title -->
+                    <div class="kyraLoadingTitle">${title}</div>
+
+                    <!-- Subtitle / Simple Command Down -->
+                    <div class="kyraLoadingSubtitle">${subtitle}</div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+            activeLoadingOverlay = overlay;
+            loadingShowTimestamp = Date.now();
+
+            requestAnimationFrame(() => {
+                overlay.classList.add("kyra-active");
+            });
+
+            if (options.duration && options.duration > 0) {
+                loadingHideTimer = setTimeout(() => {
+                    this.hide(options.onComplete);
+                }, options.duration);
+            }
+        },
+
+        /**
+         * Hide Kyra Loading Screen smoothly
+         * @param {Function} [onHidden]
+         */
+        hide(onHidden) {
+            if (loadingHideTimer) {
+                clearTimeout(loadingHideTimer);
+                loadingHideTimer = null;
+            }
+
+            const overlay = activeLoadingOverlay || document.getElementById("kyra_loading_slide_overlay");
+            if (!overlay) {
+                if (typeof onHidden === "function") onHidden();
+                return;
+            }
+
+            const elapsed = Date.now() - loadingShowTimestamp;
+            const delay = Math.max(0, 260 - elapsed);
+
+            setTimeout(() => {
+                overlay.classList.remove("kyra-active");
+                setTimeout(() => {
+                    overlay.remove();
+                    if (activeLoadingOverlay === overlay) {
+                        activeLoadingOverlay = null;
+                    }
+                    if (typeof onHidden === "function") onHidden();
+                }, 220);
+            }, delay);
+        },
+
+        /**
+         * Wrap async function in Kyra Loading Screen
+         */
+        async runWithLoading(options, asyncTask) {
+            if (typeof options === "function") {
+                asyncTask = options;
+                options = {};
+            }
+            this.show(options);
+            try {
+                return await asyncTask();
+            } finally {
+                this.hide();
+            }
+        }
+    };
+
+    global.KyraLoading = KyraLoading;
+    global.showKyraLoading = KyraLoading.show.bind(KyraLoading);
+    global.hideKyraLoading = KyraLoading.hide.bind(KyraLoading);
+
+    // Hook into SAP UI5 core BusyIndicator to replace default black "Please wait" box globally
+    function setupBusyIndicatorHook() {
+        if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+            sap.ui.core.BusyIndicator.show = function(iDelay, sCustomText) {
+                KyraLoading.show({
+                    title: (typeof sCustomText === "string" && sCustomText) ? sCustomText : "Loading Access Data...",
+                    subtitle: "Please wait while we synchronize and update permissions..."
+                });
+            };
+
+            sap.ui.core.BusyIndicator.hide = function() {
+                KyraLoading.hide();
+            };
+        }
+    }
+
+    if (typeof sap !== "undefined" && sap.ui && sap.ui.core) {
+        setupBusyIndicatorHook();
+    } else {
+        window.addEventListener("DOMContentLoaded", setupBusyIndicatorHook);
+        window.addEventListener("load", setupBusyIndicatorHook);
+    }
+
+    // Initial page load screen hook
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!sessionStorage.getItem("kyra_loaded_once")) {
+                KyraLoading.show({
+                    title: "Initializing Kyra Portal...",
+                    subtitle: "Loading security governance policies and enterprise ledger...",
+                    duration: 900
+                });
+                sessionStorage.setItem("kyra_loaded_once", "true");
+            }
+        });
+    }
+
     // Export as UI5 Module if sap.ui.define is available
     if (typeof sap !== "undefined" && sap.ui && sap.ui.define) {
         sap.ui.define([], function() {
-            return KyraDialog;
+            return {
+                KyraDialog: KyraDialog,
+                KyraLoading: KyraLoading
+            };
         });
     }
 })(typeof window !== "undefined" ? window : this);

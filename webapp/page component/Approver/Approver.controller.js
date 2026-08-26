@@ -401,30 +401,33 @@ sap.ui.define([
             oModel.setProperty("/notificationCount", aNotifs.length);
 
             // Persist the decision to the database
-            const bHasConflict = (oData.hasConflict === true || oData.has_conflict === true);
             const aDecisionsPayload = (oData.entitlements || []).map(e => ({
                 targetSystem: e.system,
                 roleName: e.roleName,
                 selectedPersona: oData.persona,
-                status: e.status === "Rejected" ? "REJECTED" : "APPROVED",
-                hasConflict: bHasConflict
+                status: e.status === "Rejected" ? "REJECTED" : "APPROVED"
             }));
 
             try {
-                const response = await fetch("/odata/v4/auth/submitAccessDecision", {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const response = await fetch("odata/v4/auth/submitAccessDecision", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         requestNumber: oData.requestId,
-                        actorRole: sessionStorage.getItem("kyra_active_role") || "Approver",
-                        hasConflict: bHasConflict,
                         decisions: aDecisionsPayload
-                    })
+                    }),
+                    signal: controller.signal
                 });
-                const data = await response.json();
-                console.log("Successfully persisted approval decision to database:", data);
+                clearTimeout(timeoutId);
+                const sContentType = response.headers ? response.headers.get("content-type") : "";
+                if (response.ok && sContentType && sContentType.includes("application/json")) {
+                    const data = await response.json();
+                    console.log("Successfully persisted approval decision to database:", data);
+                }
             } catch (err) {
-                console.error("Database persistence approval decision error:", err);
+                console.warn("Database persistence approval decision error:", err);
             }
 
             // Sync with backend database states
@@ -629,146 +632,78 @@ sap.ui.define([
                 }
             ];
 
-            let aPending = [];
-            let aProcessed = [];
+            let aPending = [].concat(aDefaultPending);
+            const sSavedApprover = localStorage.getItem("kyra_submitted_approver_requests");
+            if (sSavedApprover) {
+                try {
+                    const aSavedApp = JSON.parse(sSavedApprover);
+                    aSavedApp.forEach(req => {
+                        if (!aPending.some(r => r.requestId === req.requestId)) {
+                            aPending.unshift(req);
+                        }
+                    });
+                } catch (e) { console.error("Error restoring saved approver requests:", e); }
+            }
+
+            let aProcessed = [].concat(aDefaultProcessed);
+            const sSavedProcessed = localStorage.getItem("kyra_processed_requests");
+            if (sSavedProcessed) {
+                try {
+                    const aSavedProc = JSON.parse(sSavedProcessed);
+                    aSavedProc.forEach(req => {
+                        if (!aProcessed.some(r => r.requestId === req.requestId)) {
+                            aProcessed.unshift(req);
+                        }
+                    });
+                } catch (e) { console.error("Error restoring saved processed requests:", e); }
+            }
 
             try {
-                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
-                const isCompliance = sActiveRole.includes("compliance");
-
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
-                if (data && data.value && data.value.length > 0) {
-                    const aDbPending = [];
-                    const aDbProcessed = [];
-
-                    const getCleanServiceTopic = (req) => {
-                        let s = req.service_topic || req.serviceTopic || req.service;
-                        if (!s || s === req.business_function || s.includes("Governance") || s.includes("Finance") || s.includes("Logistics") || s.includes("Supply Chain")) {
-                            const roleStr = (req.role_name || req.roleName || req.selected_persona || req.selectedPersona || "").toLowerCase();
-                            if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("analyst")) {
-                                return "System Owners";
-                            } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
-                                return "Stakeholders";
-                            } else {
-                                return "System Administrator";
-                            }
-                        }
-                        return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
-                    };
-
-                    const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
-                    const isCompliance = sActiveRole.includes("compliance");
-                    const isIamApp2 = sActiveRole.includes("approver 2") || sActiveRole.includes("approver2") || sActiveRole.includes("iam 2") || sActiveRole.includes("iam_2");
-                    const isIamApp1 = !isCompliance && !isIamApp2 && (sActiveRole.includes("approver 1") || sActiveRole.includes("approver1") || sActiveRole.includes("iam 1") || sActiveRole.includes("iam_1") || sActiveRole.includes("iam approver"));
-                    const isInitialApprover = !isCompliance && !isIamApp1 && !isIamApp2;
-
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const response = await fetch("odata/v4/auth/Requests", { signal: controller.signal });
+                clearTimeout(timeoutId);
+                const sContentType = response.headers ? response.headers.get("content-type") : "";
+                if (response.ok && sContentType && sContentType.includes("application/json")) {
+                    const data = await response.json();
+                    if (data && data.value && data.value.length > 0) {
                     data.value.forEach(r => {
-                        const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
-                        const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
-                        const sComplianceStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
-                        const sIamApp1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
-                        const sIamApp2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
-
-                        const isConflictRequest = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim()) || sDbStatus === "PENDING_COMPLIANCE";
-
-                        const isApproverApproved = sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                        const isComplianceApproved = sComplianceStatus === "APPROVED" || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                        const isIamApp1Approved = sIamApp1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                        const isIamApp2Approved = sIamApp2Status === "APPROVED" || sDbStatus === "APPROVED";
-
-                        let isPendingForRole = false;
-                        let isProcessedForRole = false;
-                        let bRoleApproved = false;
-
-                        if (isInitialApprover) {
-                            if (sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" || isApproverApproved || sDbStatus === "APPROVED" || sDbStatus === "REJECTED") {
-                                isProcessedForRole = true;
-                                bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved) && sApproverStatus !== "REJECTED";
-                            } else if (sDbStatus !== "REJECTED") {
-                                isPendingForRole = true;
-                            }
-                        } else if (isCompliance) {
-                            const isProcessedInCompliance = sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || (sDbStatus !== "PENDING_COMPLIANCE" && isApproverApproved && isConflictRequest);
-                            if (isProcessedInCompliance) {
-                                isProcessedForRole = true;
-                                bRoleApproved = (sComplianceStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sComplianceStatus !== "REJECTED";
-                            } else if (isApproverApproved && isConflictRequest && sDbStatus !== "REJECTED") {
-                                isPendingForRole = true;
-                            }
-                        } else if (isIamApp1) {
-                            // IAM Approver 1 sees:
-                            // 1) Conflict requests approved by Compliance
-                            // 2) Non-conflict requests approved by Initial Approver directly!
-                            const isReadyForIam1 = (isConflictRequest && sComplianceStatus === "APPROVED") || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                            if (isReadyForIam1) {
-                                if (sIamApp1Status === "APPROVED" || sIamApp1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp1Status === "REJECTED")) {
-                                    isProcessedForRole = true;
-                                    bRoleApproved = (sIamApp1Status === "APPROVED" || isIamApp1Approved) && sIamApp1Status !== "REJECTED";
-                                } else if (sDbStatus !== "REJECTED" && sDbStatus !== "PENDING_COMPLIANCE") {
-                                    isPendingForRole = true;
-                                }
-                            }
-                        } else if (isIamApp2) {
-                            if (isIamApp1Approved) {
-                                if (sIamApp2Status === "APPROVED" || sIamApp2Status === "REJECTED" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp2Status === "REJECTED")) {
-                                    isProcessedForRole = true;
-                                    bRoleApproved = (sIamApp2Status === "APPROVED" || isIamApp2Approved) && sIamApp2Status !== "REJECTED";
-                                } else if (sDbStatus !== "REJECTED") {
-                                    isPendingForRole = true;
-                                }
-                            }
-                        }
-
-                        if (!isPendingForRole && !isProcessedForRole) {
-                            return; // Do not include in this reviewer's queue
-                        }
-
-                        const sService = getCleanServiceTopic(r);
+                        const isPending = (r.status || "").toLowerCase().includes("pending");
                         const oItem = {
                             requestId: r.request_number,
                             requesterId: r.requester_username || "User003",
                             persona: r.selected_persona || "Engineering & Developer Persona",
                             selectedPersona: r.selected_persona || "Engineering & Developer Persona",
                             system: r.target_system || "SAP BTP Cloud Platform",
-                            serviceAndRole: (r.role_name || "IT Developers") + " (" + sService + ")",
-                            serviceTopic: sService,
+                            serviceAndRole: (r.role_name || "IT Developers") + " (" + (r.service_topic || "System Administrator") + ")",
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                             decisionDate: r.updated_at ? r.updated_at.split("T")[0] : new Date().toISOString().split("T")[0],
                             duration: r.access_duration || "Permanent",
                             sector: r.business_sector || "Information Technology & Security",
-                            function: sService,
+                            function: r.business_function || "Identity & Access Governance",
                             region: r.operating_region || "Global Enterprise (ALL)",
                             justification: r.justification || "Business Access Request",
-                            status: isPendingForRole ? "Pending Approval" : (bRoleApproved ? "Approved" : "Rejected"),
-                            statusState: isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error"),
-                            statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error"),
+                            status: isPending ? "Pending Approval" : (r.status === "APPROVED" ? "Approved" : "Rejected"),
+                            statusState: isPending ? "Warning" : (r.status === "APPROVED" ? "Success" : "Error"),
+                            statusIcon: isPending ? "sap-icon://pending" : (r.status === "APPROVED" ? "sap-icon://sys-enter-2" : "sap-icon://error"),
                             entitlements: []
                         };
-
-                        if (isPendingForRole) {
-                            if (!aDbPending.some(p => p.requestId === oItem.requestId)) {
-                                aDbPending.push(oItem);
+                        if (isPending) {
+                            if (!aPending.some(p => p.requestId === oItem.requestId)) {
+                                aPending.unshift(oItem);
                             }
-                        } else if (isProcessedForRole) {
-                            if (!aDbProcessed.some(pr => pr.requestId === oItem.requestId)) {
-                                aDbProcessed.push(oItem);
+                        } else {
+                            if (!aProcessed.some(pr => pr.requestId === oItem.requestId)) {
+                                aProcessed.unshift(oItem);
                             }
                         }
                     });
-
-                    aPending = aDbPending;
-                    aProcessed = aDbProcessed;
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching OData requests:", err);
             }
 
-            const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
-            const aRevokePending = aPending.filter(p => p.isRevocation || p.type === "Revocation");
-
-            oModel.setProperty("/pendingAccessRequests", aAccessPending);
-            oModel.setProperty("/pendingRevokeRequests", aRevokePending);
             oModel.setProperty("/pendingRequests", aPending);
             oModel.setProperty("/processedRequests", aProcessed);
         },

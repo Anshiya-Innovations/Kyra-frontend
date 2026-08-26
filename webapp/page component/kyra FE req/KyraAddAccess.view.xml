@@ -273,57 +273,77 @@
                             </MultiComboBox>
                         </form:content>
                     </form:SimpleForm>
-
-                    <!-- Slide Navigation Buttons -->
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
-                        <Button
-                            text="Previous System Slide"
-                            icon="sap-icon://navigation-left-arrow"
-                            type="Default"
-                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/addAccessCurrentSystemIndex} &gt; 0 }"
-                            press=".onPrevSystemSlide" />
-                        <Text text="" visible="{= ${accessModel>/isEditingFromSummary} || ${accessModel>/addAccessCurrentSystemIndex} === 0 }" />
-                        
-                        <HBox>
-                            <!-- Simple OK button shown ONLY when editing from Summary -->
-                            <Button
-                                text="OK"
-                                type="Emphasized"
-                                icon="sap-icon://accept"
-                                visible="{accessModel>/isEditingFromSummary}"
-                                press=".onSaveAndReturnToSummary"
-                                class="fioriEmphasizedBtn"
-                                tooltip="Save changes and return straight to Summary" />
-                            <Button
-                                text="Next System Slide"
-                                type="Emphasized"
-                                icon="sap-icon://navigation-right-arrow"
-                                visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) &lt; ${accessModel>/addAccessSelectedSystems}.length }"
-                                enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
-                                press=".onNextSystemSlide"
-                                class="fioriEmphasizedBtn sapUiTinyMarginEnd" />
-                            <Button
-                                text="Submit System Configs &amp; Set Duration"
-                                type="Emphasized"
-                                icon="sap-icon://accept"
-                                visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) === ${accessModel>/addAccessSelectedSystems}.length }"
-                                enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
-                                press=".onCompleteSystemSlides"
-                                class="fioriEmphasizedBtn" />
-                        </HBox>
-                    </HBox>
                 </VBox>
 
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop" visible="{= !${accessModel>/isEditingFromSummary} }">
+                <!-- Single Unified Down Footer Action Bar -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
+                    <!-- Left Navigation Button -->
                     <Button
-                        text="Back to Step 2 (Region)"
+                        text="Previous"
                         icon="sap-icon://navigation-left-arrow"
+                        iconFirst="true"
                         type="Default"
-                        press=".onGoToAddAccessStep2" />
+                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/addAccessCurrentSystemIndex} &gt; 0 }"
+                        press=".onPrevSystemSlide"
+                        class="kyraSecondaryBtn" />
                     <Button
-                        text="Cancel"
-                        type="Transparent"
-                        press=".onCloseAddAccessSector" />
+                        text="Previous"
+                        icon="sap-icon://navigation-left-arrow"
+                        iconFirst="true"
+                        type="Default"
+                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (!${accessModel>/addAccessCurrentSystemIndex} || ${accessModel>/addAccessCurrentSystemIndex} === 0) }"
+                        press=".onGoToAddAccessStep2"
+                        class="kyraSecondaryBtn" />
+                    <Text text="" visible="{accessModel>/isEditingFromSummary}" />
+
+                    <!-- Right Action Buttons -->
+                    <HBox alignItems="Center">
+                        <Button
+                            text="OK"
+                            type="Emphasized"
+                            icon="sap-icon://accept"
+                            iconFirst="false"
+                            visible="{accessModel>/isEditingFromSummary}"
+                            press=".onSaveAndReturnToSummary"
+                            class="kyraPrimaryBtn"
+                            tooltip="Save changes and return straight to Summary" />
+
+                        <Button
+                            text="Cancel"
+                            type="Transparent"
+                            visible="{= !${accessModel>/isEditingFromSummary} }"
+                            press=".onCloseAddAccessSector"
+                            class="kyraTextBtn sapUiSmallMarginEnd" />
+
+                        <Button
+                            text="Continue"
+                            type="Emphasized"
+                            icon="sap-icon://navigation-right-arrow"
+                            iconFirst="false"
+                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) &lt; ${accessModel>/addAccessSelectedSystems}.length }"
+                            enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
+                            press=".onNextSystemSlide"
+                            class="kyraPrimaryBtn" />
+
+                        <Button
+                            text="Continue"
+                            type="Emphasized"
+                            icon="sap-icon://navigation-right-arrow"
+                            iconFirst="false"
+                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) === ${accessModel>/addAccessSelectedSystems}.length }"
+                            enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
+                            press=".onCompleteSystemSlides"
+                            class="kyraPrimaryBtn" />
+
+                        <Button
+                            text="Continue"
+                            type="Emphasized"
+                            icon="sap-icon://navigation-right-arrow"
+                            iconFirst="false"
+                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (!${accessModel>/addAccessSelectedSystems} || ${accessModel>/addAccessSelectedSystems}.length === 0) }"
+                            press=".onCompleteSystemSlides"
+                            class="kyraPrimaryBtn" />
+                    </HBox>
                 </HBox>
             </VBox>
 

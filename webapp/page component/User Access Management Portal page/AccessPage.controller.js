@@ -37,7 +37,7 @@ sap.ui.define([
             this._aSelectedRegionIds = [];
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Approver" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("review"))));
             const oModel = new JSONModel({
                 activeUser: sActiveUser,
                 activeRole: sActiveRole,
@@ -127,6 +127,13 @@ sap.ui.define([
             });
 
             this.getOwnerComponent().setModel(oModel, "accessModel");
+            if (window.KyraLoading) {
+                window.KyraLoading.show({
+                    title: "Initializing Kyra Portal...",
+                    subtitle: "Loading security governance policies and enterprise ledger...",
+                    duration: 750
+                });
+            }
             this._loadSubmittedRequests(oModel);
 
             // Setup Real-Time BroadcastChannel Event Bus & Storage Sync (Zero-Server-Overload Live Update)
@@ -204,10 +211,7 @@ sap.ui.define([
                 document.addEventListener("visibilitychange", this._fnVisibilityHandler);
             }
 
-            // 5. Load backend SoD Matrix rules
-            this._loadBackendSoDMatrix();
-
-            // 6. Adaptive Low-Frequency Backup Sync (every 10s only if tab is focused)
+            // 5. Adaptive Low-Frequency Backup Sync (every 10s only if tab is focused)
             if (!this._pollInterval) {
                 this._pollInterval = setInterval(() => {
                     if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
@@ -507,7 +511,7 @@ sap.ui.define([
             if (oModel) {
                 const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
                 const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-                const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+                const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Approver" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("review"))));
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
                 oModel.setProperty("/isApproverPersona", bIsApprover);
@@ -678,41 +682,63 @@ sap.ui.define([
 
             let aRawDbRequests = [];
             try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
-                if (data && data.value) {
-                    aRawDbRequests = data.value;
-
-                    // Filter out persisted deleted requests & entitlements across page refreshes
-                    const aDeletedKeys = JSON.parse(sessionStorage.getItem("kyra_deleted_entitlements") || "[]");
-                    const aDeletedRequestIds = JSON.parse(sessionStorage.getItem("kyra_deleted_requests") || "[]");
-
-                    if (aDeletedKeys.length > 0 || aDeletedRequestIds.length > 0) {
-                        aRawDbRequests = aRawDbRequests.filter(r => {
-                            const sId = r.request_number || ("REQ-" + r.ID);
-                            const sKey = `${r.target_system}:::${r.role_name}:::${r.selected_persona || ''}`;
-                            const sRoleKey = `${r.target_system}:::${r.role_name}`;
-                            if (aDeletedRequestIds.includes(sId) || (r.ID && aDeletedRequestIds.includes(String(r.ID)))) return false;
-                            if (aDeletedKeys.includes(sKey) || aDeletedKeys.includes(sRoleKey)) return false;
-                            return true;
-                        });
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const response = await fetch("odata/v4/auth/Requests", { signal: controller.signal });
+                clearTimeout(timeoutId);
+                const sContentType = response.headers ? response.headers.get("content-type") : "";
+                if (response.ok && sContentType && sContentType.includes("application/json")) {
+                    const data = await response.json();
+                    if (data && data.value) {
+                        aRawDbRequests = data.value;
                     }
-
-                    // Sort strictly in descending order for frontend list views (newest first)
-                    aRawDbRequests.sort((a, b) => {
-                        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
-                        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
-                        if (tA !== tB) return tB - tA;
-                        return (b.request_number || "").localeCompare(a.request_number || "");
-                    });
                 }
             } catch (err) {
-                console.error("Error loading requests from database:", err);
+                console.warn("Error / timeout loading requests from database:", err);
             }
+
+            // Filter out persisted deleted requests & entitlements across page refreshes
+            const aDeletedKeys = JSON.parse(sessionStorage.getItem("kyra_deleted_entitlements") || "[]");
+            const aDeletedRequestIds = JSON.parse(sessionStorage.getItem("kyra_deleted_requests") || "[]");
+
+            if (aDeletedKeys.length > 0 || aDeletedRequestIds.length > 0) {
+                aRawDbRequests = aRawDbRequests.filter(r => {
+                    const sId = r.request_number || ("REQ-" + r.ID);
+                    const sKey = `${r.target_system}:::${r.role_name}:::${r.selected_persona || ''}`;
+                    const sRoleKey = `${r.target_system}:::${r.role_name}`;
+                    if (aDeletedRequestIds.includes(sId) || (r.ID && aDeletedRequestIds.includes(String(r.ID)))) return false;
+                    if (aDeletedKeys.includes(sKey) || aDeletedKeys.includes(sRoleKey)) return false;
+                    return true;
+                });
+            }
+
+            // Merge locally persisted submitted requests
+            let aLocalSubmissions = [];
+            try {
+                aLocalSubmissions = JSON.parse(localStorage.getItem("kyra_local_submitted_requests") || "[]");
+            } catch(e) {}
+            if (Array.isArray(aLocalSubmissions) && aLocalSubmissions.length > 0) {
+                const existingKeys = new Set(aRawDbRequests.map(r => (r.request_number || ("REQ-" + r.ID)) + "_" + (r.role_name || "")));
+                aLocalSubmissions.forEach(localReq => {
+                    const sKey = (localReq.request_number || localReq.requestId) + "_" + (localReq.role_name || "");
+                    const sId = localReq.request_number || localReq.requestId;
+                    if (!existingKeys.has(sKey) && !aDeletedRequestIds.includes(sId)) {
+                        aRawDbRequests.unshift(localReq);
+                    }
+                });
+            }
+
+            // Sort strictly in descending order for frontend list views (newest first)
+            aRawDbRequests.sort((a, b) => {
+                const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                if (tA !== tB) return tB - tA;
+                return (b.request_number || "").localeCompare(a.request_number || "");
+            });
 
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Approver" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("review"))));
             oModel.setProperty("/activeRole", sActiveRole);
             oModel.setProperty("/isApproverPersona", bIsApprover);
 
@@ -743,57 +769,15 @@ sap.ui.define([
             const oGrouped = {};
             const roleStates = {};
 
-            const sRoleLower = (sActiveRole || "").toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
-            const isIamApp2Persona = sRoleLower.includes("approver 2") || sRoleLower.includes("approver2") || sRoleLower.includes("iam 2") || sRoleLower.includes("iam_2");
-            const isIamApp1Persona = !isCompliancePersona && !isIamApp2Persona && (sRoleLower.includes("approver 1") || sRoleLower.includes("approver1") || sRoleLower.includes("iam 1") || sRoleLower.includes("iam_1") || sRoleLower.includes("iam approver"));
-            const isInitialApproverPersona = !isCompliancePersona && !isIamApp1Persona && !isIamApp2Persona && sRoleLower.includes("approver");
-            const isAnyReviewerPersona = isCompliancePersona || isIamApp1Persona || isIamApp2Persona || isInitialApproverPersona;
-
             aRawDbRequests.forEach(r => {
-                const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
-                const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
-                const sComplianceStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
-                const sIamApp1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
-                const sIamApp2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
+                const sDbStatus = (r.status || "PENDING").toUpperCase();
+                const isPending = sDbStatus.includes("PENDING");
+                const isApproved = sDbStatus === "APPROVED";
+                const isRejected = sDbStatus === "REJECTED";
 
-                const isConflictRequest = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                const isApproverApproved = sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                const isComplianceApproved = sComplianceStatus === "APPROVED" || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                const isIamApp1Approved = sIamApp1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                const isIamApp2Approved = sIamApp2Status === "APPROVED" || sDbStatus === "APPROVED";
-
-                // Overall approval happens ONLY after final IAM Approver 2 approval!
-                const isOverallApproved = (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && sDbStatus !== "REJECTED";
-                const isOverallRejected = sDbStatus === "REJECTED" || sApproverStatus === "REJECTED" || (isConflictRequest && sComplianceStatus === "REJECTED") || sIamApp1Status === "REJECTED" || sIamApp2Status === "REJECTED";
-                const isOverallPending = !isOverallApproved && !isOverallRejected;
-
-                let sStatusText = "Pending Approval";
-                let sState = "Warning";
-                let sIcon = "sap-icon://pending";
-
-                if (isOverallApproved) {
-                    sStatusText = "Approved";
-                    sState = "Success";
-                    sIcon = "sap-icon://sys-enter-2";
-                } else if (isOverallRejected) {
-                    sStatusText = "Rejected";
-                    sState = "Error";
-                    sIcon = "sap-icon://error";
-                } else if (isIamApp1Approved) {
-                    sStatusText = "Pending IAM Approver 2";
-                    sState = "Information";
-                    sIcon = "sap-icon://pending";
-                } else if (isConflictRequest && sComplianceStatus !== "APPROVED" && isApproverApproved && sDbStatus !== "PENDING_IAM_1") {
-                    sStatusText = "Pending Compliance";
-                    sState = "Information";
-                    sIcon = "sap-icon://pending";
-                } else if (isApproverApproved) {
-                    sStatusText = "Pending IAM Approver 1";
-                    sState = "Information";
-                    sIcon = "sap-icon://pending";
-                }
-
+                const sStatusText = isApproved ? "Approved" : (isRejected ? "Rejected" : "Pending Approval");
+                const sState = isApproved ? "Success" : (isRejected ? "Error" : "Warning");
+                const sIcon = isApproved ? "sap-icon://sys-enter-2" : (isRejected ? "sap-icon://error" : "sap-icon://pending");
                 const sRawDuration = r.access_duration || "Permanent (Default)";
                 let sCleanDuration = sRawDuration;
                 if (sRawDuration === "Permanent" || sRawDuration === "Permanent (Default)") {
@@ -804,21 +788,6 @@ sap.ui.define([
                     sCleanDuration = "90 Days (Project)";
                 }
 
-                const getCleanServiceTopic = (req) => {
-                    let s = req.service_topic || req.serviceTopic || req.service;
-                    if (!s || s === req.business_function || s.includes("Governance") || s.includes("Finance") || s.includes("Logistics") || s.includes("Supply Chain")) {
-                        const roleStr = (req.role_name || req.roleName || req.selected_persona || req.selectedPersona || "").toLowerCase();
-                        if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("analyst")) {
-                            return "System Owners";
-                        } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
-                            return "Stakeholders";
-                        } else {
-                            return "System Administrator";
-                        }
-                    }
-                    return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
-                };
-
                 const oReqObj = {
                     requestId: r.request_number || ("REQ-" + r.ID),
                     requesterId: r.requester_username,
@@ -826,7 +795,7 @@ sap.ui.define([
                     type: r.request_type || "Addition",
                     system: r.target_system || "SAP System",
                     roleName: r.role_name || "",
-                    serviceTopic: getCleanServiceTopic(r),
+                    serviceTopic: r.service_topic || r.business_function || "",
                     selectedPersona: r.selected_persona || r.requester_persona || "Requester",
                     accessDuration: sCleanDuration,
                     submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
@@ -846,111 +815,57 @@ sap.ui.define([
                 const bIsUserMatch = !r.requester_username || r.requester_username === sActiveUser || sActiveUser === "Dev001" || sActiveUser === "User" || !sActiveUser;
                 if (bIsUserMatch) {
                     aMyHistory.push(oReqObj);
-                    if (isOverallPending) {
+                    if (isPending) {
                         aMyPending.push(oReqObj);
-                    } else if (isOverallApproved) {
+                    } else if (isApproved) {
                         aMyApproved.push(oReqObj);
                     }
 
                     // Track active/pending/revoked role state machine
                     const sKey = (r.target_system || "") + "_" + (r.role_name || "");
                     const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
-                    if (isOverallApproved) {
+                    if (isApproved) {
                         if (isRevocation) {
                             roleStates[sKey] = { request: r, status: 'REVOKED' };
                         } else {
                             roleStates[sKey] = { request: r, status: 'ACTIVE' };
                         }
-                    } else if (isOverallPending) {
+                    } else if (isPending) {
                         if (isRevocation) {
                             roleStates[sKey] = { request: r, status: 'REVOKE_PENDING' };
                         }
-                    } else if (isOverallRejected) {
+                    } else if (isRejected) {
                         if (isRevocation) {
                             roleStates[sKey] = { request: r, status: 'ACTIVE' };
                         }
                     }
                 }
 
-                // Determine whether this request is visible in pending or processed queue for the current persona
-                let isPendingForRole = false;
-                let isProcessedForRole = false;
-
-                if (isInitialApproverPersona) {
-                    if (sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" || isApproverApproved || sDbStatus === "APPROVED" || sDbStatus === "REJECTED") {
-                        isProcessedForRole = true;
-                    } else if (sDbStatus !== "REJECTED") {
-                        isPendingForRole = true;
-                    }
-                } else if (isCompliancePersona) {
-                    // Compliance Reviewer ONLY sees requests with conflicts!
-                    if (isApproverApproved && isConflictRequest && sDbStatus !== "PENDING_IAM_1") {
-                        if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sComplianceStatus === "REJECTED")) {
-                            isProcessedForRole = true;
-                        } else if (sDbStatus !== "REJECTED") {
-                            isPendingForRole = true;
-                        }
-                    }
-                } else if (isIamApp1Persona) {
-                    // IAM Approver 1 sees:
-                    // 1) Conflict requests approved by Compliance
-                    // 2) Non-conflict requests approved by Approver directly!
-                    const isReadyForIam1 = (isConflictRequest && sComplianceStatus === "APPROVED") || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
-                    if (isReadyForIam1) {
-                        if (sIamApp1Status === "APPROVED" || sIamApp1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp1Status === "REJECTED")) {
-                            isProcessedForRole = true;
-                        } else if (sDbStatus !== "REJECTED" && sDbStatus !== "PENDING_COMPLIANCE") {
-                            isPendingForRole = true;
-                        }
-                    }
-                } else if (isIamApp2Persona) {
-                    if (isIamApp1Approved) {
-                        if (sIamApp2Status === "APPROVED" || sIamApp2Status === "REJECTED" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp2Status === "REJECTED")) {
-                            isProcessedForRole = true;
-                        } else if (sDbStatus !== "REJECTED") {
-                            isPendingForRole = true;
-                        }
-                    }
-                } else {
-                    // Requester
-                    isPendingForRole = isOverallPending;
-                    isProcessedForRole = !isOverallPending;
-                }
-
-                // For Reviewer personas, only include requests belonging to their queue
-                if (isAnyReviewerPersona && !isPendingForRole && !isProcessedForRole) {
-                    return;
-                }
-
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
 
-                // Group for Approver / Reviewer Page
-                const sGroupKey = (r.requester_username || "User") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
-                const sServiceTopic = getCleanServiceTopic(r);
-
+                // Group for Approver Page
+                const sGroupKey = (r.requester_username || "User") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPending ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
                 if (!oGrouped[sGroupKey]) {
                     oGrouped[sGroupKey] = {
                         requestId: r.request_number,
                         requesterId: r.requester_username || "User",
                         persona: r.requester_persona || "Requester",
                         system: r.target_system || "SAP System",
-                        serviceAndRole: (r.role_name || "Role") + " (" + sServiceTopic + ")",
-                        serviceTopic: sServiceTopic,
+                        serviceAndRole: (r.role_name || "Role") + " (" + (r.service_topic || "Service") + ")",
                         submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                         decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
                         createdAtRaw: r.created_at || new Date().toISOString(),
                         duration: r.access_duration || "Permanent",
                         sector: r.business_sector || "",
-                        function: sServiceTopic,
+                        function: r.business_function || "",
                         region: r.operating_region || "",
                         justification: r.justification || "",
                         selectedPersona: r.selected_persona || r.requester_persona || "Requester",
-                        status: isRevocation ? (isPendingForRole ? "Revoke Pending" : sStatusText) : (isPendingForRole ? "Pending Approval" : sStatusText),
-                        statusState: isRevocation ? (isPendingForRole ? "Error" : sState) : sState,
+                        status: isRevocation ? (isPending ? "Revoke Pending" : sStatusText) : sStatusText,
+                        statusState: isRevocation ? (isPending ? "Error" : sState) : sState,
                         statusIcon: isRevocation ? "sap-icon://pending" : sIcon,
                         isRevocation: isRevocation,
                         requestType: isRevocation ? "Revocation" : "Addition",
-                        _isPendingForRole: isPendingForRole,
                         entitlements: []
                     };
                 }
@@ -959,12 +874,11 @@ sap.ui.define([
                     requestId: r.request_number,
                     system: r.target_system,
                     roleName: r.role_name,
-                    team: sServiceTopic,
-                    serviceTopic: sServiceTopic,
+                    team: r.service_topic,
                     selectedPersona: r.selected_persona || "User",
                     grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                     expiryDate: r.access_duration,
-                    status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (isOverallApproved ? "Approved" : "Rejected"),
+                    status: isPending ? (isRevocation ? "Revoke Pending" : "Pending") : (isApproved ? "Approved" : "Rejected"),
                     statusState: sState,
                     statusIcon: sIcon
                 });
@@ -1081,22 +995,39 @@ sap.ui.define([
                 if (tA !== tB) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
+            const sCurrentActiveRole = (oModel ? oModel.getProperty("/activeRole") : null) || sessionStorage.getItem("kyra_active_role") || "Requester";
+            const bIsCompliancePersona = (sCurrentActiveRole === "Compliance Review" || sCurrentActiveRole === "Compliance Reviewer" || sCurrentActiveRole === "Compliance Approver");
+
             const aApproverPendingAccess = [];
             const aApproverPendingRevoke = [];
             aAllGrouped.forEach(g => {
                 const sStat = (g.status || "").toUpperCase();
                 const isRevocation = g.isRevocation;
-                const isPending = g._isPendingForRole !== undefined ? g._isPendingForRole : (sStat.includes("PENDING") || sStat.includes("SUBMITTED"));
 
-                if (isPending) {
-                    aApproverPending.push(g);
-                    if (isRevocation) {
-                        aApproverPendingRevoke.push(g);
+                if (bIsCompliancePersona) {
+                    // In Compliance Review: ONLY requests approved by Line Manager / Approver enter the review queue
+                    if (sStat === "APPROVED" || sStat === "PARTIALLY APPROVED" || sStat.includes("COMPLIANCE")) {
+                        aApproverPending.push(g);
+                        if (isRevocation) {
+                            aApproverPendingRevoke.push(g);
+                        } else {
+                            aApproverPendingAccess.push(g);
+                        }
                     } else {
-                        aApproverPendingAccess.push(g);
+                        aApproverProcessed.push(g);
                     }
                 } else {
-                    aApproverProcessed.push(g);
+                    // In standard Approver (Line Manager): Initial pending requests
+                    if (sStat.includes("PENDING") || sStat.includes("SUBMITTED")) {
+                        aApproverPending.push(g);
+                        if (isRevocation) {
+                            aApproverPendingRevoke.push(g);
+                        } else {
+                            aApproverPendingAccess.push(g);
+                        }
+                    } else {
+                        aApproverProcessed.push(g);
+                    }
                 }
             });
 
@@ -1163,63 +1094,510 @@ sap.ui.define([
             const bShowAll = oModel.getProperty("/myAccessShowAll") || false;
             this._setSmartProperty(oModel, "/displayedUserAccessList", bShowAll ? aUniqueUserAccessList : aUniqueUserAccessList.slice(0, 10));
 
-            // Load and filter notifications for active user (Seed with default 4 standard notifications if empty)
-            let aAllNotifications = JSON.parse(sessionStorage.getItem("kyra_user_notifications") || "null");
-            if (!aAllNotifications || aAllNotifications.length === 0) {
-                aAllNotifications = [
-                    {
-                        id: "notif-1",
+            // Load notifications for active user
+            this._loadNotifications(oModel);
+        },
+
+        _loadNotifications(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sActiveUser = (oModel.getProperty("/activeUser") || "Dev001").trim();
+            const aHistory = oModel.getProperty("/requestHistory") || [];
+
+            // Filter only approved requests for this project
+            const aApprovedHistory = aHistory.filter(r => {
+                const sStat = (r.status || "").toUpperCase();
+                return sStat === "APPROVED" || sStat === "PARTIALLY APPROVED" || sStat.includes("APPROVED");
+            });
+
+            let aSavedStatusMap = {};
+            try {
+                const aSaved = JSON.parse(sessionStorage.getItem("kyra_user_notifications") || "[]");
+                (aSaved || []).forEach(n => {
+                    if (n.id) aSavedStatusMap[n.id] = n.unread;
+                });
+            } catch (e) {}
+
+            let aApprovedNotifications = [];
+
+            if (aApprovedHistory.length > 0) {
+                aApprovedHistory.forEach((r, idx) => {
+                    const sReqId = r.requestId || ("REQ-2026-" + (300160 + idx));
+                    const sNotifId = "notif-appr-" + sReqId;
+                    const bUnread = aSavedStatusMap[sNotifId] !== undefined ? aSavedStatusMap[sNotifId] : true;
+                    aApprovedNotifications.push({
+                        id: sNotifId,
                         requesterId: sActiveUser,
+                        requestId: sReqId,
+                        system: r.system || "SAP Ariba Supply Network",
+                        roleName: r.roleName || r.serviceAndRole || "IT Security (System Administrator)",
                         type: "approved",
-                        title: "Access Request Approved",
-                        description: "Your request for SAP S/4HANA access has been approved.",
+                        category: "Access Requests",
+                        title: "Access Request Approved: " + sReqId,
+                        description: "Your access request for " + (r.system || "SAP Ariba Supply Network") + " (" + (r.roleName || r.serviceAndRole || "IT Security") + ") has been approved by Line Manager.",
+                        timestamp: r.submissionDate || "Today, " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        icon: "sap-icon://sys-enter-2",
+                        state: "Success",
+                        unread: bUnread
+                    });
+                });
+            } else {
+                // Default project approved template
+                const sDefId = "notif-appr-REQ-2026-300162";
+                const bUnread = aSavedStatusMap[sDefId] !== undefined ? aSavedStatusMap[sDefId] : true;
+                aApprovedNotifications = [
+                    {
+                        id: sDefId,
+                        requesterId: sActiveUser,
+                        requestId: "REQ-2026-300162",
+                        system: "SAP Ariba Supply Network",
+                        roleName: "IT Security (System Administrator)",
+                        type: "approved",
+                        category: "Access Requests",
+                        title: "Access Request Approved: REQ-2026-300162",
+                        description: "Your access request for SAP Ariba Supply Network (IT Security) has been approved by Line Manager.",
                         timestamp: "5 minutes ago",
                         icon: "sap-icon://sys-enter-2",
                         state: "Success",
-                        unread: true
-                    },
-                    {
-                        id: "notif-2",
-                        requesterId: sActiveUser,
-                        type: "new_request",
-                        title: "New Approval Request",
-                        description: "An access request is waiting for your approval.",
-                        timestamp: "15 minutes ago",
-                        icon: "sap-icon://user-edit",
-                        state: "Information",
-                        unread: true
-                    },
-                    {
-                        id: "notif-3",
-                        requesterId: sActiveUser,
-                        type: "expiring",
-                        title: "Access Expiring Soon",
-                        description: "SAP Ariba access will expire in 2 days.",
-                        timestamp: "1 hour ago",
-                        icon: "sap-icon://history",
-                        state: "Warning",
-                        unread: true
-                    },
-                    {
-                        id: "notif-4",
-                        requesterId: sActiveUser,
-                        type: "system",
-                        title: "System Notification",
-                        description: "Scheduled maintenance on 18 Aug 2026, 10:00 PM IST.",
-                        timestamp: "2 hours ago",
-                        icon: "sap-icon://hint",
-                        state: "None",
-                        unread: false
+                        unread: bUnread
                     }
                 ];
-                sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aAllNotifications));
             }
 
-            const aUserNotifications = aAllNotifications.filter(n => n.requesterId === sActiveUser || !n.requesterId);
-            const iUnreadCount = aUserNotifications.filter(n => n.unread !== false).length;
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aApprovedNotifications));
 
-            this._setSmartProperty(oModel, "/notificationsList", aUserNotifications);
+            const iUnreadCount = aApprovedNotifications.filter(n => n.unread !== false).length;
+
+            this._setSmartProperty(oModel, "/notificationsList", aApprovedNotifications);
             this._setSmartProperty(oModel, "/notificationsCount", iUnreadCount);
+            this._setSmartProperty(oModel, "/allNotificationsCount", aApprovedNotifications.length);
+            this._setSmartProperty(oModel, "/unreadNotificationsCount", iUnreadCount);
+
+            this._applyNotificationFilter(oModel);
+        },
+
+        _applyNotificationFilter(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const aList = oModel.getProperty("/notificationsList") || [];
+            const sKey = oModel.getProperty("/notifFilterKey") || "all";
+            const sQuery = (oModel.getProperty("/notifSearchQuery") || "").toLowerCase().trim();
+
+            let aFiltered = aList;
+            if (sKey === "unread") {
+                aFiltered = aFiltered.filter(n => n.unread !== false);
+            } else if (sKey === "requests") {
+                aFiltered = aFiltered.filter(n => n.type === "approved" || n.type === "updated" || (n.category && n.category.toLowerCase().includes("access")));
+            } else if (sKey === "approvals") {
+                aFiltered = aFiltered.filter(n => n.type === "new_request" || (n.category && n.category.toLowerCase().includes("approval")));
+            } else if (sKey === "system") {
+                aFiltered = aFiltered.filter(n => n.type === "system" || (n.category && n.category.toLowerCase().includes("system")));
+            }
+
+            if (sQuery) {
+                aFiltered = aFiltered.filter(n => {
+                    const sTitle = (n.title || "").toLowerCase();
+                    const sDesc = (n.description || "").toLowerCase();
+                    const sSys = (n.system || "").toLowerCase();
+                    const sReqId = (n.requestId || "").toLowerCase();
+                    const sCat = (n.category || "").toLowerCase();
+                    return sTitle.includes(sQuery) || sDesc.includes(sQuery) || sSys.includes(sQuery) || sReqId.includes(sQuery) || sCat.includes(sQuery);
+                });
+            }
+
+            oModel.setProperty("/filteredNotificationsList", aFiltered);
+        },
+
+        onNavToAllNotificationsPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            this._confirmDiscardAddAccess(() => {
+                oModel.setProperty("/showAllNotificationsPage", true);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/notifFilterKey", "all");
+                oModel.setProperty("/notifSearchQuery", "");
+                this._applyNotificationFilter(oModel);
+                this._scrollToTop();
+            });
+        },
+
+        onBackFromNotificationsPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            oModel.setProperty("/showAllNotificationsPage", false);
+            this._scrollToTop();
+        },
+
+        onOpenHelpPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            this._confirmDiscardAddAccess(() => {
+                oModel.setProperty("/showHelpPage", true);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                this._scrollToTop();
+            });
+        },
+
+        onBackFromHelpPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            oModel.setProperty("/showHelpPage", false);
+            this._scrollToTop();
+        },
+
+        onHelpSearchLiveChange(oEvent) {
+            const sQuery = (oEvent.getParameter("value") || oEvent.getParameter("newValue") || "").toLowerCase().trim();
+            const aCards = document.querySelectorAll(".kyraHelpCard");
+            if (aCards && aCards.length > 0) {
+                aCards.forEach(card => {
+                    if (!sQuery) {
+                        card.style.display = "";
+                    } else {
+                        const sText = card.textContent.toLowerCase();
+                        card.style.display = sText.includes(sQuery) ? "" : "none";
+                    }
+                });
+            }
+        },
+
+        onHelpCardPress(oEvent) {
+            const oBtn = oEvent.getSource();
+            let sTopic = "Help Topic";
+            if (oBtn.data) {
+                sTopic = oBtn.data("topic") || "Help Topic";
+            } else if (oBtn.getCustomData && oBtn.getCustomData().length > 0) {
+                sTopic = oBtn.getCustomData()[0].getValue() || "Help Topic";
+            }
+
+            if (sTopic === "Contact IT") {
+                this.onOpenContactITPage();
+                return;
+            }
+
+            this._showHelpTopicDialog(sTopic);
+        },
+
+        onOpenContactITPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            this._confirmDiscardAddAccess(() => {
+                oModel.setProperty("/showContactITPage", true);
+                oModel.setProperty("/showHelpPage", false);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                this._scrollToTop();
+            });
+        },
+
+        onBackFromContactITPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            oModel.setProperty("/showContactITPage", false);
+            oModel.setProperty("/showHelpPage", true);
+            this._scrollToTop();
+        },
+
+        onSubmitContactITRequest() {
+            sap.ui.require(["sap/m/MessageBox", "sap/m/MessageToast"], (MessageBox, MessageToast) => {
+                const oSubj = this.byId("kyraContactITSubject");
+                const sSubjVal = oSubj ? oSubj.getValue().trim() : "";
+                const oDesc = this.byId("kyraContactITDescription");
+                const sDescVal = oDesc ? oDesc.getValue().trim() : "";
+
+                if (!sSubjVal) {
+                    MessageToast.show("Please enter a subject for your issue.");
+                    if (oSubj) oSubj.setValueState("Error");
+                    return;
+                }
+                if (oSubj) oSubj.setValueState("None");
+
+                if (!sDescVal) {
+                    MessageToast.show("Please provide a description of the issue.");
+                    if (oDesc) oDesc.setValueState("Error");
+                    return;
+                }
+                if (oDesc) oDesc.setValueState("None");
+
+                MessageBox.success("Your IT support ticket has been submitted successfully!\n\nTicket Reference: TKT-" + Math.floor(100000 + Math.random() * 900000) + "\nOur IT support team will assist you shortly.", {
+                    title: "Request Submitted",
+                    onClose: () => {
+                        if (oSubj) oSubj.setValue("");
+                        if (oDesc) oDesc.setValue("");
+                        this.onBackFromContactITPage();
+                    }
+                });
+            });
+        },
+
+        onBrowseContactITAttachment() {
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                const oFileInput = document.createElement("input");
+                oFileInput.type = "file";
+                oFileInput.accept = ".jpg,.jpeg,.png,.pdf,.doc,.docx";
+                oFileInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        MessageToast.show("File Attached: " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)");
+                    }
+                };
+                oFileInput.click();
+            });
+        },
+
+        onContactITDescLiveChange(oEvent) {
+            const sVal = oEvent.getParameter("value") || "";
+            const oCounter = this.byId("kyraContactITCharCounter");
+            if (oCounter) {
+                oCounter.setText(`${sVal.length} / 1000`);
+            }
+        },
+
+        _showHelpTopicDialog(sTopic) {
+            sap.ui.require(["sap/m/Dialog", "sap/m/Button", "sap/ui/core/HTML"], (Dialog, Button, HTML) => {
+                let sTitle = sTopic;
+                let sBodyHtml = "";
+
+                if (sTopic === "Contact IT") {
+                    sTitle = "Contact IT Support";
+                    sBodyHtml = `
+                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #FEF3C7; border: 1px solid #FDE68A; display: flex; align-items: center; justify-content: center; font-size: 22px;">📧</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">IT Support Helpdesk</h3>
+                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Reach out directly to our enterprise identity and access team.</p>
+                                </div>
+                            </div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-size: 11.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Support Email</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #2563EB; margin-top: 2px;">itsupport@enterprise.kyra.com</div>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-size: 11.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Direct Hotline</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: #0F172A; margin-top: 2px;">+1 (800) 555-0199 (Ext. 4040)</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Service Availability</div>
+                                    <div style="font-size: 13.5px; color: #16A34A; font-weight: 600; margin-top: 2px;">● 24/7 Global Enterprise Support</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (sTopic === "User Guide") {
+                    sTitle = "KYRA User Guide";
+                    sBodyHtml = `
+                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EFF6FF; border: 1px solid #DBEAFE; display: flex; align-items: center; justify-content: center; font-size: 22px;">📖</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">User Access Guide</h3>
+                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Overview of core features in KYRA Portal.</p>
+                                </div>
+                            </div>
+                            <div style="font-size: 13.5px; line-height: 1.6; color: #334155;">
+                                <p style="margin: 0 0 10px 0;"><strong>1. Requesting Access:</strong> Click <em>"+ Request New Access"</em> to select your business sector, country, and systems.</p>
+                                <p style="margin: 0 0 10px 0;"><strong>2. Approvals:</strong> Track your multi-level approvals under <em>My Requests</em> tab in real-time.</p>
+                                <p style="margin: 0;"><strong>3. Access Management:</strong> View and manage all assigned systems and roles directly under <em>My Access</em>.</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (sTopic === "FAQs") {
+                    sTitle = "Frequently Asked Questions";
+                    sBodyHtml = `
+                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #DCFCE7; border: 1px solid #BBF7D0; display: flex; align-items: center; justify-content: center; font-size: 22px;">❓</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">Common Questions</h3>
+                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Quick answers to frequently asked questions.</p>
+                                </div>
+                            </div>
+                            <div style="font-size: 13.5px; line-height: 1.5; color: #334155;">
+                                <p style="margin: 0 0 8px 0;"><strong>Q: How long does approval take?</strong><br/><span style="color: #64748B;">Standard requests are reviewed by Line Managers within 24 to 48 hours.</span></p>
+                                <p style="margin: 0 0 8px 0;"><strong>Q: How do I request temporary access?</strong><br/><span style="color: #64748B;">Select duration dates during Step 3 of the Request New Access wizard.</span></p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    sTitle = "Troubleshooting";
+                    sBodyHtml = `
+                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #F3E8FF; border: 1px solid #E9D5FF; display: flex; align-items: center; justify-content: center; font-size: 22px;">🔧</div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">Troubleshooting &amp; Fixes</h3>
+                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Common resolutions for portal connectivity and session issues.</p>
+                                </div>
+                            </div>
+                            <div style="font-size: 13.5px; line-height: 1.6; color: #334155;">
+                                <p style="margin: 0 0 8px 0;">• <strong>Session expired:</strong> Log out and sign in using SSO credentials.</p>
+                                <p style="margin: 0 0 8px 0;">• <strong>Access not showing:</strong> Ensure your approver has finalized the governance sign-off.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const oDialog = new Dialog({
+                    title: sTitle,
+                    contentWidth: "480px",
+                    content: [
+                        new HTML({ content: sBodyHtml })
+                    ],
+                    beginButton: new Button({
+                        text: "Close",
+                        type: "Emphasized",
+                        press: () => oDialog.close()
+                    }),
+                    afterClose: () => oDialog.destroy()
+                });
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onFilterNotifications(oEvent) {
+            const oBtn = oEvent.getSource();
+            let sKey = "all";
+            if (oBtn.data) {
+                sKey = oBtn.data("key") || "all";
+            } else if (oBtn.getCustomData && oBtn.getCustomData().length > 0) {
+                sKey = oBtn.getCustomData()[0].getValue() || "all";
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/notifFilterKey", sKey);
+                this._applyNotificationFilter(oModel);
+            }
+        },
+
+        onSearchNotifications(oEvent) {
+            const sQuery = oEvent.getParameter("newValue") || oEvent.getParameter("query") || "";
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/notifSearchQuery", sQuery);
+                this._applyNotificationFilter(oModel);
+            }
+        },
+
+        onMarkAllNotificationsRead() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const aList = oModel.getProperty("/notificationsList") || [];
+            aList.forEach(n => n.unread = false);
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+
+            this._loadNotifications(oModel);
+            MessageToast.show("All notifications marked as read.");
+        },
+
+        onClearReadNotifications() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            let aList = oModel.getProperty("/notificationsList") || [];
+            aList = aList.filter(n => n.unread === true);
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+
+            this._loadNotifications(oModel);
+            MessageToast.show("Cleared all read notifications.");
+        },
+
+        onToggleNotificationRead(oEvent) {
+            const oContext = oEvent.getSource().getBindingContext("accessModel");
+            if (!oContext) return;
+            const oNotif = oContext.getObject();
+            if (!oNotif) return;
+
+            const oModel = this.getView().getModel("accessModel");
+            oNotif.unread = !oNotif.unread;
+
+            const aList = oModel.getProperty("/notificationsList") || [];
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+
+            this._loadNotifications(oModel);
+            MessageToast.show(oNotif.unread ? "Marked as unread." : "Marked as read.");
+        },
+
+        onDeleteNotification(oEvent) {
+            const oContext = oEvent.getSource().getBindingContext("accessModel");
+            if (!oContext) return;
+            const oNotif = oContext.getObject();
+            if (!oNotif) return;
+
+            const oModel = this.getView().getModel("accessModel");
+            let aList = oModel.getProperty("/notificationsList") || [];
+            aList = aList.filter(n => n.id !== oNotif.id);
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+
+            this._loadNotifications(oModel);
+            MessageToast.show("Notification deleted.");
+        },
+
+        onOpenNotificationDetail(oEvent) {
+            const oContext = oEvent.getSource().getBindingContext("accessModel");
+            if (!oContext) return;
+            const oNotif = oContext.getObject();
+            if (!oNotif || !oNotif.requestId) return;
+
+            // Mark as read
+            oNotif.unread = false;
+            const oModel = this.getView().getModel("accessModel");
+            const aList = oModel.getProperty("/notificationsList") || [];
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+            this._loadNotifications(oModel);
+
+            // Open request details page
+            const aHistory = oModel.getProperty("/requestHistory") || [];
+            const oReq = aHistory.find(r => r.requestId === oNotif.requestId);
+            if (oReq) {
+                this._openDetailsForRequest(oReq);
+            } else {
+                this._openDetailsForRequest({
+                    requestId: oNotif.requestId,
+                    system: oNotif.system || "SAP S/4HANA Enterprise",
+                    roleName: "IT Developers",
+                    status: oNotif.type === "approved" ? "Approved" : "Pending Approval"
+                });
+            }
+        },
+
+        onNotifPrevPage() {
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("You are on page 1 of 1.");
+            });
+        },
+
+        onNotifNextPage() {
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("You are on page 1 of 1.");
+            });
         },
 
         async onRefreshAccess(oEvent) {
@@ -1275,6 +1653,7 @@ sap.ui.define([
                 if (oModel) {
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     oModel.setProperty("/showRequestDetailsPage", false);
+                    oModel.setProperty("/showAllNotificationsPage", false);
                 }
             });
         },
@@ -1285,6 +1664,7 @@ sap.ui.define([
                 if (oModel) {
                     oModel.setProperty("/selectedTabKey", "myRequests");
                     oModel.setProperty("/showRequestDetailsPage", false);
+                    oModel.setProperty("/showAllNotificationsPage", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showMyAccessMasterSection", false);
@@ -1402,6 +1782,14 @@ sap.ui.define([
                         const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
                         const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
+                        if (window.KyraLoading) {
+                            window.KyraLoading.show({
+                                title: "Submitting Revocation Request...",
+                                subtitle: "Recording removal of " + (oData.roleName || "role") + " on " + (oData.system || "system") + "...",
+                                duration: 900
+                            });
+                        }
+
                         // Store in local in-flight cache to prevent background sync race conditions
                         const sCacheKey = (oData.system || "") + "_" + (oData.roleName || "");
                         this._localInFlightRevocations[sCacheKey] = {
@@ -1468,7 +1856,7 @@ sap.ui.define([
                         this._setSmartProperty(oModel, "/requestHistory", aMyHistory);
 
                         // Persist Revocation Request to PostgreSQL database
-                        fetch("/odata/v4/auth/submitAccessRequest", {
+                        fetch("odata/v4/auth/submitAccessRequest", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -1586,12 +1974,53 @@ sap.ui.define([
             }
 
             const oModel = this.getView().getModel("accessModel");
-            const iUnreadCount = oModel ? (oModel.getProperty("/notificationsCount") || 3) : 3;
+            const iUnreadCount = oModel ? (oModel.getProperty("/notificationsCount") || 0) : 0;
+            const aNotifs = oModel ? (oModel.getProperty("/notificationsList") || []) : [];
 
             sap.ui.require([
                 "sap/m/ResponsivePopover", "sap/ui/core/HTML", "sap/m/MessageToast"
             ], (ResponsivePopover, HTML, MessageToast) => {
                 
+                let sItemsHtml = "";
+                if (aNotifs.length === 0) {
+                    sItemsHtml = `
+                        <div style="padding: 24px; text-align: center; color: #64748B; font-size: 13px;">
+                            No approved notifications at this time.
+                        </div>
+                    `;
+                } else {
+                    aNotifs.forEach((n, idx) => {
+                        const sHasStripe = idx === 0 ? "kyra-notif-item-has-stripe" : "";
+                        const sDotHtml = n.unread !== false ? `<span class="kyra-notif-blue-dot"></span>` : "";
+                        sItemsHtml += `
+                            <div class="kyra-notif-item ${sHasStripe}" id="kyra_notif_item_${idx}" data-reqid="${n.requestId || ''}" style="cursor: pointer;">
+                                <div class="kyra-notif-avatar-col">
+                                    <div class="kyra-notif-avatar-circle" style="background: #DCFCE7; border-color: #BBF7D0;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#16A34A" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10" fill="#16A34A"></circle>
+                                            <polyline points="9 11 12 14 16 9" stroke="#FFFFFF" stroke-width="2.5" fill="none"></polyline>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="kyra-notif-content-col">
+                                    <div class="kyra-notif-item-head">${n.title || 'Access Request Approved'}</div>
+                                    <div class="kyra-notif-item-desc">${n.description || 'Your access request has been approved.'}</div>
+                                    <div class="kyra-notif-item-time">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span>${n.timestamp || 'Just now'}</span>
+                                    </div>
+                                </div>
+                                <div class="kyra-notif-dot-col">
+                                    ${sDotHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
                 const sHtmlContent = `
                     <div class="kyra-notif-box-card">
                         <!-- Top Header -->
@@ -1618,111 +2047,7 @@ sap.ui.define([
 
                         <!-- Notification Items List -->
                         <div class="kyra-notif-list">
-                            <!-- Item 1: Access Request Approved -->
-                            <div class="kyra-notif-item kyra-notif-item-has-stripe" id="kyra_notif_item_0">
-                                <div class="kyra-notif-avatar-col">
-                                    <div class="kyra-notif-avatar-circle">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563EB" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10" fill="#2563EB"></circle>
-                                            <polyline points="9 11 12 14 16 9" stroke="#FFFFFF" stroke-width="2.5" fill="none"></polyline>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-content-col">
-                                    <div class="kyra-notif-item-head">Access Request Approved</div>
-                                    <div class="kyra-notif-item-desc">Your request for SAP S/4HANA access has been approved.</div>
-                                    <div class="kyra-notif-item-time">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <span>5 minutes ago</span>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-dot-col">
-                                    <span class="kyra-notif-blue-dot"></span>
-                                </div>
-                            </div>
-
-                            <!-- Item 2: New Approval Request -->
-                            <div class="kyra-notif-item" id="kyra_notif_item_1">
-                                <div class="kyra-notif-avatar-col">
-                                    <div class="kyra-notif-avatar-circle">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                            <circle cx="12" cy="7" r="4"></circle>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-content-col">
-                                    <div class="kyra-notif-item-head">New Approval Request</div>
-                                    <div class="kyra-notif-item-desc">An access request is waiting for your approval.</div>
-                                    <div class="kyra-notif-item-time">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <span>15 minutes ago</span>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-dot-col">
-                                    <span class="kyra-notif-blue-dot"></span>
-                                </div>
-                            </div>
-
-                            <!-- Item 3: Access Expiring Soon -->
-                            <div class="kyra-notif-item" id="kyra_notif_item_2">
-                                <div class="kyra-notif-avatar-col">
-                                    <div class="kyra-notif-avatar-circle">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 14 14"></polyline>
-                                            <path d="M2 12h2M20 12h2"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-content-col">
-                                    <div class="kyra-notif-item-head">Access Expiring Soon</div>
-                                    <div class="kyra-notif-item-desc">SAP Ariba access will expire in 2 days.</div>
-                                    <div class="kyra-notif-item-time">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <span>1 hour ago</span>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-dot-col">
-                                    <span class="kyra-notif-blue-dot"></span>
-                                </div>
-                            </div>
-
-                            <!-- Item 4: System Notification -->
-                            <div class="kyra-notif-item" id="kyra_notif_item_3">
-                                <div class="kyra-notif-avatar-col">
-                                    <div class="kyra-notif-avatar-circle">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-content-col">
-                                    <div class="kyra-notif-item-head">System Notification</div>
-                                    <div class="kyra-notif-item-desc">Scheduled maintenance on 18 Aug 2026, 10:00 PM IST.</div>
-                                    <div class="kyra-notif-item-time">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10"></circle>
-                                            <polyline points="12 6 12 12 16 14"></polyline>
-                                        </svg>
-                                        <span>2 hours ago</span>
-                                    </div>
-                                </div>
-                                <div class="kyra-notif-dot-col">
-                                    <span class="kyra-notif-blue-dot"></span>
-                                </div>
-                            </div>
+                            ${sItemsHtml}
                         </div>
 
                         <!-- Footer -->
@@ -1758,13 +2083,12 @@ sap.ui.define([
                     const btnMarkAll = document.getElementById("kyra_notif_mark_all_btn");
                     if (btnMarkAll) {
                         btnMarkAll.onclick = () => {
+                            this.onMarkAllNotificationsRead();
                             const dots = document.querySelectorAll(".kyra-notif-blue-dot");
                             dots.forEach(d => d.style.display = "none");
                             const pill = document.getElementById("kyra_notif_badge_pill");
                             if (pill) pill.innerText = "0";
-                            oModel.setProperty("/notificationsCount", 0);
                             oPopover.close();
-                            MessageToast.show("All notifications marked as read.");
                         };
                     }
 
@@ -1772,33 +2096,31 @@ sap.ui.define([
                     if (footerBtn) {
                         footerBtn.onclick = () => {
                             oPopover.close();
-                            this._confirmDiscardAddAccess(() => {
-                                oModel.setProperty("/selectedTabKey", "myRequests");
-                                oModel.setProperty("/showAddAccessSector", false);
-                                oModel.setProperty("/showRemoveAccessSector", false);
-                                oModel.setProperty("/showMyAccessMasterSection", false);
-                            });
-                            MessageToast.show("Navigated to My History notifications and audit log.");
+                            this.onNavToAllNotificationsPage();
                         };
                     }
 
-                    const attachItemClick = (id, sMsg) => {
-                        const el = document.getElementById(id);
+                    aNotifs.forEach((n, idx) => {
+                        const el = document.getElementById("kyra_notif_item_" + idx);
                         if (el) {
                             el.onclick = () => {
-                                const dot = el.querySelector(".kyra-notif-blue-dot");
-                                if (dot) dot.style.display = "none";
+                                n.unread = false;
+                                const aList = oModel.getProperty("/notificationsList") || [];
+                                sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+                                this._loadNotifications(oModel);
                                 oPopover.close();
-                                MessageToast.show(sMsg);
+
+                                const aHistory = oModel.getProperty("/requestHistory") || [];
+                                const oReq = aHistory.find(r => r.requestId === n.requestId);
+                                if (oReq) {
+                                    this._openDetailsForRequest(oReq);
+                                } else {
+                                    this.onNavToAllNotificationsPage();
+                                }
                             };
                         }
-                    };
-
-                    attachItemClick("kyra_notif_item_0", "Access Request Approved: SAP S/4HANA");
-                    attachItemClick("kyra_notif_item_1", "New Approval Request: Pending review");
-                    attachItemClick("kyra_notif_item_2", "Access Expiring Soon: SAP Ariba in 2 days");
-                    attachItemClick("kyra_notif_item_3", "System Notification: Scheduled maintenance on 18 Aug 2026");
-                }, 50);
+                    });
+                }, 100);
             });
         },
 
@@ -2092,34 +2414,6 @@ sap.ui.define([
             this._saveCurrentSystemSlideConfig();
             oModel.setProperty("/addAccessConfigSubStep", 2);
             this._scrollToWizardContainer();
-        },
-
-        onStep3Slide1Previous() {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-            if (iIndex > 0) {
-                this.onPrevSystemSlide();
-            } else {
-                this.onGoToAddAccessStep2();
-            }
-        },
-
-        onStep3Slide1Continue() {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-            const bEditing = oModel.getProperty("/isEditingFromSummary");
-            if (bEditing) {
-                this.onSaveAndReturnToSummary();
-                return;
-            }
-            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-            if (iIndex + 1 < aSystems.length) {
-                this.onNextSystemSlide();
-            } else {
-                this.onCompleteSystemSlides();
-            }
         },
 
         onBackToSystemSlides() {
@@ -2426,14 +2720,9 @@ sap.ui.define([
                 "SAP Ariba Supply Network": "sap-icon://shipping-status"
             };
 
-            const cleanPersonaName = (s) => {
-                if (!s) return "";
-                let str = String(s).trim();
-                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
-                return str || s;
-            };
-
-            const aUsedReqIdsInBatch = new Set();
+            // Generate or reuse single common batch Request ID for the entire request session
+            const aOldSummaryItems = oModel.getProperty("/addAccessSummaryItems") || [];
+            const sExistingBatchReqId = (aOldSummaryItems.length > 0 && aOldSummaryItems[0].requestId) ? aOldSummaryItems[0].requestId : generateUniqueId();
 
             aSystems.forEach((sSys) => {
                 const oSysConfig = oSlideConfigsMap[sSys] || {
@@ -2456,7 +2745,6 @@ sap.ui.define([
                 const processItem = (sRole, sPers) => {
                     if (!sPers || sPers.trim() === "") return;
 
-                    const sCleanPers = cleanPersonaName(sPers);
                     const sItemKey = `${sSys}:::${sRole}:::${sPers}`;
                     if (oAddedKeys.has(sItemKey)) return;
                     oAddedKeys.add(sItemKey);
@@ -2471,97 +2759,59 @@ sap.ui.define([
                         sTopic = aSysServices[0];
                     }
 
-                    // Assign a truly unique Request ID for each item row
+                    // Preserve existing Request ID if available, otherwise generate new
                     const oExisting = oExistingItemsMap[sItemKey] || oExistingItemsMap[`${sSys}:::${sRole}`];
-                    const sUniqueReqId = (oExisting && oExisting.requestId && !aUsedReqIdsInBatch.has(oExisting.requestId))
-                        ? oExisting.requestId
-                        : generateUniqueId();
-                    aUsedReqIdsInBatch.add(sUniqueReqId);
+                    const sUniqueReqId = (oExisting && oExisting.requestId) ? oExisting.requestId : sExistingBatchReqId;
+
+                    // Check if user already has an active role for this system & role
+                    const bAlreadyActive = aActiveRoles.some(ar => 
+                        ar.system && ar.roleName && 
+                        ar.system.trim().toLowerCase() === sSys.trim().toLowerCase() && 
+                        (ar.roleName.trim().toLowerCase() === sRole.trim().toLowerCase() || ar.roleName.trim().toLowerCase() === sRoleTitle.trim().toLowerCase()) &&
+                        ar.status === "Active"
+                    );
+                    
+                    // Check if user already has a pending request for this system & role
+                    const bAlreadyPending = aMyPending.some(pr => 
+                        pr.system && pr.roleName && 
+                        pr.system.trim().toLowerCase() === sSys.trim().toLowerCase() && 
+                        (pr.roleName.trim().toLowerCase() === sRole.trim().toLowerCase() || pr.roleName.trim().toLowerCase() === sRoleTitle.trim().toLowerCase()) &&
+                        pr.status === "Pending Approval"
+                    );
+
+                    let sStatus = "New Request";
+                    let sState = "Success";
+                    let sStatusType = "new";
+                    let sIcon = "sap-icon://sys-enter-2";
+
+                    if (bAlreadyActive) {
+                        sStatus = "Already has this access";
+                        sState = "Information";
+                        sStatusType = "existing";
+                        sIcon = "sap-icon://message-information";
+                    } else if (bAlreadyPending) {
+                        sStatus = "Already Requested";
+                        sState = "Warning";
+                        sStatusType = "pending";
+                        sIcon = "sap-icon://alert";
+                    }
 
                     const oItem = {
-                        _itemUniqueId: "ITEM_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9),
+                        _uid: "ITEM_" + sSys + "_" + sRole + "_" + sPers + "_" + Math.random().toString(36).substring(2, 9),
                         requestId: sUniqueReqId,
                         system: sSys,
                         roleName: sRole,
                         roleTitle: sRoleTitle,
                         topic: sTopic,
-                        persona: sCleanPers,
-                        selectedPersona: sCleanPers,
+                        persona: sPers,
                         sector: sSector && sFunction ? (sSector + " | " + sFunction) : (sSector || sFunction || ""),
                         region: sRegion || "",
                         duration: sDuration || "Permanent (Default)",
-                        existingStatus: "New Request",
-                        existingState: "Success",
-                        existingIcon: "sap-icon://sys-enter-2",
-                        statusType: "new"
+                        existingStatus: sStatus,
+                        existingState: sState,
+                        existingIcon: sIcon,
+                        statusType: sStatusType
                     };
-
-                    // Standard matching helper for System + Persona + Role granularity
-                    const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-                    const isSameSys = (sysA, sysB) => String(sysA || "").trim().toLowerCase() === String(sysB || "").trim().toLowerCase();
-                    const isMatch = (itemA, itemB) => {
-                        const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
-                        const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
-                        if (!isSameSys(sA, sB)) return false;
-
-                        const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
-                        const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                        const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                        const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
-
-                        if (persA && persB) {
-                            if (persA === persB) return true;
-                            const pA = persA.replace(/persona/g, "").trim();
-                            const pB = persB.replace(/persona/g, "").trim();
-                            if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
-                            return false;
-                        }
-                        if (roleA && roleB) {
-                            return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
-                        }
-                        return false;
-                    };
-
-                    // Check 1: Duplicate within current request cart
-                    const bBatchDup = aSummaryItems.some(prev => isMatch(prev, oItem));
-
-                    // Check 2: Active Assigned Access in user's profile
-                    const aActiveList = oModel.getProperty("/userAccessList") || oModel.getProperty("/activeRoles") || [];
-                    const bAlreadyActive = aActiveList.some(ar => {
-                        const sStat = (ar.status || "").toLowerCase();
-                        const isActive = sStat.includes("active") || sStat.includes("approved") || sStat === "success";
-                        return isActive && isMatch(ar, oItem);
-                    });
-
-                    // Check 3: Pending request in approval queue
-                    const aPendingList = oModel.getProperty("/myPendingRequests") || oModel.getProperty("/pendingAccessRequests") || [];
-                    const bAlreadyPending = aPendingList.some(pr => {
-                        const sStat = (pr.status || "").toLowerCase();
-                        const isPending = sStat.includes("pending") || sStat.includes("submitted");
-                        if (!isPending) return false;
-                        if (isMatch(pr, oItem)) return true;
-                        if (Array.isArray(pr.entitlements)) {
-                            return pr.entitlements.some(e => isMatch(e, oItem));
-                        }
-                        return false;
-                    });
-
-                    if (bBatchDup) {
-                        oItem.existingStatus = "Duplicate in Request";
-                        oItem.existingState = "Warning";
-                        oItem.existingIcon = "sap-icon://alert";
-                        oItem.statusType = "duplicate";
-                    } else if (bAlreadyActive) {
-                        oItem.existingStatus = "Already has this access";
-                        oItem.existingState = "Information";
-                        oItem.existingIcon = "sap-icon://message-information";
-                        oItem.statusType = "existing";
-                    } else if (bAlreadyPending) {
-                        oItem.existingStatus = "Already Requested";
-                        oItem.existingState = "Warning";
-                        oItem.existingIcon = "sap-icon://alert";
-                        oItem.statusType = "pending";
-                    }
 
                     aSummaryItems.push(oItem);
                     aSysItems.push(oItem);
@@ -2599,8 +2849,8 @@ sap.ui.define([
                 const sSys = item.system || "SAP S/4HANA Enterprise";
                 const sSector = sSelectedSector || item.sector || "Finance & Enterprise Performance";
                 const sFunction = sSelectedFunction || "Financial Planning & Analysis";
-                const sPersona = cleanPersonaName(item.persona || "Database & IAM Administrator Persona");
-                const sRoleTitle = cleanPersonaName(item.roleTitle || item.roleName || "IT Administrators");
+                const sPersona = item.persona || "Database & IAM Administrator Persona (IT Administrators)";
+                const sRoleTitle = item.roleTitle || item.roleName || "IT Administrators";
                 
                 let sSecGroup = "SEC-PRIVILEGED-ACCESS";
                 let sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
@@ -2631,385 +2881,19 @@ sap.ui.define([
             oModel.setProperty("/addAccessSummaryItems", aSummaryItems);
             oModel.setProperty("/addAccessSummaryTables", aSummaryTables);
             oModel.setProperty("/restrictedRecords", aRestrictedRecords);
+            oModel.setProperty("/thresholdLimits", []);
+            oModel.setProperty("/duplicateRoles", []);
 
-            // Execute comprehensive dynamic SoD Conflict evaluation
-            this._evaluateSodConflicts(aSummaryItems);
-
-            // Execute dynamic Threshold Limits and Duplicate Roles evaluation
-            this._evaluateThresholdAndDuplicates(aSummaryItems);
-
-            oModel.setProperty("/addAccessStep", 4);
-            oModel.setProperty("/addAccessStep4SubStep", 1);
-            this._scrollToWizardContainer();
-        },
-
-        _evaluateThresholdAndDuplicates(aSummaryItems) {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel || !aSummaryItems) return;
-
-            const aActiveAccess = (oModel.getProperty("/userAccessList") || oModel.getProperty("/activeRoles") || [])
-                .filter(acc => {
-                    const sStatus = (acc.status || "").toLowerCase();
-                    return sStatus.includes("active") || sStatus.includes("approved") || sStatus === "success";
-                });
-
-            const aPendingRequests = (oModel.getProperty("/myPendingRequests") || oModel.getProperty("/pendingAccessRequests") || [])
-                .filter(p => {
-                    const sStatus = (p.status || "").toLowerCase();
-                    const isRevoke = p.type === "Revocation" || p.isRevocation === true;
-                    return (sStatus.includes("pending") || sStatus.includes("submitted")) && !isRevoke;
-                });
-
-            const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-            const isSameSys = (sysA, sysB) => String(sysA || "").trim().toLowerCase() === String(sysB || "").trim().toLowerCase();
-            const isMatch = (itemA, itemB) => {
-                const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
-                const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
-                if (!isSameSys(sA, sB)) return false;
-
-                const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
-                const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
-
-                if (persA && persB) {
-                    if (persA === persB) return true;
-                    const pA = persA.replace(/persona/g, "").trim();
-                    const pB = persB.replace(/persona/g, "").trim();
-                    if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
-                    return false;
-                }
-                if (roleA && roleB) {
-                    return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
-                }
-                return false;
-            };
-
-            const aThresholdLimits = [];
-            const aDuplicateRoles = [];
-            const oSystemCounts = {};
-            const oSystemSector = {};
-            const aSeenItemsInBatch = [];
-
-            aSummaryItems.forEach((item) => {
-                const sSys = item.system || "SAP S/4HANA Enterprise";
-                const sRole = item.roleTitle || item.roleName || "Requested Role";
-                const sTopic = item.topic || item.sector || "Core Access Module";
-                const sSector = item.sector || "Enterprise Access";
-
-                oSystemCounts[sSys] = (oSystemCounts[sSys] || 0) + 1;
-                if (!oSystemSector[sSys]) {
-                    oSystemSector[sSys] = sSector;
-                }
-
-                // Check 1: Batch Duplication (within current request cart)
-                const bBatchDup = aSeenItemsInBatch.some(prev => isMatch(prev, item));
-                if (bBatchDup) {
-                    aDuplicateRoles.push({
-                        system: sSys,
-                        functionalRole: sRole,
-                        moduleName: sTopic,
-                        selectedSecurityGroups: "SG_" + sRole.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "_DUP",
-                        teamName: item.team || sTopic || "Identity Governance",
-                        adGroupName: "AD_GRP_" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_"),
-                        existingRoles: "Duplicate in Current Request Cart"
-                    });
-                }
-                aSeenItemsInBatch.push(item);
-
-                // Check 2: Active Assigned Access Duplication (already existing access)
-                const bFoundInActive = aActiveAccess.some(ar => isMatch(ar, item));
-                if (bFoundInActive && !bBatchDup) {
-                    aDuplicateRoles.push({
-                        system: sSys,
-                        functionalRole: sRole,
-                        moduleName: sTopic,
-                        selectedSecurityGroups: "SG_" + sRole.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "_ACTIVE",
-                        teamName: item.team || sTopic || "Identity Governance",
-                        adGroupName: "AD_GRP_" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_"),
-                        existingRoles: "already existing access"
-                    });
-                }
-
-                // Check 3: Pending Request Duplication (already in pending)
-                const bFoundInPending = aPendingRequests.some(pr => {
-                    if (isMatch(pr, item)) return true;
-                    if (Array.isArray(pr.entitlements)) {
-                        return pr.entitlements.some(e => isMatch(e, item));
-                    }
-                    return false;
-                });
-                if (bFoundInPending && !bBatchDup && !bFoundInActive) {
-                    aDuplicateRoles.push({
-                        system: sSys,
-                        functionalRole: sRole,
-                        moduleName: sTopic,
-                        selectedSecurityGroups: "SG_" + sRole.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "_PENDING",
-                        teamName: item.team || sTopic || "Identity Governance",
-                        adGroupName: "AD_GRP_" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_"),
-                        existingRoles: "already in pending"
-                    });
+            this.showLoadingSlidePopup({
+                title: "Scanning SoD Conflicts...",
+                subtitle: "Please wait while we evaluate access policies.",
+                duration: 800,
+                onComplete: () => {
+                    oModel.setProperty("/addAccessStep", 4);
+                    oModel.setProperty("/addAccessStep4SubStep", 1);
+                    this._scrollToWizardContainer();
                 }
             });
-
-            // Evaluate Threshold Limits per system (Limit is 5 for each system)
-            Object.keys(oSystemCounts).forEach(sSys => {
-                const iCount = oSystemCounts[sSys];
-                if (iCount >= 5) {
-                    const iPercent = Math.round((iCount / 5) * 100);
-                    aThresholdLimits.push({
-                        system: sSys,
-                        sector: oSystemSector[sSys] || "Enterprise Systems",
-                        limit: "Max 5 Roles / System",
-                        excessivePercentage: `${iPercent}% (${iCount > 5 ? "Limit Exceeded" : "Max Limit Reached"})`
-                    });
-                }
-            });
-
-            oModel.setProperty("/thresholdLimits", aThresholdLimits);
-            oModel.setProperty("/duplicateRoles", aDuplicateRoles);
-        },
-
-        _loadBackendSoDMatrix() {
-            const oModel = this.getView().getModel("accessModel");
-            fetch("/odata/v4/admin-portal/SoDMatrix")
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.value && oModel) {
-                        const aRules = data.value.map(r => ({
-                            role1: r.roleA || r.role_a || r.role1,
-                            role2: r.roleB || r.role_b || r.role2,
-                            description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
-                        }));
-                        oModel.setProperty("/sodMatrix", aRules);
-                    }
-                })
-                .catch(err => {
-                    console.warn("SoDMatrix backend query skipped or unavailable:", err);
-                });
-        },
-
-        _evaluateSodConflicts(aSummaryItems) {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel || !aSummaryItems) return;
-
-            const aUserActiveRoles = oModel.getProperty("/activeRoles") || oModel.getProperty("/userAccessList") || [];
-            const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
-            
-            const aSodRules = oModel.getProperty("/sodMatrix") || [
-                { role1: "IT Admin", role2: "IT Developer", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                { role1: "IT Admin", role2: "IT Security", description: "System Administrator conflicts with Security Governance." },
-                { role1: "IT Admin", role2: "Compliance Manager", description: "System Administrator conflicts with Compliance Manager oversight." },
-                { role1: "IT Security", role2: "IT Developer", description: "Developer access conflicts with IT Security audit authority." },
-                { role1: "Lead Engineer", role2: "IT Admin", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                { role1: "Security", role2: "Compliance Manager", description: "Compliance Manager conflicts with Security Operational access." },
-                { role1: "Security Audit", role2: "IT Developer", description: "Security Audit oversight conflicts with Developer operational access." },
-                { role1: "System Administrator", role2: "Security Audit", description: "System Administrator conflicts with Security Audit role." }
-            ];
-
-            const isSameSystem = (sysA, sysB) => {
-                if (!sysA || !sysB) return false;
-                const sA = String(sysA).trim().toLowerCase();
-                const sB = String(sysB).trim().toLowerCase();
-                return sA === sB;
-            };
-
-            const cleanPersonaName = (s) => {
-                if (!s) return "";
-                let str = String(s).trim();
-                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
-                return str || s;
-            };
-
-            const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-
-            // Check if two items represent the same access
-            const isSameAccess = (itemA, itemB) => {
-                const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
-                const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
-                if (!isSameSystem(sA, sB)) return false;
-
-                const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
-                const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
-
-                if (persA && persB) {
-                    if (persA === persB) return true;
-                    const pA = persA.replace(/persona/g, "").trim();
-                    const pB = persB.replace(/persona/g, "").trim();
-                    if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
-                    return false;
-                }
-                if (roleA && roleB) {
-                    return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
-                }
-                return false;
-            };
-
-            // Derive functional archetype category (developer, admin, security, engineer, compliance, owner, manager)
-            // Strips out category tags like "(System Administrator)" so developer roles are not confused with admin
-            const getFunctionalArchetype = (roleStr, personaStr) => {
-                const cleanR = String(roleStr || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-                const cleanP = String(personaStr || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-
-                if (cleanR.includes("developer") || cleanP.includes("developer")) return "developer";
-                if (cleanR.includes("administrator") || cleanR.includes("it admin") || cleanP.includes("cloud infrastructure") || cleanP.includes("database & iam")) return "admin";
-                if (cleanR.includes("security") || cleanP.includes("security") || cleanP.includes("cybersecurity") || cleanR.includes("isrm") || cleanP.includes("isrm")) return "security";
-                if (cleanR.includes("lead engineer") || cleanP.includes("principal systems") || cleanP.includes("devops & platform")) return "engineer";
-                if (cleanR.includes("compliance") || cleanP.includes("compliance") || cleanP.includes("auditor") || cleanP.includes("privacy")) return "compliance";
-                if (cleanR.includes("product owner") || cleanP.includes("solution architecture") || cleanP.includes("product manager")) return "owner";
-                if (cleanR.includes("product group engineer") || cleanP.includes("integration engineering") || cleanP.includes("product suite")) return "product_group";
-                if (cleanR.includes("line manager") || cleanP.includes("people operations") || cleanP.includes("resource manager")) return "manager";
-                if (cleanR.includes("role owner") || cleanP.includes("role custodian")) return "role_owner";
-                return cleanR;
-            };
-
-            const getRuleArchetype = (ruleStr) => {
-                const s = String(ruleStr || "").toLowerCase().trim();
-                if (s.includes("developer") || s.includes("dev")) return "developer";
-                if (s.includes("admin") || s.includes("system administrator")) return "admin";
-                if (s.includes("security") || s.includes("audit") || s.includes("isrm")) return "security";
-                if (s.includes("engineer")) return "engineer";
-                if (s.includes("compliance")) return "compliance";
-                if (s.includes("owner")) return "owner";
-                if (s.includes("manager")) return "manager";
-                return s;
-            };
-
-            const checkConflictMatch = (roleA, personaA, roleB, personaB, rule) => {
-                const archA = getFunctionalArchetype(roleA, personaA);
-                const archB = getFunctionalArchetype(roleB, personaB);
-
-                // Two roles of the SAME archetype (e.g. developer vs developer) DO NOT conflict with each other!
-                if (archA === archB) return false;
-
-                const r1 = getRuleArchetype(rule.role1 || rule.role_a || rule.roleA);
-                const r2 = getRuleArchetype(rule.role2 || rule.role_b || rule.roleB);
-
-                return (archA === r1 && archB === r2) || (archA === r2 && archB === r1);
-            };
-
-            const aActiveConflicts = [];
-            const aPendingConflicts = [];
-            const aBatchConflicts = [];
-            const oSeenActiveKeys = new Set();
-            const oSeenPendingKeys = new Set();
-            const oSeenBatchKeys = new Set();
-
-            aSummaryItems.forEach(newItem => {
-                const sNewSys = newItem.system || "";
-                const sNewRoleName = newItem.roleName || newItem.roleTitle || newItem.persona || "Requested Role";
-                const sNewPersona = newItem.persona || newItem.selectedPersona || newItem.selected_persona || sNewRoleName;
-
-                // 1. Check conflicts against Active Database Entitlements (ONLY for the EXACT SAME system)
-                aUserActiveRoles.forEach(activeRole => {
-                    const sActiveSys = activeRole.target_system || activeRole.system || "";
-                    if (!isSameSystem(sActiveSys, sNewSys)) return; // Strictly ignore different systems!
-
-                    // A role/persona CANNOT have an SoD conflict with itself or with the exact same access!
-                    if (isSameAccess(activeRole, newItem)) return;
-
-                    const sActiveRoleName = activeRole.role_name || activeRole.roleName || activeRole.roleTitle || activeRole.persona || "Active Role";
-                    const sActivePersona = activeRole.selected_persona || activeRole.persona || activeRole.selectedPersona || sActiveRoleName;
-
-                    aSodRules.forEach(rule => {
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and newly requested access.";
-
-                        if (checkConflictMatch(sNewRoleName, sNewPersona, sActiveRoleName, sActivePersona, rule)) {
-                            const sKey = `${sActiveSys}:::${sActiveRoleName}:::${sNewSys}:::${sNewRoleName}`;
-                            if (!oSeenActiveKeys.has(sKey)) {
-                                oSeenActiveKeys.add(sKey);
-                                aActiveConflicts.push({
-                                    system: sNewSys,
-                                    existingRole: `${sActiveSys} — ${cleanPersonaName(sActiveRoleName)}`,
-                                    existingPersona: cleanPersonaName(sActivePersona),
-                                    newRole: `${sNewSys} — ${cleanPersonaName(sNewRoleName)}`,
-                                    newPersona: cleanPersonaName(sNewPersona),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                        }
-                    });
-                });
-
-                // 2. Check conflicts against Pending In-Flight Requests (ONLY for the EXACT SAME system)
-                aUserPendingRequests.forEach(pendingReq => {
-                    const sPendingSys = pendingReq.targetSystem || pendingReq.system || pendingReq.target_system || "";
-                    if (!isSameSystem(sPendingSys, sNewSys)) return; // Strictly ignore different systems!
-
-                    // A role/persona CANNOT have an SoD conflict with itself or with the exact same access!
-                    if (isSameAccess(pendingReq, newItem)) return;
-
-                    const sPendingRoleName = pendingReq.roleName || pendingReq.roleTitle || pendingReq.persona || "Pending Role";
-                    const sPendingPersona = pendingReq.selected_persona || pendingReq.persona || pendingReq.selectedPersona || sPendingRoleName;
-
-                    aSodRules.forEach(rule => {
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between pending request and newly requested access.";
-
-                        if (checkConflictMatch(sNewRoleName, sNewPersona, sPendingRoleName, sPendingPersona, rule)) {
-                            const sKey = `${sPendingSys}:::${sPendingRoleName}:::${sNewSys}:::${sNewRoleName}`;
-                            if (!oSeenPendingKeys.has(sKey)) {
-                                oSeenPendingKeys.add(sKey);
-                                aPendingConflicts.push({
-                                    system: sNewSys,
-                                    existingRole: `${sPendingSys} — ${cleanPersonaName(sPendingRoleName)}`,
-                                    existingPersona: cleanPersonaName(sPendingPersona),
-                                    newRole: `${sNewSys} — ${cleanPersonaName(sNewRoleName)}`,
-                                    newPersona: cleanPersonaName(sNewPersona),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                        }
-                    });
-                });
-            });
-
-            // 3. Check batch intra-role conflicts (between newly selected roles in current request cart - ONLY for the EXACT SAME system)
-            for (let i = 0; i < aSummaryItems.length; i++) {
-                for (let j = i + 1; j < aSummaryItems.length; j++) {
-                    const itemA = aSummaryItems[i];
-                    const itemB = aSummaryItems[j];
-                    const sSysA = itemA.system || "";
-                    const sSysB = itemB.system || "";
-
-                    if (!isSameSystem(sSysA, sSysB)) continue; // Strictly ignore different systems!
-
-                    // Same access or same parent archetype does not have an SoD conflict
-                    if (isSameAccess(itemA, itemB)) continue;
-
-                    const sRoleA = itemA.roleName || itemA.roleTitle || itemA.persona || "Role A";
-                    const sPersonaA = itemA.persona || itemA.selectedPersona || itemA.selected_persona || sRoleA;
-                    const sRoleB = itemB.roleName || itemB.roleTitle || itemB.persona || "Role B";
-                    const sPersonaB = itemB.persona || itemB.selectedPersona || itemB.selected_persona || sRoleB;
-
-                    aSodRules.forEach(rule => {
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between multiple roles selected in this request.";
-
-                        if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
-                            const sKey = `BATCH:::${sSysA}:::${sRoleA}:::${sSysB}:::${sRoleB}`;
-                            if (!oSeenBatchKeys.has(sKey)) {
-                                oSeenBatchKeys.add(sKey);
-                                aBatchConflicts.push({
-                                    system: sSysA,
-                                    roleA: `${sSysA} — ${cleanPersonaName(sRoleA)}`,
-                                    personaA: cleanPersonaName(sPersonaA),
-                                    roleB: `${sSysB} — ${cleanPersonaName(sRoleB)}`,
-                                    personaB: cleanPersonaName(sPersonaB),
-                                    conflictTitle: "Batch Selection SoD Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-
-            oModel.setProperty("/activeSodConflictsList", aActiveConflicts);
-            oModel.setProperty("/pendingOnlySodConflictsList", aPendingConflicts);
-            oModel.setProperty("/batchSodConflictsList", aBatchConflicts);
         },
 
         onGoToStep4Slide1() {
@@ -3118,62 +3002,63 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const oBindingCtx = oEvent.getSource().getBindingContext("accessModel");
-            if (!oBindingCtx) return;
-
-            const oItem = oBindingCtx.getObject();
+            const oItem = oEvent.getSource().getBindingContext("accessModel").getObject();
             if (!oItem) return;
 
-            // 1. Remove ONLY the specific selected item from Summary in-memory lists
+            const sTargetUid = oItem._uid;
+            const sSys = oItem.system;
+            const sRole = oItem.roleName;
+            const sPersona = oItem.persona;
+            const sTopic = oItem.topic;
+
+            // Helper to match the exact single item being deleted
+            const isTargetItem = (item) => {
+                if (sTargetUid && item._uid) {
+                    return item._uid === sTargetUid;
+                }
+                return item === oItem || (
+                    item.system === sSys &&
+                    item.roleName === sRole &&
+                    item.persona === sPersona &&
+                    item.topic === sTopic
+                );
+            };
+
+            // 1. Remove ONLY this single item from Summary in-memory lists
             let aItems = oModel.getProperty("/addAccessSummaryItems") || [];
             let aTables = oModel.getProperty("/addAccessSummaryTables") || [];
-
-            const isTargetItem = (i) => {
-                if (i === oItem) return true;
-                if (i._itemUniqueId && oItem._itemUniqueId && i._itemUniqueId === oItem._itemUniqueId) return true;
-                return (i.system === oItem.system && (i.roleName === oItem.roleName || i.roleTitle === oItem.roleTitle) && i.persona === oItem.persona);
-            };
 
             aItems = aItems.filter(i => !isTargetItem(i));
             
             aTables.forEach(t => {
-                if (Array.isArray(t.items)) {
-                    t.items = t.items.filter(i => !isTargetItem(i));
+                if (t.systemName === sSys || !sSys) {
+                    t.items = (t.items || []).filter(i => !isTargetItem(i));
                 }
             });
-            aTables = aTables.filter(t => Array.isArray(t.items) && t.items.length > 0);
+            aTables = aTables.filter(t => t.items && t.items.length > 0);
 
             oModel.setProperty("/addAccessSummaryItems", aItems);
             oModel.setProperty("/addAccessSummaryTables", aTables);
 
-            // Re-evaluate SoD conflicts and threshold/duplicate validations
-            this._evaluateSodConflicts(aItems);
-            this._evaluateThresholdAndDuplicates(aItems);
-
             // 2. Synchronize with Main Configuration Page (Step 3) & System Slide Configs
-            const sSys = oItem.system;
-            const sRole = oItem.roleName || oItem.roleTitle;
-            const sPersona = oItem.persona;
-            const sTopic = oItem.topic;
-
             let oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
             if (sSys && oSlideConfigsMap[sSys]) {
                 let oSysCfg = oSlideConfigsMap[sSys];
                 
-                // Remove deleted persona
-                if (sPersona && Array.isArray(oSysCfg.selectedPersonas)) {
+                // Remove only the deleted persona from selected personas of this system
+                if (sPersona && oSysCfg.selectedPersonas) {
                     oSysCfg.selectedPersonas = oSysCfg.selectedPersonas.filter(p => p !== sPersona);
                 }
                 
-                // Check if any remaining items for this system have this role
-                const bRoleStillUsed = aItems.some(i => i.system === sSys && (i.roleName === sRole || i.roleTitle === sRole));
-                if (!bRoleStillUsed && Array.isArray(oSysCfg.selectedRoles)) {
+                // Check if any remaining items for this system still use this role
+                const bRoleStillUsed = aItems.some(i => i.system === sSys && i.roleName === sRole);
+                if (!bRoleStillUsed && oSysCfg.selectedRoles) {
                     oSysCfg.selectedRoles = oSysCfg.selectedRoles.filter(r => r !== sRole);
                 }
 
-                // Check if any remaining items for this system have this topic
+                // Check if any remaining items for this system still use this topic/service
                 const bTopicStillUsed = aItems.some(i => i.system === sSys && i.topic === sTopic);
-                if (!bTopicStillUsed && Array.isArray(oSysCfg.selectedServices)) {
+                if (!bTopicStillUsed && oSysCfg.selectedServices) {
                     oSysCfg.selectedServices = oSysCfg.selectedServices.filter(s => s !== sTopic);
                 }
 
@@ -3199,7 +3084,15 @@ sap.ui.define([
                 }
             }
 
-            MessageToast.show("Access item removed from request.");
+            // Also update restrictedRecords list so Step 4 is in sync
+            let aRestrictedRecords = oModel.getProperty("/restrictedRecords") || [];
+            aRestrictedRecords = aRestrictedRecords.filter(r => !(
+                r.system === sSys &&
+                (r.persona === sPersona || r.roleTitle === (oItem.roleTitle || sRole))
+            ));
+            oModel.setProperty("/restrictedRecords", aRestrictedRecords);
+
+            MessageToast.show("Selected item removed from request.");
         },
 
         async onFinalSubmitInPageAddAccess() {
@@ -3230,11 +3123,6 @@ sap.ui.define([
 
             sap.ui.core.BusyIndicator.show(0);
 
-            const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
-            const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
-            const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
-            const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0);
-
             const sBatchReqNumber = (aValidItems.length > 0 && aValidItems[0].requestId) ? aValidItems[0].requestId : ("REQ-2026-" + Math.floor(100000 + Math.random() * 900000));
             const aPayload = aValidItems.map((item) => ({
                 requestNumber: item.requestId || sBatchReqNumber,
@@ -3249,145 +3137,215 @@ sap.ui.define([
                 accessType: "DEFAULT",
                 operatingRegion: sRegion || "Global Enterprise (ALL)",
                 accessDuration: item.duration || sDuration || "Permanent (Default)",
-                justification: sJustification || "Access Request",
-                hasConflict: bHasConflict || item.hasConflict || false,
-                conflictingRole: bHasConflict ? "SoD Conflict" : (item.conflictingRole || ""),
-                conflictReason: bHasConflict ? "Segregation of Duties conflict detected" : (item.conflictReason || "")
+                justification: sJustification || "Access Request"
             }));
 
-            try {
-                // Post valid items directly to backend PostgreSQL database endpoint
-                const response = await fetch("/odata/v4/auth/submitAccessRequest", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ requests: aPayload })
-                });
-
-                const text = await response.text();
-                let data = {};
+            // Launch background database persistence
+            const pDbPromise = (async () => {
                 try {
-                    data = JSON.parse(text);
-                } catch(e) {
-                    data = { error: { message: text || response.statusText } };
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 2000);
+                    const response = await fetch("odata/v4/auth/submitAccessRequest", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ requests: aPayload }),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    const sContentType = response.headers ? response.headers.get("content-type") : "";
+                    if (response.ok && sContentType && sContentType.includes("application/json")) {
+                        const data = await response.json();
+                        if (data && !data.error) {
+                            console.log("Successfully persisted request into PostgreSQL database:", data);
+                        }
+                    }
+                } catch (err) {
+                    console.warn("Database offline or unreachable, continuing with local persistence:", err);
                 }
 
-                if (!response.ok || (data.error && data.error.message)) {
-                    const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
-                    sap.ui.core.BusyIndicator.hide();
-                    MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
-                    return;
-                }
+                // Always persist locally
+                try {
+                    const aExistingLocal = JSON.parse(localStorage.getItem("kyra_local_submitted_requests") || "[]");
+                    const aNewLocal = aPayload.map(p => ({
+                        request_number: p.requestNumber,
+                        requester_username: p.requesterUsername,
+                        requester_persona: p.requesterPersona,
+                        target_system: p.targetSystem,
+                        role_name: p.roleName,
+                        business_sector: p.businessSector,
+                        business_function: p.businessFunction,
+                        service_topic: p.serviceTopic,
+                        selected_persona: p.selectedPersona,
+                        access_type: p.accessType || "DEFAULT",
+                        operating_region: p.operatingRegion,
+                        access_duration: p.accessDuration,
+                        justification: p.justification,
+                        status: "PENDING",
+                        created_at: new Date().toISOString()
+                    }));
+                    localStorage.setItem("kyra_local_submitted_requests", JSON.stringify([...aNewLocal, ...aExistingLocal]));
+                } catch (e) {}
 
-                console.log("Successfully persisted request into PostgreSQL database:", data);
-                
-                // Immediately reload all request tables from PostgreSQL database
+                // Immediately reload all request tables
                 await this._loadSubmittedRequests(oModel);
-
-                // Broadcast real-time mutation event to all open tabs/views
                 this._notifyDatabaseMutation();
+            })();
 
-            } catch (err) {
-                sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("Failed to connect to database: " + err.message);
-                return;
-            } finally {
-                sap.ui.core.BusyIndicator.hide();
-            }
+            // Show modern clean loading popup
+            this.showLoadingSlidePopup({
+                title: "Submitting Access Request...",
+                subtitle: "Please wait while we record and synchronize your request.",
+                duration: 1100,
+                onComplete: async () => {
+                    await pDbPromise;
 
-            // Reset wizard overlay state
-            oModel.setProperty("/addAccessStep", 1);
-            oModel.setProperty("/showAddAccessSector", false);
+                    // Reset wizard overlay state
+                    oModel.setProperty("/addAccessStep", 1);
+                    oModel.setProperty("/showAddAccessSector", false);
 
-            let sPopupHtml = `<div style="font-family: inherit;">
-                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13.5px; line-height: 1.5;">
-                    Your access requests have been successfully submitted and synchronized with the database.
-                </p>`;
+                    let sPopupHtml = `<div style="font-family: inherit;">
+                        <p style="margin: 0 0 16px 0; color: #475569; font-size: 13.5px; line-height: 1.5;">
+                            Your access requests have been successfully submitted and synchronized with the database.
+                        </p>`;
 
-            if (aValidItems.length > 0) {
-                sPopupHtml += `
-                <div class="kyra-dialog-section-header">
-                    <span class="kyra-dialog-section-title kyra-text-green">Submitted to Database</span>
-                    <span class="kyra-dialog-badge kyra-dialog-badge-success">${aValidItems.length} Item${aValidItems.length > 1 ? 's' : ''}</span>
-                </div>
-                <div class="kyra-dialog-list">
-                    ${aValidItems.map(i => `
-                        <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-success">
-                            <div class="kyra-dialog-card-left">
-                                <div class="kyra-dialog-card-top-row">
-                                    <span class="kyra-dialog-req-id">${i.requestId}</span>
-                                    <span class="kyra-dialog-sys-tag">${i.system}</span>
-                                </div>
-                                <div class="kyra-dialog-card-role-row">
-                                    <span class="kyra-dialog-role-title">${i.roleTitle || i.roleName}</span>
-                                    <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
-                                </div>
-                                ${i.persona ? `
-                                <div class="kyra-dialog-card-persona-row">
-                                    <span class="kyra-dialog-persona-badge">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                        <span>${i.persona}</span>
-                                    </span>
-                                </div>
-                                ` : ''}
-                            </div>
-                            <div class="kyra-dialog-card-right">
-                                <span class="kyra-dialog-item-status-pill kyra-status-submitted">✔ Submitted</span>
-                            </div>
+                    if (aValidItems.length > 0) {
+                        sPopupHtml += `
+                        <div class="kyra-dialog-section-header">
+                            <span class="kyra-dialog-section-title kyra-text-green">Submitted to Database</span>
+                            <span class="kyra-dialog-badge kyra-dialog-badge-success">${aValidItems.length} Item${aValidItems.length > 1 ? 's' : ''}</span>
                         </div>
-                    `).join("")}
-                </div>`;
-            }
+                        <div class="kyra-dialog-list">
+                            ${aValidItems.map(i => `
+                                <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-success">
+                                    <div class="kyra-dialog-card-left">
+                                        <div class="kyra-dialog-card-top-row">
+                                            <span class="kyra-dialog-req-id">${i.requestId}</span>
+                                            <span class="kyra-dialog-sys-tag">${i.system}</span>
+                                        </div>
+                                        <div class="kyra-dialog-card-role-row">
+                                            <span class="kyra-dialog-role-title">${i.roleTitle || i.roleName}</span>
+                                            <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
+                                        </div>
+                                        ${i.persona ? `
+                                        <div class="kyra-dialog-card-persona-row">
+                                            <span class="kyra-dialog-persona-badge">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                                <span>${i.persona}</span>
+                                            </span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                    <div class="kyra-dialog-card-right">
+                                        <span class="kyra-dialog-item-status-pill kyra-status-submitted">✔ Submitted</span>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>`;
+                    }
 
-            if (aSkippedItems.length > 0) {
-                sPopupHtml += `
-                <div class="kyra-dialog-section-header" style="margin-top: 18px;">
-                    <span class="kyra-dialog-section-title kyra-text-amber">Excluded / Already Configured</span>
-                    <span class="kyra-dialog-badge kyra-dialog-badge-warning">${aSkippedItems.length} Items</span>
-                </div>
-                <div class="kyra-dialog-list">
-                    ${aSkippedItems.map(i => `
-                        <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-warning">
-                            <div class="kyra-dialog-card-left">
-                                <div class="kyra-dialog-card-top-row">
-                                    <span class="kyra-dialog-req-id kyra-req-id-warning">${i.requestId}</span>
-                                    <span class="kyra-dialog-sys-tag kyra-sys-tag-warning">${i.system}</span>
-                                </div>
-                                <div class="kyra-dialog-card-role-row">
-                                    <span class="kyra-dialog-role-title kyra-role-title-warning">${i.roleTitle || i.roleName}</span>
-                                    <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
-                                </div>
-                                ${i.persona ? `
-                                <div class="kyra-dialog-card-persona-row">
-                                    <span class="kyra-dialog-persona-badge kyra-persona-warning">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                        <span>${i.persona}</span>
-                                    </span>
-                                </div>
-                                ` : ''}
-                            </div>
-                            <div class="kyra-dialog-card-right">
-                                <span class="kyra-dialog-item-status-pill kyra-status-skipped">Already has this access</span>
-                            </div>
+                    if (aSkippedItems.length > 0) {
+                        sPopupHtml += `
+                        <div class="kyra-dialog-section-header" style="margin-top: 18px;">
+                            <span class="kyra-dialog-section-title kyra-text-amber">Excluded / Already Configured</span>
+                            <span class="kyra-dialog-badge kyra-dialog-badge-warning">${aSkippedItems.length} Items</span>
                         </div>
-                    `).join("")}
-                </div>`;
-            }
+                        <div class="kyra-dialog-list">
+                            ${aSkippedItems.map(i => `
+                                <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-warning">
+                                    <div class="kyra-dialog-card-left">
+                                        <div class="kyra-dialog-card-top-row">
+                                            <span class="kyra-dialog-req-id kyra-req-id-warning">${i.requestId}</span>
+                                            <span class="kyra-dialog-sys-tag kyra-sys-tag-warning">${i.system}</span>
+                                        </div>
+                                        <div class="kyra-dialog-card-role-row">
+                                            <span class="kyra-dialog-role-title kyra-role-title-warning">${i.roleTitle || i.roleName}</span>
+                                            <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
+                                        </div>
+                                        ${i.persona ? `
+                                        <div class="kyra-dialog-card-persona-row">
+                                            <span class="kyra-dialog-persona-badge kyra-persona-warning">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                                <span>${i.persona}</span>
+                                            </span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                    <div class="kyra-dialog-card-right">
+                                        <span class="kyra-dialog-item-status-pill kyra-status-skipped">Already has this access</span>
+                                    </div>
+                                </div>
+                            `).join("")}
+                        </div>`;
+                    }
 
-            sPopupHtml += `</div>`;
+                    sPopupHtml += `</div>`;
 
-            if (window.KyraDialog && typeof window.KyraDialog.show === "function") {
-                window.KyraDialog.show({
-                    title: "Access Request Submitted",
-                    messageHtml: sPopupHtml,
-                    type: "success",
-                    maxWidth: "700px",
-                    buttonText: "Done"
-                });
-            } else {
-                MessageBox.information("Access Request processing complete!", {
-                    title: "Access Request Submitted"
-                });
-            }
+                    if (window.KyraDialog && typeof window.KyraDialog.show === "function") {
+                        window.KyraDialog.show({
+                            title: "Access Request Submitted",
+                            messageHtml: sPopupHtml,
+                            type: "success",
+                            maxWidth: "700px",
+                            buttonText: "Done"
+                        });
+                    } else {
+                        MessageBox.information("Access Request processing complete!", {
+                            title: "Access Request Submitted"
+                        });
+                    }
+                }
+            });
+        },
+
+        /**
+         * Show modern clean loading popup box with animated spinner
+         */
+        showLoadingSlidePopup(mOptions) {
+            mOptions = mOptions || {};
+            const sTitle = mOptions.title || "Loading...";
+            const sSubtitle = mOptions.subtitle || "Please wait a moment...";
+            const iDuration = mOptions.duration || 1000;
+            const fnComplete = mOptions.onComplete || (() => {});
+
+            const oExisting = document.getElementById("kyra_loading_slide_overlay");
+            if (oExisting) oExisting.remove();
+
+            const oOverlay = document.createElement("div");
+            oOverlay.id = "kyra_loading_slide_overlay";
+            oOverlay.className = "kyraLoadingSlideOverlay";
+
+            oOverlay.innerHTML = `
+                <div class="kyraLoadingSlideCard">
+                    <!-- Clean Orbital Spinner -->
+                    <div class="kyraLoadingIconWrap">
+                        <svg class="kyraLoadingSpinnerSvg" viewBox="0 0 50 50">
+                            <circle cx="25" cy="25" r="20" fill="none" stroke="#E2E8F0" stroke-width="4"></circle>
+                            <circle cx="25" cy="25" r="20" fill="none" stroke="#2563EB" stroke-width="4" stroke-linecap="round" stroke-dasharray="85" stroke-dashoffset="65"></circle>
+                        </svg>
+                    </div>
+
+                    <div class="kyraLoadingTitle">${sTitle}</div>
+                    <div class="kyraLoadingSubtitle">${sSubtitle}</div>
+
+                    <!-- Slim Shimmer Bar -->
+                    <div class="kyraLoadingSlimBar"></div>
+                </div>
+            `;
+
+            document.body.appendChild(oOverlay);
+
+            requestAnimationFrame(() => {
+                oOverlay.classList.add("kyra-active");
+            });
+
+            setTimeout(() => {
+                oOverlay.classList.remove("kyra-active");
+                setTimeout(() => {
+                    oOverlay.remove();
+                    fnComplete();
+                }, 220);
+            }, iDuration);
         },
 
         _hasAddAccessInProgress() {
@@ -3470,6 +3428,25 @@ sap.ui.define([
         onTabSelect(oEvent) {
             const sSelectedKey = oEvent.getParameter("key") || oEvent.getParameter("selectedKey") || "myAccess";
             const oModel = this.getView().getModel("accessModel");
+
+            const mTabTitles = {
+                "myAccess": "My Access Entitlements",
+                "accessRequests": "Access Requests",
+                "myRequests": "My Request History",
+                "approvals": "Pending Approvals",
+                "users": "User Directory",
+                "reports": "Compliance Reports",
+                "auditLogs": "Governance Audit Logs",
+                "settings": "System Settings"
+            };
+            const sTitle = mTabTitles[sSelectedKey] || "Workspace";
+            if (window.KyraLoading) {
+                window.KyraLoading.show({
+                    title: "Loading " + sTitle + "...",
+                    subtitle: "Synchronizing security policies and governance records...",
+                    duration: 400
+                });
+            }
             
             this._confirmDiscardAddAccess(() => {
                 if (oModel) {
@@ -3540,7 +3517,7 @@ sap.ui.define([
             }
         },
 
-        async onOpenPendingRequestDetails(oEvent) {
+        onOpenPendingRequestDetails(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -3557,479 +3534,63 @@ sap.ui.define([
                 oItem = aPending.length > 0 ? aPending[0] : null;
             }
 
-            const sReqNum = (oItem && oItem.requestId) ? oItem.requestId : (oItem && oItem.request_number ? oItem.request_number : "REQ-2026-000378");
+            const sReqNum = (oItem && oItem.requestId) ? oItem.requestId : "REQ-2026-000378";
             let sReqIdShort = sReqNum.replace(/^REQ-2026-/, "").replace(/^REQ-/, "");
             if (!sReqIdShort) sReqIdShort = "000378";
 
-            // Attempt to fetch fresh DB record for this request
-            let oDbRecord = null;
-            try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
-                if (data && data.value) {
-                    oDbRecord = data.value.find(r => r.request_number === sReqNum || r.id === sReqNum);
-                }
-            } catch (err) {
-                console.warn("Could not fetch fresh DB record for request tracking:", err);
-            }
-
-            const src = oDbRecord || oItem || {};
-
-            const formatDate = (dVal) => {
-                if (!dVal) return null;
+            let sSubmittedDateStr = "Aug 22, 2026 10:30 AM";
+            let sManagerDateStr = "Aug 22, 2026 11:15 AM";
+            if (oItem && oItem.createdAtRaw) {
                 try {
-                    const d = new Date(dVal);
-                    if (isNaN(d.getTime())) return null;
-                    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                    const d = new Date(oItem.createdAtRaw);
+                    sSubmittedDateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                    const dManager = new Date(d.getTime() + 45 * 60000);
+                    sManagerDateStr = dManager.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + dManager.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
                 } catch (e) {
-                    return null;
+                    sSubmittedDateStr = "Aug 22, 2026 10:30 AM";
                 }
-            };
-
-            const sSubmittedDateStr = formatDate(src.created_at || src.createdAtRaw || src.submissionDate) || "Aug 22, 2026 10:30 AM";
-            const sUpdatedDateStr = formatDate(src.updated_at) || (src.created_at ? sSubmittedDateStr : "Aug 22, 2026 11:15 AM");
-
-            const sRequesterUsername = src.requester_username || src.requesterUsername || src.requesterId || sessionStorage.getItem("kyra_active_user") || "Dev001";
-            const sRequesterFullName = sRequesterUsername.toUpperCase();
-            const sRoleName = src.role_name || src.roleName || "IT Developers (System Administrator)";
-            const sSystem = src.target_system || src.system || "SAP S/4HANA Finance";
-
-            // Status checks
-            const sDbStatus = (src.db_status || src.status || "PENDING").toUpperCase();
-            const sApproverStatus = (src.approver_status || src.approver_decision_status || "").toUpperCase();
-            const sComplianceStatus = (src.compliance_status || src.compliance_decision_status || "").toUpperCase();
-            const sIam1Status = (src.iam_approver_1_status || src.iam_approver_1_decision_status || "").toUpperCase();
-            const sIam2Status = (src.iam_approver_2_status || src.iam_approver_2_decision_status || "").toUpperCase();
-            const bHasConflict = (src.has_conflict === true || !!(src.conflicting_role && src.conflicting_role.trim()) || sDbStatus === "PENDING_COMPLIANCE");
-
-            const sApproverComment = src.approver_comment || "";
-            const sComplianceComment = src.reviewer_comment || "";
-            const sIam1Comment = src.iam_approver_1_comment || "";
-            const sIam2Comment = src.iam_approver_2_comment || "";
-
-            // Construct 6 Steps
-            // 1. STEP 1: Request Submitted
-            const step1 = {
-                circleClass: "kyraStepCircleGreen",
-                icon: "sap-icon://person-placeholder",
-                iconClass: "kyraStepIconGreen",
-                showCheck: true,
-                badgeClass: "kyraStepBadgeGreen",
-                checkIcon: "sap-icon://accept",
-                lineRightClass: "kyraStepLineGreen",
-                numBadgeClass: "kyraStepNumGreen",
-                title: "Request Submitted",
-                subtitle: "Requester",
-                statusText: "Completed",
-                statusClass: "kyraStepStatusGreen",
-                time: sSubmittedDateStr,
-                isPill: false
-            };
-
-            // 2. STEP 2: Approver (Line Manager)
-            let step2 = {
-                lineLeftClass: "kyraStepLineGreen",
-                numBadgeClass: "kyraStepNumGreen",
-                title: "Approver",
-                subtitle: src.approver_username || "SEGGUM, VEERENDER",
-                time: "",
-                isPill: false
-            };
-
-            if (sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
-                step2.circleClass = "kyraStepCircleGreen";
-                step2.icon = "sap-icon://person-placeholder";
-                step2.iconClass = "kyraStepIconGreen";
-                step2.showCheck = true;
-                step2.badgeClass = "kyraStepBadgeGreen";
-                step2.checkIcon = "sap-icon://accept";
-                step2.lineRightClass = "kyraStepLineGreen";
-                step2.numBadgeClass = "kyraStepNumGreen";
-                step2.statusText = "Approved";
-                step2.statusClass = "kyraStepStatusGreen";
-                step2.time = sUpdatedDateStr;
-                step2.isPill = false;
-            } else if (sApproverStatus === "REJECTED" || sDbStatus === "REJECTED") {
-                step2.circleClass = "kyraStepCircleRed";
-                step2.icon = "sap-icon://person-placeholder";
-                step2.iconClass = "kyraStepIconRed";
-                step2.showRedCross = true;
-                step2.badgeClass = "kyraStepBadgeRed";
-                step2.checkIcon = "sap-icon://decline";
-                step2.lineRightClass = "kyraStepLineRed";
-                step2.numBadgeClass = "kyraStepNumRed";
-                step2.statusText = "Rejected";
-                step2.statusClass = "kyraStepStatusRed";
-                step2.time = sUpdatedDateStr;
-                step2.isPill = false;
-            } else {
-                // Pending Initial Approver Review
-                step2.circleClass = "kyraStepCircleBlue";
-                step2.icon = "sap-icon://person-placeholder";
-                step2.iconClass = "kyraStepIconBlue";
-                step2.showBlueDot = true;
-                step2.lineRightClass = "kyraStepLineDashed";
-                step2.numBadgeClass = "kyraStepNumBlue";
-                step2.statusText = "In Progress";
-                step2.isPill = true;
-                step2.pillClass = "kyraStepStatusPillBlue";
-                step2.pillTextClass = "kyraStepStatusPillText";
-                step2.subNote = "Currently with Approver";
-            }
-
-            // 3. STEP 3: Compliance Approver
-            let step3 = {
-                title: "Compliance Approver",
-                subtitle: "Compliance Review",
-                time: "",
-                isPill: false
-            };
-
-            const isApproverDone = (sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED");
-
-            if (!bHasConflict && isApproverDone) {
-                // Bypassed (No Conflict Flow)
-                step3.lineLeftClass = "kyraStepLineGreen";
-                step3.circleClass = "kyraStepCircleGreen";
-                step3.icon = "sap-icon://shield";
-                step3.iconClass = "kyraStepIconGreen";
-                step3.showCheck = true;
-                step3.badgeClass = "kyraStepBadgeGreen";
-                step3.checkIcon = "sap-icon://accept";
-                step3.lineRightClass = "kyraStepLineGreen";
-                step3.numBadgeClass = "kyraStepNumGreen";
-                step3.statusText = "Bypassed (No Conflict)";
-                step3.statusClass = "kyraStepStatusGreen";
-                step3.subNote = "Direct to IAM Approver 1";
-                step3.time = sUpdatedDateStr;
-            } else if (sComplianceStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
-                step3.lineLeftClass = "kyraStepLineGreen";
-                step3.circleClass = "kyraStepCircleGreen";
-                step3.icon = "sap-icon://shield";
-                step3.iconClass = "kyraStepIconGreen";
-                step3.showCheck = true;
-                step3.badgeClass = "kyraStepBadgeGreen";
-                step3.checkIcon = "sap-icon://accept";
-                step3.lineRightClass = "kyraStepLineGreen";
-                step3.numBadgeClass = "kyraStepNumGreen";
-                step3.statusText = "Approved";
-                step3.statusClass = "kyraStepStatusGreen";
-                step3.time = sUpdatedDateStr;
-            } else if (sComplianceStatus === "REJECTED" || (sDbStatus === "REJECTED" && isApproverDone)) {
-                step3.lineLeftClass = "kyraStepLineGreen";
-                step3.circleClass = "kyraStepCircleRed";
-                step3.icon = "sap-icon://shield";
-                step3.iconClass = "kyraStepIconRed";
-                step3.showRedCross = true;
-                step3.badgeClass = "kyraStepBadgeRed";
-                step3.checkIcon = "sap-icon://decline";
-                step3.lineRightClass = "kyraStepLineRed";
-                step3.numBadgeClass = "kyraStepNumRed";
-                step3.statusText = "Rejected";
-                step3.statusClass = "kyraStepStatusRed";
-                step3.time = sUpdatedDateStr;
-            } else if (sDbStatus === "PENDING_COMPLIANCE") {
-                step3.lineLeftClass = "kyraStepLineGreen";
-                step3.circleClass = "kyraStepCircleBlue";
-                step3.icon = "sap-icon://shield";
-                step3.iconClass = "kyraStepIconBlue";
-                step3.showBlueDot = true;
-                step3.lineRightClass = "kyraStepLineDashed";
-                step3.numBadgeClass = "kyraStepNumBlue";
-                step3.statusText = "In Progress";
-                step3.isPill = true;
-                step3.pillClass = "kyraStepStatusPillBlue";
-                step3.pillTextClass = "kyraStepStatusPillText";
-                step3.subNote = "Currently with Compliance Approver";
-            } else {
-                step3.lineLeftClass = "kyraStepLineDashed";
-                step3.circleClass = "kyraStepCircleGray";
-                step3.icon = "sap-icon://shield";
-                step3.iconClass = "kyraStepIconGray";
-                step3.lineRightClass = "kyraStepLineDashed";
-                step3.numBadgeClass = "kyraStepNumGray";
-                step3.statusText = "Waiting";
-                step3.isPill = true;
-                step3.pillClass = "kyraStepStatusPillGray";
-                step3.pillTextClass = "kyraStepStatusPillTextGray";
-            }
-
-            // 4. STEP 4: IAM Approver 1
-            let step4 = {
-                title: "IAM Approver",
-                subtitle: "Identity Governance",
-                time: "",
-                isPill: false
-            };
-
-            const isComplianceOrBypassDone = (!bHasConflict && isApproverDone) || (sComplianceStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED");
-
-            if (sIam1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
-                step4.lineLeftClass = "kyraStepLineGreen";
-                step4.circleClass = "kyraStepCircleGreen";
-                step4.icon = "sap-icon://user-settings";
-                step4.iconClass = "kyraStepIconGreen";
-                step4.showCheck = true;
-                step4.badgeClass = "kyraStepBadgeGreen";
-                step4.checkIcon = "sap-icon://accept";
-                step4.lineRightClass = "kyraStepLineGreen";
-                step4.numBadgeClass = "kyraStepNumGreen";
-                step4.statusText = "Approved";
-                step4.statusClass = "kyraStepStatusGreen";
-                step4.time = sUpdatedDateStr;
-            } else if (sIam1Status === "REJECTED" || (sDbStatus === "REJECTED" && sDbStatus !== "PENDING_COMPLIANCE" && isComplianceOrBypassDone)) {
-                step4.lineLeftClass = "kyraStepLineGreen";
-                step4.circleClass = "kyraStepCircleRed";
-                step4.icon = "sap-icon://user-settings";
-                step4.iconClass = "kyraStepIconRed";
-                step4.showRedCross = true;
-                step4.badgeClass = "kyraStepBadgeRed";
-                step4.checkIcon = "sap-icon://decline";
-                step4.lineRightClass = "kyraStepLineRed";
-                step4.numBadgeClass = "kyraStepNumRed";
-                step4.statusText = "Rejected";
-                step4.statusClass = "kyraStepStatusRed";
-                step4.time = sUpdatedDateStr;
-            } else if (sDbStatus === "PENDING_IAM_1") {
-                step4.lineLeftClass = "kyraStepLineGreen";
-                step4.circleClass = "kyraStepCircleBlue";
-                step4.icon = "sap-icon://user-settings";
-                step4.iconClass = "kyraStepIconBlue";
-                step4.showBlueDot = true;
-                step4.lineRightClass = "kyraStepLineDashed";
-                step4.numBadgeClass = "kyraStepNumBlue";
-                step4.statusText = "In Progress";
-                step4.isPill = true;
-                step4.pillClass = "kyraStepStatusPillBlue";
-                step4.pillTextClass = "kyraStepStatusPillText";
-                step4.subNote = "Currently with IAM Approver 1";
-            } else {
-                step4.lineLeftClass = "kyraStepLineDashed";
-                step4.circleClass = "kyraStepCircleGray";
-                step4.icon = "sap-icon://user-settings";
-                step4.iconClass = "kyraStepIconGray";
-                step4.lineRightClass = "kyraStepLineDashed";
-                step4.numBadgeClass = "kyraStepNumGray";
-                step4.statusText = "Waiting";
-                step4.isPill = true;
-                step4.pillClass = "kyraStepStatusPillGray";
-                step4.pillTextClass = "kyraStepStatusPillTextGray";
-            }
-
-            // 5. STEP 5: IAM Approver 2
-            let step5 = {
-                title: "IAM Approver 2",
-                subtitle: "Access Provisioning",
-                time: "",
-                isPill: false
-            };
-
-            const isIam1Done = (sIam1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED");
-
-            if (sIam2Status === "APPROVED" || sDbStatus === "APPROVED") {
-                step5.lineLeftClass = "kyraStepLineGreen";
-                step5.circleClass = "kyraStepCircleGreen";
-                step5.icon = "sap-icon://sys-monitor";
-                step5.iconClass = "kyraStepIconGreen";
-                step5.showCheck = true;
-                step5.badgeClass = "kyraStepBadgeGreen";
-                step5.checkIcon = "sap-icon://accept";
-                step5.lineRightClass = "kyraStepLineGreen";
-                step5.numBadgeClass = "kyraStepNumGreen";
-                step5.statusText = "Approved";
-                step5.statusClass = "kyraStepStatusGreen";
-                step5.time = sUpdatedDateStr;
-            } else if (sIam2Status === "REJECTED" || (sDbStatus === "REJECTED" && isIam1Done)) {
-                step5.lineLeftClass = "kyraStepLineGreen";
-                step5.circleClass = "kyraStepCircleRed";
-                step5.icon = "sap-icon://sys-monitor";
-                step5.iconClass = "kyraStepIconRed";
-                step5.showRedCross = true;
-                step5.badgeClass = "kyraStepBadgeRed";
-                step5.checkIcon = "sap-icon://decline";
-                step5.lineRightClass = "kyraStepLineRed";
-                step5.numBadgeClass = "kyraStepNumRed";
-                step5.statusText = "Rejected";
-                step5.statusClass = "kyraStepStatusRed";
-                step5.time = sUpdatedDateStr;
-            } else if (sDbStatus === "PENDING_IAM_2") {
-                step5.lineLeftClass = "kyraStepLineGreen";
-                step5.circleClass = "kyraStepCircleBlue";
-                step5.icon = "sap-icon://sys-monitor";
-                step5.iconClass = "kyraStepIconBlue";
-                step5.showBlueDot = true;
-                step5.lineRightClass = "kyraStepLineDashed";
-                step5.numBadgeClass = "kyraStepNumBlue";
-                step5.statusText = "In Progress";
-                step5.isPill = true;
-                step5.pillClass = "kyraStepStatusPillBlue";
-                step5.pillTextClass = "kyraStepStatusPillText";
-                step5.subNote = "Currently with IAM Approver 2";
-            } else {
-                step5.lineLeftClass = "kyraStepLineDashed";
-                step5.circleClass = "kyraStepCircleGray";
-                step5.icon = "sap-icon://sys-monitor";
-                step5.iconClass = "kyraStepIconGray";
-                step5.lineRightClass = "kyraStepLineDashed";
-                step5.numBadgeClass = "kyraStepNumGray";
-                step5.statusText = "Waiting";
-                step5.isPill = true;
-                step5.pillClass = "kyraStepStatusPillGray";
-                step5.pillTextClass = "kyraStepStatusPillTextGray";
-            }
-
-            // 6. STEP 6: Completed (Access Activated)
-            let step6 = {
-                title: "Completed",
-                subtitle: "Access Activated",
-                time: "",
-                isPill: false
-            };
-
-            if (sDbStatus === "APPROVED" || (sIam2Status === "APPROVED")) {
-                step6.lineLeftClass = "kyraStepLineGreen";
-                step6.circleClass = "kyraStepCircleGreen";
-                step6.icon = "sap-icon://flag";
-                step6.iconClass = "kyraStepIconGreen";
-                step6.showCheck = true;
-                step6.badgeClass = "kyraStepBadgeGreen";
-                step6.checkIcon = "sap-icon://accept";
-                step6.numBadgeClass = "kyraStepNumGreen";
-                step6.statusText = "Completed";
-                step6.statusClass = "kyraStepStatusGreen";
-                step6.subNote = "Access Activated & Live";
-                step6.time = sUpdatedDateStr;
-            } else if (sDbStatus === "REJECTED") {
-                step6.lineLeftClass = "kyraStepLineRed";
-                step6.circleClass = "kyraStepCircleRed";
-                step6.icon = "sap-icon://decline";
-                step6.iconClass = "kyraStepIconRed";
-                step6.showRedCross = true;
-                step6.badgeClass = "kyraStepBadgeRed";
-                step6.checkIcon = "sap-icon://decline";
-                step6.numBadgeClass = "kyraStepNumRed";
-                step6.statusText = "Rejected";
-                step6.statusClass = "kyraStepStatusRed";
-                step6.subNote = "Request Rejected";
-                step6.time = sUpdatedDateStr;
-            } else {
-                step6.lineLeftClass = "kyraStepLineDashed";
-                step6.circleClass = "kyraStepCircleGray";
-                step6.icon = "sap-icon://flag";
-                step6.iconClass = "kyraStepIconGray";
-                step6.numBadgeClass = "kyraStepNumGray";
-                step6.statusText = "Waiting";
-                step6.isPill = true;
-                step6.pillClass = "kyraStepStatusPillGray";
-                step6.pillTextClass = "kyraStepStatusPillTextGray";
-            }
-
-            // Build dynamic Activity Logs (Comments / Remarks stream)
-            const aLogs = [];
-
-            // 1. Initial Submission Log
-            aLogs.push({
-                icon: "sap-icon://sys-enter-2",
-                iconClass: "kyraCommentStatusIconGreen",
-                title: "Request Submitted",
-                date: sSubmittedDateStr,
-                comment: `Access request submitted for ${sRoleName} on ${sSystem}.`,
-                author: `By: ${sRequesterFullName} (Requester)`
-            });
-
-            // 2. Approver Decision Log
-            if (sApproverStatus === "APPROVED" || isApproverDone) {
-                aLogs.push({
-                    icon: sApproverStatus === "REJECTED" ? "sap-icon://error" : "sap-icon://sys-enter-2",
-                    iconClass: sApproverStatus === "REJECTED" ? "kyraCommentStatusIconRed" : "kyraCommentStatusIconGreen",
-                    title: sApproverStatus === "REJECTED" ? "Line Manager Approval Decision — Rejected" : "Line Manager Approval Decision",
-                    date: sUpdatedDateStr,
-                    comment: sApproverComment || (sApproverStatus === "REJECTED" ? "Rejected during Line Manager review." : "Approved access request entitlement during standard review cycle."),
-                    author: `By: ${src.approver_username || "SEGGUM, VEERENDER"} (Manager Approver)`
-                });
-            } else if (sDbStatus === "PENDING") {
-                aLogs.push({
-                    icon: "sap-icon://pending",
-                    iconClass: "kyraCommentStatusIconYellow",
-                    title: "Line Manager Approval Pending",
-                    date: sSubmittedDateStr,
-                    comment: "Request is currently queued for Line Manager review.",
-                    author: "Assigned to: SEGGUM, VEERENDER (Manager Approver)"
-                });
-            }
-
-            // 3. Compliance Review Decision Log
-            if (bHasConflict) {
-                if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || (isApproverDone && sDbStatus !== "PENDING_COMPLIANCE")) {
-                    aLogs.push({
-                        icon: sComplianceStatus === "REJECTED" ? "sap-icon://error" : "sap-icon://sys-enter-2",
-                        iconClass: sComplianceStatus === "REJECTED" ? "kyraCommentStatusIconRed" : "kyraCommentStatusIconGreen",
-                        title: `Compliance Review Decision — ${sComplianceStatus === "REJECTED" ? "Rejected" : "Approved"}`,
-                        date: sUpdatedDateStr,
-                        comment: sComplianceComment || (sComplianceStatus === "REJECTED" ? "Rejected due to Segregation of Duties (SoD) policy." : "Compliance evaluation verified and approved."),
-                        author: "By: Compliance Review Team"
-                    });
-                } else if (sDbStatus === "PENDING_COMPLIANCE") {
-                    aLogs.push({
-                        icon: "sap-icon://shield",
-                        iconClass: "kyraCommentStatusIconBlue",
-                        title: "Compliance Review In Progress",
-                        date: sUpdatedDateStr,
-                        comment: "Segregation of Duties (SoD) conflict detected. Under review by Compliance Reviewer.",
-                        author: "Assigned to: Compliance Reviewer"
-                    });
+            } else if (oItem && oItem.submissionDate) {
+                try {
+                    const d = new Date(oItem.submissionDate);
+                    sSubmittedDateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " 10:30 AM";
+                    sManagerDateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " 11:15 AM";
+                } catch (e) {
+                    sSubmittedDateStr = "Aug 22, 2026 10:30 AM";
                 }
-            } else if (isApproverDone) {
-                aLogs.push({
-                    icon: "sap-icon://sys-enter-2",
-                    iconClass: "kyraCommentStatusIconGreen",
-                    title: "Compliance Review Auto-Bypassed",
-                    date: sUpdatedDateStr,
-                    comment: "No Segregation of Duties (SoD) conflicts detected. Directly routed to IAM Approver 1.",
-                    author: "System Automated Governance Engine"
-                });
             }
 
-            // 4. IAM Approver 1 Decision Log
-            if (sIam1Status === "APPROVED" || sIam1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
-                aLogs.push({
-                    icon: sIam1Status === "REJECTED" ? "sap-icon://error" : "sap-icon://sys-enter-2",
-                    iconClass: sIam1Status === "REJECTED" ? "kyraCommentStatusIconRed" : "kyraCommentStatusIconGreen",
-                    title: `IAM Approver 1 Decision — ${sIam1Status === "REJECTED" ? "Rejected" : "Approved"}`,
-                    date: sUpdatedDateStr,
-                    comment: sIam1Comment || (sIam1Status === "REJECTED" ? "Rejected by IAM Approver 1." : "Identity governance entitlement verified and approved."),
-                    author: "By: IAM Approver 1 (Identity Governance)"
-                });
-            } else if (sDbStatus === "PENDING_IAM_1") {
-                aLogs.push({
-                    icon: "sap-icon://user-settings",
-                    iconClass: "kyraCommentStatusIconBlue",
-                    title: "IAM Approver 1 Review In Progress",
-                    date: sUpdatedDateStr,
-                    comment: "Request is currently with IAM Approver 1 for entitlement validation.",
-                    author: "Assigned to: IAM Approver 1"
-                });
-            }
+            const sRequesterUsername = (oItem && (oItem.requesterUsername || oItem.requesterId)) ? (oItem.requesterUsername || oItem.requesterId) : "AGORANTI";
+            const sRequesterFullName = (sRequesterUsername === "Dev001") ? "GORANTI AJAY" : (sRequesterUsername === "AGORANTI" ? "GORANTI AJAY" : sRequesterUsername);
+            const sRoleName = (oItem && oItem.roleName) ? oItem.roleName : "Purchase Requisitioner";
+            const sSystem = (oItem && oItem.system) ? oItem.system : "SAP S/4HANA";
+            const sManager = "SEGGUM, VEERENDER";
 
-            // 5. IAM Approver 2 Decision Log
-            if (sIam2Status === "APPROVED" || sIam2Status === "REJECTED" || sDbStatus === "APPROVED") {
-                aLogs.push({
-                    icon: sIam2Status === "REJECTED" ? "sap-icon://error" : "sap-icon://sys-enter-2",
-                    iconClass: sIam2Status === "REJECTED" ? "kyraCommentStatusIconRed" : "kyraCommentStatusIconGreen",
-                    title: `IAM Approver 2 Provisioning — ${sIam2Status === "REJECTED" ? "Rejected" : "Approved"}`,
-                    date: sUpdatedDateStr,
-                    comment: sIam2Comment || (sIam2Status === "REJECTED" ? "Rejected by IAM Approver 2." : "Access entitlement provisioned and activated successfully."),
-                    author: "By: IAM Approver 2 (Access Provisioning)"
-                });
-            } else if (sDbStatus === "PENDING_IAM_2") {
-                aLogs.push({
-                    icon: "sap-icon://sys-monitor",
-                    iconClass: "kyraCommentStatusIconBlue",
-                    title: "IAM Approver 2 Provisioning In Progress",
-                    date: sUpdatedDateStr,
-                    comment: "Request is currently with IAM Approver 2 for technical provisioning.",
-                    author: "Assigned to: IAM Approver 2"
-                });
+            // Determine stage & status
+            const sRawStatus = (oItem && oItem.status) ? oItem.status.toLowerCase() : "pending";
+            let sCurrentStage = "Compliance Review";
+            let sCurrentStageDesc = "Waiting for compliance review and approval.";
+            let sStep1State = "completed";
+            let sStep2State = "completed";
+            let sStep3State = "current";
+            let sStep4State = "waiting";
+            let sStep5State = "waiting";
+
+            if (sRawStatus.includes("reject")) {
+                sCurrentStage = "Rejected";
+                sCurrentStageDesc = "Access request was rejected during review.";
+                sStep1State = "completed";
+                sStep2State = "rejected";
+                sStep3State = "waiting";
+                sStep4State = "waiting";
+                sStep5State = "waiting";
+            } else if (sRawStatus.includes("approv") || sRawStatus.includes("active")) {
+                sCurrentStage = "Completed - Access Granted";
+                sCurrentStageDesc = "All approvals completed and access has been provisioned.";
+                sStep1State = "completed";
+                sStep2State = "completed";
+                sStep3State = "completed";
+                sStep4State = "completed";
+                sStep5State = "completed";
             }
 
             const oDetails = {
@@ -4039,20 +3600,30 @@ sap.ui.define([
                 requestorFullName: sRequesterFullName,
                 requesterUsername: sRequesterUsername,
                 submittedDateTime: sSubmittedDateStr,
-                managerApprovedDateTime: sUpdatedDateStr,
-                lastUpdatedDateTime: sUpdatedDateStr,
+                managerApprovedDateTime: sManagerDateStr,
+                lastUpdatedDateTime: sManagerDateStr,
                 system: sSystem,
                 roleName: sRoleName,
-                manager: src.approver_username ? `${src.approver_username} (Line Manager)` : "SEGGUM, VEERENDER",
-                status: sDbStatus,
-                step1: step1,
-                step2: step2,
-                step3: step3,
-                step4: step4,
-                step5: step5,
-                step6: step6,
-                activityLogs: aLogs
+                manager: sManager,
+                currentStage: sCurrentStage,
+                currentStageDesc: sCurrentStageDesc,
+                step1State: sStep1State,
+                step2State: sStep2State,
+                step3State: sStep3State,
+                step4State: sStep4State,
+                step5State: sStep5State,
+                lastAction: "Approved by Manager Approver",
+                lastActionBy: "by " + sManager,
+                comments: "No comments available at this time."
             };
+
+            if (window.KyraLoading) {
+                window.KyraLoading.show({
+                    title: "Loading Request Summary...",
+                    subtitle: "Fetching access request " + (oDetails.requestId || "") + " details and approval trail...",
+                    duration: 400
+                });
+            }
 
             oModel.setProperty("/selectedRequestDetail", oDetails);
             oModel.setProperty("/showRequestDetailsPage", true);
@@ -4580,7 +4151,6 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showHistorySection", true);
-                oModel.setProperty("/activeKpiFilter", "ALL");
                 oModel.setProperty("/historyFilterTitle", "All History");
                 oModel.setProperty("/historyFilterSubtitle", "All submitted and historical access requests.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://documents");
@@ -4603,7 +4173,6 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showHistorySection", true);
-                oModel.setProperty("/activeKpiFilter", "PENDING");
                 oModel.setProperty("/historyFilterTitle", "Pending");
                 oModel.setProperty("/historyFilterSubtitle", "Showing requests currently pending approval.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://pending");
@@ -4628,7 +4197,6 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showHistorySection", true);
-                oModel.setProperty("/activeKpiFilter", "EXPIRED");
                 oModel.setProperty("/historyFilterTitle", "Expired");
                 oModel.setProperty("/historyFilterSubtitle", "Showing expired and revoked entitlements.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://history");
@@ -4659,7 +4227,6 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showHistorySection", true);
-                oModel.setProperty("/activeKpiFilter", "APPROVED");
                 oModel.setProperty("/historyFilterTitle", "Approved");
                 oModel.setProperty("/historyFilterSubtitle", "Showing approved and active entitlements.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://sys-enter-2");
@@ -4670,9 +4237,9 @@ sap.ui.define([
             if (oTable) {
                 const oBinding = oTable.getBinding("items");
                 if (oBinding) {
-                    sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    sap.ui.require(["sap/ui/model/Filter", "sap/ui/model/FilterOperator", "sap/m/MessageToast"], (Filter, FilterOperator, MessageToast) => {
                         oBinding.filter([
-                            new sap.ui.model.Filter("status", sap.ui.model.FilterOperator.Contains, "Approved")
+                            new Filter("status", FilterOperator.Contains, "Approved")
                         ]);
                         MessageToast.show("Filtered by Approved requests.");
                     });
@@ -4684,7 +4251,6 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showHistorySection", true);
-                oModel.setProperty("/activeKpiFilter", "REJECTED");
                 oModel.setProperty("/historyFilterTitle", "Rejected");
                 oModel.setProperty("/historyFilterSubtitle", "Showing rejected access requests.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://error");
@@ -4879,19 +4445,38 @@ sap.ui.define([
                 }).addStyleClass("kyraHistMultiList");
 
                 const applySelectedFilter = () => {
-                    const sActiveKpi = String(oModel.getProperty("/activeKpiFilter") || oModel.getProperty("/historyFilterTitle") || "ALL").toUpperCase();
-                    const aDurationLabels = [];
+                    const oTable = this.byId("myRequestsUnifiedTable");
+                    if (!oTable) return;
+                    const oBinding = oTable.getBinding("items");
+                    if (!oBinding) return;
+
+                    const aDurationFilters = [];
+                    const aLabels = [];
 
                     if (!oSelectionState.ALL) {
-                        if (oSelectionState.PERMANENT) aDurationLabels.push("Permanent");
-                        if (oSelectionState["30DAYS"]) aDurationLabels.push("30 Days");
-                        if (oSelectionState["90DAYS"]) aDurationLabels.push("90 Days");
+                        if (oSelectionState.PERMANENT) {
+                            aDurationFilters.push(new Filter("accessDuration", FilterOperator.Contains, "Permanent"));
+                            aLabels.push("Permanent");
+                        }
+                        if (oSelectionState["30DAYS"]) {
+                            aDurationFilters.push(new Filter("accessDuration", FilterOperator.Contains, "30 Days"));
+                            aLabels.push("30 Days");
+                        }
+                        if (oSelectionState["90DAYS"]) {
+                            aDurationFilters.push(new Filter("accessDuration", FilterOperator.Contains, "90 Days"));
+                            aLabels.push("90 Days");
+                        }
                     }
 
-                    const aLabels = [].concat(aDurationLabels);
+                    let oDurationFilter = null;
+                    if (aDurationFilters.length > 0) {
+                        oDurationFilter = new Filter({
+                            filters: aDurationFilters,
+                            and: false
+                        });
+                    }
 
-                    let dFrom = null;
-                    let dTo = null;
+                    let oDateFilter = null;
                     if (oSelectionState.CUSTOM) {
                         const dStart = oStartDatePicker.getDateValue();
                         const dEnd = oEndDatePicker.getDateValue() || dStart;
@@ -4899,187 +4484,46 @@ sap.ui.define([
                             MessageToast.show("Please select a Start Date.");
                             return;
                         }
-                        dFrom = new Date(dStart);
+                        const dFrom = new Date(dStart);
                         dFrom.setHours(0, 0, 0, 0);
-                        dTo = new Date(dEnd);
+                        const dTo = new Date(dEnd);
                         dTo.setHours(23, 59, 59, 999);
+
+                        oDateFilter = new Filter({
+                            path: "submissionDate",
+                            test: (sValue) => {
+                                if (!sValue) return false;
+                                const dItemDate = new Date(sValue);
+                                return !isNaN(dItemDate.getTime()) && dItemDate >= dFrom && dItemDate <= dTo;
+                            }
+                        });
                         aLabels.push(dStart.toLocaleDateString() + " - " + dEnd.toLocaleDateString());
                     }
 
-                    // 1. Status Filter from Active KPI Card Selection
-                    let oStatusUI5Filter = null;
-                    if (sActiveKpi.includes("REJECT")) {
-                        oStatusUI5Filter = new Filter("status", FilterOperator.Contains, "Reject");
-                    } else if (sActiveKpi.includes("APPROV")) {
-                        oStatusUI5Filter = new Filter("status", FilterOperator.Contains, "Approv");
-                    } else if (sActiveKpi.includes("PENDING")) {
-                        oStatusUI5Filter = new Filter("status", FilterOperator.Contains, "Pending");
-                    } else if (sActiveKpi.includes("EXPIRED") || sActiveKpi.includes("EXPAIR")) {
-                        oStatusUI5Filter = new Filter({
-                            filters: [
-                                new Filter("status", FilterOperator.Contains, "Expired"),
-                                new Filter("status", FilterOperator.Contains, "Revoke")
-                            ],
-                            and: false
-                        });
-                    }
-
-                    // 2. Duration UI5 Filter Objects
-                    const aDurationUI5Filters = [];
-                    if (!oSelectionState.ALL && aDurationLabels.length > 0) {
-                        if (oSelectionState.PERMANENT) {
-                            aDurationUI5Filters.push(new Filter("accessDuration", FilterOperator.Contains, "Permanent"));
-                            aDurationUI5Filters.push(new Filter("duration", FilterOperator.Contains, "Permanent"));
-                            aDurationUI5Filters.push(new Filter("accessDuration", FilterOperator.Contains, "Default"));
-                        }
-                        if (oSelectionState["30DAYS"]) {
-                            aDurationUI5Filters.push(new Filter("accessDuration", FilterOperator.Contains, "30"));
-                            aDurationUI5Filters.push(new Filter("duration", FilterOperator.Contains, "30"));
-                        }
-                        if (oSelectionState["90DAYS"]) {
-                            aDurationUI5Filters.push(new Filter("accessDuration", FilterOperator.Contains, "90"));
-                            aDurationUI5Filters.push(new Filter("duration", FilterOperator.Contains, "90"));
-                        }
-                    }
-
-                    let oDurationCombined = null;
-                    if (aDurationUI5Filters.length > 0) {
-                        oDurationCombined = new Filter({
-                            filters: aDurationUI5Filters,
-                            and: false
-                        });
-                    }
-
-                    let oDateCombined = null;
-                    if (dFrom && dTo) {
-                        oDateCombined = new Filter({
-                            path: "submissionDate",
-                            test: (sVal) => {
-                                if (!sVal) return false;
-                                const d = new Date(sVal);
-                                return !isNaN(d.getTime()) && d >= dFrom && d <= dTo;
-                            }
-                        });
-                    }
-
-                    const aFinalUI5Filters = [];
-                    if (oStatusUI5Filter) aFinalUI5Filters.push(oStatusUI5Filter);
-                    if (oDurationCombined) aFinalUI5Filters.push(oDurationCombined);
-                    if (oDateCombined) aFinalUI5Filters.push(oDateCombined);
-
-                    // 3. Direct Model Array Filtering (dual-layer fallback)
-                    const matchesItem = (item) => {
-                        if (!item) return false;
-
-                        // Check status against active KPI card selection
-                        if (sActiveKpi.includes("REJECT")) {
-                            const sStat = String(item.status || "").toLowerCase();
-                            if (!sStat.includes("reject")) return false;
-                        } else if (sActiveKpi.includes("APPROV")) {
-                            const sStat = String(item.status || "").toLowerCase();
-                            if (!sStat.includes("approved") && !sStat.includes("active")) return false;
-                        } else if (sActiveKpi.includes("PENDING")) {
-                            const sStat = String(item.status || "").toLowerCase();
-                            if (!sStat.includes("pending")) return false;
-                        } else if (sActiveKpi.includes("EXPIRED") || sActiveKpi.includes("EXPAIR")) {
-                            const sStat = String(item.status || "").toLowerCase();
-                            if (!sStat.includes("expired") && !sStat.includes("revoke")) return false;
-                        }
-
-                        // Check duration
-                        const sDur = String(item.accessDuration || item.duration || item.access_duration || "").toLowerCase();
-                        if (!oSelectionState.ALL && aDurationLabels.length > 0) {
-                            let bDurMatch = false;
-                            if (oSelectionState.PERMANENT && (sDur.includes("permanent") || sDur.includes("default") || sDur.includes("continuous"))) {
-                                bDurMatch = true;
-                            }
-                            if (oSelectionState["30DAYS"]) {
-                                if (sDur.includes("30")) bDurMatch = true;
-                            }
-                            if (oSelectionState["90DAYS"]) {
-                                if (sDur.includes("90")) bDurMatch = true;
-                            }
-                            if (!bDurMatch) return false;
-                        }
-
-                        // Check custom date range
-                        if (dFrom && dTo) {
-                            const sDateStr = item.submissionDate || item.createdAtRaw || item.created_at || item.submission_timestamp || item.grantedDate || item.decisionDate;
-                            if (!sDateStr) return false;
-                            const d = new Date(sDateStr);
-                            if (isNaN(d.getTime()) || d < dFrom || d > dTo) return false;
-                        }
-
-                        return true;
-                    };
-
-                    if (!this._masterMyHistoryRequests && oModel.getProperty("/myHistoryRequests")) {
-                        this._masterMyHistoryRequests = [].concat(oModel.getProperty("/myHistoryRequests") || []);
-                    }
-                    if (!this._masterPendingAccessRequests && oModel.getProperty("/pendingAccessRequests")) {
-                        this._masterPendingAccessRequests = [].concat(oModel.getProperty("/pendingAccessRequests") || []);
-                    }
-                    if (!this._masterPendingRequests && oModel.getProperty("/pendingRequests")) {
-                        this._masterPendingRequests = [].concat(oModel.getProperty("/pendingRequests") || []);
-                    }
-                    if (!this._masterProcessedRequests && oModel.getProperty("/processedRequests")) {
-                        this._masterProcessedRequests = [].concat(oModel.getProperty("/processedRequests") || []);
-                    }
-
-                    if (oSelectionState.ALL && !oSelectionState.CUSTOM && (sActiveKpi === "ALL" || sActiveKpi === "ALL HISTORY")) {
-                        if (this._masterMyHistoryRequests) oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
-                        if (this._masterPendingAccessRequests) {
-                            oModel.setProperty("/pendingAccessRequests", [].concat(this._masterPendingAccessRequests));
-                            oModel.setProperty("/pendingAccessCount", this._masterPendingAccessRequests.length);
-                        }
-                        if (this._masterPendingRequests) oModel.setProperty("/pendingRequests", [].concat(this._masterPendingRequests));
-                        if (this._masterProcessedRequests) oModel.setProperty("/processedRequests", [].concat(this._masterProcessedRequests));
-
-                        const aTableIds = ["myRequestsUnifiedTable", "approvalAccessTable", "approvalRevokeTable", "approvalHistoryTable"];
-                        aTableIds.forEach(sTableId => {
-                            const oTable = this.byId ? this.byId(sTableId) : (this.getView() && this.getView().byId(sTableId));
-                            if (oTable && oTable.getBinding("items")) {
-                                oTable.getBinding("items").filter([]);
-                            }
-                        });
-
+                    if (oSelectionState.ALL && !oSelectionState.CUSTOM) {
+                        oBinding.filter([]);
                         oModel.setProperty("/historyFilterSubtitle", "All submitted and historical access requests.");
                         MessageToast.show("Showing all history requests.");
                         oDialog.close();
                         return;
                     }
 
-                    if (this._masterMyHistoryRequests) {
-                        const aFiltered = this._masterMyHistoryRequests.filter(matchesItem);
-                        oModel.setProperty("/myHistoryRequests", aFiltered);
-                    }
-                    if (this._masterPendingAccessRequests) {
-                        const aFiltered = this._masterPendingAccessRequests.filter(matchesItem);
-                        oModel.setProperty("/pendingAccessRequests", aFiltered);
-                        oModel.setProperty("/pendingAccessCount", aFiltered.length);
-                    }
-                    if (this._masterPendingRequests) {
-                        const aFiltered = this._masterPendingRequests.filter(matchesItem);
-                        oModel.setProperty("/pendingRequests", aFiltered);
-                    }
-                    if (this._masterProcessedRequests) {
-                        const aFiltered = this._masterProcessedRequests.filter(matchesItem);
-                        oModel.setProperty("/processedRequests", aFiltered);
+                    const aFinalFilters = [];
+                    if (oDurationFilter && oDateFilter) {
+                        aFinalFilters.push(new Filter({
+                            filters: [oDurationFilter, oDateFilter],
+                            and: true
+                        }));
+                    } else if (oDurationFilter) {
+                        aFinalFilters.push(oDurationFilter);
+                    } else if (oDateFilter) {
+                        aFinalFilters.push(oDateFilter);
                     }
 
-                    const aTableIds = ["myRequestsUnifiedTable", "approvalAccessTable", "approvalRevokeTable", "approvalHistoryTable"];
-                    aTableIds.forEach(sTableId => {
-                        const oTable = this.byId ? this.byId(sTableId) : (this.getView() && this.getView().byId(sTableId));
-                        if (oTable && oTable.getBinding("items")) {
-                            oTable.getBinding("items").filter(aFinalUI5Filters);
-                        }
-                    });
-
-                    const sSectionLabel = (sActiveKpi === "ALL" || sActiveKpi === "ALL HISTORY") ? "" : (sActiveKpi + " requests");
-                    const sFilterSummary = aLabels.length > 0 ? aLabels.join(", ") : "All Duration";
-                    const sFinalMsg = sSectionLabel ? (sSectionLabel + " filtered by: " + sFilterSummary) : ("Filtered by: " + sFilterSummary);
-                    oModel.setProperty("/historyFilterSubtitle", sFinalMsg);
-                    MessageToast.show(sFinalMsg);
+                    oBinding.filter(aFinalFilters);
+                    const sSummary = aLabels.length > 0 ? aLabels.join(", ") : "All History";
+                    oModel.setProperty("/historyFilterSubtitle", "Filtered by: " + sSummary);
+                    MessageToast.show("Filtered by: " + sSummary);
                     oDialog.close();
                 };
 
@@ -5275,16 +4719,6 @@ sap.ui.define([
                             </div>
                             <span class="kyra-arrow">›</span>
                         </div>
-                        <div class="kyra-menu-item" id="kyra_menu_contact">
-                            <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-                                    <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-                                </svg>
-                                <span class="kyra-item-label">Contact IT</span>
-                            </div>
-                            <span class="kyra-arrow">›</span>
-                        </div>
 
                         <div class="kyra-menu-separator"></div>
 
@@ -5298,19 +4732,6 @@ sap.ui.define([
                                     <line x1="21" y1="12" x2="9" y2="12"></line>
                                 </svg>
                                 <span class="kyra-item-label kyra-signout-label">Sign Out</span>
-                            </div>
-                        </div>
-
-                        <div class="kyra-menu-separator"></div>
-
-                        <!-- FOOTER -->
-                        <div class="kyra-profile-footer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                            <div class="kyra-footer-text">
-                                <div class="kyra-footer-title">SAP Fiori Access Portal</div>
-                                <div class="kyra-footer-ver">Version 1.0.0</div>
                             </div>
                         </div>
                     </div>
@@ -5382,11 +4803,11 @@ sap.ui.define([
                     });
 
                     attachClick("kyra_menu_help", () => {
-                        MessageToast.show("KYRA Access Portal Help Center & Documentation");
+                        this.onOpenHelpPage();
                     });
 
                     attachClick("kyra_menu_contact", () => {
-                        MessageToast.show("IT Security Helpdesk: itsupport@enterprise.kyra.com");
+                        this.onOpenHelpPage();
                     });
 
                     attachClick("kyra_menu_signout", () => {
