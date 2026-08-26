@@ -53,7 +53,7 @@
             <!-- Main Content Area Centered with Bottom Scroll Protection -->
             <VBox id="accessMainContentBox" class="fioriMainContentBox fioriBottomPaddingBox">
                 <!-- WRAPPER FOR NORMAL PORTAL CONTENT -->
-                <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} }">
+                <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} &amp;&amp; !${accessModel>/showTroubleshootPage} }">
                     <!-- Enterprise Top Header Banner -->
                     <VBox class="fioriWelcomeCard sapUiSmallMarginBottom sapUiResponsivePadding">
                         <HBox justifyContent="SpaceBetween" alignItems="Center">
@@ -107,12 +107,12 @@
                         <HBox alignItems="Center">
                             <Title text="{= (${accessModel>/userAccessList} &amp;&amp; ${accessModel>/userAccessList}.length &gt; 10 &amp;&amp; !${accessModel>/myAccessShowAll}) ? ('Active Entitlements (10 of ' + ${accessModel>/userAccessList}.length + ')') : ('Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')') }" level="H4" class="fioriCardHeaderTitle" />
                         </HBox>
-                        <HBox alignItems="Center">
+                        <HBox alignItems="Center" class="kyraTableSearchRow">
                             <SearchField
                                 placeholder="Search entitlements"
-                                width="240px"
+                                width="250px"
                                 liveChange=".onSearchMyAccess"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraEntitlementSearchField sapUiSmallMarginEnd" />
                             <Button
                                 text="View All"
                                 icon="sap-icon://table-view"
@@ -1934,7 +1934,7 @@
                 </VBox>
             </VBox>
 
-            <!-- DEDICATED FULL PAGE VIEW: CONTACT IT SUPPORT (Modern, Clean Centered Card matching mockup) -->
+            <!-- DEDICATED FULL PAGE VIEW: CONTACT IT SUPPORT (Modern, Clean White & Light-Blue 2-Column Design) -->
             <VBox id="kyraContactITPageContainer" visible="{= !!${accessModel>/showContactITPage} }" class="fioriStepSlideAnim kyraContactITPageWrapper" width="100%">
                 <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
@@ -1951,111 +1951,367 @@
                     </HBox>
                 </HBox>
 
-                <!-- 2. Hero Header: Circular Headphone Icon + Title + Subtitle -->
+                <!-- 2. Hero Header with IT Support Tag -->
                 <VBox class="kyraContactITHeroSection" alignItems="Center">
-                    <HBox class="kyraContactITAvatarCircle" justifyContent="Center" alignItems="Center">
-                        <core:Icon src="sap-icon://headset" class="kyraContactITHeadsetIcon" />
+                    <HBox class="kyraContactITPillTag" alignItems="Center">
+                        <core:Icon src="sap-icon://headset" class="kyraContactITPillIcon sapUiTinyMarginEnd" />
+                        <Text text="IT SUPPORT" class="kyraContactITPillText" />
                     </HBox>
-                    <Title text="Contact IT Support" level="H1" class="kyraContactITTitle sapUiTinyMarginTop" />
-                    <Text text="Submit your issue and our IT support team will assist you." class="kyraContactITSubtitle sapUiTinyMarginTop" />
+                    <Title text="We’re Here to Help" level="H1" class="kyraContactITTitle sapUiTinyMarginTop" />
+                    <Text text="Reach out to our IT support team. We’ll get back to you as soon as possible." class="kyraContactITSubtitle sapUiTinyMarginTop" />
                 </VBox>
 
-                <!-- 3. Centered White Form Card (Max-width 640px, perfectly aligned) -->
-                <VBox class="kyraContactITCard" width="100%">
-                    <!-- Subject Field -->
-                    <VBox class="kyraContactITFormGroup">
-                        <HBox alignItems="Center" class="kyraContactITLabelRow">
-                            <Text text="Subject" class="kyraContactITLabelText" />
-                            <Text text="*" class="kyraContactITRequiredStar" />
-                        </HBox>
-                        <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                            <Input
-                                id="kyraContactITSubject"
-                                placeholder="Enter a short title for your issue"
-                                class="kyraContactITInputField" />
-                            <core:Icon src="sap-icon://document-text" class="kyraContactITFieldIcon" />
-                        </HBox>
-                    </VBox>
-
-                    <!-- Issue Category Field -->
-                    <VBox class="kyraContactITFormGroup sapUiSmallMarginTop">
-                        <HBox alignItems="Center" class="kyraContactITLabelRow">
-                            <Text text="Issue Category" class="kyraContactITLabelText" />
-                            <Text text="*" class="kyraContactITRequiredStar" />
-                        </HBox>
-                        <Select
-                            id="kyraContactITCategory"
-                            selectedKey="Access &amp; Permissions"
-                            width="100%"
-                            class="kyraContactITSelectField">
-                            <items>
-                                <core:Item key="Access &amp; Permissions" text="Access &amp; Permissions" />
-                                <core:Item key="Login &amp; Authentication" text="Login &amp; Authentication" />
-                                <core:Item key="System Error / Bug" text="System Error / Bug" />
-                                <core:Item key="Hardware / Device Issue" text="Hardware / Device Issue" />
-                                <core:Item key="Software / Application Request" text="Software / Application Request" />
-                                <core:Item key="Other Support Inquiry" text="Other Support Inquiry" />
-                            </items>
-                        </Select>
-                    </VBox>
-
-                    <!-- Description Field -->
-                    <VBox class="kyraContactITFormGroup sapUiSmallMarginTop">
-                        <HBox alignItems="Center" class="kyraContactITLabelRow">
-                            <Text text="Description" class="kyraContactITLabelText" />
-                            <Text text="*" class="kyraContactITRequiredStar" />
-                        </HBox>
-                        <TextArea
-                            id="kyraContactITDescription"
-                            placeholder="Describe the issue you are experiencing in detail..."
-                            rows="4"
-                            liveChange=".onContactITDescLiveChange"
-                            growing="false"
-                            width="100%"
-                            class="kyraContactITTextAreaField" />
-                        <HBox justifyContent="End" width="100%" class="sapUiTinyMarginTop">
-                            <Text id="kyraContactITCharCounter" text="0 / 1000" class="kyraContactITCounterText" />
-                        </HBox>
-                    </VBox>
-
-                    <!-- Attachment (Optional) Field -->
-                    <VBox class="kyraContactITFormGroup sapUiTinyMarginTop">
-                        <Text text="Attachment (Optional)" class="kyraContactITLabelText sapUiTinyMarginBottom" />
-                        <HBox class="kyraContactITUploadZone" alignItems="Center">
-                            <HBox class="kyraContactITClipCircle" justifyContent="Center" alignItems="Center">
-                                <core:Icon src="sap-icon://attachment" class="kyraContactITClipIcon" />
+                <!-- 3. Top Banner: Email Support Card (Centered, max-width 980px) -->
+                <VBox class="kyraContactITMaxWidthContainer" width="100%" alignItems="Center">
+                    <HBox class="kyraContactITEmailCard" width="100%" justifyContent="SpaceBetween" alignItems="Center">
+                        <HBox alignItems="Center">
+                            <HBox class="kyraContactITEmailIconCircle" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://email" class="kyraContactITEmailIcon" />
                             </HBox>
                             <VBox class="sapUiSmallMarginBegin">
-                                <HBox alignItems="Center">
-                                    <Text text="Drag and drop a file here or " class="kyraContactITUploadMainText" />
-                                    <Link text="click to browse" press=".onBrowseContactITAttachment" class="kyraContactITBrowseLink sapUiTinyMarginBegin" />
-                                </HBox>
-                                <Text text="Supports: JPG, PNG, PDF, DOC, DOCX (Max 10 MB)" class="kyraContactITUploadSubText" />
+                                <Text text="Email Support" class="kyraContactITEmailCardTitle" />
+                                <Text text="Direct email for all IT inquiries" class="kyraContactITEmailCardDesc" />
+                                <Text text="support@kyra.com" class="kyraContactITEmailCardSub" />
                             </VBox>
+                        </HBox>
+                        <Link text="support@kyra.com →" href="mailto:support@kyra.com" class="kyraContactITEmailLinkBtn" />
+                    </HBox>
+
+                    <!-- 4. Main 2-Column Grid: Form on Left (64%), Info Panel on Right (36%) -->
+                    <HBox class="kyraContactITMainGrid sapUiMediumMarginTop" width="100%" justifyContent="SpaceBetween" alignItems="Stretch">
+                        <!-- Left Form Card -->
+                        <VBox class="kyraContactITFormCard">
+                            <!-- Header inside Form -->
+                            <HBox alignItems="Center" class="kyraContactITFormCardHeader sapUiSmallMarginBottom">
+                                <HBox class="kyraContactITChatCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://discussion-2" class="kyraContactITChatIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Title text="Contact IT Support" level="H2" class="kyraContactITCardTitle" />
+                                    <Text text="Fill out the form below and our IT team will respond within 24 hours." class="kyraContactITCardSubtitle sapUiTinyMarginTop" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Row 1: Full Name & Email Address -->
+                            <HBox width="100%" class="kyraContactITFormRow sapUiTinyMarginTop">
+                                <VBox class="kyraContactITFormCol">
+                                    <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                        <Text text="Full Name" class="kyraContactITLabelText" />
+                                        <Text text="*" class="kyraContactITRequiredStar" />
+                                    </HBox>
+                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                        <Input
+                                            id="kyraContactITFullName"
+                                            value="{= ${accessModel>/activeUser} ? ${accessModel>/activeUser} : '' }"
+                                            placeholder="Enter your full name"
+                                            class="kyraContactITInputField" />
+                                        <core:Icon src="sap-icon://person-placeholder" class="kyraContactITFieldIcon" />
+                                    </HBox>
+                                </VBox>
+
+                                <VBox class="kyraContactITFormCol">
+                                    <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                        <Text text="Email Address" class="kyraContactITLabelText" />
+                                        <Text text="*" class="kyraContactITRequiredStar" />
+                                    </HBox>
+                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                        <Input
+                                            id="kyraContactITEmail"
+                                            type="Email"
+                                            placeholder="Enter your email address"
+                                            class="kyraContactITInputField" />
+                                        <core:Icon src="sap-icon://email" class="kyraContactITFieldIcon" />
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Row 2: Phone Number & Subject -->
+                            <HBox width="100%" class="kyraContactITFormRow sapUiSmallMarginTop">
+                                <VBox class="kyraContactITFormCol">
+                                    <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                        <Text text="Phone Number" class="kyraContactITLabelText" />
+                                    </HBox>
+                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                        <Input
+                                            id="kyraContactITPhone"
+                                            type="Tel"
+                                            placeholder="Enter your phone number"
+                                            class="kyraContactITInputField" />
+                                        <core:Icon src="sap-icon://phone" class="kyraContactITFieldIcon" />
+                                    </HBox>
+                                </VBox>
+
+                                <VBox class="kyraContactITFormCol">
+                                    <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                        <Text text="Subject" class="kyraContactITLabelText" />
+                                        <Text text="*" class="kyraContactITRequiredStar" />
+                                    </HBox>
+                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                        <Input
+                                            id="kyraContactITSubject"
+                                            placeholder="Brief issue description"
+                                            class="kyraContactITInputField" />
+                                        <core:Icon src="sap-icon://document-text" class="kyraContactITFieldIcon" />
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Row 3: How Can We Help? (Large Message Box) -->
+                            <VBox class="kyraContactITFormGroup sapUiSmallMarginTop" width="100%">
+                                <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                    <Text text="How Can We Help?" class="kyraContactITLabelText" />
+                                    <Text text="*" class="kyraContactITRequiredStar" />
+                                </HBox>
+                                <TextArea
+                                    id="kyraContactITMessage"
+                                    placeholder="Describe your issue, error codes, or what you need help with..."
+                                    rows="5"
+                                    liveChange=".onContactITDescLiveChange"
+                                    growing="false"
+                                    width="100%"
+                                    class="kyraContactITTextAreaField" />
+                                <HBox justifyContent="End" width="100%" class="sapUiTinyMarginTop">
+                                    <Text id="kyraContactITCharCounter" text="0 / 1000" class="kyraContactITCounterText" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- Full-Width Blue Submit Request Button -->
+                            <Button
+                                text="Submit Request"
+                                icon="sap-icon://paper-plane"
+                                iconFirst="true"
+                                type="Emphasized"
+                                press=".onSubmitContactITRequest"
+                                width="100%"
+                                class="kyraContactITFullSubmitBtn sapUiMediumMarginTop" />
+
+                            <!-- Bottom Security Trust Note -->
+                            <HBox justifyContent="Center" alignItems="Center" class="sapUiSmallMarginTop">
+                                <core:Icon src="sap-icon://locked" class="kyraContactITLockIcon sapUiTinyMarginEnd" />
+                                <Text text="Your information is secure and will only be used to assist with your request." class="kyraContactITFooterNoteText" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Right Column: "We’re Here for You" Panel -->
+                        <VBox class="kyraContactITInfoPanel">
+                            <Title text="We’re Here for You" level="H2" class="kyraContactITInfoTitle" />
+                            <HBox class="kyraContactITInfoBlueBar" />
+
+                            <!-- Info Tile 1: Quick Response -->
+                            <HBox class="kyraContactITInfoTile" alignItems="Center">
+                                <HBox class="kyraContactITInfoBadgeCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://energy-saving-lightbulb" class="kyraContactITInfoBadgeIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Quick Response" class="kyraContactITInfoItemTitle" />
+                                    <Text text="Most requests are addressed within 2-4 hours during business hours." class="kyraContactITInfoItemDesc sapUiTinyMarginTop" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Info Tile 2: Secure & Confidential -->
+                            <HBox class="kyraContactITInfoTile sapUiSmallMarginTop" alignItems="Center">
+                                <HBox class="kyraContactITInfoBadgeCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://shield" class="kyraContactITInfoBadgeIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Secure &amp; Confidential" class="kyraContactITInfoItemTitle" />
+                                    <Text text="All communications and data are encrypted and strictly protected." class="kyraContactITInfoItemDesc sapUiTinyMarginTop" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Info Tile 3: Expert Support -->
+                            <HBox class="kyraContactITInfoTile sapUiSmallMarginTop" alignItems="Center">
+                                <HBox class="kyraContactITInfoBadgeCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://group" class="kyraContactITInfoBadgeIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Expert Support" class="kyraContactITInfoItemTitle" />
+                                    <Text text="Our certified IT engineers have direct access to system tooling." class="kyraContactITInfoItemDesc sapUiTinyMarginTop" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- DEDICATED FULL PAGE VIEW: TROUBLESHOOTING CONTACT SUPPORT & SUBMIT REQUEST FLOW -->
+            <VBox id="kyraTroubleshootPageContainer" visible="{= !!${accessModel>/showTroubleshootPage} }" class="fioriStepSlideAnim kyraTroubleshootPageWrapper" width="100%">
+                <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
+                    <Button
+                        icon="sap-icon://navigation-left-arrow"
+                        text="Back to Help"
+                        type="Transparent"
+                        press=".onBackFromTroubleshootPage"
+                        class="kyraContactITBackBtn" />
+                    <Text text="KYRA" class="kyraContactITBrandLogo" />
+                    <HBox alignItems="Center" class="kyraContactITHelpCenterBox">
+                        <core:Icon src="sap-icon://sys-help" class="kyraContactITHelpIcon sapUiTinyMarginEnd" />
+                        <Link text="Help Center" press=".onBackFromTroubleshootPage" class="kyraContactITHelpLink" />
+                    </HBox>
+                </HBox>
+
+                <!-- 2. STATE A: FORM VIEW (Visible when !troubleshootSuccess) -->
+                <VBox visible="{= !${accessModel>/troubleshootSuccess} }" width="100%" alignItems="Center">
+                    <!-- Hero Header -->
+                    <VBox class="kyraContactITHeroSection" alignItems="Center">
+                        <HBox class="kyraTroubleshootAvatarCircle" justifyContent="Center" alignItems="Center">
+                            <core:Icon src="sap-icon://wrench" class="kyraTroubleshootWrenchIcon" />
+                        </HBox>
+                        <Title text="Contact Support" level="H1" class="kyraContactITTitle sapUiTinyMarginTop" />
+                        <Text text="Tell us about your issue and our team will help you." class="kyraContactITSubtitle sapUiTinyMarginTop" />
+                    </VBox>
+
+                    <!-- Centered White Form Card (Max-width 640px) -->
+                    <VBox class="kyraContactITCard" width="100%">
+                        <!-- 1. Name Field -->
+                        <VBox class="kyraContactITFormGroup">
+                            <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                <Text text="Name" class="kyraContactITLabelText" />
+                                <Text text="*" class="kyraContactITRequiredStar" />
+                            </HBox>
+                            <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                <Input
+                                    id="kyraTroubleshootName"
+                                    value="{= ${accessModel>/activeUser} ? ${accessModel>/activeUser} : '' }"
+                                    placeholder="Enter your full name"
+                                    class="kyraContactITInputField" />
+                                <core:Icon src="sap-icon://person-placeholder" class="kyraContactITFieldIcon" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- 2. Email Address Field -->
+                        <VBox class="kyraContactITFormGroup sapUiSmallMarginTop">
+                            <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                <Text text="Email Address" class="kyraContactITLabelText" />
+                                <Text text="*" class="kyraContactITRequiredStar" />
+                            </HBox>
+                            <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                <Input
+                                    id="kyraTroubleshootEmail"
+                                    type="Email"
+                                    placeholder="Enter your email address (e.g. user@enterprise.com)"
+                                    class="kyraContactITInputField" />
+                                <core:Icon src="sap-icon://email" class="kyraContactITFieldIcon" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- 3. Issue / Subject Field -->
+                        <VBox class="kyraContactITFormGroup sapUiSmallMarginTop">
+                            <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                <Text text="Issue / Subject" class="kyraContactITLabelText" />
+                                <Text text="*" class="kyraContactITRequiredStar" />
+                            </HBox>
+                            <HBox class="kyraContactITInputWrapper" alignItems="Center">
+                                <Input
+                                    id="kyraTroubleshootSubject"
+                                    placeholder="Enter a short title or summary for your issue"
+                                    class="kyraContactITInputField" />
+                                <core:Icon src="sap-icon://document-text" class="kyraContactITFieldIcon" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- 4. Describe Your Issue Field -->
+                        <VBox class="kyraContactITFormGroup sapUiSmallMarginTop">
+                            <HBox alignItems="Center" class="kyraContactITLabelRow">
+                                <Text text="Describe Your Issue" class="kyraContactITLabelText" />
+                                <Text text="*" class="kyraContactITRequiredStar" />
+                            </HBox>
+                            <TextArea
+                                id="kyraTroubleshootDescription"
+                                placeholder="Describe the issue you are experiencing in detail..."
+                                rows="4"
+                                liveChange=".onTroubleshootDescLiveChange"
+                                growing="false"
+                                width="100%"
+                                class="kyraContactITTextAreaField" />
+                            <HBox justifyContent="End" width="100%" class="sapUiTinyMarginTop">
+                                <Text id="kyraTroubleshootCharCounter" text="0 / 1000" class="kyraContactITCounterText" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- 5. Attachment (Optional) Field -->
+                        <VBox class="kyraContactITFormGroup sapUiTinyMarginTop">
+                            <Text text="Attachment (Optional)" class="kyraContactITLabelText sapUiTinyMarginBottom" />
+                            <HBox class="kyraContactITUploadZone" alignItems="Center">
+                                <HBox class="kyraContactITClipCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://attachment" class="kyraContactITClipIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <HBox alignItems="Center">
+                                        <Text text="Drag and drop a file here or " class="kyraContactITUploadMainText" />
+                                        <Link text="click to browse" press=".onBrowseTroubleshootAttachment" class="kyraContactITBrowseLink sapUiTinyMarginBegin" />
+                                    </HBox>
+                                    <Text text="Supports: JPG, PNG, PDF, DOC, DOCX (Max 10 MB)" class="kyraContactITUploadSubText" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Bottom Buttons: Cancel & Submit Request -->
+                        <HBox justifyContent="End" alignItems="Center" class="kyraContactITBtnRow sapUiMediumMarginTop">
+                            <Button
+                                text="Cancel"
+                                press=".onBackFromTroubleshootPage"
+                                class="kyraContactITCancelBtn sapUiSmallMarginEnd" />
+                            <Button
+                                text="Submit Request"
+                                icon="sap-icon://paper-plane"
+                                iconFirst="true"
+                                type="Emphasized"
+                                press=".onSubmitTroubleshootRequest"
+                                class="kyraContactITSubmitBtn" />
                         </HBox>
                     </VBox>
 
-                    <!-- Bottom Buttons: Cancel & Submit Request -->
-                    <HBox justifyContent="End" alignItems="Center" class="kyraContactITBtnRow sapUiMediumMarginTop">
-                        <Button
-                            text="Cancel"
-                            press=".onBackFromContactITPage"
-                            class="kyraContactITCancelBtn sapUiSmallMarginEnd" />
-                        <Button
-                            text="Submit Request"
-                            icon="sap-icon://paper-plane"
-                            iconFirst="true"
-                            type="Emphasized"
-                            press=".onSubmitContactITRequest"
-                            class="kyraContactITSubmitBtn" />
+                    <!-- Footer Trust Note -->
+                    <HBox justifyContent="Center" alignItems="Center" class="kyraContactITFooterNote sapUiSmallMarginTop">
+                        <core:Icon src="sap-icon://locked" class="kyraContactITLockIcon sapUiTinyMarginEnd" />
+                        <Text text="Your information is safe and will only be used to assist you." class="kyraContactITFooterNoteText" />
                     </HBox>
                 </VBox>
 
-                <!-- 4. Footer Trust Note -->
-                <HBox justifyContent="Center" alignItems="Center" class="kyraContactITFooterNote sapUiSmallMarginTop">
-                    <core:Icon src="sap-icon://locked" class="kyraContactITLockIcon sapUiTinyMarginEnd" />
-                    <Text text="Your information is safe and will only be used to assist you." class="kyraContactITFooterNoteText" />
-                </HBox>
+                <!-- 3. STATE B: SUCCESS PAGE (Visible when troubleshootSuccess) -->
+                <VBox visible="{= !!${accessModel>/troubleshootSuccess} }" width="100%" alignItems="Center" class="fioriStepSlideAnim">
+                    <VBox class="kyraTroubleshootSuccessCard" width="100%" alignItems="Center">
+                        <!-- Success Checkmark Icon Circle -->
+                        <HBox class="kyraTroubleshootSuccessIconCircle" justifyContent="Center" alignItems="Center">
+                            <core:Icon src="sap-icon://accept" class="kyraTroubleshootSuccessCheckIcon" />
+                        </HBox>
+
+                        <!-- Heading & Subtitle -->
+                        <Title text="Request Submitted Successfully" level="H1" class="kyraTroubleshootSuccessTitle sapUiSmallMarginTop" />
+                        <Text
+                            text="Your request has been submitted. Our support team will get back to you shortly."
+                            class="kyraTroubleshootSuccessSubtitle sapUiTinyMarginTop" />
+
+                        <!-- Reference Info Box -->
+                        <VBox class="kyraTroubleshootTicketInfoBox sapUiMediumMarginTop" width="100%">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
+                                <Text text="Ticket Reference ID" class="kyraTroubleshootTicketLabel" />
+                                <Text text="{= ${accessModel>/troubleshootTicketId} || 'TRB-849201' }" class="kyraTroubleshootTicketValue" />
+                            </HBox>
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
+                                <Text text="Status" class="kyraTroubleshootTicketLabel" />
+                                <HBox alignItems="Center">
+                                    <Text text="●" class="kyraTroubleshootStatusDot sapUiTinyMarginEnd" />
+                                    <Text text="Received &amp; In Queue" class="kyraTroubleshootStatusValue" />
+                                </HBox>
+                            </HBox>
+                            <HBox justifyContent="SpaceBetween" alignItems="Center">
+                                <Text text="Expected Response" class="kyraTroubleshootTicketLabel" />
+                                <Text text="Within 2 Hours" class="kyraTroubleshootResponseValue" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- Back to Troubleshooting Button -->
+                        <Button
+                            text="Back to Troubleshooting"
+                            icon="sap-icon://navigation-left-arrow"
+                            type="Emphasized"
+                            press=".onBackFromTroubleshootPage"
+                            class="kyraTroubleshootBackBtn sapUiMediumMarginTop" />
+                    </VBox>
+                </VBox>
             </VBox>
             </VBox>
         </content>

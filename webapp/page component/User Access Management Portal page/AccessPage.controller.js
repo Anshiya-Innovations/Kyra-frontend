@@ -1291,7 +1291,126 @@ sap.ui.define([
                 return;
             }
 
+            if (sTopic === "Troubleshooting") {
+                this.onOpenTroubleshootPage();
+                return;
+            }
+
             this._showHelpTopicDialog(sTopic);
+        },
+
+        onOpenTroubleshootPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            this._confirmDiscardAddAccess(() => {
+                oModel.setProperty("/showTroubleshootPage", true);
+                oModel.setProperty("/troubleshootSuccess", false);
+                oModel.setProperty("/showContactITPage", false);
+                oModel.setProperty("/showHelpPage", false);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+
+                const oEmail = this.byId("kyraTroubleshootEmail");
+                const oSubj = this.byId("kyraTroubleshootSubject");
+                const oDesc = this.byId("kyraTroubleshootDescription");
+                const oCounter = this.byId("kyraTroubleshootCharCounter");
+
+                if (oEmail) { oEmail.setValue(""); oEmail.setValueState("None"); }
+                if (oSubj) { oSubj.setValue(""); oSubj.setValueState("None"); }
+                if (oDesc) { oDesc.setValue(""); oDesc.setValueState("None"); }
+                if (oCounter) { oCounter.setText("0 / 1000"); }
+
+                this._scrollToTop();
+            });
+        },
+
+        onBackFromTroubleshootPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            oModel.setProperty("/showTroubleshootPage", false);
+            oModel.setProperty("/troubleshootSuccess", false);
+            oModel.setProperty("/showHelpPage", true);
+            this._scrollToTop();
+        },
+
+        onSubmitTroubleshootRequest() {
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                const oName = this.byId("kyraTroubleshootName");
+                const sNameVal = oName ? oName.getValue().trim() : "";
+                const oEmail = this.byId("kyraTroubleshootEmail");
+                const sEmailVal = oEmail ? oEmail.getValue().trim() : "";
+                const oSubj = this.byId("kyraTroubleshootSubject");
+                const sSubjVal = oSubj ? oSubj.getValue().trim() : "";
+                const oDesc = this.byId("kyraTroubleshootDescription");
+                const sDescVal = oDesc ? oDesc.getValue().trim() : "";
+
+                if (!sNameVal) {
+                    MessageToast.show("Please enter your name.");
+                    if (oName) oName.setValueState("Error");
+                    return;
+                }
+                if (oName) oName.setValueState("None");
+
+                if (!sEmailVal || !sEmailVal.includes("@")) {
+                    MessageToast.show("Please enter a valid email address.");
+                    if (oEmail) oEmail.setValueState("Error");
+                    return;
+                }
+                if (oEmail) oEmail.setValueState("None");
+
+                if (!sSubjVal) {
+                    MessageToast.show("Please enter an issue subject.");
+                    if (oSubj) oSubj.setValueState("Error");
+                    return;
+                }
+                if (oSubj) oSubj.setValueState("None");
+
+                if (!sDescVal) {
+                    MessageToast.show("Please describe your issue in detail.");
+                    if (oDesc) oDesc.setValueState("Error");
+                    return;
+                }
+                if (oDesc) oDesc.setValueState("None");
+
+                const sTicketId = "TRB-" + Math.floor(100000 + Math.random() * 900000);
+                const oModel = this.getView().getModel("accessModel");
+                if (oModel) {
+                    oModel.setProperty("/troubleshootTicketId", sTicketId);
+                    oModel.setProperty("/troubleshootSuccess", true);
+                }
+
+                this._scrollToTop();
+            });
+        },
+
+        onTroubleshootDescLiveChange(oEvent) {
+            const sVal = oEvent.getParameter("value") || "";
+            const oCounter = this.byId("kyraTroubleshootCharCounter");
+            if (oCounter) {
+                oCounter.setText(`${sVal.length} / 1000`);
+            }
+        },
+
+        onBrowseTroubleshootAttachment() {
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                const oFileInput = document.createElement("input");
+                oFileInput.type = "file";
+                oFileInput.accept = ".jpg,.jpeg,.png,.pdf,.doc,.docx";
+                oFileInput.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        MessageToast.show("File Attached: " + file.name + " (" + (file.size / 1024).toFixed(1) + " KB)");
+                    }
+                };
+                oFileInput.click();
+            });
         },
 
         onOpenContactITPage() {
@@ -1323,30 +1442,52 @@ sap.ui.define([
 
         onSubmitContactITRequest() {
             sap.ui.require(["sap/m/MessageBox", "sap/m/MessageToast"], (MessageBox, MessageToast) => {
+                const oName = this.byId("kyraContactITFullName");
+                const sNameVal = oName ? oName.getValue().trim() : "";
+                const oEmail = this.byId("kyraContactITEmail");
+                const sEmailVal = oEmail ? oEmail.getValue().trim() : "";
+                const oPhone = this.byId("kyraContactITPhone");
                 const oSubj = this.byId("kyraContactITSubject");
                 const sSubjVal = oSubj ? oSubj.getValue().trim() : "";
-                const oDesc = this.byId("kyraContactITDescription");
-                const sDescVal = oDesc ? oDesc.getValue().trim() : "";
+                const oMsg = this.byId("kyraContactITMessage");
+                const sMsgVal = oMsg ? oMsg.getValue().trim() : "";
+
+                if (!sNameVal) {
+                    MessageToast.show("Please enter your full name.");
+                    if (oName) oName.setValueState("Error");
+                    return;
+                }
+                if (oName) oName.setValueState("None");
+
+                if (!sEmailVal || !sEmailVal.includes("@")) {
+                    MessageToast.show("Please enter a valid email address.");
+                    if (oEmail) oEmail.setValueState("Error");
+                    return;
+                }
+                if (oEmail) oEmail.setValueState("None");
 
                 if (!sSubjVal) {
-                    MessageToast.show("Please enter a subject for your issue.");
+                    MessageToast.show("Please enter an issue subject.");
                     if (oSubj) oSubj.setValueState("Error");
                     return;
                 }
                 if (oSubj) oSubj.setValueState("None");
 
-                if (!sDescVal) {
-                    MessageToast.show("Please provide a description of the issue.");
-                    if (oDesc) oDesc.setValueState("Error");
+                if (!sMsgVal) {
+                    MessageToast.show("Please describe how we can help you.");
+                    if (oMsg) oMsg.setValueState("Error");
                     return;
                 }
-                if (oDesc) oDesc.setValueState("None");
+                if (oMsg) oMsg.setValueState("None");
 
-                MessageBox.success("Your IT support ticket has been submitted successfully!\n\nTicket Reference: TKT-" + Math.floor(100000 + Math.random() * 900000) + "\nOur IT support team will assist you shortly.", {
+                const sTicket = "TKT-" + Math.floor(100000 + Math.random() * 900000);
+                MessageBox.success(`Your IT support request has been submitted successfully!\n\nTicket Reference: ${sTicket}\nOur IT support team will respond within 24 hours.`, {
                     title: "Request Submitted",
                     onClose: () => {
+                        if (oEmail) oEmail.setValue("");
+                        if (oPhone) oPhone.setValue("");
                         if (oSubj) oSubj.setValue("");
-                        if (oDesc) oDesc.setValue("");
+                        if (oMsg) oMsg.setValue("");
                         this.onBackFromContactITPage();
                     }
                 });
