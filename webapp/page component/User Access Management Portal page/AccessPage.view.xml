@@ -579,7 +579,7 @@
                         <!-- Card 1: World Map Container Box -->
                         <VBox class="fioriMapCardOuter sapUiSmallMarginBottom">
                             <core:HTML content='&lt;div id="mapWrapper" class="map-wrapper"&gt;
-                                    &lt;img id="worldMapImgAccessPage" src="world-map.jpg" alt="World Map" class="world-map-img"&gt;
+                                    &lt;img id="worldMapImgAccessPage" src="world-map.jpg" alt="World Map" class="world-map-img" draggable="false" onmousedown="return false;"&gt;
                                     &lt;div id="pinsLayer" class="map-pins-layer"&gt;&lt;/div&gt;
                                     
                                     &lt;div id="selectAllBtn" class="select-all-btn-wrapper"&gt;
@@ -733,59 +733,16 @@
                                         </MultiComboBox>
                                     </form:content>
                                 </form:SimpleForm>
-
-                                <!-- Slide Navigation Buttons -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
-                                    <Button
-                                        text="Previous"
-                                        icon="sap-icon://navigation-left-arrow"
-                                        iconFirst="true"
-                                        type="Default"
-                                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/addAccessCurrentSystemIndex} &gt; 0 }"
-                                        press=".onPrevSystemSlide"
-                                        class="kyraSecondaryBtn" />
-                                    <Text text="" visible="{= ${accessModel>/isEditingFromSummary} || ${accessModel>/addAccessCurrentSystemIndex} === 0 }" />
-                                    
-                                    <HBox alignItems="Center">
-                                        <!-- Simple OK button shown ONLY when editing from Summary -->
-                                        <Button
-                                            text="OK"
-                                            type="Emphasized"
-                                            icon="sap-icon://accept"
-                                            iconFirst="false"
-                                            visible="{accessModel>/isEditingFromSummary}"
-                                            press=".onSaveAndReturnToSummary"
-                                            class="kyraPrimaryBtn"
-                                            tooltip="Save changes and return straight to Summary" />
-                                        <Button
-                                            text="Next System Slide"
-                                            type="Emphasized"
-                                            icon="sap-icon://navigation-right-arrow"
-                                            iconFirst="false"
-                                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) &lt; ${accessModel>/addAccessSelectedSystems}.length }"
-                                            enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
-                                            press=".onNextSystemSlide"
-                                            class="kyraPrimaryBtn sapUiSmallMarginEnd" />
-                                        <Button
-                                            text="Continue"
-                                            type="Emphasized"
-                                            icon="sap-icon://navigation-right-arrow"
-                                            iconFirst="false"
-                                            visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) === ${accessModel>/addAccessSelectedSystems}.length }"
-                                            enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
-                                            press=".onCompleteSystemSlides"
-                                            class="kyraPrimaryBtn" />
-                                    </HBox>
-                                </HBox>
                             </VBox>
 
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%" visible="{= !${accessModel>/isEditingFromSummary} }">
+                            <!-- Single unified footer action bar -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                                 <Button
                                     text="Previous"
                                     icon="sap-icon://navigation-left-arrow"
                                     iconFirst="true"
                                     type="Default"
-                                    press=".onGoToAddAccessStep2"
+                                    press=".onStep3Slide1Previous"
                                     class="kyraSecondaryBtn" />
                                 <HBox alignItems="Center">
                                     <Button
@@ -798,7 +755,7 @@
                                         type="Emphasized"
                                         icon="sap-icon://navigation-right-arrow"
                                         iconFirst="false"
-                                        press=".onGoToStep3Slide2Duration"
+                                        press=".onStep3Slide1Continue"
                                         class="kyraPrimaryBtn" />
                                 </HBox>
                             </HBox>
@@ -905,13 +862,13 @@
                                         <Text text="Validate access against defined threshold limits." class="kyraValCardSubtitle" />
                                     </VBox>
                                 </HBox>
-                                <HBox class="kyraPillBadgeSuccess" alignItems="Center">
-                                    <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="0 Issues" class="kyraPillBadgeSuccessText" />
+                                <HBox class="{= (${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length > 0) ? 'kyraPillBadgeError' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                    <core:Icon src="{= (${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                    <Text text="{= (${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length > 0) ? (${accessModel>/thresholdLimits}.length + ' Issues Exceeded') : '0 Issues' }" class="{= (${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length > 0) ? 'kyraPillBadgeErrorText' : 'kyraPillBadgeSuccessText' }" />
                                 </HBox>
                             </HBox>
                             
-                            <Table id="thresholdLimitsTable" class="kyraValTable" fixedLayout="false">
+                            <Table id="thresholdLimitsTable" items="{accessModel>/thresholdLimits}" visible="{= !!(${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length > 0) }" class="kyraValTable" fixedLayout="false" width="100%">
                                 <columns>
                                     <Column width="25%"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
                                     <Column width="25%"><Text text="SECTOR" class="kyraValColHeader" /></Column>
@@ -919,10 +876,17 @@
                                     <Column width="25%"><Text text="EXCESSIVE PERCENTAGE" class="kyraValColHeader" /></Column>
                                 </columns>
                                 <items>
-                                    <!-- No issues state -->
+                                    <ColumnListItem vAlign="Middle" class="kyraValTableRow">
+                                        <cells>
+                                            <Text text="{accessModel>system}" class="kyraValBoldText kyraValCellWrap" />
+                                            <Text text="{accessModel>sector}" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{accessModel>limit}" class="kyraValNormalText kyraValCellWrap" />
+                                            <ObjectStatus text="{accessModel>excessivePercentage}" state="Error" icon="sap-icon://alert" />
+                                        </cells>
+                                    </ColumnListItem>
                                 </items>
                             </Table>
-                            <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center">
+                            <VBox class="kyraValEmptyStateBox" visible="{= !(${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length > 0) }" alignItems="Center" justifyContent="Center">
                                 <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://survey" class="kyraValClipboardIcon" />
                                     <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />
@@ -942,12 +906,13 @@
                                         <Text text="List of access records with restricted permissions." class="kyraValCardSubtitle" />
                                     </VBox>
                                 </HBox>
-                                <HBox class="kyraPillBadgeWarning" alignItems="Center">
-                                    <Text text="{= (${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length ? ${accessModel>/restrictedRecords}.length : 7) + ' Records' }" class="kyraPillBadgeWarningText" />
+                                <HBox class="{= (${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                    <core:Icon src="{= (${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                    <Text text="{= (${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length ? ${accessModel>/restrictedRecords}.length : 0) + ' Records' }" class="{= (${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
                                 </HBox>
                             </HBox>
                             
-                            <Table id="restrictedRecordsTable" items="{accessModel>/restrictedRecords}" class="kyraValTable" fixedLayout="false" width="100%">
+                            <Table id="restrictedRecordsTable" items="{accessModel>/restrictedRecords}" visible="{= !!(${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length > 0) }" class="kyraValTable" fixedLayout="false" width="100%">
                                 <columns>
                                     <!-- 1. System -->
                                     <Column width="14%" hAlign="Begin">
@@ -992,6 +957,14 @@
                                     </ColumnListItem>
                                 </items>
                             </Table>
+                            <VBox class="kyraValEmptyStateBox" visible="{= !(${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length > 0) }" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://survey" class="kyraValClipboardIcon" />
+                                    <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />
+                                </HBox>
+                                <Text text="No Restricted Records Found" class="kyraValEmptyTitle" />
+                                <Text text="All requested records have standard non-restricted permissions." class="kyraValEmptyDesc" />
+                            </VBox>
                         </VBox>
 
                         <!-- SECTION 3: Duplicate Roles Card -->
@@ -1004,13 +977,13 @@
                                         <Text text="Detect duplicate functional roles and assignments." class="kyraValCardSubtitle" />
                                     </VBox>
                                 </HBox>
-                                <HBox class="kyraPillBadgeSuccess" alignItems="Center">
-                                    <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="0 Duplicates" class="kyraPillBadgeSuccessText" />
+                                <HBox class="{= (${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                    <core:Icon src="{= (${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                    <Text text="{= (${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length > 0) ? (${accessModel>/duplicateRoles}.length + ' Duplicates Detected') : '0 Duplicates' }" class="{= (${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
                                 </HBox>
                             </HBox>
                             
-                            <Table id="duplicateRolesTable" class="kyraValTable" fixedLayout="false">
+                            <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" visible="{= !!(${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length > 0) }" class="kyraValTable" fixedLayout="false" width="100%">
                                 <columns>
                                     <Column width="14%"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
                                     <Column width="15%"><Text text="FUNCTIONAL ROLE" class="kyraValColHeader" /></Column>
@@ -1021,10 +994,20 @@
                                     <Column width="14%"><Text text="EXISTING GROUP/ ROLES" class="kyraValColHeader" /></Column>
                                 </columns>
                                 <items>
-                                    <!-- No duplicates state -->
+                                    <ColumnListItem vAlign="Middle" class="kyraValTableRow">
+                                        <cells>
+                                            <Text text="{accessModel>system}" class="kyraValBoldText kyraValCellWrap" />
+                                            <Text text="{accessModel>functionalRole}" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{accessModel>moduleName}" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{accessModel>selectedSecurityGroups}" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                            <Text text="{accessModel>teamName}" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{accessModel>adGroupName}" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                            <ObjectStatus text="{accessModel>existingRoles}" state="Warning" icon="sap-icon://alert" />
+                                        </cells>
+                                    </ColumnListItem>
                                 </items>
                             </Table>
-                            <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center">
+                            <VBox class="kyraValEmptyStateBox" visible="{= !(${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length > 0) }" alignItems="Center" justifyContent="Center">
                                 <HBox class="kyraValClipboardBadgeTeal" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://survey" class="kyraValClipboardIconTeal" />
                                     <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIconTeal" />
@@ -1075,28 +1058,67 @@
                                     <Avatar src="sap-icon://alert" class="kyraSodAvatarRed sapUiSmallMarginEnd" displaySize="S" />
                                     <VBox>
                                         <Title text="Conflicts with Active / Existing Access" level="H5" class="kyraSodTitleRed" />
-                                        <Text text="Conflicts detected against your active system access entitlements." class="kyraSodSubtitle" />
+                                        <Text text="Conflicts detected against your active system access entitlements on the same system." class="kyraSodSubtitle" />
                                     </VBox>
                                 </HBox>
-                                <HBox class="kyraPillBadgeDanger" alignItems="Center">
-                                    <core:Icon src="sap-icon://alert" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="0 Conflicts" class="kyraPillBadgeDangerText" />
+                                <HBox class="{= (${accessModel>/activeSodConflictsList} &amp;&amp; ${accessModel>/activeSodConflictsList}.length > 0) ? 'kyraPillBadgeDanger' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                    <core:Icon src="{= (${accessModel>/activeSodConflictsList} &amp;&amp; ${accessModel>/activeSodConflictsList}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                    <Text text="{= (${accessModel>/activeSodConflictsList} &amp;&amp; ${accessModel>/activeSodConflictsList}.length ? ${accessModel>/activeSodConflictsList}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/activeSodConflictsList} &amp;&amp; ${accessModel>/activeSodConflictsList}.length > 0) ? 'kyraPillBadgeDangerText' : 'kyraPillBadgeSuccessText' }" />
                                 </HBox>
                             </HBox>
 
                             <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                            <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING &amp; PENDING ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center" visible="{= ${accessModel>/activeSodConflictsList} &amp;&amp; ${accessModel>/activeSodConflictsList}.length > 0 }">
+                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
                             </HBox>
 
-                            <!-- Compact Empty State -->
-                            <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center">
-                                <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://alert" class="kyraSodRedIconCompact" />
+                            <!-- Dynamic Conflict Rows when active conflicts exist -->
+                            <VBox items="{accessModel>/activeSodConflictsList}" visible="{= ${accessModel>/activeSodConflictsList} &amp;&amp; ${accessModel>/activeSodConflictsList}.length > 0 }">
+                                <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
+                                    <HBox width="35%" class="kyraSodColWrapper">
+                                        <HBox class="kyraSodBoxRedCard1" width="100%" alignItems="Center">
+                                            <Avatar src="sap-icon://customer" class="kyraSodAvatarRed sapUiTinyMarginEnd" displaySize="S" />
+                                            <VBox class="kyraSodCardTextGroup">
+                                                <Text text="{accessModel>existingRole}" class="kyraSodBoxTitle" />
+                                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                    <Text text="Assigned Persona: " class="kyraSodBoxSubtitleBold" />
+                                                    <Text text="{accessModel>existingPersona}" class="kyraSodBoxSubtitle" />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
+                                    </HBox>
+                                    <HBox width="35%" class="kyraSodColWrapper">
+                                        <HBox class="kyraSodBoxRedCard2" width="100%" alignItems="Center">
+                                            <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
+                                            <VBox class="kyraSodCardTextGroup">
+                                                <Text text="{accessModel>newRole}" class="kyraSodBoxTitle" />
+                                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                    <Text text="Assigned Persona: " class="kyraSodBoxSubtitleBold" />
+                                                    <Text text="{accessModel>newPersona}" class="kyraSodBoxSubtitle" />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
+                                    </HBox>
+                                    <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                        <HBox class="kyraSodConflictDetailBoxRed" width="100%" alignItems="Center">
+                                            <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconRed sapUiTinyMarginEnd" />
+                                            <VBox class="kyraSodConflictTextGroup">
+                                                <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleRed" />
+                                                <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
+                                            </VBox>
+                                        </HBox>
+                                    </HBox>
                                 </HBox>
-                                <Text text="No SoD Conflicts with Active / Existing Access" class="kyraSodEmptyTitleRed" />
+                            </VBox>
+
+                            <!-- Compact Empty State when NO active conflicts exist -->
+                            <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/activeSodConflictsList} || ${accessModel>/activeSodConflictsList}.length === 0 }">
+                                <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
+                                </HBox>
+                                <Text text="No SoD Conflicts with Active / Existing Access" class="kyraSodEmptyTitleGreen" />
                                 <Text text="Great! No conflicts found between your active access and new requests." class="kyraSodEmptyDesc" />
                             </VBox>
                         </VBox>
@@ -1109,57 +1131,74 @@
                                     <Avatar src="sap-icon://alert" class="kyraSodAvatarAmber sapUiSmallMarginEnd" displaySize="S" />
                                     <VBox>
                                         <Title text="Conflicts with In-Flight / Pending Access Requests" level="H5" class="kyraSodTitleAmber" />
-                                        <Text text="Conflicts detected against your pending access requests currently undergoing approval." class="kyraSodSubtitle" />
+                                        <Text text="Conflicts detected against your pending access requests on the same system." class="kyraSodSubtitle" />
                                     </VBox>
                                 </HBox>
-                                <HBox class="kyraPillBadgeWarning" alignItems="Center">
-                                    <core:Icon src="sap-icon://alert" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="1 Conflict" class="kyraPillBadgeWarningText" />
+                                <HBox class="{= (${accessModel>/pendingOnlySodConflictsList} &amp;&amp; ${accessModel>/pendingOnlySodConflictsList}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                    <core:Icon src="{= (${accessModel>/pendingOnlySodConflictsList} &amp;&amp; ${accessModel>/pendingOnlySodConflictsList}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                    <Text text="{= (${accessModel>/pendingOnlySodConflictsList} &amp;&amp; ${accessModel>/pendingOnlySodConflictsList}.length ? ${accessModel>/pendingOnlySodConflictsList}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/pendingOnlySodConflictsList} &amp;&amp; ${accessModel>/pendingOnlySodConflictsList}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
                                 </HBox>
                             </HBox>
 
                             <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                            <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING &amp; PENDING ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center" visible="{= ${accessModel>/pendingOnlySodConflictsList} &amp;&amp; ${accessModel>/pendingOnlySodConflictsList}.length > 0 }">
+                                <HBox width="35%" class="kyraSodHeadCol"><Text text="PENDING ACCESS REQUEST" class="kyraSodColHeader" /></HBox>
                                 <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
                             </HBox>
 
-                            <!-- 3-Column Content Row: 35% / 35% / 30% -->
-                            <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
-                                <!-- Column 1: Existing & Pending Access (35%) -->
-                                <HBox width="35%" class="kyraSodColWrapper">
-                                    <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
-                                        <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
-                                        <VBox class="kyraSodCardTextGroup">
-                                            <Text text="SAP S/4HANA Enterprise — Lead Engineer" class="kyraSodBoxTitle" />
-                                            <Text text="(System Administrator) (Requester)" class="kyraSodBoxSubtitle" />
-                                        </VBox>
+                            <!-- Dynamic Content Rows when pending conflicts exist -->
+                            <VBox items="{accessModel>/pendingOnlySodConflictsList}" visible="{= ${accessModel>/pendingOnlySodConflictsList} &amp;&amp; ${accessModel>/pendingOnlySodConflictsList}.length > 0 }">
+                                <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
+                                    <!-- Column 1: Existing & Pending Access (35%) -->
+                                    <HBox width="35%" class="kyraSodColWrapper">
+                                        <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
+                                            <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
+                                            <VBox class="kyraSodCardTextGroup">
+                                                <Text text="{accessModel>existingRole}" class="kyraSodBoxTitle" />
+                                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                    <Text text="Assigned Persona: " class="kyraSodBoxSubtitleBold" />
+                                                    <Text text="{accessModel>existingPersona}" class="kyraSodBoxSubtitle" />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
                                     </HBox>
-                                </HBox>
 
-                                <!-- Column 2: Newly Added Access (35%) -->
-                                <HBox width="35%" class="kyraSodColWrapper">
-                                    <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
-                                        <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
-                                        <VBox class="kyraSodCardTextGroup">
-                                            <Text text="SAP S/4HANA Enterprise — IT Administrators" class="kyraSodBoxTitle" />
-                                            <Text text="(System Administrator) (Database &amp; IAM Administrator Persona (IT Administrators))" class="kyraSodBoxSubtitle" />
-                                        </VBox>
+                                    <!-- Column 2: Newly Added Access (35%) -->
+                                    <HBox width="35%" class="kyraSodColWrapper">
+                                        <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
+                                            <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
+                                            <VBox class="kyraSodCardTextGroup">
+                                                <Text text="{accessModel>newRole}" class="kyraSodBoxTitle" />
+                                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                    <Text text="Assigned Persona: " class="kyraSodBoxSubtitleBold" />
+                                                    <Text text="{accessModel>newPersona}" class="kyraSodBoxSubtitle" />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
                                     </HBox>
-                                </HBox>
 
-                                <!-- Column 3: Segregation of Duties Conflict Detail (30%) - Vertically Centered -->
-                                <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
-                                    <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
-                                        <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
-                                        <VBox class="kyraSodConflictTextGroup">
-                                            <Text text="Segregation of Duties (SoD) Conflict" class="kyraSodConflictMainTitleAmber" />
-                                            <Text text="IT Administrators (System Administrator) conflicts with existing System Administrator access." class="kyraSodConflictMainDesc" />
-                                        </VBox>
+                                    <!-- Column 3: Segregation of Duties Conflict Detail (30%) - Vertically Centered -->
+                                    <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                        <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
+                                            <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
+                                            <VBox class="kyraSodConflictTextGroup">
+                                                <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
+                                                <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
+                                            </VBox>
+                                        </HBox>
                                     </HBox>
                                 </HBox>
-                            </HBox>
+                            </VBox>
+
+                            <!-- Clean Empty State when NO pending conflicts exist -->
+                            <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/pendingOnlySodConflictsList} || ${accessModel>/pendingOnlySodConflictsList}.length === 0 }">
+                                <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
+                                </HBox>
+                                <Text text="No SoD Conflicts with In-Flight / Pending Access Requests" class="kyraSodEmptyTitleGreen" />
+                                <Text text="Great! No conflicts detected against your pending access requests." class="kyraSodEmptyDesc" />
+                            </VBox>
                         </VBox>
 
                         <!-- Slide 2 Footer Action Bar -->
@@ -1201,32 +1240,71 @@
                             </HBox>
                         </HBox>
 
-                        <!-- Main Subtle Green Success Card (0 Conflicts) -->
-                        <VBox class="kyraSodGreenCard">
+                        <!-- Main Status Card for Batch Intra-Role Conflicts -->
+                        <VBox class="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'kyraSodRedCard' : 'kyraSodGreenCard' }">
                             <!-- Card Header -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
                                 <HBox alignItems="Center">
-                                    <Avatar src="sap-icon://document-text" class="kyraSodAvatarGreen sapUiSmallMarginEnd" displaySize="S" />
+                                    <Avatar src="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'sap-icon://alert' : 'sap-icon://document-text' }" class="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'kyraSodAvatarRed sapUiSmallMarginEnd' : 'kyraSodAvatarGreen sapUiSmallMarginEnd' }" displaySize="S" />
                                     <VBox>
-                                        <Title text="Conflicts Within Current Request Batch (Intra-Role)" level="H5" class="kyraSodTitleGreen" />
-                                        <Text text="Conflicts detected between multiple roles selected together in this request." class="kyraSodSubtitle" />
+                                        <Title text="Conflicts Within Current Request Batch (Intra-Role)" level="H5" class="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'kyraSodTitleRed' : 'kyraSodTitleGreen' }" />
+                                        <Text text="Conflicts detected between multiple roles selected together in this request on the same system." class="kyraSodSubtitle" />
                                     </VBox>
                                 </HBox>
-                                <HBox class="kyraPillBadgeSuccess" alignItems="Center">
-                                    <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="0 Conflicts" class="kyraPillBadgeSuccessText" />
+                                <HBox class="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'kyraPillBadgeDanger' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                    <core:Icon src="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                    <Text text="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length ? ${accessModel>/batchSodConflictsList}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'kyraPillBadgeDangerText' : 'kyraPillBadgeSuccessText' }" />
                                 </HBox>
                             </HBox>
 
                             <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                            <HBox class="kyraSodTableHeadGreen" width="100%" alignItems="Center">
+                            <HBox class="{= (${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0) ? 'kyraSodTableHeadRed' : 'kyraSodTableHeadGreen' }" width="100%" alignItems="Center" visible="{= ${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0 }">
                                 <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE A)" class="kyraSodColHeader" /></HBox>
                                 <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE B)" class="kyraSodColHeader" /></HBox>
                                 <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
                             </HBox>
 
-                            <!-- Clean Centered Success State Below Headings -->
-                            <VBox class="kyraSodEmptyBoxCompact" alignItems="Center" justifyContent="Center">
+                            <!-- Dynamic Conflict Rows when batch intra-role conflicts exist -->
+                            <VBox items="{accessModel>/batchSodConflictsList}" visible="{= ${accessModel>/batchSodConflictsList} &amp;&amp; ${accessModel>/batchSodConflictsList}.length > 0 }">
+                                <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
+                                    <HBox width="35%" class="kyraSodColWrapper">
+                                        <HBox class="kyraSodBoxRedCard1" width="100%" alignItems="Center">
+                                            <Avatar src="sap-icon://customer" class="kyraSodAvatarRed sapUiTinyMarginEnd" displaySize="S" />
+                                            <VBox class="kyraSodCardTextGroup">
+                                                <Text text="{accessModel>roleA}" class="kyraSodBoxTitle" />
+                                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                    <Text text="Assigned Persona: " class="kyraSodBoxSubtitleBold" />
+                                                    <Text text="{accessModel>personaA}" class="kyraSodBoxSubtitle" />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
+                                    </HBox>
+                                    <HBox width="35%" class="kyraSodColWrapper">
+                                        <HBox class="kyraSodBoxRedCard2" width="100%" alignItems="Center">
+                                            <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
+                                            <VBox class="kyraSodCardTextGroup">
+                                                <Text text="{accessModel>roleB}" class="kyraSodBoxTitle" />
+                                                <HBox alignItems="Center" class="sapUiTinyMarginTop">
+                                                    <Text text="Assigned Persona: " class="kyraSodBoxSubtitleBold" />
+                                                    <Text text="{accessModel>personaB}" class="kyraSodBoxSubtitle" />
+                                                </HBox>
+                                            </VBox>
+                                        </HBox>
+                                    </HBox>
+                                    <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                        <HBox class="kyraSodConflictDetailBoxRed" width="100%" alignItems="Center">
+                                            <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconRed sapUiTinyMarginEnd" />
+                                            <VBox class="kyraSodConflictTextGroup">
+                                                <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleRed" />
+                                                <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
+                                            </VBox>
+                                        </HBox>
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <!-- Clean Centered Success State Below Headings when 0 conflicts -->
+                            <VBox class="kyraSodEmptyBoxCompact" visible="{= !${accessModel>/batchSodConflictsList} || ${accessModel>/batchSodConflictsList}.length === 0 }" alignItems="Center" justifyContent="Center">
                                 <HBox class="kyraSodMintCircleCompact" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
                                 </HBox>
@@ -1487,7 +1565,7 @@
                 <mvc:XMLView 
                     id="approverSectionView"
                     viewName="kyra001.pages.Approver.Approver"
-                    visible="{= (${accessModel>/activeRole} === 'Approver' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
+                    visible="{= (${accessModel>/activeRole} === 'Approver' || ${accessModel>/activeRole} === 'Approver 1' || ${accessModel>/activeRole} === 'Approver 2' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/activeRole} === 'Compliance Reviewer' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
             </VBox>
 
             <!-- DEDICATED REQUEST TRACKING PAGE (Opened on clicking any row in Pending List) -->
@@ -1503,7 +1581,7 @@
                         <Text text="&gt;" class="kyraBreadcrumbSep sapUiTinyMarginEnd" />
                         <Link text="Requests" press=".onBackFromRequestDetails" class="kyraBreadcrumbLink sapUiTinyMarginEnd" />
                         <Text text="&gt;" class="kyraBreadcrumbSep sapUiTinyMarginEnd" />
-                        <Text text="Request Tracking" class="kyraBreadcrumbCurrent" />
+                        <Text text="Request Detail View" class="kyraBreadcrumbCurrent" />
                     </HBox>
                     <HBox alignItems="Center">
                         <Button icon="sap-icon://navigation-left-arrow" text="Back to Requests" type="Default" press=".onBackFromRequestDetails" class="kyraTopNavBtn" />
@@ -1551,124 +1629,154 @@
                     <!-- 6-STEP HORIZONTAL PROCESS TRACKER IN ONE STRAIGHT LINE -->
                     <HBox class="kyraProcessTrackerContainer" width="100%" alignItems="Start" justifyContent="SpaceBetween">
                         
-                        <!-- STEP 1: Request Submitted (Green / Completed) -->
+                        <!-- STEP 1: Request Submitted -->
                         <VBox class="kyraTrackStepBox" alignItems="Center">
                             <HBox class="kyraStepIconRow" alignItems="Center" width="100%">
                                 <HBox class="kyraStepLineSpacer" />
-                                <HBox class="kyraStepCircle kyraStepCircleGreen" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://person-placeholder" class="kyraStepIcon kyraStepIconGreen" />
-                                    <HBox class="kyraStepBadgeGreen" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://accept" class="kyraBadgeCheckIcon" />
+                                <HBox class="kyraStepCircle {= ${accessModel>/selectedRequestDetail/step1/circleClass} || 'kyraStepCircleGreen' }" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="{= ${accessModel>/selectedRequestDetail/step1/icon} || 'sap-icon://person-placeholder' }" class="kyraStepIcon {= ${accessModel>/selectedRequestDetail/step1/iconClass} || 'kyraStepIconGreen' }" />
+                                    <HBox class="{= ${accessModel>/selectedRequestDetail/step1/badgeClass} || 'kyraStepBadgeGreen' }" justifyContent="Center" alignItems="Center">
+                                        <core:Icon src="{= ${accessModel>/selectedRequestDetail/step1/checkIcon} || 'sap-icon://accept' }" class="kyraBadgeCheckIcon" />
                                     </HBox>
                                 </HBox>
-                                <HBox class="kyraStepLine kyraStepLineGreen" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step1/lineRightClass} || 'kyraStepLineGreen' }" />
                             </HBox>
-                            <HBox class="kyraStepNumBadge kyraStepNumGreen" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraStepNumBadge {= ${accessModel>/selectedRequestDetail/step1/numBadgeClass} || 'kyraStepNumGreen' }" justifyContent="Center" alignItems="Center">
                                 <Text text="1" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="Request Submitted" class="kyraStepTitle" />
-                            <Text text="Requester" class="kyraStepSubtitle" />
-                            <Text text="Completed" class="kyraStepStatusGreen" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/submittedDateTime} || 'Aug 22, 2026 10:30 AM' }" class="kyraStepTime" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step1/title} || 'Request Submitted' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step1/subtitle} || 'Requester' }" class="kyraStepSubtitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step1/statusText} || 'Completed' }" class="{= ${accessModel>/selectedRequestDetail/step1/statusClass} || 'kyraStepStatusGreen' }" />
+                            <Text text="{accessModel>/selectedRequestDetail/step1/time}" class="kyraStepTime" />
                         </VBox>
 
-                        <!-- STEP 2: Approver (Green / Completed) -->
+                        <!-- STEP 2: Approver -->
                         <VBox class="kyraTrackStepBox" alignItems="Center">
                             <HBox class="kyraStepIconRow" alignItems="Center" width="100%">
-                                <HBox class="kyraStepLine kyraStepLineGreen" />
-                                <HBox class="kyraStepCircle kyraStepCircleGreen" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://person-placeholder" class="kyraStepIcon kyraStepIconGreen" />
-                                    <HBox class="kyraStepBadgeGreen" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://accept" class="kyraBadgeCheckIcon" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step2/lineLeftClass} || 'kyraStepLineGreen' }" />
+                                <HBox class="kyraStepCircle {= ${accessModel>/selectedRequestDetail/step2/circleClass} || 'kyraStepCircleGreen' }" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="{= ${accessModel>/selectedRequestDetail/step2/icon} || 'sap-icon://person-placeholder' }" class="kyraStepIcon {= ${accessModel>/selectedRequestDetail/step2/iconClass} || 'kyraStepIconGreen' }" />
+                                    <HBox class="{= ${accessModel>/selectedRequestDetail/step2/badgeClass} || 'kyraStepBadgeGreen' }" visible="{= !!${accessModel>/selectedRequestDetail/step2/showCheck} || !!${accessModel>/selectedRequestDetail/step2/showRedCross} }" justifyContent="Center" alignItems="Center">
+                                        <core:Icon src="{= ${accessModel>/selectedRequestDetail/step2/checkIcon} || 'sap-icon://accept' }" class="kyraBadgeCheckIcon" />
                                     </HBox>
+                                    <HBox class="kyraStepBadgeBlueDot" visible="{= !!${accessModel>/selectedRequestDetail/step2/showBlueDot} }" />
                                 </HBox>
-                                <HBox class="kyraStepLine kyraStepLineGreen" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step2/lineRightClass} || 'kyraStepLineGreen' }" />
                             </HBox>
-                            <HBox class="kyraStepNumBadge kyraStepNumGreen" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraStepNumBadge {= ${accessModel>/selectedRequestDetail/step2/numBadgeClass} || 'kyraStepNumGreen' }" justifyContent="Center" alignItems="Center">
                                 <Text text="2" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="Approver" class="kyraStepTitle" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/manager} || 'Manager Approver' }" class="kyraStepSubtitle" />
-                            <Text text="Approved" class="kyraStepStatusGreen" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/managerApprovedDateTime} || 'Aug 22, 2026 11:15 AM' }" class="kyraStepTime" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step2/title} || 'Approver' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step2/subtitle} || 'Manager Approver' }" class="kyraStepSubtitle" />
+                            <Text text="{accessModel>/selectedRequestDetail/step2/statusText}" class="{accessModel>/selectedRequestDetail/step2/statusClass}" visible="{= !${accessModel>/selectedRequestDetail/step2/isPill} }" />
+                            <HBox class="{accessModel>/selectedRequestDetail/step2/pillClass}" visible="{= !!${accessModel>/selectedRequestDetail/step2/isPill} }" justifyContent="Center" alignItems="Center">
+                                <Text text="{accessModel>/selectedRequestDetail/step2/statusText}" class="{accessModel>/selectedRequestDetail/step2/pillTextClass}" />
+                            </HBox>
+                            <Text text="{accessModel>/selectedRequestDetail/step2/subNote}" class="kyraStepSubNote" visible="{= !!${accessModel>/selectedRequestDetail/step2/subNote} }" />
+                            <Text text="{accessModel>/selectedRequestDetail/step2/time}" class="kyraStepTime" visible="{= !${accessModel>/selectedRequestDetail/step2/isPill} }" />
                         </VBox>
 
-                        <!-- STEP 3: Compliance Approver (Blue / In Progress) -->
+                        <!-- STEP 3: Compliance Approver -->
                         <VBox class="kyraTrackStepBox" alignItems="Center">
                             <HBox class="kyraStepIconRow" alignItems="Center" width="100%">
-                                <HBox class="kyraStepLine kyraStepLineGreen" />
-                                <HBox class="kyraStepCircle kyraStepCircleBlue" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://shield" class="kyraStepIcon kyraStepIconBlue" />
-                                    <HBox class="kyraStepBadgeBlueDot" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step3/lineLeftClass} || 'kyraStepLineGreen' }" />
+                                <HBox class="kyraStepCircle {= ${accessModel>/selectedRequestDetail/step3/circleClass} || 'kyraStepCircleBlue' }" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="{= ${accessModel>/selectedRequestDetail/step3/icon} || 'sap-icon://shield' }" class="kyraStepIcon {= ${accessModel>/selectedRequestDetail/step3/iconClass} || 'kyraStepIconBlue' }" />
+                                    <HBox class="{= ${accessModel>/selectedRequestDetail/step3/badgeClass} || 'kyraStepBadgeGreen' }" visible="{= !!${accessModel>/selectedRequestDetail/step3/showCheck} || !!${accessModel>/selectedRequestDetail/step3/showRedCross} }" justifyContent="Center" alignItems="Center">
+                                        <core:Icon src="{= ${accessModel>/selectedRequestDetail/step3/checkIcon} || 'sap-icon://accept' }" class="kyraBadgeCheckIcon" />
+                                    </HBox>
+                                    <HBox class="kyraStepBadgeBlueDot" visible="{= !!${accessModel>/selectedRequestDetail/step3/showBlueDot} }" />
                                 </HBox>
-                                <HBox class="kyraStepLine kyraStepLineDashed" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step3/lineRightClass} || 'kyraStepLineDashed' }" />
                             </HBox>
-                            <HBox class="kyraStepNumBadge kyraStepNumBlue" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraStepNumBadge {= ${accessModel>/selectedRequestDetail/step3/numBadgeClass} || 'kyraStepNumBlue' }" justifyContent="Center" alignItems="Center">
                                 <Text text="3" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="Compliance Approver" class="kyraStepTitle" />
-                            <Text text="Compliance Review" class="kyraStepSubtitle" />
-                            <HBox class="kyraStepStatusPillBlue" justifyContent="Center" alignItems="Center">
-                                <Text text="In Progress" class="kyraStepStatusPillText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step3/title} || 'Compliance Approver' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step3/subtitle} || 'Compliance Review' }" class="kyraStepSubtitle" />
+                            <Text text="{accessModel>/selectedRequestDetail/step3/statusText}" class="{accessModel>/selectedRequestDetail/step3/statusClass}" visible="{= !${accessModel>/selectedRequestDetail/step3/isPill} }" />
+                            <HBox class="{accessModel>/selectedRequestDetail/step3/pillClass}" visible="{= !!${accessModel>/selectedRequestDetail/step3/isPill} }" justifyContent="Center" alignItems="Center">
+                                <Text text="{accessModel>/selectedRequestDetail/step3/statusText}" class="{accessModel>/selectedRequestDetail/step3/pillTextClass}" />
                             </HBox>
-                            <Text text="Currently with Compliance Approver" class="kyraStepSubNote" />
+                            <Text text="{accessModel>/selectedRequestDetail/step3/subNote}" class="kyraStepSubNote" visible="{= !!${accessModel>/selectedRequestDetail/step3/subNote} }" />
+                            <Text text="{accessModel>/selectedRequestDetail/step3/time}" class="kyraStepTime" visible="{= !${accessModel>/selectedRequestDetail/step3/isPill} }" />
                         </VBox>
 
-                        <!-- STEP 4: IAM Approver (Gray / Waiting) -->
+                        <!-- STEP 4: IAM Approver -->
                         <VBox class="kyraTrackStepBox" alignItems="Center">
                             <HBox class="kyraStepIconRow" alignItems="Center" width="100%">
-                                <HBox class="kyraStepLine kyraStepLineDashed" />
-                                <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://user-settings" class="kyraStepIcon kyraStepIconGray" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step4/lineLeftClass} || 'kyraStepLineDashed' }" />
+                                <HBox class="kyraStepCircle {= ${accessModel>/selectedRequestDetail/step4/circleClass} || 'kyraStepCircleGray' }" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="{= ${accessModel>/selectedRequestDetail/step4/icon} || 'sap-icon://user-settings' }" class="kyraStepIcon {= ${accessModel>/selectedRequestDetail/step4/iconClass} || 'kyraStepIconGray' }" />
+                                    <HBox class="{= ${accessModel>/selectedRequestDetail/step4/badgeClass} || 'kyraStepBadgeGreen' }" visible="{= !!${accessModel>/selectedRequestDetail/step4/showCheck} || !!${accessModel>/selectedRequestDetail/step4/showRedCross} }" justifyContent="Center" alignItems="Center">
+                                        <core:Icon src="{= ${accessModel>/selectedRequestDetail/step4/checkIcon} || 'sap-icon://accept' }" class="kyraBadgeCheckIcon" />
+                                    </HBox>
+                                    <HBox class="kyraStepBadgeBlueDot" visible="{= !!${accessModel>/selectedRequestDetail/step4/showBlueDot} }" />
                                 </HBox>
-                                <HBox class="kyraStepLine kyraStepLineDashed" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step4/lineRightClass} || 'kyraStepLineDashed' }" />
                             </HBox>
-                            <HBox class="kyraStepNumBadge kyraStepNumGray" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraStepNumBadge {= ${accessModel>/selectedRequestDetail/step4/numBadgeClass} || 'kyraStepNumGray' }" justifyContent="Center" alignItems="Center">
                                 <Text text="4" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="IAM Approver" class="kyraStepTitle" />
-                            <Text text="Identity Governance" class="kyraStepSubtitle" />
-                            <HBox class="kyraStepStatusPillGray" justifyContent="Center" alignItems="Center">
-                                <Text text="Waiting" class="kyraStepStatusPillTextGray" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step4/title} || 'IAM Approver' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step4/subtitle} || 'Identity Governance' }" class="kyraStepSubtitle" />
+                            <Text text="{accessModel>/selectedRequestDetail/step4/statusText}" class="{accessModel>/selectedRequestDetail/step4/statusClass}" visible="{= !${accessModel>/selectedRequestDetail/step4/isPill} }" />
+                            <HBox class="{accessModel>/selectedRequestDetail/step4/pillClass}" visible="{= !!${accessModel>/selectedRequestDetail/step4/isPill} }" justifyContent="Center" alignItems="Center">
+                                <Text text="{accessModel>/selectedRequestDetail/step4/statusText}" class="{accessModel>/selectedRequestDetail/step4/pillTextClass}" />
                             </HBox>
+                            <Text text="{accessModel>/selectedRequestDetail/step4/subNote}" class="kyraStepSubNote" visible="{= !!${accessModel>/selectedRequestDetail/step4/subNote} }" />
+                            <Text text="{accessModel>/selectedRequestDetail/step4/time}" class="kyraStepTime" visible="{= !${accessModel>/selectedRequestDetail/step4/isPill} }" />
                         </VBox>
 
-                        <!-- STEP 5: IAM Approver 2 (Gray / Waiting) -->
+                        <!-- STEP 5: IAM Approver 2 -->
                         <VBox class="kyraTrackStepBox" alignItems="Center">
                             <HBox class="kyraStepIconRow" alignItems="Center" width="100%">
-                                <HBox class="kyraStepLine kyraStepLineDashed" />
-                                <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://sys-monitor" class="kyraStepIcon kyraStepIconGray" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step5/lineLeftClass} || 'kyraStepLineDashed' }" />
+                                <HBox class="kyraStepCircle {= ${accessModel>/selectedRequestDetail/step5/circleClass} || 'kyraStepCircleGray' }" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="{= ${accessModel>/selectedRequestDetail/step5/icon} || 'sap-icon://sys-monitor' }" class="kyraStepIcon {= ${accessModel>/selectedRequestDetail/step5/iconClass} || 'kyraStepIconGray' }" />
+                                    <HBox class="{= ${accessModel>/selectedRequestDetail/step5/badgeClass} || 'kyraStepBadgeGreen' }" visible="{= !!${accessModel>/selectedRequestDetail/step5/showCheck} || !!${accessModel>/selectedRequestDetail/step5/showRedCross} }" justifyContent="Center" alignItems="Center">
+                                        <core:Icon src="{= ${accessModel>/selectedRequestDetail/step5/checkIcon} || 'sap-icon://accept' }" class="kyraBadgeCheckIcon" />
+                                    </HBox>
+                                    <HBox class="kyraStepBadgeBlueDot" visible="{= !!${accessModel>/selectedRequestDetail/step5/showBlueDot} }" />
                                 </HBox>
-                                <HBox class="kyraStepLine kyraStepLineDashed" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step5/lineRightClass} || 'kyraStepLineDashed' }" />
                             </HBox>
-                            <HBox class="kyraStepNumBadge kyraStepNumGray" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraStepNumBadge {= ${accessModel>/selectedRequestDetail/step5/numBadgeClass} || 'kyraStepNumGray' }" justifyContent="Center" alignItems="Center">
                                 <Text text="5" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="IAM Approver 2" class="kyraStepTitle" />
-                            <Text text="Access Provisioning" class="kyraStepSubtitle" />
-                            <HBox class="kyraStepStatusPillGray" justifyContent="Center" alignItems="Center">
-                                <Text text="Waiting" class="kyraStepStatusPillTextGray" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step5/title} || 'IAM Approver 2' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step5/subtitle} || 'Access Provisioning' }" class="kyraStepSubtitle" />
+                            <Text text="{accessModel>/selectedRequestDetail/step5/statusText}" class="{accessModel>/selectedRequestDetail/step5/statusClass}" visible="{= !${accessModel>/selectedRequestDetail/step5/isPill} }" />
+                            <HBox class="{accessModel>/selectedRequestDetail/step5/pillClass}" visible="{= !!${accessModel>/selectedRequestDetail/step5/isPill} }" justifyContent="Center" alignItems="Center">
+                                <Text text="{accessModel>/selectedRequestDetail/step5/statusText}" class="{accessModel>/selectedRequestDetail/step5/pillTextClass}" />
                             </HBox>
+                            <Text text="{accessModel>/selectedRequestDetail/step5/subNote}" class="kyraStepSubNote" visible="{= !!${accessModel>/selectedRequestDetail/step5/subNote} }" />
+                            <Text text="{accessModel>/selectedRequestDetail/step5/time}" class="kyraStepTime" visible="{= !${accessModel>/selectedRequestDetail/step5/isPill} }" />
                         </VBox>
 
-                        <!-- STEP 6: Completed (Gray / Waiting) -->
+                        <!-- STEP 6: Completed -->
                         <VBox class="kyraTrackStepBox" alignItems="Center">
                             <HBox class="kyraStepIconRow" alignItems="Center" width="100%">
-                                <HBox class="kyraStepLine kyraStepLineDashed" />
-                                <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://flag" class="kyraStepIcon kyraStepIconGray" />
+                                <HBox class="kyraStepLine {= ${accessModel>/selectedRequestDetail/step6/lineLeftClass} || 'kyraStepLineDashed' }" />
+                                <HBox class="kyraStepCircle {= ${accessModel>/selectedRequestDetail/step6/circleClass} || 'kyraStepCircleGray' }" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="{= ${accessModel>/selectedRequestDetail/step6/icon} || 'sap-icon://flag' }" class="kyraStepIcon {= ${accessModel>/selectedRequestDetail/step6/iconClass} || 'kyraStepIconGray' }" />
+                                    <HBox class="{= ${accessModel>/selectedRequestDetail/step6/badgeClass} || 'kyraStepBadgeGreen' }" visible="{= !!${accessModel>/selectedRequestDetail/step6/showCheck} || !!${accessModel>/selectedRequestDetail/step6/showRedCross} }" justifyContent="Center" alignItems="Center">
+                                        <core:Icon src="{= ${accessModel>/selectedRequestDetail/step6/checkIcon} || 'sap-icon://accept' }" class="kyraBadgeCheckIcon" />
+                                    </HBox>
                                 </HBox>
                                 <HBox class="kyraStepLineSpacer" />
                             </HBox>
-                            <HBox class="kyraStepNumBadge kyraStepNumGray" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraStepNumBadge {= ${accessModel>/selectedRequestDetail/step6/numBadgeClass} || 'kyraStepNumGray' }" justifyContent="Center" alignItems="Center">
                                 <Text text="6" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="Completed" class="kyraStepTitle" />
-                            <Text text="Access Activated" class="kyraStepSubtitle" />
-                            <HBox class="kyraStepStatusPillGray" justifyContent="Center" alignItems="Center">
-                                <Text text="Waiting" class="kyraStepStatusPillTextGray" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step6/title} || 'Completed' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step6/subtitle} || 'Access Activated' }" class="kyraStepSubtitle" />
+                            <Text text="{accessModel>/selectedRequestDetail/step6/statusText}" class="{accessModel>/selectedRequestDetail/step6/statusClass}" visible="{= !${accessModel>/selectedRequestDetail/step6/isPill} }" />
+                            <HBox class="{accessModel>/selectedRequestDetail/step6/pillClass}" visible="{= !!${accessModel>/selectedRequestDetail/step6/isPill} }" justifyContent="Center" alignItems="Center">
+                                <Text text="{accessModel>/selectedRequestDetail/step6/statusText}" class="{accessModel>/selectedRequestDetail/step6/pillTextClass}" />
                             </HBox>
+                            <Text text="{accessModel>/selectedRequestDetail/step6/subNote}" class="kyraStepSubNote" visible="{= !!${accessModel>/selectedRequestDetail/step6/subNote} }" />
+                            <Text text="{accessModel>/selectedRequestDetail/step6/time}" class="kyraStepTime" visible="{= !${accessModel>/selectedRequestDetail/step6/isPill} }" />
                         </VBox>
                     </HBox>
                 </VBox>
@@ -1687,16 +1795,16 @@
                     </HBox>
 
                     <!-- Comments List Stream -->
-                    <VBox class="kyraCommentListContainer">
+                    <VBox class="kyraCommentListContainer" items="{accessModel>/selectedRequestDetail/activityLogs}">
                         <HBox class="kyraCommentItemBox" alignItems="Start">
-                            <core:Icon src="sap-icon://sys-enter-2" class="kyraCommentStatusIcon sapUiSmallMarginEnd" />
+                            <core:Icon src="{accessModel>icon}" class="{accessModel>iconClass} sapUiSmallMarginEnd" />
                             <VBox width="100%">
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                                    <Text text="Line Manager Approval Decision" style="font-weight: 700; font-size: 13px; color: #0F172A;" />
-                                    <Text text="{= ${accessModel>/selectedRequestDetail/managerApprovedDateTime} || 'Aug 22, 2026 11:15 AM' }" style="font-size: 11.5px; color: #94A3B8;" />
+                                    <Text text="{accessModel>title}" style="font-weight: 700; font-size: 13px; color: #0F172A;" />
+                                    <Text text="{accessModel>date}" style="font-size: 11.5px; color: #94A3B8;" />
                                 </HBox>
-                                <Text text="{= ${accessModel>/selectedRequestDetail/comments} || 'Approved access request entitlement during standard review cycle.' }" style="font-size: 12.5px; color: #475569; margin-top: 4px; line-height: 1.4;" />
-                                <Text text="By: SEGGUM, VEERENDER (Manager Approver)" style="font-size: 11px; color: #64748B; margin-top: 4px; font-style: italic;" />
+                                <Text text="{accessModel>comment}" style="font-size: 12.5px; color: #475569; margin-top: 4px; line-height: 1.4;" />
+                                <Text text="{accessModel>author}" style="font-size: 11px; color: #64748B; margin-top: 4px; font-style: italic;" />
                             </VBox>
                         </HBox>
                     </VBox>

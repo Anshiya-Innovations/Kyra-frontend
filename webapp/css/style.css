@@ -675,6 +675,16 @@ div::-webkit-scrollbar,
     overflow: hidden !important;
     background-color: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
+.map-wrapper *::selection,
+.map-wrapper::selection {
+    background: transparent !important;
+    color: inherit !important;
 }
 
 .world-map-img {
@@ -683,6 +693,14 @@ div::-webkit-scrollbar,
     display: block !important;
     background-color: #FFFFFF !important;
     filter: contrast(4.2) brightness(1.15) !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    -webkit-user-drag: none !important;
+    user-drag: none !important;
+    pointer-events: none !important;
+    -webkit-touch-callout: none !important;
 }
 
 .map-pins-layer {
@@ -2462,6 +2480,13 @@ html body .sapMBtn.kyraBackToPortalBtn .sapMBtnText,
     font-weight: 700 !important;
     color: #0F172A !important;
     margin-top: 2px !important;
+}
+
+.kyraSodBoxSubtitleBold {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #334155 !important;
+    margin-right: 4px !important;
 }
 
 .kyraSodEmptyTitleRed {
@@ -8480,6 +8505,12 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
     box-shadow: 0 0 0 3.5px #DBEAFE, 0 2px 6px rgba(37, 99, 235, 0.15) !important;
 }
 
+.kyraStepCircleRed {
+    background: #FEF2F2 !important;
+    border: 2.5px solid #DC2626 !important;
+    box-shadow: 0 0 0 3.5px #FEE2E2, 0 2px 6px rgba(220, 38, 38, 0.15) !important;
+}
+
 .kyraStepCircleGray {
     background: #FFFFFF !important;
     border: 2px solid #CBD5E1 !important;
@@ -8497,6 +8528,10 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
     color: #2563EB !important;
 }
 
+.kyraStepIconRed {
+    color: #DC2626 !important;
+}
+
 .kyraStepIconGray {
     color: #94A3B8 !important;
 }
@@ -8509,6 +8544,20 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
     height: 17px !important;
     border-radius: 50% !important;
     background: #16A34A !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 2px solid #FFFFFF !important;
+}
+
+.kyraStepBadgeRed {
+    position: absolute !important;
+    top: -2px !important;
+    right: -2px !important;
+    width: 17px !important;
+    height: 17px !important;
+    border-radius: 50% !important;
+    background: #DC2626 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -8548,6 +8597,10 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 
 .kyraStepNumBlue {
     background: #2563EB !important;
+}
+
+.kyraStepNumRed {
+    background: #DC2626 !important;
 }
 
 .kyraStepNumGray {
@@ -8708,6 +8761,30 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 .kyraCommentStatusIcon {
     font-size: 18px !important;
     color: #16A34A !important;
+    margin-top: 2px !important;
+}
+
+.kyraCommentStatusIconGreen {
+    font-size: 18px !important;
+    color: #16A34A !important;
+    margin-top: 2px !important;
+}
+
+.kyraCommentStatusIconRed {
+    font-size: 18px !important;
+    color: #DC2626 !important;
+    margin-top: 2px !important;
+}
+
+.kyraCommentStatusIconYellow {
+    font-size: 18px !important;
+    color: #D97706 !important;
+    margin-top: 2px !important;
+}
+
+.kyraCommentStatusIconBlue {
+    font-size: 18px !important;
+    color: #2563EB !important;
     margin-top: 2px !important;
 }
 
