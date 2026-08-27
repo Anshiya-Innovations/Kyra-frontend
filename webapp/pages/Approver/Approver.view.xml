@@ -40,14 +40,14 @@
                     <HBox class="kyraApproverPillGroup sapUiTinyMarginEnd" alignItems="Center">
                         <Button
                             icon="sap-icon://time-entry-request"
-                            text="{= 'Pending (' + (${accessModel>/pendingRequests}.length || 0) + ')' }"
+                            text="{= 'Pending (' + ((${accessModel>/pendingRequests} || []).length) + ')' }"
                             type="{= !${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
                             press=".onSelectPendingQueue"
                             tooltip="Pending Queue"
                             class="kyraApproverPillBtn" />
                         <Button
                             icon="sap-icon://history"
-                            text="{= 'History (' + (${accessModel>/processedRequests}.length || 0) + ')' }"
+                            text="{= 'History (' + ((${accessModel>/processedRequests} || []).length) + ')' }"
                             type="{= ${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
                             press=".onSelectHistoryLog"
                             tooltip="Processed History"

@@ -126,6 +126,7 @@ sap.ui.define([
                 requestHistory: []
             });
 
+            this.getView().setModel(oModel, "accessModel");
             this.getOwnerComponent().setModel(oModel, "accessModel");
             this._loadSubmittedRequests(oModel);
 
@@ -370,7 +371,7 @@ sap.ui.define([
             oSelectAll._listenerAttached = true;
 
             oSelectAll.addEventListener("click", () => {
-                const oModel = this.getView().getModel("accessModel");
+                const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                 if (!oModel) return;
                 const aRegions = oModel.getProperty("/mapRegionList") || [];
                 

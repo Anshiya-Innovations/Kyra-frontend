@@ -1,8 +1,9 @@
 sap.ui.define([
     "sap/ui/core/UIComponent",
+    "sap/ui/model/json/JSONModel",
     "kyra001/model/models",
     "kyra001/model/KyraDialog"
-], (UIComponent, models, KyraDialog) => {
+], (UIComponent, JSONModel, models, KyraDialog) => {
     "use strict";
 
     return UIComponent.extend("kyra001.Component", {
@@ -19,6 +20,34 @@ sap.ui.define([
 
             // set the device model
             this.setModel(models.createDeviceModel(), "device");
+
+            // set global safe access model
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+
+            const oGlobalAccessModel = new JSONModel({
+                activeUser: sActiveUser,
+                activeRole: sActiveRole,
+                isApproverPersona: bIsApprover,
+                pendingRequests: [],
+                processedRequests: [],
+                pendingAccessRequests: [],
+                pendingRevokeRequests: [],
+                activeRoles: [],
+                userAccessList: [],
+                activeSodConflictsList: [],
+                pendingOnlySodConflictsList: [],
+                batchSodConflictsList: [],
+                selectedRequestSodActiveConflicts: [],
+                selectedRequestSodPendingConflicts: [],
+                selectedRequestSodBatchConflicts: [],
+                filteredNotificationsList: [],
+                restrictedRecords: [],
+                addAccessSelectedSystems: [],
+                addAccessSelectedPersonas: []
+            });
+            this.setModel(oGlobalAccessModel, "accessModel");
 
             // Setup modern Loading Screen enhancement
             this._setupModernBusyIndicator();
@@ -48,27 +77,15 @@ sap.ui.define([
             };
 
             if (typeof MutationObserver !== "undefined") {
-                const observer = new MutationObserver((mutations) => {
-                    for (const mutation of mutations) {
-                        for (const node of mutation.addedNodes) {
-                            if (node.nodeType === 1) {
-                                if (node.id === "sap-ui-busy-indicator" || node.classList.contains("sapUiBusy") || node.classList.contains("sapUiLocalBusyIndicatorBox")) {
-                                    injectModernLoader(node);
-                                }
-                                const aBusy = node.querySelectorAll ? node.querySelectorAll("#sap-ui-busy-indicator, .sapUiBusy, .sapUiLocalBusyIndicatorBox") : [];
-                                aBusy.forEach(injectModernLoader);
-                            }
-                        }
+                const observer = new MutationObserver(() => {
+                    const oBusyIndicator = document.getElementById("sap-ui-blocklayer-popup");
+                    if (oBusyIndicator) {
+                        injectModernLoader(oBusyIndicator);
                     }
+                    const aBusyDivs = document.querySelectorAll(".sapUiLocalBusyIndicator, .sapUiBusy");
+                    aBusyDivs.forEach((el) => injectModernLoader(el));
                 });
-
-                if (document.body) {
-                    observer.observe(document.body, { childList: true, subtree: true });
-                } else {
-                    document.addEventListener("DOMContentLoaded", () => {
-                        observer.observe(document.body, { childList: true, subtree: true });
-                    });
-                }
+                observer.observe(document.body, { childList: true, subtree: true });
             }
         }
     });
