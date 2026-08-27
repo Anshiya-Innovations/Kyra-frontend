@@ -1,0 +1,188 @@
+<mvc:View
+    controllerName="kyra001.pages.Approver.Approver"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+    xmlns:core="sap.ui.core">
+
+    <VBox class="sapUiNoContentPadding">
+
+        <!-- SECTION 2: USER REQUESTS BOX & HISTORY LOG -->
+        <VBox
+            visible="true"
+            class="kyraApproverCard sapUiNoMargin">
+            
+            <!-- TOP COMPACT TOOLBAR ROW: LEFT (Title, Subtitle, Access/Revoke) | RIGHT (Pending, History, Search, Filter, Export) -->
+            <HBox justifyContent="SpaceBetween" alignItems="Start" wrap="Wrap" class="kyraApproverTopToolbar sapUiTinyMarginBottom">
+                <!-- LEFT SIDE: Title & Description with Access / Revoke buttons directly below -->
+                <VBox class="kyraApproverLeftCol">
+                    <Title text="{= ${accessModel>/showApprovalHistory} ? 'Processed Approval History Log' : 'User Requests' }" level="H4" class="fioriApproverTitle" />
+                    <Text text="{= ${accessModel>/showApprovalHistory} ? 'Audit history of all previously approved, rejected, and cancelled access requests.' : 'Click any request row bar below to open the dedicated full summary review page.' }" class="fioriDescriptionText" />
+                    
+                    <HBox visible="{= !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
+                        <Button
+                            text="{= 'Access (' + (${accessModel>/pendingAccessCount} || 0) + ')' }"
+                            icon="sap-icon://add"
+                            type="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectAccessRequestsTab"
+                            class="kyraTabPillBtn sapUiTinyMarginEnd" />
+                        <Button
+                            text="{= 'Revoke (' + (${accessModel>/pendingRevokeCount} || 0) + ')' }"
+                            icon="sap-icon://delete"
+                            type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectRevokeRequestsTab"
+                            class="kyraTabPillBtn" />
+                    </HBox>
+                </VBox>
+
+                <!-- RIGHT SIDE: All Controls (Pending, History, Search, Filter, Export) in ONE compact toolbar -->
+                <HBox alignItems="Center" class="kyraApproverRightToolbar">
+                    <HBox class="kyraApproverPillGroup sapUiTinyMarginEnd" alignItems="Center">
+                        <Button
+                            icon="sap-icon://time-entry-request"
+                            text="{= 'Pending (' + (${accessModel>/pendingRequests}.length || 0) + ')' }"
+                            type="{= !${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectPendingQueue"
+                            tooltip="Pending Queue"
+                            class="kyraApproverPillBtn" />
+                        <Button
+                            icon="sap-icon://history"
+                            text="{= 'History (' + (${accessModel>/processedRequests}.length || 0) + ')' }"
+                            type="{= ${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectHistoryLog"
+                            tooltip="Processed History"
+                            class="kyraApproverPillBtn" />
+                    </HBox>
+
+                    <SearchField
+                        placeholder="Search requester or req..."
+                        width="190px"
+                        liveChange=".onSearchApprovalTable"
+                        class="sapUiTinyMarginEnd kyraCompactSearch" />
+                    
+                    <Button
+                        icon="sap-icon://filter"
+                        type="Transparent"
+                        press=".onFilterApprovalsDialog"
+                        tooltip="Filter Requests"
+                        class="sapUiTinyMarginEnd kyraCompactActionBtn" />
+
+                    <Button
+                        icon="sap-icon://excel-attachment"
+                        type="Transparent"
+                        press=".onExportApprovals"
+                        tooltip="Export Audit Log"
+                        class="kyraCompactActionBtn" />
+                </HBox>
+            </HBox>
+
+            <!-- CLASSIFICATIONS CONTENT -->
+            <VBox visible="{= !${accessModel>/showApprovalHistory} }" class="sapUiNoMargin">
+
+                <!-- CLASSIFICATION 1: ACCESS REQUESTS -->
+                <Table
+                    id="approvalAccessTable"
+                    visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' }"
+                    items="{accessModel>/pendingAccessRequests}"
+                    noDataText="No pending access requests in queue."
+                    popinLayout="GridSmall"
+                    class="sapUiNoMargin kyraApproverTable">
+                    <columns>
+                        <Column width="9%"><Text text="USER ID" class="kyraColHeader" /></Column>
+                        <Column width="21%"><Text text="USER DETAILS" class="kyraColHeader" /></Column>
+                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true"><Text text="BUSINESS SECTOR" class="kyraColHeader" /></Column>
+                        <Column width="16%" minScreenWidth="Tablet" demandPopin="true"><Text text="SERVICES" class="kyraColHeader" /></Column>
+                        <Column width="12%" minScreenWidth="Desktop" demandPopin="true"><Text text="SUBMISSION DATE" class="kyraColHeader" /></Column>
+                        <Column width="24%"><Text text="APPROVAL STATUS" class="kyraColHeader" /></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem">
+                            <cells>
+                                <Text text="{accessModel>requesterId}" class="kyraUserIdText" />
+                                <Text text="{= ${accessModel>selectedPersona} || (${accessModel>persona} &amp;&amp; ${accessModel>persona} !== 'Requester' ? ${accessModel>persona} : 'Frontend &amp; UI Developer Persona') }" class="kyraUserDetailsText" />
+                                <Text text="{accessModel>sector}" wrapping="true" class="kyraSectorText" />
+                                <Text text="{= ${accessModel>serviceTopic} || ${accessModel>function} }" wrapping="true" class="kyraFunctionText" />
+                                <Text text="{accessModel>submissionDate}" class="kyraDateText" />
+                                <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraApproverStatusBadge" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+                <!-- CLASSIFICATION 2: REVOKE REQUESTS -->
+                <Table
+                    id="approvalRevokeTable"
+                    visible="{= ${accessModel>/approverPendingTab} === 'revokeRequests' }"
+                    items="{accessModel>/pendingRevokeRequests}"
+                    noDataText="No pending revocation requests in queue."
+                    popinLayout="GridSmall"
+                    class="sapUiNoMargin kyraApproverTable">
+                    <columns>
+                        <Column width="9%"><Text text="USER ID" class="kyraColHeader" /></Column>
+                        <Column width="21%"><Text text="USER DETAILS" class="kyraColHeader" /></Column>
+                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true"><Text text="BUSINESS SECTOR" class="kyraColHeader" /></Column>
+                        <Column width="16%" minScreenWidth="Tablet" demandPopin="true"><Text text="SERVICES" class="kyraColHeader" /></Column>
+                        <Column width="12%" minScreenWidth="Desktop" demandPopin="true"><Text text="SUBMISSION DATE" class="kyraColHeader" /></Column>
+                        <Column width="24%"><Text text="APPROVAL STATUS" class="kyraColHeader" /></Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem">
+                            <cells>
+                                <Text text="{accessModel>requesterId}" class="kyraUserIdText" />
+                                <Text text="{= ${accessModel>selectedPersona} || (${accessModel>persona} &amp;&amp; ${accessModel>persona} !== 'Requester' ? ${accessModel>persona} : 'Frontend &amp; UI Developer Persona') }" class="kyraUserDetailsText" />
+                                <Text text="{accessModel>sector}" wrapping="true" class="kyraSectorText" />
+                                <Text text="{= ${accessModel>serviceTopic} || ${accessModel>function} }" wrapping="true" class="kyraFunctionText" />
+                                <Text text="{accessModel>submissionDate}" class="kyraDateText" />
+                                <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraApproverStatusBadge" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+            </VBox>
+
+            <!-- TABLE 2: PROCESSED APPROVAL HISTORY LOG TABLE -->
+            <Table
+                id="approvalHistoryTable"
+                visible="{accessModel>/showApprovalHistory}"
+                items="{accessModel>/processedRequests}"
+                noDataText="No processed approval history available."
+                popinLayout="GridSmall"
+                class="sapUiNoMargin kyraApproverTable">
+                <columns>
+                    <Column width="9%"><Text text="USER ID" class="kyraColHeader" /></Column>
+                    <Column width="21%"><Text text="USER DETAILS" class="kyraColHeader" /></Column>
+                    <Column width="17%" minScreenWidth="Tablet" demandPopin="true"><Text text="BUSINESS SECTOR" class="kyraColHeader" /></Column>
+                    <Column width="16%" minScreenWidth="Tablet" demandPopin="true"><Text text="SERVICES" class="kyraColHeader" /></Column>
+                    <Column width="11%" minScreenWidth="Desktop" demandPopin="true"><Text text="DECISION DATE" class="kyraColHeader" /></Column>
+                    <Column width="16%"><Text text="FINAL DECISION" class="kyraColHeader" /></Column>
+                    <Column width="10%" hAlign="Center"><Text text="BREAKDOWN" class="kyraColHeader" /></Column>
+                </columns>
+                <items>
+                    <ColumnListItem vAlign="Middle" class="kyraApproverRowItem">
+                        <cells>
+                            <Text text="{accessModel>requesterId}" class="kyraUserIdText" />
+                            <Text text="{= ${accessModel>selectedPersona} || (${accessModel>persona} &amp;&amp; ${accessModel>persona} !== 'Requester' ? ${accessModel>persona} : 'Frontend &amp; UI Developer Persona') }" class="kyraUserDetailsText" />
+                            <Text text="{accessModel>sector}" wrapping="true" class="kyraSectorText" />
+                            <Text text="{= ${accessModel>serviceTopic} || ${accessModel>function} }" wrapping="true" class="kyraFunctionText" />
+                            <Text text="{accessModel>decisionDate}" class="kyraDateText" />
+                            <ObjectStatus
+                                text="{accessModel>status}"
+                                state="{accessModel>statusState}"
+                                icon="{accessModel>statusIcon}"
+                                class="kyraApproverStatusBadge" />
+                            <HBox justifyContent="Center" alignItems="Center">
+                                <Button
+                                    text="View"
+                                    icon="sap-icon://hint"
+                                    type="Transparent"
+                                    press=".onOpenDecisionBreakdownDialog"
+                                    tooltip="View Approved and Rejected Details"
+                                    class="kyraBreakdownViewBtn" />
+                            </HBox>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </VBox>
+    </VBox>
+</mvc:View>

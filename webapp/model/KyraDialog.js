@@ -1,3 +1,6 @@
+sap.ui.define([], function() {
+    "use strict";
+
 /**
  * KYRA Universal Enterprise Dynamic Dialog System
  * Reusable dynamic popup dialog matching the KYRA Error Popup design.
@@ -460,3 +463,7 @@
         });
     }
 })(typeof window !== "undefined" ? window : this);
+
+
+    return KyraDialog;
+});
