@@ -68,14 +68,6 @@
         "settings": {
           "bundleName": "kyra001.i18n.i18n"
         }
-      },
-      "auth": {
-        "dataSource": "authService",
-        "type": "sap.ui.model.odata.v4.ODataModel",
-        "settings": {
-          "operationMode": "Server",
-          "synchronizationMode": "None"
-        }
       }
     },
     "resources": {
