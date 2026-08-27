@@ -185,6 +185,7 @@ sap.ui.define([
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
+                    oAccessModel.setProperty("/activeUser", sUserId);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                 }
@@ -192,7 +193,16 @@ sap.ui.define([
                 MessageToast.show("Login successful! Welcome back, " + sUserId);
 
                 const oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo("AccessPage");
+                if (oRouter) {
+                    oRouter.navTo("AccessPage", {}, true);
+                }
+                
+                // Fallback direct hash navigation if router view does not switch automatically
+                setTimeout(() => {
+                    if (window.location.hash !== "#/accessPage") {
+                        window.location.hash = "#/accessPage";
+                    }
+                }, 100);
             };
 
             const handleLoginError = (oError) => {

@@ -76,12 +76,6 @@
       "css": [
         {
           "uri": "css/style.css"
-        },
-        {
-          "uri": "pages/login/style.css"
-        },
-        {
-          "uri": "pages/access/style.css"
         }
       ]
     },
