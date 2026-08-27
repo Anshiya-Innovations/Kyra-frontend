@@ -767,6 +767,7 @@ sap.ui.define([
                 const isComplianceApproved = sComplianceStatus === "APPROVED" || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                 const isIamApp1Approved = sIamApp1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                 const isIamApp2Approved = sIamApp2Status === "APPROVED" || sDbStatus === "APPROVED";
+                const bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved || (isCompliancePersona && sComplianceStatus === "APPROVED") || (isIamApp1Persona && sIamApp1Status === "APPROVED") || (isIamApp2Persona && sIamApp2Status === "APPROVED") || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED" && (!isCompliancePersona || sComplianceStatus !== "REJECTED");
 
                 // Overall approval happens ONLY after final IAM Approver 2 approval!
                 const isOverallApproved = (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && sDbStatus !== "REJECTED";
@@ -962,7 +963,7 @@ sap.ui.define([
                     selectedPersona: r.selected_persona || "User",
                     grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                     expiryDate: r.access_duration,
-                    status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (isOverallApproved ? "Approved" : "Rejected"),
+                    status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
                     statusState: sState,
                     statusIcon: sIcon
                 });
@@ -1059,7 +1060,7 @@ sap.ui.define([
                     if (approvedCount > 0 && rejectedCount > 0) {
                         g.status = "Partially Approved";
                         g.statusState = "Warning";
-                        g.statusIcon = "sap-icon://warning";
+                        g.statusIcon = "sap-icon://alert";
                     } else if (approvedCount > 0 && rejectedCount === 0) {
                         g.status = "Approved";
                         g.statusState = "Success";
@@ -3930,7 +3931,7 @@ sap.ui.define([
 
             const sBatchReqNumber = (aValidItems.length > 0 && aValidItems[0].requestId) ? aValidItems[0].requestId : ("REQ-2026-" + Math.floor(100000 + Math.random() * 900000));
             const aPayload = aValidItems.map((item) => ({
-                requestNumber: item.requestId || sBatchReqNumber,
+                requestNumber: sBatchReqNumber,
                 requesterUsername: sActiveUser,
                 requesterPersona: sActiveRole,
                 targetSystem: item.system,
@@ -6025,108 +6026,59 @@ sap.ui.define([
         },
 
         onLogout() {
-            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
-                const sHtmlSignOut = `
-                    <div class="kyra-signout-card">
-                        <!-- Top Header -->
-                        <div class="kyra-signout-header">
-                            <div class="kyra-signout-header-left">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                    <polyline points="16 17 21 12 16 7"></polyline>
-                                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                                </svg>
-                                <span class="kyra-signout-title">Sign Out</span>
-                            </div>
-                            <button type="button" class="kyra-signout-close-btn" id="kyra_signout_x_btn">✕</button>
-                        </div>
+            // 1. Clear session storage & credentials
+            sessionStorage.removeItem("kyra_active_user");
+            sessionStorage.removeItem("kyra_active_role");
+            sessionStorage.removeItem("kyra_active_user_uuid");
+            sessionStorage.removeItem("kyra_wizard_sector");
+            sessionStorage.removeItem("kyra_wizard_function");
+            sessionStorage.removeItem("kyra_reset_add_access");
+            sessionStorage.clear();
+            localStorage.removeItem("kyra_remember_id");
+            localStorage.removeItem("kyra_remember_role");
 
-                        <!-- Body Content -->
-                        <div class="kyra-signout-body">
-                            <div class="kyra-signout-avatar">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                    <polyline points="16 17 21 12 16 7"></polyline>
-                                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                                </svg>
-                            </div>
-                            <div class="kyra-signout-text-block">
-                                <div class="kyra-signout-prompt-title">Confirm Sign Out</div>
-                                <div class="kyra-signout-prompt-desc">Are you sure you want to sign out of <span class="kyra-signout-brand">KYRA Portal</span>?</div>
-                            </div>
-                        </div>
+            // 2. Reset global model properties
+            const oAccessModel = this.getOwnerComponent().getModel("accessModel") || this.getView().getModel("accessModel");
+            if (oAccessModel) {
+                oAccessModel.setProperty("/activeUser", "");
+                oAccessModel.setProperty("/activeRole", "Requester");
+                oAccessModel.setProperty("/isApproverPersona", false);
+                oAccessModel.setProperty("/showAddAccessSector", false);
+                oAccessModel.setProperty("/showRemoveAccessSector", false);
+                oAccessModel.setProperty("/showMyAccessMasterSection", false);
+                oAccessModel.setProperty("/showPendingSection", false);
+                oAccessModel.setProperty("/showApprovedSection", false);
+                oAccessModel.setProperty("/selectedTabKey", "myAccess");
+            }
 
-                        <!-- Footer Actions -->
-                        <div class="kyra-signout-footer">
-                            <button type="button" class="kyra-signout-cancel-btn" id="kyra_signout_cancel_btn">Cancel</button>
-                            <button type="button" class="kyra-signout-confirm-btn" id="kyra_signout_confirm_btn">Sign Out</button>
-                        </div>
-                    </div>
-                `;
+            MessageToast.show("Signed out successfully.");
 
-                const oConfirmDialog = new Dialog({
-                    showHeader: false,
-                    contentWidth: "480px",
-                    class: "kyraSignOutDialog",
-                    content: [
-                        new HTML({ content: sHtmlSignOut, preferDOM: false })
-                    ],
-                    afterClose: () => oConfirmDialog.destroy()
-                });
-
-                this.getView().addDependent(oConfirmDialog);
-                oConfirmDialog.open();
-
-                setTimeout(() => {
-                    const closeFn = () => oConfirmDialog.close();
-                    const btnX = document.getElementById("kyra_signout_x_btn");
-                    if (btnX) btnX.onclick = closeFn;
-
-                    const btnCancel = document.getElementById("kyra_signout_cancel_btn");
-                    if (btnCancel) btnCancel.onclick = closeFn;
-
-                    const btnSignOut = document.getElementById("kyra_signout_confirm_btn");
-                    if (btnSignOut) {
-                        btnSignOut.onclick = () => {
-                            oConfirmDialog.close();
-
-                            sessionStorage.removeItem("kyra_active_user");
-                            sessionStorage.removeItem("kyra_active_role");
-                            sessionStorage.removeItem("kyra_active_user_uuid");
-                            sessionStorage.removeItem("kyra_wizard_sector");
-                            sessionStorage.removeItem("kyra_wizard_function");
-                            sessionStorage.removeItem("kyra_reset_add_access");
-
-                            const oModel = this.getView().getModel("accessModel");
-                            if (oModel) {
-                                oModel.setProperty("/showAddAccessSector", false);
-                                oModel.setProperty("/showRemoveAccessSector", false);
-                                oModel.setProperty("/showMyAccessMasterSection", false);
-                                oModel.setProperty("/showPendingSection", false);
-                                oModel.setProperty("/showApprovedSection", false);
-                                oModel.setProperty("/selectedTabKey", "myAccess");
-                            }
-
-                            MessageToast.show("You have successfully signed out.");
-
-                            setTimeout(() => {
-                                try {
-                                    const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
-                                    if (oRouter && oRouter.getRoute("Login")) {
-                                        oRouter.navTo("Login", {}, true);
-                                    } else {
-                                        window.location.hash = "";
-                                        window.location.reload();
-                                    }
-                                } catch (e) {
-                                    window.location.hash = "";
-                                    window.location.reload();
-                                }
-                            }, 300);
-                        };
+            // 3. SAPUI5 Router navigation & Target Display to Login page
+            try {
+                const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
+                if (oRouter) {
+                    oRouter.navTo("Login", {}, true);
+                    if (oRouter.getTargets()) {
+                        oRouter.getTargets().display("TargetLogin");
                     }
-                }, 50);
-            });
+                }
+            } catch (e) {
+                console.warn("Logout router nav error:", e);
+            }
+
+            // 4. Reset Login view state
+            try {
+                const oRoot = this.getOwnerComponent() ? this.getOwnerComponent().getRootControl() : null;
+                if (oRoot && oRoot.byId) {
+                    const oApp = oRoot.byId("app");
+                    if (oApp && oApp.getPages) {
+                        const oLoginPage = oApp.getPages().find(p => p.getId().includes("Login"));
+                        if (oLoginPage) {
+                            oApp.to(oLoginPage);
+                        }
+                    }
+                }
+            } catch(e) {}
         }
     });
 });

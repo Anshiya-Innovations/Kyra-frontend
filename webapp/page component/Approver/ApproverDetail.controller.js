@@ -1024,7 +1024,7 @@ sap.ui.define([
 
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
                 const sService = r.business_function || r.service_topic || "System Administrator";
-                const sGroupKey = r.request_number || ((r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + sService + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
+                const sGroupKey = (r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
                 
                 let sPersonaText = r.requester_persona || "Requester";
                 if (sPersonaText.toUpperCase().includes("ADMIN") || sPersonaText.toUpperCase().includes("COMPLIANCE")) {

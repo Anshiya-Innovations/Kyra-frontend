@@ -717,7 +717,7 @@ sap.ui.define([
                         }
 
                         const sService = getCleanServiceTopic(r);
-                        const sGroupKey = r.request_number || ((r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + sService + "_" + (isPendingForRole ? "PENDING" : "PROCESSED"));
+                        const sGroupKey = (r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + (r.business_function || sService || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
 
                         if (!oGrouped[sGroupKey]) {
                             oGrouped[sGroupKey] = {

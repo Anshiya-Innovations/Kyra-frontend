@@ -923,7 +923,7 @@ sap.ui.define([
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
 
                 // Group for Approver / Reviewer Page
-                const sGroupKey = (r.requester_username || "User") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
+                const sGroupKey = r.request_number || ((r.requester_username || "User") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
                 const sServiceTopic = getCleanServiceTopic(r);
 
                 if (!oGrouped[sGroupKey]) {

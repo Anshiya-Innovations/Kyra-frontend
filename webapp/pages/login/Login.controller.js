@@ -192,17 +192,17 @@ sap.ui.define([
 
                 MessageToast.show("Login successful! Welcome back, " + sUserId);
 
-                const oRouter = this.getOwnerComponent().getRouter();
-                if (oRouter) {
-                    oRouter.navTo("AccessPage", {}, true);
-                }
-                
-                // Fallback direct hash navigation if router view does not switch automatically
-                setTimeout(() => {
-                    if (window.location.hash !== "#/accessPage") {
-                        window.location.hash = "#/accessPage";
+                try {
+                    const oRouter = this.getOwnerComponent().getRouter();
+                    if (oRouter) {
+                        oRouter.navTo("AccessPage", {}, true);
+                        if (oRouter.getTargets()) {
+                            oRouter.getTargets().display("TargetAccessPage");
+                        }
                     }
-                }, 100);
+                } catch(e) {
+                    console.warn("Router navigation to AccessPage warning:", e);
+                }
             };
 
             const handleLoginError = (oError) => {
@@ -222,39 +222,31 @@ sap.ui.define([
                 oModel.setProperty("/idStateText", sMessage);
             };
 
-            // Instant fallback handling if no backend server responds within 300ms
-            let bHandled = false;
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                if (!bHandled) {
-                    bHandled = true;
-                    try { controller.abort(); } catch(e) {}
-                    performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
-                }
-            }, 300);
-
-            fetch("odata/v4/auth/login", {
+            // Strict Database Authentication against connected backend
+            fetch("/odata/v4/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: sUserId, password: "Pass@123", role: sEffectiveTitle }),
-                signal: controller.signal
+                body: JSON.stringify({ username: sUserId, password: "Pass@123", role: sEffectiveTitle })
             }).then(async (oRes) => {
-                if (bHandled) return;
-                bHandled = true;
-                clearTimeout(timeoutId);
-
                 let oData = null;
                 try { oData = await oRes.json(); } catch(e) {}
 
-                if (oRes.ok && oData) {
-                    performLoginSuccess(oData);
+                const resultData = (oData && oData.value) ? oData.value : oData;
+
+                if (oRes.ok && resultData && (resultData.success || resultData.userUuid || resultData.userId)) {
+                    performLoginSuccess(resultData);
                 } else {
-                    performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
+                    // Backend responded with an error (user not found in database)
+                    const sErrorMessage = (oData && oData.error && oData.error.message)
+                        ? oData.error.message
+                        : (resultData && resultData.message)
+                            ? resultData.message
+                            : "Invalid User ID. User not registered in database.";
+                    handleLoginError(sErrorMessage);
                 }
-            }).catch(() => {
-                if (bHandled) return;
-                bHandled = true;
-                clearTimeout(timeoutId);
+            }).catch((err) => {
+                // If backend server is completely unreachable (e.g. offline demo on GitHub Pages)
+                console.warn("Backend server not reachable, fallback standalone demo mode:", err);
                 performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
             });
         },
