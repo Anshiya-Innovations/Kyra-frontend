@@ -181,7 +181,7 @@ sap.ui.define([
 
                         let sApproverRemark = "";
                         if (isCompliancePersona) {
-                            sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || ent.comment || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Verified business requirement and approved";
+                            sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Access approved for this requester.";
                         }
 
                         const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
@@ -210,7 +210,7 @@ sap.ui.define([
 
                     let sApproverRemark = "";
                     if (isCompliancePersona) {
-                        sApproverRemark = oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Verified business requirement and approved";
+                        sApproverRemark = oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Access approved for this requester.";
                     }
 
                     const sRawRole = oRequest.roleName || oRequest.serviceAndRole || "System Role";
@@ -490,6 +490,10 @@ sap.ui.define([
                                     personaA: cleanPersonaName(sPersonaA),
                                     roleB: `${sSysB} — ${cleanPersonaName(sRoleB)}`,
                                     personaB: cleanPersonaName(sPersonaB),
+                                    existingRole: `${sSysA} — ${cleanPersonaName(sRoleA)}`,
+                                    existingPersona: cleanPersonaName(sPersonaA),
+                                    newRole: `${sSysB} — ${cleanPersonaName(sRoleB)}`,
+                                    newPersona: cleanPersonaName(sPersonaB),
                                     conflictTitle: "Batch Selection SoD Conflict",
                                     conflictDesc: sDesc
                                 });
@@ -594,6 +598,15 @@ sap.ui.define([
                 }
 
                 MessageToast.show("Rejected: " + (oEntitlement.roleName || oEntitlement.system || "Entitlement"));
+            }
+        },
+
+        onRemarkLiveChange(oEvent) {
+            const oContext = oEvent.getSource().getBindingContext("accessModel");
+            const oModel = this.getView().getModel("accessModel");
+            if (oContext && oModel) {
+                const sVal = oEvent.getParameter("value");
+                oModel.setProperty(oContext.getPath() + "/comment", sVal);
             }
         },
 
@@ -833,13 +846,23 @@ sap.ui.define([
             }
 
             // Create user notification for the requester
-            const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
+            const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert");
+            const sOverallComment = (oData.entitlements || []).map(e => e.comment || e.comments).filter(Boolean).join("; ") || (sOverallStatus === "Approved" ? "Access approved for this requester." : (sOverallStatus === "Rejected" ? "Access rejected." : "Decision updated."));
+            let sNotifDesc = "Your access request (" + oData.requestId + ") for " + (oData.sector || "Governance Sector") + " has been " + sOverallStatus.toLowerCase() + " by the " + sActiveRole + ".";
+            if (sOverallComment) {
+                sNotifDesc += " Approver Remark: \"" + sOverallComment + "\"";
+            }
+
             const aUserNotifications = JSON.parse(sessionStorage.getItem("kyra_user_notifications") || "[]");
             aUserNotifications.unshift({
                 id: "NOTIF-" + Date.now(),
                 requesterId: oData.requesterId || "Dev001",
-                title: sOverallStatus === "Approved" ? "Access Request Approved" : (sOverallStatus === "Rejected" ? "Access Request Rejected" : "Access Decision Updated"),
-                description: "Your access request (" + oData.requestId + ") for " + (oData.sector || "Governance Sector") + " has been " + sOverallStatus.toLowerCase() + " by the Approver.",
+                requestId: oData.requestId,
+                title: sOverallStatus === "Approved" ? ("Access Request Approved: " + oData.requestId) : (sOverallStatus === "Rejected" ? ("Access Request Rejected: " + oData.requestId) : ("Access Request Partially Approved: " + oData.requestId)),
+                description: sNotifDesc,
+                approverComment: sOverallComment,
+                type: sOverallStatus === "Approved" ? "approved" : (sOverallStatus === "Rejected" ? "rejected" : "approved"),
+                category: "Access Decisions",
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", " + new Date().toLocaleDateString(),
                 state: sOverallState,
                 icon: sStatusIcon,
@@ -1000,7 +1023,8 @@ sap.ui.define([
                 }
 
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
-                const sGroupKey = (r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
+                const sService = r.business_function || r.service_topic || "System Administrator";
+                const sGroupKey = r.request_number || ((r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + sService + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
                 
                 let sPersonaText = r.requester_persona || "Requester";
                 if (sPersonaText.toUpperCase().includes("ADMIN") || sPersonaText.toUpperCase().includes("COMPLIANCE")) {
@@ -1015,13 +1039,14 @@ sap.ui.define([
                         requesterId: r.requester_username || "User003",
                         persona: sPersonaText,
                         system: r.target_system || "SAP BTP Cloud Platform",
-                        serviceAndRole: (r.role_name || "IT Developers") + " (" + (r.service_topic || "System Administrator") + ")",
+                        serviceAndRole: (r.role_name || "IT Developers") + " (" + sService + ")",
+                        serviceTopic: sService,
                         submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                         decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
                         createdAtRaw: r.created_at || new Date().toISOString(),
                         duration: r.access_duration || "Permanent",
                         sector: r.business_sector || "Information Technology & Security",
-                        function: r.business_function || "Identity & Access Governance",
+                        function: sService,
                         region: r.operating_region || "Global Enterprise (ALL)",
                         justification: r.justification || "Business Access Request",
                         selectedPersona: r.selected_persona || r.requester_persona || "Requester",
@@ -1030,6 +1055,8 @@ sap.ui.define([
                         statusIcon: isRevocation ? "sap-icon://pending" : (isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error")),
                         isRevocation: isRevocation,
                         _isPendingForRole: isPendingForRole,
+                        approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
+                        approver_comment: r.approver_comment || r.approverComment || "Access approved for this requester.",
                         entitlements: []
                     };
                 }
@@ -1039,13 +1066,16 @@ sap.ui.define([
                     requestId: r.request_number,
                     system: r.target_system,
                     roleName: r.role_name,
-                    team: r.service_topic,
+                    team: sService,
+                    serviceTopic: sService,
                     selectedPersona: r.selected_persona || "Engineering & Developer Persona",
                     grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                     expiryDate: r.access_duration,
                     status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
                     statusState: isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error"),
-                    statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error")
+                    statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error"),
+                    approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
+                    approver_comment: r.approver_comment || r.approverComment || "Access approved for this requester."
                 });
             });
             

@@ -293,20 +293,20 @@ sap.ui.define([
                             if (!sVal) {
                                 oInput.setValueState("Error");
                                 oInput.setValueStateText(oResourceBundle.getText("errForgotPasswordEmailRequired"));
-                                        return;
-                                    }
-                                    oInput.setValueState("None");
-                                    this._oForgotPasswordDialog.close();
-                                    MessageToast.show(oResourceBundle.getText("msgForgotPasswordLinkSent"), { duration: 4000 });
-                                }
-                            }),
-                            endButton: new Button({
-                                text: oResourceBundle.getText("btnCancel"),
-                                press: () => {
-                                    this._oForgotPasswordDialog.close();
-                                }
-                            })
-                        });
+                                return;
+                            }
+                            oInput.setValueState("None");
+                            this._oForgotPasswordDialog.close();
+                            MessageToast.show(oResourceBundle.getText("msgForgotPasswordLinkSent"), { duration: 4000 });
+                        }
+                    }),
+                    endButton: new Button({
+                        text: oResourceBundle.getText("btnCancel"),
+                        press: () => {
+                            this._oForgotPasswordDialog.close();
+                        }
+                    })
+                });
 
                 oView.addDependent(this._oForgotPasswordDialog);
             } else {

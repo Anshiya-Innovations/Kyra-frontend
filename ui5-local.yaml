@@ -37,3 +37,6 @@ builder:
     excludes:
       - /test/**
       - /localService/**
+      - /page component/Kyra-frontend/**
+      - /page component/KYRA Frontend-SK/**
+      - /**/node_modules/**

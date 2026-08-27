@@ -465,22 +465,19 @@ sap.ui.define([
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 1500);
-                const res = await fetch("odata/v4/auth/Requests", { signal: controller.signal });
+                const res = await fetch("/odata/v4/admin-portal/GovernanceHistory", { signal: controller.signal });
                 clearTimeout(timeoutId);
 
-                const sContentType = res.headers ? res.headers.get("content-type") : "";
-                if (res.ok && sContentType && sContentType.includes("application/json")) {
-                    const data = await res.json();
-                    if (data && data.value) {
-                        aAllSubmittedRequests = data.value.map(r => ({
-                            requestId: r.request_number,
-                            system: r.target_system,
-                            roleName: r.role_name,
-                            persona: r.selected_persona,
-                            status: r.status
-                        }));
-                        aExistingRequestNumbers = data.value.map(r => r.request_number);
-                    }
+                const data = await res.json();
+                if (data && data.value) {
+                    aAllSubmittedRequests = data.value.map(r => ({
+                        requestId: r.request_number,
+                        system: r.target_system,
+                        roleName: r.role_name,
+                        persona: r.selected_persona,
+                        status: r.status
+                    }));
+                    aExistingRequestNumbers = data.value.map(r => r.request_number);
                 }
             } catch (e) {
                 console.warn("Requests fetch timed out or failed, using local wizard state:", e);
@@ -655,60 +652,47 @@ sap.ui.define([
             }));
 
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2000);
-                const response = await fetch("odata/v4/auth/submitAccessRequest", {
+                // Post directly to backend database service endpoint
+                const response = await fetch("/odata/v4/auth/submitAccessRequest", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ requests: aPayload }),
-                    signal: controller.signal
+                    body: JSON.stringify({ requests: aPayload })
                 });
-                clearTimeout(timeoutId);
 
-                const sContentType = response.headers ? response.headers.get("content-type") : "";
-                if (response.ok && sContentType && sContentType.includes("application/json")) {
-                    const data = await response.json();
-                    if (data && !data.error) {
-                        console.log("Successfully persisted request into PostgreSQL database:", data);
-                    }
+                const text = await response.text();
+                let data = {};
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = { error: { message: text || response.statusText } };
                 }
+
+                if (!response.ok || (data.error && data.error.message)) {
+                    const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
+                    sap.ui.core.BusyIndicator.hide();
+                    oModel.setProperty("/submitEnabled", true);
+                    MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
+                    return;
+                }
+
+                console.log("Successfully persisted request into PostgreSQL database:", data);
+
+                if (typeof BroadcastChannel !== "undefined") {
+                    try {
+                        const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
+                        syncChannel.postMessage({ type: "NEW_REQUEST_SUBMITTED", timestamp: Date.now() });
+                        syncChannel.close();
+                    } catch(e) {}
+                }
+                try { localStorage.setItem("kyra_last_db_mutation", String(Date.now())); } catch(e) {}
             } catch (err) {
-                console.warn("Database persistence error / offline, falling back to local state:", err);
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/submitEnabled", true);
+                MessageBox.error("Failed to connect to database: " + err.message);
+                return;
             } finally {
                 sap.ui.core.BusyIndicator.hide();
             }
-
-            // Always store to local persistent storage so it displays across tabs
-            try {
-                const aExistingLocal = JSON.parse(localStorage.getItem("kyra_local_submitted_requests") || "[]");
-                const aNewLocal = aPayload.map(p => ({
-                    request_number: p.requestNumber,
-                    requester_username: p.requesterUsername,
-                    requester_persona: p.requesterPersona,
-                    target_system: p.targetSystem,
-                    role_name: p.roleName,
-                    business_sector: p.businessSector,
-                    business_function: p.businessFunction,
-                    service_topic: p.serviceTopic,
-                    selected_persona: p.selectedPersona,
-                    access_type: p.accessType || "DEFAULT",
-                    operating_region: p.operatingRegion,
-                    access_duration: p.accessDuration,
-                    justification: p.justification,
-                    status: "PENDING",
-                    created_at: new Date().toISOString()
-                }));
-                localStorage.setItem("kyra_local_submitted_requests", JSON.stringify([...aNewLocal, ...aExistingLocal]));
-            } catch (e) {}
-
-            if (typeof BroadcastChannel !== "undefined") {
-                try {
-                    const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "NEW_REQUEST_SUBMITTED", timestamp: Date.now() });
-                    syncChannel.close();
-                } catch(e) {}
-            }
-            try { localStorage.setItem("kyra_last_db_mutation", String(Date.now())); } catch(e) {}
 
             // Set tab redirect for AccessPage
             sessionStorage.setItem("kyra_select_tab", "myRequests");

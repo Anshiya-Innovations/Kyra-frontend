@@ -643,18 +643,11 @@ sap.ui.define([
                     const aDbProcessed = [];
 
                     const getCleanServiceTopic = (req) => {
-                        let s = req.service_topic || req.serviceTopic || req.service;
-                        if (!s || s === req.business_function || s.includes("Governance") || s.includes("Finance") || s.includes("Logistics") || s.includes("Supply Chain")) {
-                            const roleStr = (req.role_name || req.roleName || req.selected_persona || req.selectedPersona || "").toLowerCase();
-                            if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("analyst")) {
-                                return "System Owners";
-                            } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
-                                return "Stakeholders";
-                            } else {
-                                return "System Administrator";
-                            }
-                        }
-                        return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
+                        let s = req.service_topic || req.serviceTopic || req.service || req.business_function;
+                        if (!s) return "System Administrator";
+                        let str = String(s).replace(/\s*\([^)]*\)/g, "").trim();
+                        if (!str || str === "undefined") return "System Administrator";
+                        return str;
                     };
 
                     const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
@@ -662,6 +655,8 @@ sap.ui.define([
                     const isIamApp2 = sActiveRole.includes("approver 2") || sActiveRole.includes("approver2") || sActiveRole.includes("iam 2") || sActiveRole.includes("iam_2");
                     const isIamApp1 = !isCompliance && !isIamApp2 && (sActiveRole.includes("approver 1") || sActiveRole.includes("approver1") || sActiveRole.includes("iam 1") || sActiveRole.includes("iam_1") || sActiveRole.includes("iam approver"));
                     const isInitialApprover = !isCompliance && !isIamApp1 && !isIamApp2;
+
+                    const oGrouped = {};
 
                     data.value.forEach(r => {
                         const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
@@ -697,9 +692,6 @@ sap.ui.define([
                                 isPendingForRole = true;
                             }
                         } else if (isIamApp1) {
-                            // IAM Approver 1 sees:
-                            // 1) Conflict requests approved by Compliance
-                            // 2) Non-conflict requests approved by Initial Approver directly!
                             const isReadyForIam1 = (isConflictRequest && sComplianceStatus === "APPROVED") || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                             if (isReadyForIam1) {
                                 if (sIamApp1Status === "APPROVED" || sIamApp1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp1Status === "REJECTED")) {
@@ -725,35 +717,76 @@ sap.ui.define([
                         }
 
                         const sService = getCleanServiceTopic(r);
-                        const oItem = {
+                        const sGroupKey = r.request_number || ((r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + sService + "_" + (isPendingForRole ? "PENDING" : "PROCESSED"));
+
+                        if (!oGrouped[sGroupKey]) {
+                            oGrouped[sGroupKey] = {
+                                requestId: r.request_number,
+                                requesterId: r.requester_username || "User003",
+                                requesterUsername: r.requester_username || "User003",
+                                persona: r.selected_persona || "Engineering & Developer Persona",
+                                selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                                system: r.target_system || "SAP BTP Cloud Platform",
+                                serviceAndRole: (r.role_name || "IT Developers") + " (" + sService + ")",
+                                serviceTopic: sService,
+                                submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                                duration: r.access_duration || "Permanent",
+                                sector: r.business_sector || "Information Technology & Security",
+                                function: sService,
+                                region: r.operating_region || "Global Enterprise (ALL)",
+                                justification: r.justification || "Business Access Request",
+                                status: isPendingForRole ? "Pending Approval" : (bRoleApproved ? "Approved" : "Rejected"),
+                                statusState: isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error"),
+                                statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error"),
+                                approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
+                                approver_comment: r.approver_comment || r.approverComment || "Access approved for this requester.",
+                                _isPendingForRole: isPendingForRole,
+                                entitlements: []
+                            };
+                        }
+
+                        oGrouped[sGroupKey].entitlements.push({
                             requestId: r.request_number,
-                            requesterId: r.requester_username || "User003",
-                            persona: r.selected_persona || "Engineering & Developer Persona",
-                            selectedPersona: r.selected_persona || "Engineering & Developer Persona",
-                            system: r.target_system || "SAP BTP Cloud Platform",
-                            serviceAndRole: (r.role_name || "IT Developers") + " (" + sService + ")",
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: sService,
                             serviceTopic: sService,
-                            submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                            decisionDate: r.updated_at ? r.updated_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                            duration: r.access_duration || "Permanent",
-                            sector: r.business_sector || "Information Technology & Security",
-                            function: sService,
-                            region: r.operating_region || "Global Enterprise (ALL)",
-                            justification: r.justification || "Business Access Request",
-                            status: isPendingForRole ? "Pending Approval" : (bRoleApproved ? "Approved" : "Rejected"),
+                            selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                            grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                            expiryDate: r.access_duration || "Permanent",
+                            status: isPendingForRole ? "Pending" : (bRoleApproved ? "Approved" : "Rejected"),
                             statusState: isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error"),
                             statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error"),
-                            entitlements: []
-                        };
+                            approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
+                            comment: r.reviewer_comment || r.comments || ""
+                        });
+                    });
 
-                        if (isPendingForRole) {
-                            if (!aDbPending.some(p => p.requestId === oItem.requestId)) {
-                                aDbPending.push(oItem);
+                    const aAllGrouped = Object.values(oGrouped);
+                    aAllGrouped.forEach(g => {
+                        if (!g._isPendingForRole) {
+                            const approvedCount = g.entitlements.filter(e => e.status === "Approved").length;
+                            const rejectedCount = g.entitlements.filter(e => e.status === "Rejected").length;
+                            if (approvedCount > 0 && rejectedCount > 0) {
+                                g.status = "Partially Approved";
+                                g.statusState = "Warning";
+                                g.statusIcon = "sap-icon://alert";
+                            } else if (approvedCount > 0 && rejectedCount === 0) {
+                                g.status = "Approved";
+                                g.statusState = "Success";
+                                g.statusIcon = "sap-icon://sys-enter-2";
+                            } else {
+                                g.status = "Rejected";
+                                g.statusState = "Error";
+                                g.statusIcon = "sap-icon://error";
                             }
-                        } else if (isProcessedForRole) {
-                            if (!aDbProcessed.some(pr => pr.requestId === oItem.requestId)) {
-                                aDbProcessed.push(oItem);
-                            }
+                        }
+
+                        if (g._isPendingForRole) {
+                            aDbPending.push(g);
+                        } else {
+                            aDbProcessed.push(g);
                         }
                     });
 
@@ -957,27 +990,28 @@ sap.ui.define([
 
                     let oSystemFilter = null;
                     if (aSelectedKeywords.length > 0) {
-                        const aSystemFilterConditions = [];
-                        aSelectedKeywords.forEach(sKeyword => {
-                            const sLowerKeyword = sKeyword.toLowerCase();
-                            aSystemFilterConditions.push(new Filter("function", FilterOperator.Contains, sKeyword));
-                            aSystemFilterConditions.push(new Filter("sector", FilterOperator.Contains, sKeyword));
-                            aSystemFilterConditions.push(new Filter({
-                                path: "entitlements",
-                                test: (aEntitlements) => {
-                                    if (!Array.isArray(aEntitlements)) return false;
-                                    return aEntitlements.some(e => {
-                                        const sSys = (e.system || "").toLowerCase();
-                                        const sRole = (e.roleName || "").toLowerCase();
-                                        return sSys.includes(sLowerKeyword) || sRole.includes(sLowerKeyword);
-                                    });
-                                }
-                            }));
-                        });
-
                         oSystemFilter = new Filter({
-                            filters: aSystemFilterConditions,
-                            and: false
+                            path: "",
+                            test: (oRow) => {
+                                if (!oRow) return false;
+                                return aSelectedKeywords.some(sKeyword => {
+                                    const sLowerKeyword = sKeyword.toLowerCase();
+                                    
+                                    // Check request-level target system
+                                    const sSys = (oRow.system || "").toLowerCase();
+                                    if (sSys.includes(sLowerKeyword)) return true;
+
+                                    // Check entitlements
+                                    if (Array.isArray(oRow.entitlements)) {
+                                        return oRow.entitlements.some(e => {
+                                            const sEntSys = (e.system || "").toLowerCase();
+                                            const sEntRole = (e.roleName || "").toLowerCase();
+                                            return sEntSys.includes(sLowerKeyword) || sEntRole.includes(sLowerKeyword);
+                                        });
+                                    }
+                                    return false;
+                                });
+                            }
                         });
                     }
 
@@ -992,8 +1026,10 @@ sap.ui.define([
                             dTo.setHours(23, 59, 59, 999);
 
                             oDateFilter = new Filter({
-                                path: "decisionDate",
-                                test: (sValue) => {
+                                path: "",
+                                test: (oRow) => {
+                                    if (!oRow) return false;
+                                    const sValue = oRow.decisionDate || oRow.submissionDate;
                                     if (!sValue) return false;
                                     const dItemDate = new Date(sValue);
                                     return !isNaN(dItemDate.getTime()) && dItemDate >= dFrom && dItemDate <= dTo;

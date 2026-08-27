@@ -282,8 +282,8 @@
                                         <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
                                             <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
                                             <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{accessModel>roleA}" class="kyraSodBoxTitle" />
-                                                <Text text="{accessModel>personaA}" class="kyraSodBoxSubtitle" />
+                                                <Text text="{= ${accessModel>roleA} || ${accessModel>existingRole} }" class="kyraSodBoxTitle" />
+                                                <Text text="{= ${accessModel>personaA} || ${accessModel>existingPersona} }" class="kyraSodBoxSubtitle" />
                                             </VBox>
                                         </HBox>
                                     </HBox>
@@ -291,8 +291,8 @@
                                         <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
                                             <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
                                             <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{accessModel>roleB}" class="kyraSodBoxTitle" />
-                                                <Text text="{accessModel>personaB}" class="kyraSodBoxSubtitle" />
+                                                <Text text="{= ${accessModel>roleB} || ${accessModel>newRole} }" class="kyraSodBoxTitle" />
+                                                <Text text="{= ${accessModel>personaB} || ${accessModel>newPersona} }" class="kyraSodBoxSubtitle" />
                                             </VBox>
                                         </HBox>
                                     </HBox>
@@ -335,53 +335,43 @@
                                 </HBox>
                             </HBox>
 
-                            <!-- Table for this System (Clean 8 Columns, Perfectly Aligned) -->
-                            <Table
-                                items="{accessModel>items}"
-                                noDataText="No entitlement details available for this system."
-                                popinLayout="GridSmall"
-                                class="sapUiNoMargin kyraDetailEntitlementsTable">
-                                <columns>
-                                    <Column width="11%"><Text text="REQUEST ID" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="11%"><Text text="SERVICES" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="13%"><Text text="ROLES" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="16%" minScreenWidth="Tablet" demandPopin="true"><Text text="SELECTED PERSONA" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="10%" minScreenWidth="Desktop" demandPopin="true"><Text text="GRANTED DATE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="10%"><Text text="STATUS" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="19%" minScreenWidth="Tablet" demandPopin="true"><Text text="REMARKS" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                    <Column width="10%" hAlign="Center"><Text text="DECISION" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                                </columns>
+                            <!-- Table Header (Clean 8 Columns, Exactly Aligned via CSS Grid) -->
+                            <HBox class="kyraTableHeadRow" width="100%">
+                                <Text text="REQUEST ID" class="kyraColHeadText kyraColHeadLeft" />
+                                <Text text="TEAM" class="kyraColHeadText kyraColHeadLeft" />
+                                <Text text="ROLES" class="kyraColHeadText kyraColHeadLeft" />
+                                <Text text="SELECTED PERSONA" class="kyraColHeadText kyraColHeadLeft" />
+                                <Text text="GRANTED DATE" class="kyraColHeadText kyraColHeadCenter" />
+                                <Text text="STATUS" class="kyraColHeadText kyraColHeadCenter" />
+                                <Text text="REMARKS" class="kyraColHeadText kyraColHeadLeft" />
+                                <Text text="DECISION" class="kyraColHeadText kyraColHeadCenter" />
+                            </HBox>
+
+                            <!-- Items List with Small Approver Remark Row Below Every Request Row -->
+                            <VBox items="{accessModel>items}" class="kyraEntitlementsListContainer">
                                 <items>
-                                    <ColumnListItem vAlign="Middle">
-                                        <cells>
-                                            <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap;" />
-                                            <Text text="{accessModel>team}" />
-                                            <Text text="{accessModel>roleName}" style="font-weight: 700;" />
-                                            <Text text="{accessModel>selectedPersona}" style="font-weight: 500;" />
-                                            <Text text="{accessModel>grantedDate}" style="white-space: nowrap;" />
-                                            <ObjectStatus
-                                                text="{accessModel>status}"
-                                                state="{accessModel>statusState}"
-                                                icon="{accessModel>statusIcon}"
-                                                class="kyraApproverStatusBadge" />
-                                            <VBox width="100%">
-                                                <Input
-                                                    value="{accessModel>comment}"
-                                                    placeholder="Add remark..."
-                                                    width="100%"
-                                                    class="kyraRemarkInput" />
-                                                <!-- Small Box below input: Approver | Approver Remark: [Approver typed remark] (Visible ONLY in Compliance Reviewer page) -->
-                                                <HBox
-                                                    visible="{= ${accessModel>/isCompliancePersona} === true &amp;&amp; !!${accessModel>approverRemark} }"
-                                                    class="kyraApproverRemarkCard"
-                                                    alignItems="Center">
-                                                    <core:Icon src="sap-icon://comment" class="kyraApproverRemarkCardIcon sapUiTinyMarginEnd" />
-                                                    <Text
-                                                        text="{= 'Approver | Approver Remark: ' + ${accessModel>approverRemark} }"
-                                                        class="kyraApproverRemarkCardText" />
-                                                </HBox>
-                                            </VBox>
-                                            <HBox justifyContent="Center" alignItems="Center" class="kyraDecisionBtnBox">
+                                    <VBox class="kyraEntitlementRowWrapper">
+                                        <!-- 1. Main Request Data Row (Direct 8-element CSS Grid, Exact 1-to-1 Alignment) -->
+                                        <HBox class="kyraRequestDataRow" width="100%">
+                                            <Text text="{accessModel>requestId}" class="kyraReqIdText" />
+                                            <Text text="{accessModel>team}" class="kyraTeamText" />
+                                            <Text text="{accessModel>roleName}" class="kyraRoleText" />
+                                            <Text text="{accessModel>selectedPersona}" class="kyraPersonaText" />
+                                            <Text text="{accessModel>grantedDate}" class="kyraDateText" />
+                                            <HBox class="kyraStatusCellBox" justifyContent="Center" alignItems="Center">
+                                                <ObjectStatus
+                                                    text="{accessModel>status}"
+                                                    state="{accessModel>statusState}"
+                                                    icon="{accessModel>statusIcon}"
+                                                    class="kyraApproverStatusBadge" />
+                                            </HBox>
+                                            <Input
+                                                value="{accessModel>comment}"
+                                                liveChange=".onRemarkLiveChange"
+                                                placeholder="Add remark..."
+                                                width="100%"
+                                                class="kyraRemarkInput" />
+                                            <HBox class="kyraDecisionCellBox" justifyContent="Center" alignItems="Center">
                                                 <Button
                                                     icon="sap-icon://accept"
                                                     press=".onAcceptEntitlement"
@@ -390,13 +380,19 @@
                                                 <Button
                                                     icon="sap-icon://decline"
                                                     press=".onRejectEntitlement"
-                                                    class="kyraDecisionIconBtnReject"
+                                                    class="kyraDecisionIconBtnReject sapUiTinyMarginBegin"
                                                     tooltip="Reject this entitlement" />
                                             </HBox>
-                                        </cells>
-                                    </ColumnListItem>
+                                        </HBox>
+
+                                        <!-- 2. Small Full-Width Approver Remark Row Below Request Row (Visible ONLY in Compliance Reviewer page) -->
+                                        <HBox class="kyraApproverRemarkSubRow" alignItems="Center" width="100%" visible="{= ${accessModel>/isCompliancePersona} === true }">
+                                            <Text text="Approver Remark:" class="kyraApproverRemarkLabel" />
+                                            <Text text="{= ${accessModel>approverRemark} || 'Access approved for this requester.' }" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
+                                        </HBox>
+                                    </VBox>
                                 </items>
-                            </Table>
+                            </VBox>
                         </VBox>
                     </items>
                 </VBox>

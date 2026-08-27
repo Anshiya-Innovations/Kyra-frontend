@@ -35,34 +35,16 @@
 
                         <!-- Futuristic Large Blue Security Shield Graphic Visual -->
                         <VBox class="kyraHeroShieldGraphicWrapper" alignItems="Center" justifyContent="Center" width="100%">
-                            <core:HTML content='&lt;div class="kyra-futuristic-shield-container"&gt;&lt;div class="kyra-shield-outer-glow"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-1"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-2"&gt;&lt;/div&gt;&lt;div class="kyra-shield-core"&gt;&lt;svg width="88" height="88" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path d="M12 2L3 7V12C3 17.52 6.84 22.74 12 24C17.16 22.74 21 17.52 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round"/&gt;&lt;path d="M9 12L11 14L15 10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/&gt;&lt;defs&gt;&lt;linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="24" gradientUnits="userSpaceOnUse"&gt;&lt;stop stop-color="#2563EB"/&gt;&lt;stop offset="1" stop-color="#1D4ED8"/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div class="kyra-shield-badge badge-top-left"&gt;&lt;span class="dot"&gt;&lt;/span&gt; 256-Bit TLS&lt;/div&gt;&lt;div class="kyra-shield-badge badge-bottom-right"&gt;&lt;span class="dot green"&gt;&lt;/span&gt; Zero Trust Ready&lt;/div&gt;&lt;/div&gt;' />
+                            <core:HTML content='&lt;div class="kyra-futuristic-shield-container"&gt;&lt;div class="kyra-shield-outer-glow"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-1"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-2"&gt;&lt;/div&gt;&lt;div class="kyra-shield-core"&gt;&lt;svg width="88" height="88" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path d="M12 2L3 7V12C3 17.52 6.84 22.74 12 24C17.16 22.74 21 17.52 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#3B82F6" stroke-width="1.5" stroke-linejoin="round"/&gt;&lt;path d="M9 12L11 14L15 10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/&gt;&lt;defs&gt;&lt;linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="24" gradientUnits="userSpaceOnUse"&gt;&lt;stop stop-color="#2563EB"/&gt;&lt;stop offset="1" stop-color="#1D4ED8"/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div class="kyra-shield-badge badge-top-left"&gt;&lt;span class="dot"&gt;&lt;/span&gt; Access Protected&lt;/div&gt;&lt;div class="kyra-shield-badge badge-bottom-right"&gt;&lt;span class="dot green"&gt;&lt;/span&gt; Compliance Ready&lt;/div&gt;&lt;/div&gt;' />
                         </VBox>
 
-                        <!-- 3 Security Features Placed Together Right Below Shield -->
-                        <HBox class="kyraLeftFeaturesRow" justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                            <HBox alignItems="Center" class="kyraFeatureItem">
-                                <core:Icon src="sap-icon://shield-check" class="kyraFeatureIcon" />
-                                <VBox class="sapUiTinyMarginBegin">
-                                    <Text text="Enterprise Grade" class="kyraFeatureTitle" />
-                                    <Text text="Security" class="kyraFeatureSub" />
-                                </VBox>
-                            </HBox>
-
-                            <HBox alignItems="Center" class="kyraFeatureItem">
-                                <core:Icon src="sap-icon://user-settings" class="kyraFeatureIcon" />
-                                <VBox class="sapUiTinyMarginBegin">
-                                    <Text text="Role Based" class="kyraFeatureTitle" />
-                                    <Text text="Access" class="kyraFeatureSub" />
-                                </VBox>
-                            </HBox>
-
-                            <HBox alignItems="Center" class="kyraFeatureItem">
-                                <core:Icon src="sap-icon://activity-assigned-to-goal" class="kyraFeatureIcon" />
-                                <VBox class="sapUiTinyMarginBegin">
-                                    <Text text="Real-time" class="kyraFeatureTitle" />
-                                    <Text text="Monitoring" class="kyraFeatureSub" />
-                                </VBox>
-                            </HBox>
+                        <!-- Minimal Connected Flow: User → Shield → Approval Check -->
+                        <HBox class="kyraLeftFlowContainer" justifyContent="Center" alignItems="Center" width="100%">
+                            <core:Icon src="sap-icon://person-placeholder" class="kyraFlowIconBox" />
+                            <HBox class="kyraFlowLine" />
+                            <core:Icon src="sap-icon://shield" class="kyraFlowIconBox" />
+                            <HBox class="kyraFlowLine" />
+                            <core:Icon src="sap-icon://accept" class="kyraFlowIconBox" />
                         </HBox>
                     </VBox>
                 </VBox>
@@ -109,7 +91,7 @@
                                     <items>
                                         <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
                                         <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
-                                        <core:Item key="Compliance Approver" text="Compliance Approver" icon="sap-icon://user-settings" />
+                                        <core:Item key="Compliance Review" text="Compliance Review" icon="sap-icon://user-settings" />
                                     </items>
                                 </Select>
                             </VBox>
