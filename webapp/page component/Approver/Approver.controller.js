@@ -68,29 +68,22 @@ sap.ui.define([
             }
         },
 
-        onOpenRequestSummaryDialog(oEvent) {
+                onOpenRequestSummaryDialog(oEvent) {
             const oItem = oEvent.getSource();
             const oData = oItem.getBindingContext("accessModel").getObject();
+
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Governance Review...",
+                    subtitle: "Evaluating live Segregation of Duties (SoD) conflict matrix..."
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Loading Governance Review...", "Evaluating live Segregation of Duties (SoD) conflict matrix...");
+            }
+
             this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
                 requestId: oData.requestId
             });
-        },
-
-        onAcceptEntitlement(oEvent) {
-            const oItem = oEvent.getSource().getParent().getParent();
-            const oContext = oItem.getBindingContext("accessModel");
-            const oModel = this.getView().getModel("accessModel");
-
-            if (oContext && oModel) {
-                const sPath = oContext.getPath();
-                const oEntitlement = oContext.getObject();
-
-                oModel.setProperty(sPath + "/status", "Approved");
-                oModel.setProperty(sPath + "/statusState", "Success");
-                oModel.setProperty(sPath + "/statusIcon", "sap-icon://sys-enter-2");
-
-                MessageToast.show("Accepted entitlement for " + oEntitlement.system);
-            }
         },
 
         onRejectEntitlement(oEvent) {
@@ -721,10 +714,11 @@ sap.ui.define([
                                 sItemStatus = "Pending";
                             }
                         } else if (isCompliance) {
-                            const isProcessedInCompliance = sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || (sDbStatus !== "PENDING_COMPLIANCE" && isApproverApproved);
+                            const hasComplianceDecision = sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || !!(r.reviewer_comment && r.reviewer_comment.trim());
+                            const isProcessedInCompliance = hasComplianceDecision || sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sComplianceStatus === "REJECTED");
                             if (isProcessedInCompliance) {
                                 isProcessedForRole = true;
-                                sItemStatus = (sComplianceStatus === "REJECTED" || sDbStatus === "REJECTED") ? "Rejected" : "Approved";
+                                sItemStatus = (sComplianceStatus === "REJECTED" || (sDbStatus === "REJECTED" && sComplianceStatus !== "APPROVED")) ? "Rejected" : "Approved";
                             } else if (isApproverApproved && sDbStatus !== "REJECTED") {
                                 isPendingForRole = true;
                                 sItemStatus = "Pending";

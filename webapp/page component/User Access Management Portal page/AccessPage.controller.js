@@ -930,10 +930,11 @@ sap.ui.define([
                     } else if (sDbStatus !== "REJECTED") {
                         isPendingForRole = true;
                     }
-                } else if (isCompliancePersona) {
-                    // Compliance Reviewer ONLY sees requests with conflicts!
-                    if (isApproverApproved && isConflictRequest && sDbStatus !== "PENDING_IAM_1") {
-                        if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sComplianceStatus === "REJECTED")) {
+                                } else if (isCompliancePersona) {
+                    // Compliance Reviewer sees conflict requests or requests with existing compliance decision
+                    const hasComplianceDecision = sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || !!(r.reviewer_comment && r.reviewer_comment.trim());
+                    if (hasComplianceDecision || (isApproverApproved && isConflictRequest)) {
+                        if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sComplianceStatus === "REJECTED")) {
                             isProcessedForRole = true;
                         } else if (sDbStatus !== "REJECTED") {
                             isPendingForRole = true;
@@ -3338,12 +3339,12 @@ if (!oGrouped[sGroupKey]) {
                         oItem.existingIcon = "sap-icon://alert";
                         oItem.statusType = "duplicate";
                     } else if (bAlreadyActive) {
-                        oItem.existingStatus = "Already has this access";
+                        oItem.existingStatus = "Already Active";
                         oItem.existingState = "Information";
                         oItem.existingIcon = "sap-icon://message-information";
                         oItem.statusType = "existing";
                     } else if (bAlreadyPending) {
-                        oItem.existingStatus = "Already Requested";
+                        oItem.existingStatus = "Already in Pending";
                         oItem.existingState = "Warning";
                         oItem.existingIcon = "sap-icon://alert";
                         oItem.statusType = "pending";

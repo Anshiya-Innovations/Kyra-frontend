@@ -133,7 +133,7 @@
 
                             <!-- 3-Column Header Bar: 35% / 35% / 30% -->
                             <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0 }">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING &amp; PENDING ACCESS" class="kyraSodColHeader" /></HBox>
+                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
                             </HBox>
@@ -200,7 +200,7 @@
 
                             <!-- 3-Column Header Bar: 35% / 35% / 30% -->
                             <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING &amp; PENDING ACCESS" class="kyraSodColHeader" /></HBox>
+                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
                                 <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
                             </HBox>
