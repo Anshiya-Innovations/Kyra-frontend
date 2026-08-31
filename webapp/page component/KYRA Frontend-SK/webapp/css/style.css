@@ -9993,17 +9993,19 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
     background: rgba(15, 23, 42, 0.42) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
-    display: flex !important;
+    display: none !important;
     align-items: center !important;
     justify-content: center !important;
     z-index: 999999 !important;
     opacity: 0 !important;
+    pointer-events: none !important;
     transition: opacity 0.2s ease !important;
-    pointer-events: all !important;
 }
 
 .kyraLoadingSlideOverlay.kyra-active {
+    display: flex !important;
     opacity: 1 !important;
+    pointer-events: all !important;
 }
 
 .kyraLoadingSlideCard {
@@ -11311,4 +11313,218 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
 }
 
 
-
+
+
+/* =========================================================================
+   HISTORY 4 SUMMARY KPI CARDS (Rounded Horizontal Rectangles)
+   ========================================================================= */
+.kyraHistoryKpiContainer {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    width: 100% !important;
+    margin-bottom: 18px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraHistoryKpiCard {
+    flex: 1 1 0% !important;
+    width: calc(25% - 12px) !important;
+    min-width: 180px !important;
+    min-height: 84px !important;
+    background: #FFFFFF !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+}
+
+.kyraHistoryKpiCard:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08) !important;
+}
+
+.kyraKpiContent {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.kyraKpiCount {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+}
+
+.kyraKpiLabel {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #64748B !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin-top: 4px !important;
+    white-space: nowrap !important;
+}
+
+.kyraKpiIconBox {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+/* 1. All History Box (Enterprise Blue) */
+.kyraKpiAll {
+    border-left: 5px solid #2563EB !important;
+    background: #EFF6FF !important;
+}
+.kyraKpiAll .kyraKpiIconBox {
+    background: #DBEAFE !important;
+    color: #2563EB !important;
+}
+
+/* 2. Approved Box (Green) */
+.kyraKpiApproved {
+    border-left: 5px solid #16A34A !important;
+    background: #F0FDF4 !important;
+}
+.kyraKpiApproved .kyraKpiIconBox {
+    background: #DCFCE7 !important;
+    color: #16A34A !important;
+}
+
+/* 3. Rejected Box (Red) */
+.kyraKpiRejected {
+    border-left: 5px solid #DC2626 !important;
+    background: #FEF2F2 !important;
+}
+.kyraKpiRejected .kyraKpiIconBox {
+    background: #FEE2E2 !important;
+    color: #DC2626 !important;
+}
+
+/* 4. Removed Box (Purple / Violet) */
+.kyraKpiRemoved {
+    border-left: 5px solid #8B5CF6 !important;
+    background: #F5F3FF !important;
+}
+.kyraKpiRemoved .kyraKpiIconBox {
+    background: #EDE9FE !important;
+    color: #8B5CF6 !important;
+}
+
+
+/* =========================================================================
+   COMPACT & SCALED DECISION BREAKDOWN MODAL (PREVIOUS PREFERRED SIZE)
+   ========================================================================= */
+.kyraModernBreakdownDialog.sapMDialog {
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18) !important;
+    background: #FFFFFF !important;
+    max-height: 80vh !important;
+    max-width: 500px !important;
+    width: 92% !important;
+}
+
+.kyraModernBreakdownDialog .sapMDialogSection {
+    padding: 0 !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+    max-height: 80vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.kyra-decision-breakdown-modal {
+    padding: 16px 18px 14px 18px !important;
+    background: #FFFFFF !important;
+    font-family: "72", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    color: #0F172A !important;
+    max-height: 80vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.kyra-breakdown-modal-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.kyra-breakdown-modal-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    max-height: calc(80vh - 120px) !important;
+    padding-right: 4px !important;
+    margin-right: -2px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #CBD5E1 transparent !important;
+}
+
+.kyra-breakdown-requester-card {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+}
+
+.kyra-breakdown-section-wrapper {
+    margin-bottom: 10px !important;
+}
+
+.kyra-breakdown-sec-header {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 6px !important;
+}
+
+.kyra-entitlement-summary-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 6px !important;
+    padding: 7px 10px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyra-breakdown-modal-footer {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid #F1F5F9 !important;
+    flex-shrink: 0 !important;
+    background: #FFFFFF !important;
+}

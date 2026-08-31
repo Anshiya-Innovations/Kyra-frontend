@@ -150,11 +150,22 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             const aEntitlements = oData.entitlements || [];
 
-            const aApprovedItems = aEntitlements.filter(e => e.status === "Approved");
-            const aRejectedItems = aEntitlements.filter(e => e.status === "Rejected");
-            const aPendingItems = aEntitlements.filter(e => e.status !== "Approved" && e.status !== "Rejected");
+            // Separate items based on explicit approved / rejected status
+            const aApprovedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "approved" || s.includes("approved") || s === "success";
+            });
+            const aRejectedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "rejected" || s.includes("reject") || s === "error";
+            });
+            const aPendingItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return !s.includes("approved") && !s.includes("reject") && s !== "success" && s !== "error";
+            });
 
-            const aFinalApproved = aApprovedItems.concat(aPendingItems);
+            // When in read-only view from history log, only show actually approved items
+            const aFinalApproved = bReadOnly ? aApprovedItems : (aApprovedItems.length > 0 ? aApprovedItems : aPendingItems);
 
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
             const sOverallBadgeClass = aRejectedItems.length === 0 ? "kyra-badge-approved" : (aFinalApproved.length === 0 ? "kyra-badge-rejected" : "kyra-badge-partial");
@@ -163,8 +174,11 @@ sap.ui.define([
             const sApprovedCardsHtml = aFinalApproved.length > 0 ? aFinalApproved.map(e => `
                 <div class="kyra-entitlement-summary-card kyra-card-approved">
                     <div class="kyra-card-main-left">
-                        <div class="kyra-card-system-badge kyra-sys-approved">
-                            <span class="kyra-sys-name">${e.system || 'System'}</span>
+                        <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 3px; flex-wrap: wrap;">
+                            <span style="font-weight: 700; font-size: 11px; color: #15803D;">${e.requestId || oData.requestId}</span>
+                            <span class="kyra-card-system-badge kyra-sys-approved">
+                                <span class="kyra-sys-name">${e.system || 'System'}</span>
+                            </span>
                         </div>
                         <div class="kyra-card-role-title">${e.roleName || 'System Role'}</div>
                         <div class="kyra-card-role-sub">Persona: <strong>${e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona'}</strong>${e.team ? ' • Team: ' + e.team : ''}</div>
@@ -180,8 +194,11 @@ sap.ui.define([
             const sRejectedCardsHtml = aRejectedItems.length > 0 ? aRejectedItems.map(e => `
                 <div class="kyra-entitlement-summary-card kyra-card-rejected">
                     <div class="kyra-card-main-left">
-                        <div class="kyra-card-system-badge kyra-sys-rejected">
-                            <span class="kyra-sys-name">${e.system || 'System'}</span>
+                        <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 3px; flex-wrap: wrap;">
+                            <span style="font-weight: 700; font-size: 11px; color: #B91C1C;">${e.requestId || oData.requestId}</span>
+                            <span class="kyra-card-system-badge kyra-sys-rejected">
+                                <span class="kyra-sys-name">${e.system || 'System'}</span>
+                            </span>
                         </div>
                         <div class="kyra-card-role-title">${e.roleName || 'System Role'}</div>
                         <div class="kyra-card-role-sub">Persona: <strong>${e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona'}</strong>${e.team ? ' • Team: ' + e.team : ''}</div>
@@ -275,7 +292,7 @@ sap.ui.define([
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML"], (Dialog, HTML) => {
                 const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "560px",
+                    contentWidth: "500px",
                     content: [
                         new HTML({ content: sHtmlContent })
                     ],
@@ -425,6 +442,15 @@ sap.ui.define([
                 console.log("Successfully persisted approval decision to database:", data);
             } catch (err) {
                 console.error("Database persistence approval decision error:", err);
+            } finally {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
             }
 
             // Sync with backend database states
@@ -642,12 +668,22 @@ sap.ui.define([
                     const aDbPending = [];
                     const aDbProcessed = [];
 
-                    const getCleanServiceTopic = (req) => {
-                        let s = req.service_topic || req.serviceTopic || req.service || req.business_function;
-                        if (!s) return "System Administrator";
-                        let str = String(s).replace(/\s*\([^)]*\)/g, "").trim();
-                        if (!str || str === "undefined") return "System Administrator";
-                        return str;
+                                        const deriveServiceTopicFromRole = (roleStr, rawService) => {
+                        const sRawService = String(rawService || "").replace(/\s*\([^)]*\)/g, "").trim();
+                        if (sRawService === "System Administrator" || sRawService === "System Owners" || sRawService === "Stakeholders") {
+                            return sRawService;
+                        }
+                        const rLower = String(roleStr || "").toLowerCase();
+                        if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
+                            return "System Administrator";
+                        }
+                        if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
+                            return "System Owners";
+                        }
+                        if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
+                            return "Stakeholders";
+                        }
+                        return "System Administrator";
                     };
 
                     const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
@@ -674,40 +710,44 @@ sap.ui.define([
 
                         let isPendingForRole = false;
                         let isProcessedForRole = false;
-                        let bRoleApproved = false;
+                        let sItemStatus = "Pending";
 
                         if (isInitialApprover) {
                             if (sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" || isApproverApproved || sDbStatus === "APPROVED" || sDbStatus === "REJECTED") {
                                 isProcessedForRole = true;
-                                bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved) && sApproverStatus !== "REJECTED";
+                                sItemStatus = sApproverStatus === "REJECTED" ? "Rejected" : "Approved";
                             } else if (sDbStatus !== "REJECTED") {
                                 isPendingForRole = true;
+                                sItemStatus = "Pending";
                             }
                         } else if (isCompliance) {
-                            const isProcessedInCompliance = sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || (sDbStatus !== "PENDING_COMPLIANCE" && isApproverApproved && isConflictRequest);
+                            const isProcessedInCompliance = sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || (sDbStatus !== "PENDING_COMPLIANCE" && isApproverApproved);
                             if (isProcessedInCompliance) {
                                 isProcessedForRole = true;
-                                bRoleApproved = (sComplianceStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sComplianceStatus !== "REJECTED";
-                            } else if (isApproverApproved && isConflictRequest && sDbStatus !== "REJECTED") {
+                                sItemStatus = (sComplianceStatus === "REJECTED" || sDbStatus === "REJECTED") ? "Rejected" : "Approved";
+                            } else if (isApproverApproved && sDbStatus !== "REJECTED") {
                                 isPendingForRole = true;
+                                sItemStatus = "Pending";
                             }
                         } else if (isIamApp1) {
                             const isReadyForIam1 = (isConflictRequest && sComplianceStatus === "APPROVED") || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                             if (isReadyForIam1) {
                                 if (sIamApp1Status === "APPROVED" || sIamApp1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp1Status === "REJECTED")) {
                                     isProcessedForRole = true;
-                                    bRoleApproved = (sIamApp1Status === "APPROVED" || isIamApp1Approved) && sIamApp1Status !== "REJECTED";
+                                    sItemStatus = sIamApp1Status === "REJECTED" ? "Rejected" : "Approved";
                                 } else if (sDbStatus !== "REJECTED" && sDbStatus !== "PENDING_COMPLIANCE") {
                                     isPendingForRole = true;
+                                    sItemStatus = "Pending";
                                 }
                             }
                         } else if (isIamApp2) {
                             if (isIamApp1Approved) {
                                 if (sIamApp2Status === "APPROVED" || sIamApp2Status === "REJECTED" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp2Status === "REJECTED")) {
                                     isProcessedForRole = true;
-                                    bRoleApproved = (sIamApp2Status === "APPROVED" || isIamApp2Approved) && sIamApp2Status !== "REJECTED";
+                                    sItemStatus = sIamApp2Status === "REJECTED" ? "Rejected" : "Approved";
                                 } else if (sDbStatus !== "REJECTED") {
                                     isPendingForRole = true;
+                                    sItemStatus = "Pending";
                                 }
                             }
                         }
@@ -716,8 +756,8 @@ sap.ui.define([
                             return; // Do not include in this reviewer's queue
                         }
 
-                        const sService = getCleanServiceTopic(r);
-                        const sGroupKey = (r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + (r.business_function || sService || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
+                        const sService = r.business_function || r.businessFunction || r.function || r.service_topic || r.serviceTopic || deriveServiceTopicFromRole(r.role_name, r.service) || "Inventory Governance";
+                        const sGroupKey = (r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + (r.business_function || sService || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (r.access_type === "REVOCATION" ? "REVOCATION" : "ADDITION");
 
                         if (!oGrouped[sGroupKey]) {
                             oGrouped[sGroupKey] = {
@@ -731,14 +771,16 @@ sap.ui.define([
                                 serviceTopic: sService,
                                 submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                                 decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                                createdAtRaw: r.created_at || new Date().toISOString(),
+                                updatedAtRaw: r.updated_at || r.created_at || new Date().toISOString(),
                                 duration: r.access_duration || "Permanent",
                                 sector: r.business_sector || "Information Technology & Security",
                                 function: sService,
                                 region: r.operating_region || "Global Enterprise (ALL)",
                                 justification: r.justification || "Business Access Request",
-                                status: isPendingForRole ? "Pending Approval" : (bRoleApproved ? "Approved" : "Rejected"),
-                                statusState: isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error"),
-                                statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error"),
+                                status: isPendingForRole ? "Pending Approval" : "Approved",
+                                statusState: isPendingForRole ? "Warning" : "Success",
+                                statusIcon: isPendingForRole ? "sap-icon://pending" : "sap-icon://sys-enter-2",
                                 approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
                                 approver_comment: r.approver_comment || r.approverComment || "Access approved for this requester.",
                                 _isPendingForRole: isPendingForRole,
@@ -755,9 +797,9 @@ sap.ui.define([
                             selectedPersona: r.selected_persona || "Engineering & Developer Persona",
                             grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                             expiryDate: r.access_duration || "Permanent",
-                            status: isPendingForRole ? "Pending" : (bRoleApproved ? "Approved" : "Rejected"),
-                            statusState: isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error"),
-                            statusIcon: isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error"),
+                            status: sItemStatus,
+                            statusState: sItemStatus === "Pending" ? "Warning" : (sItemStatus === "Approved" ? "Success" : "Error"),
+                            statusIcon: sItemStatus === "Pending" ? "sap-icon://pending" : (sItemStatus === "Approved" ? "sap-icon://sys-enter-2" : "sap-icon://error"),
                             approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
                             comment: r.reviewer_comment || r.comments || ""
                         });

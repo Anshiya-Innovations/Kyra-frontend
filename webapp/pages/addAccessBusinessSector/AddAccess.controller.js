@@ -355,7 +355,14 @@ sap.ui.define([
             } catch (e) {
                 console.warn("Requests fetch timed out or failed, using local wizard state:", e);
             } finally {
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
             }
 
             const aSessionRequests = JSON.parse(sessionStorage.getItem("kyra_submitted_requests") || "[]");
@@ -502,7 +509,18 @@ sap.ui.define([
             }
 
             oModel.setProperty("/submitEnabled", false);
-            sap.ui.core.BusyIndicator.show(0);
+
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Submitting Access Request...",
+                    subtitle: "Synchronizing governance records with the database..."
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.show(0);
+            }
 
             const sSubmissionDate = new Date().toISOString().split("T")[0];
             const sUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
@@ -562,7 +580,14 @@ sap.ui.define([
             } catch (err) {
                 console.warn("Database persistence fetch timeout or error, local session saved:", err);
             } finally {
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
             }
 
             sessionStorage.setItem("kyra_reset_add_access", "true");

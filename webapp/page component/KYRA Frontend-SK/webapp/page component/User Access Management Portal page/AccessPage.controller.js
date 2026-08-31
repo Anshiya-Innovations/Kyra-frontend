@@ -35,7 +35,7 @@ sap.ui.define([
         onInit() {
             this._localInFlightRevocations = {};
             this._aSelectedRegionIds = [];
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             const oModel = new JSONModel({
@@ -276,8 +276,8 @@ sap.ui.define([
 
             // Bind click for 5 History KPI Cards
             bindClick("kpiCardAll", this.onFilterHistoryByAll);
-            bindClick("kpiCardPending", this.onFilterHistoryByPending);
-            bindClick("kpiCardExpired", this.onFilterHistoryByExpired);
+            
+            bindClick("kpiCardRemoved", this.onFilterHistoryByRemoved);
             bindClick("kpiCardApproved", this.onFilterHistoryByApproved);
             bindClick("kpiCardRejected", this.onFilterHistoryByRejected);
 
@@ -505,10 +505,25 @@ sap.ui.define([
             }
         },
 
-        _onRouteMatched() {
+                        _onRouteMatched() {
             const oModel = this.getView().getModel("accessModel");
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "";
+
+            
+
+            const oView = this.getView();
+            try {
+                let p = oView ? oView.getParent() : null;
+                while (p) {
+                    if (p.isA && (p.isA("sap.m.App") || p.isA("sap.m.NavContainer"))) {
+                        p.to(oView);
+                        break;
+                    }
+                    p = p.getParent && p.getParent();
+                }
+            } catch(e) {}
+
             if (oModel) {
-                const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
                 const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
                 const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
                 oModel.setProperty("/activeUser", sActiveUser);
@@ -545,9 +560,6 @@ sap.ui.define([
                 const oTabBar = this.byId("accessIconTabBar");
                 if (oTabBar) {
                     oTabBar.setSelectedKey(sTabToSelect);
-                }
-                if (oModel) {
-                    oModel.setProperty("/selectedTabKey", sTabToSelect);
                 }
             }
         },
@@ -715,7 +727,7 @@ sap.ui.define([
                 console.error("Error loading requests from database:", err);
             }
 
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             oModel.setProperty("/activeRole", sActiveRole);
@@ -809,13 +821,49 @@ sap.ui.define([
                     sCleanDuration = "90 Days (Project)";
                 }
 
-                const getCleanServiceTopic = (req) => {
-                    let s = req.service_topic || req.serviceTopic || req.service || req.business_function;
-                    if (!s) return "System Administrator";
+                                                const deriveServiceTopicFromRole = (roleStr, rawService) => {
+                    const cleanRaw = rawService ? String(rawService).replace(/\s*\([^)]*\)/g, "").trim() : "";
+                    if (cleanRaw === "System Administrator" || cleanRaw === "System Owners" || cleanRaw === "Stakeholders") {
+                        return cleanRaw;
+                    }
+                    const r = String(roleStr || "");
+                    const match = r.match(/\((.*?)\)/);
+                    if (match && match[1]) {
+                        const m = match[1].trim();
+                        if (m.includes("Administrator")) return "System Administrator";
+                        if (m.includes("Owner") && !m.includes("Stakeholders")) return "System Owners";
+                        if (m.includes("Stakeholder")) return "Stakeholders";
+                    }
+                    const rLower = r.toLowerCase();
+                    if (rLower.includes("developer") || rLower.includes("administrator") || rLower.includes("lead engineer") || rLower.includes("security")) {
+                        return "System Administrator";
+                    }
+                    if (rLower.includes("product group") || rLower.includes("technical product owner")) {
+                        return "System Owners";
+                    }
+                    if (rLower.includes("stakeholder") || rLower.includes("line manager") || rLower.includes("compliance") || rLower.includes("isrm") || rLower.includes("grc") || rLower.includes("role owner")) {
+                        return "Stakeholders";
+                    }
+                    return cleanRaw || "System Administrator";
+                };
+
+                const cleanPersonaStr = (s) => {
+                    if (!s) return "Engineering & Developer Persona";
                     let str = String(s).replace(/\s*\([^)]*\)/g, "").trim();
-                    if (!str || str === "undefined") return "System Administrator";
+                    if (!str || str === "undefined") return "Engineering & Developer Persona";
                     return str;
                 };
+
+                const cleanRoleStr = (s) => {
+                    if (!s) return "IT Developers";
+                    let str = String(s).replace(/\s*\([^)]*\)/g, "").trim();
+                    if (!str || str === "undefined") return "IT Developers";
+                    return str;
+                };
+
+                const sCleanItemPersona = cleanPersonaStr(r.selected_persona || r.persona || r.role_name);
+                const sCleanItemRole = cleanRoleStr(r.role_name);
+                const sCleanItemService = deriveServiceTopicFromRole(r.role_name, r.service_topic || r.serviceTopic || r.service);
 
                 const oReqObj = {
                     requestId: r.request_number || ("REQ-" + r.ID),
@@ -823,14 +871,15 @@ sap.ui.define([
                     requesterUsername: r.requester_username,
                     type: r.request_type || "Addition",
                     system: r.target_system || "SAP System",
-                    roleName: r.role_name || "",
-                    serviceTopic: getCleanServiceTopic(r),
-                    selectedPersona: r.selected_persona || r.requester_persona || "Requester",
+                    roleName: sCleanItemRole,
+                    roleTitle: sCleanItemRole,
+                    serviceTopic: sCleanItemService,
+                    selectedPersona: sCleanItemPersona,
                     accessDuration: sCleanDuration,
                     submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                     createdAtRaw: r.created_at || new Date().toISOString(),
                     approver: "Line Manager / ISRM Team",
-                    persona: r.requester_persona || "Requester",
+                    persona: sCleanItemPersona,
                     status: sStatusText,
                     statusState: sState,
                     statusIcon: sIcon,
@@ -841,7 +890,7 @@ sap.ui.define([
                 };
 
                 // Populate user's history & pending lists (match active user or fallback)
-                const bIsUserMatch = !r.requester_username || r.requester_username === sActiveUser || sActiveUser === "Dev001" || sActiveUser === "User" || !sActiveUser;
+                const bIsUserMatch = !!(r.requester_username && sActiveUser && r.requester_username.toLowerCase() === sActiveUser.toLowerCase());
                 if (bIsUserMatch) {
                     aMyHistory.push(oReqObj);
                     if (isOverallPending) {
@@ -923,10 +972,9 @@ sap.ui.define([
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
 
                 // Group for Approver / Reviewer Page
-                const sGroupKey = r.request_number || ((r.requester_username || "User") + "_" + (r.business_sector || "") + "_" + (r.business_function || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
-                const sServiceTopic = getCleanServiceTopic(r);
-
-                if (!oGrouped[sGroupKey]) {
+                const sServiceTopic = r.business_function || r.businessFunction || r.function || r.service_topic || r.serviceTopic || deriveServiceTopicFromRole(r.role_name, r.service) || "Inventory Governance";
+                const sGroupKey = (r.requester_username || "User") + "_" + (r.business_sector || "") + "_" + sServiceTopic + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION");
+if (!oGrouped[sGroupKey]) {
                     oGrouped[sGroupKey] = {
                         requestId: r.request_number,
                         requesterId: r.requester_username || "User",
@@ -1118,45 +1166,77 @@ sap.ui.define([
 
             const aActiveRolesList = aUniqueUserAccessList.filter(item => item.status !== "Revoke Pending");
 
-            this._setSmartProperty(oModel, "/myPendingRequests", aUniqueMyPending);
+            // Ensure every single item in Pending and History has a distinct unique Request ID
+            const oReqCountsPending = {};
+            aMyPending.forEach(p => { oReqCountsPending[p.requestId] = (oReqCountsPending[p.requestId] || 0) + 1; });
+            const oReqIndexPending = {};
+            aMyPending.forEach(p => {
+                if (oReqCountsPending[p.requestId] > 1) {
+                    oReqIndexPending[p.requestId] = (oReqIndexPending[p.requestId] || 0) + 1;
+                    const sPad = String(oReqIndexPending[p.requestId]).padStart(2, "0");
+                    p.requestId = `${p.requestId}-${sPad}`;
+                }
+            });
+
+            const oReqCountsHist = {};
+            aMyHistory.forEach(h => { oReqCountsHist[h.requestId] = (oReqCountsHist[h.requestId] || 0) + 1; });
+            const oReqIndexHist = {};
+            aMyHistory.forEach(h => {
+                if (oReqCountsHist[h.requestId] > 1) {
+                    oReqIndexHist[h.requestId] = (oReqIndexHist[h.requestId] || 0) + 1;
+                    const sPad = String(oReqIndexHist[h.requestId]).padStart(2, "0");
+                    h.requestId = `${h.requestId}-${sPad}`;
+                }
+            });
+
+            this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
             this._setSmartProperty(oModel, "/myApprovedRequests", aMyApproved);
             this._setSmartProperty(oModel, "/pendingRequests", aApproverPending);
             this._setSmartProperty(oModel, "/pendingAccessRequests", aApproverPendingAccess);
             this._setSmartProperty(oModel, "/pendingRevokeRequests", aApproverPendingRevoke);
             this._setSmartProperty(oModel, "/pendingAccessCount", aApproverPendingAccess.length);
             this._setSmartProperty(oModel, "/pendingRevokeCount", aApproverPendingRevoke.length);
+            // Sort Processed Requests: Latest decision at the very top (first row)
+            aApproverProcessed.sort((a, b) => {
+                const tA = Math.max(new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
+                const tB = Math.max(new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
+                if (tA !== tB) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            });
             this._setSmartProperty(oModel, "/processedRequests", aApproverProcessed);
             this._setSmartProperty(oModel, "/requestHistory", aMyHistory);
             this._setSmartProperty(oModel, "/myHistoryRequests", aMyHistory);
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
 
-            // Compute 4 History KPI Summary Metrics (Pending, Expired, Approved, Rejected)
-            let iPendingHistory = 0;
-            let iExpiredHistory = 0;
+            // Compute 4 History KPI Metrics: 1. All History, 2. Approved, 3. Rejected, 4. Removed
+            let iRemovedHistory = 0;
             let iApprovedHistory = 0;
             let iRejectedHistory = 0;
 
             const aAllCombinedHistory = aMyHistory || [];
             aAllCombinedHistory.forEach(req => {
                 const sStat = (req.status || "").toLowerCase();
-                if (sStat.includes("pending")) {
-                    iPendingHistory++;
+                const sType = (req.type || "").toLowerCase();
+                const isRevocation = sType.includes("revocation") || sType.includes("removal") || (req.function || "").toLowerCase().includes("revocation") || sStat.includes("revoke") || sStat.includes("expired") || sStat.includes("removed");
+                
+                if (isRevocation) {
+                    iRemovedHistory++;
                 } else if (sStat.includes("approved") || sStat.includes("active")) {
                     iApprovedHistory++;
                 } else if (sStat.includes("reject") || sStat.includes("decline")) {
                     iRejectedHistory++;
-                } else if (sStat.includes("expired") || sStat.includes("revoke")) {
-                    iExpiredHistory++;
                 }
             });
 
-            iPendingHistory = Math.max(iPendingHistory, aUniqueMyPending.length);
-            iApprovedHistory = Math.max(iApprovedHistory, aMyApproved.length);
+            this._setSmartProperty(oModel, "/allHistoryCount", aMyHistory.length);
+            this._setSmartProperty(oModel, "/approvedHistoryCount", iApprovedHistory);
+            this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejectedHistory);
+            this._setSmartProperty(oModel, "/removedHistoryCount", iRemovedHistory);
 
             this._setSmartProperty(oModel, "/allHistoryCount", (aAllCombinedHistory || []).length);
-            this._setSmartProperty(oModel, "/pendingHistoryCount", iPendingHistory);
-            this._setSmartProperty(oModel, "/expiredHistoryCount", iExpiredHistory);
+            
+            
             this._setSmartProperty(oModel, "/approvedHistoryCount", iApprovedHistory);
             this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejectedHistory);
 
@@ -1345,7 +1425,7 @@ sap.ui.define([
                 onClose: (sAction) => {
                     if (sAction === MessageBox.Action.OK) {
                         const sReqId = "REQ-2026-" + Math.floor(100000 + Math.random() * 900000);
-                        const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
+                        const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
                         const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
                         // Store in local in-flight cache to prevent background sync race conditions
@@ -1406,7 +1486,7 @@ sap.ui.define([
                         const aMyPending = oModel.getProperty("/myPendingRequests") || [];
                         aMyPending.unshift(oNewPendingReq);
                         const aUniqueMyPending = this._groupRequestsByRequestId(aMyPending);
-                        this._setSmartProperty(oModel, "/myPendingRequests", aUniqueMyPending);
+                        this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
 
                         const aMyHistory = oModel.getProperty("/myHistoryRequests") || [];
                         aMyHistory.push(oNewPendingReq);
@@ -1530,7 +1610,7 @@ sap.ui.define([
             if (!oModel) oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_user_id") || "Dev001").trim();
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
             const aHistory = oModel.getProperty("/requestHistory") || [];
 
             let aSavedStatusMap = {};
@@ -2690,13 +2770,29 @@ sap.ui.define([
                 selectedPersonas: []
             };
 
-            oModel.setProperty("/addAccessSelectedServices", oSysConfig.selectedServices || []);
-            oModel.setProperty("/addAccessSelectedRoles", oSysConfig.selectedRoles || []);
-            oModel.setProperty("/addAccessSelectedPersonas", oSysConfig.selectedPersonas || []);
+            const aServices = (oSysConfig.selectedServices || []).slice();
+            const aRoles = (oSysConfig.selectedRoles || []).slice();
+            const aPersonas = (oSysConfig.selectedPersonas || []).slice();
+
+            oModel.setProperty("/addAccessSelectedServices", aServices);
+            oModel.setProperty("/addAccessSelectedRoles", aRoles);
+            oModel.setProperty("/addAccessSelectedPersonas", aPersonas);
 
             // Populate dependent dropdown lists preserving selections
             this._updateSubRolesList(true);
             this._updatePersonasList(true);
+
+            // Force MultiComboBox UI controls to reflect exact updated selectedKeys
+            try {
+                const oServicesSelect = this.byId("inPageServicesMultiSelect");
+                if (oServicesSelect) oServicesSelect.setSelectedKeys(aServices);
+
+                const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                if (oTeamSelect) oTeamSelect.setSelectedKeys(aRoles);
+
+                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                if (oPersonaSelect) oPersonaSelect.setSelectedKeys(aPersonas);
+            } catch(e) {}
         },
 
         _saveCurrentSystemSlideConfig(sSysNameOverride) {
@@ -3406,21 +3502,22 @@ sap.ui.define([
                 }
                 aSeenItemsInBatch.push(item);
 
-                // Check 2: Active Assigned Access Duplication (already existing access)
+                // Check 2: Active Assigned Access in My Access Section (already active)
                 const bFoundInActive = aActiveAccess.some(ar => isMatch(ar, item));
                 if (bFoundInActive && !bBatchDup) {
                     aDuplicateRoles.push({
                         system: sSys,
                         functionalRole: sRole,
                         moduleName: sTopic,
-                        selectedSecurityGroups: "SG_" + sRole.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "_ACTIVE",
-                        teamName: item.team || sTopic || "Identity Governance",
-                        adGroupName: "AD_GRP_" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_"),
-                        existingRoles: "already existing access"
+                        selectedSecurityGroups: "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
+                        teamName: item.team || sTopic || "System Administrator",
+                        adGroupName: "AD-KYRA-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
+                        existingRoles: "already active",
+                        statusState: "Information"
                     });
                 }
 
-                // Check 3: Pending Request Duplication (already in pending)
+                // Check 3: Pending Access Requests Section (already requested)
                 const bFoundInPending = aPendingRequests.some(pr => {
                     if (isMatch(pr, item)) return true;
                     if (Array.isArray(pr.entitlements)) {
@@ -3433,28 +3530,35 @@ sap.ui.define([
                         system: sSys,
                         functionalRole: sRole,
                         moduleName: sTopic,
-                        selectedSecurityGroups: "SG_" + sRole.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "_PENDING",
-                        teamName: item.team || sTopic || "Identity Governance",
-                        adGroupName: "AD_GRP_" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_"),
-                        existingRoles: "already in pending"
+                        selectedSecurityGroups: "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
+                        teamName: item.team || sTopic || "System Administrator",
+                        adGroupName: "AD-KYRA-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
+                        existingRoles: "already requested",
+                        statusState: "Warning"
                     });
                 }
             });
 
-            // Evaluate Threshold Limits per system (Limit is 5 for each system)
+            // Populate Threshold Limits (Rule: Max 5 roles per system)
             Object.keys(oSystemCounts).forEach(sSys => {
                 const iCount = oSystemCounts[sSys];
-                if (iCount >= 5) {
-                    const iPercent = Math.round((iCount / 5) * 100);
+                if (iCount > 5) {
+                    const iPct = Math.round((iCount / 5) * 100);
                     aThresholdLimits.push({
                         system: sSys,
-                        sector: oSystemSector[sSys] || "Enterprise Systems",
-                        limit: "Max 5 Roles / System",
-                        excessivePercentage: `${iPercent}% (${iCount > 5 ? "Limit Exceeded" : "Max Limit Reached"})`
+                        sector: oSystemSector[sSys] || "Enterprise Access",
+                        thresholdLimit: "5",
+                        actualCount: iCount,
+                        limit: iCount + "/5",
+                        excessivePercentage: iPct + "%",
+                        status: "Excessive",
+                        state: "Warning",
+                        statusState: "Warning"
                     });
                 }
             });
 
+            // Set evaluated threshold limits and duplicate roles
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
             oModel.setProperty("/duplicateRoles", aDuplicateRoles);
         },
@@ -3707,6 +3811,12 @@ sap.ui.define([
 
         onGoToStep4Slide1() {
             const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
+                this._recalculateRestrictedRecords(aItems);
+                this._evaluateThresholdAndDuplicates(aItems);
+                this._evaluateSodConflicts(aItems);
+            }
             if (!oModel) return;
             oModel.setProperty("/addAccessStep", 4);
             oModel.setProperty("/addAccessStep4SubStep", 1);
@@ -3736,6 +3846,29 @@ sap.ui.define([
                 oModel.setProperty("/addAccessConfigSubStep", 2);
                 this._scrollToWizardContainer();
             }
+        },
+
+                        onNavBackFromStep5() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
+            this._recalculateRestrictedRecords(aItems);
+            this._evaluateThresholdAndDuplicates(aItems);
+            this._evaluateSodConflicts(aItems);
+
+            const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
+            const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
+            const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
+            const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0);
+
+            oModel.setProperty("/addAccessStep", 4);
+            if (bHasConflict) {
+                oModel.setProperty("/addAccessStep4SubStep", 3);
+            } else {
+                oModel.setProperty("/addAccessStep4SubStep", 1);
+            }
+            this._scrollToWizardContainer();
         },
 
         onGoToAddAccessStep5() {
@@ -3817,6 +3950,14 @@ sap.ui.define([
             const oItem = oBindingCtx.getObject();
             if (!oItem) return;
 
+            const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+            const isPersonaMatch = (keyInList, targetPersona) => {
+                if (!keyInList || !targetPersona) return false;
+                const cKey = cleanStr(keyInList);
+                const cTarget = cleanStr(targetPersona);
+                return cKey === cTarget || cKey.includes(cTarget) || cTarget.includes(cKey);
+            };
+
             // 1. Remove ONLY the specific selected item from Summary in-memory lists
             let aItems = oModel.getProperty("/addAccessSummaryItems") || [];
             let aTables = oModel.getProperty("/addAccessSummaryTables") || [];
@@ -3824,7 +3965,9 @@ sap.ui.define([
             const isTargetItem = (i) => {
                 if (i === oItem) return true;
                 if (i._itemUniqueId && oItem._itemUniqueId && i._itemUniqueId === oItem._itemUniqueId) return true;
-                return (i.system === oItem.system && (i.roleName === oItem.roleName || i.roleTitle === oItem.roleTitle) && i.persona === oItem.persona);
+                return (cleanStr(i.system) === cleanStr(oItem.system) && 
+                        (cleanStr(i.roleName) === cleanStr(oItem.roleName) || cleanStr(i.roleTitle) === cleanStr(oItem.roleTitle)) && 
+                        isPersonaMatch(i.persona, oItem.persona));
             };
 
             aItems = aItems.filter(i => !isTargetItem(i));
@@ -3842,6 +3985,7 @@ sap.ui.define([
             // Re-evaluate SoD conflicts and threshold/duplicate validations
             this._evaluateSodConflicts(aItems);
             this._evaluateThresholdAndDuplicates(aItems);
+            this._recalculateRestrictedRecords(aItems);
 
             // 2. Synchronize with Main Configuration Page (Step 3) & System Slide Configs
             const sSys = oItem.system;
@@ -3853,42 +3997,51 @@ sap.ui.define([
             if (sSys && oSlideConfigsMap[sSys]) {
                 let oSysCfg = oSlideConfigsMap[sSys];
                 
-                // Remove deleted persona
+                // Remove deleted persona matching clean string
                 if (sPersona && Array.isArray(oSysCfg.selectedPersonas)) {
-                    oSysCfg.selectedPersonas = oSysCfg.selectedPersonas.filter(p => p !== sPersona);
+                    oSysCfg.selectedPersonas = oSysCfg.selectedPersonas.filter(p => !isPersonaMatch(p, sPersona));
                 }
                 
                 // Check if any remaining items for this system have this role
-                const bRoleStillUsed = aItems.some(i => i.system === sSys && (i.roleName === sRole || i.roleTitle === sRole));
+                const bRoleStillUsed = aItems.some(i => cleanStr(i.system) === cleanStr(sSys) && (cleanStr(i.roleName) === cleanStr(sRole) || cleanStr(i.roleTitle) === cleanStr(sRole)));
                 if (!bRoleStillUsed && Array.isArray(oSysCfg.selectedRoles)) {
-                    oSysCfg.selectedRoles = oSysCfg.selectedRoles.filter(r => r !== sRole);
+                    oSysCfg.selectedRoles = oSysCfg.selectedRoles.filter(r => !isPersonaMatch(r, sRole));
                 }
 
                 // Check if any remaining items for this system have this topic
-                const bTopicStillUsed = aItems.some(i => i.system === sSys && i.topic === sTopic);
+                const bTopicStillUsed = aItems.some(i => cleanStr(i.system) === cleanStr(sSys) && (cleanStr(i.topic) === cleanStr(sTopic) || cleanStr(i.serviceTopic) === cleanStr(sTopic)));
                 if (!bTopicStillUsed && Array.isArray(oSysCfg.selectedServices)) {
-                    oSysCfg.selectedServices = oSysCfg.selectedServices.filter(s => s !== sTopic);
+                    oSysCfg.selectedServices = oSysCfg.selectedServices.filter(s => !isPersonaMatch(s, sTopic));
                 }
 
                 // If all items for this system are removed, clean up system
-                const bSystemStillUsed = aItems.some(i => i.system === sSys);
+                const bSystemStillUsed = aItems.some(i => cleanStr(i.system) === cleanStr(sSys));
                 if (!bSystemStillUsed) {
                     delete oSlideConfigsMap[sSys];
                     let aSelectedSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-                    aSelectedSystems = aSelectedSystems.filter(s => s !== sSys);
+                    aSelectedSystems = aSelectedSystems.filter(s => cleanStr(s) !== cleanStr(sSys));
                     oModel.setProperty("/addAccessSelectedSystems", aSelectedSystems);
                 }
 
                 oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
 
-                // If currently viewing or editing this system slide, update active form fields
+                // Update active form fields & controls if currently viewing this system slide
                 const sCurrentSys = oModel.getProperty("/currentSystemSlideName");
-                if (sCurrentSys === sSys) {
+                if (cleanStr(sCurrentSys) === cleanStr(sSys)) {
                     oModel.setProperty("/addAccessSelectedServices", oSysCfg.selectedServices || []);
                     oModel.setProperty("/addAccessSelectedRoles", oSysCfg.selectedRoles || []);
                     oModel.setProperty("/addAccessSelectedPersonas", oSysCfg.selectedPersonas || []);
                     this._updateSubRolesList(true);
                     this._updatePersonasList(true);
+
+                    try {
+                        const oServicesSelect = this.byId("inPageServicesMultiSelect");
+                        if (oServicesSelect) oServicesSelect.setSelectedKeys(oSysCfg.selectedServices || []);
+                        const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                        if (oTeamSelect) oTeamSelect.setSelectedKeys(oSysCfg.selectedRoles || []);
+                        const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                        if (oPersonaSelect) oPersonaSelect.setSelectedKeys(oSysCfg.selectedPersonas || []);
+                    } catch(e) {}
                 }
             }
 
@@ -3918,35 +4071,61 @@ sap.ui.define([
             const sRegion = oModel.getProperty("/addAccessRegion");
             const sDuration = oModel.getProperty("/addAccessDuration");
             const sJustification = oModel.getProperty("/addAccessJustification");
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
-            sap.ui.core.BusyIndicator.show(0);
+            // 1. Show Modern Centered Loading Screen
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Submitting Access Request...",
+                    subtitle: "Synchronizing governance records with the database..."
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.show(0);
+            }
 
             const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
             const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
             const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0);
 
-            const sBatchReqNumber = (aValidItems.length > 0 && aValidItems[0].requestId) ? aValidItems[0].requestId : ("REQ-2026-" + Math.floor(100000 + Math.random() * 900000));
-            const aPayload = aValidItems.map((item) => ({
-                requestNumber: item.requestId || sBatchReqNumber,
-                requesterUsername: sActiveUser,
-                requesterPersona: sActiveRole,
-                targetSystem: item.system,
-                roleName: item.roleName,
-                businessSector: sSector || "Information Technology & Security",
-                businessFunction: sFunction || "Identity & Access Governance",
-                serviceTopic: sFunction || "System Administrator",
-                selectedPersona: item.persona || "Engineering & Developer Persona",
-                accessType: "DEFAULT",
-                operatingRegion: sRegion || "Global Enterprise (ALL)",
-                accessDuration: item.duration || sDuration || "Permanent (Default)",
-                justification: sJustification || "Access Request",
-                hasConflict: bHasConflict || item.hasConflict || false,
-                conflictingRole: bHasConflict ? "SoD Conflict" : (item.conflictingRole || ""),
-                conflictReason: bHasConflict ? "Segregation of Duties conflict detected" : (item.conflictReason || "")
-            }));
+                        const aPayload = aValidItems.map((item, idx) => {
+                let sItemReqNum = item.requestId;
+                if (!sItemReqNum || sItemReqNum === "REQ-2026-000378") {
+                    sItemReqNum = "REQ-2026-" + Math.floor(100000 + Math.random() * 900000);
+                } else if (aValidItems.length > 1) {
+                    const sPad = String(idx + 1).padStart(2, "0");
+                    if (!sItemReqNum.endsWith("-" + sPad)) {
+                        sItemReqNum = sItemReqNum + "-" + sPad;
+                    }
+                }
+                item.requestId = sItemReqNum;
+
+                const sCleanPersona = String(item.persona || item.selectedPersona || "Engineering & Developer Persona").replace(/\s*\([^)]*\)/g, "").trim();
+                const sCleanServiceTopic = String(item.topic || item.serviceTopic || "System Administrator").replace(/\s*\([^)]*\)/g, "").trim();
+
+                return {
+                    requestNumber: sItemReqNum,
+                    requesterUsername: sActiveUser,
+                    requesterPersona: sActiveRole,
+                    targetSystem: item.system,
+                    roleName: item.roleName,
+                    businessSector: sSector || "Information Technology & Security",
+                    businessFunction: sFunction || "Identity & Access Governance",
+                    serviceTopic: sCleanServiceTopic,
+                    selectedPersona: sCleanPersona,
+                    accessType: "DEFAULT",
+                    operatingRegion: sRegion || "Global Enterprise (ALL)",
+                    accessDuration: item.duration || sDuration || "Permanent (Default)",
+                    justification: sJustification || "Access Request",
+                    hasConflict: bHasConflict || item.hasConflict || false,
+                    conflictingRole: bHasConflict ? "SoD Conflict" : (item.conflictingRole || ""),
+                    conflictReason: bHasConflict ? "Segregation of Duties conflict detected" : (item.conflictReason || "")
+                };
+            });
 
             try {
                 // Post valid items directly to backend PostgreSQL database endpoint
@@ -3966,7 +4145,14 @@ sap.ui.define([
 
                 if (!response.ok || (data.error && data.error.message)) {
                     const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
-                    sap.ui.core.BusyIndicator.hide();
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                    if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                        sap.ui.core.BusyIndicator.hide();
+                    }
                     MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
                     return;
                 }
@@ -3980,100 +4166,126 @@ sap.ui.define([
                 this._notifyDatabaseMutation();
 
             } catch (err) {
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
                 MessageBox.error("Failed to connect to database: " + err.message);
                 return;
             } finally {
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
             }
 
             // Reset wizard overlay state
             oModel.setProperty("/addAccessStep", 1);
             oModel.setProperty("/showAddAccessSector", false);
 
-            let sPopupHtml = `<div style="font-family: inherit;">
-                <p style="margin: 0 0 16px 0; color: #475569; font-size: 13.5px; line-height: 1.5;">
-                    Your access requests have been successfully submitted and synchronized with the database.
-                </p>`;
+            let sPopupHtml = `
+                <div style="font-family: inherit; color: #0F172A;">
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div>
+                            <div style="font-weight: 800; font-size: 13.5px; color: #0F172A;">Governance Request Submission</div>
+                            <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
+                                Your access requests have been successfully recorded in the database.
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11.5px; background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;">
+                                ✔ ${aValidItems.length} Submitted
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Single compact scrollable container capped at 220px to prevent oversized modal -->
+                    <div class="kyra-dialog-scroll-container" style="max-height: 220px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; margin-bottom: 6px;">
+            `;
 
             if (aValidItems.length > 0) {
                 sPopupHtml += `
-                <div class="kyra-dialog-section-header">
-                    <span class="kyra-dialog-section-title kyra-text-green">Submitted to Database</span>
-                    <span class="kyra-dialog-badge kyra-dialog-badge-success">${aValidItems.length} Item${aValidItems.length > 1 ? 's' : ''}</span>
-                </div>
-                <div class="kyra-dialog-list">
-                    ${aValidItems.map(i => `
-                        <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-success">
-                            <div class="kyra-dialog-card-left">
-                                <div class="kyra-dialog-card-top-row">
-                                    <span class="kyra-dialog-req-id">${i.requestId}</span>
-                                    <span class="kyra-dialog-sys-tag">${i.system}</span>
+                    <div style="color: #15803D; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; margin: 4px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Submitted Access Items</span>
+                        <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 1px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700;">${aValidItems.length} Item(s)</span>
+                    </div>
+                    <div style="margin-bottom: 6px;">
+                        ${aValidItems.map(i => {
+                            const sCleanRole = (i.roleTitle || i.roleName || 'Access Role').replace(/\s*\([^)]*\)/g, "");
+                            return `
+                            <div style="border: 1px solid #BBF7D0; background: #F0FDF4; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(22,163,74,0.06);">
+                                <div style="flex: 1; min-width: 0; padding-right: 8px;">
+                                    <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; font-size: 11px; color: #15803D;">${i.requestId}</span>
+                                        <span style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #166534;">${i.system}</span>
+                                    </div>
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
+                                        ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.topic || 'System Administrator'})</span>
+                                    </div>
+                                    ${i.persona ? `<div style="font-size: 11px; color: #475569; line-height: 1.2;"><span style="font-weight: 600; color: #334155;">Persona:</span> ${i.persona}</div>` : ''}
                                 </div>
-                                <div class="kyra-dialog-card-role-row">
-                                    <span class="kyra-dialog-role-title">${i.roleTitle || i.roleName}</span>
-                                    <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
-                                </div>
-                                ${i.persona ? `
-                                <div class="kyra-dialog-card-persona-row">
-                                    <span class="kyra-dialog-persona-badge">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                        <span>${i.persona}</span>
+                                <div style="flex-shrink: 0;">
+                                    <span style="background: #16A34A; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ✔ Submitted
                                     </span>
                                 </div>
-                                ` : ''}
                             </div>
-                            <div class="kyra-dialog-card-right">
-                                <span class="kyra-dialog-item-status-pill kyra-status-submitted">✔ Submitted</span>
-                            </div>
-                        </div>
-                    `).join("")}
-                </div>`;
+                        `;}).join("")}
+                    </div>
+                `;
             }
 
             if (aSkippedItems.length > 0) {
                 sPopupHtml += `
-                <div class="kyra-dialog-section-header" style="margin-top: 18px;">
-                    <span class="kyra-dialog-section-title kyra-text-amber">Excluded / Already Configured</span>
-                    <span class="kyra-dialog-badge kyra-dialog-badge-warning">${aSkippedItems.length} Items</span>
-                </div>
-                <div class="kyra-dialog-list">
-                    ${aSkippedItems.map(i => `
-                        <div class="kyra-dialog-item-row kyra-dialog-item-card kyra-dialog-card-warning">
-                            <div class="kyra-dialog-card-left">
-                                <div class="kyra-dialog-card-top-row">
-                                    <span class="kyra-dialog-req-id kyra-req-id-warning">${i.requestId}</span>
-                                    <span class="kyra-dialog-sys-tag kyra-sys-tag-warning">${i.system}</span>
+                    <div style="color: #B45309; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; margin: 6px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Excluded / Already Active</span>
+                        <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D; padding: 1px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700;">${aSkippedItems.length} Item(s)</span>
+                    </div>
+                    <div style="margin-bottom: 4px;">
+                        ${aSkippedItems.map(i => {
+                            const sCleanRole = (i.roleTitle || i.roleName || 'Access Role').replace(/\s*\([^)]*\)/g, "");
+                            return `
+                            <div style="border: 1px solid #FDE68A; background: #FFFBEB; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(217,119,6,0.06);">
+                                <div style="flex: 1; min-width: 0; padding-right: 8px;">
+                                    <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; font-size: 11px; color: #B45309;">${i.requestId}</span>
+                                        <span style="background: #FFFFFF; border: 1px solid #FCD34D; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #92400E;">${i.system}</span>
+                                    </div>
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
+                                        ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.topic || 'System Administrator'})</span>
+                                    </div>
+                                    ${i.persona ? `<div style="font-size: 11px; color: #475569; line-height: 1.2;"><span style="font-weight: 600; color: #334155;">Persona:</span> ${i.persona}</div>` : ''}
                                 </div>
-                                <div class="kyra-dialog-card-role-row">
-                                    <span class="kyra-dialog-role-title kyra-role-title-warning">${i.roleTitle || i.roleName}</span>
-                                    <span class="kyra-dialog-topic-label">(${i.topic || 'Stakeholders'})</span>
-                                </div>
-                                ${i.persona ? `
-                                <div class="kyra-dialog-card-persona-row">
-                                    <span class="kyra-dialog-persona-badge kyra-persona-warning">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                        <span>${i.persona}</span>
+                                <div style="flex-shrink: 0;">
+                                    <span style="background: #D97706; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        Already Active
                                     </span>
                                 </div>
-                                ` : ''}
                             </div>
-                            <div class="kyra-dialog-card-right">
-                                <span class="kyra-dialog-item-status-pill kyra-status-skipped">Already has this access</span>
-                            </div>
-                        </div>
-                    `).join("")}
-                </div>`;
+                        `;}).join("")}
+                    </div>
+                `;
             }
 
-            sPopupHtml += `</div>`;
+            sPopupHtml += `
+                    </div>
+                </div>
+            `;
 
             if (window.KyraDialog && typeof window.KyraDialog.show === "function") {
                 window.KyraDialog.show({
                     title: "Access Request Submitted",
                     messageHtml: sPopupHtml,
                     type: "success",
-                    maxWidth: "700px",
+                    maxWidth: "520px",
                     buttonText: "Done"
                 });
             } else {
@@ -4233,7 +4445,7 @@ sap.ui.define([
             }
         },
 
-        onOpenPendingRequestDetails(oEvent) {
+                async onOpenPendingRequestDetails(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -4250,33 +4462,62 @@ sap.ui.define([
                 oItem = aPending.length > 0 ? aPending[0] : null;
             }
 
-            // 1. Build initial details synchronously from item object for INSTANT 0ms navigation
-            const oInitialDetails = this._buildRequestDetailFromItem(oItem, null);
-            oModel.setProperty("/selectedRequestDetail", oInitialDetails);
+            const sReqNum = (oItem && (oItem.requestId || oItem.requestNumber)) || "REQ-GENERAL";
 
-            // Navigate to Request Tracking view immediately
-            oModel.setProperty("/showRequestDetailsPage", true);
-            oModel.setProperty("/showAddAccessSector", false);
-            oModel.setProperty("/showRemoveAccessSector", false);
-            oModel.setProperty("/showPendingSection", false);
-            oModel.setProperty("/showApprovedSection", false);
+            // 1. Show Modern Loading Screen & BusyIndicator
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Request Tracking...",
+                    subtitle: "Retrieving live governance status from database..."
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Loading Request Tracking...", "Retrieving live governance status from database...");
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.show(0);
+            }
 
-            this._scrollToTop();
+            try {
+                // 2. Fetch fresh live database records with a smooth minimum delay for loader visibility
+                const [response] = await Promise.all([
+                    fetch("/odata/v4/admin-portal/GovernanceHistory"),
+                    new Promise(r => setTimeout(r, 550))
+                ]);
+                const data = await response.json();
+                let oDbItem = null;
+                if (data && data.value) {
+                    oDbItem = data.value.find(r => (r.request_number === sReqNum || r.id === sReqNum || ("REQ-" + r.ID) === sReqNum || ("REQ-" + r.id) === sReqNum));
+                }
 
-            // 2. Fetch live OData record asynchronously in background without blocking UI transition
-            const sReqNum = (oItem && oItem.requestId) ? oItem.requestId : "REQ-2026-000378";
-            fetch("/odata/v4/admin-portal/GovernanceHistory")
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.value) {
-                        const oDbItem = data.value.find(r => r.request_number === sReqNum || r.id === sReqNum);
-                        if (oDbItem && oModel.getProperty("/showRequestDetailsPage")) {
-                            const oUpdatedDetails = this._buildRequestDetailFromItem(oItem, oDbItem);
-                            oModel.setProperty("/selectedRequestDetail", oUpdatedDetails);
-                        }
-                    }
-                })
-                .catch(err => console.warn("Could not fetch GovernanceHistory background tracking update:", err));
+                // 3. Build live details directly from fresh database record
+                const oLiveDetails = this._buildRequestDetailFromItem(oItem, oDbItem);
+                oModel.setProperty("/selectedRequestDetail", oLiveDetails);
+
+                // 4. Transition to Request Details / Tracking Page
+                oModel.setProperty("/showRequestDetailsPage", true);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+
+                this._scrollToTop();
+            } catch(e) {
+                console.warn("Live fetch error on opening tracking details:", e);
+                const oFallbackDetails = this._buildRequestDetailFromItem(oItem, null);
+                oModel.setProperty("/selectedRequestDetail", oFallbackDetails);
+                oModel.setProperty("/showRequestDetailsPage", true);
+                this._scrollToTop();
+            } finally {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
+            }
         },
 
         _buildRequestDetailFromItem(oItem, oDbItem) {
@@ -4363,7 +4604,7 @@ sap.ui.define([
             const oStep2 = {
                 state: oStep2State,
                 title: "Approver",
-                subtitle: "SEGGUM, VEERENDER",
+                subtitle: (oDbItem && (oDbItem.approver_name || oDbItem.approver_full_name || oDbItem.approver_username || oDbItem.approver)) || (oItem && (oItem.approverName || oItem.approver)) || "Line Manager Approver",
                 statusText: oStep2Status,
                 dateTime: (isInitialApproverApproved || isInitialApproverRejected) ? sUpdatedDateStr : "",
                 subNote: oStep2SubNote
@@ -4497,7 +4738,7 @@ sap.ui.define([
                     title: isInitialApproverRejected ? "Line Manager Rejection Decision" : "Line Manager Approval Decision",
                     timestamp: sUpdatedDateStr,
                     comment: sApproverComment || (isInitialApproverRejected ? "Rejected access request during manager review." : "Approved access request entitlement during standard review cycle."),
-                    author: "By: SEGGUM, VEERENDER (Manager Approver)",
+                    author: "By: " + ((oDbItem && (oDbItem.approver_name || oDbItem.approver_full_name || oDbItem.approver_username || oDbItem.approver)) || (oItem && (oItem.approverName || oItem.approver)) || "Line Manager") + " (Manager Approver)",
                     icon: isInitialApproverRejected ? "sap-icon://error" : "sap-icon://sys-enter-2",
                     state: isInitialApproverRejected ? "RED" : "GREEN",
                     statusBadge: isInitialApproverRejected ? "Rejected" : "Approved"
@@ -4549,7 +4790,7 @@ sap.ui.define([
                     title: "Awaiting Line Manager Review",
                     timestamp: "In Progress",
                     comment: "This request is currently in queue awaiting Line Manager review and sign-off.",
-                    author: "Current Assignee: SEGGUM, VEERENDER (Manager Approver)",
+                    author: "Current Assignee: " + ((oDbItem && (oDbItem.approver_name || oDbItem.approver_full_name || oDbItem.approver_username || oDbItem.approver)) || (oItem && (oItem.approverName || oItem.approver)) || "Line Manager Approver") + " (Manager Approver)",
                     icon: "sap-icon://pending",
                     state: "BLUE",
                     statusBadge: "In Progress"
@@ -5165,6 +5406,42 @@ sap.ui.define([
                             })
                         ]);
                         MessageToast.show("Filtered by Expired / Revoked requests.");
+                    });
+                }
+            }
+        },
+
+                onFilterHistoryByRemoved() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/showHistorySection", true);
+                oModel.setProperty("/activeKpiFilter", "REMOVED");
+                oModel.setProperty("/historyFilterTitle", "Removed Access History");
+                oModel.setProperty("/historyFilterSubtitle", "Historical log of all revoked and removed access entitlements.");
+                oModel.setProperty("/historyFilterIcon", "sap-icon://delete");
+                oModel.setProperty("/historyFilterAvatarColor", "Accent2");
+                oModel.setProperty("/filteredHistoryCount", oModel.getProperty("/removedHistoryCount") || 0);
+            }
+            const oTable = this.byId("myRequestsUnifiedTable");
+            if (oTable) {
+                const oBinding = oTable.getBinding("items");
+                if (oBinding) {
+                    sap.ui.require(["sap/ui/model/Filter", "sap/ui/model/FilterOperator", "sap/m/MessageToast"], (Filter, FilterOperator, MessageToast) => {
+                        oBinding.filter([
+                            new Filter({
+                                filters: [
+                                    new Filter("type", FilterOperator.Contains, "Revocation"),
+                                    new Filter("type", FilterOperator.Contains, "Removal"),
+                                    new Filter("type", FilterOperator.Contains, "Revoke"),
+                                    new Filter("function", FilterOperator.Contains, "Revocation"),
+                                    new Filter("status", FilterOperator.Contains, "Revoke"),
+                                    new Filter("status", FilterOperator.Contains, "Expired"),
+                                    new Filter("status", FilterOperator.Contains, "Removed")
+                                ],
+                                and: false
+                            })
+                        ]);
+                        MessageToast.show("Filtered by Removed / Revoked access requests.");
                     });
                 }
             }

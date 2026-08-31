@@ -166,6 +166,11 @@ sap.ui.define([
 
             // Instant, bulletproof login handler with 2.5s network timeout and seamless navigation
             const performLoginSuccess = (oResult) => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
@@ -188,6 +193,11 @@ sap.ui.define([
             };
 
             const handleLoginError = (oError) => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 oModel.setProperty("/isBusy", false);
                 let sMessage = "";
                 if (typeof oError === "string") {

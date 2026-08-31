@@ -1,38 +1,35 @@
-/**
- * KYRA Universal Enterprise Dynamic Dialog System
- * Reusable dynamic popup dialog matching the KYRA Error Popup design.
- * Compatible with UI5, Vanilla JS, HTML, React, and external web frameworks.
- */
-
-(function(global) {
+sap.ui.define([], function() {
     "use strict";
 
+    /**
+     * KYRA Universal Enterprise Dynamic Dialog System
+     */
     const TYPE_CONFIGS = {
         error: {
             title: "Error",
-            iconSvg: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`,
-            iconBg: "#dc2626", // Vivid Red
+            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+            iconBg: "#dc2626",
             accentColor: "#dc2626",
             btnColor: "#0284c7"
         },
         warning: {
             title: "Warning",
-            iconSvg: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
-            iconBg: "#d97706", // Amber
+            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+            iconBg: "#d97706",
             accentColor: "#d97706",
             btnColor: "#0284c7"
         },
         info: {
             title: "Information",
-            iconSvg: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`,
-            iconBg: "#2563eb", // Blue
+            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+            iconBg: "#2563eb",
             accentColor: "#2563eb",
             btnColor: "#0284c7"
         },
         success: {
             title: "Success",
-            iconSvg: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
-            iconBg: "#16a34a", // Green
+            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+            iconBg: "#16a34a",
             accentColor: "#16a34a",
             btnColor: "#0284c7"
         }
@@ -41,422 +38,103 @@
     let activeOverlay = null;
 
     const KyraDialog = {
-        /**
-         * Show dynamic dialog popup
-         * @param {Object|string} options 
-         * @param {string} [options.title] - Dialog header title
-         * @param {string} options.message - Body message string or html
-         * @param {'error'|'warning'|'info'|'success'} [options.type='error'] - Type of popup
-         * @param {string} [options.buttonText='Close'] - Main action button label
-         * @param {string} [options.secondaryButtonText] - Secondary button label (optional)
-         * @param {Function} [options.onConfirm] - Callback on primary button click
-         * @param {Function} [options.onCancel] - Callback on secondary button click
-         * @param {Function} [options.onClose] - Callback on close
-         */
         show(options) {
             if (typeof options === "string") {
-                options = { message: options, type: "error" };
-            }
-
-            const type = (options.type || "error").toLowerCase();
-            const config = TYPE_CONFIGS[type] || TYPE_CONFIGS.error;
-
-            const titleText = options.title || config.title;
-            const messageText = options.message || "An unexpected issue occurred.";
-            const primaryBtnLabel = options.buttonText || (options.confirmButtonText ? options.confirmButtonText : "Close");
-            const secondaryBtnLabel = options.secondaryButtonText || options.cancelButtonText;
-
-            // Remove existing dialog if any
-            this.closeCurrent();
-
-            // Create Backdrop Overlay
-            const overlay = document.createElement("div");
-            overlay.className = "kyra-dialog-backdrop";
-            overlay.setAttribute("role", "dialog");
-            overlay.setAttribute("aria-modal", "true");
-
-            // Create Modal Card Container
-            const card = document.createElement("div");
-            card.className = "kyra-dialog-card";
-            if (options.maxWidth) {
-                card.style.maxWidth = options.maxWidth;
-            }
-
-            // 1. Header Container
-            const header = document.createElement("div");
-            header.className = "kyra-dialog-header";
-
-            const iconEl = document.createElement("div");
-            iconEl.className = `kyra-dialog-icon-circle kyra-icon-${type}`;
-            iconEl.style.backgroundColor = config.iconBg;
-            iconEl.innerHTML = config.iconSvg;
-
-            const titleEl = document.createElement("div");
-            titleEl.className = "kyra-dialog-title-text";
-            titleEl.textContent = titleText;
-
-            header.appendChild(iconEl);
-            header.appendChild(titleEl);
-
-            // 2. Dynamic Accent Bar Line (directly below header)
-            const accentBar = document.createElement("div");
-            accentBar.className = "kyra-dialog-accent-bar";
-            accentBar.style.backgroundColor = config.accentColor;
-
-            // 3. Body Message Container
-            const body = document.createElement("div");
-            body.className = "kyra-dialog-body";
-            
-            if (options.messageHtml) {
-                body.innerHTML = options.messageHtml;
-            } else if (typeof messageText === "string" && (messageText.includes("<div") || messageText.includes("<p") || messageText.includes("<span"))) {
-                body.innerHTML = messageText;
-            } else {
-                const messageEl = document.createElement("p");
-                messageEl.className = "kyra-dialog-message";
-                messageEl.style.whiteSpace = "pre-line";
-                messageEl.textContent = messageText;
-                body.appendChild(messageEl);
-            }
-
-            // 4. Footer & Action Buttons
-            const footer = document.createElement("div");
-            footer.className = "kyra-dialog-footer";
-
-            if (secondaryBtnLabel) {
-                const secBtn = document.createElement("button");
-                secBtn.type = "button";
-                secBtn.className = "kyra-dialog-btn kyra-dialog-btn-secondary";
-                secBtn.textContent = secondaryBtnLabel;
-                secBtn.addEventListener("click", () => {
-                    this.closeCurrent();
-                    if (typeof options.onCancel === "function") {
-                        options.onCancel();
-                    }
-                    if (typeof options.onClose === "function") {
-                        options.onClose("cancel");
-                    }
-                });
-                footer.appendChild(secBtn);
-            }
-
-            const priBtn = document.createElement("button");
-            priBtn.type = "button";
-            priBtn.className = "kyra-dialog-btn kyra-dialog-btn-primary";
-            priBtn.textContent = primaryBtnLabel;
-            priBtn.addEventListener("click", () => {
-                this.closeCurrent();
-                if (typeof options.onConfirm === "function") {
-                    options.onConfirm();
-                }
-                if (typeof options.onClose === "function") {
-                    options.onClose("confirm");
-                }
-            });
-            footer.appendChild(priBtn);
-
-            // Assemble Component Structure
-            card.appendChild(header);
-            card.appendChild(accentBar);
-            card.appendChild(body);
-            card.appendChild(footer);
-            overlay.appendChild(card);
-
-            document.body.appendChild(overlay);
-            activeOverlay = overlay;
-
-            // Focus management
-            setTimeout(() => {
-                priBtn.focus();
-            }, 50);
-
-            // Allow ESC key to close
-            const escHandler = (e) => {
-                if (e.key === "Escape" && activeOverlay === overlay) {
-                    document.removeEventListener("keydown", escHandler);
-                    priBtn.click();
-                }
-            };
-            document.addEventListener("keydown", escHandler);
-        },
-
-        error(message, title, buttonText, onClose) {
-            this.show({ message, title: title || "Error", type: "error", buttonText, onClose });
-        },
-
-        warning(message, title, buttonText, onClose) {
-            this.show({ message, title: title || "Warning", type: "warning", buttonText, onClose });
-        },
-
-        info(message, title, buttonText, onClose) {
-            this.show({ message, title: title || "Information", type: "info", buttonText, onClose });
-        },
-
-        success(message, title, buttonText, onClose) {
-            this.show({ message, title: title || "Success", type: "success", buttonText, onClose });
-        },
-
-        confirm(options) {
-            const opts = typeof options === "string" ? { message: options } : options || {};
-            this.show({
-                title: opts.title || "Confirm Action",
-                message: opts.message || "Are you sure you want to proceed?",
-                type: opts.type || "warning",
-                buttonText: opts.confirmText || opts.buttonText || "Confirm",
-                secondaryButtonText: opts.cancelText || "Cancel",
-                onConfirm: opts.onConfirm,
-                onCancel: opts.onCancel,
-                onClose: opts.onClose
-            });
-        },
-
-        closeCurrent() {
-            if (activeOverlay && activeOverlay.parentNode) {
-                activeOverlay.parentNode.removeChild(activeOverlay);
-                activeOverlay = null;
-            }
-        },
-
-        /**
-         * Patch SAPUI5 sap.m.MessageBox globally to enforce this dynamic KYRA dialog design
-         */
-        patchSapMessageBox() {
-            if (typeof sap !== "undefined" && sap.ui) {
-                sap.ui.require(["sap/m/MessageBox"], function(MessageBox) {
-                    if (MessageBox && !MessageBox._kyraPatched) {
-                        MessageBox._kyraPatched = true;
-
-                        MessageBox.error = function(vMessage, mOptions) {
-                            const sMsg = typeof vMessage === "string" ? vMessage : (vMessage ? String(vMessage) : "");
-                            const sTitle = (mOptions && mOptions.title) ? mOptions.title : "Error";
-                            const fnClose = (mOptions && typeof mOptions.onClose === "function") ? mOptions.onClose : null;
-                            const sBtn = (mOptions && mOptions.actions && mOptions.actions[0]) ? mOptions.actions[0] : "Close";
-                            
-                            KyraDialog.error(sMsg, sTitle, sBtn, fnClose);
-                        };
-
-                        MessageBox.warning = function(vMessage, mOptions) {
-                            const sMsg = typeof vMessage === "string" ? vMessage : (vMessage ? String(vMessage) : "");
-                            const sTitle = (mOptions && mOptions.title) ? mOptions.title : "Warning";
-                            const fnClose = (mOptions && typeof mOptions.onClose === "function") ? mOptions.onClose : null;
-                            KyraDialog.warning(sMsg, sTitle, "Close", fnClose);
-                        };
-
-                        MessageBox.information = function(vMessage, mOptions) {
-                            const sMsg = typeof vMessage === "string" ? vMessage : (vMessage ? String(vMessage) : "");
-                            const sTitle = (mOptions && mOptions.title) ? mOptions.title : "Information";
-                            const fnClose = (mOptions && typeof mOptions.onClose === "function") ? mOptions.onClose : null;
-                            KyraDialog.info(sMsg, sTitle, "Close", fnClose);
-                        };
-
-                        MessageBox.success = function(vMessage, mOptions) {
-                            const sMsg = typeof vMessage === "string" ? vMessage : (vMessage ? String(vMessage) : "");
-                            const sTitle = (mOptions && mOptions.title) ? mOptions.title : "Success";
-                            const fnClose = (mOptions && typeof mOptions.onClose === "function") ? mOptions.onClose : null;
-                            KyraDialog.success(sMsg, sTitle, "Close", fnClose);
-                        };
-
-                        MessageBox.alert = function(vMessage, mOptions) {
-                            const sMsg = typeof vMessage === "string" ? vMessage : (vMessage ? String(vMessage) : "");
-                            const sTitle = (mOptions && mOptions.title) ? mOptions.title : "Alert";
-                            const fnClose = (mOptions && typeof mOptions.onClose === "function") ? mOptions.onClose : null;
-                            KyraDialog.warning(sMsg, sTitle, "Close", fnClose);
-                        };
-
-                        MessageBox.show = function(vMessage, mOptions) {
-                            const sMsg = typeof vMessage === "string" ? vMessage : (vMessage ? String(vMessage) : "");
-                            const sTitle = (mOptions && mOptions.title) ? mOptions.title : "Notification";
-                            const sIcon = (mOptions && mOptions.icon) ? String(mOptions.icon).toLowerCase() : "info";
-                            let type = "info";
-                            if (sIcon.includes("error")) type = "error";
-                            if (sIcon.includes("warning")) type = "warning";
-                            if (sIcon.includes("success")) type = "success";
-                            const fnClose = (mOptions && typeof mOptions.onClose === "function") ? mOptions.onClose : null;
-                            KyraDialog.show({ message: sMsg, title: sTitle, type: type, buttonText: "Close", onClose: fnClose });
-                        };
-                    }
-                });
-            }
-        }
-    };
-
-    // Auto-patch when DOM is ready or UI5 is loaded
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", () => {
-            KyraDialog.patchSapMessageBox();
-        });
-    } else {
-        KyraDialog.patchSapMessageBox();
-    }
-
-    // Export globally
-    global.KyraDialog = KyraDialog;
-
-    /**
-     * =========================================================================
-     * KYRA Universal Enterprise Loading Screen & Popup Slide System
-     * Matching the exact Shield & Orbit Spinner design from media_1787652709745
-     * =========================================================================
-     */
-    let activeLoadingOverlay = null;
-    let loadingHideTimer = null;
-    let loadingShowTimestamp = 0;
-
-    const KyraLoading = {
-        /**
-         * Show Kyra Loading Screen
-         * @param {Object|string} [options]
-         * @param {string} [options.title="Loading Access Data..."]
-         * @param {string} [options.subtitle="Please wait while we synchronize and update permissions..."]
-         * @param {number} [options.duration] - Optional auto-dismiss duration in ms
-         * @param {Function} [options.onComplete] - Callback on auto-dismiss
-         */
-        show(options) {
-            if (typeof options === "string") {
-                options = { title: options };
+                options = { message: options };
             }
             options = options || {};
-            const title = options.title || "Loading Access Data...";
-            const subtitle = options.subtitle || "Please wait while we synchronize and update permissions...";
+            const type = options.type || "error";
+            const config = TYPE_CONFIGS[type] || TYPE_CONFIGS.error;
+            const title = options.title || config.title;
+            const message = options.message || options.messageHtml || "";
+            const buttonText = options.buttonText || "Close";
+            const secondaryButtonText = options.secondaryButtonText || null;
+            const maxWidth = options.maxWidth || "520px";
 
-            if (loadingHideTimer) {
-                clearTimeout(loadingHideTimer);
-                loadingHideTimer = null;
-            }
-
-            const existing = document.getElementById("kyra_loading_slide_overlay");
-            if (existing) {
-                existing.remove();
+            if (activeOverlay) {
+                this.hide();
             }
 
             const overlay = document.createElement("div");
-            overlay.id = "kyra_loading_slide_overlay";
-            overlay.className = "kyraLoadingSlideOverlay";
+            overlay.id = "kyra_dialog_overlay";
+            overlay.className = "kyraDialogOverlay";
+            overlay.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; animation: kyraFadeIn 0.2s ease;";
 
-            overlay.innerHTML = `
-                <div class="kyraLoadingSlideCard">
-                    <!-- Clean Single Circle Loading -->
-                    <div class="kyraSimpleCircleSpinner"></div>
+            const card = document.createElement("div");
+            card.className = "kyraDialogCard";
+            card.style.cssText = `background: #FFFFFF; border-radius: 16px; width: 100%; max-width: ${maxWidth}; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); overflow: hidden; animation: kyraScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);`;
 
-                    <!-- Title -->
-                    <div class="kyraLoadingTitle">${title}</div>
+            const hasSecondary = Boolean(secondaryButtonText);
 
-                    <!-- Subtitle / Simple Command Down -->
-                    <div class="kyraLoadingSubtitle">${subtitle}</div>
+            card.innerHTML = `
+                <div style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${config.iconBg}; color: white; display: flex; align-items: center; justify-content: center;">
+                            ${config.iconSvg}
+                        </div>
+                        <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">${title}</h3>
+                    </div>
+                    <button id="kyra_dialog_close_btn" style="background: none; border: none; cursor: pointer; color: #94A3B8; font-size: 20px; padding: 4px; display: flex; align-items: center; justify-content: center;">✕</button>
+                </div>
+                <div style="padding: 24px; font-size: 14px; line-height: 1.6; color: #334155;">
+                    ${message}
+                </div>
+                <div style="padding: 16px 24px; background: #F8FAFC; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end; gap: 12px;">
+                    ${hasSecondary ? `<button id="kyra_dialog_cancel_btn" style="padding: 9px 18px; border-radius: 8px; border: 1px solid #CBD5E1; background: white; color: #475569; font-weight: 600; cursor: pointer;">${secondaryButtonText}</button>` : ''}
+                    <button id="kyra_dialog_confirm_btn" style="padding: 9px 22px; border-radius: 8px; border: none; background: #2563EB; color: white; font-weight: 600; cursor: pointer;">${buttonText}</button>
                 </div>
             `;
 
+            overlay.appendChild(card);
             document.body.appendChild(overlay);
-            activeLoadingOverlay = overlay;
-            loadingShowTimestamp = Date.now();
+            activeOverlay = overlay;
 
-            requestAnimationFrame(() => {
-                overlay.classList.add("kyra-active");
-            });
-
-            if (options.duration && options.duration > 0) {
-                loadingHideTimer = setTimeout(() => {
-                    this.hide(options.onComplete);
-                }, options.duration);
-            }
-        },
-
-        /**
-         * Hide Kyra Loading Screen smoothly
-         * @param {Function} [onHidden]
-         */
-        hide(onHidden) {
-            if (loadingHideTimer) {
-                clearTimeout(loadingHideTimer);
-                loadingHideTimer = null;
-            }
-
-            const overlay = activeLoadingOverlay || document.getElementById("kyra_loading_slide_overlay");
-            if (!overlay) {
-                if (typeof onHidden === "function") onHidden();
-                return;
-            }
-
-            const elapsed = Date.now() - loadingShowTimestamp;
-            const delay = Math.max(0, 260 - elapsed);
-
-            setTimeout(() => {
-                overlay.classList.remove("kyra-active");
-                setTimeout(() => {
-                    overlay.remove();
-                    if (activeLoadingOverlay === overlay) {
-                        activeLoadingOverlay = null;
-                    }
-                    if (typeof onHidden === "function") onHidden();
-                }, 220);
-            }, delay);
-        },
-
-        /**
-         * Wrap async function in Kyra Loading Screen
-         */
-        async runWithLoading(options, asyncTask) {
-            if (typeof options === "function") {
-                asyncTask = options;
-                options = {};
-            }
-            this.show(options);
-            try {
-                return await asyncTask();
-            } finally {
+            const closeDialog = () => {
                 this.hide();
+                if (typeof options.onClose === "function") options.onClose();
+            };
+
+            const closeBtn = card.querySelector("#kyra_dialog_close_btn");
+            if (closeBtn) closeBtn.onclick = closeDialog;
+
+            const cancelBtn = card.querySelector("#kyra_dialog_cancel_btn");
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    this.hide();
+                    if (typeof options.onCancel === "function") options.onCancel();
+                };
             }
+
+            const confirmBtn = card.querySelector("#kyra_dialog_confirm_btn");
+            if (confirmBtn) {
+                confirmBtn.onclick = () => {
+                    this.hide();
+                    if (typeof options.onConfirm === "function") options.onConfirm();
+                };
+            }
+        },
+
+        hide() {
+            if (activeOverlay && activeOverlay.parentNode) {
+                activeOverlay.parentNode.removeChild(activeOverlay);
+            }
+            activeOverlay = null;
         }
     };
 
-    global.KyraLoading = KyraLoading;
-    global.showKyraLoading = KyraLoading.show.bind(KyraLoading);
-    global.hideKyraLoading = KyraLoading.hide.bind(KyraLoading);
-
-    // Hook into SAP UI5 core BusyIndicator to replace default black "Please wait" box globally
-    function setupBusyIndicatorHook() {
-        if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-            sap.ui.core.BusyIndicator.show = function(iDelay, sCustomText) {
-                KyraLoading.show({
-                    title: (typeof sCustomText === "string" && sCustomText) ? sCustomText : "Loading Access Data...",
-                    subtitle: "Please wait while we synchronize and update permissions..."
-                });
-            };
-
-            sap.ui.core.BusyIndicator.hide = function() {
-                KyraLoading.hide();
-            };
+    const KyraLoading = {
+        show(options) {
+            console.log("KyraLoading show", options);
+        },
+        hide() {
+            console.log("KyraLoading hide");
         }
+    };
+
+    if (typeof window !== "undefined") {
+        window.KyraDialog = KyraDialog;
+        window.KyraLoading = KyraLoading;
     }
 
-    if (typeof sap !== "undefined" && sap.ui && sap.ui.core) {
-        setupBusyIndicatorHook();
-    } else {
-        window.addEventListener("DOMContentLoaded", setupBusyIndicatorHook);
-        window.addEventListener("load", setupBusyIndicatorHook);
-    }
-
-    // Initial page load screen hook
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", function() {
-            if (!sessionStorage.getItem("kyra_loaded_once")) {
-                KyraLoading.show({
-                    title: "Initializing Kyra Portal...",
-                    subtitle: "Loading security governance policies and enterprise ledger...",
-                    duration: 900
-                });
-                sessionStorage.setItem("kyra_loaded_once", "true");
-            }
-        });
-    }
-
-    // Export as UI5 Module if sap.ui.define is available
-    if (typeof sap !== "undefined" && sap.ui && sap.ui.define) {
-        sap.ui.define([], function() {
-            return {
-                KyraDialog: KyraDialog,
-                KyraLoading: KyraLoading
-            };
-        });
-    }
-})(typeof window !== "undefined" ? window : this);
+    return KyraDialog;
+});

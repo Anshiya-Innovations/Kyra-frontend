@@ -53,7 +53,8 @@ sap.ui.define([
             oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
         },
 
-        _onRouteMatched() {
+                        _onRouteMatched() {
+
             const oModel = this.getView().getModel("login");
             if (oModel) {
                 oModel.setProperty("/selectedRole", "Requester");
@@ -69,6 +70,18 @@ sap.ui.define([
             if (this.byId("idInput")) {
                 this.byId("idInput").setValue("");
             }
+
+            const oView = this.getView();
+            try {
+                let p = oView ? oView.getParent() : null;
+                while (p) {
+                    if (p.isA && (p.isA("sap.m.App") || p.isA("sap.m.NavContainer"))) {
+                        p.to(oView);
+                        break;
+                    }
+                    p = p.getParent && p.getParent();
+                }
+            } catch(e) {}
         },
 
         onRoleChange(oEvent) {
@@ -156,12 +169,13 @@ sap.ui.define([
             this._resetErrorStates();
             oModel.setProperty("/isBusy", true);
 
-            if (window.KyraLoading) {
-                window.KyraLoading.show({
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
                     title: "Authenticating Credentials...",
-                    subtitle: "Verifying security identity and enterprise authorization...",
-                    duration: 650
+                    subtitle: "Verifying security identity and enterprise authorization..."
                 });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Authenticating Credentials...", "Verifying security identity and enterprise authorization...");
             }
 
             if (bRemember) {
@@ -173,7 +187,12 @@ sap.ui.define([
             }
 
             // Instant, bulletproof login handler with 2.5s network timeout and seamless navigation
-            const performLoginSuccess = (oResult) => {
+                                    const performLoginSuccess = (oResult) => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
@@ -185,17 +204,38 @@ sap.ui.define([
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
+                    oAccessModel.setProperty("/activeUser", sUserId);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
+                    oAccessModel.setProperty("/activeRoles", []);
+                    oAccessModel.setProperty("/userAccessList", []);
+                    oAccessModel.setProperty("/myApprovedRequests", []);
+                    oAccessModel.setProperty("/myPendingRequests", []);
+                    oAccessModel.setProperty("/requestHistory", []);
                 }
 
                 MessageToast.show("Login successful! Welcome back, " + sUserId);
 
-                const oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo("AccessPage");
+                // 1. Router Navigation
+                try {
+                    const oRouter = this.getOwnerComponent().getRouter();
+                    if (oRouter) {
+                        oRouter.navTo("AccessPage");
+                        if (oRouter.getTargets()) {
+                            oRouter.getTargets().display("TargetAccessPage");
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Router navigation to AccessPage warning:", e);
+                }
             };
 
             const handleLoginError = (oError) => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 oModel.setProperty("/isBusy", false);
                 let sMessage = "";
                 if (typeof oError === "string") {
@@ -212,40 +252,31 @@ sap.ui.define([
                 oModel.setProperty("/idStateText", sMessage);
             };
 
-            // Instant fallback handling if no backend server responds within 300ms
-            let bHandled = false;
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                if (!bHandled) {
-                    bHandled = true;
-                    try { controller.abort(); } catch(e) {}
-                    performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
-                }
-            }, 300);
-
-            fetch("odata/v4/auth/login", {
+            // Strict Database Authentication against connected backend
+            fetch("/odata/v4/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: sUserId, password: "Pass@123", role: sEffectiveTitle }),
-                signal: controller.signal
+                body: JSON.stringify({ username: sUserId, password: "Pass@123", role: sEffectiveTitle })
             }).then(async (oRes) => {
-                if (bHandled) return;
-                bHandled = true;
-                clearTimeout(timeoutId);
-
                 let oData = null;
                 try { oData = await oRes.json(); } catch(e) {}
 
-                if (oRes.ok && oData) {
-                    performLoginSuccess(oData);
+                const resultData = (oData && oData.value) ? oData.value : oData;
+
+                if (oRes.ok && resultData && (resultData.success || resultData.userUuid || resultData.userId)) {
+                    performLoginSuccess(resultData);
                 } else {
-                    performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
+                    // Backend responded with an error (user not found in database)
+                    const sErrorMessage = (oData && oData.error && oData.error.message)
+                        ? oData.error.message
+                        : (resultData && resultData.message)
+                            ? resultData.message
+                            : "Invalid User ID. User not registered in database.";
+                    handleLoginError(sErrorMessage);
                 }
-            }).catch(() => {
-                if (bHandled) return;
-                bHandled = true;
-                clearTimeout(timeoutId);
-                performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
+            }).catch((err) => {
+                console.error("Backend login error:", err);
+                handleLoginError("Network connection error: " + (err.message || "Failed to reach authentication service."));
             });
         },
 

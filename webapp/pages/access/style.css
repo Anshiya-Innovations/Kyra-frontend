@@ -9993,17 +9993,19 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
     background: rgba(15, 23, 42, 0.42) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
-    display: flex !important;
+    display: none !important;
     align-items: center !important;
     justify-content: center !important;
     z-index: 999999 !important;
     opacity: 0 !important;
+    pointer-events: none !important;
     transition: opacity 0.2s ease !important;
-    pointer-events: all !important;
 }
 
 .kyraLoadingSlideOverlay.kyra-active {
+    display: flex !important;
     opacity: 1 !important;
+    pointer-events: all !important;
 }
 
 .kyraLoadingSlideCard {

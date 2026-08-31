@@ -1,9 +1,4 @@
-/**
- * KYRA Universal Enterprise Clean Loading Popup System
- * Minimal, modern, high-performance loading popup modal.
- * Used across the entire Kyra platform during server reloads, data synchronization, and user actions.
- */
-(function(global) {
+sap.ui.define([], function() {
     "use strict";
 
     let dismissTimer = null;
@@ -11,14 +6,6 @@
     let isVisible = false;
 
     const KyraLoader = {
-        /**
-         * Show the clean loading modal
-         * @param {Object|string} [options]
-         * @param {string} [options.title='Loading...']
-         * @param {string} [options.subtitle='Please wait a moment...']
-         * @param {number} [options.duration] - Optional auto-dismiss after ms
-         * @param {Function} [options.onComplete]
-         */
         show(options) {
             if (typeof options === "string") {
                 options = { title: options };
@@ -53,37 +40,24 @@
 
             overlay.innerHTML = `
                 <div class="kyraLoadingSlideCard">
-                    <!-- Clean Orbital Spinner -->
-                    <div class="kyraLoadingIconWrap">
-                        <div class="kyraSimpleCircleSpinner"></div>
-                    </div>
-
+                    <div class="kyraSimpleCircleSpinner"></div>
                     <div class="kyraLoadingTitle">${sTitle}</div>
                     <div class="kyraLoadingSubtitle">${sSubtitle}</div>
                 </div>
             `;
 
-            requestAnimationFrame(() => {
-                if (overlay) {
-                    overlay.classList.add("kyra-active");
-                }
-            });
+            overlay.classList.add("kyra-active");
+            overlay.style.setProperty("display", "flex", "important");
+            overlay.style.setProperty("pointer-events", "all", "important");
 
-            if (iDuration && iDuration > 0) {
+            if (typeof iDuration === "number" && iDuration > 0) {
                 dismissTimer = setTimeout(() => {
                     this.hide(fnComplete);
                 }, iDuration);
             }
-
-            return overlay;
         },
 
-        /**
-         * Hide the clean loading modal smoothly
-         * @param {Function} [callback]
-         * @param {number} [minDisplayTime=250] - Minimum display duration to avoid visual flicker
-         */
-        hide(callback, minDisplayTime = 250) {
+        hide(callback, minDisplayTime = 0) {
             if (dismissTimer) {
                 clearTimeout(dismissTimer);
                 dismissTimer = null;
@@ -96,36 +70,23 @@
                 const overlay = document.getElementById("kyra_loading_slide_overlay");
                 if (overlay) {
                     overlay.classList.remove("kyra-active");
-                    setTimeout(() => {
-                        if (overlay && overlay.parentNode) {
-                            overlay.parentNode.removeChild(overlay);
-                        }
-                        isVisible = false;
-                        if (typeof callback === "function") {
-                            callback();
-                        }
-                    }, 220);
-                } else {
-                    isVisible = false;
-                    if (typeof callback === "function") {
-                        callback();
+                    overlay.style.setProperty("display", "none", "important");
+                    overlay.style.setProperty("pointer-events", "none", "important");
+                    if (overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
                     }
+                }
+                isVisible = false;
+                if (typeof callback === "function") {
+                    callback();
                 }
             }, remaining);
         },
 
-        /**
-         * Check if loader is currently visible
-         */
         isShowing() {
             return isVisible;
         },
 
-        /**
-         * Wrap any async promise with this loader
-         * @param {Promise} pPromise 
-         * @param {Object} [options]
-         */
         async wrap(pPromise, options) {
             this.show(options);
             try {
@@ -139,19 +100,16 @@
         }
     };
 
-    global.KyraLoader = KyraLoader;
-    global.showKyraLoading = (title, subtitle, duration, onComplete) => {
-        return KyraLoader.show({ title, subtitle, duration, onComplete });
-    };
-    global.hideKyraLoading = (callback, minDisplayTime) => {
-        return KyraLoader.hide(callback, minDisplayTime);
-    };
-
-    // UI5 AMD define
-    if (typeof sap !== "undefined" && typeof sap.ui !== "undefined" && typeof sap.ui.define === "function") {
-        sap.ui.define([], function() {
-            return KyraLoader;
-        });
+    if (typeof window !== "undefined") {
+        window.KyraLoader = KyraLoader;
+        window.KyraLoading = KyraLoader;
+        window.showKyraLoading = (title, subtitle, duration, onComplete) => {
+            return KyraLoader.show({ title, subtitle, duration, onComplete });
+        };
+        window.hideKyraLoading = (callback, minDisplayTime) => {
+            return KyraLoader.hide(callback, minDisplayTime);
+        };
     }
 
-})(typeof window !== "undefined" ? window : this);
+    return KyraLoader;
+});

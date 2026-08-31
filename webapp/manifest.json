@@ -170,7 +170,7 @@
     "rootView": {
       "viewName": "kyra001.pages.app.App",
       "type": "XML",
-      "id": "App",
+      "id": "app",
       "async": true
     }
   }

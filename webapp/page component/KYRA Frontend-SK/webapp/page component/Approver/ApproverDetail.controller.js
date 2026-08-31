@@ -661,108 +661,125 @@ sap.ui.define([
         _showDecisionSummarySlide(oData, bReadOnly) {
             const aEntitlements = oData.entitlements || [];
 
-            const aApprovedItems = aEntitlements.filter(e => e.status === "Approved");
-            const aRejectedItems = aEntitlements.filter(e => e.status === "Rejected");
-            const aPendingItems = aEntitlements.filter(e => e.status !== "Approved" && e.status !== "Rejected");
+            // Separate items based on explicit approved / rejected status
+            const aApprovedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "approved" || s.includes("approved") || s === "success";
+            });
+            const aRejectedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "rejected" || s.includes("reject") || s === "error";
+            });
+            const aPendingItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return !s.includes("approved") && !s.includes("reject") && s !== "success" && s !== "error";
+            });
 
-            const aFinalApproved = aApprovedItems.concat(aPendingItems);
+            // When in read-only view, only show actually approved items
+            const aFinalApproved = bReadOnly ? aApprovedItems : (aApprovedItems.length > 0 ? aApprovedItems : aPendingItems);
 
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
             const sOverallState = aRejectedItems.length === 0 ? "success" : (aFinalApproved.length === 0 ? "error" : "info");
 
             let sBodyHtml = `
                 <div style="font-family: inherit; color: #0F172A;">
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                         <div>
-                            <div style="font-weight: 800; font-size: 15px; color: #0F172A;">Requester (${oData.requesterId || 'Dev001'})</div>
-                            <div style="font-size: 12.5px; color: #64748B; margin-top: 3px;">
+                            <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || 'Dev001'})</div>
+                            <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
                                 Request ID: <strong style="color: #1E293B;">${oData.requestId}</strong> • Sector: <span style="color: #475569;">${oData.sector || 'Enterprise Governance'}</span>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #64748B; display: block; margin-bottom: 3px;">Decision Result</span>
-                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 14px; font-weight: 700; font-size: 12px; ${sOverallStatus === 'Approved' ? 'background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;' : (sOverallStatus === 'Rejected' ? 'background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5;' : 'background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D;')}">
+                            <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #64748B; display: block; margin-bottom: 2px;">Decision Result</span>
+                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11.5px; ${sOverallStatus === 'Approved' ? 'background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;' : (sOverallStatus === 'Rejected' ? 'background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5;' : 'background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D;')}">
                                 ${sOverallStatus === 'Approved' ? '✔ Approved' : (sOverallStatus === 'Rejected' ? '✕ Rejected' : '⚠ Partially Approved')}
                             </span>
                         </div>
                     </div>
+
+                    <!-- Single unified scrollable body container so Partially Approved maintains exact same height as Approved/Rejected -->
+                    <div class="kyra-dialog-scroll-container" style="max-height: 220px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin;">
             `;
 
             if (aFinalApproved.length > 0) {
                 sBodyHtml += `
-                    <div style="color: #15803D; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin: 14px 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="color: #15803D; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; margin: 4px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
                         <span>Approved System Entitlements</span>
-                        <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">${aFinalApproved.length} Item(s)</span>
+                        <span style="background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; padding: 1px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700;">${aFinalApproved.length} Item(s)</span>
                     </div>
-                    <div class="kyra-dialog-list" style="max-height: 260px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;">
+                    <div style="margin-bottom: 6px;">
                         ${aFinalApproved.map(i => {
                             const sCleanRole = (i.roleTitle || i.roleName || 'System Entitlement').replace(/\s*\([^)]*\)/g, "");
                             return `
-                            <div style="border: 1px solid #BBF7D0; background: #F0FDF4; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(22,163,74,0.06);">
-                                <div style="flex: 1; min-width: 0; padding-right: 12px;">
-                                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
-                                        <span style="font-weight: 700; font-size: 12px; color: #15803D;">${i.requestId || oData.requestId}</span>
-                                        <span style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #166534;">${i.system}</span>
+                            <div style="border: 1px solid #BBF7D0; background: #F0FDF4; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(22,163,74,0.06);">
+                                <div style="flex: 1; min-width: 0; padding-right: 8px;">
+                                    <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; font-size: 11px; color: #15803D;">${i.requestId || oData.requestId}</span>
+                                        <span style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #166534;">${i.system}</span>
                                     </div>
-                                    <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; line-height: 1.35; margin: 3px 0 2px 0;">
-                                        ${sCleanRole} <span style="font-weight: 500; font-size: 12px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
+                                        ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
                                     </div>
-                                    <div style="font-size: 12px; color: #475569; line-height: 1.3; margin-top: 3px;">
+                                    <div style="font-size: 11px; color: #475569; line-height: 1.2;">
                                         <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
-                                    <span style="background: #16A34A; color: #FFFFFF; padding: 5px 12px; border-radius: 14px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(22,163,74,0.25);">
+                                    <span style="background: #16A34A; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✔ Approved
                                     </span>
                                 </div>
                             </div>
-                        `}).join("")}
+                        `;}).join("")}
                     </div>
                 `;
             }
 
             if (aRejectedItems.length > 0) {
                 sBodyHtml += `
-                    <div style="color: #B91C1C; font-weight: 800; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin: 14px 0 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="color: #B91C1C; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; margin: 6px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
                         <span>Rejected System Entitlements</span>
-                        <span style="background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;">${aRejectedItems.length} Item(s)</span>
+                        <span style="background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5; padding: 1px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700;">${aRejectedItems.length} Item(s)</span>
                     </div>
-                    <div class="kyra-dialog-list" style="max-height: 260px; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;">
+                    <div style="margin-bottom: 4px;">
                         ${aRejectedItems.map(i => {
                             const sCleanRole = (i.roleTitle || i.roleName || 'System Entitlement').replace(/\s*\([^)]*\)/g, "");
                             return `
-                            <div style="border: 1px solid #FECACA; background: #FEF2F2; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(220,38,38,0.06);">
-                                <div style="flex: 1; min-width: 0; padding-right: 12px;">
-                                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
-                                        <span style="font-weight: 700; font-size: 12px; color: #B91C1C;">${i.requestId || oData.requestId}</span>
-                                        <span style="background: #FFFFFF; border: 1px solid #FCA5A5; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: #991B1B;">${i.system}</span>
+                            <div style="border: 1px solid #FECACA; background: #FEF2F2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(220,38,38,0.06);">
+                                <div style="flex: 1; min-width: 0; padding-right: 8px;">
+                                    <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
+                                        <span style="font-weight: 700; font-size: 11px; color: #B91C1C;">${i.requestId || oData.requestId}</span>
+                                        <span style="background: #FFFFFF; border: 1px solid #FCA5A5; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #991B1B;">${i.system}</span>
                                     </div>
-                                    <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; line-height: 1.35; margin: 3px 0 2px 0;">
-                                        ${sCleanRole} <span style="font-weight: 500; font-size: 12px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
+                                        ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
                                     </div>
-                                    <div style="font-size: 12px; color: #475569; line-height: 1.3; margin-top: 3px;">
+                                    <div style="font-size: 11px; color: #475569; line-height: 1.2;">
                                         <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
-                                    <span style="background: #DC2626; color: #FFFFFF; padding: 5px 12px; border-radius: 14px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(220,38,38,0.25);">
+                                    <span style="background: #DC2626; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
                                         ✕ Rejected
                                     </span>
                                 </div>
                             </div>
-                        `}).join("")}
+                        `;}).join("")}
                     </div>
                 `;
             }
 
-            sBodyHtml += `</div>`;
+            sBodyHtml += `
+                    </div>
+                </div>
+            `;
 
             if (typeof KyraDialog !== "undefined") {
                 KyraDialog.show({
                     title: "Decision Breakdown Summary - " + oData.requestId,
                     type: sOverallState,
-                    maxWidth: "660px",
+                    maxWidth: "520px",
                     messageHtml: sBodyHtml,
                     buttonText: bReadOnly ? "Close" : "Confirm & Submit",
                     secondaryButtonText: bReadOnly ? null : "Back",
@@ -781,7 +798,17 @@ sap.ui.define([
                 return;
             }
 
-            sap.ui.core.BusyIndicator.show(0);
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Submitting Access Decision...",
+                    subtitle: "Recording decision and updating governance audit log..."
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Submitting Access Decision...", "Recording decision and updating governance audit log...");
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.show(0);
+            }
 
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
             const bIsComplianceApprover = (sActiveRole === "Compliance Approver");
@@ -842,7 +869,14 @@ sap.ui.define([
             } catch (err) {
                 console.error("Database persistence approval decision error:", err);
             } finally {
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
             }
 
             // Create user notification for the requester
@@ -937,7 +971,7 @@ sap.ui.define([
                             type: "Addition",
                             system: r.target_system,
                             roleName: r.role_name,
-                            serviceTopic: r.service_topic,
+                            serviceTopic: deriveServiceTopicFromRole(r.role_name, r.service_topic || r.serviceTopic || r.service),
                             selectedPersona: r.selected_persona,
                             accessDuration: r.access_duration,
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
@@ -1023,7 +1057,7 @@ sap.ui.define([
                 }
 
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
-                const sService = r.business_function || r.service_topic || "System Administrator";
+                const sService = deriveServiceTopicFromRole(r.role_name, r.service_topic || r.serviceTopic || r.service);
                 const sGroupKey = r.request_number || ((r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + sService + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
                 
                 let sPersonaText = r.requester_persona || "Requester";
@@ -1111,6 +1145,13 @@ sap.ui.define([
 
             const aPendingRequests = aAllGrouped.filter(r => r._isPendingForRole);
             const aProcessedRequests = aAllGrouped.filter(r => !r._isPendingForRole);
+            // Sort Processed Requests: Latest decision at the very top (first row)
+            aProcessedRequests.sort((a, b) => {
+                const tA = Math.max(new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
+                const tB = Math.max(new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
+                if (tA !== tB) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            });
 
             const aPendingAccessRequests = aPendingRequests.filter(r => !r.isRevocation);
             const aPendingRevokeRequests = aPendingRequests.filter(r => r.isRevocation);

@@ -53,7 +53,8 @@ sap.ui.define([
             oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
         },
 
-        _onRouteMatched() {
+                        _onRouteMatched() {
+
             const oModel = this.getView().getModel("login");
             if (oModel) {
                 oModel.setProperty("/selectedRole", "Requester");
@@ -69,6 +70,18 @@ sap.ui.define([
             if (this.byId("idInput")) {
                 this.byId("idInput").setValue("");
             }
+
+            const oView = this.getView();
+            try {
+                let p = oView ? oView.getParent() : null;
+                while (p) {
+                    if (p.isA && (p.isA("sap.m.App") || p.isA("sap.m.NavContainer"))) {
+                        p.to(oView);
+                        break;
+                    }
+                    p = p.getParent && p.getParent();
+                }
+            } catch(e) {}
         },
 
         onRoleChange(oEvent) {
@@ -156,12 +169,13 @@ sap.ui.define([
             this._resetErrorStates();
             oModel.setProperty("/isBusy", true);
 
-            if (window.KyraLoading) {
-                window.KyraLoading.show({
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
                     title: "Authenticating Credentials...",
-                    subtitle: "Verifying security identity and enterprise authorization...",
-                    duration: 650
+                    subtitle: "Verifying security identity and enterprise authorization..."
                 });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Authenticating Credentials...", "Verifying security identity and enterprise authorization...");
             }
 
             if (bRemember) {
@@ -173,7 +187,12 @@ sap.ui.define([
             }
 
             // Instant, bulletproof login handler with 2.5s network timeout and seamless navigation
-            const performLoginSuccess = (oResult) => {
+                                    const performLoginSuccess = (oResult) => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
@@ -188,14 +207,20 @@ sap.ui.define([
                     oAccessModel.setProperty("/activeUser", sUserId);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
+                    oAccessModel.setProperty("/activeRoles", []);
+                    oAccessModel.setProperty("/userAccessList", []);
+                    oAccessModel.setProperty("/myApprovedRequests", []);
+                    oAccessModel.setProperty("/myPendingRequests", []);
+                    oAccessModel.setProperty("/requestHistory", []);
                 }
 
                 MessageToast.show("Login successful! Welcome back, " + sUserId);
 
+                // 1. Router Navigation
                 try {
                     const oRouter = this.getOwnerComponent().getRouter();
                     if (oRouter) {
-                        oRouter.navTo("AccessPage", {}, true);
+                        oRouter.navTo("AccessPage");
                         if (oRouter.getTargets()) {
                             oRouter.getTargets().display("TargetAccessPage");
                         }
@@ -206,6 +231,11 @@ sap.ui.define([
             };
 
             const handleLoginError = (oError) => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 oModel.setProperty("/isBusy", false);
                 let sMessage = "";
                 if (typeof oError === "string") {
@@ -245,9 +275,8 @@ sap.ui.define([
                     handleLoginError(sErrorMessage);
                 }
             }).catch((err) => {
-                // If backend server is completely unreachable (e.g. offline demo on GitHub Pages)
-                console.warn("Backend server not reachable, fallback standalone demo mode:", err);
-                performLoginSuccess({ success: true, userUuid: "dev-user-001-uuid" });
+                console.error("Backend login error:", err);
+                handleLoginError("Network connection error: " + (err.message || "Failed to reach authentication service."));
             });
         },
 
