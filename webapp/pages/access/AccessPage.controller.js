@@ -3507,6 +3507,14 @@ if (!oGrouped[sGroupKey]) {
 
             const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
             const isSameSys = (sysA, sysB) => String(sysA || "").trim().toLowerCase() === String(sysB || "").trim().toLowerCase();
+            
+            const getEntitlementKey = (sys, role, persona) => {
+                const sSys = cleanStr(sys);
+                const sRole = cleanStr(role);
+                const sPers = cleanStr(persona).replace(/persona/g, "").trim();
+                return `${sSys}:::${sRole}:::${sPers || sRole}`;
+            };
+
             const isMatch = (itemA, itemB) => {
                 const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
                 const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
@@ -3532,19 +3540,23 @@ if (!oGrouped[sGroupKey]) {
 
             const aThresholdLimits = [];
             const aDuplicateRoles = [];
-            const oSystemCounts = {};
             const oSystemSector = {};
             const aSeenItemsInBatch = [];
+            const oSystemUniqueSets = {};
 
+            // 1. Process items in the current summary cart
             aSummaryItems.forEach((item) => {
                 const sSys = item.system || "SAP S/4HANA Enterprise";
                 const sRole = item.roleTitle || item.roleName || "Requested Role";
                 const sTopic = item.topic || item.sector || "Core Access Module";
                 const sSector = item.sector || "Enterprise Access";
+                const sPersona = item.persona || item.selectedPersona || sRole;
 
-                oSystemCounts[sSys] = (oSystemCounts[sSys] || 0) + 1;
                 if (!oSystemSector[sSys]) {
                     oSystemSector[sSys] = sSector;
+                }
+                if (!oSystemUniqueSets[sSys]) {
+                    oSystemUniqueSets[sSys] = new Set();
                 }
 
                 // Check 1: Batch Duplication (within current request cart)
@@ -3597,19 +3609,57 @@ if (!oGrouped[sGroupKey]) {
                         statusState: "Warning"
                     });
                 }
+
+                // Add newly selected item to unique system entitlement set (automatically deduplicates within cart)
+                oSystemUniqueSets[sSys].add(getEntitlementKey(sSys, sRole, sPersona));
             });
 
-            // Populate Threshold Limits (Rule: Max 5 roles per system)
-            Object.keys(oSystemCounts).forEach(sSys => {
-                const iCount = oSystemCounts[sSys];
-                if (iCount > 5) {
-                    const iPct = Math.round((iCount / 5) * 100);
+            // 2. Add Active and Pending unique entitlements for each target system being requested
+            Object.keys(oSystemUniqueSets).forEach(sSys => {
+                const uniqueSet = oSystemUniqueSets[sSys];
+
+                // Add distinct active accesses for this system
+                aActiveAccess.forEach(acc => {
+                    const sysAcc = acc.system || acc.target_system || acc.targetSystem || "";
+                    if (isSameSys(sysAcc, sSys)) {
+                        const sRole = acc.roleName || acc.role_name || acc.roleTitle || "";
+                        const sPers = acc.persona || acc.selected_persona || sRole;
+                        uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                    }
+                });
+
+                // Add distinct pending requests for this system
+                aPendingRequests.forEach(p => {
+                    if (Array.isArray(p.entitlements) && p.entitlements.length > 0) {
+                        p.entitlements.forEach(e => {
+                            const sysE = e.system || e.target_system || e.targetSystem || "";
+                            if (isSameSys(sysE, sSys)) {
+                                const sRole = e.roleName || e.role_name || e.roleTitle || "";
+                                const sPers = e.persona || e.selected_persona || e.selectedPersona || sRole;
+                                uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                            }
+                        });
+                    } else {
+                        const sysP = p.system || p.target_system || p.targetSystem || "";
+                        if (isSameSys(sysP, sSys)) {
+                            const sRole = p.roleName || p.role_name || p.roleTitle || "";
+                            const sPers = p.persona || p.selected_persona || p.selectedPersona || sRole;
+                            uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                        }
+                    }
+                });
+
+                // Distinct total count across (Newly Selected + Active Access + Pending Requests)
+                const iTotalUniqueCount = uniqueSet.size;
+
+                if (iTotalUniqueCount > 5) {
+                    const iPct = Math.round((iTotalUniqueCount / 5) * 100);
                     aThresholdLimits.push({
                         system: sSys,
                         sector: oSystemSector[sSys] || "Enterprise Access",
                         thresholdLimit: "5",
-                        actualCount: iCount,
-                        limit: iCount + "/5",
+                        actualCount: iTotalUniqueCount,
+                        limit: iTotalUniqueCount + "/5",
                         excessivePercentage: iPct + "%",
                         status: "Excessive",
                         state: "Warning",
