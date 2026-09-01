@@ -23,36 +23,44 @@
                 tooltip="Close Add Access Section" />
         </HBox>
 
-        <!-- ANIMATED 4-STEP PROGRESS TRACKER BAR -->
+        <!-- ANIMATED 5-STEP PROGRESS TRACKER BAR -->
         <HBox justifyContent="Center" alignItems="Center" class="sapUiSmallMarginBottom fioriWizardProgressTrack">
-            <!-- Step 1 Pill -->
+            <!-- Step 1: Business Sector -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} ? 'fioriStepPill fioriStepPillActive' : 'fioriStepPill fioriStepPillDone' }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 1 ? 'sap-icon://sys-enter-2' : 'sap-icon://building' }" displaySize="XS" class="sapUiTinyMarginEnd" />
-                <Text text="1. Scope" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 1 ? 'sap-icon://sys-enter-2' : 'sap-icon://building' }" displaySize="XS" class="kyraStepAvatar" />
+                <Text text="1. Business Sector" class="fioriStepPillText" />
             </HBox>
             
             <HBox class="{= ${accessModel>/addAccessStep} > 1 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
             
-            <!-- Step 2 Pill -->
+            <!-- Step 2: Region Selection -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 2 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 2 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 2 ? 'sap-icon://sys-enter-2' : 'sap-icon://globe' }" displaySize="XS" class="sapUiTinyMarginEnd" />
-                <Text text="2. Region" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 2 ? 'sap-icon://sys-enter-2' : 'sap-icon://globe' }" displaySize="XS" class="kyraStepAvatar" />
+                <Text text="2. Region Selection" class="fioriStepPillText" />
             </HBox>
 
             <HBox class="{= ${accessModel>/addAccessStep} > 2 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
 
-            <!-- Step 3 Pill -->
+            <!-- Step 3: Access Configuration -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 3 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 3 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 3 ? 'sap-icon://sys-enter-2' : 'sap-icon://user-settings' }" displaySize="XS" class="sapUiTinyMarginEnd" />
-                <Text text="3. Config" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 3 ? 'sap-icon://sys-enter-2' : 'sap-icon://user-settings' }" displaySize="XS" class="kyraStepAvatar" />
+                <Text text="3. Access Configuration" class="fioriStepPillText" />
             </HBox>
 
             <HBox class="{= ${accessModel>/addAccessStep} > 3 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
 
-            <!-- Step 4 Pill (Summary) -->
+            <!-- Step 4: Access Validation -->
+            <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 4 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 4 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
+                <Avatar src="{= ${accessModel>/addAccessStep} > 4 ? 'sap-icon://sys-enter-2' : 'sap-icon://shield' }" displaySize="XS" class="kyraStepAvatar" />
+                <Text text="4. Access Validation" class="fioriStepPillText" />
+            </HBox>
+
+            <HBox class="{= ${accessModel>/addAccessStep} > 4 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
+
+            <!-- Step 5: Review & Summary -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 5 ? 'fioriStepPill fioriStepPillActive' : 'fioriStepPill' }">
-                <Avatar src="sap-icon://summary-detail" displaySize="XS" class="sapUiTinyMarginEnd" />
-                <Text text="4. Summary" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 5 ? 'sap-icon://sys-enter-2' : 'sap-icon://summary-detail' }" displaySize="XS" class="kyraStepAvatar" />
+                <Text text="5. Review &amp; Summary" class="fioriStepPillText" />
             </HBox>
         </HBox>
 

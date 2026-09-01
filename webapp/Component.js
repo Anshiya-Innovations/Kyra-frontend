@@ -23,8 +23,8 @@ sap.ui.define([
             this.setModel(models.createDeviceModel(), "device");
 
             // set global safe access model
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || "Stake001";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
 
             const oGlobalAccessModel = new JSONModel({

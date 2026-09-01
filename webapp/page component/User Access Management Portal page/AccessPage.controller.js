@@ -2671,6 +2671,7 @@ if (!oGrouped[sGroupKey]) {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/addAccessStep", 1);
+                this._scrollToWizardContainer();
             }
         },
 
@@ -3430,6 +3431,57 @@ if (!oGrouped[sGroupKey]) {
             this._scrollToWizardContainer();
         },
 
+        _recalculateRestrictedRecords(aSummaryItems) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !aSummaryItems) return;
+
+            const sActiveUser = oModel.getProperty("/activeUser") || "Stake001";
+            const sSelectedSector = oModel.getProperty("/selectedSector") || "Finance & Enterprise Performance";
+            const sSelectedFunction = oModel.getProperty("/selectedFunction") || "Financial Planning & Analysis";
+
+            const cleanPersonaName = (s) => {
+                if (!s) return "";
+                let str = String(s).trim();
+                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                return str || s;
+            };
+
+            const aRestrictedRecords = aSummaryItems.map((item, idx) => {
+                const sSys = item.system || "SAP S/4HANA Enterprise";
+                const sSector = sSelectedSector || item.sector || "Finance & Enterprise Performance";
+                const sFunction = sSelectedFunction || "Financial Planning & Analysis";
+                const sPersona = cleanPersonaName(item.persona || "Database & IAM Administrator Persona");
+                const sRoleTitle = cleanPersonaName(item.roleTitle || item.roleName || "IT Administrators");
+                
+                let sSecGroup = "SEC-PRIVILEGED-ACCESS";
+                let sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
+                if (sSys.includes("BTP")) {
+                    sSecGroup = "SEC-BTP-ADMIN-ACCESS";
+                    sAdGroup = "AD-KYRA-BTP-ENG-GRP";
+                } else if (sSys.includes("Ariba")) {
+                    sSecGroup = "SEC-ARIBA-PROCURE-ACCESS";
+                    sAdGroup = "AD-KYRA-ARIBA-GRP";
+                } else if (sSys.includes("SuccessFactors")) {
+                    sSecGroup = "SEC-SF-HR-ACCESS";
+                    sAdGroup = "AD-KYRA-SF-GRP";
+                }
+
+                return {
+                    id: "RR-" + (idx + 1),
+                    system: sSys,
+                    name: sActiveUser,
+                    roleTitle: sRoleTitle,
+                    sector: sSector,
+                    businessFunction: sFunction,
+                    persona: sPersona,
+                    securityGroup: sSecGroup,
+                    adGroupName: sAdGroup
+                };
+            });
+
+            oModel.setProperty("/restrictedRecords", aRestrictedRecords);
+        },
+
         _evaluateThresholdAndDuplicates(aSummaryItems) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel || !aSummaryItems) return;
@@ -3814,10 +3866,14 @@ if (!oGrouped[sGroupKey]) {
         onGoToStep4Slide1() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
-                this._recalculateRestrictedRecords(aItems);
-                this._evaluateThresholdAndDuplicates(aItems);
-                this._evaluateSodConflicts(aItems);
+                try {
+                    const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
+                    this._recalculateRestrictedRecords(aItems);
+                    this._evaluateThresholdAndDuplicates(aItems);
+                    this._evaluateSodConflicts(aItems);
+                } catch (e) {
+                    console.warn("Step 4 Slide 1 eval error:", e);
+                }
             }
             if (!oModel) return;
             oModel.setProperty("/addAccessStep", 4);
@@ -3827,6 +3883,16 @@ if (!oGrouped[sGroupKey]) {
 
         onGoToStep4Slide2() {
             const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                try {
+                    const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
+                    this._recalculateRestrictedRecords(aItems);
+                    this._evaluateThresholdAndDuplicates(aItems);
+                    this._evaluateSodConflicts(aItems);
+                } catch (e) {
+                    console.warn("Step 4 Slide 2 eval error:", e);
+                }
+            }
             if (!oModel) return;
             oModel.setProperty("/addAccessStep", 4);
             oModel.setProperty("/addAccessStep4SubStep", 2);
@@ -3834,11 +3900,8 @@ if (!oGrouped[sGroupKey]) {
         },
 
         onGoToStep4Slide3() {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-            oModel.setProperty("/addAccessStep", 4);
-            oModel.setProperty("/addAccessStep4SubStep", 3);
-            this._scrollToWizardContainer();
+            // Maintained for backward compatibility, delegates to unified Slide 2
+            this.onGoToStep4Slide2();
         },
 
         onGoBackToDurationSlide() {
@@ -3850,26 +3913,21 @@ if (!oGrouped[sGroupKey]) {
             }
         },
 
-                        onNavBackFromStep5() {
+        onNavBackFromStep5() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
-            this._recalculateRestrictedRecords(aItems);
-            this._evaluateThresholdAndDuplicates(aItems);
-            this._evaluateSodConflicts(aItems);
-
-            const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
-            const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
-            const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
-            const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0);
+            try {
+                const aItems = oModel.getProperty("/addAccessSummaryItems") || [];
+                this._recalculateRestrictedRecords(aItems);
+                this._evaluateThresholdAndDuplicates(aItems);
+                this._evaluateSodConflicts(aItems);
+            } catch (e) {
+                console.warn("NavBackFromStep5 eval error:", e);
+            }
 
             oModel.setProperty("/addAccessStep", 4);
-            if (bHasConflict) {
-                oModel.setProperty("/addAccessStep4SubStep", 3);
-            } else {
-                oModel.setProperty("/addAccessStep4SubStep", 1);
-            }
+            oModel.setProperty("/addAccessStep4SubStep", 2);
             this._scrollToWizardContainer();
         },
 

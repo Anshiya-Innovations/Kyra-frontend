@@ -105,9 +105,8 @@
                             press=".onNavBackToPortal"
                             class="sapUiTinyMarginEnd" />
                         <Button
-                            text="Next Step"
+                            text="Next"
                             type="Emphasized"
-                            icon="sap-icon://navigation-right-arrow"
                             press=".onGoToStep2"
                             class="fioriEmphasizedBtn" />
                     </HBox>
@@ -237,7 +236,6 @@
                             <Button
                                 text="Next"
                                 type="Emphasized"
-                                icon="sap-icon://navigation-right-arrow"
                                 press=".onGoToStep3Summary"
                                 class="fioriEmphasizedBtn" />
                         </HBox>

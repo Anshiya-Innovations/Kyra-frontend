@@ -103,219 +103,212 @@
                             <Title text="SoD Conflict Review" level="H3" class="sapUiTinyMarginEnd" />
                             <Text text="|" class="kyraSodDivider sapUiSmallMarginBegin sapUiSmallMarginEnd" />
                             <Text text="Requester ID:" class="kyraSodReqLabel sapUiTinyMarginEnd" />
-                            <Text text="{= ${accessModel>/selectedRequest/requesterId} || 'Dev001' }" class="kyraSodReqValue" />
+                            <Text text="{= ${accessModel>/selectedRequest/requesterId} || 'Stake001' }" class="kyraSodReqValue" />
                         </HBox>
                         <HBox alignItems="Center">
-                            <Button text="Existing Access" icon="sap-icon://shield" type="Default" press=".onSelectApproverSodExisting" class="{= (${accessModel>/approverSodTab} || 1) === 1 ? 'kyraSodTopBtn kyraSodTopBtnActive' : 'kyraSodTopBtn kyraSodTopBtnInactive' } sapUiSmallMarginEnd" />
-                            <Button text="New Access" icon="sap-icon://add" type="Default" press=".onSelectApproverSodNew" class="{= ${accessModel>/approverSodTab} === 2 ? 'kyraSodTopBtn kyraSodTopBtnActive' : 'kyraSodTopBtn kyraSodTopBtnInactive' } sapUiSmallMarginEnd" />
                             <Button text="Need help?" icon="sap-icon://sys-help" type="Transparent" class="kyraSodHelpBtn" />
                         </HBox>
                     </HBox>
 
-                    <!-- TAB 1: EXISTING & IN-FLIGHT ACCESS CONFLICTS -->
-                    <VBox visible="{= (${accessModel>/approverSodTab} || 1) === 1 }" class="fioriStepSlideAnim">
-                        <!-- SECTION 1: Conflicts with Active / Existing Access (Light Red Card with Red Conflict Indicators) -->
-                        <VBox class="kyraSodRedCard">
-                            <!-- Card Header -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                                <HBox alignItems="Center">
-                                    <Avatar src="sap-icon://alert" class="kyraSodAvatarRed sapUiSmallMarginEnd" displaySize="S" />
-                                    <VBox>
-                                        <Title text="Conflicts with Active / Existing Access" level="H5" class="kyraSodTitleRed" />
-                                        <Text text="Conflicts detected against active system access entitlements." class="kyraSodSubtitle" />
-                                    </VBox>
+                    <!-- ================= SINGLE UNIFIED SOD CONFLICT REVIEW ================= -->
+                    <!-- 1. FIRST: EXISTING ACCESS - CONFLICTS WITH ACTIVE / EXISTING ACCESS -->
+                    <VBox class="kyraSodRedCard sapUiSmallMarginBottom">
+                        <!-- Card Header -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                            <HBox alignItems="Center">
+                                <Avatar src="sap-icon://alert" class="kyraSodAvatarRed sapUiSmallMarginEnd" displaySize="S" />
+                                <VBox>
+                                    <Title text="Conflicts with Active / Existing Access" level="H5" class="kyraSodTitleRed" />
+                                    <Text text="Conflicts detected against active system access entitlements." class="kyraSodSubtitle" />
+                                </VBox>
+                            </HBox>
+                            <HBox class="{= (${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) ? 'kyraPillBadgeDanger' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                <core:Icon src="{= (${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                <Text text="{= (${accessModel>/selectedRequestSodActiveConflicts} ? ${accessModel>/selectedRequestSodActiveConflicts}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) ? 'kyraPillBadgeDangerText' : 'kyraPillBadgeSuccessText' }" />
+                            </HBox>
+                        </HBox>
+
+                        <!-- 3-Column Header Bar: 35% / 35% / 30% -->
+                        <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0 }">
+                            <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
+                        </HBox>
+
+                        <!-- Dynamic Active Conflict Rows -->
+                        <VBox items="{accessModel>/selectedRequestSodActiveConflicts}" visible="{= ${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0 }">
+                            <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
+                                <HBox width="35%" class="kyraSodColWrapper">
+                                    <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
+                                        <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
+                                        <VBox class="kyraSodCardTextGroup">
+                                            <Text text="{accessModel>existingRole}" class="kyraSodBoxTitle" />
+                                            <Text text="{accessModel>existingPersona}" class="kyraSodBoxSubtitle" />
+                                        </VBox>
+                                    </HBox>
                                 </HBox>
-                                <HBox class="{= (${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) ? 'kyraPillBadgeDanger' : 'kyraPillBadgeSuccess' }" alignItems="Center">
-                                    <core:Icon src="{= (${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="{= (${accessModel>/selectedRequestSodActiveConflicts} ? ${accessModel>/selectedRequestSodActiveConflicts}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) ? 'kyraPillBadgeDangerText' : 'kyraPillBadgeSuccessText' }" />
+                                <HBox width="35%" class="kyraSodColWrapper">
+                                    <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
+                                        <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
+                                        <VBox class="kyraSodCardTextGroup">
+                                            <Text text="{accessModel>newRole}" class="kyraSodBoxTitle" />
+                                            <Text text="{accessModel>newPersona}" class="kyraSodBoxSubtitle" />
+                                        </VBox>
+                                    </HBox>
+                                </HBox>
+                                <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                    <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
+                                        <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
+                                        <VBox class="kyraSodConflictTextGroup">
+                                            <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
+                                            <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
+                                        </VBox>
+                                    </HBox>
                                 </HBox>
                             </HBox>
-
-                            <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                            <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0 }">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
-                                <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
-                            </HBox>
-
-                            <!-- Dynamic Active Conflict Rows -->
-                            <VBox items="{accessModel>/selectedRequestSodActiveConflicts}" visible="{= ${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0 }">
-                                <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
-                                    <HBox width="35%" class="kyraSodColWrapper">
-                                        <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
-                                            <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
-                                            <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{accessModel>existingRole}" class="kyraSodBoxTitle" />
-                                                <Text text="{accessModel>existingPersona}" class="kyraSodBoxSubtitle" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                    <HBox width="35%" class="kyraSodColWrapper">
-                                        <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
-                                            <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
-                                            <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{accessModel>newRole}" class="kyraSodBoxTitle" />
-                                                <Text text="{accessModel>newPersona}" class="kyraSodBoxSubtitle" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                    <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
-                                        <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
-                                            <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
-                                            <VBox class="kyraSodConflictTextGroup">
-                                                <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
-                                                <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                </HBox>
-                            </VBox>
-
-                            <!-- Compact Empty State -->
-                            <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/selectedRequestSodActiveConflicts} || ${accessModel>/selectedRequestSodActiveConflicts}.length === 0 }">
-                                <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
-                                </HBox>
-                                <Text text="No SoD Conflicts with Active / Existing Access" class="kyraSodEmptyTitleGreen" />
-                                <Text text="Great! No conflicts found between active access and new requests." class="kyraSodEmptyDesc" />
-                            </VBox>
                         </VBox>
 
-                        <!-- SECTION 2: Conflicts with In-Flight / Pending Access Requests (Light Yellow Card with Yellow Warning Indicators) -->
-                        <VBox class="kyraSodYellowCard">
-                            <!-- Card Header -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                                <HBox alignItems="Center">
-                                    <Avatar src="sap-icon://alert" class="kyraSodAvatarAmber sapUiSmallMarginEnd" displaySize="S" />
-                                    <VBox>
-                                        <Title text="Conflicts with In-Flight / Pending Access Requests" level="H5" class="kyraSodTitleAmber" />
-                                        <Text text="Conflicts detected against pending access requests currently undergoing approval." class="kyraSodSubtitle" />
-                                    </VBox>
-                                </HBox>
-                                <HBox class="{= (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
-                                    <core:Icon src="{= (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="{= (${accessModel>/selectedRequestSodPendingConflicts} ? ${accessModel>/selectedRequestSodPendingConflicts}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
-                                </HBox>
+                        <!-- Compact Empty State -->
+                        <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/selectedRequestSodActiveConflicts} || ${accessModel>/selectedRequestSodActiveConflicts}.length === 0 }">
+                            <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
                             </HBox>
-
-                            <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                            <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
-                                <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
-                            </HBox>
-
-                            <!-- Dynamic Pending Conflict Rows -->
-                            <VBox items="{accessModel>/selectedRequestSodPendingConflicts}" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
-                                <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
-                                    <HBox width="35%" class="kyraSodColWrapper">
-                                        <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
-                                            <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
-                                            <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{accessModel>existingRole}" class="kyraSodBoxTitle" />
-                                                <Text text="{accessModel>existingPersona}" class="kyraSodBoxSubtitle" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                    <HBox width="35%" class="kyraSodColWrapper">
-                                        <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
-                                            <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
-                                            <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{accessModel>newRole}" class="kyraSodBoxTitle" />
-                                                <Text text="{accessModel>newPersona}" class="kyraSodBoxSubtitle" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                    <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
-                                        <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
-                                            <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
-                                            <VBox class="kyraSodConflictTextGroup">
-                                                <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
-                                                <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                </HBox>
-                            </VBox>
-
-                            <!-- Clean Empty State when NO pending conflicts exist -->
-                            <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/selectedRequestSodPendingConflicts} || ${accessModel>/selectedRequestSodPendingConflicts}.length === 0 }">
-                                <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
-                                </HBox>
-                                <Text text="No SoD Conflicts with In-Flight / Pending Access Requests" class="kyraSodEmptyTitleGreen" />
-                                <Text text="Great! No conflicts detected against your pending access requests." class="kyraSodEmptyDesc" />
-                            </VBox>
+                            <Text text="No SoD Conflicts with Active / Existing Access" class="kyraSodEmptyTitleGreen" />
+                            <Text text="Great! No conflicts found between active access and new requests." class="kyraSodEmptyDesc" />
                         </VBox>
                     </VBox>
 
-                    <!-- TAB 2: CURRENT REQUEST BATCH (INTRA-ROLE) SOD CONFLICT -->
-                    <VBox visible="{= ${accessModel>/approverSodTab} === 2 }" class="fioriStepSlideAnim">
-                        <!-- Main Subtle Green Success Card -->
-                        <VBox class="kyraSodGreenCard">
-                            <!-- Card Header -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                                <HBox alignItems="Center">
-                                    <Avatar src="sap-icon://document-text" class="kyraSodAvatarGreen sapUiSmallMarginEnd" displaySize="S" />
-                                    <VBox>
-                                        <Title text="Conflicts Within Current Request Batch (Intra-Role)" level="H5" class="kyraSodTitleGreen" />
-                                        <Text text="Conflicts detected between multiple roles selected together in this request." class="kyraSodSubtitle" />
-                                    </VBox>
+                    <!-- 2. NEXT: EXISTING ACCESS - CONFLICTS WITH IN-FLIGHT / PENDING ACCESS REQUESTS -->
+                    <VBox class="kyraSodYellowCard sapUiSmallMarginBottom">
+                        <!-- Card Header -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                            <HBox alignItems="Center">
+                                <Avatar src="sap-icon://alert" class="kyraSodAvatarAmber sapUiSmallMarginEnd" displaySize="S" />
+                                <VBox>
+                                    <Title text="Conflicts with In-Flight / Pending Access Requests" level="H5" class="kyraSodTitleAmber" />
+                                    <Text text="Conflicts detected against pending access requests currently undergoing approval." class="kyraSodSubtitle" />
+                                </VBox>
+                            </HBox>
+                            <HBox class="{= (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                <core:Icon src="{= (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                <Text text="{= (${accessModel>/selectedRequestSodPendingConflicts} ? ${accessModel>/selectedRequestSodPendingConflicts}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
+                            </HBox>
+                        </HBox>
+
+                        <!-- 3-Column Header Bar: 35% / 35% / 30% -->
+                        <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
+                            <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
+                        </HBox>
+
+                        <!-- Dynamic Pending Conflict Rows -->
+                        <VBox items="{accessModel>/selectedRequestSodPendingConflicts}" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
+                            <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
+                                <HBox width="35%" class="kyraSodColWrapper">
+                                    <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
+                                        <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
+                                        <VBox class="kyraSodCardTextGroup">
+                                            <Text text="{accessModel>existingRole}" class="kyraSodBoxTitle" />
+                                            <Text text="{accessModel>existingPersona}" class="kyraSodBoxSubtitle" />
+                                        </VBox>
+                                    </HBox>
                                 </HBox>
-                                <HBox class="{= (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
-                                    <core:Icon src="{= (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
-                                    <Text text="{= (${accessModel>/selectedRequestSodBatchConflicts} ? ${accessModel>/selectedRequestSodBatchConflicts}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
+                                <HBox width="35%" class="kyraSodColWrapper">
+                                    <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
+                                        <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
+                                        <VBox class="kyraSodCardTextGroup">
+                                            <Text text="{accessModel>newRole}" class="kyraSodBoxTitle" />
+                                            <Text text="{accessModel>newPersona}" class="kyraSodBoxSubtitle" />
+                                        </VBox>
+                                    </HBox>
+                                </HBox>
+                                <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                    <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
+                                        <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
+                                        <VBox class="kyraSodConflictTextGroup">
+                                            <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
+                                            <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
+                                        </VBox>
+                                    </HBox>
                                 </HBox>
                             </HBox>
+                        </VBox>
 
-                            <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                            <HBox class="kyraSodTableHeadGreen" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0 }">
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE A)" class="kyraSodColHeader" /></HBox>
-                                <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE B)" class="kyraSodColHeader" /></HBox>
-                                <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
+                        <!-- Clean Empty State when NO pending conflicts exist -->
+                        <VBox class="kyraSodEmptyBoxRed" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/selectedRequestSodPendingConflicts} || ${accessModel>/selectedRequestSodPendingConflicts}.length === 0 }">
+                            <HBox class="kyraSodRedCircleCompact" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
                             </HBox>
+                            <Text text="No SoD Conflicts with In-Flight / Pending Access Requests" class="kyraSodEmptyTitleGreen" />
+                            <Text text="Great! No conflicts detected against your pending access requests." class="kyraSodEmptyDesc" />
+                        </VBox>
+                    </VBox>
 
-                            <!-- Dynamic Batch Conflict Rows -->
-                            <VBox items="{accessModel>/selectedRequestSodBatchConflicts}" visible="{= ${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0 }">
-                                <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
-                                    <HBox width="35%" class="kyraSodColWrapper">
-                                        <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
-                                            <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
-                                            <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{= ${accessModel>roleA} || ${accessModel>existingRole} }" class="kyraSodBoxTitle" />
-                                                <Text text="{= ${accessModel>personaA} || ${accessModel>existingPersona} }" class="kyraSodBoxSubtitle" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                    <HBox width="35%" class="kyraSodColWrapper">
-                                        <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
-                                            <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
-                                            <VBox class="kyraSodCardTextGroup">
-                                                <Text text="{= ${accessModel>roleB} || ${accessModel>newRole} }" class="kyraSodBoxTitle" />
-                                                <Text text="{= ${accessModel>personaB} || ${accessModel>newPersona} }" class="kyraSodBoxSubtitle" />
-                                            </VBox>
-                                        </HBox>
-                                    </HBox>
-                                    <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
-                                        <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
-                                            <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
-                                            <VBox class="kyraSodConflictTextGroup">
-                                                <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
-                                                <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
-                                            </VBox>
-                                        </HBox>
+                    <!-- 3. NEXT DOWN: NEW ACCESS - CONFLICTS WITHIN CURRENT REQUEST BATCH (INTRA-ROLE) -->
+                    <VBox class="kyraSodGreenCard">
+                        <!-- Card Header -->
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                            <HBox alignItems="Center">
+                                <Avatar src="sap-icon://document-text" class="kyraSodAvatarGreen sapUiSmallMarginEnd" displaySize="S" />
+                                <VBox>
+                                    <Title text="Conflicts Within Current Request Batch (Intra-Role)" level="H5" class="kyraSodTitleGreen" />
+                                    <Text text="Conflicts detected between multiple roles selected together in this request." class="kyraSodSubtitle" />
+                                </VBox>
+                            </HBox>
+                            <HBox class="{= (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0) ? 'kyraPillBadgeWarning' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                                <core:Icon src="{= (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                                <Text text="{= (${accessModel>/selectedRequestSodBatchConflicts} ? ${accessModel>/selectedRequestSodBatchConflicts}.length : 0) + ' Conflicts' }" class="{= (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0) ? 'kyraPillBadgeWarningText' : 'kyraPillBadgeSuccessText' }" />
+                            </HBox>
+                        </HBox>
+
+                        <!-- 3-Column Header Bar: 35% / 35% / 30% -->
+                        <HBox class="kyraSodTableHeadGreen" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0 }">
+                            <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE A)" class="kyraSodColHeader" /></HBox>
+                            <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE B)" class="kyraSodColHeader" /></HBox>
+                            <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
+                        </HBox>
+
+                        <!-- Dynamic Batch Conflict Rows -->
+                        <VBox items="{accessModel>/selectedRequestSodBatchConflicts}" visible="{= ${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0 }">
+                            <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
+                                <HBox width="35%" class="kyraSodColWrapper">
+                                    <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
+                                        <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
+                                        <VBox class="kyraSodCardTextGroup">
+                                            <Text text="{= ${accessModel>roleA} || ${accessModel>existingRole} }" class="kyraSodBoxTitle" />
+                                            <Text text="{= ${accessModel>personaA} || ${accessModel>existingPersona} }" class="kyraSodBoxSubtitle" />
+                                        </VBox>
                                     </HBox>
                                 </HBox>
-                            </VBox>
-
-                            <!-- Clean Centered Success State Below Headings -->
-                            <VBox class="kyraSodEmptyBoxCompact" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/selectedRequestSodBatchConflicts} || ${accessModel>/selectedRequestSodBatchConflicts}.length === 0 }">
-                                <HBox class="kyraSodMintCircleCompact" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
+                                <HBox width="35%" class="kyraSodColWrapper">
+                                    <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
+                                        <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
+                                        <VBox class="kyraSodCardTextGroup">
+                                            <Text text="{= ${accessModel>roleB} || ${accessModel>newRole} }" class="kyraSodBoxTitle" />
+                                            <Text text="{= ${accessModel>personaB} || ${accessModel>newPersona} }" class="kyraSodBoxSubtitle" />
+                                        </VBox>
+                                    </HBox>
                                 </HBox>
-                                <Text text="No SoD Conflicts Within Current Request" class="kyraSodEmptyTitleGreen" />
-                                <Text text="The selected roles do not conflict with each other." class="kyraSodEmptyDesc" />
-                            </VBox>
+                                <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                    <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
+                                        <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
+                                        <VBox class="kyraSodConflictTextGroup">
+                                            <Text text="{accessModel>conflictTitle}" class="kyraSodConflictMainTitleAmber" />
+                                            <Text text="{accessModel>conflictDesc}" class="kyraSodConflictMainDesc" />
+                                        </VBox>
+                                    </HBox>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Clean Centered Success State Below Headings -->
+                        <VBox class="kyraSodEmptyBoxCompact" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/selectedRequestSodBatchConflicts} || ${accessModel>/selectedRequestSodBatchConflicts}.length === 0 }">
+                            <HBox class="kyraSodMintCircleCompact" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://accept" class="kyraSodMintIconCompact" />
+                            </HBox>
+                            <Text text="No SoD Conflicts Within Current Request" class="kyraSodEmptyTitleGreen" />
+                            <Text text="The selected roles do not conflict with each other." class="kyraSodEmptyDesc" />
                         </VBox>
                     </VBox>
                 </VBox>
