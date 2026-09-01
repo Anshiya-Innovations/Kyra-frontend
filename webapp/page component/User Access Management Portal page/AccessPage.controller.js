@@ -4306,12 +4306,25 @@ if (!oGrouped[sGroupKey]) {
             if (aSkippedItems.length > 0) {
                 sPopupHtml += `
                     <div style="color: #B45309; font-weight: 800; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; margin: 6px 0 6px 0; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Excluded / Already Active</span>
+                        <span>Excluded Items</span>
                         <span style="background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D; padding: 1px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 700;">${aSkippedItems.length} Item(s)</span>
                     </div>
                     <div style="margin-bottom: 4px;">
                         ${aSkippedItems.map(i => {
                             const sCleanRole = (i.roleTitle || i.roleName || 'Access Role').replace(/\s*\([^)]*\)/g, "");
+                            const isPending = (i.statusType === "pending" || (i.existingStatus && (i.existingStatus.toLowerCase().includes("pending") || i.existingStatus.toLowerCase().includes("requested") || i.existingStatus.toLowerCase().includes("applied"))));
+                            const isDuplicate = (i.statusType === "duplicate" || (i.existingStatus && i.existingStatus.toLowerCase().includes("duplicate")));
+                            
+                            let sBadgeText = "Already Active";
+                            let sBadgeBg = "#D97706";
+                            if (isPending) {
+                                sBadgeText = "Already Requested";
+                                sBadgeBg = "#D97706";
+                            } else if (isDuplicate) {
+                                sBadgeText = "Duplicate in Request";
+                                sBadgeBg = "#EA580C";
+                            }
+
                             return `
                             <div style="border: 1px solid #FDE68A; background: #FFFBEB; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(217,119,6,0.06);">
                                 <div style="flex: 1; min-width: 0; padding-right: 8px;">
@@ -4325,8 +4338,8 @@ if (!oGrouped[sGroupKey]) {
                                     ${i.persona ? `<div style="font-size: 11px; color: #475569; line-height: 1.2;"><span style="font-weight: 600; color: #334155;">Persona:</span> ${i.persona}</div>` : ''}
                                 </div>
                                 <div style="flex-shrink: 0;">
-                                    <span style="background: #D97706; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                        Already Active
+                                    <span style="background: ${sBadgeBg}; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                        ${sBadgeText}
                                     </span>
                                 </div>
                             </div>
