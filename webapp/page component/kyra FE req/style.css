@@ -74,14 +74,155 @@
     padding: 16px !important;
 }
 
-.fioriFormSelect {
-    border-radius: 8px !important;
-    transition: border-color 0.2s, box-shadow 0.2s !important;
+/* =========================================================================
+   KYRA MODERN ENTERPRISE SCOPE CARD (STEP 1) & PERFECT INPUT ALIGNMENT
+   ========================================================================= */
+.kyraEnterpriseScopeCard {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    padding: 24px 28px !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02) !important;
+    margin-bottom: 20px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    overflow: visible !important;
 }
 
-.fioriSelectGlow:focus-within {
-    border-color: #0284C7 !important;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+.kyraScopeCardHeader {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding-bottom: 18px !important;
+    margin-bottom: 20px !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    width: 100% !important;
+}
+
+.kyraScopeHeaderIconWrap {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 12px !important;
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    border: 1.5px solid #A7F3D0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.1) !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraScopeHeaderIcon {
+    font-size: 20px !important;
+    color: #059669 !important;
+}
+
+.kyraScopeHeaderTitles {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+.kyraScopeTitle {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.01em !important;
+    margin: 0 !important;
+}
+
+.kyraScopeSubtitle {
+    font-size: 13px !important;
+    color: #64748B !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.kyraScopeGridRow {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.kyraScopeFieldCol {
+    flex: 1 1 0px !important;
+    min-width: 260px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.kyraFieldLabelRow {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 7px !important;
+    min-height: 22px !important;
+    margin-bottom: 2px !important;
+}
+
+.kyraFieldIcon {
+    font-size: 13.5px !important;
+    color: #059669 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraModernFormLabel {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+    letter-spacing: 0.01em !important;
+    cursor: default !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraModernSelectField,
+.fioriFormSelect {
+    height: auto !important;
+    min-height: 42px !important;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+.kyraModernSelectField .sapMInputBaseContentWrapper,
+.fioriFormSelect .sapMInputBaseContentWrapper {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    line-height: 40px !important;
+    border-radius: 10px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    transition: all 0.2s ease !important;
+    padding: 0 0 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+}
+
+.fioriSelectGlow:focus-within .sapMInputBaseContentWrapper,
+.fioriFormSelect:focus-within .sapMInputBaseContentWrapper,
+.kyraModernSelectField:focus-within .sapMInputBaseContentWrapper {
+    border-color: #059669 !important;
+    box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.16) !important;
 }
 
 /* Buttons */
@@ -214,20 +355,51 @@
 }
 
 .selected-regions-header {
-    font-size: 11px;
-    font-weight: 800;
-    color: #64748B;
-    letter-spacing: 0.05em;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     margin-bottom: 8px;
 }
 
+html body .sapMBtn.region-chip-btn,
+.region-chip-btn {
+    height: auto !important;
+    min-height: unset !important;
+    min-width: unset !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 4px 4px 0 !important;
+}
+
 .region-chip-btn .sapMBtnInner {
-    background: #E0F2FE !important;
-    border: 1px solid #BAE6FD !important;
-    color: #0369A1 !important;
-    font-weight: 700 !important;
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    border: 1px solid #A7F3D0 !important;
+    color: #065F46 !important;
+    font-weight: 600 !important;
     border-radius: 9999px !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
+    height: 32px !important;
+    padding: 0 12px 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.region-chip-btn:hover .sapMBtnInner {
+    background: #D1FAE5 !important;
+    background-color: #D1FAE5 !important;
+    border-color: #6EE7B7 !important;
+}
+
+.region-chip-btn .sapMBtnIcon {
+    color: #059669 !important;
+    font-size: 11px !important;
 }
 
 /* Conflict & Summary Styling (Slides 5, 6, 7) */

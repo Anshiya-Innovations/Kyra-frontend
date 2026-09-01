@@ -239,35 +239,91 @@
 }
 
 .no-selection-text {
-  color: var(--sap-text-muted);
-  font-size: 0.72rem;
-  font-style: italic;
-  margin-top: 0.15rem !important;
+  color: #94A3B8 !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  font-style: normal !important;
+  text-align: center !important;
+  padding: 4px 0 !important;
+  margin: 0 !important;
 }
 
-/* Fiori Chip Button Custom Styling (Smaller) */
+/* Region Chip Button: Clean Single Pill without Nested Double Borders */
+html body .sapMBtn.region-chip-btn,
 .region-chip-btn {
-  height: 1.5rem !important; /* Smaller button */
-  border-radius: 10px !important;
-  background-color: rgba(10, 110, 209, 0.06) !important;
-  border: 1px solid rgba(10, 110, 209, 0.12) !important;
-  color: var(--sap-primary) !important;
-  font-weight: 600 !important;
-  transition: all var(--sap-transition) !important;
+    height: auto !important;
+    min-height: unset !important;
+    min-width: unset !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 4px 4px 0 !important;
 }
 
-.region-chip-btn:hover {
-  background-color: rgba(10, 110, 209, 0.12) !important;
-  border-color: var(--sap-primary) !important;
+html body .sapMBtn.region-chip-btn .sapMBtnInner,
+.region-chip-btn .sapMBtnInner {
+    height: 32px !important;
+    min-height: 32px !important;
+    line-height: 30px !important;
+    border-radius: 9999px !important;
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    border: 1px solid #A7F3D0 !important;
+    padding: 0 12px 0 14px !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.08) !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
 }
 
-.region-chip-btn .sapMBtnContent {
-  font-size: 0.65rem !important; /* Smaller text */
+html body .sapMBtn.region-chip-btn:hover .sapMBtnInner,
+.region-chip-btn:hover .sapMBtnInner {
+    background: #D1FAE5 !important;
+    background-color: #D1FAE5 !important;
+    border-color: #6EE7B7 !important;
+    box-shadow: 0 2px 6px rgba(5, 150, 105, 0.18) !important;
 }
 
+html body .sapMBtn.region-chip-btn:focus .sapMBtnInner,
+.region-chip-btn:focus .sapMBtnInner {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.3) !important;
+}
+
+html body .sapMBtn.region-chip-btn .sapMBtnText,
+html body .sapMBtn.region-chip-btn .sapMBtnContent,
+html body .sapMBtn.region-chip-btn .sapMBtnContent > bdi,
+.region-chip-btn .sapMBtnContent,
+.region-chip-btn .sapMBtnText,
+.region-chip-btn bdi {
+    color: #065F46 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.01em !important;
+}
+
+html body .sapMBtn.region-chip-btn .sapMBtnIcon,
+html body .sapMBtn.region-chip-btn .sapUiIcon,
 .region-chip-btn .sapMBtnIcon {
-  font-size: 0.65rem !important;
-  color: var(--sap-primary) !important;
+    color: #059669 !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    margin: 0 0 0 2px !important;
+    padding: 0 !important;
+    transition: color 0.15s ease !important;
+}
+
+html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
+.region-chip-btn:hover .sapMBtnIcon {
+    color: #047857 !important;
 }
 
 /* Pulse Keyframes (Scaled down) */

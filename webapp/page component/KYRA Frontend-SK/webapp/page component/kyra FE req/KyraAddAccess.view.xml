@@ -68,43 +68,59 @@
              SLIDE 1 / STEP 1: BUSINESS SECTOR & FUNCTION
              ========================================================================= -->
         <VBox visible="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} }" class="fioriStepSlideAnim">
-            <form:SimpleForm
-                editable="true"
-                layout="ColumnLayout"
-                columnsM="2"
-                columnsL="2"
-                singleContainerFullWidth="false"
-                class="fioriScopeGlassForm sapUiSmallMarginBottom">
-                <form:content>
-                    <core:Title text="Enterprise Scope Selection" />
-                    
-                    <Label text="Business Sector" required="true" />
-                    <ComboBox
-                        id="inPageBusinessSectorSelect"
-                        selectedKey="{accessModel>/selectedSector}"
-                        selectionChange=".onInPageSectorChange"
-                        placeholder="Select Business Sector..."
-                        width="100%"
-                        class="fioriFormSelect fioriSelectGlow">
-                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" />
-                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" />
-                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" />
-                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" />
-                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" />
-                    </ComboBox>
+            <VBox class="kyraEnterpriseScopeCard sapUiSmallMarginBottom">
+                <!-- Card Header -->
+                <HBox alignItems="Center" class="kyraScopeCardHeader">
+                    <VBox class="kyraScopeHeaderIconWrap" justifyContent="Center" alignItems="Center">
+                        <core:Icon src="sap-icon://org-chart" class="kyraScopeHeaderIcon" />
+                    </VBox>
+                    <VBox class="kyraScopeHeaderTitles">
+                        <Title text="Enterprise Scope Selection" level="H4" class="kyraScopeTitle" />
+                        <Text text="Select your target business sector and aligned business function to initiate governance workflows." class="kyraScopeSubtitle" />
+                    </VBox>
+                </HBox>
 
-                    <Label text="Business Function" required="true" />
-                    <ComboBox
-                        id="inPageBusinessFunctionSelect"
-                        selectedKey="{accessModel>/selectedFunction}"
-                        items="{accessModel>/availableFunctions}"
-                        placeholder="Select Business Function..."
-                        width="100%"
-                        class="fioriFormSelect fioriSelectGlow">
-                        <core:Item key="{accessModel>key}" text="{accessModel>text}" />
-                    </ComboBox>
-                </form:content>
-            </form:SimpleForm>
+                <!-- 2-Column Responsive Field Grid -->
+                <HBox class="kyraScopeGridRow" wrap="Wrap">
+                    <!-- Column 1: Business Sector -->
+                    <VBox class="kyraScopeFieldCol">
+                        <HBox alignItems="Center" class="kyraFieldLabelRow">
+                            <core:Icon src="sap-icon://building" class="kyraFieldIcon" />
+                            <Label text="Business Sector" required="true" class="kyraModernFormLabel" labelFor="inPageBusinessSectorSelect" />
+                        </HBox>
+                        <ComboBox
+                            id="inPageBusinessSectorSelect"
+                            selectedKey="{accessModel>/selectedSector}"
+                            selectionChange=".onInPageSectorChange"
+                            placeholder="Select Business Sector..."
+                            width="100%"
+                            class="kyraModernSelectField fioriSelectGlow">
+                            <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" />
+                            <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" />
+                            <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" />
+                            <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" />
+                            <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" />
+                        </ComboBox>
+                    </VBox>
+
+                    <!-- Column 2: Business Function -->
+                    <VBox class="kyraScopeFieldCol">
+                        <HBox alignItems="Center" class="kyraFieldLabelRow">
+                            <core:Icon src="sap-icon://user-settings" class="kyraFieldIcon" />
+                            <Label text="Business Function" required="true" class="kyraModernFormLabel" labelFor="inPageBusinessFunctionSelect" />
+                        </HBox>
+                        <ComboBox
+                            id="inPageBusinessFunctionSelect"
+                            selectedKey="{accessModel>/selectedFunction}"
+                            items="{accessModel>/availableFunctions}"
+                            placeholder="Select Business Function..."
+                            width="100%"
+                            class="kyraModernSelectField fioriSelectGlow">
+                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                        </ComboBox>
+                    </VBox>
+                </HBox>
+            </VBox>
 
             <HBox justifyContent="End" class="sapUiSmallMarginTop">
                 <Button
