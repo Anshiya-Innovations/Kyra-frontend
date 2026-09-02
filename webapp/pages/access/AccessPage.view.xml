@@ -129,7 +129,7 @@
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
                             <Column width="20%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
                             <Column width="14%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
@@ -140,10 +140,10 @@
                             <ColumnListItem vAlign="Middle">
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold" />
-                                    <Text text="{accessModel>roleName}" />
-                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
+                                    <Text text="{accessModel>services}" class="fioriCellBold" />
+                                    <Text text="{accessModel>team}" />
                                     <Text text="{accessModel>persona}" />
-                                    <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
+                                    <Text text="{accessModel>expiryDate}" />
                                     <ObjectStatus
                                         text="{accessModel>status}"
                                         state="{accessModel>statusState}" />
@@ -275,7 +275,7 @@
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
                                 <cells>
                                     <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap; color: #0F172A;" />
-                                    <Text text="{= ${accessModel>type} || 'Addition' }" style="font-weight: 500; color: #1E293B;" />
+                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION') ? 'Revoke' : (${accessModel>type} || 'Addition') }" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
@@ -322,7 +322,7 @@
                         class="sapUiNoMargin">
                         <columns>
                             <Column width="20%" hAlign="Begin"><Text text="SYSTEM" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
                             <Column width="14%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
@@ -333,10 +333,10 @@
                             <ColumnListItem vAlign="Middle">
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold" />
-                                    <Text text="{accessModel>roleName}" class="fioriCellBold" />
-                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
+                                    <Text text="{accessModel>services}" class="fioriCellBold" />
+                                    <Text text="{accessModel>team}" />
                                     <Text text="{accessModel>persona}" />
-                                    <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
+                                    <Text text="{accessModel>expiryDate}" />
                                     <ObjectStatus
                                         text="{accessModel>status}"
                                         state="{accessModel>statusState}" />
@@ -454,7 +454,7 @@
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
                                 <cells>
                                     <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap !important; color: #0F172A;" />
-                                    <Text text="{= ${accessModel>type} || 'Addition' }" style="font-weight: 500; color: #1E293B;" />
+                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION') ? 'Revoke' : (${accessModel>type} || 'Addition') }" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
