@@ -276,9 +276,9 @@
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
                             <Title text="Configured Access Entitlements Review" level="H5" />
                             <Button
-                                text="Edit Configuration"
+                                text="Edit"
                                 icon="sap-icon://edit"
-                                type="Emphasized"
+                                class="kyraSummaryEditBtn"
                                 press=".onBackToStep2"
                                 tooltip="Modify selected options in Step 2" />
                         </HBox>

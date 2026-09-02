@@ -195,17 +195,17 @@
                             </HBox>
                         </HBox>
 
-                        <!-- 3-Column Header Bar: 35% / 35% / 30% -->
+                        <!-- 3-Column Header Bar: 34% / 34% / 32% -->
                         <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
-                            <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
-                            <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
-                            <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
+                            <HBox width="34%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox width="34%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
+                            <HBox width="32%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
                         </HBox>
 
                         <!-- Dynamic Pending Conflict Rows -->
                         <VBox items="{accessModel>/selectedRequestSodPendingConflicts}" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
                             <HBox class="kyraSodContentRow" alignItems="Center" width="100%">
-                                <HBox width="35%" class="kyraSodColWrapper">
+                                <HBox width="34%" class="kyraSodColWrapper">
                                     <HBox class="kyraSodBoxYellowCard1" width="100%" alignItems="Center">
                                         <Avatar src="sap-icon://customer" class="kyraSodAvatarYellow sapUiTinyMarginEnd" displaySize="S" />
                                         <VBox class="kyraSodCardTextGroup">
@@ -214,7 +214,7 @@
                                         </VBox>
                                     </HBox>
                                 </HBox>
-                                <HBox width="35%" class="kyraSodColWrapper">
+                                <HBox width="34%" class="kyraSodColWrapper">
                                     <HBox class="kyraSodBoxYellowCard2" width="100%" alignItems="Center">
                                         <Avatar src="sap-icon://database" class="kyraSodAvatarBlue sapUiTinyMarginEnd" displaySize="S" />
                                         <VBox class="kyraSodCardTextGroup">
@@ -223,7 +223,7 @@
                                         </VBox>
                                     </HBox>
                                 </HBox>
-                                <HBox width="30%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
+                                <HBox width="32%" class="kyraSodColWrapper kyraSodConflictWrapper" alignItems="Center">
                                     <HBox class="kyraSodConflictDetailBoxAmber" width="100%" alignItems="Center">
                                         <core:Icon src="sap-icon://alert" class="kyraSodAlertLargeIconAmber sapUiTinyMarginEnd" />
                                         <VBox class="kyraSodConflictTextGroup">

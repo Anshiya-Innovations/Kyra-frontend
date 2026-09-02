@@ -9,51 +9,199 @@
     padding-bottom: 12px;
 }
 
-/* 4-Step Animated Progress Track Bar */
+/* Outer Step Progress Bar - Clean Modern Professional Card (Matching User Reference Image) */
 .fioriWizardProgressTrack {
     display: flex !important;
     align-items: center !important;
-    justify-content: center !important;
-    gap: 12px !important;
+    justify-content: space-between !important;
     width: 100% !important;
-    margin: 16px 0 24px 0 !important;
+    max-width: 100% !important;
+    margin: 12px 0 22px 0 !important;
+    padding: 16px 28px !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.02) !important;
+    box-sizing: border-box !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
 }
 
-.fioriStepPill {
+.fioriWizardProgressTrack::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Base Step Node - Vertical Alignment */
+.kyraStepNode {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid transparent !important;
+    background: transparent !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: default !important;
+    user-select: none !important;
+    flex-shrink: 0 !important;
+}
+
+/* Icon Wrapper */
+.kyraStepIconWrap {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
-    padding: 6px 14px !important;
-    border-radius: 9999px !important;
-    background: #F1F5F9 !important;
-    border: 1px solid #CBD5E1 !important;
-    transition: all 0.25s ease-in-out !important;
+    justify-content: center !important;
+    margin-bottom: 8px !important;
+    transition: all 0.25s ease !important;
 }
 
-.fioriStepPillActive {
-    background: #E0F2FE !important;
-    border-color: #0284C7 !important;
-    box-shadow: 0 0 10px rgba(2, 132, 199, 0.2) !important;
+.kyraStepIcon {
+    font-size: 15px !important;
+    line-height: 36px !important;
 }
 
-.fioriStepPillDone {
-    background: #DCFCE7 !important;
-    border-color: #16A34A !important;
-}
-
-.fioriStepPillText {
-    font-size: 12px !important;
+/* Step Title */
+.kyraStepTitle {
+    font-size: 13px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    transition: color 0.2s ease !important;
+}
+
+/* Step Status Text */
+.kyraStepStatus {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    margin-top: 4px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    transition: color 0.2s ease !important;
+}
+
+/* 1. ACTIVE STEP: Blue Highlight & Border Card Box (Matching Reference Image) */
+.kyraStepNode.kyraStepActive {
+    border: 1.5px solid #3B82F6 !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.12) !important;
+    padding: 10px 22px !important;
+}
+
+.kyraStepNode.kyraStepActive .kyraStepIconWrap {
+    background: #EFF6FF !important;
+    background-color: #EFF6FF !important;
+    border: 1.5px solid #BFDBFE !important;
+}
+
+.kyraStepNode.kyraStepActive .kyraStepIcon {
+    color: #2563EB !important;
+    fill: #2563EB !important;
+}
+
+.kyraStepNode.kyraStepActive .kyraStepTitle {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+}
+
+.kyraStepNode.kyraStepActive .kyraStepStatus {
+    color: #2563EB !important;
+    font-weight: 700 !important;
+}
+
+/* 2. COMPLETED STEP: Green Checkmark & Completed Text */
+.kyraStepNode.kyraStepDone .kyraStepIconWrap {
+    background: #DCFCE7 !important;
+    background-color: #DCFCE7 !important;
+    border: 1.5px solid #86EFAC !important;
+}
+
+.kyraStepNode.kyraStepDone .kyraStepIcon {
+    color: #16A34A !important;
+    fill: #16A34A !important;
+    font-weight: bold !important;
+}
+
+.kyraStepNode.kyraStepDone .kyraStepTitle {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+}
+
+.kyraStepNode.kyraStepDone .kyraStepStatus {
+    color: #16A34A !important;
+    font-weight: 600 !important;
+}
+
+/* 3. UPCOMING STEP: Light Gray UI */
+.kyraStepNode.kyraStepUpcoming .kyraStepIconWrap {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border: 1.5px solid #E2E8F0 !important;
+}
+
+.kyraStepNode.kyraStepUpcoming .kyraStepIcon {
+    color: #94A3B8 !important;
+    fill: #94A3B8 !important;
+}
+
+.kyraStepNode.kyraStepUpcoming .kyraStepTitle {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+.kyraStepNode.kyraStepUpcoming .kyraStepStatus {
+    color: #94A3B8 !important;
+    font-weight: 500 !important;
+}
+
+/* 4. SIMPLE CONNECTING PROGRESS LINE */
+.kyraStepConnector {
+    flex: 1 1 auto !important;
+    height: 2px !important;
+    min-width: 20px !important;
+    background: #E2E8F0 !important;
+    background-color: #E2E8F0 !important;
+    border-radius: 2px !important;
+    margin: 0 8px !important;
+    align-self: flex-start !important;
+    margin-top: 27px !important;
+    transition: background 0.3s ease !important;
+}
+
+.kyraStepConnector.kyraStepConnectorActive {
+    background: #2563EB !important;
+    background-color: #2563EB !important;
+}
+
+/* Fallback compatibility for fioriStepPill */
+.fioriStepPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 5px 14px !important;
+    border-radius: 9999px !important;
 }
 
 .fioriStepConnectorLine {
-    flex: 0 0 32px !important;
+    flex: 1 1 auto !important;
     height: 2px !important;
-    background: #CBD5E1 !important;
+    min-width: 14px !important;
+    background: #E2E8F0 !important;
+    border-radius: 2px !important;
+    margin: 0 6px !important;
 }
 
 .fioriStepConnectorActive {
-    background: #0284C7 !important;
+    background: #2563EB !important;
 }
 
 /* Step Slide Transitions */
@@ -201,21 +349,25 @@
 }
 
 .kyraModernSelectField .sapMInputBaseContentWrapper,
-.fioriFormSelect .sapMInputBaseContentWrapper {
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
+.fioriFormSelect .sapMInputBaseContentWrapper,
+.sapMMultiComboBox .sapMInputBaseContentWrapper,
+.sapMComboBox .sapMInputBaseContentWrapper {
+    position: relative !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
     line-height: 40px !important;
     border-radius: 10px !important;
     border: 1.5px solid #CBD5E1 !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
     transition: all 0.2s ease !important;
-    padding: 0 0 0 14px !important;
+    padding: 2px 42px 2px 12px !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
+    justify-content: flex-start !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
 .fioriSelectGlow:focus-within .sapMInputBaseContentWrapper,
@@ -223,6 +375,31 @@
 .kyraModernSelectField:focus-within .sapMInputBaseContentWrapper {
     border-color: #059669 !important;
     box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.16) !important;
+}
+
+.sapMMultiComboBox .sapMSelectArrow,
+.sapMComboBox .sapMComboBoxArrow,
+.sapMInputBaseIconContainer {
+    position: absolute !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 38px !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #64748B !important;
+    cursor: pointer !important;
+    background: #FFFFFF !important;
+    z-index: 5 !important;
+}
+
+.sapMMultiComboBox .sapMTokenizer:not(:empty) + .sapMInputBaseInner::placeholder,
+.sapMMultiComboBox:has(.sapMToken) .sapMInputBaseInner::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+    display: none !important;
 }
 
 /* Buttons */
@@ -565,4 +742,142 @@ html body .sapMBtn.region-chip-btn,
     border: 1px solid #BBF7D0 !important;
     border-radius: 6px !important;
     padding: 2px 8px !important;
+}
+
+/* =========================================================================
+   KYRA UNIVERSAL SLEEK PROJECT SCROLLBARS (EMERALD & MINT THEME)
+   ========================================================================= */
+::-webkit-scrollbar {
+    width: 7px !important;
+    height: 7px !important;
+    display: block !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #F8FAFC !important;
+    border-radius: 8px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #A7F3D0 !important;
+    background-color: #A7F3D0 !important;
+    border-radius: 9999px !important;
+    border: 2px solid #F8FAFC !important;
+    transition: background-color 0.2s ease !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #059669 !important;
+    background-color: #059669 !important;
+}
+
+/* MultiComboBox Tokenizer */
+.sapMMultiComboBox .sapMTokenizer,
+.sapMTokenizer {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    gap: 6px !important;
+}
+
+.sapMMultiComboBox .sapMTokenizer::-webkit-scrollbar,
+.sapMTokenizer::-webkit-scrollbar {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+}
+
+.sapMTokenizerIndicator,
+.sapMTokenizerMoreBtn,
+.sapMTokenizerOverflow {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: #059669 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0 4px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    text-decoration: none !important;
+}
+
+.sapMTokenizerIndicator:hover,
+.sapMTokenizerMoreBtn:hover,
+.sapMTokenizerOverflow:hover {
+    color: #047857 !important;
+    text-decoration: underline !important;
+}
+
+.sapMMultiComboBox input,
+.sapMMultiComboBox .sapMInputBaseInner {
+    cursor: pointer !important;
+    caret-color: transparent !important;
+    user-select: none !important;
+}
+
+.sapMMultiComboBox:not(:has(.sapMToken)) .sapMInputBaseInner::placeholder {
+    color: #94A3B8 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+.sapMMultiComboBox:has(.sapMToken) .sapMInputBaseInner::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+    display: none !important;
+}
+
+.sapMInputBaseIconContainer:focus,
+.sapMInputBaseIconContainer:focus-visible,
+.sapMInputBaseIconContainer.sapMFocus,
+.sapMSelectArrow:focus,
+.sapMSelectArrow:focus-visible,
+.sapMSelectArrow.sapMFocus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Universal Pure White Checkmark */
+.sapMCbMark,
+.sapMCbMark::before,
+.sapMCbMark::after,
+.sapMCbBg.sapMCbMark,
+.sapMCbMarkChecked .sapMCbMark,
+.sapMCbMarkChecked .sapMCbMark::before,
+.sapMCbMarkChecked .sapMCbMark::after,
+.sapMLIBSelected .sapMCbMark,
+.sapMLIBSelected .sapMCbMark::before,
+.sapMLIBSelected .sapMCbMark::after,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbMark,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbMark::before,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbMark::after,
+.sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbMark,
+.sapMCbChecked .sapMCbMark,
+.sapMCbChecked .sapMCbMark::before,
+.sapMCbChecked .sapMCbMark::after {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    font-size: 12px !important;
+}
+
+.sapMCbMark svg,
+.sapMCbBg svg,
+.sapMLIBSelected .sapMCbBg svg,
+.sapMCbChecked svg {
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    color: #FFFFFF !important;
 }

@@ -17,7 +17,9 @@ body,
     --sapButton_Lite_Focused_BorderColor: transparent !important;
 }
 
-/* COMPLETELY REMOVE & HIDE SIDE SCROLLBARS FULLY ACROSS ALL BROWSERS */
+/* =========================================================================
+   KYRA UNIVERSAL SLEEK PROJECT SCROLLBARS (EMERALD & MINT THEME)
+   ========================================================================= */
 html, body, .sapMPage, .sapMPageScroll, .sapMPageBg {
     margin: 0;
     padding: 0;
@@ -25,8 +27,8 @@ html, body, .sapMPage, .sapMPageScroll, .sapMPageBg {
     height: 100%;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    -ms-overflow-style: none !important; /* IE and Edge */
-    scrollbar-width: none !important; /* Firefox */
+    scrollbar-width: thin !important;
+    scrollbar-color: #10B981 #F1F5F9 !important;
     font-family: 'Inter', "72", "72full", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     background-color: #F8FAFC !important;
     color: #0F172A !important;
@@ -34,17 +36,40 @@ html, body, .sapMPage, .sapMPageScroll, .sapMPageBg {
 
 * {
     box-sizing: border-box !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #10B981 #F1F5F9 !important;
 }
 
-/* Hide WebKit Scrollbars (Chrome, Safari, Edge) */
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-.sapMPageScroll::-webkit-scrollbar,
-div::-webkit-scrollbar,
 ::-webkit-scrollbar {
-    display: none !important;
-    width: 0px !important;
-    height: 0px !important;
+    width: 7px !important;
+    height: 7px !important;
+    display: block !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #F8FAFC !important;
+    border-radius: 8px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #A7F3D0 !important;
+    background-color: #A7F3D0 !important;
+    border-radius: 9999px !important;
+    border: 2px solid #F8FAFC !important;
+    transition: background-color 0.2s ease !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #059669 !important;
+    background-color: #059669 !important;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #047857 !important;
+    background-color: #047857 !important;
+}
+
+::-webkit-scrollbar-corner {
     background: transparent !important;
 }
 
@@ -128,11 +153,12 @@ div::-webkit-scrollbar,
 
 /* Hero Welcome Banner - Clean Professional White & Sky-Blue Card */
 .fioriWelcomeCard {
-    background: linear-gradient(135deg, #FFFFFF 0%, #F0F9FF 100%) !important;
-    border-radius: 14px !important;
-    border: 1px solid #BAE6FD !important;
-    box-shadow: 0 4px 16px rgba(2, 132, 199, 0.05) !important;
-    padding: 1.15rem 1.5rem !important;
+    background: #00778B !important;
+    background: linear-gradient(90deg, #005A69 0%, #008596 50%, #00ADBA 100%) !important;
+    border-radius: 16px !important;
+    border: none !important;
+    box-shadow: 0 6px 20px rgba(0, 90, 105, 0.25) !important;
+    padding: 18px 24px !important;
     position: relative !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -1464,24 +1490,38 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
     font-size: 13px !important;
     padding: 0 16px !important;
     height: 36px !important;
-    line-height: 34px !important;
-    box-shadow: none !important;
+    line-height: 33px !important;
+    box-shadow: 0 1px 3px rgba(0, 195, 208, 0.15) !important;
     outline: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: all 0.18s ease !important;
+    gap: 6px !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .kyraSummaryEditBtn:hover .sapMBtnInner,
 .kyraSummaryEditBtn .sapMBtnInner:hover {
-    background: #EFF6FF !important;
-    border-color: #93C5FD !important;
-    color: #1D4ED8 !important;
+    background: #E6FFFA !important;
+    border-color: #008B94 !important;
+    color: #005B60 !important;
+    box-shadow: 0 3px 10px rgba(0, 195, 208, 0.28) !important;
+    transform: translateY(-1px) !important;
+}
+
+.kyraSummaryEditBtn:active .sapMBtnInner,
+.kyraSummaryEditBtn .sapMBtnInner:active {
+    transform: translateY(0) scale(0.98) !important;
 }
 
 .kyraSummaryEditBtn .sapMBtnIcon {
-    color: #2563EB !important;
+    color: #008B94 !important;
+    font-size: 14px !important;
+    transition: color 0.18s ease !important;
+}
+
+.kyraSummaryEditBtn:hover .sapMBtnIcon {
+    color: #005B60 !important;
 }
 
 /* Summary Table Styling */
@@ -1496,7 +1536,7 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
     background: #F8FAFC !important;
     border-radius: 8px !important;
     border: none !important;
-    padding: 6px 0 !important;
+    padding: 8px 0 !important;
 }
 
 .kyraSummaryTable .sapMListTblTh {
@@ -1522,7 +1562,7 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
 
 .kyraSummaryColHeaderIcon {
     font-size: 13px !important;
-    color: #2563EB !important;
+    color: #008B94 !important;
     line-height: 1 !important;
 }
 
@@ -1598,7 +1638,7 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
 .kyraSummaryStatusText.kyraStatusExisting,
 .kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusIcon,
 .kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText {
-    color: #0284C7 !important;
+    color: #0891B2 !important;
 }
 
 /* Single-Border Soft Red Delete Action Button */
@@ -1648,15 +1688,30 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
 .kyraSummaryTopDetailsCard {
     background: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
-    border-left: 4px solid #2563EB !important;
+    border-left: 4px solid #00C3D0 !important;
     border-radius: 12px !important;
     padding: 16px 20px !important;
     box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
 }
 
+.kyraSummaryDetailGrid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+}
+
 .kyraSummaryDetailItem {
-    padding: 4px 12px 4px 0 !important;
-    min-width: 130px !important;
+    flex: 1 1 150px !important;
+    background: #F8FAFC !important;
+    border: 1px solid #F1F5F9 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
 }
 
 .kyraSummaryDetailLabel {
@@ -1665,13 +1720,18 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
     color: #64748B !important;
     text-transform: uppercase !important;
     letter-spacing: 0.06em !important;
-    margin-bottom: 3px !important;
+    margin-bottom: 4px !important;
 }
 
 .kyraSummaryDetailValue {
     font-size: 13px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
+}
+
+.kyraRequesterIdHighlight {
+    color: #008B94 !important;
+    font-weight: 700 !important;
 }
 
 .kyraSummaryDetailJustification {
@@ -1681,6 +1741,112 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
     font-style: italic !important;
     margin-top: 2px !important;
 }
+
+.kyraSummaryJustificationBox {
+    background: #F8FAFC !important;
+    border: 1px solid #F1F5F9 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    margin-top: 12px !important;
+}
+
+
+/* =========================================================================
+   ENTITLEMENTS STEP-BY-STEP CONFIGURATION (1-by-1 Flow & Clean OK Button)
+   ========================================================================= */
+.kyraEntitlementFormCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 20px 24px !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
+}
+
+.kyraEntitlementFormTitle {
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.01em !important;
+    margin-bottom: 14px !important;
+}
+
+.kyraConfigStepBox {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 14px 18px !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraConfigStepBox:hover {
+    border-color: #CBD5E1 !important;
+    background: #F1F5F9 !important;
+}
+
+.kyraConfigStepBadge {
+    background: #00C3D0 !important;
+    color: #FFFFFF !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 22px !important;
+    margin-right: 10px !important;
+    box-shadow: 0 1px 3px rgba(0, 195, 208, 0.3) !important;
+}
+
+.kyraConfigStepLabel {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+}
+
+.kyraConfigStepHint {
+    font-size: 11.5px !important;
+    font-style: italic !important;
+    color: #94A3B8 !important;
+    margin-left: 8px !important;
+}
+
+.kyraMultiSelectBox {
+    width: 100% !important;
+}
+
+/* Simple, Proper OK Button (Cyan, No Icon Inside, Clean Layout) */
+.kyraSimpleOkBtn.sapMBtn {
+    height: 38px !important;
+    padding: 0 !important;
+}
+
+.kyraSimpleOkBtn .sapMBtnInner {
+    min-width: 88px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    letter-spacing: 0.02em !important;
+    text-transform: none !important;
+    padding: 0 24px !important;
+    height: 38px !important;
+    line-height: 36px !important;
+    background-color: #00C3D0 !important;
+    border: 1px solid #00C3D0 !important;
+    color: #FFFFFF !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(0, 195, 208, 0.28) !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraSimpleOkBtn:hover .sapMBtnInner {
+    background-color: #00AEBA !important;
+    border-color: #00AEBA !important;
+    box-shadow: 0 4px 12px rgba(0, 195, 208, 0.38) !important;
+}
+
 
 /* =========================================================================
    STEP 4: ACCESS VALIDATION STYLES (Matching User Specification)
@@ -2001,15 +2167,30 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
     width: 100% !important;
 }
 
-.kyraSodBackLink {
-    font-size: 13px !important;
+.kyraSodBackLink,
+.fioriConflictBackLink,
+.fioriStartOverLink {
+    font-size: 13.5px !important;
     font-weight: 600 !important;
-    color: #2563EB !important;
+    color: #059669 !important;
     text-decoration: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    transition: color 0.15s ease !important;
 }
 
-.kyraSodBackLink:hover {
+.kyraSodBackLink:hover,
+.fioriConflictBackLink:hover,
+.fioriStartOverLink:hover {
+    color: #047857 !important;
     text-decoration: underline !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 .kyraSodDivider {
@@ -2473,20 +2654,26 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
 
 .kyraSodTableHeadRed {
     background: #FEE2E2 !important;
-    border-radius: 6px !important;
-    padding: 6px 0 !important;
+    border: 1px solid #FECACA !important;
+    border-radius: 8px !important;
+    padding: 8px 0 !important;
     box-sizing: border-box !important;
-    margin-top: 8px !important;
-    margin-bottom: 8px !important;
+    margin: 14px 0 10px 0 !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .kyraSodTableHeadYellow {
     background: #FEF3C7 !important;
-    border-radius: 6px !important;
-    padding: 6px 0 !important;
+    border: 1px solid #FDE68A !important;
+    border-radius: 8px !important;
+    padding: 8px 0 !important;
     box-sizing: border-box !important;
-    margin-top: 8px !important;
-    margin-bottom: 8px !important;
+    margin: 14px 0 10px 0 !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .kyraSodHeadCol {
@@ -2499,15 +2686,26 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
 .kyraSodColHeader {
     font-size: 11px !important;
     font-weight: 700 !important;
-    color: #475569 !important;
-    letter-spacing: 0.4px !important;
+    letter-spacing: 0.5px !important;
     text-transform: uppercase !important;
     text-align: left !important;
-    line-height: 1.2 !important;
+    line-height: 1.3 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: block !important;
+}
+
+.kyraSodTableHeadRed .kyraSodColHeader {
+    color: #991B1B !important;
+}
+
+.kyraSodTableHeadYellow .kyraSodColHeader {
+    color: #92400E !important;
+}
+
+.kyraSodTableHeadGreen .kyraSodColHeader {
+    color: #166534 !important;
 }
 
 /* Compact Empty States */
@@ -2592,67 +2790,117 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
 .kyraSodContentRow {
     width: 100% !important;
     box-sizing: border-box !important;
-    margin-top: 2px !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    align-items: stretch !important;
 }
 
 .kyraSodColWrapper {
-    padding: 0 8px !important;
+    padding: 0 6px !important;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: stretch !important;
-    height: 100% !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
 }
 
 .kyraSodConflictWrapper {
     display: flex !important;
-    align-items: center !important;
+    align-items: stretch !important;
     justify-content: flex-start !important;
-    height: 68px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
 }
 
 .kyraSodColBox {
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     padding: 8px 12px !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    min-height: 68px !important;
-    height: 68px !important;
-    max-height: 68px !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    max-height: 72px !important;
     overflow: hidden !important;
 }
 
 .kyraSodBoxYellowCard1 {
     background: #FFFFFF !important;
     border: 1px solid #FDE68A !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     padding: 8px 12px !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    min-height: 68px !important;
-    height: 68px !important;
-    max-height: 68px !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    max-height: 72px !important;
     overflow: hidden !important;
-    box-shadow: 0 1px 2px rgba(245, 158, 11, 0.04) !important;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.05) !important;
+    width: 100% !important;
 }
 
 .kyraSodBoxYellowCard2 {
     background: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     padding: 8px 12px !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    min-height: 68px !important;
-    height: 68px !important;
-    max-height: 68px !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    max-height: 72px !important;
     overflow: hidden !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    width: 100% !important;
+}
+
+.kyraSodConflictDetailBoxAmber {
+    background: #FFFFFF !important;
+    border: 1px solid #FDE68A !important;
+    border-left: 3.5px solid #F59E0B !important;
+    border-radius: 10px !important;
+    padding: 8px 12px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    max-height: 72px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.05) !important;
+    width: 100% !important;
+}
+
+/* Red card context overrides */
+.kyraSodRedCard .kyraSodBoxYellowCard1 {
+    border-color: #FECACA !important;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.05) !important;
+}
+
+.kyraSodRedCard .kyraSodConflictDetailBoxAmber {
+    border-color: #FECACA !important;
+    border-left: 3.5px solid #EF4444 !important;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.05) !important;
+}
+
+/* Green card context overrides */
+.kyraSodGreenCard .kyraSodBoxYellowCard1 {
+    border-color: #BBF7D0 !important;
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.05) !important;
+}
+
+.kyraSodGreenCard .kyraSodConflictDetailBoxAmber {
+    border-color: #BBF7D0 !important;
+    border-left: 3.5px solid #10B981 !important;
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.05) !important;
 }
 
 .kyraSodAvatarYellow {
@@ -2661,7 +2909,14 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
     border-radius: 50% !important;
     width: 32px !important;
     height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
     flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .kyraSodAvatarBlue {
@@ -2670,11 +2925,18 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
     border-radius: 50% !important;
     width: 32px !important;
     height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
     flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .kyraSodCardTextGroup {
-    flex: 1 !important;
+    flex: 1 1 auto !important;
     margin-left: 8px !important;
     overflow: hidden !important;
     display: flex !important;
@@ -2686,7 +2948,7 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
     font-size: 12.5px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
-    line-height: 1.2 !important;
+    line-height: 1.25 !important;
     white-space: normal !important;
     word-break: break-word !important;
 }
@@ -2695,37 +2957,50 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
     font-size: 11px !important;
     color: #64748B !important;
     margin-top: 2px !important;
-    line-height: 1.2 !important;
+    line-height: 1.25 !important;
     white-space: normal !important;
     word-break: break-word !important;
 }
 
-.kyraSodConflictDetailBoxAmber {
-    padding: 0 4px !important;
-    display: flex !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
-    height: 68px !important;
-}
-
 .kyraSodAlertLargeIconAmber {
-    font-size: 24px !important;
+    font-size: 22px !important;
     color: #D97706 !important;
     line-height: 1 !important;
     flex-shrink: 0 !important;
+    margin-right: 8px !important;
 }
 
-.kyraSodConflictMainTitleAmber {
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
-    color: #B45309 !important;
-    line-height: 1.2 !important;
+.kyraSodRedCard .kyraSodAlertLargeIconAmber {
+    color: #DC2626 !important;
+}
+
+.kyraSodGreenCard .kyraSodAlertLargeIconAmber {
+    color: #059669 !important;
 }
 
 .kyraSodConflictTextGroup {
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+}
+
+.kyraSodConflictMainTitleAmber {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    color: #B45309 !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+}
+
+.kyraSodRedCard .kyraSodConflictMainTitleAmber {
+    color: #DC2626 !important;
+}
+
+.kyraSodGreenCard .kyraSodConflictMainTitleAmber {
+    color: #047857 !important;
 }
 
 .kyraSodConflictMainDesc {
@@ -4914,32 +5189,54 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 /* =========================================================================
    MY ACCESS VIEW ALL BUTTON & FILTER DIALOG
    ========================================================================= */
-.kyraViewAllBtn {
-    height: 36px !important;
+.kyraViewAllBtn,
+.kyraViewAllBtn.sapMBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     vertical-align: middle !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
 }
 
-.kyraViewAllBtn .sapMBtnInner {
-    background: #2563EB !important;
-    border: 1px solid #2563EB !important;
+.kyraViewAllBtn .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn .sapMBtnInner,
+.kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1.5px solid transparent !important;
+    border-color: transparent !important;
+    outline: none !important;
     color: #FFFFFF !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    border-radius: 8px !important;
-    height: 36px !important;
-    line-height: 34px !important;
-    padding: 0 15px !important;
-    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25) !important;
-    transition: all 0.15s ease !important;
-    display: flex !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    border-radius: 12px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    line-height: 35px !important;
+    padding: 0 18px !important;
+    box-shadow: none !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
+    cursor: pointer !important;
 }
 
-.kyraViewAllBtn .sapMBtnIcon {
+.kyraViewAllBtn .sapMBtnIcon,
+.kyraViewAllBtn.sapMBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnIcon {
     color: #FFFFFF !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     line-height: 1 !important;
     height: auto !important;
     margin: 0 6px 0 0 !important;
@@ -4953,10 +5250,12 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
     justify-content: center !important;
 }
 
-.kyraViewAllBtn .sapMBtnContent {
+.kyraViewAllBtn .sapMBtnContent,
+.kyraViewAllBtn.sapMBtn .sapMBtnContent,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnContent {
     color: #FFFFFF !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
     line-height: 1 !important;
     height: auto !important;
     margin: 0 !important;
@@ -4970,9 +5269,40 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
     justify-content: center !important;
 }
 
-.kyraViewAllBtn:hover .sapMBtnInner {
-    background: #1D4ED8 !important;
-    border-color: #1D4ED8 !important;
+.kyraViewAllBtn:hover .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
+.kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1.5px solid #01C3D0 !important;
+    border-color: #01C3D0 !important;
+    outline: none !important;
+    box-shadow: 0 3px 10px rgba(1, 195, 208, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+.kyraViewAllBtn:active .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn:active .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn:active .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1.5px solid #01C3D0 !important;
+    border-color: #01C3D0 !important;
+    outline: none !important;
+    transform: translateY(0) !important;
+}
+
+.kyraViewAllBtn:focus,
+.kyraViewAllBtn:focus-within,
+.kyraViewAllBtn .sapMBtnInner:focus,
+.kyraViewAllBtn.sapMBtn:focus .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
+    outline: none !important;
+    border: 1.5px solid transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
 }
 
 .kyraFilterDialog .sapMDialogSection {
@@ -5324,8 +5654,8 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 }
 
 .kyraDecisionIconBtnApprove .sapMBtnInner {
-    background: #16A34A !important;
-    background-color: #16A34A !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
     border: 1px solid #15803D !important;
     border-radius: 6px !important;
     width: 32px !important;
@@ -8299,7 +8629,12 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 
 .kyraModernCheckBox:hover .sapMCbBg,
 .sapMCb:hover .sapMCbBg,
-.sapMLIB:hover .sapMCbBg {
+.sapMLIB:hover .sapMCbBg,
+.sapMCbHoverable:hover .sapMCbBg,
+.sapMCbFocused .sapMCbBg,
+.sapMCb:focus .sapMCbBg {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     border-color: #059669 !important;
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12) !important;
 }
@@ -8309,19 +8644,73 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 .sapMCbMarkChecked .sapMCbBg,
 .sapMLIBSelected .sapMCbBg,
 .sapMLIB.sapMLIBSelected .sapMCbBg,
-.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg {
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbBg,
+.sapMCbChecked .sapMCbBg {
     background: #059669 !important;
     background-color: #059669 !important;
     border-color: #047857 !important;
     box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25) !important;
 }
 
+/* =========================================================================
+   UNIVERSAL CHECKMARK TICK ICON (PURE CRISP WHITE - NEVER BLUE)
+   ========================================================================= */
+.sapMCbMark,
+.sapMCbMark::before,
+.sapMCbMark::after,
+.sapMCbBg.sapMCbMark,
+.sapMCbBg.sapMCbMark::before,
+.sapMCbBg.sapMCbMark::after,
+.sapMCbMarkChecked .sapMCbMark,
+.sapMCbMarkChecked .sapMCbMark::before,
+.sapMCbMarkChecked .sapMCbMark::after,
+.sapMCbMarkChecked .sapMCbBg::before,
+.sapMCbMarkChecked .sapMCbBg::after,
+.sapMLIBSelected .sapMCbMark,
+.sapMLIBSelected .sapMCbMark::before,
+.sapMLIBSelected .sapMCbMark::after,
+.sapMLIBSelected .sapMCbBg::before,
+.sapMLIBSelected .sapMCbBg::after,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbMark,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbMark::before,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbMark::after,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg::before,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg::after,
+.sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbMark,
+.sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbMark::before,
+.sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbMark::after,
+.sapMMultiComboBoxPopup .sapMCbMark,
+.sapMMultiComboBoxPopup .sapMCbMark::before,
+.sapMMultiComboBoxPopup .sapMCbMark::after,
+.sapMCbChecked .sapMCbMark,
+.sapMCbChecked .sapMCbMark::before,
+.sapMCbChecked .sapMCbMark::after,
+.sapMCbChecked .sapMCbBg::before,
+.sapMCbChecked .sapMCbBg::after,
 .kyraModernCheckBox.sapMCbMarkChecked .sapMCbMark,
+.kyraModernCheckBox.sapMCbMarkChecked .sapMCbMark::before,
+.kyraModernCheckBox.sapMCbMarkChecked .sapMCbMark::after,
 .kyraModernCheckBox .sapMCbMark {
-    position: static !important;
     color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
     font-size: 12px !important;
     line-height: 1 !important;
+}
+
+.sapMCbMark svg,
+.sapMCbBg svg,
+.sapMLIBSelected .sapMCbBg svg,
+.sapMCbChecked svg,
+.sapMCb svg path {
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    color: #FFFFFF !important;
+}
+
+.kyraModernCheckBox .sapMCbMark {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -9962,21 +10351,24 @@ button:focus-visible,
 .kyraNotifListRow {
     border-radius: 12px !important;
     padding: 16px 20px !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 14px !important;
     box-sizing: border-box !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     display: flex !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     justify-content: space-between !important;
+    background: #FFFFFF !important;
+    border: 1.2px solid #E2E8F0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* Subtle Blue Highlight for Unread Notifications */
 .kyraNotifCardUnread {
     background: #F0F7FF !important;
     background-color: #F0F7FF !important;
-    border: 1px solid #BFDBFE !important;
-    border-left: 4px solid #2563EB !important;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.06) !important;
+    border: 1.2px solid #BFDBFE !important;
+    border-left: 5px solid #2563EB !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08) !important;
 }
 
 .kyraNotifCardUnread:hover {
@@ -9984,103 +10376,187 @@ button:focus-visible,
     background-color: #E8F2FF !important;
     border-color: #93C5FD !important;
     border-left-color: #1D4ED8 !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12) !important;
+    transform: translateY(-1px) !important;
 }
 
 /* Clean White Card for Read Notifications */
 .kyraNotifCardRead {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: 1px solid #E2E8F0 !important;
-    border-left: 4px solid transparent !important;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    border: 1.2px solid #E2E8F0 !important;
+    border-left: 5px solid #94A3B8 !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
 }
 
 .kyraNotifCardRead:hover {
     border-color: #CBD5E1 !important;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+    transform: translateY(-1px) !important;
 }
 
 /* Left Section: Status Icon -> Title -> Request ID -> Description -> Time */
 .kyraNotifCardLeftSection {
     display: flex !important;
-    align-items: center !important;
+    align-items: flex-start !important;
     gap: 16px !important;
     min-width: 0 !important;
+    flex: 1 1 auto !important;
 }
 
 /* Circular Status Icon */
 .kyraNotifRowIconCircle {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
+    margin-top: 1px !important;
+    box-sizing: border-box !important;
 }
 
-.kyraNotifIconGreen {
+.kyraNotifIconGreen,
+.kyraNotifRowIconCircle.kyraNotifIconGreen {
     background: #DCFCE7 !important;
-    color: #16A34A !important;
-    border: 1px solid #BBF7D0 !important;
+    background-color: #DCFCE7 !important;
+    border: 1.5px solid #86EFAC !important;
 }
 
-.kyraNotifIconGreen .kyraNotifRowIcon {
-    color: #16A34A !important;
+.kyraNotifIconGreen .sapUiIcon,
+.kyraNotifIconGreen .kyraNotifRowIcon,
+.kyraNotifRowIconCircle.kyraNotifIconGreen .sapUiIcon,
+.kyraNotifRowIconCircle.kyraNotifIconGreen .kyraNotifRowIcon {
+    color: #15803D !important;
     font-size: 18px !important;
+    line-height: 1 !important;
 }
 
-.kyraNotifIconBlue {
+.kyraNotifIconBlue,
+.kyraNotifRowIconCircle.kyraNotifIconBlue {
     background: #EFF6FF !important;
-    color: #2563EB !important;
-    border: 1px solid #BFDBFE !important;
+    background-color: #EFF6FF !important;
+    border: 1.5px solid #BFDBFE !important;
 }
 
-.kyraNotifIconBlue .kyraNotifRowIcon {
+.kyraNotifIconBlue .sapUiIcon,
+.kyraNotifIconBlue .kyraNotifRowIcon,
+.kyraNotifRowIconCircle.kyraNotifIconBlue .sapUiIcon,
+.kyraNotifRowIconCircle.kyraNotifIconBlue .kyraNotifRowIcon {
     color: #2563EB !important;
     font-size: 18px !important;
+    line-height: 1 !important;
 }
 
-.kyraNotifIconYellow {
+.kyraNotifIconYellow,
+.kyraNotifRowIconCircle.kyraNotifIconYellow {
     background: #FEF3C7 !important;
-    color: #EA580C !important;
-    border: 1px solid #FDE68A !important;
+    background-color: #FEF3C7 !important;
+    border: 1.5px solid #FDE68A !important;
 }
 
-.kyraNotifIconYellow .kyraNotifRowIcon {
+.kyraNotifIconYellow .sapUiIcon,
+.kyraNotifIconYellow .kyraNotifRowIcon,
+.kyraNotifRowIconCircle.kyraNotifIconYellow .sapUiIcon,
+.kyraNotifRowIconCircle.kyraNotifIconYellow .kyraNotifRowIcon {
     color: #EA580C !important;
     font-size: 18px !important;
+    line-height: 1 !important;
 }
 
-.kyraNotifIconPurple {
+.kyraNotifIconPurple,
+.kyraNotifRowIconCircle.kyraNotifIconPurple {
     background: #F3E8FF !important;
-    color: #9333EA !important;
-    border: 1px solid #E9D5FF !important;
+    background-color: #F3E8FF !important;
+    border: 1.5px solid #E9D5FF !important;
 }
 
-.kyraNotifIconPurple .kyraNotifRowIcon {
+.kyraNotifIconPurple .sapUiIcon,
+.kyraNotifIconPurple .kyraNotifRowIcon,
+.kyraNotifRowIconCircle.kyraNotifIconPurple .sapUiIcon,
+.kyraNotifRowIconCircle.kyraNotifIconPurple .kyraNotifRowIcon {
     color: #9333EA !important;
     font-size: 18px !important;
+    line-height: 1 !important;
 }
 
-.kyraNotifIconRed {
+.kyraNotifIconRed,
+.kyraNotifRowIconCircle.kyraNotifIconRed {
     background: #FEE2E2 !important;
-    color: #DC2626 !important;
-    border: 1px solid #FCA5A5 !important;
+    background-color: #FEE2E2 !important;
+    border: 1.5px solid #FCA5A5 !important;
 }
 
-.kyraNotifIconRed .kyraNotifRowIcon {
+.kyraNotifIconRed .sapUiIcon,
+.kyraNotifIconRed .kyraNotifRowIcon,
+.kyraNotifRowIconCircle.kyraNotifIconRed .sapUiIcon,
+.kyraNotifRowIconCircle.kyraNotifIconRed .kyraNotifRowIcon {
     color: #DC2626 !important;
     font-size: 18px !important;
+    line-height: 1 !important;
+}
+
+.kyraNotifTextCol {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    gap: 0 !important;
+}
+
+.kyraNotifTitleRow {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 5px !important;
+}
+
+.kyraNotifRowTitle {
+    font-weight: 700 !important;
+    font-size: 14.5px !important;
+    color: #0F172A !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.01em !important;
+    margin: 0 !important;
+}
+
+/* Request ID Pill Badge */
+.kyraNotifReqIdBadge {
+    background: #EFF6FF !important;
+    background-color: #EFF6FF !important;
+    color: #1D4ED8 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    font-family: monospace, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    border: 1px solid #BFDBFE !important;
+    border-radius: 6px !important;
+    padding: 2px 8px !important;
+    letter-spacing: 0.02em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 22px !important;
+    line-height: 20px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+.kyraNotifRowDesc {
+    font-size: 13px !important;
+    color: #475569 !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .kyraNotifRemarkCallout {
-    margin-top: 6px !important;
+    margin-top: 8px !important;
     padding: 6px 12px !important;
     background: #F8FAFC !important;
-    border-left: 3px solid #3B82F6 !important;
+    border-left: 3px solid #007D8B !important;
     border-radius: 4px !important;
     display: flex !important;
     align-items: center !important;
@@ -10099,63 +10575,27 @@ button:focus-visible,
     color: #0F172A !important;
 }
 
-.kyraNotifTextCol {
-    display: flex !important;
-    flex-direction: column !important;
-    min-width: 0 !important;
-}
-
-.kyraNotifTitleRow {
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
-}
-
-.kyraNotifRowTitle {
-    font-weight: 700 !important;
-    font-size: 14.5px !important;
-    color: #0F172A !important;
-    line-height: 1.3 !important;
-    letter-spacing: -0.01em !important;
-}
-
-/* Request ID Pill Badge */
-.kyraNotifReqIdBadge {
-    background: #EFF6FF !important;
-    color: #1D4ED8 !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    font-family: monospace, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-    border: 1px solid #DBEAFE !important;
-    border-radius: 6px !important;
-    padding: 1px 7px !important;
-    letter-spacing: 0.02em !important;
-    display: inline-block !important;
-}
-
-.kyraNotifRowDesc {
-    font-size: 13px !important;
-    color: #475569 !important;
-    margin-top: 3px !important;
-    line-height: 1.4 !important;
-}
-
 .kyraNotifTimeRow {
-    margin-top: 6px !important;
+    margin-top: 8px !important;
     display: flex !important;
     align-items: center !important;
+    gap: 6px !important;
 }
 
-.kyraNotifClockIcon {
-    font-size: 11.5px !important;
+.kyraNotifClockIcon,
+.kyraNotifTimeRow .sapUiIcon {
+    font-size: 12px !important;
     color: #94A3B8 !important;
-    margin-right: 5px !important;
+    margin-right: 2px !important;
+    line-height: 1 !important;
 }
 
 .kyraNotifTimeText {
-    font-size: 11.5px !important;
+    font-size: 12px !important;
     color: #94A3B8 !important;
     font-weight: 500 !important;
+    letter-spacing: 0.01em !important;
+    margin: 0 !important;
 }
 
 /* Row Action Buttons (Right) */
@@ -10164,7 +10604,8 @@ button:focus-visible,
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 8px !important;
+    align-self: center !important;
+    margin-left: 16px !important;
     flex-shrink: 0 !important;
 }
 
@@ -10176,10 +10617,10 @@ html body .sapMBtn.kyraNotifRowDeleteBtn,
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
     box-shadow: none !important;
     outline: none !important;
     display: inline-flex !important;
@@ -10192,11 +10633,11 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapMBtnInner,
     background: #FEF2F2 !important;
     background-color: #FEF2F2 !important;
     border: 1px solid #FEE2E2 !important;
-    border-radius: 8px !important;
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
+    border-radius: 9px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
     padding: 0 !important;
     margin: 0 !important;
     display: inline-flex !important;
@@ -10205,14 +10646,15 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapMBtnInner,
     cursor: pointer !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.18s ease !important;
 }
 
 html body .sapMBtn.kyraNotifRowDeleteBtn:hover .sapMBtnInner,
 .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
     background: #FEE2E2 !important;
     background-color: #FEE2E2 !important;
-    border-color: #FECACA !important;
+    border-color: #FCA5A5 !important;
+    transform: scale(1.05) !important;
 }
 
 html body .sapMBtn.kyraNotifRowDeleteBtn .sapMBtnIcon,
@@ -10224,8 +10666,8 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
     top: auto !important;
     width: auto !important;
     height: auto !important;
-    color: #EF4444 !important;
-    font-size: 14px !important;
+    color: #DC2626 !important;
+    font-size: 15px !important;
     margin: 0 !important;
     padding: 0 !important;
     line-height: 1 !important;
@@ -11683,4 +12125,60 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
 }
 
 
-
+
+/* =========================================================================
+   ERADICATE WHITE SQUARE & BLUE ARROW ON DROPDOWN ICONS (Image 3 Fix)
+   ========================================================================= */
+.sapMInputBaseIcon,
+.sapMComboBoxIcon,
+.sapMSelectArrowIcon,
+.sapMInputBaseIconContainer .sapMInputBaseIcon,
+.sapMInputBaseIconContainer .sapMComboBoxIcon,
+.fioriFormSelect .sapMInputBaseIcon,
+.fioriFormSelect .sapMComboBoxIcon,
+.sapMMultiComboBox .sapMInputBaseIcon,
+.sapMMultiComboBox .sapMComboBoxIcon,
+html body .sapUiTheme-sap_horizon .sapMInputBaseIcon,
+html body .sapUiTheme-sap_horizon .sapMComboBoxIcon {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    color: #059669 !important;
+}
+
+.sapMInputBaseIcon::before,
+.sapMComboBoxIcon::before,
+.sapMInputBaseIcon::after,
+.sapMComboBoxIcon::after {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.fioriFormSelect .sapMInputBaseIcon:hover,
+.fioriFormSelect .sapMComboBoxIcon:hover,
+.sapMMultiComboBox .sapMInputBaseIcon:hover,
+.sapMMultiComboBox .sapMComboBoxIcon:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    color: #047857 !important;
+}
+
+/* Image 2 Checkbox Blue Shade Removal Universal Rule */
+.sapMCb .sapMCbBg,
+.sapMCbBg,
+.sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg,
+.sapMLIB:not(.sapMLIBSelected) .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMLIB:not(.sapMLIBSelected) .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMCb:not(.sapMCbMarkChecked) .sapMCbBg {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}

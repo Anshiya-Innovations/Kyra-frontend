@@ -423,13 +423,11 @@
             <!-- Top Header Banner -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
                 <HBox alignItems="Center">
-                    <Link text="&lt; Back to Duration &amp; Justification" press=".onGoBackToDurationSlide" class="fioriConflictBackLink sapUiSmallMarginEnd" />
-                    <Title text="Step 4: Access Validation" level="H4" class="fioriBannerTitle sapUiSmallMarginBegin" />
+                    <Title text="Step 4: Access Validation" level="H4" class="fioriBannerTitle" />
                 </HBox>
                 <HBox alignItems="Center">
                     <Text text="Requester ID: " class="fioriRequestForLabel" />
                     <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
-                    <Button icon="sap-icon://home" type="Transparent" class="sapUiTinyMarginBegin" />
                 </HBox>
             </HBox>
 
@@ -498,7 +496,7 @@
 
             <!-- Slide 1 Footer Action Bar -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictFooterBar sapUiSmallMarginTop">
-                <Link text="&lt; Back to Duration &amp; Justification" press=".onGoBackToDurationSlide" class="fioriConflictBackLink" />
+                <Button text="Previous" icon="sap-icon://navigation-left-arrow" type="Default" press=".onGoBackToDurationSlide" class="sapUiTinyMarginEnd" />
                 <HBox alignItems="Center">
                     <Button text="Cancel" type="Transparent" press=".onCloseAddAccessSector" class="sapUiTinyMarginEnd" />
                     <Button text="Continue" type="Emphasized" icon="sap-icon://navigation-right-arrow" press=".onGoToStep4Slide2" class="fioriEmphasizedBtn" />
@@ -511,13 +509,11 @@
             <!-- Top Header Banner -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
                 <HBox alignItems="Center">
-                    <Link text="&lt; Back to Access Validation" press=".onGoToStep4Slide1" class="fioriConflictBackLink sapUiSmallMarginEnd" />
-                    <Title text="Step 4: SoD Conflict Review" level="H4" class="fioriBannerTitle sapUiSmallMarginBegin" />
+                    <Title text="Step 4: SoD Conflict Review" level="H4" class="fioriBannerTitle" />
                 </HBox>
                 <HBox alignItems="Center">
                     <Text text="Requester ID: " class="fioriRequestForLabel" />
                     <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
-                    <Button icon="sap-icon://home" type="Transparent" class="sapUiTinyMarginBegin" />
                 </HBox>
             </HBox>
 
@@ -583,8 +579,7 @@
             <!-- Top Header Banner -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
                 <HBox alignItems="Center">
-                    <Link text="&lt; Back to Duration &amp; Justification" press=".onGoBackToDurationSlide" class="fioriConflictBackLink sapUiSmallMarginEnd" />
-                    <Title text="Access Request Review &amp; Summary" level="H4" class="fioriBannerTitle sapUiSmallMarginBegin" />
+                    <Title text="Step 5: Review &amp; Summary" level="H4" class="fioriBannerTitle" />
                 </HBox>
                 <HBox alignItems="Center">
                     <Text text="Requester ID: " class="fioriRequestForLabel" />
@@ -594,10 +589,10 @@
 
             <!-- Top Scope & Governance Metadata Summary Card -->
             <VBox class="kyraSummaryTopDetailsCard sapUiSmallMarginBottom">
-                <HBox wrap="Wrap" justifyContent="SpaceBetween" alignItems="Center">
+                <HBox class="kyraSummaryDetailGrid" alignItems="Center">
                     <VBox class="kyraSummaryDetailItem">
                         <Text text="REQUESTER ID" class="kyraSummaryDetailLabel" />
-                        <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="kyraSummaryDetailValue" style="color: #2563EB;" />
+                        <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="kyraSummaryDetailValue kyraRequesterIdHighlight" />
                     </VBox>
                     <VBox class="kyraSummaryDetailItem">
                         <Text text="BUSINESS SECTOR" class="kyraSummaryDetailLabel" />
@@ -616,7 +611,7 @@
                         <Text text="{accessModel>/addAccessDuration}" class="kyraSummaryDetailValue" />
                     </VBox>
                 </HBox>
-                <VBox class="sapUiTinyMarginTop" visible="{= !!${accessModel>/addAccessJustification} }">
+                <VBox class="kyraSummaryJustificationBox" visible="{= !!${accessModel>/addAccessJustification} }">
                     <Text text="BUSINESS JUSTIFICATION" class="kyraSummaryDetailLabel" />
                     <Text text="{accessModel>/addAccessJustification}" class="kyraSummaryDetailJustification" />
                 </VBox>
@@ -636,11 +631,11 @@
                                 </VBox>
                             </HBox>
                             <Button
-                                text="Edit Configuration"
+                                text="Edit"
                                 icon="sap-icon://edit"
                                 press=".onEditSystemConfiguration"
                                 class="kyraSummaryEditBtn"
-                                tooltip="Modify configuration for this target system" />
+                                tooltip="Edit configuration for this target system" />
                         </HBox>
 
                         <!-- Separate 7-Column Table for this Target System -->

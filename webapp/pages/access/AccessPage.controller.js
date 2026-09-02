@@ -321,39 +321,128 @@ sap.ui.define([
                         }
                     }
                 }
+
+                if (typeof sap !== "undefined" && sap.m && sap.m.Tokenizer && sap.m.Tokenizer.prototype) {
+                    const tokProto = sap.m.Tokenizer.prototype;
+                    if (!tokProto._bMaxTokensPatched) {
+                        tokProto._bMaxTokensPatched = true;
+                        const fnOrigTokInit = tokProto.init;
+                        tokProto.init = function() {
+                            if (typeof fnOrigTokInit === "function") {
+                                fnOrigTokInit.apply(this, arguments);
+                            }
+                            if (typeof this.setMaxTokens === "function") {
+                                this.setMaxTokens(2);
+                            }
+                        };
+                    }
+                }
             } catch(e) {
                 console.warn("MultiComboBox prototype setup warning:", e);
             }
         },
 
         _applyMultiComboBoxRowClickSelection() {
-            const aIds = [
-                "inPageTeamMultiSelect",
-                "inPageServicesMultiSelect",
-                "inPagePersonaMultiSelect",
-                "inPageSystemsMultiSelect"
+            const aControls = [
+                { id: "inPageServicesMultiSelect", prereqName: null, prereqProp: null, prereqId: null },
+                { id: "inPageTeamMultiSelect", prereqName: "Service / Topic", prereqProp: "/addAccessSelectedServices", prereqId: "inPageServicesMultiSelect" },
+                { id: "inPagePersonaMultiSelect", prereqName: "Team Role", prereqProp: "/addAccessSelectedRoles", prereqId: "inPageTeamMultiSelect" },
+                { id: "inPageSystemsMultiSelect", prereqName: null, prereqProp: null, prereqId: null }
             ];
 
-            aIds.forEach(sId => {
-                const oControl = this.byId(sId);
-                if (oControl) {
+            const oModel = this.getView().getModel("accessModel");
+
+            aControls.forEach(item => {
+                const oControl = this.byId(item.id);
+                if (!oControl) return;
+
+                const fnSetupControl = () => {
+                    const oTokenizer = (typeof oControl._getTokenizer === "function" && oControl._getTokenizer()) || 
+                                       oControl._oTokenizer || 
+                                       (typeof oControl.getAggregation === "function" && (oControl.getAggregation("_tokenizer") || oControl.getAggregation("tokenizer")));
+                    if (oTokenizer) {
+                        if (typeof oTokenizer.setMaxTokens === "function") {
+                            oTokenizer.setMaxTokens(2);
+                        }
+                        if (typeof oTokenizer.setRenderMode === "function") {
+                            oTokenizer.setRenderMode("Narrow");
+                        }
+                    }
                     if (typeof oControl._getList === "function") {
                         const oList = oControl._getList();
                         if (oList && typeof oList.setIncludeItemInSelection === "function") {
                             oList.setIncludeItemInSelection(true);
                         }
                     }
-                    oControl.addEventDelegate({
-                        onAfterRendering: () => {
-                            if (typeof oControl._getList === "function") {
-                                const oList = oControl._getList();
-                                if (oList && typeof oList.setIncludeItemInSelection === "function") {
-                                    oList.setIncludeItemInSelection(true);
+                    const oInputDom = oControl.getDomRef("inner");
+                    if (oInputDom) {
+                        oInputDom.setAttribute("readonly", "readonly");
+                        oInputDom.style.cursor = "pointer";
+                    }
+                    const oDom = oControl.getDomRef();
+                    if (oDom) {
+                        oDom.style.cursor = "pointer";
+                        const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
+                        if (oWrapper) oWrapper.style.cursor = "pointer";
+                        const oTokDom = oDom.querySelector(".sapMTokenizer");
+                        if (oTokDom) {
+                            oTokDom.scrollLeft = 0;
+                            oTokDom.style.cursor = "pointer";
+                        }
+                    }
+                };
+
+                fnSetupControl();
+
+                if (oControl._rowClickDelegate) {
+                    oControl.removeEventDelegate(oControl._rowClickDelegate);
+                }
+
+                oControl._rowClickDelegate = {
+                    onAfterRendering: fnSetupControl,
+                    ontap: (oEvent) => {
+                        // If control is disabled, block any touch/click completely
+                        if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
+                            oEvent.preventDefault();
+                            oEvent.stopPropagation();
+                            return;
+                        }
+
+                        // If clicked on token delete icon (X), allow token removal
+                        if (oEvent.target && oEvent.target.closest && oEvent.target.closest(".sapMTokenIcon")) {
+                            return;
+                        }
+
+                        // Check sequential prerequisite
+                        if (item.prereqProp && oModel) {
+                            const aPrereqVal = oModel.getProperty(item.prereqProp) || [];
+                            if (!Array.isArray(aPrereqVal) || aPrereqVal.length === 0) {
+                                oEvent.preventDefault();
+                                oEvent.stopPropagation();
+                                MessageToast.show("Please select " + item.prereqName + " first.");
+                                if (item.prereqId) {
+                                    const oPrereqCtrl = this.byId(item.prereqId);
+                                    if (oPrereqCtrl && typeof oPrereqCtrl.open === "function") {
+                                        setTimeout(() => oPrereqCtrl.open(), 150);
+                                    }
                                 }
+                                return;
                             }
                         }
-                    });
-                }
+
+                        // If clicked on dropdown arrow, UI5 handles toggling natively
+                        if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer"))) {
+                            return;
+                        }
+
+                        // Touching / clicking anywhere on the box opens the dropdown
+                        if (typeof oControl.open === "function" && !oControl.isOpen()) {
+                            oControl.open();
+                        }
+                    }
+                };
+
+                oControl.addEventDelegate(oControl._rowClickDelegate);
             });
         },
 
@@ -1674,7 +1763,7 @@ if (!oGrouped[sGroupKey]) {
                             roleName: sRole,
                             type: "approved",
                             category: "Access Decisions",
-                            title: isPartial ? ("Access Request Partially Approved: " + sReqId) : ("Access Request Approved: " + sReqId),
+                            title: isPartial ? "Access Request Partially Approved" : "Access Request Approved",
                             description: sDesc,
                             approverComment: sApproverComment,
                             timestamp: sDate,
@@ -1696,7 +1785,7 @@ if (!oGrouped[sGroupKey]) {
                             roleName: sRole,
                             type: "rejected",
                             category: "Access Decisions",
-                            title: "Access Request Rejected: " + sReqId,
+                            title: "Access Request Rejected",
                             description: sDesc,
                             approverComment: sApproverComment,
                             timestamp: sDate,
@@ -1715,7 +1804,7 @@ if (!oGrouped[sGroupKey]) {
                             roleName: sRole,
                             type: "submitted",
                             category: "Access Requests",
-                            title: "Access Request Submitted: " + sReqId,
+                            title: "Access Request Submitted",
                             description: "Your access request for " + sSys + " (" + sRole + ") has been submitted successfully and is awaiting review.",
                             approverComment: "",
                             timestamp: r.submissionDate || sDate,
@@ -1729,6 +1818,9 @@ if (!oGrouped[sGroupKey]) {
 
             // Include any additional custom/manual notifications that were pushed
             (aSavedNotifications || []).forEach(sn => {
+                if (sn.title && sn.title.includes(": REQ-")) {
+                    sn.title = sn.title.split(": REQ-")[0];
+                }
                 if (sn.id && !aNotifications.some(n => n.id === sn.id)) {
                     aNotifications.push(sn);
                 }
@@ -1755,7 +1847,7 @@ if (!oGrouped[sGroupKey]) {
                             roleName: "IT Developers (System Administrator)",
                             type: "submitted",
                             category: "Access Requests",
-                            title: "Access Request Submitted: REQ-2026-300162",
+                            title: "Access Request Submitted",
                             description: "Your access request for SAP BTP Cloud Platform (IT Developers) has been submitted successfully and is awaiting review.",
                             approverComment: "",
                             timestamp: "Just now",
@@ -2772,12 +2864,32 @@ if (!oGrouped[sGroupKey]) {
 
             oModel.setProperty("/currentSystemSlideName", sSys);
 
-            const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
-            const oSysConfig = oSlideConfigsMap[sSys] || {
-                selectedServices: [],
-                selectedRoles: [],
-                selectedPersonas: []
-            };
+            let oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
+            let oSysConfig = oSlideConfigsMap[sSys];
+
+            // Robust fallback: if slide config is not populated, extract from existing summary items
+            if (!oSysConfig || !oSysConfig.selectedServices || oSysConfig.selectedServices.length === 0) {
+                const aSummaryItems = oModel.getProperty("/addAccessSummaryItems") || [];
+                const aMatching = aSummaryItems.filter(item => (item.system || "").trim().toLowerCase() === sSys.trim().toLowerCase());
+                if (aMatching.length > 0) {
+                    const aExtractedServices = [...new Set(aMatching.map(i => i.topic).filter(Boolean))];
+                    const aExtractedRoles = [...new Set(aMatching.map(i => i.roleTitle || i.roleName).filter(Boolean))];
+                    const aExtractedPersonas = [...new Set(aMatching.map(i => i.persona).filter(Boolean))];
+                    oSysConfig = {
+                        selectedServices: aExtractedServices,
+                        selectedRoles: aExtractedRoles,
+                        selectedPersonas: aExtractedPersonas
+                    };
+                    oSlideConfigsMap[sSys] = oSysConfig;
+                    oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
+                } else {
+                    oSysConfig = {
+                        selectedServices: [],
+                        selectedRoles: [],
+                        selectedPersonas: []
+                    };
+                }
+            }
 
             const aServices = (oSysConfig.selectedServices || []).slice();
             const aRoles = (oSysConfig.selectedRoles || []).slice();
@@ -2792,16 +2904,20 @@ if (!oGrouped[sGroupKey]) {
             this._updatePersonasList(true);
 
             // Force MultiComboBox UI controls to reflect exact updated selectedKeys
-            try {
-                const oServicesSelect = this.byId("inPageServicesMultiSelect");
-                if (oServicesSelect) oServicesSelect.setSelectedKeys(aServices);
+            setTimeout(() => {
+                try {
+                    const oServicesSelect = this.byId("inPageServicesMultiSelect");
+                    if (oServicesSelect) oServicesSelect.setSelectedKeys(aServices);
 
-                const oTeamSelect = this.byId("inPageTeamMultiSelect");
-                if (oTeamSelect) oTeamSelect.setSelectedKeys(aRoles);
+                    const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                    if (oTeamSelect) oTeamSelect.setSelectedKeys(aRoles);
 
-                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
-                if (oPersonaSelect) oPersonaSelect.setSelectedKeys(aPersonas);
-            } catch(e) {}
+                    const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                    if (oPersonaSelect) oPersonaSelect.setSelectedKeys(aPersonas);
+
+                    this._applyMultiComboBoxRowClickSelection();
+                } catch(e) {}
+            }, 60);
         },
 
         _saveCurrentSystemSlideConfig(sSysNameOverride) {
@@ -2925,8 +3041,37 @@ if (!oGrouped[sGroupKey]) {
         },
 
         onInPageServicesSelectionChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const aSelectedKeys = oEvent.getSource().getSelectedKeys();
+            if (oModel) {
+                oModel.setProperty("/addAccessSelectedServices", aSelectedKeys);
+            }
             this._updateSubRolesList(false);
             this._updatePersonasList(false);
+        },
+
+        onInPageServicesSelectionFinish(oEvent) {
+            const aSelectedKeys = oEvent.getSource().getSelectedKeys();
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/addAccessSelectedServices", aSelectedKeys);
+            }
+            this._updateSubRolesList(false);
+            this._updatePersonasList(false);
+
+            if (aSelectedKeys && aSelectedKeys.length > 0) {
+                const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                if (oTeamSelect) {
+                    const aCurrentRoles = oModel ? oModel.getProperty("/addAccessSelectedRoles") || [] : [];
+                    if (aCurrentRoles.length === 0) {
+                        setTimeout(() => {
+                            if (typeof oTeamSelect.open === "function" && !oTeamSelect.isOpen()) {
+                                oTeamSelect.open();
+                            }
+                        }, 250);
+                    }
+                }
+            }
         },
 
         _updateSubRolesList(bPreserveSelections) {
@@ -2983,7 +3128,43 @@ if (!oGrouped[sGroupKey]) {
         },
 
         onInPageTeamSelectionChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const aSelectedKeys = oEvent.getSource().getSelectedKeys();
+            if (oModel) {
+                oModel.setProperty("/addAccessSelectedRoles", aSelectedKeys);
+            }
             this._updatePersonasList(false);
+        },
+
+        onInPageTeamSelectionFinish(oEvent) {
+            const aSelectedKeys = oEvent.getSource().getSelectedKeys();
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/addAccessSelectedRoles", aSelectedKeys);
+            }
+            this._updatePersonasList(false);
+
+            if (aSelectedKeys && aSelectedKeys.length > 0) {
+                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                if (oPersonaSelect) {
+                    const aCurrentPersonas = oModel ? oModel.getProperty("/addAccessSelectedPersonas") || [] : [];
+                    if (aCurrentPersonas.length === 0) {
+                        setTimeout(() => {
+                            if (typeof oPersonaSelect.open === "function" && !oPersonaSelect.isOpen()) {
+                                oPersonaSelect.open();
+                            }
+                        }, 250);
+                    }
+                }
+            }
+        },
+
+        onInPagePersonaSelectionChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const aSelectedKeys = oEvent.getSource().getSelectedKeys();
+            if (oModel) {
+                oModel.setProperty("/addAccessSelectedPersonas", aSelectedKeys);
+            }
         },
 
         _updatePersonasList(bPreserveSelections) {
@@ -4018,6 +4199,22 @@ if (!oGrouped[sGroupKey]) {
             const sActiveSysName = aSelectedSystems[iSysIdx] || sTargetSys || "";
             oModel.setProperty("/currentSystemSlideName", sActiveSysName);
 
+            // Reconstruct slide config if missing or empty from table items
+            let oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
+            if (!oSlideConfigsMap[sActiveSysName] || !oSlideConfigsMap[sActiveSysName].selectedServices || oSlideConfigsMap[sActiveSysName].selectedServices.length === 0) {
+                if (oSystemTable && Array.isArray(oSystemTable.items) && oSystemTable.items.length > 0) {
+                    const aExtractedServices = [...new Set(oSystemTable.items.map(i => i.topic).filter(Boolean))];
+                    const aExtractedRoles = [...new Set(oSystemTable.items.map(i => i.roleTitle || i.roleName).filter(Boolean))];
+                    const aExtractedPersonas = [...new Set(oSystemTable.items.map(i => i.persona).filter(Boolean))];
+                    oSlideConfigsMap[sActiveSysName] = {
+                        selectedServices: aExtractedServices,
+                        selectedRoles: aExtractedRoles,
+                        selectedPersonas: aExtractedPersonas
+                    };
+                    oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
+                }
+            }
+
             if (sActiveSysName) {
                 this._loadCurrentSystemSlideConfig(sActiveSysName);
             }
@@ -4031,6 +4228,23 @@ if (!oGrouped[sGroupKey]) {
         onSaveAndReturnToSummary() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            const aServices = oModel.getProperty("/addAccessSelectedServices") || [];
+            const aRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
+            const aPersonas = oModel.getProperty("/addAccessSelectedPersonas") || [];
+
+            if (aServices.length === 0) {
+                MessageBox.error("Please select at least one Service / Topic for this system.");
+                return;
+            }
+            if (aRoles.length === 0) {
+                MessageBox.error("Please select at least one Team Role for this system.");
+                return;
+            }
+            if (aPersonas.length === 0) {
+                MessageBox.error("Please select at least one Persona for this system.");
+                return;
+            }
 
             const sActiveSysName = oModel.getProperty("/currentSystemSlideName");
             if (sActiveSysName) {
