@@ -35,8 +35,8 @@ sap.ui.define([
         onInit() {
             this._localInFlightRevocations = {};
             this._aSelectedRegionIds = [];
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "Stake001";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             const oModel = new JSONModel({
                 activeUser: sActiveUser,
@@ -126,6 +126,7 @@ sap.ui.define([
                 requestHistory: []
             });
 
+            this.getView().setModel(oModel, "accessModel");
             this.getOwnerComponent().setModel(oModel, "accessModel");
             this._loadSubmittedRequests(oModel);
 
@@ -459,7 +460,7 @@ sap.ui.define([
             oSelectAll._listenerAttached = true;
 
             oSelectAll.addEventListener("click", () => {
-                const oModel = this.getView().getModel("accessModel");
+                const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                 if (!oModel) return;
                 const aRegions = oModel.getProperty("/mapRegionList") || [];
                 
@@ -596,7 +597,8 @@ sap.ui.define([
 
                         _onRouteMatched() {
             const oModel = this.getView().getModel("accessModel");
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "";
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "Stake001";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
 
             
 
@@ -613,7 +615,7 @@ sap.ui.define([
             } catch(e) {}
 
             if (oModel) {
-                const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+                const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
                 const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
@@ -868,6 +870,7 @@ sap.ui.define([
                 const isComplianceApproved = sComplianceStatus === "APPROVED" || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                 const isIamApp1Approved = sIamApp1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                 const isIamApp2Approved = sIamApp2Status === "APPROVED" || sDbStatus === "APPROVED";
+                const bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved || (isCompliancePersona && sComplianceStatus === "APPROVED") || (isIamApp1Persona && sIamApp1Status === "APPROVED") || (isIamApp2Persona && sIamApp2Status === "APPROVED") || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED" && (!isCompliancePersona || sComplianceStatus !== "REJECTED");
 
                 // Overall approval happens ONLY after final IAM Approver 2 approval!
                 const isOverallApproved = (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && sDbStatus !== "REJECTED";
@@ -1098,9 +1101,9 @@ if (!oGrouped[sGroupKey]) {
                     team: sServiceTopic,
                     serviceTopic: sServiceTopic,
                     selectedPersona: r.selected_persona || "User",
-                    grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "2026-08-15",
                     expiryDate: r.access_duration,
-                    status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (isOverallApproved ? "Approved" : "Rejected"),
+                    status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
                     statusState: sState,
                     statusIcon: sIcon
                 });
@@ -1176,7 +1179,7 @@ if (!oGrouped[sGroupKey]) {
                     team: this._deriveCleanTeamName(r),
                     category: r.service_topic || "System Entitlement",
                     persona: r.selected_persona || r.requester_persona || "User",
-                    grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "2026-08-15",
                     expiryDate: r.access_duration || "Permanent",
                     status: isCurrentlyRevoking ? "Revoke Pending" : "Active",
                     statusState: isCurrentlyRevoking ? "Warning" : "Success",
@@ -1197,7 +1200,7 @@ if (!oGrouped[sGroupKey]) {
                     if (approvedCount > 0 && rejectedCount > 0) {
                         g.status = "Partially Approved";
                         g.statusState = "Warning";
-                        g.statusIcon = "sap-icon://warning";
+                        g.statusIcon = "sap-icon://alert";
                     } else if (approvedCount > 0 && rejectedCount === 0) {
                         g.status = "Approved";
                         g.statusState = "Success";
@@ -1242,14 +1245,18 @@ if (!oGrouped[sGroupKey]) {
             // Group aMyPending by Request ID so one access request appears as one row with all systems joined
             const aUniqueMyPending = this._groupRequestsByRequestId(aMyPending);
 
-            // Deduplicate aUserAccessList preserving descending order
+            // Deduplicate aUserAccessList preserving descending order and filtering out invalid/empty rows
             const activeKeys = new Set();
             const aUniqueUserAccessList = [];
             for (let i = 0; i < aUserAccessList.length; i++) {
                 const item = aUserAccessList[i];
+                if (!item || !item.system || !item.roleName) continue;
                 const sKey = (item.system || "") + "_" + (item.roleName || "");
                 if (!activeKeys.has(sKey)) {
                     activeKeys.add(sKey);
+                    if (!item.grantedDate) {
+                        item.grantedDate = item.submissionDate || "2026-08-15";
+                    }
                     aUniqueUserAccessList.push(item);
                 }
             }
@@ -2476,8 +2483,12 @@ if (!oGrouped[sGroupKey]) {
                 let sItemsHtml = "";
                 if (aTopNotifs.length === 0) {
                     sItemsHtml = `
-                        <div style="padding: 24px; text-align: center; color: #64748B; font-size: 13px;">
-                            No notifications at this time.
+                        <div class="kyra-notif-empty-state">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="kyra-notif-empty-bell">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <div class="kyra-notif-empty-msg">No notifications at this time</div>
                         </div>
                     `;
                 } else {
@@ -2489,7 +2500,7 @@ if (!oGrouped[sGroupKey]) {
                         if (n.type === "approved") {
                             sAvatarHtml = `
                                 <div class="kyra-notif-avatar-circle" style="background: #DCFCE7; border: 1px solid #BBF7D0;">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#16A34A" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#16A34A" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10" fill="#16A34A"></circle>
                                         <polyline points="9 11 12 14 16 9" stroke="#FFFFFF" stroke-width="2.5" fill="none"></polyline>
                                     </svg>
@@ -2498,7 +2509,7 @@ if (!oGrouped[sGroupKey]) {
                         } else if (n.type === "rejected") {
                             sAvatarHtml = `
                                 <div class="kyra-notif-avatar-circle" style="background: #FEE2E2; border: 1px solid #FCA5A5;">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#DC2626" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#DC2626" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10" fill="#DC2626"></circle>
                                         <line x1="15" y1="9" x2="9" y2="15" stroke="#FFFFFF" stroke-width="2.5"></line>
                                         <line x1="9" y1="9" x2="15" y2="15" stroke="#FFFFFF" stroke-width="2.5"></line>
@@ -2506,12 +2517,12 @@ if (!oGrouped[sGroupKey]) {
                                 </div>
                             `;
                         } else {
-                            // submitted / pending / info
+                            // submitted / pending / info - neutral slate, no blue
                             sAvatarHtml = `
-                                <div class="kyra-notif-avatar-circle" style="background: #DBEAFE; border: 1px solid #BFDBFE;">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563EB" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10" fill="#2563EB"></circle>
-                                        <polyline points="12 6 12 12 16 14" stroke="#FFFFFF" stroke-width="2.5" fill="none"></polyline>
+                                <div class="kyra-notif-avatar-circle" style="background: #F1F5F9; border: 1px solid #E2E8F0;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
                                     </svg>
                                 </div>
                             `;
@@ -2519,9 +2530,9 @@ if (!oGrouped[sGroupKey]) {
 
                         let sRemarkHtml = "";
                         if (n.approverComment) {
-                            const sBorderColor = n.type === 'rejected' ? '#DC2626' : (n.type === 'approved' ? '#16A34A' : '#2563EB');
+                            const sBorderColor = n.type === 'rejected' ? '#DC2626' : (n.type === 'approved' ? '#16A34A' : '#00778B');
                             const sBgColor = n.type === 'rejected' ? '#FEF2F2' : (n.type === 'approved' ? '#F0FDF4' : '#F8FAFC');
-                            const sLabelColor = n.type === 'rejected' ? '#991B1B' : (n.type === 'approved' ? '#166534' : '#1E40AF');
+                            const sLabelColor = n.type === 'rejected' ? '#991B1B' : (n.type === 'approved' ? '#166534' : '#00778B');
                             sRemarkHtml = `
                                 <div style="margin-top: 6px; padding: 6px 10px; background: ${sBgColor}; border-left: 3px solid ${sBorderColor}; border-radius: 4px; font-size: 11.5px; line-height: 1.35; color: #334155;">
                                     <span style="font-weight: 700; color: ${sLabelColor};">Approver Remark:</span>
@@ -2557,10 +2568,10 @@ if (!oGrouped[sGroupKey]) {
 
                 const sHtmlContent = `
                     <div class="kyra-notif-box-card">
-                        <!-- Top Header -->
+                        <!-- Top Header matching Image 2 -->
                         <div class="kyra-notif-header">
                             <div class="kyra-notif-header-left">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                                 </svg>
@@ -2571,22 +2582,22 @@ if (!oGrouped[sGroupKey]) {
                                 </div>
                             </div>
                             <button type="button" class="kyra-notif-mark-all" id="kyra_notif_mark_all_btn">
-                                <svg width="15" height="15" viewBox="0 0 24 24" fill="#2563EB" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10" fill="#2563EB"></circle>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="#10B981" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" fill="#10B981"></circle>
                                     <polyline points="9 11 12 14 16 9" stroke="#FFFFFF" stroke-width="2.5" fill="none"></polyline>
                                 </svg>
-                                <span>Mark all as read</span>
+                                <span>Mark all read</span>
                             </button>
                         </div>
 
-                        <!-- Notification Items List (Top 3 Recent) -->
+                        <!-- Notification Items List or Empty State -->
                         <div class="kyra-notif-list">
                             ${sItemsHtml}
                         </div>
 
-                        <!-- Footer (View all notifications) -->
+                        <!-- Footer (View all notifications) matching Image 2 -->
                         <div class="kyra-notif-footer" id="kyra_notif_view_all_footer" style="cursor: pointer;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
@@ -6306,20 +6317,19 @@ if (!oGrouped[sGroupKey]) {
             sap.ui.require([
                 "sap/m/ResponsivePopover", "sap/ui/core/HTML", "sap/m/MessageToast"
             ], (ResponsivePopover, HTML, MessageToast) => {
-                
                 const sHtmlContent = `
                     <div class="kyra-modern-profile-popup">
                         <!-- Header -->
                         <div class="kyra-profile-header">
                             <div class="kyra-avatar-circle">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                             </div>
                             <div class="kyra-profile-user-info">
-                                <div class="kyra-user-name">${sUser}</div>
-                                <div class="kyra-user-subtitle">${sRole}</div>
+                                <div class="kyra-user-name">${sUser || 'Stake001'}</div>
+                                <div class="kyra-user-subtitle">${sRole || 'Approver'}</div>
                                 <div class="kyra-user-empid">Employee ID: 20000101</div>
                                 <div class="kyra-user-status"><span class="kyra-status-dot"></span> Active</div>
                             </div>
@@ -6331,7 +6341,7 @@ if (!oGrouped[sGroupKey]) {
                         <div class="kyra-section-title">ACCOUNT</div>
                         <div class="kyra-menu-item" id="kyra_menu_profile">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
@@ -6341,7 +6351,7 @@ if (!oGrouped[sGroupKey]) {
                         </div>
                         <div class="kyra-menu-item" id="kyra_menu_access">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                 </svg>
                                 <span class="kyra-item-label">My Access</span>
@@ -6350,21 +6360,24 @@ if (!oGrouped[sGroupKey]) {
                         </div>
                         <div class="kyra-menu-item" id="kyra_menu_requests">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                <svg class="kyra-icon kyra-icon-orange" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span class="kyra-item-label">My Requests</span>
+                                <span class="kyra-item-label">My Requests (Pending)</span>
                             </div>
                             <span class="kyra-arrow">›</span>
                         </div>
                         <div class="kyra-menu-item" id="kyra_menu_history">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
                                 </svg>
-                                <span class="kyra-item-label">Request History</span>
+                                <span class="kyra-item-label">Request History (Audit)</span>
                             </div>
                             <span class="kyra-arrow">›</span>
                         </div>
@@ -6375,7 +6388,7 @@ if (!oGrouped[sGroupKey]) {
                         <div class="kyra-section-title">PREFERENCES</div>
                         <div class="kyra-menu-item" id="kyra_menu_lang">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <line x1="2" y1="12" x2="22" y2="12"></line>
                                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
@@ -6394,22 +6407,22 @@ if (!oGrouped[sGroupKey]) {
                         <div class="kyra-section-title">SUPPORT</div>
                         <div class="kyra-menu-item" id="kyra_menu_help">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                                 </svg>
-                                <span class="kyra-item-label">Help</span>
+                                <span class="kyra-item-label">Help Center</span>
                             </div>
                             <span class="kyra-arrow">›</span>
                         </div>
                         <div class="kyra-menu-item" id="kyra_menu_contact">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="kyra-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
                                     <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
                                 </svg>
-                                <span class="kyra-item-label">Contact IT</span>
+                                <span class="kyra-item-label">Contact IT Support</span>
                             </div>
                             <span class="kyra-arrow">›</span>
                         </div>
@@ -6420,7 +6433,7 @@ if (!oGrouped[sGroupKey]) {
                         <div class="kyra-section-title">SESSION</div>
                         <div class="kyra-menu-item kyra-signout-item" id="kyra_menu_signout">
                             <div class="kyra-menu-left">
-                                <svg class="kyra-icon-danger" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="kyra-icon-danger" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                     <polyline points="16 17 21 12 16 7"></polyline>
                                     <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -6428,25 +6441,12 @@ if (!oGrouped[sGroupKey]) {
                                 <span class="kyra-item-label kyra-signout-label">Sign Out</span>
                             </div>
                         </div>
-
-                        <div class="kyra-menu-separator"></div>
-
-                        <!-- FOOTER -->
-                        <div class="kyra-profile-footer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg>
-                            <div class="kyra-footer-text">
-                                <div class="kyra-footer-title">SAP Fiori Access Portal</div>
-                                <div class="kyra-footer-ver">Version 1.0.0</div>
-                            </div>
-                        </div>
                     </div>
                 `;
 
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
-                    contentWidth: "320px",
+                    contentWidth: "290px",
                     horizontalScrolling: false,
                     verticalScrolling: true,
                     placement: "Bottom",
@@ -6481,6 +6481,9 @@ if (!oGrouped[sGroupKey]) {
                     attachClick("kyra_menu_access", () => {
                         this._confirmDiscardAddAccess(() => {
                             oModel.setProperty("/selectedTabKey", "myAccess");
+                            oModel.setProperty("/showAllNotificationsPage", false);
+                            oModel.setProperty("/showHelpPage", false);
+                            oModel.setProperty("/showRequestDetailsPage", false);
                             oModel.setProperty("/showAddAccessSector", false);
                             oModel.setProperty("/showRemoveAccessSector", false);
                             oModel.setProperty("/showMyAccessMasterSection", false);
@@ -6490,6 +6493,9 @@ if (!oGrouped[sGroupKey]) {
                     attachClick("kyra_menu_requests", () => {
                         this._confirmDiscardAddAccess(() => {
                             oModel.setProperty("/selectedTabKey", "myRequests");
+                            oModel.setProperty("/showAllNotificationsPage", false);
+                            oModel.setProperty("/showHelpPage", false);
+                            oModel.setProperty("/showRequestDetailsPage", false);
                             oModel.setProperty("/showAddAccessSector", false);
                             oModel.setProperty("/showRemoveAccessSector", false);
                             oModel.setProperty("/showMyAccessMasterSection", false);
@@ -6499,6 +6505,9 @@ if (!oGrouped[sGroupKey]) {
                     attachClick("kyra_menu_history", () => {
                         this._confirmDiscardAddAccess(() => {
                             oModel.setProperty("/selectedTabKey", "myRequests");
+                            oModel.setProperty("/showAllNotificationsPage", false);
+                            oModel.setProperty("/showHelpPage", false);
+                            oModel.setProperty("/showRequestDetailsPage", false);
                             oModel.setProperty("/showAddAccessSector", false);
                             oModel.setProperty("/showRemoveAccessSector", false);
                             oModel.setProperty("/showMyAccessMasterSection", false);
@@ -6638,108 +6647,164 @@ if (!oGrouped[sGroupKey]) {
         },
 
         onLogout() {
-            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
-                const sHtmlSignOut = `
+            // Open the modern Sign Out confirmation modal matching Image 2
+            sap.ui.require([
+                "sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"
+            ], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
                     <div class="kyra-signout-card">
-                        <!-- Top Header -->
-                        <div class="kyra-signout-header">
-                            <div class="kyra-signout-header-left">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                    <polyline points="16 17 21 12 16 7"></polyline>
-                                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                                </svg>
-                                <span class="kyra-signout-title">Sign Out</span>
+                        <!-- Top Row: Security Notice Badge & Close Button -->
+                        <div class="kyra-signout-top-row">
+                            <div class="kyra-signout-badge">
+                                <span class="kyra-signout-badge-dot"></span>
+                                <span class="kyra-signout-badge-text">SECURITY NOTICE</span>
                             </div>
-                            <button type="button" class="kyra-signout-close-btn" id="kyra_signout_x_btn">✕</button>
+                            <button type="button" class="kyra-signout-close-btn" id="kyra_signout_cancel_x" title="Close">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
                         </div>
 
-                        <!-- Body Content -->
+                        <!-- Middle Body: Avatar Icon Box + Title + Description -->
                         <div class="kyra-signout-body">
-                            <div class="kyra-signout-avatar">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="kyra-signout-icon-box">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00778B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                     <polyline points="16 17 21 12 16 7"></polyline>
                                     <line x1="21" y1="12" x2="9" y2="12"></line>
                                 </svg>
                             </div>
-                            <div class="kyra-signout-text-block">
-                                <div class="kyra-signout-prompt-title">Confirm Sign Out</div>
-                                <div class="kyra-signout-prompt-desc">Are you sure you want to sign out of <span class="kyra-signout-brand">KYRA Portal</span>?</div>
+                            <div class="kyra-signout-text-content">
+                                <h3 class="kyra-signout-main-title">Sign Out of KYRA Portal?</h3>
+                                <p class="kyra-signout-description">
+                                    Are you sure you want to end your active session? Any unsaved request drafts will be closed securely.
+                                </p>
                             </div>
                         </div>
 
-                        <!-- Footer Actions -->
-                        <div class="kyra-signout-footer">
-                            <button type="button" class="kyra-signout-cancel-btn" id="kyra_signout_cancel_btn">Cancel</button>
-                            <button type="button" class="kyra-signout-confirm-btn" id="kyra_signout_confirm_btn">Sign Out</button>
+                        <!-- Bottom Actions: Stay Signed In & Yes, Sign Out -->
+                        <div class="kyra-signout-actions">
+                            <button type="button" class="kyra-signout-btn-cancel" id="kyra_signout_cancel_btn">
+                                Stay Signed In
+                            </button>
+                            <button type="button" class="kyra-signout-btn-confirm" id="kyra_signout_confirm_btn">
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                                <span>Yes, Sign Out</span>
+                            </button>
                         </div>
                     </div>
                 `;
 
-                const oConfirmDialog = new Dialog({
+                const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "480px",
-                    class: "kyraSignOutDialog",
+                    contentWidth: "500px",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
                     content: [
-                        new HTML({ content: sHtmlSignOut, preferDOM: false })
+                        new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oConfirmDialog.destroy()
+                    afterClose: () => oDialog.destroy()
                 });
 
-                this.getView().addDependent(oConfirmDialog);
-                oConfirmDialog.open();
+                oDialog.addStyleClass("kyraSignOutModernDialog");
+                this.getView().addDependent(oDialog);
+                oDialog.open();
 
                 setTimeout(() => {
-                    const closeFn = () => oConfirmDialog.close();
-                    const btnX = document.getElementById("kyra_signout_x_btn");
-                    if (btnX) btnX.onclick = closeFn;
+                    const closeDialog = () => {
+                        const oDom = oDialog.getDomRef();
+                        if (oDom) {
+                            oDom.classList.add("kyraSignOutClosing");
+                            setTimeout(() => oDialog.close(), 180);
+                        } else {
+                            oDialog.close();
+                        }
+                    };
+
+                    const btnCloseX = document.getElementById("kyra_signout_cancel_x");
+                    if (btnCloseX) btnCloseX.onclick = closeDialog;
 
                     const btnCancel = document.getElementById("kyra_signout_cancel_btn");
-                    if (btnCancel) btnCancel.onclick = closeFn;
+                    if (btnCancel) btnCancel.onclick = closeDialog;
 
-                    const btnSignOut = document.getElementById("kyra_signout_confirm_btn");
-                    if (btnSignOut) {
-                        btnSignOut.onclick = () => {
-                            oConfirmDialog.close();
-
-                            sessionStorage.removeItem("kyra_active_user");
-                            sessionStorage.removeItem("kyra_active_role");
-                            sessionStorage.removeItem("kyra_active_user_uuid");
-                            sessionStorage.removeItem("kyra_wizard_sector");
-                            sessionStorage.removeItem("kyra_wizard_function");
-                            sessionStorage.removeItem("kyra_reset_add_access");
-
-                            const oModel = this.getView().getModel("accessModel");
-                            if (oModel) {
-                                oModel.setProperty("/showAddAccessSector", false);
-                                oModel.setProperty("/showRemoveAccessSector", false);
-                                oModel.setProperty("/showMyAccessMasterSection", false);
-                                oModel.setProperty("/showPendingSection", false);
-                                oModel.setProperty("/showApprovedSection", false);
-                                oModel.setProperty("/selectedTabKey", "myAccess");
-                            }
-
-                            MessageToast.show("You have successfully signed out.");
-
-                            setTimeout(() => {
-                                try {
-                                    const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
-                                    if (oRouter && oRouter.getRoute("Login")) {
-                                        oRouter.navTo("Login", {}, true);
-                                    } else {
-                                        window.location.hash = "";
-                                        window.location.reload();
-                                    }
-                                } catch (e) {
-                                    window.location.hash = "";
-                                    window.location.reload();
-                                }
-                            }, 300);
+                    const btnConfirm = document.getElementById("kyra_signout_confirm_btn");
+                    if (btnConfirm) {
+                        btnConfirm.onclick = () => {
+                            oDialog.close();
+                            this._performLogout();
                         };
                     }
-                }, 50);
+                }, 40);
             });
+        },
+
+        _performLogout() {
+            // 1. Clear session storage & credentials
+            sessionStorage.removeItem("kyra_active_user");
+            sessionStorage.removeItem("kyra_active_role");
+            sessionStorage.removeItem("kyra_active_user_uuid");
+            sessionStorage.removeItem("kyra_wizard_sector");
+            sessionStorage.removeItem("kyra_wizard_function");
+            sessionStorage.removeItem("kyra_reset_add_access");
+            sessionStorage.clear();
+            localStorage.removeItem("kyra_remember_id");
+            localStorage.removeItem("kyra_remember_role");
+
+            // 2. Reset global model properties
+            const oAccessModel = this.getOwnerComponent().getModel("accessModel") || this.getView().getModel("accessModel");
+            if (oAccessModel) {
+                oAccessModel.setProperty("/activeUser", "");
+                oAccessModel.setProperty("/activeRole", "Requester");
+                oAccessModel.setProperty("/isApproverPersona", false);
+                oAccessModel.setProperty("/showAddAccessSector", false);
+                oAccessModel.setProperty("/showRemoveAccessSector", false);
+                oAccessModel.setProperty("/showMyAccessMasterSection", false);
+                oAccessModel.setProperty("/showPendingSection", false);
+                oAccessModel.setProperty("/showApprovedSection", false);
+                oAccessModel.setProperty("/selectedTabKey", "myAccess");
+                oAccessModel.setProperty("/activeRoles", []);
+                oAccessModel.setProperty("/userAccessList", []);
+                oAccessModel.setProperty("/myApprovedRequests", []);
+                oAccessModel.setProperty("/myPendingRequests", []);
+                oAccessModel.setProperty("/requestHistory", []);
+            }
+
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("Signed out successfully.");
+            });
+
+            // 3. SAPUI5 Router navigation & Target Display to Login page
+            try {
+                const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
+                if (oRouter) {
+                    oRouter.navTo("Login", {}, true);
+                    if (oRouter.getTargets()) {
+                        oRouter.getTargets().display("TargetLogin");
+                    }
+                }
+            } catch (e) {
+                console.warn("Logout router nav error:", e);
+            }
+
+            // 4. Reset Login view state
+            try {
+                const oRoot = this.getOwnerComponent() ? this.getOwnerComponent().getRootControl() : null;
+                if (oRoot && oRoot.byId) {
+                    const oApp = oRoot.byId("app");
+                    if (oApp && oApp.getPages) {
+                        const oLoginPage = oApp.getPages().find(p => p.getId().includes("Login"));
+                        if (oLoginPage) {
+                            oApp.to(oLoginPage);
+                        }
+                    }
+                }
+            } catch(e) {}
         }
     });
 });

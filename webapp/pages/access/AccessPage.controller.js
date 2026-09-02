@@ -1101,7 +1101,7 @@ if (!oGrouped[sGroupKey]) {
                     team: sServiceTopic,
                     serviceTopic: sServiceTopic,
                     selectedPersona: r.selected_persona || "User",
-                    grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "2026-08-15",
                     expiryDate: r.access_duration,
                     status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
                     statusState: sState,
@@ -1179,7 +1179,7 @@ if (!oGrouped[sGroupKey]) {
                     team: this._deriveCleanTeamName(r),
                     category: r.service_topic || "System Entitlement",
                     persona: r.selected_persona || r.requester_persona || "User",
-                    grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "2026-08-15",
                     expiryDate: r.access_duration || "Permanent",
                     status: isCurrentlyRevoking ? "Revoke Pending" : "Active",
                     statusState: isCurrentlyRevoking ? "Warning" : "Success",
@@ -1245,14 +1245,18 @@ if (!oGrouped[sGroupKey]) {
             // Group aMyPending by Request ID so one access request appears as one row with all systems joined
             const aUniqueMyPending = this._groupRequestsByRequestId(aMyPending);
 
-            // Deduplicate aUserAccessList preserving descending order
+            // Deduplicate aUserAccessList preserving descending order and filtering out invalid/empty rows
             const activeKeys = new Set();
             const aUniqueUserAccessList = [];
             for (let i = 0; i < aUserAccessList.length; i++) {
                 const item = aUserAccessList[i];
+                if (!item || !item.system || !item.roleName) continue;
                 const sKey = (item.system || "") + "_" + (item.roleName || "");
                 if (!activeKeys.has(sKey)) {
                     activeKeys.add(sKey);
+                    if (!item.grantedDate) {
+                        item.grantedDate = item.submissionDate || "2026-08-15";
+                    }
                     aUniqueUserAccessList.push(item);
                 }
             }

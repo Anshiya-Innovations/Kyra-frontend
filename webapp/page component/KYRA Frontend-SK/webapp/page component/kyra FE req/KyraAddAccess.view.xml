@@ -220,12 +220,12 @@
                             placeholder="Select target system processes..."
                             width="100%"
                             class="fioriFormSelect">
-                            <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" icon="sap-icon://cloud" />
-                            <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" icon="sap-icon://database" />
-                            <core:Item key="KYRA Central Governance" text="KYRA Central Governance" icon="sap-icon://shield" />
-                            <core:Item key="Active Directory / IAM" text="Active Directory / IAM" icon="sap-icon://user-settings" />
-                            <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" icon="sap-icon://group" />
-                            <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" icon="sap-icon://shipping-status" />
+                            <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" />
+                            <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" />
+                            <core:Item key="KYRA Central Governance" text="KYRA Central Governance" />
+                            <core:Item key="Active Directory / IAM" text="Active Directory / IAM" />
+                            <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" />
+                            <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" />
                         </MultiComboBox>
                     </form:content>
                 </form:SimpleForm>
@@ -280,7 +280,7 @@
                                 width="100%"
                                 enabled="{= ${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                 class="fioriFormSelect">
-                                <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                             </MultiComboBox>
 
                             <!-- FIELD 3: ASSIGNED PERSONA -->
@@ -293,7 +293,7 @@
                                 width="100%"
                                 enabled="{= ${accessModel>/addAccessSelectedRoles} &amp;&amp; ${accessModel>/addAccessSelectedRoles}.length &gt; 0 }"
                                 class="fioriFormSelect">
-                                <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                             </MultiComboBox>
                         </form:content>
                     </form:SimpleForm>
@@ -448,7 +448,7 @@
                     </HBox>
                     <ObjectStatus text="0 Issues" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
                 </HBox>
-                <Table id="thresholdLimitsTable" class="fioriConflictTable" noDataText="No Threshold Limits">
+                <Table id="thresholdLimitsTable" class="fioriConflictTable" fixedLayout="true" noDataText="No Threshold Limits">
                     <columns>
                         <Column width="25%"><Text text="System" class="fioriConflictTableHeader" /></Column>
                         <Column width="25%"><Text text="Sector" class="fioriConflictTableHeader" /></Column>
@@ -467,7 +467,7 @@
                     </HBox>
                     <ObjectStatus text="0 Records" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
                 </HBox>
-                <Table id="restrictedRecordsTable" class="fioriConflictTable" noDataText="No Restricted Records">
+                <Table id="restrictedRecordsTable" class="fioriConflictTable" fixedLayout="true" noDataText="No Restricted Records">
                     <columns>
                         <Column width="14%"><Text text="System" class="fioriConflictTableHeader" /></Column>
                         <Column width="14%"><Text text="Sector" class="fioriConflictTableHeader" /></Column>
@@ -489,7 +489,7 @@
                     </HBox>
                     <ObjectStatus text="0 Duplicates" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
                 </HBox>
-                <Table id="duplicateRolesTable" class="fioriConflictTable" noDataText="No Duplicate Roles">
+                <Table id="duplicateRolesTable" class="fioriConflictTable" fixedLayout="true" noDataText="No Duplicate Roles">
                     <columns>
                         <Column width="14%"><Text text="System" class="fioriConflictTableHeader" /></Column>
                         <Column width="14%"><Text text="Functional Role" class="fioriConflictTableHeader" /></Column>
@@ -537,7 +537,7 @@
                     </SegmentedButton>
                 </HBox>
 
-                <Table id="sodConflictsTable" class="fioriConflictTable">
+                <Table id="sodConflictsTable" class="fioriConflictTable" fixedLayout="true">
                     <columns>
                         <Column width="35%"><Text text="Configured Target Role" class="fioriConflictTableHeader" /></Column>
                         <Column width="35%"><Text text="Conflicting Active Role" class="fioriConflictTableHeader" /></Column>
@@ -651,7 +651,7 @@
                             items="{accessModel>items}"
                             noDataText="No access items configured for this system."
                             class="kyraSummaryTable"
-                            fixedLayout="false">
+                            fixedLayout="true">
                             <columns>
                                 <!-- 1. REQUEST ID -->
                                 <Column width="16%">

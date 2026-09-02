@@ -105,9 +105,8 @@
                             press=".onNavBackToPortal"
                             class="sapUiTinyMarginEnd" />
                         <Button
-                            text="Next Step"
+                            text="Next"
                             type="Emphasized"
-                            icon="sap-icon://navigation-right-arrow"
                             press=".onGoToStep2"
                             class="fioriEmphasizedBtn" />
                     </HBox>
@@ -254,7 +253,6 @@
                             <Button
                                 text="Next"
                                 type="Emphasized"
-                                icon="sap-icon://navigation-right-arrow"
                                 press=".onGoToStep3Summary"
                                 class="fioriEmphasizedBtn" />
                         </HBox>
@@ -288,16 +286,17 @@
                             id="summaryRequestsTable"
                             items="{addAccessModel>/summaryItems}"
                             noDataText="No access items remaining."
+                            fixedLayout="true"
                             class="sapUiNoMargin">
                             <columns>
-                                 <Column><Text text="Request ID" /></Column>
-                                 <Column><Text text="Target System" /></Column>
-                                 <Column><Text text="Role Title &amp; Sector" /></Column>
-                                 <Column><Text text="Persona" /></Column>
-                                 <Column><Text text="Access Status" /></Column>
-                                 <Column><Text text="Access Type" /></Column>
-                                 <Column><Text text="Duration" /></Column>
-                                 <Column hAlign="End"><Text text="Actions" /></Column>
+                                 <Column width="13%" hAlign="Begin"><Text text="Request ID" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="15%" hAlign="Begin"><Text text="Target System" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="21%" hAlign="Begin"><Text text="Role Title &amp; Sector" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="15%" hAlign="Begin"><Text text="Persona" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="12%" hAlign="Center"><Text text="Access Status" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="11%" hAlign="Center"><Text text="Access Type" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="7%" hAlign="Center"><Text text="Duration" class="kyraEntitlementColHeader" /></Column>
+                                 <Column width="6%" hAlign="Center"><Text text="Actions" class="kyraEntitlementColHeader" /></Column>
                              </columns>
                              <items>
                                  <ColumnListItem vAlign="Middle">
@@ -315,7 +314,7 @@
                                              state="{= ${addAccessModel>accessType} === 'RESTRICTED' ? 'Warning' : 'Success' }"
                                              icon="{= ${addAccessModel>accessType} === 'RESTRICTED' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
                                          <Text text="{addAccessModel>duration}" />
-                                         <HBox justifyContent="End">
+                                         <HBox justifyContent="Center" alignItems="Center">
                                              <Button
                                                  icon="sap-icon://delete"
                                                  type="Reject"

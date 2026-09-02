@@ -15,13 +15,12 @@
             <f:ShellBar
                 title="KYRA Enterprise"
                 secondTitle="User Access Management Portal"
-                homeIcon="sap-icon://shield"
                 showCopilot="false"
                 showSearch="false"
                 showNotifications="false"
                 profilePress=".onProfilePress">
                 <f:profile>
-                    <Avatar id="kyraHeaderProfileAvatar" press=".onProfilePress" src="sap-icon://person-placeholder" class="kyraHeaderProfileAvatar" tooltip="{= 'User Profile: ' + (${accessModel>/activeUser} || 'Dev001') }" />
+                    <Avatar id="kyraHeaderProfileAvatar" press=".onProfilePress" src="sap-icon://person-placeholder" class="kyraHeaderProfileAvatar" tooltip="{= 'User Profile: ' + (${accessModel>/activeUser} || 'Stake001') }" />
                 </f:profile>
                 <f:additionalContent>
                     <!-- Dedicated Notification Bell Button with Blue Badge -->
@@ -38,9 +37,6 @@
                         </HBox>
                     </HBox>
 
-                    <!-- Header Divider Line -->
-                    <core:HTML content="&lt;div class='kyraHeaderDivider'&gt;&lt;/div&gt;" />
-
                     <Button
                         text="Sign Out"
                         type="Transparent"
@@ -55,23 +51,25 @@
                 <!-- WRAPPER FOR NORMAL PORTAL CONTENT -->
                 <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} &amp;&amp; !${accessModel>/showTroubleshootPage} }">
                     <!-- Enterprise Top Header Banner -->
-                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom sapUiResponsivePadding">
-                        <HBox justifyContent="SpaceBetween" alignItems="Center">
-                            <HBox alignItems="Center">
+                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom">
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraBannerRow">
+                            <HBox alignItems="Center" class="kyraBannerLeftGroup">
                                 <!-- Shield Avatar Icon Box -->
-                                <Avatar src="sap-icon://shield" backgroundColor="Accent6" displaySize="M" class="sapUiMediumMarginEnd" />
-                                <VBox>
+                                <Avatar src="sap-icon://shield" displaySize="M" class="kyraBannerShieldAvatar" />
+                                <VBox class="kyraBannerTextGroup">
                                     <Title text="Enterprise Identity &amp; Access Governance" level="H2" class="fioriWelcomeTitle" />
-                                    <HBox alignItems="Center" class="sapUiTinyMarginTop">
-                                        <Text text="Active Persona:" class="fioriWelcomeSubtitle sapUiTinyMarginEnd" />
-                                        <Text text="{accessModel>/activeRole}" class="kyraHeaderRolePill" />
+                                    <HBox alignItems="Center" class="kyraBannerPersonaRow">
+                                        <Text text="Active Persona:" class="fioriWelcomeSubtitle" />
+                                        <Text text="{= ${accessModel>/activeRole} || 'Approver' }" class="kyraHeaderRolePill" />
                                     </HBox>
                                 </VBox>
                             </HBox>
-                            <HBox alignItems="Center">
-                                <HBox alignItems="Center" class="kyraHeaderCompliancePill sapUiMediumMarginEnd">
-                                    <core:HTML content="&lt;span class='pulseDotGreen'&gt;&lt;/span&gt;" />
-                                    <Text text="100% Active &amp; Compliant" class="kyraComplianceText" />
+                            <HBox alignItems="Center" class="kyraBannerRightControls">
+                                <!-- User ID Pill Badge -->
+                                <HBox alignItems="Center" class="kyraHeaderUserIdPill">
+                                    <core:Icon src="sap-icon://customer" class="kyraUserIdIcon" />
+                                    <Text text="User ID:" class="kyraUserIdLabel" />
+                                    <Text text="{= ${accessModel>/activeUser} || 'Stake001' }" class="kyraUserIdValue" />
                                 </HBox>
                                 <Button
                                     id="fioriHeaderRefreshBtn"
@@ -79,7 +77,7 @@
                                     text="Refresh"
                                     type="Transparent"
                                     press=".onRefreshAccess"
-                                    class="fioriHeaderRefreshBtn"
+                                    class="fioriHeaderRefreshBtn kyraBannerRefreshBtn"
                                     tooltip="Refresh Access Data" />
                             </HBox>
                         </HBox>
@@ -92,7 +90,7 @@
                             icon="sap-icon://user-settings"
                             type="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' ? 'Emphasized' : 'Transparent' }"
                             press=".onSelectMyAccessTab"
-                            class="kyraNavPillBtn sapUiTinyMarginEnd" />
+                            class="kyraNavPillBtn" />
                         <Button
                             text="{= 'My History (' + (${accessModel>/requestHistory} ? ${accessModel>/requestHistory}.length : 0) + ')' }"
                             icon="sap-icon://history"
@@ -105,17 +103,17 @@
                 <VBox visible="{= !${accessModel>/showMyAccessMasterSection} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
                         <HBox alignItems="Center">
-                            <Title text="{= (${accessModel>/userAccessList} &amp;&amp; ${accessModel>/userAccessList}.length &gt; 10 &amp;&amp; !${accessModel>/myAccessShowAll}) ? ('Active Entitlements (10 of ' + ${accessModel>/userAccessList}.length + ')') : ('Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')') }" level="H4" class="fioriCardHeaderTitle" />
+                            <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
                         </HBox>
-                        <HBox alignItems="Center">
+                        <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
                             <SearchField
-                                placeholder="Search entitlements"
-                                width="240px"
+                                placeholder="Search entitlements..."
+                                width="270px"
                                 liveChange=".onSearchMyAccess"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraEntitlementsSearchField" />
                             <Button
                                 text="View All"
-                                icon="sap-icon://table-view"
+                                icon="sap-icon://grid"
                                 type="Emphasized"
                                 press=".onNavToMyAccessMasterPage"
                                 class="kyraViewAllBtn"
@@ -125,18 +123,18 @@
 
                     <Table
                         id="myAccessTable"
+                        fixedLayout="true"
                         items="{accessModel>/displayedUserAccessList}"
                         noDataText="No active permissions found."
-                        class="sapUiNoMargin">
+                        class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
-                            <Column width="15%"><Text text="SYSTEM NAME" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="18%"><Text text="ROLE TITLE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="15%"><Text text="TEAM" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="14%"><Text text="PERSONA" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="11%"><Text text="GRANTED DATE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="10%"><Text text="EXPIRY DATE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="10%"><Text text="STATUS" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="7%" hAlign="Center"><Text text="ACTION" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="6%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle">
@@ -145,7 +143,6 @@
                                     <Text text="{accessModel>roleName}" />
                                     <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
                                     <Text text="{accessModel>persona}" />
-                                    <Text text="{accessModel>grantedDate}" />
                                     <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
                                     <ObjectStatus
                                         text="{accessModel>status}"
@@ -214,13 +211,22 @@
                                 <Text text="{= ${accessModel>/historyFilterSubtitle} || 'All submitted and historical access requests.' }" class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
-                        <HBox alignItems="Center">
+                        <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
                             <SearchField
                                 placeholder="Search request ID or role..."
-                                width="220px"
+                                width="230px"
                                 liveChange=".onSearchRequests"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraEntitlementsSearchField" />
                             
+                            <!-- VIEW ALL REQUESTS BUTTON (Matches Section 1 View All Button Exactly) -->
+                            <Button
+                                text="View All"
+                                icon="sap-icon://grid"
+                                type="Emphasized"
+                                press=".onClearAllFilters"
+                                class="kyraViewAllBtn sapUiTinyMarginEnd"
+                                tooltip="View all requests in history" />
+
                             <!-- FILTER BOX -->
                             <Button
                                 icon="sap-icon://filter"
@@ -228,19 +234,20 @@
                                 type="Emphasized"
                                 press=".onFilterHistoryDialog"
                                 tooltip="Filter History by Status &amp; Duration"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraViewAllBtn" />
 
                             <Button
                                 icon="sap-icon://excel-attachment"
                                 press=".onExportRequests"
                                 tooltip="Export Audit Log"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraHistoryExportBtn" />
 
                             <Button
                                 icon="sap-icon://decline"
                                 type="Transparent"
                                 press=".onCloseHistorySection"
-                                tooltip="Close Section" />
+                                tooltip="Close Section"
+                                class="kyraCloseIconBtn" />
                         </HBox>
                     </HBox>
 
@@ -251,17 +258,18 @@
                             path: 'accessModel>/requestHistory'
                         }"
                         noDataText="No access requests match the selected filter."
+                        fixedLayout="true"
                         class="sapUiNoMargin kyraHistoryTable">
                         <columns>
-                            <Column width="12%" hAlign="Center"><Text text="REQUEST ID" class="kyraHistHeader" /></Column>
-                            <Column width="6%" hAlign="Center"><Text text="TYPE" class="kyraHistHeader" /></Column>
-                            <Column width="13%" hAlign="Center"><Text text="SYSTEM" class="kyraHistHeader" /></Column>
-                            <Column width="12%" hAlign="Center"><Text text="SERVICES" class="kyraHistHeader" /></Column>
-                            <Column width="16%" hAlign="Center"><Text text="TEAM / ROLE" class="kyraHistHeader" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="PERSONA" class="kyraHistHeader" /></Column>
-                            <Column width="12%" hAlign="Center"><Text text="DURATION" class="kyraHistHeader" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="SUBMITTED" class="kyraHistHeader" /></Column>
-                            <Column width="11%" hAlign="Center"><Text text="STATUS" class="kyraHistHeader" /></Column>
+                            <Column width="11%" hAlign="Center"><Text text="REQUEST ID" class="kyraHistHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="TYPE" class="kyraHistHeader" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="SYSTEM" class="kyraHistHeader" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="SERVICES" class="kyraHistHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="TEAM / ROLE" class="kyraHistHeader" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="PERSONA" class="kyraHistHeader" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="DURATION" class="kyraHistHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="SUBMITTED" class="kyraHistHeader" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraHistHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
@@ -308,18 +316,18 @@
 
                     <Table
                         id="myAccessMasterSectionTable"
+                        fixedLayout="true"
                         items="{accessModel>/userAccessList}"
                         noDataText="No active entitlements found."
                         class="sapUiNoMargin">
                         <columns>
-                            <Column width="16%"><Text text="SYSTEM" class="fioriConflictTableHeader" /></Column>
-                            <Column width="18%"><Text text="ROLE TITLE" class="fioriConflictTableHeader" /></Column>
-                            <Column width="14%"><Text text="TEAM" class="fioriConflictTableHeader" /></Column>
-                            <Column width="18%"><Text text="PERSONA" class="fioriConflictTableHeader" /></Column>
-                            <Column width="10%"><Text text="GRANTED DATE" class="fioriConflictTableHeader" /></Column>
-                            <Column width="9%"><Text text="EXPIRY DATE" class="fioriConflictTableHeader" /></Column>
-                            <Column width="8%"><Text text="STATUS" class="fioriConflictTableHeader" /></Column>
-                            <Column width="7%" hAlign="Center"><Text text="ACTION" class="fioriConflictTableHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="SYSTEM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="6%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle">
@@ -328,7 +336,6 @@
                                     <Text text="{accessModel>roleName}" class="fioriCellBold" />
                                     <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
                                     <Text text="{accessModel>persona}" />
-                                    <Text text="{accessModel>grantedDate}" />
                                     <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
                                     <ObjectStatus
                                         text="{accessModel>status}"
@@ -345,47 +352,68 @@
                     </Table>
                 </VBox>
 
-                <!-- 3 FEATURE ACTION CARDS GRID - ONLY VISIBLE ON MY ACCESS TAB -->
+                <!-- 3 FEATURE ACTION CARDS GRID - ONLY VISIBLE ON MY ACCESS TAB (MATCHING IMAGE DESIGN) -->
                 <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !${accessModel>/showMyAccessMasterSection} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }">
                     <!-- CARD 1: PENDING ACCESS REQUESTS -->
-                    <VBox id="cardPendingRequests" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
-                        <HBox alignItems="Start" class="fioriCardHeaderRow">
-                            <Avatar src="sap-icon://history" backgroundColor="Accent3" displaySize="M" class="fioriCardAvatar fioriAmberAvatar" />
+                    <VBox id="cardPendingRequests" class="fioriActionCard fioriCardPending fioriClickableCard" justifyContent="SpaceBetween">
+                        <HBox alignItems="Center" class="fioriCardHeaderRow">
+                            <HBox class="kyraActionBadge kyraBadgeAmber">
+                                <core:Icon src="sap-icon://history" class="kyraBadgeIcon" />
+                            </HBox>
                             <VBox class="fioriCardTitleBox">
                                 <Title text="Pending Access Requests" level="H5" class="fioriActionCardTitle" />
                                 <Text text="Awaiting approval" class="fioriActionCardSub" />
                             </VBox>
                         </HBox>
+                        <HBox class="kyraCardDivider" />
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
-                            <Link text="{= ${accessModel>/myPendingRequests} ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : '' + ${accessModel>/myPendingRequests}.length) : '00' }" press=".onNavToPendingRequests" class="fioriPendingNumber" />
+                            <HBox alignItems="Center">
+                                <Text text="{= ${accessModel>/myPendingRequests} ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : '' + ${accessModel>/myPendingRequests}.length) : '07' }" class="fioriPendingNumber" />
+                                <Text text="Pending Requests" class="kyraCardPendingLabel" />
+                            </HBox>
+                            <HBox class="kyraCardCircleArrow kyraArrowAmber">
+                                <core:Icon src="sap-icon://navigation-down-arrow" class="kyraArrowIcon" />
+                            </HBox>
                         </HBox>
                     </VBox>
 
                     <!-- CARD 2: ADD ACCESS -->
-                    <VBox id="cardAddAccess" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
-                        <HBox alignItems="Start" class="fioriCardHeaderRow">
-                            <Avatar src="sap-icon://add" backgroundColor="Accent1" displaySize="M" class="fioriCardAvatar fioriBlueAvatar" />
+                    <VBox id="cardAddAccess" class="fioriActionCard fioriCardAdd fioriClickableCard" justifyContent="SpaceBetween">
+                        <HBox alignItems="Center" class="fioriCardHeaderRow">
+                            <HBox class="kyraActionBadge kyraBadgeTeal">
+                                <core:Icon src="sap-icon://add" class="kyraBadgeIcon" />
+                            </HBox>
                             <VBox class="fioriCardTitleBox">
                                 <Title text="Add Access" level="H5" class="fioriActionCardTitle" />
                                 <Text text="Request new access" class="fioriActionCardSub" />
                             </VBox>
                         </HBox>
+                        <HBox class="kyraCardDivider" />
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
-                            <Link text="Create Request" press=".onNavToAddAccess" class="fioriActionLink" />
+                            <Text text="Create Request" class="fioriActionLinkTeal" />
+                            <HBox class="kyraCardCircleArrow kyraArrowTeal">
+                                <core:Icon src="sap-icon://navigation-down-arrow" class="kyraArrowIcon" />
+                            </HBox>
                         </HBox>
                     </VBox>
 
                     <!-- CARD 3: REMOVE ACCESS -->
-                    <VBox id="cardRemoveAccess" class="fioriActionCard fioriClickableCard sapUiResponsivePadding" justifyContent="SpaceBetween">
-                        <HBox alignItems="Start" class="fioriCardHeaderRow">
-                            <Avatar src="sap-icon://delete" backgroundColor="Accent2" displaySize="M" class="fioriCardAvatar fioriPurpleAvatar" />
+                    <VBox id="cardRemoveAccess" class="fioriActionCard fioriCardRemove fioriClickableCard" justifyContent="SpaceBetween">
+                        <HBox alignItems="Center" class="fioriCardHeaderRow">
+                            <HBox class="kyraActionBadge kyraBadgeRose">
+                                <core:Icon src="sap-icon://delete" class="kyraBadgeIcon" />
+                            </HBox>
                             <VBox class="fioriCardTitleBox">
                                 <Title text="Remove Access" level="H5" class="fioriActionCardTitle" />
                                 <Text text="Remove existing access" class="fioriActionCardSub" />
                             </VBox>
                         </HBox>
+                        <HBox class="kyraCardDivider" />
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
-                            <Link text="Remove Access" press=".onNavToRemoveAccess" class="fioriActionLink" />
+                            <Text text="Remove Access" class="fioriActionLinkRose" />
+                            <HBox class="kyraCardCircleArrow kyraArrowRose">
+                                <core:Icon src="sap-icon://navigation-down-arrow" class="kyraArrowIcon" />
+                            </HBox>
                         </HBox>
                     </VBox>
                 </HBox>
@@ -407,19 +435,20 @@
 
                     <Table
                         id="pendingRequestsInPageTable"
+                        fixedLayout="true"
                         items="{accessModel>/myPendingRequests}"
                         noDataText="No pending access requests at this time."
                         class="sapUiNoMargin kyraHistoryTable">
                         <columns>
-                            <Column width="12%" hAlign="Center"><Text text="REQUEST ID" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="6%" hAlign="Center"><Text text="TYPE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="13%" hAlign="Center"><Text text="SYSTEM" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="12%" hAlign="Center"><Text text="SERVICES" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="16%" hAlign="Center"><Text text="TEAM / ROLE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="PERSONA" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="12%" hAlign="Center"><Text text="DURATION" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="SUBMITTED" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="11%" hAlign="Center"><Text text="STATUS" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
+                            <Column width="11%" hAlign="Center"><Text text="REQUEST ID" class="kyraHistHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="TYPE" class="kyraHistHeader" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="SYSTEM" class="kyraHistHeader" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="SERVICES" class="kyraHistHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="TEAM / ROLE" class="kyraHistHeader" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="PERSONA" class="kyraHistHeader" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="DURATION" class="kyraHistHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="SUBMITTED" class="kyraHistHeader" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraHistHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
@@ -456,8 +485,8 @@
                                 displaySize="S"
                                 class="sapUiTinyMarginEnd fioriCardAvatar" />
                             <VBox>
-                                <Title text="{= ${accessModel>/addAccessStep} === 5 ? 'Step 5: Summary' : (${accessModel>/addAccessStep} === 4 &amp;&amp; (${accessModel>/addAccessStep4SubStep} === 2 || ${accessModel>/addAccessStep4SubStep} === 3) ? 'Step 4: SoD Conflict Review' : (${accessModel>/addAccessStep} === 4 ? 'Step 4: Access Validation' : (${accessModel>/addAccessStep} === 3 ? 'Step 3: Config' : (${accessModel>/addAccessStep} === 2 ? 'Step 2: Region' : 'Step 1: Scope')))) }" level="H4" class="fioriCardHeaderTitle" />
-                                <Text text="{= ${accessModel>/addAccessStep} === 5 ? 'Review configured target entitlements and submit request.' : (${accessModel>/addAccessStep} === 4 &amp;&amp; (${accessModel>/addAccessStep4SubStep} === 2 || ${accessModel>/addAccessStep4SubStep} === 3) ? 'Review and resolve Segregation of Duties (SoD) conflicts before proceeding.' : (${accessModel>/addAccessStep} === 4 ? 'Validate access threshold limits, restricted records, and duplicate roles.' : (${accessModel>/addAccessStep} === 3 ? 'Configure target systems, services, team roles, personas, duration, and justification.' : (${accessModel>/addAccessStep} === 2 ? 'Select target operating region.' : 'Select enterprise sector and operational function.')))) }" class="fioriDescriptionText" />
+                                <Title text="{= ${accessModel>/addAccessStep} === 5 ? 'Step 5: Review &amp; Summary' : (${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 ? 'Step 4: SoD Conflict Review' : (${accessModel>/addAccessStep} === 4 ? 'Step 4: Access Validation' : (${accessModel>/addAccessStep} === 3 ? 'Step 3: Access Configuration' : (${accessModel>/addAccessStep} === 2 ? 'Step 2: Region Selection' : 'Step 1: Business Sector')))) }" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="{= ${accessModel>/addAccessStep} === 5 ? 'Review configured target entitlements and submit request.' : (${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 ? 'Review and resolve Segregation of Duties (SoD) conflicts before proceeding.' : (${accessModel>/addAccessStep} === 4 ? 'Validate access threshold limits, restricted records, and duplicate roles.' : (${accessModel>/addAccessStep} === 3 ? 'Configure target systems, services, team roles, personas, duration, and justification.' : (${accessModel>/addAccessStep} === 2 ? 'Select target operating region.' : 'Select enterprise sector and operational function.')))) }" class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
                         <Button
@@ -656,14 +685,12 @@
                         <HBox justifyContent="End" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                             <Button
                                 text="Cancel"
-                                type="Transparent"
+                                type="Default"
                                 press=".onCloseAddAccessSector"
-                                class="kyraTextBtn sapUiSmallMarginEnd" />
+                                class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                             <Button
-                                text="Continue"
+                                text="Next"
                                 type="Emphasized"
-                                icon="sap-icon://navigation-right-arrow"
-                                iconFirst="false"
                                 press=".onGoToAddAccessStep2"
                                 class="kyraPrimaryBtn" />
                         </HBox>
@@ -706,22 +733,18 @@
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                             <Button
                                 text="Previous"
-                                icon="sap-icon://navigation-left-arrow"
-                                iconFirst="true"
                                 type="Default"
                                 press=".onGoToAddAccessStep1"
                                 class="kyraSecondaryBtn" />
                             <HBox alignItems="Center">
                                 <Button
                                     text="Cancel"
-                                    type="Transparent"
+                                    type="Default"
                                     press=".onCloseAddAccessSector"
-                                    class="kyraTextBtn sapUiSmallMarginEnd" />
+                                    class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                 <Button
-                                    text="Continue"
+                                    text="Next"
                                     type="Emphasized"
-                                    icon="sap-icon://navigation-right-arrow"
-                                    iconFirst="false"
                                     press=".onGoToAddAccessStep3"
                                     class="kyraPrimaryBtn" />
                             </HBox>
@@ -751,12 +774,12 @@
                                         placeholder="Select target system processes..."
                                         width="100%"
                                         class="fioriFormSelect">
-                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" icon="sap-icon://cloud" />
-                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" icon="sap-icon://database" />
-                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" icon="sap-icon://shield" />
-                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" icon="sap-icon://user-settings" />
-                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" icon="sap-icon://group" />
-                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" icon="sap-icon://shipping-status" />
+                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" />
+                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" />
+                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" />
+                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" />
+                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" />
+                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" />
                                     </MultiComboBox>
                                 </form:content>
                             </form:SimpleForm>
@@ -798,7 +821,6 @@
                                             class="fioriFormSelect">
                                             <core:Item key="System Administrator" text="System Administrator" />
                                             <core:Item key="System Owners" text="System Owners" />
-                                            <core:Item key="Stakeholders" text="Stakeholders" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 2: TEAM ROLE -->
@@ -813,7 +835,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 3: ASSIGNED PERSONA -->
@@ -827,7 +849,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedRoles} &amp;&amp; ${accessModel>/addAccessSelectedRoles}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" icon="{accessModel>icon}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </MultiComboBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -838,16 +860,12 @@
                                 <!-- Left Navigation Button: Goes to Previous System Slide or Back to Step 2 Region -->
                                 <Button
                                     text="Previous"
-                                    icon="sap-icon://navigation-left-arrow"
-                                    iconFirst="true"
                                     type="Default"
                                     visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/addAccessCurrentSystemIndex} &gt; 0 }"
                                     press=".onPrevSystemSlide"
                                     class="kyraSecondaryBtn" />
                                 <Button
                                     text="Previous"
-                                    icon="sap-icon://navigation-left-arrow"
-                                    iconFirst="true"
                                     type="Default"
                                     visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (!${accessModel>/addAccessCurrentSystemIndex} || ${accessModel>/addAccessCurrentSystemIndex} === 0) }"
                                     press=".onGoToAddAccessStep2"
@@ -867,17 +885,15 @@
 
                                     <Button
                                         text="Cancel"
-                                        type="Transparent"
+                                        type="Default"
                                         visible="{= !${accessModel>/isEditingFromSummary} }"
                                         press=".onCloseAddAccessSector"
-                                        class="kyraTextBtn sapUiSmallMarginEnd" />
+                                        class="kyraSecondaryBtn sapUiSmallMarginEnd" />
 
                                     <!-- Next System Slide Continue Button -->
                                     <Button
-                                        text="Continue"
+                                        text="Next"
                                         type="Emphasized"
-                                        icon="sap-icon://navigation-right-arrow"
-                                        iconFirst="false"
                                         visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) &lt; ${accessModel>/addAccessSelectedSystems}.length }"
                                         enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
                                         press=".onNextSystemSlide"
@@ -885,10 +901,8 @@
 
                                     <!-- Complete System Slides and Set Duration Continue Button -->
                                     <Button
-                                        text="Continue"
+                                        text="Next"
                                         type="Emphasized"
-                                        icon="sap-icon://navigation-right-arrow"
-                                        iconFirst="false"
                                         visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) === ${accessModel>/addAccessSelectedSystems}.length }"
                                         enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
                                         press=".onCompleteSystemSlides"
@@ -896,10 +910,8 @@
 
                                     <!-- Fallback Continue Button if no system is selected yet -->
                                     <Button
-                                        text="Continue"
+                                        text="Next"
                                         type="Emphasized"
-                                        icon="sap-icon://navigation-right-arrow"
-                                        iconFirst="false"
                                         visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (!${accessModel>/addAccessSelectedSystems} || ${accessModel>/addAccessSelectedSystems}.length === 0) }"
                                         press=".onCompleteSystemSlides"
                                         class="kyraPrimaryBtn" />
@@ -939,14 +951,12 @@
                                         placeholder="Provide detailed business justification for requesting these system permissions..."
                                         rows="4"
                                         width="100%" />
-                                </form:content>
+                                 </form:content>
                             </form:SimpleForm>
 
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                                 <Button
                                     text="Previous"
-                                    icon="sap-icon://navigation-left-arrow"
-                                    iconFirst="true"
                                     type="Default"
                                     visible="{= !${accessModel>/isEditingFromSummary} }"
                                     press=".onBackToSystemSlides"
@@ -963,15 +973,13 @@
                                         tooltip="Save changes and return straight to Summary" />
                                     <Button
                                         text="Cancel"
-                                        type="Transparent"
+                                        type="Default"
                                         visible="{= !${accessModel>/isEditingFromSummary} }"
                                         press=".onCloseAddAccessSector"
-                                        class="kyraTextBtn sapUiSmallMarginEnd" />
+                                        class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                     <Button
-                                        text="Continue"
+                                        text="Next"
                                         type="Emphasized"
-                                        icon="sap-icon://navigation-right-arrow"
-                                        iconFirst="false"
                                         visible="{= !${accessModel>/isEditingFromSummary} }"
                                         press=".onGoToAddAccessStep4"
                                         class="kyraPrimaryBtn" />
@@ -1014,12 +1022,12 @@
                                 </HBox>
                             </HBox>
                             
-                            <Table id="thresholdLimitsTable" items="{accessModel>/thresholdLimits}" class="kyraValTable" fixedLayout="false" width="100%" visible="{= ${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length &gt; 0 }">
+                            <Table id="thresholdLimitsTable" items="{accessModel>/thresholdLimits}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length &gt; 0 }">
                                 <columns>
-                                    <Column width="30%"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
-                                    <Column width="25%"><Text text="SECTOR" class="kyraValColHeader" /></Column>
-                                    <Column width="20%"><Text text="LIMIT" class="kyraValColHeader" /></Column>
-                                    <Column width="25%"><Text text="EXCESSIVE PERCENTAGE" class="kyraValColHeader" /></Column>
+                                    <Column width="28%" hAlign="Begin"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
+                                    <Column width="28%" hAlign="Begin"><Text text="SECTOR" class="kyraValColHeader" /></Column>
+                                    <Column width="20%" hAlign="Center"><Text text="LIMIT" class="kyraValColHeader" /></Column>
+                                    <Column width="24%" hAlign="Center"><Text text="EXCESSIVE PERCENTAGE" class="kyraValColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraValTableRow">
@@ -1061,35 +1069,35 @@
                                 </HBox>
                             </HBox>
                             
-                            <Table id="restrictedRecordsTable" items="{accessModel>/restrictedRecords}" class="kyraValTable" fixedLayout="false" width="100%" visible="{= ${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length &gt; 0 }">
+                            <Table id="restrictedRecordsTable" items="{accessModel>/restrictedRecords}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length &gt; 0 }">
                                 <columns>
                                     <!-- 1. System -->
-                                    <Column width="14%" hAlign="Begin">
-                                        <Text text="System" class="kyraValColHeader" />
+                                    <Column width="15%" hAlign="Begin">
+                                        <Text text="SYSTEM" class="kyraValColHeader" />
                                     </Column>
                                     <!-- 2. Role Title -->
-                                    <Column width="15%" hAlign="Begin">
-                                        <Text text="Role Title" class="kyraValColHeader" />
+                                    <Column width="16%" hAlign="Begin">
+                                        <Text text="ROLE TITLE" class="kyraValColHeader" />
                                     </Column>
                                     <!-- 3. Business Sector -->
                                     <Column width="15%" hAlign="Begin">
-                                        <Text text="Business Sector" class="kyraValColHeader" />
+                                        <Text text="BUSINESS SECTOR" class="kyraValColHeader" />
                                     </Column>
                                     <!-- 4. Business Function -->
-                                    <Column width="14%" hAlign="Begin">
-                                        <Text text="Business Function" class="kyraValColHeader" />
+                                    <Column width="15%" hAlign="Begin">
+                                        <Text text="BUSINESS FUNCTION" class="kyraValColHeader" />
                                     </Column>
                                     <!-- 5. Persona -->
-                                    <Column width="18%" hAlign="Begin">
-                                        <Text text="Persona" class="kyraValColHeader" />
+                                    <Column width="17%" hAlign="Begin">
+                                        <Text text="PERSONA" class="kyraValColHeader" />
                                     </Column>
                                     <!-- 6. Security Group -->
-                                    <Column width="12%" hAlign="Begin">
-                                        <Text text="Security Group" class="kyraValColHeader" />
+                                    <Column width="11%" hAlign="Begin">
+                                        <Text text="SECURITY GROUP" class="kyraValColHeader" />
                                     </Column>
                                     <!-- 7. AD Group -->
-                                    <Column width="12%" hAlign="Begin">
-                                        <Text text="AD Group" class="kyraValColHeader" />
+                                    <Column width="11%" hAlign="Begin">
+                                        <Text text="AD GROUP" class="kyraValColHeader" />
                                     </Column>
                                 </columns>
                                 <items>
@@ -1135,15 +1143,15 @@
         </HBox>
     </HBox>
     
-    <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" class="kyraValTable" fixedLayout="false" width="100%" visible="{= ${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length &gt; 0 }">
+    <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length &gt; 0 }">
         <columns>
-            <Column width="15%"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
-            <Column width="15%"><Text text="FUNCTIONAL ROLE" class="kyraValColHeader" /></Column>
-            <Column width="14%"><Text text="MODULE NAME" class="kyraValColHeader" /></Column>
-            <Column width="16%"><Text text="SELECTED SECURITY GROUPS" class="kyraValColHeader" /></Column>
-            <Column width="13%"><Text text="TEAM NAME" class="kyraValColHeader" /></Column>
-            <Column width="13%"><Text text="AD GROUP NAME" class="kyraValColHeader" /></Column>
-            <Column width="14%"><Text text="EXISTING GROUP/ ROLES" class="kyraValColHeader" /></Column>
+            <Column width="15%" hAlign="Begin"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
+            <Column width="15%" hAlign="Begin"><Text text="FUNCTIONAL ROLE" class="kyraValColHeader" /></Column>
+            <Column width="14%" hAlign="Begin"><Text text="MODULE NAME" class="kyraValColHeader" /></Column>
+            <Column width="16%" hAlign="Begin"><Text text="SELECTED SECURITY GROUPS" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="TEAM NAME" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="AD GROUP NAME" class="kyraValColHeader" /></Column>
+            <Column width="14%" hAlign="Center"><Text text="EXISTING GROUP/ ROLES" class="kyraValColHeader" /></Column>
         </columns>
         <items>
             <ColumnListItem vAlign="Middle" class="kyraValTableRow">
@@ -1173,14 +1181,12 @@
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                             <Button
                                 text="Previous"
-                                icon="sap-icon://navigation-left-arrow"
-                                iconFirst="true"
                                 type="Default"
                                 press=".onGoBackToDurationSlide"
                                 class="kyraSecondaryBtn" />
                             <HBox alignItems="Center">
-                                <Button text="Cancel" type="Transparent" press=".onCloseAddAccessSector" class="kyraTextBtn sapUiSmallMarginEnd" />
-                                <Button text="Continue" type="Emphasized" icon="sap-icon://navigation-right-arrow" iconFirst="false" press=".onGoToStep4Slide2" class="kyraPrimaryBtn" />
+                                <Button text="Cancel" type="Default" press=".onCloseAddAccessSector" class="kyraSecondaryBtn sapUiSmallMarginEnd" />
+                                <Button text="Next" type="Emphasized" press=".onGoToStep4Slide2" class="kyraPrimaryBtn" />
                             </HBox>
                         </HBox>
                     </VBox>
@@ -1487,46 +1493,46 @@
                                         items="{accessModel>items}"
                                         noDataText="No access items configured for this system."
                                         class="kyraSummaryTable"
-                                        fixedLayout="false">
+                                        fixedLayout="true">
                                         <columns>
                                             <!-- 1. REQUEST ID -->
-                                            <Column width="16%">
+                                            <Column width="15%" hAlign="Begin">
                                                 <HBox alignItems="Center">
                                                     <core:Icon src="sap-icon://document" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="REQUEST ID" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 2. TOPIC -->
-                                            <Column width="15%">
+                                            <Column width="15%" hAlign="Begin">
                                                 <HBox alignItems="Center">
                                                     <core:Icon src="sap-icon://comment" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="TOPIC" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 3. ROLE TITLE -->
-                                            <Column width="15%">
+                                            <Column width="15%" hAlign="Begin">
                                                 <HBox alignItems="Center">
                                                     <core:Icon src="sap-icon://shield" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="ROLE TITLE" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 4. ASSIGNED PERSONA -->
-                                            <Column width="25%">
+                                            <Column width="24%" hAlign="Begin">
                                                 <HBox alignItems="Center">
                                                     <core:Icon src="sap-icon://customer" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="ASSIGNED PERSONA" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 5. DURATION -->
-                                            <Column width="11%">
-                                                <HBox alignItems="Center">
+                                            <Column width="12%" hAlign="Center">
+                                                <HBox alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://calendar" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="DURATION" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 6. STATUS -->
-                                            <Column width="12%">
-                                                <HBox alignItems="Center">
+                                            <Column width="13%" hAlign="Center">
+                                                <HBox alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://message-information" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="STATUS" class="kyraSummaryColHeader" />
                                                 </HBox>
@@ -1571,17 +1577,13 @@
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                             <Button
                                 text="Previous"
-                                icon="sap-icon://navigation-left-arrow"
-                                iconFirst="true"
                                 type="Default"
                                 press=".onNavBackFromStep5"
                                 class="kyraSecondaryBtn" />
                             <HBox alignItems="Center">
-                                <Button text="Cancel Request" type="Transparent" press=".onCloseAddAccessSector" class="kyraTextBtn sapUiSmallMarginEnd" />
+                                <Button text="Cancel Request" type="Default" press=".onCloseAddAccessSector" class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                 <Button
                                     text="Submit Access Request"
-                                    icon="sap-icon://navigation-right-arrow"
-                                    iconFirst="false"
                                     type="Emphasized"
                                     press=".onFinalSubmitInPageAddAccess"
                                     class="kyraPrimaryBtn" />
@@ -1611,18 +1613,18 @@
 
                     <Table
                         id="removeAccessTable"
+                        fixedLayout="true"
                         items="{accessModel>/activeRoles}"
                         noDataText="No active entitlements available for removal."
                         class="sapUiNoMargin">
                         <columns>
-                            <Column width="15%"><Text text="SYSTEM NAME" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="18%"><Text text="ROLE TITLE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="14%"><Text text="TEAM" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="15%"><Text text="PERSONA" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="10%"><Text text="GRANTED DATE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="10%"><Text text="EXPIRY DATE" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="9%"><Text text="STATUS" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="ACTION" style="font-weight: 700; font-size: 11px; color: #475569; letter-spacing: 0.04em;" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="12%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="8%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle">
@@ -1631,7 +1633,6 @@
                                     <ObjectIdentifier title="{accessModel>roleName}" subtitle="{accessModel>roleId}" />
                                     <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Operations Team' }" />
                                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer Persona' }" />
-                                    <Text text="{accessModel>grantedDate}" />
                                     <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : (${accessModel>expiryDate} || '31 Dec 9999') }" />
                                     <ObjectStatus
                                         text="{= ${accessModel>status} || 'Active' }"
@@ -2063,79 +2064,68 @@
 
             <!-- DEDICATED SEPARATE FULL PAGE VIEW: ALL NOTIFICATIONS -->
             <VBox id="kyraNotificationsPageContainer" visible="{= !!${accessModel>/showAllNotificationsPage} }" class="fioriStepSlideAnim kyraNotifPageWrapper" width="100%">
-                <VBox class="kyraNotifMainOuterCard" width="100%">
-                    <!-- 1. Top Navigation & Action Row (Clear All only at top-right) -->
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifTopRow sapUiSmallMarginBottom" width="100%">
-                        <HBox alignItems="Center">
-                            <Button
-                                icon="sap-icon://navigation-left-arrow"
-                                text="Back to Dashboard"
-                                type="Transparent"
-                                press=".onBackFromNotificationsPage"
-                                class="kyraNotifBackBtn sapUiMediumMarginEnd" />
-                            <HBox alignItems="Center" class="kyraNotifBreadcrumbBox">
-                                <Link text="Home" press=".onBackFromNotificationsPage" class="kyraNotifBreadcrumbLink" />
-                                <Text text="/" class="kyraNotifBreadcrumbSlash" />
-                                <Text text="Notifications" class="kyraNotifBreadcrumbCurrent" />
-                            </HBox>
-                        </HBox>
-                        <HBox alignItems="Center">
-                            <Button
-                                icon="sap-icon://delete"
-                                text="Clear all"
-                                type="Transparent"
-                                press=".onClearReadNotifications"
-                                class="kyraNotifClearAllBtn" />
-                        </HBox>
-                    </HBox>
+                <!-- Top Back Button outside Card -->
+                <HBox class="kyraNotifTopRow sapUiSmallMarginBottom" width="100%">
+                    <Button
+                        text="Back"
+                        type="Transparent"
+                        press=".onBackFromNotificationsPage"
+                        class="kyraNotifBackBtn" />
+                </HBox>
 
-                    <!-- 2. Header Title & Search Row -->
+                <!-- Main White Card Container -->
+                <VBox class="kyraNotifMainOuterCard" width="100%">
+                    <!-- 1. Header Title & Search Row -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifHeaderRow sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center">
                             <HBox class="kyraNotifBellAvatarBox sapUiMediumMarginEnd" justifyContent="Center" alignItems="Center">
                                 <core:Icon src="sap-icon://bell" class="kyraNotifBellAvatarIcon" />
                             </HBox>
                             <VBox>
-                                <HBox alignItems="Center">
-                                    <Title text="All Notifications" level="H2" class="kyraNotifMainTitle sapUiSmallMarginEnd" />
-                                    <HBox class="kyraNotifUnreadCountBadge" visible="{= (${accessModel>/unreadNotificationsCount} || 0) &gt; 0 }">
-                                        <Text text="{= (${accessModel>/unreadNotificationsCount} || 0) + ' Unread' }" class="kyraNotifUnreadCountText" />
-                                    </HBox>
-                                </HBox>
+                                <Title text="All Notifications" level="H2" class="kyraNotifMainTitle" />
                                 <Text text="Real-time updates about security, workflow, requests and system alerts." class="kyraNotifSubtitle sapUiTinyMarginTop" />
                             </VBox>
                         </HBox>
                         <HBox alignItems="Center">
                             <SearchField
-                                placeholder="Search notifications..."
-                                width="280px"
+                                placeholder="Search..."
+                                width="260px"
                                 liveChange=".onSearchNotifications"
                                 class="kyraNotifSearchInput" />
                         </HBox>
                     </HBox>
 
-                    <!-- 3. Filter Tabs (Only All & Unread, No extra filter button/icon) -->
-                    <HBox class="kyraNotifFilterBar sapUiSmallMarginBottom" alignItems="Center">
+                    <!-- 2. Filter Tabs & Clear all Button Row -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifFilterBar sapUiSmallMarginBottom" width="100%">
+                        <HBox alignItems="Center" class="kyraNotifFilterGroup">
+                            <Button
+                                text="{= 'All (' + (${accessModel>/allNotificationsCount} || 0) + ')' }"
+                                type="Default"
+                                press=".onFilterNotifications"
+                                customData:key="all"
+                                class="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'kyraNotifPillTab kyraNotifTabActive' : 'kyraNotifPillTab kyraNotifTabInactive' }" />
+                            <Button
+                                text="{= 'Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')' }"
+                                type="Default"
+                                press=".onFilterNotifications"
+                                customData:key="unread"
+                                class="{= ${accessModel>/notifFilterKey} === 'unread' ? 'kyraNotifPillTab kyraNotifTabActive' : 'kyraNotifPillTab kyraNotifTabInactive' }" />
+                        </HBox>
+
                         <Button
-                            icon="sap-icon://grid"
-                            text="{= 'All (' + (${accessModel>/allNotificationsCount} || 0) + ')' }"
-                            type="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'Emphasized' : 'Transparent' }"
-                            press=".onFilterNotifications"
-                            customData:key="all"
-                            class="kyraNotifPillTab" />
-                        <HBox class="kyraNotifTabDivider" />
-                        <Button
-                            icon="sap-icon://circle-task-2"
-                            text="{= 'Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')' }"
-                            type="{= ${accessModel>/notifFilterKey} === 'unread' ? 'Emphasized' : 'Transparent' }"
-                            press=".onFilterNotifications"
-                            customData:key="unread"
-                            class="kyraNotifPillTab" />
+                            icon="sap-icon://delete"
+                            text="Clear all"
+                            type="Default"
+                            press=".onClearReadNotifications"
+                            class="kyraNotifClearAllBtn" />
                     </HBox>
 
-                    <!-- 4. Notifications List Container (Simple Horizontal Cards) -->
+                    <!-- Subtle Horizontal Divider -->
+                    <core:HTML content="&lt;div class='kyraNotifDivider'&gt;&lt;/div&gt;" />
+
+                    <!-- 3. Notifications List Container (Simple Horizontal Cards) -->
                     <VBox class="kyraNotifListCard">
-                        <!-- Horizontal Notification Cards: status icon → title → Request ID → description → time → delete icon -->
+                        <!-- Horizontal Notification Cards -->
                         <VBox items="{accessModel>/filteredNotificationsList}">
                             <items>
                                 <HBox
@@ -2145,32 +2135,32 @@
                                     width="100%">
                                     <!-- Left Section: status icon → title → Request ID → description → time -->
                                     <HBox alignItems="Start" class="kyraNotifCardLeftSection">
-                                         <!-- 1. Status Icon -->
-                                         <HBox
-                                             class="{= 'kyraNotifRowIconCircle ' + (${accessModel>type} === 'approved' ? 'kyraNotifIconGreen' : (${accessModel>type} === 'rejected' ? 'kyraNotifIconRed' : (${accessModel>type} === 'submitted' || ${accessModel>type} === 'new_request' ? 'kyraNotifIconBlue' : (${accessModel>type} === 'warning' ? 'kyraNotifIconYellow' : 'kyraNotifIconPurple')))) }"
-                                             justifyContent="Center"
-                                             alignItems="Center">
-                                             <core:Icon src="{= ${accessModel>icon} || (${accessModel>type} === 'approved' ? 'sap-icon://sys-enter-2' : (${accessModel>type} === 'rejected' ? 'sap-icon://error' : 'sap-icon://pending')) }" class="kyraNotifRowIcon" />
-                                         </HBox>
+                                        <!-- 1. Status Icon -->
+                                        <HBox
+                                            class="{= 'kyraNotifRowIconCircle ' + (${accessModel>type} === 'approved' ? 'kyraNotifIconGreen' : (${accessModel>type} === 'rejected' ? 'kyraNotifIconRed' : (${accessModel>type} === 'submitted' || ${accessModel>type} === 'new_request' ? 'kyraNotifIconBlue' : (${accessModel>type} === 'warning' ? 'kyraNotifIconYellow' : 'kyraNotifIconPurple')))) }"
+                                            justifyContent="Center"
+                                            alignItems="Center">
+                                            <core:Icon src="{= ${accessModel>icon} || (${accessModel>type} === 'approved' ? 'sap-icon://sys-enter-2' : (${accessModel>type} === 'rejected' ? 'sap-icon://error' : 'sap-icon://pending')) }" class="kyraNotifRowIcon" />
+                                        </HBox>
 
-                                         <!-- 2. Text Col: Title → Request ID → Description → Remark → Time -->
-                                         <VBox class="kyraNotifTextCol">
-                                             <HBox alignItems="Center" wrap="Wrap" class="kyraNotifTitleRow">
+                                        <!-- 2. Text Col: Title → Request ID → Description → Remark → Time -->
+                                        <VBox class="kyraNotifTextCol">
+                                            <HBox alignItems="Center" wrap="Wrap" class="kyraNotifTitleRow">
                                                 <Text text="{accessModel>title}" class="kyraNotifRowTitle" />
                                                 <Text
                                                     text="{accessModel>requestId}"
                                                     class="kyraNotifReqIdBadge"
                                                     visible="{= !!${accessModel>requestId} }" />
-                                             </HBox>
-                                             <Text text="{accessModel>description}" class="kyraNotifRowDesc" />
-                                             <HBox class="kyraNotifRemarkCallout" visible="{= !!${accessModel>approverComment} }" alignItems="Center">
+                                            </HBox>
+                                            <Text text="{accessModel>description}" class="kyraNotifRowDesc" />
+                                            <HBox class="kyraNotifRemarkCallout" visible="{= !!${accessModel>approverComment} }" alignItems="Center">
                                                 <Text text="Approver Remark:" class="kyraNotifRemarkLabel" />
                                                 <Text text="{accessModel>approverComment}" class="kyraNotifRemarkText" />
-                                             </HBox>
-                                             <HBox alignItems="Center" class="kyraNotifTimeRow">
+                                            </HBox>
+                                            <HBox alignItems="Center" class="kyraNotifTimeRow">
                                                 <core:Icon src="sap-icon://history" class="kyraNotifClockIcon" />
                                                 <Text text="{accessModel>timestamp}" class="kyraNotifTimeText" />
-                                             </HBox>
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
@@ -2189,11 +2179,11 @@
 
                         <!-- Empty State Box (When no notifications match filter) -->
                         <VBox
-                            class="kyraNotifEmptyCard sapUiResponsivePadding"
+                            class="kyraNotifEmptyCard"
                             alignItems="Center"
                             justifyContent="Center"
                             visible="{= !${accessModel>/filteredNotificationsList} || ${accessModel>/filteredNotificationsList}.length === 0 }">
-                            <HBox class="kyraNotifEmptyIconCircle sapUiMediumMarginBottom" justifyContent="Center" alignItems="Center">
+                            <HBox class="kyraNotifEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
                                 <core:Icon src="sap-icon://bell" class="kyraNotifEmptyBellIcon" />
                             </HBox>
                             <Title text="All caught up!" level="H3" class="kyraNotifEmptyTitle sapUiTinyMarginBottom" />
