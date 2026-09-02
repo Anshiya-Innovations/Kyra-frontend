@@ -128,11 +128,12 @@
                         noDataText="No active permissions found."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
-                            <Column width="20%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="20%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="14%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="18%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="14%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
+                            
+                            <Column width="12%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
                             <Column width="8%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
                             <Column width="6%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
                         </columns>
@@ -140,10 +141,10 @@
                             <ColumnListItem vAlign="Middle">
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold" />
-                                    <Text text="{accessModel>services}" class="fioriCellBold" />
-                                    <Text text="{accessModel>team}" />
+                                    <Text text="{accessModel>roleName}" />
+                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
                                     <Text text="{accessModel>persona}" />
-                                    <Text text="{accessModel>expiryDate}" />
+                                    <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
                                     <ObjectStatus
                                         text="{accessModel>status}"
                                         state="{accessModel>statusState}" />
@@ -218,14 +219,6 @@
                                 liveChange=".onSearchRequests"
                                 class="kyraEntitlementsSearchField" />
                             
-                            <!-- VIEW ALL REQUESTS BUTTON (Matches Section 1 View All Button Exactly) -->
-                            <Button
-                                text="View All"
-                                icon="sap-icon://grid"
-                                type="Emphasized"
-                                press=".onClearAllFilters"
-                                class="kyraViewAllBtn sapUiTinyMarginEnd"
-                                tooltip="View all requests in history" />
 
                             <!-- FILTER BOX -->
                             <Button
@@ -275,7 +268,7 @@
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
                                 <cells>
                                     <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap; color: #0F172A;" />
-                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION') ? 'Revoke' : (${accessModel>type} || 'Addition') }" style="font-weight: 500; color: #1E293B;" />
+                                    <Text text="{= ${accessModel>type} || 'Addition' }" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
@@ -321,22 +314,23 @@
                         noDataText="No active entitlements found."
                         class="sapUiNoMargin">
                         <columns>
-                            <Column width="20%" hAlign="Begin"><Text text="SYSTEM" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="20%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="14%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="16%" hAlign="Begin"><Text text="SYSTEM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="18%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="17%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
+                            
+                            <Column width="11%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="7%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
                             <Column width="6%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle">
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold" />
-                                    <Text text="{accessModel>services}" class="fioriCellBold" />
-                                    <Text text="{accessModel>team}" />
+                                    <Text text="{accessModel>roleName}" class="fioriCellBold" />
+                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
                                     <Text text="{accessModel>persona}" />
-                                    <Text text="{accessModel>expiryDate}" />
+                                    <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
                                     <ObjectStatus
                                         text="{accessModel>status}"
                                         state="{accessModel>statusState}" />
@@ -454,7 +448,7 @@
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
                                 <cells>
                                     <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap !important; color: #0F172A;" />
-                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION') ? 'Revoke' : (${accessModel>type} || 'Addition') }" style="font-weight: 500; color: #1E293B;" />
+                                    <Text text="{= ${accessModel>type} || 'Addition' }" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
@@ -821,6 +815,7 @@
                                             class="fioriFormSelect">
                                             <core:Item key="System Administrator" text="System Administrator" />
                                             <core:Item key="System Owners" text="System Owners" />
+                                            <core:Item key="Stakeholders" text="Stakeholders" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 2: TEAM ROLE -->
@@ -1618,13 +1613,14 @@
                         noDataText="No active entitlements available for removal."
                         class="sapUiNoMargin">
                         <columns>
-                            <Column width="20%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="18%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="12%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
+                            
+                            <Column width="10%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="STATUS" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="7%" hAlign="Center"><Text text="ACTION" class="kyraEntitlementColHeader" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem vAlign="Middle">

@@ -1,6 +1,6 @@
 /* =========================================================================
    KYRA ADD ACCESS FRONTEND SLIDES - COMPLETE DEDICATED STYLESHEET
-   Enterprise Palette: Sky Blue (#0284C7), Light Blue (#E0F2FE), White (#FFFFFF)
+   Enterprise Palette: Sky Blue (#008C9C), Light Blue (#F8FAFC), White (#FFFFFF)
    ========================================================================= */
 
 /* Container & Header */
@@ -90,22 +90,22 @@
 
 /* 1. ACTIVE STEP: Blue Highlight & Border Card Box (Matching Reference Image) */
 .kyraStepNode.kyraStepActive {
-    border: 1.5px solid #3B82F6 !important;
+    border: 1.5px solid #008C9C !important;
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
-    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.12) !important;
+    box-shadow: 0 2px 10px rgba(0, 140, 156, 0.12) !important;
     padding: 10px 22px !important;
 }
 
 .kyraStepNode.kyraStepActive .kyraStepIconWrap {
-    background: #EFF6FF !important;
-    background-color: #EFF6FF !important;
-    border: 1.5px solid #BFDBFE !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border: 1.5px solid #CBD5E1 !important;
 }
 
 .kyraStepNode.kyraStepActive .kyraStepIcon {
-    color: #2563EB !important;
-    fill: #2563EB !important;
+    color: #008C9C !important;
+    fill: #008C9C !important;
 }
 
 .kyraStepNode.kyraStepActive .kyraStepTitle {
@@ -114,7 +114,7 @@
 }
 
 .kyraStepNode.kyraStepActive .kyraStepStatus {
-    color: #2563EB !important;
+    color: #008C9C !important;
     font-weight: 700 !important;
 }
 
@@ -178,8 +178,8 @@
 }
 
 .kyraStepConnector.kyraStepConnectorActive {
-    background: #2563EB !important;
-    background-color: #2563EB !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
 }
 
 /* Fallback compatibility for fioriStepPill */
@@ -201,7 +201,7 @@
 }
 
 .fioriStepConnectorActive {
-    background: #2563EB !important;
+    background: #008C9C !important;
 }
 
 /* Step Slide Transitions */
@@ -404,16 +404,16 @@
 
 /* Buttons */
 .fioriEmphasizedBtn .sapMBtnInner {
-    background: #0284C7 !important;
-    border-color: #0284C7 !important;
+    background: #008C9C !important;
+    border-color: #008C9C !important;
     color: #FFFFFF !important;
     font-weight: 700 !important;
     border-radius: 8px !important;
 }
 
 .fioriEmphasizedBtn:hover .sapMBtnInner {
-    background: #0369A1 !important;
-    border-color: #0369A1 !important;
+    background: #007684 !important;
+    border-color: #007684 !important;
 }
 
 /* World Map Component (Slide 2) */
@@ -469,7 +469,7 @@
 .map-pin {
     width: 26px;
     height: 26px;
-    background: #0284C7;
+    background: #008C9C;
     color: #FFFFFF;
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
@@ -595,7 +595,7 @@ html body .sapMBtn.region-chip-btn,
 .fioriConflictBackLink {
     font-size: 13px;
     font-weight: 600;
-    color: #0284C7 !important;
+    color: #008C9C !important;
     text-decoration: none !important;
 }
 
@@ -626,7 +626,7 @@ html body .sapMBtn.region-chip-btn,
 .kyraSummaryTopDetailsCard {
     background: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
-    border-left: 4px solid #0284C7 !important;
+    border-left: 4px solid #008C9C !important;
     border-radius: 12px !important;
     padding: 16px 20px !important;
     box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
@@ -687,9 +687,9 @@ html body .sapMBtn.region-chip-btn,
 }
 
 .kyraSummaryEditBtn .sapMBtnInner {
-    background: #E0F2FE !important;
-    border: 1px solid #BAE6FD !important;
-    color: #0369A1 !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    color: #007684 !important;
     border-radius: 8px !important;
     font-weight: 700 !important;
 }
@@ -724,9 +724,9 @@ html body .sapMBtn.region-chip-btn,
 .kyra-dialog-sys-tag {
     font-size: 11px !important;
     font-weight: 700 !important;
-    color: #0369A1 !important;
-    background: #E0F2FE !important;
-    border: 1px solid #BAE6FD !important;
+    color: #007684 !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
     border-radius: 9999px !important;
     padding: 1px 8px !important;
 }
@@ -880,4 +880,160 @@ html body .sapMBtn.region-chip-btn,
     fill: #FFFFFF !important;
     stroke: #FFFFFF !important;
     color: #FFFFFF !important;
+}
+
+
+/* =========================================================================
+   KYRA ENTERPRISE - ZERO-BLUE STRICT PALETTE ENGINE (#008C9C ACCENT)
+   ========================================================================= */
+
+/* 1. Primary & Emphasized Buttons: #008C9C Accent with High-Contrast White Text */
+.sapMBtnEmphasized,
+.sapMBtnEmphasized .sapMBtnInner,
+.fioriPrimaryBtn,
+.kyraPrimaryBtn,
+.kyraViewAllBtn,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border-color: #008C9C !important;
+    color: #FFFFFF !important;
+    text-shadow: none !important;
+}
+
+.sapMBtnEmphasized:hover .sapMBtnInner,
+.sapMBtnEmphasized.sapMBtnHovered .sapMBtnInner,
+.fioriPrimaryBtn:hover,
+.kyraPrimaryBtn:hover,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    color: #FFFFFF !important;
+}
+
+.sapMBtnEmphasized:active .sapMBtnInner,
+.fioriPrimaryBtn:active,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:active .sapMBtnInner {
+    background: #00636F !important;
+    background-color: #00636F !important;
+    border-color: #00636F !important;
+}
+
+.sapMBtnEmphasized .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnIcon {
+    color: #FFFFFF !important;
+}
+
+/* 2. Form Inputs, Combos & Focus Rings: Neutral Resting, #008C9C on Focus */
+.sapMInputBaseContentWrapper {
+    border-color: #CBD5E1 !important;
+    background: #FFFFFF !important;
+}
+
+.sapMInputBaseContentWrapper:hover {
+    border-color: #008C9C !important;
+}
+
+.sapMInputBaseFocused .sapMInputBaseContentWrapper,
+.sapMFocus .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .sapMInputBaseFocused .sapMInputBaseContentWrapper {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.18) !important;
+    outline: none !important;
+}
+
+/* 3. Navigation, IconTabBar & Tabs: #008C9C Active Underline / Text */
+.sapMITBSelected,
+.sapMITBFilterSelected,
+.sapMITBHead .sapMITBSelected,
+.sapMITBItem.sapMITBSelected .sapMITBText,
+html body .sapUiTheme-sap_horizon .sapMITBSelected {
+    color: #008C9C !important;
+}
+
+.sapMITBSelected .sapMITBIcon,
+.sapMITBFilterSelected .sapMITBIcon {
+    color: #008C9C !important;
+}
+
+.sapMITBContentArrow,
+.sapMITBLine {
+    border-bottom-color: #008C9C !important;
+    background-color: #008C9C !important;
+}
+
+/* 4. Links & Action Anchors: #008C9C (Never Blue) */
+.sapMLnk,
+a.sapMLnk,
+a {
+    color: #008C9C !important;
+}
+
+.sapMLnk:hover,
+a.sapMLnk:hover,
+a:hover {
+    color: #007684 !important;
+    text-decoration: underline !important;
+}
+
+/* 5. Table Rows & Multi-Select: Clean Neutral Hover / Selection (Zero Blue Tint) */
+.sapMLIB:hover {
+    background-color: #F8FAFC !important;
+}
+
+.sapMLIBSelected,
+.sapMLIB.sapMLIBSelected,
+.sapMLIB[aria-selected="true"],
+html body .sapUiTheme-sap_horizon .sapMLIBSelected {
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+}
+
+/* 6. Object Status & Badges: Strict Semantic Roles */
+/* Success = Green */
+.sapMObjStatusSuccess,
+.sapMObjStatusSuccess .sapMObjStatusText,
+.sapMObjStatusSuccess .sapMObjStatusIcon,
+.kyraBadgeSuccess {
+    color: #059669 !important;
+}
+
+/* Warning / Pending = Amber */
+.sapMObjStatusWarning,
+.sapMObjStatusWarning .sapMObjStatusText,
+.sapMObjStatusWarning .sapMObjStatusIcon,
+.kyraBadgeWarning {
+    color: #D97706 !important;
+}
+
+/* Error / Rejected = Red */
+.sapMObjStatusError,
+.sapMObjStatusError .sapMObjStatusText,
+.sapMObjStatusError .sapMObjStatusIcon,
+.kyraBadgeError {
+    color: #DC2626 !important;
+}
+
+/* Information / Neutral = Slate / #008C9C (Zero Blue) */
+.sapMObjStatusInformation,
+.sapMObjStatusInformation .sapMObjStatusText,
+.sapMObjStatusInformation .sapMObjStatusIcon,
+.sapMObjStatusNone {
+    color: #008C9C !important;
+}
+
+/* 7. Clean Neutral Supporting UI (Cards, Panels, Backgrounds) */
+.fioriTableCard,
+.kyraCard,
+.sapFCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraPageBackground,
+.sapMPageEnableScrolling {
+    background: #F8FAFC !important;
 }

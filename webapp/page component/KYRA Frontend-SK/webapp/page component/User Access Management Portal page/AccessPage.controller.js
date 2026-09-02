@@ -8,6 +8,97 @@ sap.ui.define([
 ], (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator) => {
     "use strict";
 
+    function cleanBracketsStr(s) {
+        if (!s) return "";
+        return String(s)
+            .replace(/\s*\([^)]*\)/g, "")
+            .replace(/\(Default\)|\(Temporary\)|\(Project\)/gi, "")
+            .trim();
+    }
+
+    function cleanTeamNameStr(s) {
+        let clean = cleanBracketsStr(s);
+        return clean.replace(/\s+Team$/i, "").trim();
+    }
+
+    function cleanPersonaNameStr(s) {
+        let clean = cleanBracketsStr(s);
+        return clean.replace(/\s+Persona$/i, "").trim();
+    }
+
+    function deriveServiceFromItem(r) {
+        if (!r) return "System Administrator";
+        
+        const sTopic = cleanBracketsStr(r.service_topic || r.serviceTopic || r.services || r.category || "");
+        if (sTopic === "System Administrator" || sTopic === "System Owners" || sTopic === "Stakeholders") {
+            return sTopic;
+        }
+
+        const rawRole = String(r.role_name || r.roleName || r.roleTitle || "");
+        const match = rawRole.match(/\(([^)]+)\)/);
+        if (match && match[1]) {
+            const inside = match[1].trim();
+            if (inside.toLowerCase().includes("system admin") || inside.toLowerCase() === "system administrator") {
+                return "System Administrator";
+            }
+            if (inside.toLowerCase().includes("system owner") || inside.toLowerCase() === "system owners" || inside.toLowerCase() === "system owner") {
+                return "System Owners";
+            }
+            if (inside.toLowerCase().includes("stakeholder")) {
+                return "Stakeholders";
+            }
+        }
+
+        const lowerRole = rawRole.toLowerCase();
+        if (lowerRole.includes("it security") || lowerRole.includes("it administrator") || lowerRole.includes("it developer") || lowerRole.includes("lead engineer") || lowerRole.includes("admin")) {
+            return "System Administrator";
+        }
+        if (lowerRole.includes("technical product owner") || lowerRole.includes("product group engineer") || lowerRole.includes("system owner")) {
+            return "System Owners";
+        }
+        if (lowerRole.includes("isrm") || lowerRole.includes("line manager") || lowerRole.includes("compliance manager") || lowerRole.includes("role owner") || lowerRole.includes("stakeholder")) {
+            return "Stakeholders";
+        }
+
+        if (sTopic && sTopic !== "Audit & Compliance" && sTopic !== "Information Technology" && sTopic !== "Revocation Request") {
+            return sTopic;
+        }
+
+        return "System Administrator";
+    }
+
+    function calculateExpiryDays(durationStr, grantedDateInput) {
+        const rawDur = String(durationStr || "").trim();
+        const cleanDur = cleanBracketsStr(rawDur);
+
+        if (!rawDur || cleanDur.toLowerCase().includes("permanent") || rawDur.toLowerCase().includes("permanent")) {
+            return { isPermanent: true, text: "Permanent", isExpired: false, daysLeft: 99999 };
+        }
+
+        let totalDays = 30;
+        if (rawDur.includes("90") || cleanDur.includes("90")) {
+            totalDays = 90;
+        } else if (rawDur.includes("30") || cleanDur.includes("30")) {
+            totalDays = 30;
+        }
+
+        const gDate = grantedDateInput ? new Date(grantedDateInput) : new Date();
+        const now = new Date();
+
+        const gUtcMidnight = Date.UTC(gDate.getUTCFullYear(), gDate.getUTCMonth(), gDate.getUTCDate());
+        const nowUtcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+
+        const msPerDay = 1000 * 60 * 60 * 24;
+        const utcDaysElapsed = Math.floor((nowUtcMidnight - gUtcMidnight) / msPerDay);
+        const daysLeft = totalDays - utcDaysElapsed;
+
+        if (daysLeft <= 0) {
+            return { isExpired: true, text: "Expired", daysLeft: 0 };
+        } else {
+            return { isExpired: false, text: `${daysLeft} ${daysLeft === 1 ? 'Day' : 'Days'} Left`, daysLeft: daysLeft };
+        }
+    }
+
     const aInitialSubRoles = [
         { key: "IT Developers (System Administrator)", text: "IT Developers (System Administrator)" },
         { key: "IT Administrators (System Administrator)", text: "IT Administrators (System Administrator)" },
@@ -1140,7 +1231,9 @@ if (!oGrouped[sGroupKey]) {
                             requestId: inflight.requestId,
                             requesterId: sActiveUser,
                             requesterUsername: sActiveUser,
-                            type: "Revocation",
+                            type: "Revoke",
+                            requestType: "Revoke",
+                            accessType: "REVOCATION",
                             system: inflight.system,
                             roleName: inflight.roleName,
                             serviceTopic: inflight.category || "Revocation Request",
@@ -1172,15 +1265,53 @@ if (!oGrouped[sGroupKey]) {
                 const r = stateObj.request;
                 const isCurrentlyRevoking = stateObj.status === 'REVOKE_PENDING';
 
+                const sCleanSys = cleanBracketsStr(r.target_system || "SAP BTP Cloud Platform");
+                const sService = deriveServiceFromItem(r);
+                const sCleanRoleTitle = cleanBracketsStr(r.role_name || r.selected_persona || "Services");
+                const sCleanTeam = cleanTeamNameStr(r.role_name ? r.role_name : (r.service_topic || r.business_function || "Audit & Compliance"));
+                const sCleanPersona = cleanPersonaNameStr(r.selected_persona || r.requester_persona || "User");
+                const sGrantedDate = r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || "2026-08-31";
+
+                const expInfo = calculateExpiryDays(r.access_duration, sGrantedDate);
+
+                if (expInfo.isExpired) {
+                    aMyHistory.push({
+                        requestId: r.request_number || ("EXP-" + (r.ID || Date.now())),
+                        requesterId: r.requester_username,
+                        type: "Revoke",
+                            requestType: "Revoke",
+                            accessType: "REVOCATION",
+                        system: sCleanSys,
+                        roleName: sCleanRoleTitle,
+                        serviceTopic: sCleanTeam,
+                        selectedPersona: sCleanPersona,
+                        accessDuration: "Expired",
+                        submissionDate: sGrantedDate,
+                        createdAtRaw: r.created_at || new Date().toISOString(),
+                        status: "Expired",
+                        statusState: "Error",
+                        statusIcon: "sap-icon://history",
+                        sector: r.business_sector || "",
+                        function: "Access Expiry"
+                    });
+                    return;
+                }
+
+                const sSelectedServiceTopic = deriveServiceFromItem(r);
+
                 aUserAccessList.push({
-                    system: r.target_system,
-                    roleName: r.role_name,
+                    system: sCleanSys,
+                    services: sSelectedServiceTopic,
+                    serviceTopic: sSelectedServiceTopic,
+                    team: sCleanRoleTitle,
+                    roleName: sCleanRoleTitle,
                     roleId: r.request_number || ("ENT-" + r.ID),
-                    team: this._deriveCleanTeamName(r),
-                    category: r.service_topic || "System Entitlement",
-                    persona: r.selected_persona || r.requester_persona || "User",
-                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "2026-08-15",
-                    expiryDate: r.access_duration || "Permanent",
+                    category: sSelectedServiceTopic,
+                    persona: sCleanPersona,
+                    grantedDate: sGrantedDate,
+                    createdAtRaw: r.created_at || new Date().toISOString(),
+                    expiryDate: expInfo.text,
+                    daysLeft: expInfo.daysLeft,
                     status: isCurrentlyRevoking ? "Revoke Pending" : "Active",
                     statusState: isCurrentlyRevoking ? "Warning" : "Success",
                     statusIcon: isCurrentlyRevoking ? "sap-icon://pending" : "sap-icon://sys-enter-2",
@@ -1244,6 +1375,14 @@ if (!oGrouped[sGroupKey]) {
 
             // Group aMyPending by Request ID so one access request appears as one row with all systems joined
             const aUniqueMyPending = this._groupRequestsByRequestId(aMyPending);
+
+            // Sort newly added access to the top of the list (newest first)
+            aUserAccessList.sort((a, b) => {
+                const tA = Math.max(new Date(a.createdAtRaw || 0).getTime(), new Date(a.grantedDate || 0).getTime());
+                const tB = Math.max(new Date(b.createdAtRaw || 0).getTime(), new Date(b.grantedDate || 0).getTime());
+                if (tA !== tB) return tB - tA; // Newest at index 0 (top row)
+                return (b.roleId || "").localeCompare(a.roleId || "");
+            });
 
             // Deduplicate aUserAccessList preserving descending order and filtering out invalid/empty rows
             const activeKeys = new Set();
@@ -1511,7 +1650,65 @@ if (!oGrouped[sGroupKey]) {
             MessageToast.show("Form cleared.");
         },
 
-        onRemoveAccessClick(oEvent) {
+        
+        onRemoveAccessEntitlement(oEvent) {
+            const oSource = oEvent.getSource();
+            let oContext = oSource.getBindingContext("accessModel");
+            if (!oContext && oSource.getParent()) {
+                oContext = oSource.getParent().getBindingContext("accessModel");
+            }
+            const oData = oContext ? oContext.getObject() : {};
+            const oModel = this.getView().getModel("accessModel");
+
+            // 1. Instantly remove item from local "Revoke Entitlements" table model
+            const aRevokeList = oModel.getProperty("/userAccessList") || [];
+            const aUpdatedList = aRevokeList.filter(item => !(item.system === oData.system && item.roleName === oData.roleName));
+            oModel.setProperty("/userAccessList", aUpdatedList);
+
+            // 2. Prepare Revocation Payload for Backend submitAccessRequest Action
+            const sRequestId = "REQ-REV-" + Date.now();
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "Dev001";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+
+            const oRevocationPayload = {
+                requests: [{
+                    requestNumber: sRequestId,
+                    requesterUsername: sActiveUser,
+                    requesterPersona: sActiveRole,
+                    businessSector: oData.sector || "Global Supply Chain & Logistics",
+                    businessFunction: "Access Revocation",
+                    operatingRegion: oData.region || "Global Enterprise (ALL)",
+                    targetSystem: oData.system,
+                    serviceTopic: oData.category || "Revocation Request",
+                    roleName: oData.roleName,
+                    selectedPersona: oData.persona || "User",
+                    accessType: "REVOCATION",
+                    accessDuration: "Permanent",
+                    justification: "User requested entitlement removal.",
+                    status: "PENDING",
+                    hasConflict: false
+                }]
+            };
+
+            // 3. Post to Backend OData Action /odata/v4/auth/submitAccessRequest
+            fetch("/odata/v4/auth/submitAccessRequest", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(oRevocationPayload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                sap.m.MessageToast.show("Revocation request submitted successfully.");
+
+                // 4. Update "My Access" status to "Revoke Pending" & add to "Pending Access Requests" queue
+                this._loadSubmittedRequestsFromDatabase(oModel);
+            })
+            .catch(err => {
+                console.error("Revocation submission error:", err);
+                sap.m.MessageToast.show("Failed to submit revocation request.");
+            });
+        },
+onRemoveAccessClick(oEvent) {
             const oItem = oEvent.getSource().getParent().getParent();
             const oData = oItem.getBindingContext("accessModel").getObject();
             const oModel = this.getView().getModel("accessModel");
@@ -1560,7 +1757,9 @@ if (!oGrouped[sGroupKey]) {
                             requestId: sReqId,
                             requesterId: sActiveUser,
                             requesterUsername: sActiveUser,
-                            type: "Revocation",
+                            type: "Revoke",
+                            requestType: "Revoke",
+                            accessType: "REVOCATION",
                             system: oData.system,
                             roleName: oData.roleName,
                             team: this._deriveCleanTeamName(oData),

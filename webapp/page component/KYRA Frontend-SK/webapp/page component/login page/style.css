@@ -168,10 +168,10 @@ html, body {
     height: 44px !important;
     line-height: 44px !important;
     width: 100% !important;
-    background: #2563EB !important;
-    background-color: #2563EB !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
     background-image: none !important;
-    border: 1px solid #2563EB !important;
+    border: 1px solid #008C9C !important;
     border-radius: 8px !important;
     color: #FFFFFF !important;
     font-size: 15px !important;
@@ -180,7 +180,7 @@ html, body {
     align-items: center !important;
     justify-content: center !important;
     padding: 0 16px !important;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
     cursor: pointer !important;
     outline: none !important;
     transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
@@ -200,17 +200,17 @@ html, body {
 .fioriLoginCard .fioriEmphasizedBtn .sapMBtnInner:hover,
 .fioriEmphasizedBtn:hover .sapMBtnInner,
 .fioriEmphasizedBtn .sapMBtnInner:hover {
-    background: #1D4ED8 !important;
-    background-color: #1D4ED8 !important;
-    border-color: #1D4ED8 !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
 }
 
 .fioriLoginCard .fioriEmphasizedBtn:active .sapMBtnInner,
 .fioriEmphasizedBtn:active .sapMBtnInner {
-    background: #1E40AF !important;
-    background-color: #1E40AF !important;
-    border-color: #1E40AF !important;
+    background: #00636F !important;
+    background-color: #00636F !important;
+    border-color: #00636F !important;
     transform: none !important;
 }
 
@@ -273,4 +273,160 @@ html, body {
 .fioriFooterText {
     font-size: 12px !important;
     color: #8C9BAE !important;
+}
+
+
+/* =========================================================================
+   KYRA ENTERPRISE - ZERO-BLUE STRICT PALETTE ENGINE (#008C9C ACCENT)
+   ========================================================================= */
+
+/* 1. Primary & Emphasized Buttons: #008C9C Accent with High-Contrast White Text */
+.sapMBtnEmphasized,
+.sapMBtnEmphasized .sapMBtnInner,
+.fioriPrimaryBtn,
+.kyraPrimaryBtn,
+.kyraViewAllBtn,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border-color: #008C9C !important;
+    color: #FFFFFF !important;
+    text-shadow: none !important;
+}
+
+.sapMBtnEmphasized:hover .sapMBtnInner,
+.sapMBtnEmphasized.sapMBtnHovered .sapMBtnInner,
+.fioriPrimaryBtn:hover,
+.kyraPrimaryBtn:hover,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    color: #FFFFFF !important;
+}
+
+.sapMBtnEmphasized:active .sapMBtnInner,
+.fioriPrimaryBtn:active,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:active .sapMBtnInner {
+    background: #00636F !important;
+    background-color: #00636F !important;
+    border-color: #00636F !important;
+}
+
+.sapMBtnEmphasized .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnIcon {
+    color: #FFFFFF !important;
+}
+
+/* 2. Form Inputs, Combos & Focus Rings: Neutral Resting, #008C9C on Focus */
+.sapMInputBaseContentWrapper {
+    border-color: #CBD5E1 !important;
+    background: #FFFFFF !important;
+}
+
+.sapMInputBaseContentWrapper:hover {
+    border-color: #008C9C !important;
+}
+
+.sapMInputBaseFocused .sapMInputBaseContentWrapper,
+.sapMFocus .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .sapMInputBaseFocused .sapMInputBaseContentWrapper {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.18) !important;
+    outline: none !important;
+}
+
+/* 3. Navigation, IconTabBar & Tabs: #008C9C Active Underline / Text */
+.sapMITBSelected,
+.sapMITBFilterSelected,
+.sapMITBHead .sapMITBSelected,
+.sapMITBItem.sapMITBSelected .sapMITBText,
+html body .sapUiTheme-sap_horizon .sapMITBSelected {
+    color: #008C9C !important;
+}
+
+.sapMITBSelected .sapMITBIcon,
+.sapMITBFilterSelected .sapMITBIcon {
+    color: #008C9C !important;
+}
+
+.sapMITBContentArrow,
+.sapMITBLine {
+    border-bottom-color: #008C9C !important;
+    background-color: #008C9C !important;
+}
+
+/* 4. Links & Action Anchors: #008C9C (Never Blue) */
+.sapMLnk,
+a.sapMLnk,
+a {
+    color: #008C9C !important;
+}
+
+.sapMLnk:hover,
+a.sapMLnk:hover,
+a:hover {
+    color: #007684 !important;
+    text-decoration: underline !important;
+}
+
+/* 5. Table Rows & Multi-Select: Clean Neutral Hover / Selection (Zero Blue Tint) */
+.sapMLIB:hover {
+    background-color: #F8FAFC !important;
+}
+
+.sapMLIBSelected,
+.sapMLIB.sapMLIBSelected,
+.sapMLIB[aria-selected="true"],
+html body .sapUiTheme-sap_horizon .sapMLIBSelected {
+    background-color: #F1F5F9 !important;
+    color: #0F172A !important;
+}
+
+/* 6. Object Status & Badges: Strict Semantic Roles */
+/* Success = Green */
+.sapMObjStatusSuccess,
+.sapMObjStatusSuccess .sapMObjStatusText,
+.sapMObjStatusSuccess .sapMObjStatusIcon,
+.kyraBadgeSuccess {
+    color: #059669 !important;
+}
+
+/* Warning / Pending = Amber */
+.sapMObjStatusWarning,
+.sapMObjStatusWarning .sapMObjStatusText,
+.sapMObjStatusWarning .sapMObjStatusIcon,
+.kyraBadgeWarning {
+    color: #D97706 !important;
+}
+
+/* Error / Rejected = Red */
+.sapMObjStatusError,
+.sapMObjStatusError .sapMObjStatusText,
+.sapMObjStatusError .sapMObjStatusIcon,
+.kyraBadgeError {
+    color: #DC2626 !important;
+}
+
+/* Information / Neutral = Slate / #008C9C (Zero Blue) */
+.sapMObjStatusInformation,
+.sapMObjStatusInformation .sapMObjStatusText,
+.sapMObjStatusInformation .sapMObjStatusIcon,
+.sapMObjStatusNone {
+    color: #008C9C !important;
+}
+
+/* 7. Clean Neutral Supporting UI (Cards, Panels, Backgrounds) */
+.fioriTableCard,
+.kyraCard,
+.sapFCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraPageBackground,
+.sapMPageEnableScrolling {
+    background: #F8FAFC !important;
 }

@@ -7,31 +7,31 @@ sap.ui.define([], function() {
     const TYPE_CONFIGS = {
         error: {
             title: "Error",
-            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
-            iconBg: "#dc2626",
-            accentColor: "#dc2626",
-            btnColor: "#0284c7"
+            iconSvg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+            iconBg: "#FEF2F2",
+            accentColor: "#DC2626",
+            btnColor: "#008C9C"
         },
         warning: {
             title: "Warning",
-            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-            iconBg: "#d97706",
-            accentColor: "#d97706",
-            btnColor: "#0284c7"
+            iconSvg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+            iconBg: "#FFFBEB",
+            accentColor: "#D97706",
+            btnColor: "#008C9C"
         },
         info: {
             title: "Information",
-            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
-            iconBg: "#2563eb",
-            accentColor: "#2563eb",
-            btnColor: "#0284c7"
+            iconSvg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+            iconBg: "rgba(0, 140, 156, 0.12)",
+            accentColor: "#008C9C",
+            btnColor: "#008C9C"
         },
         success: {
             title: "Success",
-            iconSvg: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-            iconBg: "#16a34a",
-            accentColor: "#16a34a",
-            btnColor: "#0284c7"
+            iconSvg: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+            iconBg: "#ECFDF5",
+            accentColor: "#059669",
+            btnColor: "#008C9C"
         }
     };
 
@@ -43,13 +43,13 @@ sap.ui.define([], function() {
                 options = { message: options };
             }
             options = options || {};
-            const type = options.type || "error";
-            const config = TYPE_CONFIGS[type] || TYPE_CONFIGS.error;
+            const type = options.type || "warning";
+            const config = TYPE_CONFIGS[type] || TYPE_CONFIGS.warning;
             const title = options.title || config.title;
             const message = options.message || options.messageHtml || "";
-            const buttonText = options.buttonText || "Close";
+            const buttonText = options.buttonText || "Proceed";
             const secondaryButtonText = options.secondaryButtonText || null;
-            const maxWidth = options.maxWidth || "520px";
+            const maxWidth = options.maxWidth || "480px";
 
             if (activeOverlay) {
                 this.hide();
@@ -58,30 +58,30 @@ sap.ui.define([], function() {
             const overlay = document.createElement("div");
             overlay.id = "kyra_dialog_overlay";
             overlay.className = "kyraDialogOverlay";
-            overlay.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; animation: kyraFadeIn 0.2s ease;";
+            overlay.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; animation: kyraDialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);";
 
             const card = document.createElement("div");
             card.className = "kyraDialogCard";
-            card.style.cssText = `background: #FFFFFF; border-radius: 16px; width: 100%; max-width: ${maxWidth}; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); overflow: hidden; animation: kyraScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);`;
+            card.style.cssText = `background: #FFFFFF; border-radius: 16px; width: 100%; max-width: ${maxWidth}; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25), 0 8px 16px -4px rgba(15, 23, 42, 0.1); overflow: hidden; animation: kyraDialogPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid #E2E8F0;`;
 
             const hasSecondary = Boolean(secondaryButtonText);
 
             card.innerHTML = `
-                <div style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #F1F5F9;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: ${config.iconBg}; color: white; display: flex; align-items: center; justify-content: center;">
+                <div style="padding: 22px 24px 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="width: 38px; height: 38px; border-radius: 50%; background: ${config.iconBg}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                             ${config.iconSvg}
                         </div>
-                        <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">${title}</h3>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0F172A; letter-spacing: -0.01em;">${title}</h3>
                     </div>
-                    <button id="kyra_dialog_close_btn" style="background: none; border: none; cursor: pointer; color: #94A3B8; font-size: 20px; padding: 4px; display: flex; align-items: center; justify-content: center;">✕</button>
+                    <button id="kyra_dialog_close_btn" style="background: none; border: none; cursor: pointer; color: #94A3B8; font-size: 20px; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease;" onmouseover="this.style.background='#F1F5F9';this.style.color='#334155';" onmouseout="this.style.background='none';this.style.color='#94A3B8';">✕</button>
                 </div>
-                <div style="padding: 24px; font-size: 14px; line-height: 1.6; color: #334155;">
+                <div style="padding: 0 24px 24px 24px; font-size: 14.5px; line-height: 1.6; color: #475569;">
                     ${message}
                 </div>
-                <div style="padding: 16px 24px; background: #F8FAFC; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end; gap: 12px;">
-                    ${hasSecondary ? `<button id="kyra_dialog_cancel_btn" style="padding: 9px 18px; border-radius: 8px; border: 1px solid #CBD5E1; background: white; color: #475569; font-weight: 600; cursor: pointer;">${secondaryButtonText}</button>` : ''}
-                    <button id="kyra_dialog_confirm_btn" style="padding: 9px 22px; border-radius: 8px; border: none; background: #2563EB; color: white; font-weight: 600; cursor: pointer;">${buttonText}</button>
+                <div style="padding: 16px 24px; background: #F8FAFC; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
+                    ${hasSecondary ? `<button id="kyra_dialog_cancel_btn" style="padding: 10px 20px; border-radius: 8px; border: 1.5px solid #CBD5E1; background: #FFFFFF; color: #334155; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#94A3B8';this.style.background='#F8FAFC';" onmouseout="this.style.borderColor='#CBD5E1';this.style.background='#FFFFFF';">${secondaryButtonText}</button>` : ''}
+                    <button id="kyra_dialog_confirm_btn" style="padding: 10px 24px; border-radius: 8px; border: none; background: #008C9C; color: #FFFFFF; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25); transition: all 0.15s ease;" onmouseover="this.style.background='#007684';" onmouseout="this.style.background='#008C9C';">${buttonText}</button>
                 </div>
             `;
 
