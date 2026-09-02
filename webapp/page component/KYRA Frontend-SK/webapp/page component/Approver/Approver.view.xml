@@ -16,8 +16,13 @@
             <HBox justifyContent="SpaceBetween" alignItems="Start" wrap="Wrap" class="kyraApproverTopToolbar sapUiTinyMarginBottom">
                 <!-- LEFT SIDE: Title & Description with Access / Revoke buttons directly below -->
                 <VBox class="kyraApproverLeftCol">
-                    <Title text="{= ${accessModel>/showApprovalHistory} ? 'Processed Approval History Log' : 'User Requests' }" level="H4" class="fioriApproverTitle" />
-                    <Text text="{= ${accessModel>/showApprovalHistory} ? 'Audit history of all previously approved, rejected, and cancelled access requests.' : 'Click any request row bar below to open the dedicated full summary review page.' }" class="fioriDescriptionText" />
+                    <HBox alignItems="Center" class="kyraCardHeaderLeft sapUiSmallMarginBottom">
+                        <Avatar src="sap-icon://user-edit" class="kyraMasterViewAvatar" displaySize="S" />
+                        <VBox class="kyraCardHeaderTextCol">
+                            <Title text="{= ${accessModel>/showApprovalHistory} ? 'Processed Approval History Log' : 'User Requests' }" level="H4" class="fioriApproverTitle fioriCardHeaderTitle" />
+                            <Text text="{= ${accessModel>/showApprovalHistory} ? 'Audit history of all previously approved, rejected, and cancelled access requests.' : 'Click any request row bar below to open the dedicated full summary review page.' }" class="fioriDescriptionText" />
+                        </VBox>
+                    </HBox>
                     
                     <HBox visible="{= !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
                         <Button
@@ -55,24 +60,24 @@
                     </HBox>
 
                     <SearchField
-                        placeholder="Search requester or req..."
-                        width="190px"
+                        placeholder="Search request..."
+                        width="210px"
                         liveChange=".onSearchApprovalTable"
-                        class="sapUiTinyMarginEnd kyraCompactSearch" />
+                        class="kyraEntitlementsSearchField sapUiTinyMarginEnd" />
                     
                     <Button
                         icon="sap-icon://filter"
                         type="Transparent"
                         press=".onFilterApprovalsDialog"
                         tooltip="Filter Requests"
-                        class="sapUiTinyMarginEnd kyraCompactActionBtn" />
+                        class="kyraHistoryExportBtn sapUiTinyMarginEnd" />
 
                     <Button
                         icon="sap-icon://excel-attachment"
                         type="Transparent"
                         press=".onExportApprovals"
                         tooltip="Export Audit Log"
-                        class="kyraCompactActionBtn" />
+                        class="kyraHistoryExportBtn" />
                 </HBox>
             </HBox>
 
@@ -89,12 +94,12 @@
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
                     <columns>
-                        <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraColHeader" /></Column>
-                        <Column width="22%" hAlign="Begin"><Text text="USER DETAILS" class="kyraColHeader" /></Column>
-                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraColHeader" /></Column>
-                        <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraColHeader" /></Column>
-                        <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraColHeader" /></Column>
-                        <Column width="19%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraColHeader" /></Column>
+                        <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="22%" hAlign="Begin"><Text text="USER DETAILS" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="19%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraEntitlementColHeader" /></Column>
                     </columns>
                     <items>
                         <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem">
@@ -120,12 +125,12 @@
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
                     <columns>
-                        <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraColHeader" /></Column>
-                        <Column width="22%" hAlign="Begin"><Text text="USER DETAILS" class="kyraColHeader" /></Column>
-                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraColHeader" /></Column>
-                        <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraColHeader" /></Column>
-                        <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraColHeader" /></Column>
-                        <Column width="19%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraColHeader" /></Column>
+                        <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="22%" hAlign="Begin"><Text text="USER DETAILS" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="19%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraEntitlementColHeader" /></Column>
                     </columns>
                     <items>
                         <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem">
@@ -152,13 +157,13 @@
                 popinLayout="GridSmall"
                 class="sapUiNoMargin kyraApproverTable">
                 <columns>
-                    <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraColHeader" /></Column>
-                    <Column width="21%" hAlign="Begin"><Text text="USER DETAILS" class="kyraColHeader" /></Column>
-                    <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraColHeader" /></Column>
-                    <Column width="16%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraColHeader" /></Column>
-                    <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DECISION DATE" class="kyraColHeader" /></Column>
-                    <Column width="13%" hAlign="Center"><Text text="FINAL DECISION" class="kyraColHeader" /></Column>
-                    <Column width="10%" hAlign="Center"><Text text="BREAKDOWN" class="kyraColHeader" /></Column>
+                    <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="21%" hAlign="Begin"><Text text="USER DETAILS" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="16%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DECISION DATE" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="13%" hAlign="Center"><Text text="FINAL DECISION" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="10%" hAlign="Center"><Text text="BREAKDOWN" class="kyraEntitlementColHeader" /></Column>
                 </columns>
                 <items>
                     <ColumnListItem vAlign="Middle" class="kyraApproverRowItem">

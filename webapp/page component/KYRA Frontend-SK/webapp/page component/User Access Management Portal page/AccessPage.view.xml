@@ -102,8 +102,12 @@
                 <!-- SECTION 1: MY ACCESS (First 10 items initially with View All toggle) -->
                 <VBox visible="{= !${accessModel>/showMyAccessMasterSection} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center">
-                            <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                            <Avatar src="sap-icon://table-view" class="kyraMasterViewAvatar" displaySize="S" />
+                            <VBox class="kyraCardHeaderTextCol">
+                                <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="First 10 active entitlements and granted role assignments." class="fioriDescriptionText" />
+                            </VBox>
                         </HBox>
                         <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
                             <SearchField
@@ -205,9 +209,9 @@
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
                     
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center">
-                            <Avatar src="{= ${accessModel>/historyFilterIcon} || 'sap-icon://documents' }" backgroundColor="{= ${accessModel>/historyFilterAvatarColor} || 'Accent6' }" displaySize="S" class="sapUiTinyMarginEnd fioriCardAvatar" />
-                            <VBox>
+                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                            <Avatar src="{= ${accessModel>/historyFilterIcon} || 'sap-icon://documents' }" class="kyraMasterViewAvatar fioriCardAvatar" displaySize="S" />
+                            <VBox class="kyraCardHeaderTextCol">
                                 <Title text="{= (${accessModel>/historyFilterTitle} || 'All History') + ' (' + (${accessModel>/filteredHistoryCount} !== undefined ? ${accessModel>/filteredHistoryCount} : (${accessModel>/requestHistory} ? ${accessModel>/requestHistory}.length : 0)) + ')' }" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="{= ${accessModel>/historyFilterSubtitle} || 'All submitted and historical access requests.' }" class="fioriDescriptionText" />
                             </VBox>
@@ -289,19 +293,19 @@
                 <!-- DEDICATED SEPARATE PAGE VIEW: MY ACCESS MASTER DETAILS & AUDIT GOVERNANCE -->
                 <VBox id="myAccessMasterSectionContainer" visible="{= ${accessModel>/showMyAccessMasterSection} }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center">
-                            <Avatar src="sap-icon://table-view" backgroundColor="Accent6" displaySize="S" class="sapUiSmallMarginEnd" />
-                            <VBox>
+                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                            <Avatar src="sap-icon://table-view" class="kyraMasterViewAvatar" displaySize="S" />
+                            <VBox class="kyraCardHeaderTextCol">
                                 <Title text="Active Entitlements — Complete Master View" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="Comprehensive audit log &amp; active permission matrix for all enterprise roles." class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
-                        <HBox alignItems="Center">
+                        <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
                             <SearchField
                                 placeholder="Search all entitlements..."
                                 width="240px"
                                 liveChange=".onSearchMasterAccess"
-                                class="sapUiSmallMarginEnd" />
+                                class="kyraEntitlementsSearchField sapUiSmallMarginEnd" />
                             <Button icon="sap-icon://excel-attachment" text="Export Audit Log" type="Transparent" press=".onExportAccess" class="sapUiTinyMarginEnd fioriExportLinkBtn kyraTextBtn" />
                             <Button icon="sap-icon://decline" text="Close View" type="Transparent" press=".onCloseMyAccessMasterSection" class="fioriCloseLinkBtn kyraTextBtn" />
                         </HBox>
@@ -312,7 +316,7 @@
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
                         noDataText="No active entitlements found."
-                        class="sapUiNoMargin">
+                        class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
                             <Column width="16%" hAlign="Begin"><Text text="SYSTEM" class="kyraEntitlementColHeader" /></Column>
                             <Column width="18%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
@@ -417,14 +421,14 @@
                     visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showPendingSection} }"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center">
-                            <Avatar src="sap-icon://history" backgroundColor="Accent3" displaySize="S" class="sapUiTinyMarginEnd fioriCardAvatar fioriAmberAvatar" />
-                            <VBox>
+                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                            <Avatar src="sap-icon://history" class="kyraCardAvatarAmber fioriCardAvatar" displaySize="S" />
+                            <VBox class="kyraCardHeaderTextCol">
                                 <Title text="{= 'Pending Access Requests (' + (${accessModel>/myPendingRequests} ? ${accessModel>/myPendingRequests}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="Requests currently awaiting manager or security approval." class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
-                        <Button icon="sap-icon://decline" type="Transparent" press=".onClosePendingSection" tooltip="Close Section" />
+                        <Button icon="sap-icon://decline" type="Transparent" press=".onClosePendingSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                     </HBox>
 
                     <Table
@@ -782,9 +786,9 @@
                             <VBox visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
-                                    <HBox alignItems="Center">
-                                        <Avatar src="sap-icon://action-settings" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
-                                        <VBox>
+                                    <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                                        <Avatar src="sap-icon://action-settings" class="kyraMasterViewAvatar fioriCardAvatar" displaySize="S" />
+                                        <VBox class="kyraCardHeaderTextCol">
                                             <Title text="{= 'Target System Slide (' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' of ' + ${accessModel>/addAccessSelectedSystems}.length + '): ' + ${accessModel>/currentSystemSlideName} }" level="H4" class="fioriCardHeaderTitle" />
                                             <Text text="Configure specific services, team roles, and personas for this target system." class="fioriDescriptionText" />
                                         </VBox>
@@ -1592,9 +1596,9 @@
                     visible="{= !!${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} }"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center">
-                            <Avatar src="sap-icon://delete" backgroundColor="Accent2" displaySize="S" class="sapUiTinyMarginEnd fioriCardAvatar fioriPurpleAvatar" />
-                            <VBox>
+                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                            <Avatar src="sap-icon://delete" class="kyraCardAvatarRed fioriCardAvatar" displaySize="S" />
+                            <VBox class="kyraCardHeaderTextCol">
                                 <Title text="Revoke / Remove System Access Entitlements" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="Select an active granted entitlement below to request access revocation." class="fioriDescriptionText" />
                             </VBox>
@@ -1603,7 +1607,8 @@
                             icon="sap-icon://decline"
                             type="Transparent"
                             press=".onCloseRemoveAccessSector"
-                            tooltip="Close Remove Access Form" />
+                            tooltip="Close Remove Access Form"
+                            class="kyraCloseIconBtn" />
                     </HBox>
 
                     <Table
@@ -1611,7 +1616,7 @@
                         fixedLayout="true"
                         items="{accessModel>/activeRoles}"
                         noDataText="No active entitlements available for removal."
-                        class="sapUiNoMargin">
+                        class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
                             <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
                             <Column width="18%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
