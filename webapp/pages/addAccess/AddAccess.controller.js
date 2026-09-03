@@ -254,7 +254,7 @@ sap.ui.define([
         },
 
         _updateSelectAllButtonState() {
-            const oSelectAll = document.getElementById("selectAllBtn");
+            const oSelectAll = document.getElementById("selectAllBtnAddAccess") || document.getElementById("selectAllBtn");
             if (oSelectAll) {
                 const bAllSelected = this._aSelectedRegionIds.length === this._regionList.length;
                 oSelectAll.classList.toggle("active", bAllSelected);
@@ -319,6 +319,10 @@ sap.ui.define([
 
         onNavBackToPortal() {
             this.getOwnerComponent().getRouter().navTo("AccessPage");
+        },
+
+        onCloseAddAccessSector() {
+            this.onNavBackToPortal();
         },
 
         onSectorChange(oEvent) {

@@ -101,9 +101,9 @@
                     <HBox justifyContent="End" class="sapUiSmallMarginTop">
                         <Button
                             text="Cancel"
-                            type="Transparent"
+                            type="Default"
                             press=".onNavBackToPortal"
-                            class="sapUiTinyMarginEnd" />
+                            class="kyraSecondaryBtn sapUiTinyMarginEnd" />
                         <Button
                             text="Next"
                             type="Emphasized"
@@ -243,13 +243,14 @@
                             text="Back to Step 1"
                             icon="sap-icon://navigation-left-arrow"
                             type="Default"
-                            press=".onBackToStep1" />
+                            press=".onBackToStep1"
+                            class="kyraSecondaryBtn" />
                         <HBox>
                             <Button
                                 text="Cancel"
-                                type="Transparent"
+                                type="Default"
                                 press=".onNavBackToPortal"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraSecondaryBtn sapUiTinyMarginEnd" />
                             <Button
                                 text="Next"
                                 type="Emphasized"
@@ -358,9 +359,9 @@
                     <HBox justifyContent="End" alignItems="Center" class="sapUiSmallMarginTop">
                         <Button
                             text="Cancel Request"
-                            type="Transparent"
+                            type="Default"
                             press=".onNavBackToPortal"
-                            class="sapUiTinyMarginEnd" />
+                            class="kyraSecondaryBtn sapUiTinyMarginEnd" />
                         <Button
                             text="Submit Access Request"
                             type="Emphasized"

@@ -411,6 +411,31 @@ sap.ui.define([
                         };
                     }
                 }
+
+                // Force all dropdowns (MultiComboBox, ComboBox, Select) to open downward
+                if (typeof sap !== "undefined" && sap.m) {
+                    ["MultiComboBox", "ComboBox", "Select"].forEach(sClass => {
+                        if (sap.m[sClass] && sap.m[sClass].prototype) {
+                            const p = sap.m[sClass].prototype;
+                            if (!p._bDownPlacementPatched) {
+                                p._bDownPlacementPatched = true;
+                                const fnOrigOpen = p.open;
+                                if (typeof fnOrigOpen === "function") {
+                                    p.open = function() {
+                                        try {
+                                            const oPicker = (typeof this.getPicker === "function" && this.getPicker()) || 
+                                                            (typeof this._getPicker === "function" && this._getPicker());
+                                            if (oPicker && typeof oPicker.setPlacement === "function") {
+                                                oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                                            }
+                                        } catch(err) {}
+                                        return fnOrigOpen.apply(this, arguments);
+                                    };
+                                }
+                            }
+                        }
+                    });
+                }
             } catch(e) {
                 console.warn("MultiComboBox prototype setup warning:", e);
             }
@@ -448,6 +473,13 @@ sap.ui.define([
                             oList.setIncludeItemInSelection(true);
                         }
                     }
+                    try {
+                        const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                        (typeof oControl._getPicker === "function" && oControl._getPicker());
+                        if (oPicker && typeof oPicker.setPlacement === "function") {
+                            oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                        }
+                    } catch(err) {}
                     const oInputDom = oControl.getDomRef("inner");
                     if (oInputDom) {
                         oInputDom.setAttribute("readonly", "readonly");
@@ -2650,6 +2682,21 @@ sap.ui.define([
             if (oModel) {
                 oModel.setProperty("/selectedFunction", sFuncKey);
             }
+        },
+
+        onCloseAddAccessSector() {
+            this._confirmDiscardAddAccess(() => {
+                const oModel = this.getView().getModel("accessModel");
+                if (oModel) {
+                    oModel.setProperty("/showAddAccessSector", false);
+                    oModel.setProperty("/showMyAccessMasterSection", true);
+                    oModel.setProperty("/addAccessStep", 1);
+                    oModel.setProperty("/addAccessConfigSubStep", 1);
+                    oModel.setProperty("/isEditingFromSummary", false);
+                }
+                this._resetAddAccessState();
+                MessageToast.show("Access request closed.");
+            });
         },
 
         onGoToAddAccessStep1() {
