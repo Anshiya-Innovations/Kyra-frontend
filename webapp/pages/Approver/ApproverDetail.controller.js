@@ -1213,16 +1213,38 @@ sap.ui.define([
 
             const aPendingRequests = aAllGrouped.filter(r => r._isPendingForRole);
             const aProcessedRequests = aAllGrouped.filter(r => !r._isPendingForRole);
-            // Sort Processed Requests: Latest decision at the very top (first row)
+
+            // Chronological order (Oldest first: tA - tB) for User Requests & Pending Access Requests
+            aPendingRequests.sort((a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+
+            const aPendingAccessRequests = aPendingRequests.filter(r => !r.isRevocation);
+            const aPendingRevokeRequests = aPendingRequests.filter(r => r.isRevocation);
+
+            aPendingAccessRequests.sort((a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+            aPendingRevokeRequests.sort((a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+
+            // Reverse chronological order (Newest first: tB - tA) for Processed Approval History Log
             aProcessedRequests.sort((a, b) => {
                 const tA = Math.max(new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
                 const tB = Math.max(new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
                 if (tA !== tB) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
-
-            const aPendingAccessRequests = aPendingRequests.filter(r => !r.isRevocation);
-            const aPendingRevokeRequests = aPendingRequests.filter(r => r.isRevocation);
 
             this._setSmartProperty(oModel, "/pendingRequests", aPendingRequests);
             this._setSmartProperty(oModel, "/pendingAccessRequests", aPendingAccessRequests);

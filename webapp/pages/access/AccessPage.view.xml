@@ -128,7 +128,7 @@
                     <Table
                         id="myAccessTable"
                         fixedLayout="true"
-                        items="{accessModel>/displayedUserAccessList}"
+                        items="{accessModel>/userAccessList}"
                         noDataText="No active permissions found."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
@@ -272,7 +272,7 @@
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
                                 <cells>
                                     <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap; color: #0F172A;" />
-                                    <Text text="{= ${accessModel>type} || 'Addition' }" style="font-weight: 500; color: #1E293B;" />
+                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? 'Revoke' : 'Addition' }" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
@@ -452,7 +452,7 @@
                             <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
                                 <cells>
                                     <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap !important; color: #0F172A;" />
-                                    <Text text="{= ${accessModel>type} || 'Addition' }" style="font-weight: 500; color: #1E293B;" />
+                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? 'Revoke' : 'Addition' }" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
