@@ -16,6 +16,42 @@ sap.ui.define([
 ], (Controller, MessageToast, MessageBox, Dialog, List, StandardListItem, Button, Title, Text, Label, VBox, HBox, Avatar, ObjectStatus) => {
     "use strict";
 
+    function cleanPersonaName(s) {
+        if (!s) return "";
+        let str = String(s).trim();
+        str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+        str = str.replace(/\s+persona$/i, "").trim();
+        return str || s;
+    }
+
+    function deriveServiceTopicFromRole(roleStr, rawService) {
+        const sRawService = String(rawService || "").replace(/\s*\([^)]*\)/g, "").trim();
+        if (sRawService === "System Administrator" || sRawService === "System Owners" || sRawService === "Stakeholders") {
+            return sRawService;
+        }
+        const rLower = String(roleStr || "").toLowerCase();
+        if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
+            return "System Administrator";
+        }
+        if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
+            return "System Owners";
+        }
+        if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
+            return "Stakeholders";
+        }
+        return "System Administrator";
+    }
+
+    function getBaseReqId(num) {
+        if (!num) return "";
+        const parts = String(num).trim().split("-");
+        if (parts.length >= 3) {
+            return parts.slice(0, 3).join("-");
+        }
+        return String(num).trim();
+    }
+
+
     return Controller.extend("kyra001.pages.Approver.ApproverDetail", {
         onInit() {
             const oRouter = this.getOwnerComponent().getRouter();
@@ -146,16 +182,76 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (!oModel) return;
 
+                const sBaseReqId = getBaseReqId(sReqId);
+
+                const matchReq = (r) => {
+                    if (!r) return false;
+                    if (r.requestId === sReqId || r.requestNumber === sReqId) return true;
+                    if (sBaseReqId && getBaseReqId(r.requestId || r.requestNumber) === sBaseReqId) return true;
+                    if (r.entitlements && r.entitlements.some(e => e.requestId === sReqId || (sBaseReqId && getBaseReqId(e.requestId) === sBaseReqId))) return true;
+                    return false;
+                };
+
                 let aPending = oModel.getProperty("/pendingRequests") || [];
                 let aProcessed = oModel.getProperty("/processedRequests") || [];
-                let oRequest = aPending.find(r => r.requestId === sReqId) || aProcessed.find(r => r.requestId === sReqId);
+                let oRequest = aPending.find(matchReq) || aProcessed.find(matchReq);
 
                 if (!oRequest) {
-                    // If not found in the model, reload from database
                     await this._reloadAllRequests(oModel);
                     aPending = oModel.getProperty("/pendingRequests") || [];
                     aProcessed = oModel.getProperty("/processedRequests") || [];
-                    oRequest = aPending.find(r => r.requestId === sReqId) || aProcessed.find(r => r.requestId === sReqId);
+                    oRequest = aPending.find(matchReq) || aProcessed.find(matchReq);
+                }
+
+                // Robust direct DB fallback
+                if (!oRequest) {
+                    try {
+                        const resp = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                        const dbData = await resp.json();
+                        const aAllDb = dbData && dbData.value ? dbData.value : [];
+                        const aMatching = aAllDb.filter(r => r.request_number === sReqId || (sBaseReqId && getBaseReqId(r.request_number) === sBaseReqId));
+                        if (aMatching.length > 0) {
+                            const first = aMatching[0];
+                            const sSvc = deriveServiceTopicFromRole(first.role_name, first.service_topic || first.service);
+                            oRequest = {
+                                requestId: first.request_number,
+                                requesterId: first.requester_username || "Requester",
+                                requesterUsername: first.requester_username || "Requester",
+                                persona: first.requester_persona || "Requester",
+                                system: first.target_system || "SAP System",
+                                serviceAndRole: (first.role_name || "Role") + " (" + sSvc + ")",
+                                serviceTopic: sSvc,
+                                submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                duration: first.access_duration || "Permanent (Default)",
+                                sector: first.business_sector || "Information Technology & Security",
+                                function: first.business_function || sSvc,
+                                region: first.operating_region || "Global Enterprise (ALL)",
+                                justification: first.justification || "Access Request",
+                                selectedPersona: cleanPersonaName(first.selected_persona || "Engineering & Developer"),
+                                status: "Pending Approval",
+                                statusState: "Warning",
+                                statusIcon: "sap-icon://pending",
+                                approverRemark: first.approver_comment || "",
+                                entitlements: aMatching.map(m => ({
+                                    requestId: m.request_number,
+                                    system: m.target_system,
+                                    roleName: (m.role_name || "").replace(/\s*\([^)]*\)/g, "").trim(),
+                                    team: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
+                                    serviceTopic: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
+                                    selectedPersona: cleanPersonaName(m.selected_persona || "Engineering & Developer"),
+                                    grantedDate: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                    expiryDate: m.access_duration || "Permanent",
+                                    status: "Pending",
+                                    statusState: "Warning",
+                                    statusIcon: "sap-icon://pending",
+                                    approverRemark: m.approver_comment || "",
+                                    comment: ""
+                                }))
+                            };
+                        }
+                    } catch(e) {
+                        console.warn("Direct DB fallback fetch error:", e);
+                    }
                 }
 
                 if (oRequest) {
@@ -203,7 +299,7 @@ sap.ui.define([
                                 roleName: cleanRole(sRawRole),
                                 team: sService,
                                 serviceTopic: sService,
-                                selectedPersona: ent.selectedPersona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer Persona",
+                                selectedPersona: cleanPersonaName(ent.selectedPersona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
                                 grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
                                 expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
                                 status: sInitStatus,
@@ -232,7 +328,7 @@ sap.ui.define([
                             roleName: cleanRole(sRawRole),
                             team: sService,
                             serviceTopic: sService,
-                            selectedPersona: oRequest.selectedPersona || oRequest.persona || "Engineering & Developer Persona",
+                            selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
                             grantedDate: oRequest.submissionDate || new Date().toISOString().split("T")[0],
                             expiryDate: oRequest.duration || "Permanent",
                             status: sInitStatus,
@@ -273,7 +369,7 @@ sap.ui.define([
                         requestId: oRequest.requestId,
                         requesterId: sRequesterId,
                         persona: oRequest.persona,
-                        selectedPersona: oRequest.selectedPersona || oRequest.persona || "Engineering & Developer Persona",
+                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
                         region: oRequest.region,
                         sector: oRequest.sector,
                         function: oRequest.function,
@@ -318,6 +414,28 @@ sap.ui.define([
 
             const sCurrentRequestId = (oRequest.requestId || "").trim();
             const sCurrentReqBase = getBaseReqId(sCurrentRequestId);
+
+            const currentReqIds = new Set();
+            (aEntList || []).forEach(item => {
+                const num = (item.requestId || item.request_number || item.requestNumber || "").trim();
+                if (num) {
+                    currentReqIds.add(num);
+                    const base = getBaseReqId(num);
+                    if (base) currentReqIds.add(base);
+                }
+            });
+            (oRequest.entitlements || []).forEach(item => {
+                const num = (item.requestId || item.request_number || item.requestNumber || "").trim();
+                if (num) {
+                    currentReqIds.add(num);
+                    const base = getBaseReqId(num);
+                    if (base) currentReqIds.add(base);
+                }
+            });
+            if (sCurrentRequestId) {
+                currentReqIds.add(sCurrentRequestId);
+                if (sCurrentReqBase) currentReqIds.add(sCurrentReqBase);
+            };
 
             let aLiveAllRequests = [];
             let aSodRules = [];
@@ -375,7 +493,7 @@ sap.ui.define([
                 const reqNum = (r.request_number || "").trim();
                 const baseReqNum = getBaseReqId(reqNum);
                 const isPending = sStat === "PENDING" || sStat === "PENDING_COMPLIANCE" || sStat === "PENDING_IAM_1" || sStat === "PENDING_IAM_2";
-                const isCurrentReq = (reqNum === sCurrentRequestId) || (baseReqNum && baseReqNum === sCurrentReqBase);
+                const isCurrentReq = currentReqIds.has(reqNum) || (baseReqNum && currentReqIds.has(baseReqNum));
                 return isPending && !isCurrentReq;
             });
 
@@ -390,6 +508,7 @@ sap.ui.define([
                 if (!s) return "";
                 let str = String(s).trim();
                 str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                str = str.replace(/\s+persona$/i, "").trim();
                 return str || s;
             };
 
@@ -625,21 +744,23 @@ sap.ui.define([
             }
         },
 
-        onAcceptEntitlement(oEvent) {
+                onAcceptEntitlement(oEvent) {
             const oContext = oEvent.getSource().getBindingContext("accessModel");
             const oModel = this.getView().getModel("accessModel");
 
             if (oContext && oModel) {
                 const sPath = oContext.getPath();
                 const oEntitlement = oContext.getObject();
+                const sCurStatus = oEntitlement.status;
                 const sCurComment = (oEntitlement.comment || "").trim();
+                const sBatchRemark = (this._lastBatchRemark || "").trim();
 
                 oModel.setProperty(sPath + "/status", "Approved");
                 oModel.setProperty(sPath + "/statusState", "Success");
                 oModel.setProperty(sPath + "/statusIcon", "sap-icon://sys-enter-2");
 
-                // Clear input field if comment contains batch remark or opposite decision remark
-                if (sCurComment === "Rejected during standard review cycle" || sCurComment === "Approved during standard review cycle" || sCurComment.includes("standard batch review") || sCurComment.includes("standard review cycle")) {
+                // Clear input field if user manually changes decision after batch action, switches from Rejected, or comment equals batch remark
+                if (this._hasPerformedBatchAction || sCurStatus === "Rejected" || (sBatchRemark && sCurComment === sBatchRemark) || sCurComment === "Rejected during standard review cycle" || sCurComment === "Approved during standard review cycle") {
                     oModel.setProperty(sPath + "/comment", "");
                 }
 
@@ -654,14 +775,16 @@ sap.ui.define([
             if (oContext && oModel) {
                 const sPath = oContext.getPath();
                 const oEntitlement = oContext.getObject();
+                const sCurStatus = oEntitlement.status;
                 const sCurComment = (oEntitlement.comment || "").trim();
+                const sBatchRemark = (this._lastBatchRemark || "").trim();
 
                 oModel.setProperty(sPath + "/status", "Rejected");
                 oModel.setProperty(sPath + "/statusState", "Error");
                 oModel.setProperty(sPath + "/statusIcon", "sap-icon://error");
 
-                // Clear input field if comment contains batch remark or opposite decision remark
-                if (sCurComment === "Approved during standard review cycle" || sCurComment === "Rejected during standard review cycle" || sCurComment.includes("standard batch review") || sCurComment.includes("standard review cycle")) {
+                // Clear input field if user manually changes decision after batch action, switches from Approved, or comment equals batch remark
+                if (this._hasPerformedBatchAction || sCurStatus === "Approved" || (sBatchRemark && sCurComment === sBatchRemark) || sCurComment === "Approved during standard review cycle" || sCurComment === "Rejected during standard review cycle") {
                     oModel.setProperty(sPath + "/comment", "");
                 }
 
@@ -1040,7 +1163,7 @@ sap.ui.define([
                             system: r.target_system,
                             roleName: r.role_name,
                             serviceTopic: deriveServiceTopicFromRole(r.role_name, r.service_topic || r.serviceTopic || r.service),
-                            selectedPersona: r.selected_persona,
+                            selectedPersona: cleanPersonaName(r.selected_persona || "Engineering & Developer"),
                             accessDuration: r.access_duration,
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                             createdAtRaw: r.created_at || new Date().toISOString(),
@@ -1135,7 +1258,14 @@ sap.ui.define([
                     sPersonaText = "Requester";
                 }
 
-                if (!oGrouped[sGroupKey]) {
+                if (oGrouped[sGroupKey]) {
+                    const rTime = new Date(r.updated_at || r.created_at || 0).getTime();
+                    const curTime = new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].createdAtRaw || 0).getTime();
+                    if (rTime > curTime) {
+                        oGrouped[sGroupKey].updatedAtRaw = r.updated_at || r.created_at;
+                        oGrouped[sGroupKey].decisionDate = r.updated_at ? r.updated_at.split("T")[0] : oGrouped[sGroupKey].decisionDate;
+                    }
+                } else {
                     oGrouped[sGroupKey] = {
                         requestId: r.request_number,
                         requesterId: r.requester_username || "User003",
@@ -1146,13 +1276,14 @@ sap.ui.define([
                         submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                         decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
                         createdAtRaw: r.created_at || new Date().toISOString(),
+                        updatedAtRaw: r.updated_at || r.created_at || new Date().toISOString(),
                         duration: r.access_duration || "Permanent",
                         sector: r.business_sector || "Information Technology & Security",
                         function: sService,
                         region: r.operating_region || "Global Enterprise (ALL)",
                         justification: r.justification || "Business Access Request",
                         selectedPersona: r.selected_persona || r.requester_persona || "Requester",
-                        status: isRevocation ? (isPendingForRole ? "Revoke Pending" : (bRoleApproved ? "Approved" : "Rejected")) : (isPendingForRole ? "Pending Approval" : (bRoleApproved ? "Approved" : "Rejected")),
+                        status: isRevocation ? (isPendingForRole ? "Revoke Pending" : (bRoleApproved ? "Approved" : "Rejected")) : (isPendingForRole ? "Pending" : (bRoleApproved ? "Approved" : "Rejected")),
                         statusState: isRevocation ? (isPendingForRole ? "Error" : (bRoleApproved ? "Success" : "Error")) : (isPendingForRole ? "Warning" : (bRoleApproved ? "Success" : "Error")),
                         statusIcon: isRevocation ? "sap-icon://pending" : (isPendingForRole ? "sap-icon://pending" : (bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error")),
                         isRevocation: isRevocation,
@@ -1170,7 +1301,7 @@ sap.ui.define([
                     roleName: r.role_name,
                     team: sService,
                     serviceTopic: sService,
-                    selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                    selectedPersona: r.selected_persona || "Engineering & Developer",
                     grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                     expiryDate: r.access_duration,
                     status: isPendingForRole ? (isRevocation ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
@@ -1213,16 +1344,38 @@ sap.ui.define([
 
             const aPendingRequests = aAllGrouped.filter(r => r._isPendingForRole);
             const aProcessedRequests = aAllGrouped.filter(r => !r._isPendingForRole);
-            // Sort Processed Requests: Latest decision at the very top (first row)
+
+            // Chronological order (Oldest first: tA - tB) for User Requests & Pending Access Requests
+            aPendingRequests.sort((a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+
+            const aPendingAccessRequests = aPendingRequests.filter(r => !r.isRevocation);
+            const aPendingRevokeRequests = aPendingRequests.filter(r => r.isRevocation);
+
+            aPendingAccessRequests.sort((a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+            aPendingRevokeRequests.sort((a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+
+            // Reverse chronological order (Newest first: tB - tA) for Processed Approval History Log
             aProcessedRequests.sort((a, b) => {
                 const tA = Math.max(new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
                 const tB = Math.max(new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
                 if (tA !== tB) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
-
-            const aPendingAccessRequests = aPendingRequests.filter(r => !r.isRevocation);
-            const aPendingRevokeRequests = aPendingRequests.filter(r => r.isRevocation);
 
             this._setSmartProperty(oModel, "/pendingRequests", aPendingRequests);
             this._setSmartProperty(oModel, "/pendingAccessRequests", aPendingAccessRequests);
@@ -1316,8 +1469,8 @@ sap.ui.define([
                         requesterId: item.requesterId || item.requesterUsername || "Dev001",
                         requesterUsername: item.requesterUsername || item.requesterId || "Dev001",
                         type: item.type || "Addition",
-                        persona: item.persona || item.selectedPersona || "Engineering & Developer Persona",
-                        selectedPersona: item.selectedPersona || item.persona || "Engineering & Developer Persona",
+                        persona: cleanPersonaName(item.persona || item.selectedPersona || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || "Engineering & Developer"),
                         accessDuration: item.accessDuration || "Permanent (Default)",
                         submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
                         createdAtRaw: item.createdAtRaw || new Date().toISOString(),
@@ -1357,7 +1510,7 @@ sap.ui.define([
                 if (item.type && !g._types.includes(item.type)) {
                     g._types.push(item.type);
                 }
-                const sPers = item.selectedPersona || item.persona;
+                const sPers = cleanPersonaName(item.selectedPersona || item.persona);
                 if (sPers && !g._personas.includes(sPers)) {
                     g._personas.push(sPers);
                 }
@@ -1373,8 +1526,8 @@ sap.ui.define([
                 g.accessDuration = g._durations.join(", ") || g.accessDuration;
                 g.type = g._types.join(", ") || g.type;
                 if (g._personas.length > 0) {
-                    g.selectedPersona = g._personas.join(", ");
-                    g.persona = g._personas[0];
+                    g.selectedPersona = g._personas.map(p => cleanPersonaName(p)).join(", ");
+                    g.persona = cleanPersonaName(g._personas[0]);
                 }
                 delete g._systems;
                 delete g._roles;
@@ -1386,62 +1539,157 @@ sap.ui.define([
             });
         },
 
-        onAcceptAllRequests() {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-
-            const sDefaultRemark = "Approved during standard review cycle";
-
-            const sPath = "/selectedRequest/entitlements";
-            const aEntitlements = oModel.getProperty(sPath) || [];
-            aEntitlements.forEach((ent, i) => {
-                oModel.setProperty(sPath + "/" + i + "/status", "Approved");
-                oModel.setProperty(sPath + "/" + i + "/statusState", "Success");
-                oModel.setProperty(sPath + "/" + i + "/statusIcon", "sap-icon://sys-enter-2");
-                oModel.setProperty(sPath + "/" + i + "/comment", sDefaultRemark);
-            });
-
-            const aTables = oModel.getProperty("/selectedRequest/summaryTables") || [];
-            aTables.forEach(t => {
-                (t.items || []).forEach(item => {
-                    item.status = "Approved";
-                    item.statusState = "Success";
-                    item.statusIcon = "sap-icon://sys-enter-2";
-                    item.comment = sDefaultRemark;
-                });
-            });
-            oModel.setProperty("/selectedRequest/summaryTables", aTables);
-
-            MessageToast.show("All entitlements approved with default remark.");
+                onAcceptAllRequests() {
+            this._showBatchDecisionRemarkDialog(true);
         },
 
         onRejectAllRequests() {
+            this._showBatchDecisionRemarkDialog(false);
+        },
+
+        _showBatchDecisionRemarkDialog(bIsApprove) {
+            sap.ui.require([
+                "sap/m/Dialog", "sap/m/Button", "sap/m/TextArea", "sap/m/VBox", "sap/m/HBox",
+                "sap/ui/core/Icon", "sap/m/Text", "sap/m/Title"
+            ], (Dialog, Button, TextArea, VBox, HBox, Icon, Text, Title) => {
+                const sAction = bIsApprove ? "Approve" : "Reject";
+                const sTitle = bIsApprove ? "Approve All Entitlements" : "Reject All Entitlements";
+                const sSubtitle = bIsApprove
+                    ? "Enter a batch approval remark to apply across all request items."
+                    : "Enter a batch rejection reason or remark to apply across all request items.";
+                const sIconSrc = bIsApprove ? "sap-icon://accept" : "sap-icon://decline";
+                const sIconClass = bIsApprove ? "kyraBatchDialogIconApprove" : "kyraBatchDialogIconReject";
+                const sIconColor = bIsApprove ? "#16A34A" : "#DC2626";
+                const sBtnClass = bIsApprove ? "kyraBatchDialogConfirmApproveBtn" : "kyraBatchDialogConfirmRejectBtn";
+                const sBtnText = bIsApprove ? "Approve All" : "Reject All";
+
+                const oTextArea = new TextArea({
+                    width: "100%",
+                    rows: 4,
+                    placeholder: bIsApprove
+                        ? "Enter your approval remark (e.g., Approved after verifying business justification)..."
+                        : "Enter rejection reason / remark (e.g., Access not required for current project scope)...",
+                    liveChange: (oEvt) => {
+                        const val = oEvt.getParameter("value") || "";
+                        if (val.trim()) {
+                            oTextArea.setValueState("None");
+                        }
+                    }
+                }).addStyleClass("kyraBatchRemarkTextArea");
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [
+                        new VBox({
+                            items: [
+                                new HBox({
+                                    alignItems: "Center",
+                                    justifyContent: "SpaceBetween",
+                                    items: [
+                                        new HBox({
+                                            alignItems: "Center",
+                                            items: [
+                                                new HBox({
+                                                    justifyContent: "Center",
+                                                    alignItems: "Center",
+                                                    items: [
+                                                        new Icon({
+                                                            src: sIconSrc,
+                                                            color: sIconColor,
+                                                            size: "20px"
+                                                        })
+                                                    ]
+                                                }).addStyleClass(sIconClass),
+                                                new VBox({
+                                                    items: [
+                                                        new Title({ text: sTitle, level: "H4" }).addStyleClass("kyraBatchDialogTitle"),
+                                                        new Text({ text: sSubtitle }).addStyleClass("kyraBatchDialogSubtitle")
+                                                    ]
+                                                }).addStyleClass("sapUiSmallMarginBegin")
+                                            ]
+                                        }),
+                                        new Button({
+                                            icon: "sap-icon://decline",
+                                            type: "Transparent",
+                                            press: () => oDialog.close()
+                                        }).addStyleClass("kyraBatchDialogCloseBtn")
+                                    ]
+                                }).addStyleClass("kyraBatchDialogHeader"),
+
+                                new VBox({
+                                    items: [
+                                        new Text({ text: "Remark / Justification" }).addStyleClass("kyraBatchRemarkLabel"),
+                                        oTextArea
+                                    ]
+                                }).addStyleClass("kyraBatchDialogBody")
+                            ]
+                        })
+                    ],
+                    buttons: [
+                        new Button({
+                            text: "Cancel",
+                            type: "Transparent",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraBatchDialogCancelBtn"),
+                        new Button({
+                            text: sBtnText,
+                            press: () => {
+                                const sRemark = (oTextArea.getValue() || "").trim();
+                                if (!sRemark) {
+                                    oTextArea.setValueState("Error");
+                                    oTextArea.setValueStateText("Please enter a remark before proceeding.");
+                                    return;
+                                }
+                                this._applyBatchDecisionToAll(bIsApprove, sRemark);
+                                oDialog.close();
+                            }
+                        }).addStyleClass(sBtnClass)
+                    ],
+                    afterClose: () => oDialog.destroy()
+                }).addStyleClass("kyraBatchDecisionDialog");
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        _applyBatchDecisionToAll(bIsApprove, sRemark) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const sDefaultRemark = "Rejected during standard review cycle";
+            this._lastBatchRemark = sRemark;
+            this._hasPerformedBatchAction = true;
+
+            const sNewStatus = bIsApprove ? "Approved" : "Rejected";
+            const sNewState = bIsApprove ? "Success" : "Error";
+            const sNewIcon = bIsApprove ? "sap-icon://sys-enter-2" : "sap-icon://error";
 
             const sPath = "/selectedRequest/entitlements";
             const aEntitlements = oModel.getProperty(sPath) || [];
             aEntitlements.forEach((ent, i) => {
-                oModel.setProperty(sPath + "/" + i + "/status", "Rejected");
-                oModel.setProperty(sPath + "/" + i + "/statusState", "Error");
-                oModel.setProperty(sPath + "/" + i + "/statusIcon", "sap-icon://error");
-                oModel.setProperty(sPath + "/" + i + "/comment", sDefaultRemark);
+                oModel.setProperty(sPath + "/" + i + "/status", sNewStatus);
+                oModel.setProperty(sPath + "/" + i + "/statusState", sNewState);
+                oModel.setProperty(sPath + "/" + i + "/statusIcon", sNewIcon);
+                oModel.setProperty(sPath + "/" + i + "/comment", sRemark);
             });
 
             const aTables = oModel.getProperty("/selectedRequest/summaryTables") || [];
             aTables.forEach(t => {
                 (t.items || []).forEach(item => {
-                    item.status = "Rejected";
-                    item.statusState = "Error";
-                    item.statusIcon = "sap-icon://error";
-                    item.comment = sDefaultRemark;
+                    item.status = sNewStatus;
+                    item.statusState = sNewState;
+                    item.statusIcon = sNewIcon;
+                    item.comment = sRemark;
                 });
             });
             oModel.setProperty("/selectedRequest/summaryTables", aTables);
 
-            MessageToast.show("All entitlements rejected with default remark.");
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show(`All entitlements marked ${sNewStatus} with your remark.`);
+            });
         },
 
         onCancelRequestSummaryView() {

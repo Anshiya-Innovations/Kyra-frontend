@@ -133,7 +133,7 @@
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
                             <Column width="18%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="20%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="20%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
                             <Column width="13%" hAlign="Center"><Text text="EXPIRY DATE" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -144,8 +144,8 @@
                             <ColumnListItem vAlign="Middle" class="kyraTableRow">
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold kyraCellText" />
-                                    <Text text="{accessModel>roleName}" class="kyraCellText" />
-                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" class="kyraCellText" />
+                                    <Text text="{= ${accessModel>services} || ${accessModel>serviceTopic} || 'System Administrator' }" class="kyraCellText" />
+                                    <Text text="{= ${accessModel>teamRole} || ${accessModel>roleName} || ${accessModel>team} || 'IT Administrators' }" class="kyraCellText" />
                                     <Text text="{accessModel>persona}" class="kyraCellText" />
                                     <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" class="kyraCellTextCenter" />
                                     <ObjectStatus
@@ -276,7 +276,7 @@
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
-                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer Persona' }" style="white-space: nowrap; color: #475569;" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" style="white-space: nowrap; color: #475569;" />
                                     <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" style="white-space: nowrap; color: #475569;" />
                                     <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" style="white-space: nowrap; color: #475569;" />
                                     <ObjectStatus
@@ -319,7 +319,7 @@
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <columns>
                             <Column width="16%" hAlign="Begin"><Text text="SYSTEM" class="kyraEntitlementColHeader" /></Column>
-                            <Column width="18%" hAlign="Begin"><Text text="ROLE TITLE" class="kyraEntitlementColHeader" /></Column>
+                            <Column width="18%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
                             <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraEntitlementColHeader" /></Column>
                             <Column width="17%" hAlign="Begin"><Text text="PERSONA" class="kyraEntitlementColHeader" /></Column>
                             
@@ -332,7 +332,7 @@
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold" />
                                     <Text text="{accessModel>roleName}" class="fioriCellBold" />
-                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security Team' }" />
+                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Security' }" />
                                     <Text text="{accessModel>persona}" />
                                     <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : ${accessModel>expiryDate} }" />
                                     <ObjectStatus
@@ -456,7 +456,7 @@
                                     <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
                                     <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
-                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer Persona' }" style="white-space: nowrap !important; color: #475569;" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" style="white-space: nowrap !important; color: #475569;" />
                                     <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" style="white-space: nowrap !important; color: #475569;" />
                                     <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" style="white-space: nowrap !important; color: #475569;" />
                                     <ObjectStatus
@@ -946,7 +946,9 @@
                                     <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
                                     <Label text="Business Justification" required="true" />
                                     <TextArea
+                                        id="inPageJustificationArea"
                                         value="{accessModel>/addAccessJustification}"
+                                        valueLiveUpdate="true"
                                         placeholder="Provide detailed business justification for requesting these system permissions..."
                                         rows="4"
                                         width="100%" />
@@ -1631,9 +1633,9 @@
                             <ColumnListItem vAlign="Middle">
                                 <cells>
                                     <Text text="{accessModel>system}" class="fioriCellBold" />
-                                    <ObjectIdentifier title="{accessModel>roleName}" subtitle="{accessModel>roleId}" />
-                                    <Text text="{= ${accessModel>team} || ${accessModel>serviceTopic} || ${accessModel>category} || 'Enterprise Operations Team' }" />
-                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer Persona' }" />
+                                    <ObjectIdentifier title="{= ${accessModel>services} || ${accessModel>serviceTopic} || 'System Administrator' }" subtitle="{accessModel>roleId}" />
+                                    <Text text="{= ${accessModel>teamRole} || ${accessModel>roleName} || ${accessModel>team} || 'IT Administrators' }" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" />
                                     <Text text="{= ${accessModel>expiryDate} === 'Permanent' ? '31 Dec 9999' : (${accessModel>expiryDate} || '31 Dec 9999') }" />
                                     <ObjectStatus
                                         text="{= ${accessModel>status} || 'Active' }"
@@ -1658,7 +1660,7 @@
                 <mvc:XMLView 
                     id="approverSectionView"
                     viewName="kyra001.pages.Approver.Approver"
-                    visible="{= (${accessModel>/activeRole} === 'Engineering &amp; Developer Persona' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
+                    visible="{= (${accessModel>/activeRole} === 'Engineering &amp; Developer' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
             </VBox>
 
             <!-- DEDICATED REQUEST TRACKING PAGE (Opened on clicking any row in Pending List) -->
@@ -1782,7 +1784,7 @@
                             <HBox class="kyraStepNumBadge kyraStepNumGray" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step2/state} !== 'GREEN' &amp;&amp; ${accessModel>/selectedRequestDetail/step2/state} !== 'BLUE' &amp;&amp; ${accessModel>/selectedRequestDetail/step2/state} !== 'RED' }">
                                 <Text text="2" class="kyraStepNumText" />
                             </HBox>
-                            <Text text="{= ${accessModel>/selectedRequestDetail/step2/title} || 'Engineering &amp; Developer Persona' }" class="kyraStepTitle" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/step2/title} || 'Engineering &amp; Developer' }" class="kyraStepTitle" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/step2/subtitle} || 'SEGGUM, VEERENDER' }" class="kyraStepSubtitle" />
                             <Text text="{accessModel>/selectedRequestDetail/step2/statusText}" class="kyraStepStatusGreen" visible="{= ${accessModel>/selectedRequestDetail/step2/state} === 'GREEN' }" />
                             <HBox class="kyraStepStatusPillBlue" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step2/state} === 'BLUE' }">
@@ -2127,8 +2129,8 @@
                     <!-- 3. Notifications List Container (Simple Horizontal Cards) -->
                     <VBox class="kyraNotifListCard">
                         <!-- Horizontal Notification Cards -->
-                        <VBox items="{accessModel>/filteredNotificationsList}">
-                            <items>
+                        <List items="{accessModel>/filteredNotificationsList}" showSeparators="None" class="sapUiNoMargin">
+                            <CustomListItem type="Active" press=".onNotificationItemPress" class="kyraNotifListItem">
                                 <HBox
                                     class="{= 'kyraNotifListRow ' + (${accessModel>unread} ? 'kyraNotifCardUnread' : 'kyraNotifCardRead') }"
                                     alignItems="Start"
@@ -2175,8 +2177,8 @@
                                             class="kyraNotifRowDeleteBtn" />
                                     </HBox>
                                 </HBox>
-                            </items>
-                        </VBox>
+                            </CustomListItem>
+                        </List>
 
                         <!-- Empty State Box (When no notifications match filter) -->
                         <VBox

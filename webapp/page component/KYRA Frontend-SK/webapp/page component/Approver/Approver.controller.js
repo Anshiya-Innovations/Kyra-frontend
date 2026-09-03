@@ -719,7 +719,7 @@ sap.ui.define([
                             if (isProcessedInCompliance) {
                                 isProcessedForRole = true;
                                 sItemStatus = (sComplianceStatus === "REJECTED" || (sDbStatus === "REJECTED" && sComplianceStatus !== "APPROVED")) ? "Rejected" : "Approved";
-                            } else if (isApproverApproved && sDbStatus !== "REJECTED") {
+                            } else if (isConflictRequest && isApproverApproved && sDbStatus !== "REJECTED") {
                                 isPendingForRole = true;
                                 sItemStatus = "Pending";
                             }
@@ -729,7 +729,7 @@ sap.ui.define([
                                 if (sIamApp1Status === "APPROVED" || sIamApp1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || (sDbStatus === "REJECTED" && sIamApp1Status === "REJECTED")) {
                                     isProcessedForRole = true;
                                     sItemStatus = sIamApp1Status === "REJECTED" ? "Rejected" : "Approved";
-                                } else if (sDbStatus !== "REJECTED" && sDbStatus !== "PENDING_COMPLIANCE") {
+                                } else if (sDbStatus !== "REJECTED" && sDbStatus !== "PENDING_COMPLIANCE" && sDbStatus !== "PENDING") {
                                     isPendingForRole = true;
                                     sItemStatus = "Pending";
                                 }
@@ -753,13 +753,20 @@ sap.ui.define([
                         const sService = r.business_function || r.businessFunction || r.function || r.service_topic || r.serviceTopic || deriveServiceTopicFromRole(r.role_name, r.service) || "Inventory Governance";
                         const sGroupKey = (r.requester_username || "User003") + "_" + (r.business_sector || "") + "_" + (r.business_function || sService || "") + "_" + (isPendingForRole ? "PENDING" : "PROCESSED") + "_" + (r.access_type === "REVOCATION" ? "REVOCATION" : "ADDITION");
 
-                        if (!oGrouped[sGroupKey]) {
+                        if (oGrouped[sGroupKey]) {
+                            const rTime = new Date(r.updated_at || r.created_at || 0).getTime();
+                            const curTime = new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].createdAtRaw || 0).getTime();
+                            if (rTime > curTime) {
+                                oGrouped[sGroupKey].updatedAtRaw = r.updated_at || r.created_at;
+                                oGrouped[sGroupKey].decisionDate = r.updated_at ? r.updated_at.split("T")[0] : oGrouped[sGroupKey].decisionDate;
+                            }
+                        } else {
                             oGrouped[sGroupKey] = {
                                 requestId: r.request_number,
                                 requesterId: r.requester_username || "User003",
                                 requesterUsername: r.requester_username || "User003",
-                                persona: r.selected_persona || "Engineering & Developer Persona",
-                                selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                                persona: r.selected_persona || "Engineering & Developer",
+                                selectedPersona: r.selected_persona || "Engineering & Developer",
                                 system: r.target_system || "SAP BTP Cloud Platform",
                                 serviceAndRole: (r.role_name || "IT Developers") + " (" + sService + ")",
                                 serviceTopic: sService,
@@ -772,7 +779,7 @@ sap.ui.define([
                                 function: sService,
                                 region: r.operating_region || "Global Enterprise (ALL)",
                                 justification: r.justification || "Business Access Request",
-                                status: isPendingForRole ? "Pending Approval" : "Approved",
+                                status: isPendingForRole ? (r.access_type === "REVOCATION" ? "Revoke Pending" : "Pending") : "Approved",
                                 statusState: isPendingForRole ? "Warning" : "Success",
                                 statusIcon: isPendingForRole ? "sap-icon://pending" : "sap-icon://sys-enter-2",
                                 approverRemark: r.approver_comment || r.approverComment || "Access approved for this requester.",
@@ -788,7 +795,7 @@ sap.ui.define([
                             roleName: r.role_name,
                             team: sService,
                             serviceTopic: sService,
-                            selectedPersona: r.selected_persona || "Engineering & Developer Persona",
+                            selectedPersona: r.selected_persona || "Engineering & Developer",
                             grantedDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                             expiryDate: r.access_duration || "Permanent",
                             status: sItemStatus,
@@ -833,8 +840,37 @@ sap.ui.define([
                 console.error("Error fetching OData requests:", err);
             }
 
+            // CHRONOLOGICAL ORDER (Oldest First: tA - tB) for Pending Access Requests & User Requests
+            aPending.sort((a, b) => {
+                const tA = Math.max(new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
+                const tB = Math.max(new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+
             const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aRevokePending = aPending.filter(p => p.isRevocation || p.type === "Revocation");
+
+            aAccessPending.sort((a, b) => {
+                const tA = Math.max(new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
+                const tB = Math.max(new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+            aRevokePending.sort((a, b) => {
+                const tA = Math.max(new Date(a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
+                const tB = Math.max(new Date(b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
+                if (tA !== tB) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
+
+            // REVERSE CHRONOLOGICAL ORDER (Newest First: tB - tA) for Processed Approval History Log
+            aProcessed.sort((a, b) => {
+                const tA = Math.max(new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime(), 0);
+                const tB = Math.max(new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime(), 0);
+                if (tA !== tB) return tB - tA; // Newest first
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            });
 
             oModel.setProperty("/pendingAccessRequests", aAccessPending);
             oModel.setProperty("/pendingRevokeRequests", aRevokePending);

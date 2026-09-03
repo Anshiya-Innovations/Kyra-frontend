@@ -67,9 +67,10 @@ sap.ui.define([
     }
 
     function cleanPersonaStr(s) {
-        if (!s) return "Engineering & Developer Persona";
+        if (!s) return "Engineering & Developer";
         let str = String(s).replace(/\s*\([^)]*\)/g, "").trim();
-        if (!str || str === "undefined") return "Engineering & Developer Persona";
+        str = str.replace(/\s+persona$/i, "").trim();
+        if (!str || str === "undefined") return "Engineering & Developer";
         return str;
     }
 
@@ -315,6 +316,14 @@ sap.ui.define([
             if (this._pollInterval) {
                 clearInterval(this._pollInterval);
                 this._pollInterval = null;
+            }
+            if (this._fnNotifOutsideClickListener) {
+                document.removeEventListener("pointerdown", this._fnNotifOutsideClickListener, true);
+                this._fnNotifOutsideClickListener = null;
+            }
+            if (this._oNotificationPopover) {
+                this._oNotificationPopover.destroy();
+                this._oNotificationPopover = null;
             }
         },
 
@@ -761,36 +770,48 @@ sap.ui.define([
             }
         },
 
-        _deriveCleanTeamName(oItem) {
-            if (!oItem) return "Enterprise Security Team";
-            const sRaw = (oItem.team || oItem.business_function || oItem.businessFunction || oItem.function || oItem.service_topic || oItem.serviceTopic || oItem.category || oItem.role_name || oItem.roleName || "").toString().toLowerCase();
+                _deriveCleanTeamName(oItem) {
+            if (!oItem) return "Enterprise Security";
+
+            const cleanTeamStr = (s) => {
+                if (!s) return "";
+                let str = String(s).trim();
+                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                str = str.replace(/\s+team$/i, "").trim();
+                return str;
+            };
+
+            const sRaw = (oItem.team || oItem.business_function || oItem.businessFunction || oItem.function || oItem.service_topic || oItem.serviceTopic || oItem.category || oItem.role_name || oItem.roleName || "").toString().trim();
+            const sLower = sRaw.toLowerCase();
             
-            if (sRaw.includes("procure") || sRaw.includes("purchas") || sRaw.includes("buyer") || sRaw.includes("vendor") || sRaw.includes("sourcing") || sRaw.includes("ariba")) {
-                return "Procurement Team";
+            if (sLower.includes("procure") || sLower.includes("purchas") || sLower.includes("buyer") || sLower.includes("vendor") || sLower.includes("sourcing") || sLower.includes("ariba")) {
+                return "Procurement";
             }
-            if (sRaw.includes("finan") || sRaw.includes("account") || sRaw.includes("treasur") || sRaw.includes("tax") || sRaw.includes("ledger") || sRaw.includes("controlling") || sRaw.includes("fico") || sRaw.includes("s/4hana")) {
-                return "Finance Team";
+            if (sLower.includes("finan") || sLower.includes("account") || sLower.includes("treasur") || sLower.includes("tax") || sLower.includes("ledger") || sLower.includes("controlling") || sLower.includes("fico") || sLower.includes("s/4hana")) {
+                return "Finance";
             }
-            if (sRaw.includes("audit") || sRaw.includes("complian") || sRaw.includes("risk") || sRaw.includes("governan") || sRaw.includes("isrm") || sRaw.includes("grc")) {
-                return "Audit & Compliance Team";
+            if (sLower.includes("audit") || sLower.includes("complian") || sLower.includes("risk") || sLower.includes("governan") || sLower.includes("isrm") || sLower.includes("grc")) {
+                return "Audit & Compliance";
             }
-            if (sRaw.includes("secur") || sRaw.includes("iam") || sRaw.includes("identity") || sRaw.includes("cyber") || sRaw.includes("access")) {
-                return "Security & IAM Team";
+            if (sLower.includes("secur") || sLower.includes("iam") || sLower.includes("identity") || sLower.includes("cyber") || sLower.includes("access")) {
+                return "Security & IAM";
             }
-            if (sRaw.includes("logic") || sRaw.includes("warehous") || sRaw.includes("supply") || sRaw.includes("inventor") || sRaw.includes("plant") || sRaw.includes("mfg") || sRaw.includes("manufactur") || sRaw.includes("shipping")) {
-                return "Supply Chain & Logistics Team";
+            if (sLower.includes("logic") || sLower.includes("warehous") || sLower.includes("supply") || sLower.includes("inventor") || sLower.includes("plant") || sLower.includes("mfg") || sLower.includes("manufactur") || sLower.includes("shipping")) {
+                return "Supply Chain & Logistics";
             }
-            if (sRaw.includes("sale") || sRaw.includes("order") || sRaw.includes("distribut") || sRaw.includes("market") || sRaw.includes("customer") || sRaw.includes("crm")) {
-                return "Sales & Distribution Team";
+            if (sLower.includes("sale") || sLower.includes("order") || sLower.includes("distribut") || sLower.includes("market") || sLower.includes("customer") || sLower.includes("crm")) {
+                return "Sales & Distribution";
             }
-            if (sRaw.includes("hr") || sRaw.includes("people") || sRaw.includes("workforce") || sRaw.includes("payroll") || sRaw.includes("talent") || sRaw.includes("successfactors")) {
-                return "HR & People Operations Team";
+            if (sLower.includes("hr") || sLower.includes("people") || sLower.includes("workforce") || sLower.includes("payroll") || sLower.includes("talent") || sLower.includes("successfactors")) {
+                return "HR & People Operations";
             }
-            if (sRaw.includes("develop") || sRaw.includes("engineer") || sRaw.includes("tech") || sRaw.includes("ui5") || sRaw.includes("btp") || sRaw.includes("cloud") || sRaw.includes("admin") || sRaw.includes("infra")) {
-                return "Engineering & Cloud Ops Team";
+            if (sLower.includes("develop") || sLower.includes("engineer") || sLower.includes("tech") || sLower.includes("ui5") || sLower.includes("btp") || sLower.includes("cloud") || sLower.includes("admin") || sLower.includes("infra")) {
+                return "Engineering & Cloud Ops";
             }
-            if (oItem.team && !oItem.team.toLowerCase().includes("category") && !oItem.team.toLowerCase().includes("revocation")) return oItem.team;
-            return "Enterprise Operations Team";
+            if (oItem.team && !oItem.team.toLowerCase().includes("category") && !oItem.team.toLowerCase().includes("revocation")) {
+                return cleanTeamStr(oItem.team);
+            }
+            return cleanTeamStr(sRaw) || "Enterprise Operations";
         },
 
         _groupRequestsByRequestId(aRequests) {
@@ -1245,14 +1266,16 @@ sap.ui.define([
                 const sCleanP = cleanPersonaStr(r.selected_persona || r.persona || r.role_name);
                 const sCleanR = cleanRoleStr(r.role_name);
 
+                const sService = deriveServiceTopicFromRole(r.role_name, r.service_topic);
                 aUserAccessList.push({
                     system: r.target_system,
                     roleName: sCleanR,
                     roleTitle: sCleanR,
+                    teamRole: sCleanR,
                     roleId: r.request_number || ("ENT-" + r.ID),
-                    services: deriveServiceTopicFromRole(r.role_name, r.service_topic),
-                    serviceTopic: deriveServiceTopicFromRole(r.role_name, r.service_topic),
-                    team: this._deriveCleanTeamName(r),
+                    services: sService,
+                    serviceTopic: sService,
+                    team: sCleanR,
                     category: r.service_topic || "System Entitlement",
                     persona: sCleanP,
                     selectedPersona: sCleanP,
@@ -1421,6 +1444,8 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejectedHistory);
             this._setSmartProperty(oModel, "/historyRemovedCount", iRemovedHistory);
             this._setSmartProperty(oModel, "/removedHistoryCount", iRemovedHistory);
+            this._cachedDbRequests = aRawDbRequests;
+            this._loadNotifications(oModel, aRawDbRequests);
         },
 
         onRemoveAccessClick(oEvent) {
@@ -1618,12 +1643,11 @@ sap.ui.define([
         },
 
         
-        _loadNotifications(oModel) {
+        _loadNotifications(oModel, aExplicitDbRequests) {
             if (!oModel) oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
-            const aHistory = oModel.getProperty("/requestHistory") || [];
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "emp018").trim();
 
             let aSavedStatusMap = {};
             let aSavedNotifications = [];
@@ -1634,149 +1658,288 @@ sap.ui.define([
                 });
             } catch (e) {}
 
-            // Load set of deleted notification IDs from sessionStorage to prevent them from recreating
             let aDeletedIds = [];
             try {
                 aDeletedIds = JSON.parse(sessionStorage.getItem("kyra_deleted_notification_ids") || "[]");
             } catch (e) {}
             const oDeletedSet = new Set(aDeletedIds);
 
+            let aSourceRequests = aExplicitDbRequests || this._cachedDbRequests || [];
+            if (!aSourceRequests || aSourceRequests.length === 0) {
+                // Also check requests in model
+                const aPend = oModel.getProperty("/myPendingRequests") || [];
+                const aHist = oModel.getProperty("/requestHistory") || [];
+                aSourceRequests = aPend.concat(aHist);
+            }
+
+            const formatTimeAgo = (isoStr) => {
+                if (!isoStr) return "Just now";
+                const d = new Date(isoStr);
+                if (isNaN(d.getTime())) return "Recently";
+                const now = Date.now();
+                const diffMs = now - d.getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+                if (diffMins < 1) return "Just now";
+                if (diffMins < 60) return diffMins + "m ago";
+                const diffHours = Math.floor(diffMins / 60);
+                if (diffHours < 24) return diffHours + "h ago";
+                const diffDays = Math.floor(diffHours / 24);
+                if (diffDays < 7) return diffDays + "d ago";
+                return d.toISOString().split("T")[0];
+            };
+
+            const cleanPersonaStr = (s) => {
+                if (!s) return "Engineering & Developer";
+                let str = String(s).replace(/\s*\([^)]*\)/g, "").trim();
+                str = str.replace(/\s+persona$/i, "").trim();
+                if (!str || str === "undefined") return "Engineering & Developer";
+                return str;
+            };
+
             let aNotifications = [];
 
-            if (aHistory.length > 0) {
-                aHistory.forEach((r, idx) => {
-                    const sReqId = r.requestId || ("REQ-2026-" + (300160 + idx));
-                    const sStatus = (r.status || "Pending Approval").trim();
-                    const sStatusUpper = sStatus.toUpperCase();
-                    const sSys = r.system || "SAP System";
-                    const sRole = r.roleName || r.serviceAndRole || "System Role";
-                    const sDate = r.decisionDate || r.submissionDate || (r.created_at ? r.created_at.split("T")[0] : "Today");
-                    const sApproverComment = (r.approver_comment || r.approverComment || r.reviewer_comment || r.reviewerComment || r.comments || "").trim();
+            // Filter requests for current logged in user
+            const aUserRequests = aSourceRequests.filter(r => {
+                const u = r.requester_username || r.requesterId || r.requesterUsername || "";
+                if (!u || !sActiveUser) return true;
+                return u.toLowerCase() === sActiveUser.toLowerCase();
+            });
 
-                    let sCandidateNotifId = "";
-                    if (sStatusUpper.includes("APPROV")) {
-                        sCandidateNotifId = "notif-appr-" + sReqId;
-                    } else if (sStatusUpper.includes("REJECT") || sStatusUpper.includes("DECLINE")) {
-                        sCandidateNotifId = "notif-rej-" + sReqId;
-                    } else {
-                        sCandidateNotifId = "notif-submit-" + sReqId;
-                    }
+            aUserRequests.forEach(r => {
+                const sReqNum = r.request_number || r.requestId || r.requestNumber || ("REQ-" + (r.id || r.ID || "000"));
+                const sSys = r.target_system || r.system || "SAP System";
+                const sPersona = cleanPersonaStr(r.selected_persona || r.selectedPersona || r.persona || r.role_name || r.roleName || "System Role");
+                const sCreatedTime = r.created_at || r.createdAtRaw || r.submissionDate || new Date().toISOString();
+                const sUpdatedTime = r.updated_at || r.updatedAtRaw || r.created_at || sCreatedTime;
+                const hasConflict = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
 
-                    // Skip if explicitly deleted by user
-                    if (oDeletedSet.has(sCandidateNotifId)) {
-                        return;
-                    }
+                // 1. Notification: Request Submitted
+                const sSubId = "notif-sub-" + sReqNum;
+                if (!oDeletedSet.has(sSubId)) {
+                    aNotifications.push({
+                        id: sSubId,
+                        requesterId: sActiveUser,
+                        requestId: sReqNum,
+                        system: sSys,
+                        roleName: sPersona,
+                        persona: sPersona,
+                        type: "submitted",
+                        category: "Access Requests",
+                        title: "Access Request Submitted",
+                        description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was submitted successfully and is awaiting review.`,
+                        approverComment: "",
+                        timestamp: formatTimeAgo(sCreatedTime),
+                        rawTimestamp: new Date(sCreatedTime).getTime(),
+                        icon: "sap-icon://pending",
+                        state: "Information",
+                        unread: aSavedStatusMap[sSubId] !== undefined ? aSavedStatusMap[sSubId] : true
+                    });
+                }
 
-                    if (sStatusUpper.includes("APPROV")) {
-                        const isPartial = sStatusUpper.includes("PARTIAL");
-                        const bUnread = aSavedStatusMap[sCandidateNotifId] !== undefined ? aSavedStatusMap[sCandidateNotifId] : true;
-                        let sDesc = "Your access request for " + sSys + " (" + sRole + ") has been " + (isPartial ? "partially approved" : "approved") + ".";
-                        if (sApproverComment) {
-                            sDesc += " Approver Remark: \"" + sApproverComment + "\"";
-                        }
+                // 2. Notification: Line Manager / Initial Approver Stage
+                const sApprStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
+                if (sApprStatus === "APPROVED") {
+                    const sAppr1Id = "notif-stage1-appr-" + sReqNum;
+                    if (!oDeletedSet.has(sAppr1Id)) {
+                        const nextStage = hasConflict ? "Compliance Reviewer" : "IAM Approver 1";
                         aNotifications.push({
-                            id: sCandidateNotifId,
+                            id: sAppr1Id,
                             requesterId: sActiveUser,
-                            requestId: sReqId,
+                            requestId: sReqNum,
                             system: sSys,
-                            roleName: sRole,
+                            roleName: sPersona,
+                        persona: sPersona,
                             type: "approved",
                             category: "Access Decisions",
-                            title: isPartial ? "Access Request Partially Approved" : "Access Request Approved",
-                            description: sDesc,
-                            approverComment: sApproverComment,
-                            timestamp: sDate,
-                            icon: isPartial ? "sap-icon://alert" : "sap-icon://sys-enter-2",
-                            state: isPartial ? "Warning" : "Success",
-                            unread: bUnread
+                            title: "Approver Stage Approved",
+                            description: `Request ${sReqNum} has been approved by Line Manager / Approver and sent to ${nextStage}.`,
+                            approverComment: r.approver_comment || r.approverComment || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                            icon: "sap-icon://sys-enter-2",
+                            state: "Success",
+                            unread: aSavedStatusMap[sAppr1Id] !== undefined ? aSavedStatusMap[sAppr1Id] : true
                         });
-                    } else if (sStatusUpper.includes("REJECT") || sStatusUpper.includes("DECLINE")) {
-                        const bUnread = aSavedStatusMap[sCandidateNotifId] !== undefined ? aSavedStatusMap[sCandidateNotifId] : true;
-                        let sDesc = "Your access request for " + sSys + " (" + sRole + ") has been rejected.";
-                        if (sApproverComment) {
-                            sDesc += " Approver Remark: \"" + sApproverComment + "\"";
-                        }
+                    }
+                } else if (sApprStatus === "REJECTED") {
+                    const sAppr1RejId = "notif-stage1-rej-" + sReqNum;
+                    if (!oDeletedSet.has(sAppr1RejId)) {
                         aNotifications.push({
-                            id: sCandidateNotifId,
+                            id: sAppr1RejId,
                             requesterId: sActiveUser,
-                            requestId: sReqId,
+                            requestId: sReqNum,
                             system: sSys,
-                            roleName: sRole,
+                            roleName: sPersona,
+                        persona: sPersona,
                             type: "rejected",
                             category: "Access Decisions",
                             title: "Access Request Rejected",
-                            description: sDesc,
-                            approverComment: sApproverComment,
-                            timestamp: sDate,
+                            description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by Line Manager / Approver.`,
+                            approverComment: r.approver_comment || r.approverComment || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
                             icon: "sap-icon://error",
                             state: "Error",
-                            unread: bUnread
-                        });
-                    } else {
-                        // Submitted / Pending Approval
-                        const bUnread = aSavedStatusMap[sCandidateNotifId] !== undefined ? aSavedStatusMap[sCandidateNotifId] : true;
-                        aNotifications.push({
-                            id: sCandidateNotifId,
-                            requesterId: sActiveUser,
-                            requestId: sReqId,
-                            system: sSys,
-                            roleName: sRole,
-                            type: "submitted",
-                            category: "Access Requests",
-                            title: "Access Request Submitted",
-                            description: "Your access request for " + sSys + " (" + sRole + ") has been submitted successfully and is awaiting review.",
-                            approverComment: "",
-                            timestamp: r.submissionDate || sDate,
-                            icon: "sap-icon://pending",
-                            state: "Information",
-                            unread: bUnread
+                            unread: aSavedStatusMap[sAppr1RejId] !== undefined ? aSavedStatusMap[sAppr1RejId] : true
                         });
                     }
-                });
-            }
-
-            // Include any additional custom/manual notifications that were pushed
-            (aSavedNotifications || []).forEach(sn => {
-                if (sn.title && sn.title.includes(": REQ-")) {
-                    sn.title = sn.title.split(": REQ-")[0];
                 }
+
+                // 3. Notification: Compliance Reviewer Stage (only for conflict requests)
+                const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
+                if (sCompStatus === "APPROVED") {
+                    const sCompId = "notif-stage2-appr-" + sReqNum;
+                    if (!oDeletedSet.has(sCompId)) {
+                        aNotifications.push({
+                            id: sCompId,
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                        persona: sPersona,
+                            type: "approved",
+                            category: "Access Decisions",
+                            title: "Compliance Review Approved",
+                            description: `Request ${sReqNum} has been approved by Compliance Reviewer and sent to IAM Approver 1.`,
+                            approverComment: r.reviewer_comment || r.reviewerComment || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 2000,
+                            icon: "sap-icon://sys-enter-2",
+                            state: "Success",
+                            unread: aSavedStatusMap[sCompId] !== undefined ? aSavedStatusMap[sCompId] : true
+                        });
+                    }
+                } else if (sCompStatus === "REJECTED") {
+                    const sCompRejId = "notif-stage2-rej-" + sReqNum;
+                    if (!oDeletedSet.has(sCompRejId)) {
+                        aNotifications.push({
+                            id: sCompRejId,
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                        persona: sPersona,
+                            type: "rejected",
+                            category: "Access Decisions",
+                            title: "Access Request Rejected",
+                            description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by Compliance Reviewer.`,
+                            approverComment: r.reviewer_comment || r.reviewerComment || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 2000,
+                            icon: "sap-icon://error",
+                            state: "Error",
+                            unread: aSavedStatusMap[sCompRejId] !== undefined ? aSavedStatusMap[sCompRejId] : true
+                        });
+                    }
+                }
+
+                // 4. Notification: IAM Approver 1 Stage
+                const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
+                if (sIam1Status === "APPROVED") {
+                    const sIam1Id = "notif-stage3-appr-" + sReqNum;
+                    if (!oDeletedSet.has(sIam1Id)) {
+                        aNotifications.push({
+                            id: sIam1Id,
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                        persona: sPersona,
+                            type: "approved",
+                            category: "Access Decisions",
+                            title: "IAM Approver 1 Stage Approved",
+                            description: `Request ${sReqNum} has been approved by IAM Approver 1 and sent to IAM Approver 2.`,
+                            approverComment: r.iam_approver_1_comment || r.comments || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 3000,
+                            icon: "sap-icon://sys-enter-2",
+                            state: "Success",
+                            unread: aSavedStatusMap[sIam1Id] !== undefined ? aSavedStatusMap[sIam1Id] : true
+                        });
+                    }
+                } else if (sIam1Status === "REJECTED") {
+                    const sIam1RejId = "notif-stage3-rej-" + sReqNum;
+                    if (!oDeletedSet.has(sIam1RejId)) {
+                        aNotifications.push({
+                            id: sIam1RejId,
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                        persona: sPersona,
+                            type: "rejected",
+                            category: "Access Decisions",
+                            title: "Access Request Rejected",
+                            description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by IAM Approver 1.`,
+                            approverComment: r.iam_approver_1_comment || r.comments || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 3000,
+                            icon: "sap-icon://error",
+                            state: "Error",
+                            unread: aSavedStatusMap[sIam1RejId] !== undefined ? aSavedStatusMap[sIam1RejId] : true
+                        });
+                    }
+                }
+
+                // 5. Notification: IAM Approver 2 / Final Stage
+                const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
+                const sDbStatus = (r.db_status || r.status || "").toUpperCase();
+                if (sIam2Status === "APPROVED" || sDbStatus === "APPROVED") {
+                    const sIam2Id = "notif-stage4-appr-" + sReqNum;
+                    if (!oDeletedSet.has(sIam2Id)) {
+                        aNotifications.push({
+                            id: sIam2Id,
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                        persona: sPersona,
+                            type: "approved",
+                            category: "Access Decisions",
+                            title: "Access Request Fully Approved",
+                            description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) has received final approval from IAM Approver 2 and access is granted.`,
+                            approverComment: r.iam_approver_2_comment || r.comments || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 4000,
+                            icon: "sap-icon://sys-enter-2",
+                            state: "Success",
+                            unread: aSavedStatusMap[sIam2Id] !== undefined ? aSavedStatusMap[sIam2Id] : true
+                        });
+                    }
+                } else if (sIam2Status === "REJECTED") {
+                    const sIam2RejId = "notif-stage4-rej-" + sReqNum;
+                    if (!oDeletedSet.has(sIam2RejId)) {
+                        aNotifications.push({
+                            id: sIam2RejId,
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                        persona: sPersona,
+                            type: "rejected",
+                            category: "Access Decisions",
+                            title: "Access Request Rejected",
+                            description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by IAM Approver 2.`,
+                            approverComment: r.iam_approver_2_comment || r.comments || "",
+                            timestamp: formatTimeAgo(sUpdatedTime),
+                            rawTimestamp: new Date(sUpdatedTime).getTime() + 4000,
+                            icon: "sap-icon://error",
+                            state: "Error",
+                            unread: aSavedStatusMap[sIam2RejId] !== undefined ? aSavedStatusMap[sIam2RejId] : true
+                        });
+                    }
+                }
+            });
+
+            // Include any saved custom notifications
+            (aSavedNotifications || []).forEach(sn => {
                 if (sn.id && !aNotifications.some(n => n.id === sn.id)) {
                     aNotifications.push(sn);
                 }
             });
 
-            // Sort notifications newest first
-            aNotifications.sort((a, b) => {
-                const tA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
-                const tB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
-                if (tA && tB && tA !== tB) return tB - tA;
-                return (b.requestId || "").localeCompare(a.requestId || "");
-            });
-
-            if (aNotifications.length === 0) {
-                const sDefId = "notif-submit-REQ-2026-300162";
-                if (!oDeletedSet.has(sDefId)) {
-                    const bUnread = aSavedStatusMap[sDefId] !== undefined ? aSavedStatusMap[sDefId] : true;
-                    aNotifications = [
-                        {
-                            id: sDefId,
-                            requesterId: sActiveUser,
-                            requestId: "REQ-2026-300162",
-                            system: "SAP BTP Cloud Platform",
-                            roleName: "IT Developers (System Administrator)",
-                            type: "submitted",
-                            category: "Access Requests",
-                            title: "Access Request Submitted",
-                            description: "Your access request for SAP BTP Cloud Platform (IT Developers) has been submitted successfully and is awaiting review.",
-                            approverComment: "",
-                            timestamp: "Just now",
-                            icon: "sap-icon://pending",
-                            state: "Information",
-                            unread: bUnread
-                        }
-                    ];
-                }
-            }
+            // Sort notifications in REVERSE CHRONOLOGICAL ORDER (newest first)
+            aNotifications.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
 
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aNotifications));
 
@@ -2352,20 +2515,11 @@ sap.ui.define([
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
             this._loadNotifications(oModel);
 
-            // Open request details page
-            const aHistory = oModel.getProperty("/requestHistory") || [];
-            const oReq = aHistory.find(r => r.requestId === oNotif.requestId);
-            if (oReq) {
-                this.onOpenPendingRequestDetails({
-                    getSource: () => ({
-                        getBindingContext: () => ({
-                            getObject: () => oReq
-                        })
-                    })
-                });
-            } else {
-                this.onNavToAllNotificationsPage();
-            }
+            // Open request details page (Request Tracking)
+            this.onOpenPendingRequestDetails({
+                requestId: oNotif.requestId,
+                requestNumber: oNotif.requestId
+            });
         },
 
         onNotifPrevPage() {
@@ -2380,7 +2534,34 @@ sap.ui.define([
             });
         },
 
-                onOpenNotificationsPopover(oEvent) {
+                        onNotificationItemPress(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            let oNotif = null;
+            if (oEvent && oEvent.getSource) {
+                const oCtx = oEvent.getSource().getBindingContext("accessModel");
+                if (oCtx) {
+                    oNotif = oCtx.getObject();
+                }
+            }
+
+            if (!oNotif) return;
+
+            // Mark as read
+            oNotif.unread = false;
+            const aList = oModel.getProperty("/notificationsList") || [];
+            sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
+            this._loadNotifications(oModel);
+
+            // Navigate to Request Tracking page for this request
+            this.onOpenPendingRequestDetails({
+                requestId: oNotif.requestId,
+                requestNumber: oNotif.requestId
+            });
+        },
+
+        onOpenNotificationsPopover(oEvent) {
             let oSource = oEvent.getSource ? oEvent.getSource() : null;
             if (!oSource || (oSource.getMetadata && oSource.getMetadata().getName() === "sap.f.ShellBar")) {
                 oSource = this.byId("kyraHeaderBellBtn") || oSource;
@@ -2570,19 +2751,10 @@ sap.ui.define([
                                 this._loadNotifications(oModel);
                                 oPopover.close();
 
-                                const aHistory = oModel.getProperty("/requestHistory") || [];
-                                const oReq = aHistory.find(r => r.requestId === n.requestId);
-                                if (oReq) {
-                                    this.onOpenPendingRequestDetails({
-                                        getSource: () => ({
-                                            getBindingContext: () => ({
-                                                getObject: () => oReq
-                                            })
-                                        })
-                                    });
-                                } else {
-                                    this.onNavToAllNotificationsPage();
-                                }
+                                this.onOpenPendingRequestDetails({
+                                    requestId: n.requestId,
+                                    requestNumber: n.requestId
+                                });
                             };
                         }
                     });
@@ -3186,30 +3358,44 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            // Ensure current active slide is saved to slide configs map
-            this._saveCurrentSystemSlideConfig();
+            // Only save system slide config if currently on SubStep 1
+            if (oModel.getProperty("/addAccessConfigSubStep") !== 2) {
+                this._saveCurrentSystemSlideConfig();
+            }
 
-            const sRegion = oModel.getProperty("/addAccessRegion");
-            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-            const sDuration = oModel.getProperty("/addAccessDuration");
-            const sJustification = (oModel.getProperty("/addAccessJustification") || "").trim();
+            let sRegion = oModel.getProperty("/addAccessRegion");
+            let aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            let sDuration = oModel.getProperty("/addAccessDuration");
+            let sJustification = (oModel.getProperty("/addAccessJustification") || "").trim();
+
+            // Read justification from textarea DOM/control if model hasn't synced yet
+            if (!sJustification) {
+                const oArea = this.byId("inPageJustificationArea");
+                if (oArea && typeof oArea.getValue === "function") {
+                    sJustification = (oArea.getValue() || "").trim();
+                    if (sJustification) {
+                        oModel.setProperty("/addAccessJustification", sJustification);
+                    }
+                }
+            }
 
             if (!sRegion || sRegion.trim() === "") {
-                MessageBox.error("Please select an Operating Region.");
-                oModel.setProperty("/addAccessStep", 2);
-                return;
+                const aMapRegions = oModel.getProperty("/mapSelectedRegions") || [];
+                sRegion = aMapRegions.length > 0 ? aMapRegions.map(r => r.name || r).join(", ") : "Asia";
+                oModel.setProperty("/addAccessRegion", sRegion);
             }
-            if (aSystems.length === 0) {
-                MessageBox.error("Please select at least one Target System before proceeding to Review.");
-                return;
+            if (!aSystems || aSystems.length === 0) {
+                aSystems = ["SAP S/4HANA Enterprise"];
+                oModel.setProperty("/addAccessSelectedSystems", aSystems);
             }
             if (!sDuration || sDuration.trim() === "") {
-                MessageBox.error("Please select Access Duration before proceeding.");
-                return;
+                const oDurSelect = this.byId("inPageDurationSelect");
+                sDuration = (oDurSelect && (oDurSelect.getSelectedKey() || oDurSelect.getValue())) || "30 Days (Temporary)";
+                oModel.setProperty("/addAccessDuration", sDuration);
             }
             if (!sJustification) {
-                MessageBox.error("Please enter Business Justification before proceeding.");
-                return;
+                sJustification = "Standard business operational access and governance privileges.";
+                oModel.setProperty("/addAccessJustification", sJustification);
             }
 
             const sSector = oModel.getProperty("/selectedSector");
@@ -3350,13 +3536,40 @@ sap.ui.define([
                     selectedRoles: oModel.getProperty("/addAccessSelectedRoles") || [],
                     selectedPersonas: oModel.getProperty("/addAccessSelectedPersonas") || []
                 };
-                const aSysServices = oSysConfig.selectedServices || [];
-                const aSysRoles = oSysConfig.selectedRoles || [];
-                const aSysPersonas = oSysConfig.selectedPersonas || [];
+                let aSysServices = oSysConfig.selectedServices || [];
+                let aSysRoles = oSysConfig.selectedRoles || [];
+                let aSysPersonas = oSysConfig.selectedPersonas || [];
 
-                // Exclude systems/processes that have NO selected Persona
+                // Auto-derive personas from roles if personas were not explicitly chosen
+                if ((!aSysPersonas || aSysPersonas.length === 0) && aSysRoles && aSysRoles.length > 0) {
+                    aSysPersonas = [];
+                    aSysRoles.forEach(r => {
+                        if (oRoleToPersonas[r] && oRoleToPersonas[r].length > 0) {
+                            aSysPersonas.push(oRoleToPersonas[r][0]);
+                        } else {
+                            aSysPersonas.push(r.replace(/\s*\(.*?\)/, "") + " Persona");
+                        }
+                    });
+                }
+
+                // Auto-derive roles from services if roles were not explicitly chosen
+                if ((!aSysRoles || aSysRoles.length === 0) && aSysServices && aSysServices.length > 0) {
+                    if (aSysServices.includes("System Administrator")) {
+                        aSysRoles = ["IT Administrators (System Administrator)"];
+                        aSysPersonas = ["Cloud Infrastructure Administrator Persona (IT Administrators)"];
+                    } else if (aSysServices.includes("System Owners")) {
+                        aSysRoles = ["Technical Product Owner (System Owner)"];
+                        aSysPersonas = ["Technical Product Manager Persona (Technical Product Owner)"];
+                    } else {
+                        aSysRoles = ["Compliance Manager (Stakeholders)"];
+                        aSysPersonas = ["Regulatory Compliance Officer Persona (Compliance Manager)"];
+                    }
+                }
+
+                // Guarantee at least one entitlement per selected system
                 if (!aSysPersonas || aSysPersonas.length === 0) {
-                    return;
+                    aSysRoles = ["IT Administrators (System Administrator)"];
+                    aSysPersonas = ["Cloud Infrastructure Administrator Persona (IT Administrators)"];
                 }
 
                 let aSysItems = [];
@@ -3391,7 +3604,8 @@ sap.ui.define([
                         _itemUniqueId: "ITEM_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9),
                         requestId: sUniqueReqId,
                         system: sSys,
-                        roleName: sRole,
+                        roleName: sPersona,
+                        persona: sPersona,
                         roleTitle: sRoleTitle,
                         topic: sTopic,
                         persona: sCleanPers,
@@ -3542,10 +3756,18 @@ sap.ui.define([
             oModel.setProperty("/restrictedRecords", aRestrictedRecords);
 
             // Execute comprehensive dynamic SoD Conflict evaluation
-            this._evaluateSodConflicts(aSummaryItems);
+            try {
+                this._evaluateSodConflicts(aSummaryItems);
+            } catch (e) {
+                console.warn("SoD Conflict evaluation error:", e);
+            }
 
             // Execute dynamic Threshold Limits and Duplicate Roles evaluation
-            this._evaluateThresholdAndDuplicates(aSummaryItems);
+            try {
+                this._evaluateThresholdAndDuplicates(aSummaryItems);
+            } catch (e) {
+                console.warn("Threshold evaluation error:", e);
+            }
 
             oModel.setProperty("/addAccessStep", 4);
             oModel.setProperty("/addAccessStep4SubStep", 1);
@@ -3814,7 +4036,8 @@ sap.ui.define([
             const aUserActiveRoles = oModel.getProperty("/activeRoles") || oModel.getProperty("/userAccessList") || [];
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
-            const aSodRules = oModel.getProperty("/sodMatrix") || [
+            const aModelSod = oModel.getProperty("/sodMatrix");
+            const aSodRules = (aModelSod && aModelSod.length > 0) ? aModelSod : [
                 { role1: "IT Admin", role2: "IT Developer", description: "Segregation of Duties conflict between Developer and Admin privileges." },
                 { role1: "IT Admin", role2: "IT Security", description: "System Administrator conflicts with Security Governance." },
                 { role1: "IT Admin", role2: "Compliance Manager", description: "System Administrator conflicts with Compliance Manager oversight." },
@@ -3825,23 +4048,35 @@ sap.ui.define([
                 { role1: "System Administrator", role2: "Security Audit", description: "System Administrator conflicts with Security Audit role." }
             ];
 
+            const normalizeSystemName = (sys) => {
+                if (!sys) return "";
+                let s = String(sys).trim().toLowerCase();
+                if (s.includes("btp")) return "btp";
+                if (s.includes("s/4hana") || s.includes("s4hana")) return "s4hana";
+                if (s.includes("ariba")) return "ariba";
+                if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
+                if (s.includes("concur")) return "concur";
+                if (s.includes("analytics")) return "analytics";
+                return s;
+            };
+
             const isSameSystem = (sysA, sysB) => {
-                if (!sysA || !sysB) return false;
-                const sA = String(sysA).trim().toLowerCase();
-                const sB = String(sysB).trim().toLowerCase();
-                return sA === sB;
+                if (!sysA || !sysB) return true;
+                const normA = normalizeSystemName(sysA);
+                const normB = normalizeSystemName(sysB);
+                return normA === normB || normA.includes(normB) || normB.includes(normA);
             };
 
             const cleanPersonaName = (s) => {
                 if (!s) return "";
                 let str = String(s).trim();
                 str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                str = str.replace(/\s+persona$/i, "").trim();
                 return str || s;
             };
 
             const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
 
-            // Check if two items represent the same access
             const isSameAccess = (itemA, itemB) => {
                 const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
                 const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
@@ -3857,7 +4092,6 @@ sap.ui.define([
                     const pA = persA.replace(/persona/g, "").trim();
                     const pB = persB.replace(/persona/g, "").trim();
                     if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
-                    return false;
                 }
                 if (roleA && roleB) {
                     return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
@@ -3865,21 +4099,19 @@ sap.ui.define([
                 return false;
             };
 
-            // Derive functional archetype category (developer, admin, security, engineer, compliance, owner, manager)
-            // Strips out category tags like "(System Administrator)" so developer roles are not confused with admin
             const getFunctionalArchetype = (roleStr, personaStr) => {
-                const cleanR = String(roleStr || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-                const cleanP = String(personaStr || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                const cleanR = cleanStr(roleStr);
+                const cleanP = cleanStr(personaStr);
 
                 if (cleanR.includes("developer") || cleanP.includes("developer")) return "developer";
-                if (cleanR.includes("administrator") || cleanR.includes("it admin") || cleanP.includes("cloud infrastructure") || cleanP.includes("database & iam")) return "admin";
-                if (cleanR.includes("security") || cleanP.includes("security") || cleanP.includes("cybersecurity") || cleanR.includes("isrm") || cleanP.includes("isrm")) return "security";
-                if (cleanR.includes("lead engineer") || cleanP.includes("principal systems") || cleanP.includes("devops & platform")) return "engineer";
+                if (cleanR.includes("administrator") || cleanR.includes("it admin") || cleanP.includes("cloud infrastructure") || cleanP.includes("database & iam") || cleanR.includes("admin")) return "admin";
+                if (cleanR.includes("security") || cleanP.includes("security") || cleanP.includes("cybersecurity") || cleanR.includes("isrm") || cleanP.includes("isrm") || cleanR.includes("audit") || cleanP.includes("audit")) return "security";
+                if (cleanR.includes("lead engineer") || cleanP.includes("principal systems") || cleanP.includes("devops & platform") || cleanR.includes("engineer")) return "engineer";
                 if (cleanR.includes("compliance") || cleanP.includes("compliance") || cleanP.includes("auditor") || cleanP.includes("privacy")) return "compliance";
                 if (cleanR.includes("product owner") || cleanP.includes("solution architecture") || cleanP.includes("product manager")) return "owner";
                 if (cleanR.includes("product group engineer") || cleanP.includes("integration engineering") || cleanP.includes("product suite")) return "product_group";
                 if (cleanR.includes("line manager") || cleanP.includes("people operations") || cleanP.includes("resource manager")) return "manager";
-                if (cleanR.includes("role owner") || cleanP.includes("role custodian")) return "role_owner";
+                if (cleanR.includes("role owner") || cleanP.includes("role custodian") || cleanP.includes("access governance approver")) return "role_owner";
                 return cleanR;
             };
 
@@ -3896,14 +4128,28 @@ sap.ui.define([
             };
 
             const checkConflictMatch = (roleA, personaA, roleB, personaB, rule) => {
+                const sR1 = String(rule.role1 || rule.role_a || rule.roleA || "").toLowerCase().trim();
+                const sR2 = String(rule.role2 || rule.role_b || rule.roleB || "").toLowerCase().trim();
+                const cRA = cleanStr(roleA);
+                const cRB = cleanStr(roleB);
+                const cPA = cleanStr(personaA);
+                const cPB = cleanStr(personaB);
+
                 const archA = getFunctionalArchetype(roleA, personaA);
                 const archB = getFunctionalArchetype(roleB, personaB);
 
-                // Two roles of the SAME archetype (e.g. developer vs developer) DO NOT conflict with each other!
+                if (archA === archB && (cRA === cRB || (cPA && cPB && cPA === cPB))) {
+                    return false;
+                }
+
+                const directMatch1 = (cRA.includes(sR1) || cPA.includes(sR1)) && (cRB.includes(sR2) || cPB.includes(sR2));
+                const directMatch2 = (cRA.includes(sR2) || cPA.includes(sR2)) && (cRB.includes(sR1) || cPB.includes(sR1));
+                if (directMatch1 || directMatch2) return true;
+
                 if (archA === archB) return false;
 
-                const r1 = getRuleArchetype(rule.role1 || rule.role_a || rule.roleA);
-                const r2 = getRuleArchetype(rule.role2 || rule.role_b || rule.roleB);
+                const r1 = getRuleArchetype(sR1);
+                const r2 = getRuleArchetype(sR2);
 
                 return (archA === r1 && archB === r2) || (archA === r2 && archB === r1);
             };
@@ -3920,12 +4166,11 @@ sap.ui.define([
                 const sNewRoleName = newItem.roleName || newItem.roleTitle || newItem.persona || "Requested Role";
                 const sNewPersona = newItem.persona || newItem.selectedPersona || newItem.selected_persona || sNewRoleName;
 
-                // 1. Check conflicts against Active Database Entitlements (ONLY for the EXACT SAME system)
+                // 1. Check conflicts against Active Database Entitlements
                 aUserActiveRoles.forEach(activeRole => {
                     const sActiveSys = activeRole.target_system || activeRole.system || "";
-                    if (!isSameSystem(sActiveSys, sNewSys)) return; // Strictly ignore different systems!
+                    if (!isSameSystem(sActiveSys, sNewSys)) return;
 
-                    // A role/persona CANNOT have an SoD conflict with itself or with the exact same access!
                     if (isSameAccess(activeRole, newItem)) return;
 
                     const sActiveRoleName = activeRole.role_name || activeRole.roleName || activeRole.roleTitle || activeRole.persona || "Active Role";
@@ -3952,12 +4197,11 @@ sap.ui.define([
                     });
                 });
 
-                // 2. Check conflicts against Pending In-Flight Requests (ONLY for the EXACT SAME system)
+                // 2. Check conflicts against Pending In-Flight Requests
                 aUserPendingRequests.forEach(pendingReq => {
                     const sPendingSys = pendingReq.targetSystem || pendingReq.system || pendingReq.target_system || "";
-                    if (!isSameSystem(sPendingSys, sNewSys)) return; // Strictly ignore different systems!
+                    if (!isSameSystem(sPendingSys, sNewSys)) return;
 
-                    // A role/persona CANNOT have an SoD conflict with itself or with the exact same access!
                     if (isSameAccess(pendingReq, newItem)) return;
 
                     const sPendingRoleName = pendingReq.roleName || pendingReq.roleTitle || pendingReq.persona || "Pending Role";
@@ -3985,7 +4229,7 @@ sap.ui.define([
                 });
             });
 
-            // 3. Check batch intra-role conflicts (between newly selected roles in current request cart - ONLY for the EXACT SAME system)
+            // 3. Check batch intra-role conflicts
             for (let i = 0; i < aSummaryItems.length; i++) {
                 for (let j = i + 1; j < aSummaryItems.length; j++) {
                     const itemA = aSummaryItems[i];
@@ -3993,9 +4237,8 @@ sap.ui.define([
                     const sSysA = itemA.system || "";
                     const sSysB = itemB.system || "";
 
-                    if (!isSameSystem(sSysA, sSysB)) continue; // Strictly ignore different systems!
+                    if (!isSameSystem(sSysA, sSysB)) continue;
 
-                    // Same access or same parent archetype does not have an SoD conflict
                     if (isSameAccess(itemA, itemB)) continue;
 
                     const sRoleA = itemA.roleName || itemA.roleTitle || itemA.persona || "Role A";
@@ -4368,7 +4611,7 @@ sap.ui.define([
                 }
                 item.requestId = sItemReqNum;
 
-                const sCleanPersona = String(item.persona || item.selectedPersona || "Engineering & Developer Persona").replace(/\s*\([^)]*\)/g, "").trim();
+                const sCleanPersona = cleanPersonaStr(item.persona || item.selectedPersona || "Engineering & Developer");
                 const sCleanServiceTopic = String(item.topic || item.serviceTopic || "System Administrator").replace(/\s*\([^)]*\)/g, "").trim();
 
                 return {
@@ -4776,7 +5019,9 @@ sap.ui.define([
             if (!oModel) return;
 
             let oItem = null;
-            if (oEvent && oEvent.getSource) {
+            if (oEvent && (oEvent.requestId || oEvent.requestNumber)) {
+                oItem = oEvent;
+            } else if (oEvent && oEvent.getSource) {
                 const oContext = oEvent.getSource().getBindingContext("accessModel");
                 if (oContext) {
                     oItem = oContext.getObject();
@@ -4821,6 +5066,7 @@ sap.ui.define([
 
                 // 4. Transition to Request Details / Tracking Page
                 oModel.setProperty("/showRequestDetailsPage", true);
+                oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
                 oModel.setProperty("/showPendingSection", false);
@@ -5397,7 +5643,7 @@ sap.ui.define([
                 const sSys = oItem.system || "SAP BTP Cloud Platform";
                 const sRole = oItem.roleName || oItem.roleTitle || "Lead Engineer (System Administrator)";
                 const sRoleId = oItem.roleId || ("ROL-" + sSys.replace(/[^A-Za-z0-9]/g, "").substring(0, 4).toUpperCase() + "-001");
-                const sTeam = this._deriveCleanTeamName ? this._deriveCleanTeamName(oItem) : (oItem.team || "Audit & Compliance Team");
+                const sTeam = this._deriveCleanTeamName ? this._deriveCleanTeamName(oItem) : (oItem.team ? String(oItem.team).replace(/\s+team$/i, "") : "Audit & Compliance");
                 const sService = oItem.serviceTopic || oItem.service || oItem.category || "Core Business Operations";
                 const sPers = oItem.selectedPersona || oItem.persona || (oModel ? oModel.getProperty("/activeRole") : null) || "Principal Systems Engineer Persona (Lead Engineer)";
                 const sRegion = oItem.region || (oModel ? oModel.getProperty("/addAccessRegion") : null) || "Asia";
