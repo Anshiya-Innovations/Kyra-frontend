@@ -537,9 +537,7 @@ sap.ui.define([
                                 MessageToast.show("Please select " + item.prereqName + " first.");
                                 if (item.prereqId) {
                                     const oPrereqCtrl = this.byId(item.prereqId);
-                                    if (oPrereqCtrl && typeof oPrereqCtrl.open === "function") {
-                                        setTimeout(() => oPrereqCtrl.open(), 150);
-                                    }
+                                    /* manual open only */
                                 }
                                 return;
                             }
@@ -551,9 +549,7 @@ sap.ui.define([
                         }
 
                         // Touching / clicking anywhere on the box opens the dropdown
-                        if (typeof oControl.open === "function" && !oControl.isOpen()) {
-                            oControl.open();
-                        }
+                        /* manual open only */
                     }
                 };
 
@@ -2856,6 +2852,34 @@ sap.ui.define([
             }
         },
 
+        
+        onCloseRemoveAccessSector() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", true);
+            }
+            MessageToast.show("Remove Access section closed.");
+        },
+
+        onInPageFunctionChange(oEvent) {
+            const oSource = oEvent.getSource();
+            const sKey = oSource.getSelectedKey() || oSource.getValue();
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel && sKey) {
+                oModel.setProperty("/selectedFunction", sKey);
+            }
+        },
+
+        onInPageDurationChange(oEvent) {
+            const oSource = oEvent.getSource();
+            const sKey = oSource.getSelectedKey() || oSource.getValue();
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel && sKey) {
+                oModel.setProperty("/addAccessDuration", sKey);
+            }
+        },
+
         onCloseAddAccessSector() {
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
@@ -3049,9 +3073,31 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const aServices = oModel.getProperty("/addAccessSelectedServices") || [];
-            const aRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
-            const aPersonas = oModel.getProperty("/addAccessSelectedPersonas") || [];
+            let aServices = oModel.getProperty("/addAccessSelectedServices") || [];
+            let aRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
+            let aPersonas = oModel.getProperty("/addAccessSelectedPersonas") || [];
+
+            if (aServices.length === 0) {
+                const oSvc = this.byId("inPageServicesMultiSelect");
+                if (oSvc) {
+                    aServices = oSvc.getSelectedKeys() || [];
+                    if (aServices.length > 0) oModel.setProperty("/addAccessSelectedServices", aServices);
+                }
+            }
+            if (aRoles.length === 0) {
+                const oRole = this.byId("inPageTeamMultiSelect");
+                if (oRole) {
+                    aRoles = oRole.getSelectedKeys() || [];
+                    if (aRoles.length > 0) oModel.setProperty("/addAccessSelectedRoles", aRoles);
+                }
+            }
+            if (aPersonas.length === 0) {
+                const oPers = this.byId("inPagePersonaMultiSelect");
+                if (oPers) {
+                    aPersonas = oPers.getSelectedKeys() || [];
+                    if (aPersonas.length > 0) oModel.setProperty("/addAccessSelectedPersonas", aPersonas);
+                }
+            }
 
             if (aServices.length === 0) {
                 MessageBox.error("Please select at least one Service topic for this system before proceeding.");
@@ -3096,9 +3142,37 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const aServices = oModel.getProperty("/addAccessSelectedServices") || [];
-            const aRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
-            const aPersonas = oModel.getProperty("/addAccessSelectedPersonas") || [];
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            if (aSystems.length === 0) {
+                MessageBox.error("Please select at least one Target System.");
+                return;
+            }
+
+            let aServices = oModel.getProperty("/addAccessSelectedServices") || [];
+            let aRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
+            let aPersonas = oModel.getProperty("/addAccessSelectedPersonas") || [];
+
+            if (aServices.length === 0) {
+                const oSvc = this.byId("inPageServicesMultiSelect");
+                if (oSvc) {
+                    aServices = oSvc.getSelectedKeys() || [];
+                    if (aServices.length > 0) oModel.setProperty("/addAccessSelectedServices", aServices);
+                }
+            }
+            if (aRoles.length === 0) {
+                const oRole = this.byId("inPageTeamMultiSelect");
+                if (oRole) {
+                    aRoles = oRole.getSelectedKeys() || [];
+                    if (aRoles.length > 0) oModel.setProperty("/addAccessSelectedRoles", aRoles);
+                }
+            }
+            if (aPersonas.length === 0) {
+                const oPers = this.byId("inPagePersonaMultiSelect");
+                if (oPers) {
+                    aPersonas = oPers.getSelectedKeys() || [];
+                    if (aPersonas.length > 0) oModel.setProperty("/addAccessSelectedPersonas", aPersonas);
+                }
+            }
 
             if (aServices.length === 0 || aRoles.length === 0 || aPersonas.length === 0) {
                 MessageBox.error("Please complete Service, Team Role, and Persona selections for this system slide.");
@@ -3110,31 +3184,73 @@ sap.ui.define([
             this._scrollToWizardContainer();
         },
 
-        onStep3Slide1Previous() {
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-            if (iIndex > 0) {
-                this.onPrevSystemSlide();
-            } else {
-                this.onGoToAddAccessStep2();
-            }
-        },
-
         onStep3Slide1Continue() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const bEditing = oModel.getProperty("/isEditingFromSummary");
-            if (bEditing) {
-                this.onSaveAndReturnToSummary();
+
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            if (aSystems.length === 0) {
+                MessageBox.error("Please select at least one Target System.");
                 return;
             }
-            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
+
+            let aServices = oModel.getProperty("/addAccessSelectedServices") || [];
+            let aRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
+            let aPersonas = oModel.getProperty("/addAccessSelectedPersonas") || [];
+
+            if (aServices.length === 0) {
+                const oSvc = this.byId("inPageServicesMultiSelect");
+                if (oSvc) {
+                    aServices = oSvc.getSelectedKeys() || [];
+                    if (aServices.length > 0) oModel.setProperty("/addAccessSelectedServices", aServices);
+                }
+            }
+            if (aRoles.length === 0) {
+                const oRole = this.byId("inPageTeamMultiSelect");
+                if (oRole) {
+                    aRoles = oRole.getSelectedKeys() || [];
+                    if (aRoles.length > 0) oModel.setProperty("/addAccessSelectedRoles", aRoles);
+                }
+            }
+            if (aPersonas.length === 0) {
+                const oPers = this.byId("inPagePersonaMultiSelect");
+                if (oPers) {
+                    aPersonas = oPers.getSelectedKeys() || [];
+                    if (aPersonas.length > 0) oModel.setProperty("/addAccessSelectedPersonas", aPersonas);
+                }
+            }
+
+            if (aServices.length === 0 || aRoles.length === 0 || aPersonas.length === 0) {
+                MessageBox.error("Please complete Service, Team Role, and Persona selections for this system slide.");
+                return;
+            }
+
+            this._saveCurrentSystemSlideConfig();
+
+            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
             if (iIndex + 1 < aSystems.length) {
-                this.onNextSystemSlide();
+                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex + 1);
+                this._loadCurrentSystemSlideConfig();
+                this._scrollToWizardContainer();
             } else {
-                this.onCompleteSystemSlides();
+                oModel.setProperty("/addAccessConfigSubStep", 2);
+                this._scrollToWizardContainer();
+            }
+        },
+
+        onStep3Slide1Previous() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
+            if (iIndex > 0) {
+                this._saveCurrentSystemSlideConfig();
+                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex - 1);
+                this._loadCurrentSystemSlideConfig();
+                this._scrollToWizardContainer();
+            } else {
+                oModel.setProperty("/addAccessStep", 2);
+                this._scrollToWizardContainer();
             }
         },
 
@@ -3165,19 +3281,7 @@ sap.ui.define([
             this._updateSubRolesList(false);
             this._updatePersonasList(false);
 
-            if (aSelectedKeys && aSelectedKeys.length > 0) {
-                const oTeamSelect = this.byId("inPageTeamMultiSelect");
-                if (oTeamSelect) {
-                    const aCurrentRoles = oModel ? oModel.getProperty("/addAccessSelectedRoles") || [] : [];
-                    if (aCurrentRoles.length === 0) {
-                        setTimeout(() => {
-                            if (typeof oTeamSelect.open === "function" && !oTeamSelect.isOpen()) {
-                                oTeamSelect.open();
-                            }
-                        }, 250);
-                    }
-                }
-            }
+            /* manual open only */
         },
 
         _updateSubRolesList(bPreserveSelections) {
@@ -3250,19 +3354,7 @@ sap.ui.define([
             }
             this._updatePersonasList(false);
 
-            if (aSelectedKeys && aSelectedKeys.length > 0) {
-                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
-                if (oPersonaSelect) {
-                    const aCurrentPersonas = oModel ? oModel.getProperty("/addAccessSelectedPersonas") || [] : [];
-                    if (aCurrentPersonas.length === 0) {
-                        setTimeout(() => {
-                            if (typeof oPersonaSelect.open === "function" && !oPersonaSelect.isOpen()) {
-                                oPersonaSelect.open();
-                            }
-                        }, 250);
-                    }
-                }
-            }
+            /* manual open only */
         },
 
         onInPagePersonaSelectionChange(oEvent) {
@@ -3604,8 +3696,7 @@ sap.ui.define([
                         _itemUniqueId: "ITEM_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9),
                         requestId: sUniqueReqId,
                         system: sSys,
-                        roleName: sPersona,
-                        persona: sPersona,
+                        roleName: sRoleTitle,
                         roleTitle: sRoleTitle,
                         topic: sTopic,
                         persona: sCleanPers,

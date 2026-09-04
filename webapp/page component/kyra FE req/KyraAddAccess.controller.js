@@ -10,6 +10,15 @@ sap.ui.define([
 
     return Controller.extend("kyra001.pages.kyraFEReq.KyraAddAccess", {
 
+        
+        onSodConflictToggleChange: function (oEvent) {
+            const sKey = oEvent.getParameter('item') ? oEvent.getParameter('item').getKey() : 'all';
+            const oModel = this.getView().getModel('accessModel');
+            if (oModel) {
+                oModel.setProperty('/sodConflictToggle', sKey);
+            }
+        },
+
         onInit: function () {
             this._aSelectedRegionIds = [];
             this._oSystemSlideConfigs = {};

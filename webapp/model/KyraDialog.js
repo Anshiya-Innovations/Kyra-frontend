@@ -58,11 +58,11 @@ sap.ui.define([], function() {
             const overlay = document.createElement("div");
             overlay.id = "kyra_dialog_overlay";
             overlay.className = "kyraDialogOverlay";
-            overlay.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; animation: kyraDialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);";
+            overlay.style.cssText = "position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 20px !important; box-sizing: border-box !important; background: rgba(15, 23, 42, 0.6) !important; backdrop-filter: blur(4px) !important; -webkit-backdrop-filter: blur(4px) !important; display: flex !important; align-items: center !important; justify-content: center !important; z-index: 2000000 !important; animation: kyraDialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);";
 
             const card = document.createElement("div");
             card.className = "kyraDialogCard";
-            card.style.cssText = `background: #FFFFFF; border-radius: 16px; width: 100%; max-width: ${maxWidth}; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25), 0 8px 16px -4px rgba(15, 23, 42, 0.1); overflow: hidden; animation: kyraDialogPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid #E2E8F0;`;
+            card.style.cssText = `background: #FFFFFF !important; border-radius: 16px !important; width: 100% !important; max-width: ${maxWidth} !important; max-height: 90vh !important; margin: auto !important; position: relative !important; box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25), 0 8px 16px -4px rgba(15, 23, 42, 0.1) !important; overflow: hidden !important; animation: kyraDialogPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important; border: 1px solid #E2E8F0 !important; box-sizing: border-box !important;`;
 
             const hasSecondary = Boolean(secondaryButtonText);
 
@@ -79,9 +79,9 @@ sap.ui.define([], function() {
                 <div style="padding: 0 24px 24px 24px; font-size: 14.5px; line-height: 1.6; color: #475569;">
                     ${message}
                 </div>
-                <div style="padding: 16px 24px; background: #F8FAFC; border-top: 1px solid #F1F5F9; display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
-                    ${hasSecondary ? `<button id="kyra_dialog_cancel_btn" style="padding: 10px 20px; border-radius: 8px; border: 1.5px solid #CBD5E1; background: #FFFFFF; color: #334155; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#94A3B8';this.style.background='#F8FAFC';" onmouseout="this.style.borderColor='#CBD5E1';this.style.background='#FFFFFF';">${secondaryButtonText}</button>` : ''}
-                    <button id="kyra_dialog_confirm_btn" style="padding: 10px 24px; border-radius: 8px; border: none; background: #008C9C; color: #FFFFFF; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25); transition: all 0.15s ease;" onmouseover="this.style.background='#007684';" onmouseout="this.style.background='#008C9C';">${buttonText}</button>
+                <div style="padding: 16px 24px; background: #F8FAFC; border-top: 1px solid #F1F5F9; display: flex; justify-content: center; gap: 14px; align-items: center;">
+                    ${hasSecondary ? `<button id="kyra_dialog_cancel_btn" style="min-width: 140px; padding: 10px 22px; border-radius: 8px; border: 1.5px solid #CBD5E1; background: #FFFFFF; color: #334155; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#94A3B8';this.style.background='#F8FAFC';" onmouseout="this.style.borderColor='#CBD5E1';this.style.background='#FFFFFF';">${secondaryButtonText}</button>` : ''}
+                    <button id="kyra_dialog_confirm_btn" style="min-width: 160px; padding: 10px 24px; border-radius: 8px; border: none; background: #008C9C; color: #FFFFFF; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25); transition: all 0.15s ease;" onmouseover="this.style.background='#007684';" onmouseout="this.style.background='#008C9C';">${buttonText}</button>
                 </div>
             `;
 
