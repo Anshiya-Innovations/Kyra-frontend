@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 310" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" class="kyraGovernanceMatrixSvg">
+  <defs>
+    <!-- Soft Mint-Teal Ambient Gradient -->
+    <linearGradient id="cardBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#F8FAFC" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#F0F9FA" stop-opacity="0.95" />
+    </linearGradient>
+
+    <!-- Core Engine Radial Glow -->
+    <radialGradient id="engineRadialGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#008C9C" stop-opacity="0.25" />
+      <stop offset="60%" stop-color="#008C9C" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#008C9C" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Teal Gradient for Accent Borders -->
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00A3B5" />
+      <stop offset="100%" stop-color="#008C9C" />
+    </linearGradient>
+
+    <!-- Drop Shadow for Cards -->
+    <filter id="softCardShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#008C9C" flood-opacity="0.08" />
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.03" />
+    </filter>
+
+    <!-- Core Glow Filter -->
+    <filter id="coreGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <style>
+      .matrix-card {
+        animation: floatMatrix 6s ease-in-out infinite;
+        transform-origin: 260px 155px;
+      }
+      .radar-scan {
+        animation: rotateRadar 18s linear infinite;
+        transform-origin: 260px 130px;
+      }
+      .flow-beam-left {
+        animation: pulseFlow 2.8s ease-in-out infinite;
+      }
+      .flow-beam-right {
+        animation: pulseFlow 2.8s ease-in-out infinite 0.7s;
+      }
+      .live-dot {
+        animation: livePulse 2s ease-in-out infinite;
+      }
+      .hover-tile {
+        cursor: pointer;
+        transition: transform 0.25s ease, filter 0.25s ease;
+      }
+      .hover-tile:hover {
+        transform: translateY(-2px);
+        filter: drop-shadow(0 6px 14px rgba(0, 140, 156, 0.2));
+      }
+
+      @keyframes floatMatrix {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+      }
+      @keyframes rotateRadar {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes pulseFlow {
+        0%, 100% { stroke-dashoffset: 24; opacity: 0.4; }
+        50% { stroke-dashoffset: 0; opacity: 1; stroke-width: 2.2; }
+      }
+      @keyframes livePulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.6; }
+      }
+    </style>
+  </defs>
+
+  <!-- ================= MAIN GLASS CARD CONTAINER ================= -->
+  <g class="matrix-card">
+    <!-- Card Base with Soft Shadow -->
+    <rect x="12" y="10" width="496" height="290" rx="20" fill="url(#cardBgGrad)" stroke="#DCE4F0" stroke-width="1.2" filter="url(#softCardShadow)" />
+
+    <!-- Ambient Glow behind Core -->
+    <circle cx="260" cy="130" r="105" fill="url(#engineRadialGlow)" />
+
+    <!-- ================= CARD HEADER BAR ================= -->
+    <!-- Window Control Dots -->
+    <circle cx="34" cy="32" r="4.5" fill="#CBD5E1" />
+    <circle cx="48" cy="32" r="4.5" fill="#E2E8F0" />
+    <circle cx="62" cy="32" r="4.5" fill="#E2E8F0" />
+
+    <!-- Title Badge -->
+    <text x="82" y="35" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#0F172A" letter-spacing="0.12em">KYRA ACCESS GOVERNANCE MATRIX</text>
+
+    <!-- Live Status Pill (Right-aligned) -->
+    <rect x="365" y="22" width="128" height="22" rx="11" fill="rgba(0, 140, 156, 0.08)" stroke="rgba(0, 140, 156, 0.3)" stroke-width="1" />
+    <circle cx="377" cy="33" r="3.5" fill="#008C9C" class="live-dot" transform-origin="377 33" />
+    <text x="388" y="36" font-family="'Inter', sans-serif" font-size="9.5" font-weight="700" fill="#008C9C" letter-spacing="0.04em">ZERO-TRUST ACTIVE</text>
+
+    <!-- Subtle Header Divider -->
+    <line x1="28" y1="50" x2="492" y2="50" stroke="#E2E8F0" stroke-width="1" />
+
+    <!-- ================= CONNECTING DATA FLOW PIPELINES ================= -->
+    <!-- Beam: Left (Persona) to Center (Core) -->
+    <path d="M 152,130 L 195,130" fill="none" stroke="#008C9C" stroke-width="1.8" stroke-dasharray="6,4" class="flow-beam-left" />
+    <!-- Pulse Packet Left -->
+    <circle cx="174" cy="130" r="3" fill="#008C9C" />
+
+    <!-- Beam: Center (Core) to Right (Targets) -->
+    <path d="M 325,130 L 368,130" fill="none" stroke="#008C9C" stroke-width="1.8" stroke-dasharray="6,4" class="flow-beam-right" />
+    <!-- Pulse Packet Right -->
+    <circle cx="346" cy="130" r="3" fill="#008C9C" />
+
+    <!-- ================= NODE 1: IDENTITY PERSONA (LEFT) ================= -->
+    <g class="hover-tile" transform-origin="92 130">
+      <rect x="32" y="65" width="120" height="135" rx="14" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" />
+      
+      <!-- User Avatar Icon with Shield Accent -->
+      <circle cx="92" cy="95" r="18" fill="rgba(0, 140, 156, 0.08)" stroke="#008C9C" stroke-width="1.5" />
+      <path d="M 92,93 A 5,5 0 1,0 92,83 A 5,5 0 1,0 92,93 Z" fill="none" stroke="#008C9C" stroke-width="1.8" />
+      <path d="M 82,105 C 82,99 86,96 92,96 C 98,96 102,99 102,105" fill="none" stroke="#008C9C" stroke-width="1.8" stroke-linecap="round" />
+
+      <!-- Node Typography -->
+      <text x="92" y="127" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#0F172A" text-anchor="middle">Identity Persona</text>
+      <text x="92" y="140" font-family="'Inter', sans-serif" font-size="9" font-weight="500" fill="#64748B" text-anchor="middle">Requester / Role Profile</text>
+      
+      <!-- Mini Status Chip -->
+      <rect x="47" y="156" width="90" height="18" rx="9" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1" />
+      <circle cx="58" cy="165" r="2.5" fill="#059669" />
+      <text x="65" y="168" font-family="'Inter', sans-serif" font-size="8.5" font-weight="700" fill="#059669">Authenticated</text>
+    </g>
+
+    <!-- ================= NODE 2: KYRA POLICY & SOD ENGINE (CENTER) ================= -->
+    <g class="hover-tile" transform-origin="260 130">
+      <!-- Outer Core Glow Container -->
+      <rect x="195" y="56" width="130" height="152" rx="16" fill="#FFFFFF" stroke="url(#tealGrad)" stroke-width="2" />
+
+      <!-- Radar Scanning Orbit -->
+      <circle cx="260" cy="100" r="32" fill="none" stroke="#008C9C" stroke-opacity="0.3" stroke-width="1.2" stroke-dasharray="4,5" class="radar-scan" />
+
+      <!-- Center Hexagon / Shield Chip with K Symbol -->
+      <polygon points="260,78 280,90 280,110 260,122 240,110 240,90" fill="url(#tealGrad)" filter="url(#coreGlow)" />
+      
+      <!-- KYRA "K" Monogram in Core -->
+      <path d="M 254,92 L 254,108 M 254,100 L 265,92 M 258,98 L 266,108" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+
+      <!-- Engine Typography -->
+      <text x="260" y="138" font-family="'Inter', sans-serif" font-size="11.5" font-weight="800" fill="#008C9C" text-anchor="middle" letter-spacing="0.02em">KYRA Policy Core</text>
+      <text x="260" y="151" font-family="'Inter', sans-serif" font-size="9" font-weight="600" fill="#0F172A" text-anchor="middle">Dynamic SoD Scanner</text>
+
+      <!-- Risk Evaluation Pill -->
+      <rect x="207" y="166" width="106" height="19" rx="9.5" fill="rgba(0, 140, 156, 0.1)" stroke="rgba(0, 140, 156, 0.35)" stroke-width="1" />
+      <text x="260" y="179" font-family="'Inter', sans-serif" font-size="8.5" font-weight="800" fill="#008C9C" text-anchor="middle">0 Conflict Detected</text>
+    </g>
+
+    <!-- ================= NODE 3: TARGET ENTERPRISE SYSTEMS (RIGHT) ================= -->
+    <g class="hover-tile" transform-origin="428 130">
+      <rect x="368" y="65" width="120" height="135" rx="14" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5" />
+
+      <!-- Header Icon: Connected Systems -->
+      <circle cx="428" cy="92" r="15" fill="rgba(0, 140, 156, 0.08)" stroke="#008C9C" stroke-width="1.5" />
+      <rect x="421" y="85" width="14" height="14" rx="3" fill="none" stroke="#008C9C" stroke-width="1.5" />
+      <circle cx="425" cy="92" r="1.5" fill="#008C9C" />
+      <circle cx="431" cy="92" r="1.5" fill="#008C9C" />
+
+      <!-- Target List Preview -->
+      <g transform="translate(378, 114)">
+        <!-- Target 1: SAP ERP -->
+        <circle cx="6" cy="6" r="2.5" fill="#008C9C" />
+        <text x="14" y="9" font-family="'Inter', sans-serif" font-size="8.5" font-weight="700" fill="#0F172A">SAP S/4HANA</text>
+
+        <!-- Target 2: Multi-Cloud -->
+        <circle cx="6" cy="20" r="2.5" fill="#008C9C" />
+        <text x="14" y="23" font-family="'Inter', sans-serif" font-size="8.5" font-weight="700" fill="#0F172A">AWS &amp; Azure IAM</text>
+
+        <!-- Target 3: Core Database -->
+        <circle cx="6" cy="34" r="2.5" fill="#008C9C" />
+        <text x="14" y="37" font-family="'Inter', sans-serif" font-size="8.5" font-weight="700" fill="#0F172A">Enterprise DBs</text>
+      </g>
+
+      <!-- Status Pill -->
+      <rect x="382" y="166" width="92" height="18" rx="9" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1" />
+      <text x="428" y="178" font-family="'Inter', sans-serif" font-size="8" font-weight="700" fill="#15803D" text-anchor="middle">Synced &amp; Governed</text>
+    </g>
+
+    <!-- ================= BOTTOM TELEMETRY KPI STRIP ================= -->
+    <!-- Divider -->
+    <line x1="28" y1="222" x2="492" y2="222" stroke="#E2E8F0" stroke-width="1" />
+
+    <!-- KPI 1: Real-Time Governance -->
+    <g transform="translate(42, 238)">
+      <circle cx="8" cy="14" r="8" fill="rgba(0, 140, 156, 0.08)" />
+      <path d="M 5,14 L 8,17 L 13,11" fill="none" stroke="#008C9C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="24" y="12" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#0F172A">100% Policy Compliant</text>
+      <text x="24" y="24" font-family="'Inter', sans-serif" font-size="9" font-weight="500" fill="#64748B">Continuous Audit Verification</text>
+    </g>
+
+    <!-- KPI 2: Decision Velocity -->
+    <g transform="translate(210, 238)">
+      <circle cx="8" cy="14" r="8" fill="rgba(0, 140, 156, 0.08)" />
+      <path d="M 8,9 L 8,14 L 12,16" fill="none" stroke="#008C9C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="24" y="12" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#0F172A">&lt; 240ms Velocity</text>
+      <text x="24" y="24" font-family="'Inter', sans-serif" font-size="9" font-weight="500" fill="#64748B">Real-time Provisioning</text>
+    </g>
+
+    <!-- KPI 3: Security Standard -->
+    <g transform="translate(372, 238)">
+      <circle cx="8" cy="14" r="8" fill="rgba(0, 140, 156, 0.08)" />
+      <path d="M 8,8 L 14,10 L 14,14 C 14,18 8,20 8,20 C 8,20 2,18 2,14 L 2,10 Z" fill="none" stroke="#008C9C" stroke-width="1.4" />
+      <text x="24" y="12" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#0F172A">SOC-2 &amp; ISO Assured</text>
+      <text x="24" y="24" font-family="'Inter', sans-serif" font-size="9" font-weight="500" fill="#64748B">Enterprise Governance</text>
+    </g>
+  </g>
+</svg>

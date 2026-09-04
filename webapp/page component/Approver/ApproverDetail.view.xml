@@ -31,7 +31,7 @@
                     </HBox>
                 </VBox>
 
-                <!-- CARD 1: FULL ACCESS GOVERNANCE & REQUESTER DETAILS (4 Grid Columns) -->
+                <!-- CARD 1: FULL ACCESS GOVERNANCE &amp; REQUESTER DETAILS (4 Grid Columns) -->
                 <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                     <Title text="Full Access Governance &amp; Requester Details" level="H3" class="sapUiSmallMarginBottom" />
 
@@ -313,7 +313,7 @@
                     </VBox>
                 </VBox>
 
-                <!-- CARD 3: TARGET SYSTEMS SEPARATED TABLE CARDS (SYSTEM HEADER AT TOP & SYSTEM COLUMN REMOVED) -->
+                <!-- CARD 3: TARGET SYSTEMS SEPARATED TABLE CARDS (SYSTEM HEADER AT TOP &amp; SYSTEM COLUMN REMOVED) -->
                 <VBox items="{accessModel>/selectedRequest/summaryTables}">
                     <items>
                         <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
@@ -390,7 +390,7 @@
                     </items>
                 </VBox>
 
-                <!-- Batch Operations & Footer Action Bar -->
+                <!-- Batch Operations &amp; Footer Action Bar -->
                 <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
                         <HBox alignItems="Center" class="sapUiTinyMarginBottom">

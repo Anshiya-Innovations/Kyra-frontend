@@ -7,62 +7,46 @@
     
     <Page showHeader="false" enableScrolling="false" class="kyraDesktopLoginPage">
         <content>
-            <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="NoWrap" height="100%" width="100%">
+            <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="Wrap" height="100%" width="100%">
                 
-                <!-- ================= LEFT SECTION (45% WIDTH) ================= -->
-                <VBox class="kyraLoginLeftPanel">
+                <!-- ================= LEFT SECTION (50% COLUMN - PURE VECTOR SECURITY ARCHITECTURE) ================= -->
+                <VBox class="kyraLoginLeftPanel" justifyContent="Center" alignItems="Center">
                     
-                    <!-- Top-Left Branding -->
+                    <!-- Top-Left Branding Header -->
                     <HBox alignItems="Center" class="kyraLeftBrandHeader">
-                        <Avatar
-                            src="sap-icon://shield"
-                            displaySize="S"
-                            type="Icon"
-                            backgroundColor="Accent6"
-                            class="kyraBrandShieldIcon" />
-                        <VBox class="sapUiTinyMarginBegin">
-                            <Text text="KYRA" class="kyraBrandLogoText" />
-                            <Text text="ENTERPRISE ACCESS" class="kyraBrandLogoSub" />
-                        </VBox>
+                        <Image src="{login>/brandHeaderUrl}" height="42px" densityAware="false" class="kyraBrandHeaderImg" />
                     </HBox>
 
-                    <!-- Vertically Centered Main Block: Headline, Description, Shield Visual & 3 Features -->
+                    <!-- Main Hero Content: Headline with Teal Accent Bar, Styled Description and Native Vector Security Architecture -->
                     <VBox class="kyraLeftCenteredBlock" justifyContent="Center" alignItems="Start">
-                        <Title text="Secure Access.&#10;Total Control." level="H1" class="kyraHeroTitle" />
-                        <Text
-                            text="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your hybrid cloud ecosystem."
+                        <VBox class="kyraHeroTitleContainer">
+                            <Text text="Secure Access." class="kyraHeroTitleWhite" />
+                            <Text text="Total Control." class="kyraHeroTitleTeal" />
+                            <HBox class="kyraHeroTealDashBar" />
+                        </VBox>
+                        
+                        <!-- Formatted Governance Description with Highlighted Hybrid Cloud Ecosystem -->
+                        <FormattedText
+                            htmlText="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your &lt;span class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/span&gt;"
                             class="kyraHeroDescription" />
 
-                        <!-- Futuristic Large Security Shield Graphic Visual -->
-                        <VBox class="kyraHeroShieldGraphicWrapper" alignItems="Center" justifyContent="Center" width="100%">
-                            <core:HTML content='&lt;div class="kyra-futuristic-shield-container"&gt;&lt;div class="kyra-shield-outer-glow"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-1"&gt;&lt;/div&gt;&lt;div class="kyra-shield-orbital-ring ring-2"&gt;&lt;/div&gt;&lt;div class="kyra-shield-core"&gt;&lt;svg width="88" height="88" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path d="M12 2L3 7V12C3 17.52 6.84 22.74 12 24C17.16 22.74 21 17.52 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="#008C9C" stroke-width="1.5" stroke-linejoin="round"/&gt;&lt;path d="M9 12L11 14L15 10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/&gt;&lt;defs&gt;&lt;linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="24" gradientUnits="userSpaceOnUse"&gt;&lt;stop stop-color="#008C9C"/&gt;&lt;stop offset="1" stop-color="#006875"/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;/svg&gt;&lt;/div&gt;&lt;div class="kyra-shield-badge badge-top-left"&gt;&lt;span class="dot"&gt;&lt;/span&gt; Access Protected&lt;/div&gt;&lt;div class="kyra-shield-badge badge-bottom-right"&gt;&lt;span class="dot green"&gt;&lt;/span&gt; Compliance Ready&lt;/div&gt;&lt;/div&gt;' />
+                        <!-- Native Vector Security Architecture Graphic (Zero Image Compression Seams) -->
+                        <VBox class="kyraHeroVectorGraphicContainer" alignItems="Center" justifyContent="Center" width="100%">
+                            <Image src="{login>/securityVectorUrl}" width="100%" maxWidth="520px" densityAware="false" class="kyraSecurityVectorImgNative" />
                         </VBox>
-
-                        <!-- Minimal Connected Flow: User → Shield → Approval Check -->
-                        <HBox class="kyraLeftFlowContainer" justifyContent="Center" alignItems="Center" width="100%">
-                            <core:Icon src="sap-icon://person-placeholder" class="kyraFlowIconBox" />
-                            <HBox class="kyraFlowLine" />
-                            <core:Icon src="sap-icon://shield" class="kyraFlowIconBox" />
-                            <HBox class="kyraFlowLine" />
-                            <core:Icon src="sap-icon://accept" class="kyraFlowIconBox" />
-                        </HBox>
                     </VBox>
                 </VBox>
 
-                <!-- ================= RIGHT SECTION (55% WIDTH) ================= -->
+                <!-- ================= RIGHT SECTION (50% COLUMN - DEAD VERTICAL CENTER LOGIN CARD) ================= -->
                 <VBox class="kyraLoginRightPanel" justifyContent="Center" alignItems="Center">
                     <VBox class="kyraLoginCardContainer">
                         
-                        <!-- Top Card Header -->
+                        <!-- Top Card Header: Centered KYRA Logo + Wordmark + Portals -->
                         <VBox alignItems="Center" class="kyraCardHeaderBox">
-                            <Avatar
-                                src="sap-icon://shield"
-                                displaySize="M"
-                                type="Icon"
-                                backgroundColor="Accent6"
-                                class="kyraCardShieldAvatar" />
-                            <Title text="KYRA Enterprise" level="H2" class="kyraCardBrandTitle" />
-                            <Text text="Secure Admin Access Portal" class="kyraCardBrandSub" />
+                            <Image src="{login>/logoUrl}" height="42px" densityAware="false" class="kyraCardLogoImgDirect" />
+                            <Text text="KYRA" class="kyraCardBrandTitle" />
+                            <Text text="ENTERPRISE ACCESS" class="kyraCardBrandSub" />
+                            <Text text="Secure Admin Access Portal" class="kyraCardPortalTitle" />
                             <Text text="Welcome back! Please sign in to continue." class="kyraCardWelcomeText" />
                         </VBox>
 
@@ -74,7 +58,7 @@
                             showIcon="true"
                             showCloseButton="true"
                             close=".onDismissError"
-                            class="sapUiSmallMarginBottom" />
+                            class="sapUiTinyMarginBottom" />
 
                         <!-- Form Controls Container -->
                         <VBox width="100%" class="kyraLoginFormBody">
@@ -96,7 +80,7 @@
                                 </Select>
                             </VBox>
 
-                            <!-- Dynamic ID Input Field (No Password) -->
+                            <!-- Dynamic ID Input Field -->
                             <VBox class="kyraFormGroup" width="100%">
                                 <Label text="{login>/idLabel}" labelFor="idInput" class="kyraFormLabel" />
                                 <Input
@@ -113,29 +97,16 @@
                                     width="100%" />
                             </VBox>
 
-                            <!-- Remember Me Row -->
-                            <FlexBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraRememberRow">
-                                <CheckBox text="Remember Me" selected="{login>/rememberMe}" class="kyraModernCheckBox" />
-                                <Link text="Need Help?" press=".onForgotPassword" class="kyraHelpLink" />
-                            </FlexBox>
-
-                            <!-- Full Width Primary Blue Sign In Button -->
+                            <!-- Full Width Solid #008C9C Sign In Button -->
                             <Button
                                 id="signInButton"
                                 text="Sign In"
-                                icon="sap-icon://navigation-right-arrow"
-                                iconFirst="false"
                                 type="Emphasized"
                                 width="100%"
                                 press=".onLogin"
                                 busy="{login>/isBusy}"
                                 class="kyraPrimarySignInBtn" />
 
-                            <!-- Bottom Security Verification Note -->
-                            <HBox justifyContent="Center" alignItems="Center" class="kyraSecurityFooterNote">
-                                <core:Icon src="sap-icon://unwired" class="kyraLockIconSmall" />
-                                <Text text="Protected by 256-Bit SSL Enterprise Identity Security" class="kyraSecurityNoteText" />
-                            </HBox>
                         </VBox>
                     </VBox>
                 </VBox>

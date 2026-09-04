@@ -57,7 +57,7 @@
         </HBox>
 
         <!-- =========================================================================
-             SLIDE 1 / STEP 1: BUSINESS SECTOR & FUNCTION
+             SLIDE 1 / STEP 1: BUSINESS SECTOR &amp; FUNCTION
              ========================================================================= -->
         <VBox visible="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} }" class="fioriStepSlideAnim">
             <VBox class="kyraEnterpriseScopeCard sapUiSmallMarginBottom">
@@ -188,7 +188,7 @@
         </VBox>
 
         <!-- =========================================================================
-             SLIDE 3 & 4 / STEP 3: ACCESS CONFIGURATION (SYSTEM SLIDES & DURATION)
+             SLIDE 3 &amp; 4 / STEP 3: ACCESS CONFIGURATION (SYSTEM SLIDES &amp; DURATION)
              ========================================================================= -->
         <VBox visible="{= ${accessModel>/addAccessStep} === 3 }" class="fioriStepSlideAnim">
             
@@ -343,7 +343,7 @@
                 </HBox>
             </VBox>
 
-            <!-- SUB-STEP 3.2: DURATION & BUSINESS JUSTIFICATION -->
+            <!-- SUB-STEP 3.2: DURATION &amp; BUSINESS JUSTIFICATION -->
             <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
                 <form:SimpleForm
                     editable="true"
@@ -415,7 +415,7 @@
         </VBox>
 
         <!-- =========================================================================
-             SLIDE 5 & 6 / STEP 4: CONFLICT ANALYSIS & SOD VALIDATION
+             SLIDE 5 &amp; 6 / STEP 4: CONFLICT ANALYSIS &amp; SOD VALIDATION
              ========================================================================= -->
 
         <!-- SLIDE 1: ACCESS VALIDATION (3 COMPACT SUMMARY CARDS) -->
@@ -573,7 +573,7 @@
         </VBox>
 
         <!-- =========================================================================
-             SLIDE 7 / STEP 5: ACCESS REQUEST REVIEW & SUMMARY
+             SLIDE 7 / STEP 5: ACCESS REQUEST REVIEW &amp; SUMMARY
              ========================================================================= -->
         <VBox visible="{= ${accessModel>/addAccessStep} === 5 }" class="fioriStepSlideAnim sapUiResponsivePadding">
             <!-- Top Header Banner -->
@@ -587,7 +587,7 @@
                 </HBox>
             </HBox>
 
-            <!-- Top Scope & Governance Metadata Summary Card -->
+            <!-- Top Scope &amp; Governance Metadata Summary Card -->
             <VBox class="kyraSummaryTopDetailsCard sapUiSmallMarginBottom">
                 <HBox class="kyraSummaryDetailGrid" alignItems="Center">
                     <VBox class="kyraSummaryDetailItem">

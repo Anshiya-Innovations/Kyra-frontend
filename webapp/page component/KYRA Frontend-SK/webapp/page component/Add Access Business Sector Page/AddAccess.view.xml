@@ -48,7 +48,7 @@
                     </HBox>
                 </VBox>
 
-                <!-- STEP 1 CONTAINER: BUSINESS SECTOR & BUSINESS FUNCTION -->
+                <!-- STEP 1 CONTAINER: BUSINESS SECTOR &amp; BUSINESS FUNCTION -->
                 <VBox
                     visible="{addAccessModel>/step1Visible}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
@@ -112,7 +112,7 @@
                     </HBox>
                 </VBox>
 
-                <!-- STEP 2 CONTAINER: ADD ACCESS REQUEST (REGION, SYSTEMS, SERVICES, TEAM & PERSONA) -->
+                <!-- STEP 2 CONTAINER: ADD ACCESS REQUEST (REGION, SYSTEMS, SERVICES, TEAM &amp; PERSONA) -->
                 <VBox
                     visible="{addAccessModel>/step2Visible}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
@@ -242,7 +242,7 @@
                     </HBox>
                 </VBox>
 
-                <!-- STEP 3 CONTAINER: ACCESS REQUEST SUMMARY & REVIEW PAGE -->
+                <!-- STEP 3 CONTAINER: ACCESS REQUEST SUMMARY &amp; REVIEW PAGE -->
                 <VBox
                     visible="{addAccessModel>/step3Visible}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
@@ -254,7 +254,7 @@
                         </VBox>
                     </HBox>
 
-                    <!-- Itemized Access Request List Table (Formatted similar to Dashboard My Requests with Edit & Remove) -->
+                    <!-- Itemized Access Request List Table (Formatted similar to Dashboard My Requests with Edit &amp; Remove) -->
                     <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
                             <Title text="Configured Access Entitlements Review" level="H5" />
@@ -310,7 +310,7 @@
                          </Table>
                      </VBox>
 
-                     <!-- Summary Full Governance & Requester Information Card -->
+                     <!-- Summary Full Governance &amp; Requester Information Card -->
                      <VBox class="fioriTableCard sapUiResponsivePadding" style="border-left: 4px solid #0066E8;">
                          <Title text="Full Access Governance &amp; Requester Details" level="H5" class="sapUiTinyMarginBottom" />
                          <HBox wrap="Wrap" class="sapUiTinyMarginTop">

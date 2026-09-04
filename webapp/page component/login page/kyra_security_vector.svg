@@ -1,0 +1,273 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 370" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" class="kyraIsometricSecuritySvg">
+  <defs>
+    <!-- Soft Mint-Teal Floor Ambient Glow -->
+    <radialGradient id="floorAmbientGlow" cx="50%" cy="55%" r="48%">
+      <stop offset="0%" stop-color="#008C9C" stop-opacity="0.18" />
+      <stop offset="55%" stop-color="#2DD4BF" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- 3D Pedestal Tier 1 Gradients -->
+    <linearGradient id="pedestalSide1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E2F2F5" />
+      <stop offset="50%" stop-color="#CEEBF0" />
+      <stop offset="100%" stop-color="#B8E1E8" />
+    </linearGradient>
+    <radialGradient id="pedestalTop1" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="85%" stop-color="#F1FAFC" />
+      <stop offset="100%" stop-color="#E1F4F7" />
+    </radialGradient>
+
+    <!-- 3D Pedestal Tier 2 (Upper) Gradients -->
+    <linearGradient id="pedestalSide2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D7EFF2" />
+      <stop offset="100%" stop-color="#A5DBE3" />
+    </linearGradient>
+    <radialGradient id="pedestalTop2" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="80%" stop-color="#EBF7F9" />
+      <stop offset="100%" stop-color="#D9F1F5" />
+    </radialGradient>
+
+    <!-- 3D Solid Shield Gradients -->
+    <linearGradient id="shieldLeftBevel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00AEC2" />
+      <stop offset="60%" stop-color="#008C9C" />
+      <stop offset="100%" stop-color="#007280" />
+    </linearGradient>
+    <linearGradient id="shieldRightBevel" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#007E8C" />
+      <stop offset="60%" stop-color="#006C78" />
+      <stop offset="100%" stop-color="#005660" />
+    </linearGradient>
+    <linearGradient id="shieldRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67E8F9" />
+      <stop offset="40%" stop-color="#FFFFFF" />
+      <stop offset="75%" stop-color="#008C9C" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+
+    <!-- 3D Server Stack Gradients -->
+    <linearGradient id="serverSide" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E2F2F5" />
+      <stop offset="50%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#CCEAF0" />
+    </linearGradient>
+    <linearGradient id="serverTealStripe" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#007886" />
+      <stop offset="50%" stop-color="#009BB0" />
+      <stop offset="100%" stop-color="#006A76" />
+    </linearGradient>
+
+    <!-- Shadows -->
+    <filter id="soft3DShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#008C9C" flood-opacity="0.18" />
+    </filter>
+    <filter id="shieldElevatedShadow" x="-30%" y="-20%" width="160%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#008C9C" flood-opacity="0.25" />
+    </filter>
+    <filter id="pedestalContactShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.08" />
+    </filter>
+
+    <style>
+      .animated-shield {
+        animation: floatMainShield 5s ease-in-out infinite;
+        transform-origin: 270px 150px;
+      }
+      .pulse-track {
+        animation: tracePulse 3s ease-in-out infinite;
+      }
+      .pulse-node-1 {
+        animation: miniFloat1 4.8s ease-in-out infinite;
+      }
+      .pulse-node-2 {
+        animation: miniFloat2 5.2s ease-in-out infinite;
+      }
+      .pulse-node-3 {
+        animation: miniFloat2 5.5s ease-in-out infinite;
+      }
+      .pulse-node-4 {
+        animation: miniFloat1 4.9s ease-in-out infinite;
+      }
+      .interactive-hover-group {
+        cursor: pointer;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
+      }
+      .interactive-hover-group:hover {
+        transform: translateY(-4px);
+        filter: drop-shadow(0 10px 20px rgba(0, 140, 156, 0.3));
+      }
+
+      @keyframes floatMainShield {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-7px); }
+      }
+      @keyframes miniFloat1 {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-4px); }
+      }
+      @keyframes miniFloat2 {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(4px); }
+      }
+      @keyframes tracePulse {
+        0%, 100% { opacity: 0.35; stroke-width: 1.5; }
+        50% { opacity: 0.9; stroke-width: 2.5; stroke: #00AEC2; }
+      }
+    </style>
+  </defs>
+
+  <!-- ================= BACKGROUND FLOOR GLOW & CIRCUIT GRID ================= -->
+  <ellipse cx="270" cy="275" rx="230" ry="75" fill="url(#floorAmbientGlow)" />
+
+  <!-- Circuit Network Ground Tracks -->
+  <!-- Track to Left: User Identity -->
+  <path d="M 200,265 C 160,260 130,240 105,215" fill="none" stroke="#008C9C" stroke-opacity="0.4" stroke-width="1.8" stroke-dasharray="4,4" class="pulse-track" />
+  <circle cx="105" cy="215" r="3.5" fill="#008C9C" />
+
+  <!-- Track to Bottom-Left: Cloud -->
+  <path d="M 215,290 C 180,300 145,310 115,305" fill="none" stroke="#008C9C" stroke-opacity="0.4" stroke-width="1.8" stroke-dasharray="4,4" class="pulse-track" />
+  <circle cx="115" cy="305" r="3.5" fill="#008C9C" />
+
+  <!-- Track to Top-Right: Database Servers -->
+  <path d="M 340,255 C 380,245 405,225 435,195" fill="none" stroke="#008C9C" stroke-opacity="0.4" stroke-width="1.8" stroke-dasharray="4,4" class="pulse-track" />
+  <circle cx="435" cy="195" r="3.5" fill="#008C9C" />
+
+  <!-- Track to Bottom-Right: Analytics -->
+  <path d="M 330,290 C 370,300 405,295 440,280" fill="none" stroke="#008C9C" stroke-opacity="0.4" stroke-width="1.8" stroke-dasharray="4,4" class="pulse-track" />
+  <circle cx="440" cy="280" r="3.5" fill="#008C9C" />
+
+  <!-- Elliptical Orbit Traces -->
+  <ellipse cx="270" cy="265" rx="215" ry="68" fill="none" stroke="#008C9C" stroke-opacity="0.25" stroke-width="1.2" stroke-dasharray="5,7" />
+  <ellipse cx="270" cy="265" rx="160" ry="50" fill="none" stroke="#008C9C" stroke-opacity="0.32" stroke-width="1.2" stroke-dasharray="3,5" />
+
+  <!-- ================= CENTRAL 3D STEPPED PEDESTAL ================= -->
+  <!-- LOWER PEDESTAL TIER -->
+  <g filter="url(#pedestalContactShadow)">
+    <!-- Lower Tier Extrusion Base -->
+    <path d="M 120,265 C 120,292 187,314 270,314 C 353,314 420,292 420,265 L 420,280 C 420,307 353,329 270,329 C 187,329 120,307 120,280 Z" fill="url(#pedestalSide1)" />
+    <!-- Lower Tier Top Surface -->
+    <ellipse cx="270" cy="265" rx="150" ry="46" fill="url(#pedestalTop1)" stroke="#BEE3EA" stroke-width="1.2" />
+  </g>
+
+  <!-- UPPER PEDESTAL TIER -->
+  <g filter="url(#pedestalContactShadow)">
+    <!-- Upper Tier Extrusion -->
+    <path d="M 170,246 C 170,268 215,286 270,286 C 325,286 370,268 370,246 L 370,258 C 370,280 325,298 270,298 C 215,298 170,280 170,258 Z" fill="url(#pedestalSide2)" />
+    <!-- Upper Tier Top Surface -->
+    <ellipse cx="270" cy="246" rx="100" ry="34" fill="url(#pedestalTop2)" stroke="#AEE0E8" stroke-width="1" />
+  </g>
+
+  <!-- Ground Contact Shadow Directly Under Shield -->
+  <ellipse cx="270" cy="246" rx="55" ry="18" fill="#005A64" fill-opacity="0.22" filter="url(#soft3DShadow)" />
+
+  <!-- ================= 4 ISOMETRIC SATELLITE PLATFORMS ================= -->
+
+  <!-- PLATFORM 1: USER IDENTITY (Top-Left, cx=105, cy=200) -->
+  <g class="pulse-node-1 interactive-hover-group" transform-origin="105 200">
+    <!-- Pedestal Base -->
+    <path d="M 75,200 C 75,210 88,218 105,218 C 122,218 135,210 135,200 L 135,208 C 135,218 122,226 105,226 C 88,226 75,218 75,208 Z" fill="url(#pedestalSide1)" />
+    <ellipse cx="105" cy="200" rx="30" ry="11" fill="url(#pedestalTop1)" stroke="#BEE3EA" stroke-width="1" />
+    <!-- 3D Standing Token: User Avatar -->
+    <g filter="url(#soft3DShadow)">
+      <circle cx="105" cy="176" r="19" fill="#FFFFFF" stroke="#008C9C" stroke-width="1.8" />
+      <circle cx="105" cy="171" r="5.5" fill="#008C9C" />
+      <path d="M 96,186 C 96,180 100,178 105,178 C 110,178 114,180 114,186" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" />
+    </g>
+  </g>
+
+  <!-- PLATFORM 2: CLOUD ECOSYSTEM (Bottom-Left, cx=115, cy=295) -->
+  <g class="pulse-node-2 interactive-hover-group" transform-origin="115 295">
+    <!-- Pedestal Base -->
+    <path d="M 85,295 C 85,305 98,313 115,313 C 132,313 145,305 145,295 L 145,303 C 145,313 132,321 115,321 C 98,321 85,313 85,303 Z" fill="url(#pedestalSide1)" />
+    <ellipse cx="115" cy="295" rx="30" ry="11" fill="url(#pedestalTop1)" stroke="#BEE3EA" stroke-width="1" />
+    <!-- 3D Cloud Symbol Standing -->
+    <g filter="url(#soft3DShadow)">
+      <path d="M 103,288 C 98,288 94,284 94,280 C 94,276 97,273 101,272 C 102,267 106,263 111,263 C 116,263 120,266 122,270 C 124,269 127,271 128,274 C 132,274 135,277 135,281 C 135,285 132,288 128,288 Z" fill="#FFFFFF" stroke="#008C9C" stroke-width="1.8" stroke-linejoin="round" />
+      <path d="M 106,282 Q 112,276 118,282" fill="none" stroke="#2DD4BF" stroke-width="1.5" />
+    </g>
+  </g>
+
+  <!-- PLATFORM 3: DATABASE SERVER STACK (Top-Right, cx=435, cy=180) -->
+  <g class="pulse-node-3 interactive-hover-group" transform-origin="435 180">
+    <!-- 3-Tier Isometric Server Disk Drives Stacked -->
+    <!-- Tier 1 (Bottom Disk) -->
+    <g filter="url(#soft3DShadow)">
+      <path d="M 405,190 C 405,198 418,205 435,205 C 452,205 465,198 465,190 L 465,198 C 465,206 452,213 435,213 C 418,213 405,206 405,198 Z" fill="url(#serverSide)" />
+      <!-- Teal Stripe -->
+      <path d="M 405,194 C 405,200 418,206 435,206 C 452,206 465,200 465,194 L 465,197 C 465,203 452,209 435,209 C 418,209 405,203 405,197 Z" fill="url(#serverTealStripe)" />
+      <ellipse cx="435" cy="190" rx="30" ry="10" fill="#FFFFFF" stroke="#BEE3EA" stroke-width="1" />
+      <circle cx="454" cy="195" r="1.5" fill="#10B981" />
+    </g>
+
+    <!-- Tier 2 (Middle Disk) -->
+    <g filter="url(#soft3DShadow)">
+      <path d="M 405,175 C 405,183 418,190 435,190 C 452,190 465,183 465,175 L 465,183 C 465,191 452,198 435,198 C 418,198 405,191 405,183 Z" fill="url(#serverSide)" />
+      <!-- Teal Stripe -->
+      <path d="M 405,179 C 405,185 418,191 435,191 C 452,191 465,185 465,179 L 465,182 C 465,188 452,194 435,194 C 418,194 405,188 405,182 Z" fill="url(#serverTealStripe)" />
+      <ellipse cx="435" cy="175" rx="30" ry="10" fill="#FFFFFF" stroke="#BEE3EA" stroke-width="1" />
+      <circle cx="454" cy="180" r="1.5" fill="#10B981" />
+    </g>
+
+    <!-- Tier 3 (Top Disk) -->
+    <g filter="url(#soft3DShadow)">
+      <path d="M 405,160 C 405,168 418,175 435,175 C 452,175 465,168 465,160 L 465,168 C 465,176 452,183 435,183 C 418,183 405,176 405,160 Z" fill="url(#serverSide)" />
+      <!-- Teal Stripe -->
+      <path d="M 405,164 C 405,170 418,176 435,176 C 452,176 465,170 465,164 L 465,167 C 465,173 452,179 435,179 C 418,179 405,173 405,167 Z" fill="url(#serverTealStripe)" />
+      <ellipse cx="435" cy="160" rx="30" ry="10" fill="#FFFFFF" stroke="#BEE3EA" stroke-width="1" />
+      <circle cx="454" cy="165" r="1.5" fill="#10B981" />
+    </g>
+  </g>
+
+  <!-- PLATFORM 4: ANALYTICS & AUDIT CHARTS (Bottom-Right, cx=440, cy=275) -->
+  <g class="pulse-node-4 interactive-hover-group" transform-origin="440 275">
+    <!-- Pedestal Base -->
+    <path d="M 410,275 C 410,285 423,293 440,293 C 457,293 470,285 470,275 L 470,283 C 470,293 457,301 440,301 C 423,301 410,293 410,283 Z" fill="url(#pedestalSide1)" />
+    <ellipse cx="440" cy="275" rx="30" ry="11" fill="url(#pedestalTop1)" stroke="#BEE3EA" stroke-width="1" />
+    <!-- 3D Rising Bar Chart Columns -->
+    <g filter="url(#soft3DShadow)">
+      <!-- Bar 1 (Short - #008C9C) -->
+      <rect x="426" y="258" width="6.5" height="15" rx="1.5" fill="#008C9C" />
+      <!-- Bar 2 (Medium - #2DD4BF) -->
+      <rect x="435" y="248" width="6.5" height="25" rx="1.5" fill="#2DD4BF" />
+      <!-- Bar 3 (Tall - #006D7A) -->
+      <rect x="444" y="238" width="6.5" height="35" rx="1.5" fill="#006D7A" />
+      <!-- Glass Surrounding Badge -->
+      <rect x="421" y="232" width="36" height="44" rx="6" fill="#FFFFFF" fill-opacity="0.3" stroke="#008C9C" stroke-width="1.2" />
+    </g>
+  </g>
+
+  <!-- ================= CENTRAL 3D SECURITY SHIELD & PADLOCK ================= -->
+  <g class="animated-shield interactive-hover-group" filter="url(#shieldElevatedShadow)">
+    <!-- Outer Rim Accent Highlight -->
+    <path d="M 270,72 C 322,72 355,85 355,140 C 355,204 300,244 270,258 C 240,244 185,204 185,140 C 185,85 218,72 270,72 Z" fill="none" stroke="url(#shieldRimGrad)" stroke-width="4.5" stroke-linejoin="round" />
+
+    <!-- 3D Shield Body - Left Facet (Light Highlight) -->
+    <path d="M 270,74 C 220,74 187,86 187,140 C 187,202 240,242 270,256 Z" fill="url(#shieldLeftBevel)" />
+
+    <!-- 3D Shield Body - Right Facet (Deep Shadow) -->
+    <path d="M 270,74 C 320,74 353,86 353,140 C 353,202 300,242 270,256 Z" fill="url(#shieldRightBevel)" />
+
+    <!-- Center 3D Ridge Line -->
+    <line x1="270" y1="74" x2="270" y2="256" stroke="#67E8F9" stroke-opacity="0.9" stroke-width="1.8" />
+
+    <!-- Inner Shield Inset Border -->
+    <path d="M 270,90 C 308,90 334,98 334,142 C 334,192 292,225 270,237 C 248,225 206,192 206,142 C 206,98 232,90 270,90 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1.2" stroke-dasharray="4,4" />
+
+    <!-- ================= 3D PADLOCK IN CENTER ================= -->
+    <!-- Padlock Metallic Shackle -->
+    <path d="M 256,150 L 256,136 C 256,128.5 262.2,122 270,122 C 277.8,122 284,128.5 284,136 L 284,150" fill="none" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round" filter="url(#soft3DShadow)" />
+
+    <!-- Padlock Body with Chamfered Corners -->
+    <rect x="249" y="146" width="42" height="34" rx="7" fill="#FFFFFF" filter="url(#soft3DShadow)" />
+    
+    <!-- Padlock Inset Accent -->
+    <rect x="253" y="150" width="34" height="26" rx="4" fill="#F0FDF4" fill-opacity="0.5" stroke="#E2E8F0" stroke-width="1" />
+
+    <!-- Padlock Keyhole -->
+    <circle cx="270" cy="160" r="3.8" fill="#008C9C" />
+    <polygon points="268.5,160 271.5,160 273,170 267,170" fill="#008C9C" />
+  </g>
+</svg>

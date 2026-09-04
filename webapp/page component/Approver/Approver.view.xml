@@ -7,14 +7,14 @@
 
     <VBox class="sapUiNoContentPadding">
 
-        <!-- SECTION 2: USER REQUESTS BOX & HISTORY LOG -->
+        <!-- SECTION 2: USER REQUESTS BOX &amp; HISTORY LOG -->
         <VBox
             visible="true"
             class="kyraApproverCard sapUiNoMargin">
             
             <!-- TOP COMPACT TOOLBAR ROW: LEFT (Title, Subtitle, Access/Revoke) | RIGHT (Pending, History, Search, Filter, Export) -->
             <HBox justifyContent="SpaceBetween" alignItems="Start" wrap="Wrap" class="kyraApproverTopToolbar sapUiTinyMarginBottom">
-                <!-- LEFT SIDE: Title & Description with Access / Revoke buttons directly below -->
+                <!-- LEFT SIDE: Title &amp; Description with Access / Revoke buttons directly below -->
                 <VBox class="kyraApproverLeftCol">
                     <HBox alignItems="Center" class="kyraCardHeaderLeft sapUiSmallMarginBottom">
                         <Avatar src="sap-icon://user-edit" class="kyraMasterViewAvatar" displaySize="S" />

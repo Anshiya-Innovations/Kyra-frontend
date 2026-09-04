@@ -83,7 +83,7 @@
                         </HBox>
                     </VBox>
 
-                    <!-- SIMPLE SLEEK BUTTONS: MY ACCESS & MY HISTORY -->
+                    <!-- SIMPLE SLEEK BUTTONS: MY ACCESS &amp; MY HISTORY -->
                     <HBox visible="{= !${accessModel>/showMyAccessMasterSection} }" class="kyraSectionToggleBar sapUiSmallMarginBottom" alignItems="Center">
                         <Button
                             text="{= 'My Access (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }"
@@ -290,7 +290,7 @@
                     </Table>
                 </VBox>
 
-                <!-- DEDICATED SEPARATE PAGE VIEW: MY ACCESS MASTER DETAILS & AUDIT GOVERNANCE -->
+                <!-- DEDICATED SEPARATE PAGE VIEW: MY ACCESS MASTER DETAILS &amp; AUDIT GOVERNANCE -->
                 <VBox id="myAccessMasterSectionContainer" visible="{= ${accessModel>/showMyAccessMasterSection} }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
                         <HBox alignItems="Center" class="kyraCardHeaderLeft">
@@ -475,7 +475,7 @@
                     visible="{accessModel>/showAddAccessSector}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
                     
-                    <!-- Floating Header with Dynamic Title & 5-Step Progress Indicator -->
+                    <!-- Floating Header with Dynamic Title &amp; 5-Step Progress Indicator -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriFloatingHeader">
                         <HBox alignItems="Center">
                             <Avatar src="{= ${accessModel>/addAccessStep} === 5 ? 'sap-icon://summary-detail' : (${accessModel>/addAccessStep} === 4 ? 'sap-icon://shield' : (${accessModel>/addAccessStep} === 3 ? 'sap-icon://user-settings' : (${accessModel>/addAccessStep} === 2 ? 'sap-icon://globe' : 'sap-icon://building'))) }"
@@ -605,7 +605,7 @@
                         <HBox visible="{= ${accessModel>/addAccessStep} > 4 }" class="kyraStepConnector kyraStepConnectorActive" />
                         <HBox visible="{= ${accessModel>/addAccessStep} &lt;= 4 || !${accessModel>/addAccessStep} }" class="kyraStepConnector kyraStepConnectorUpcoming" />
 
-                        <!-- Step 5: Review & Summary -->
+                        <!-- Step 5: Review &amp; Summary -->
                         <VBox alignItems="Center" justifyContent="Center">
                             <VBox visible="{= ${accessModel>/addAccessStep} === 5 }" alignItems="Center" class="kyraStepNode kyraStepActive">
                                 <HBox alignItems="Center" justifyContent="Center" class="kyraStepIconWrap">
@@ -624,7 +624,7 @@
                         </VBox>
                     </HBox>
 
-                    <!-- STEP 1: BUSINESS SECTOR & FUNCTION (MODERN EXECUTIVE SCOPE CARD) -->
+                    <!-- STEP 1: BUSINESS SECTOR &amp; FUNCTION (MODERN EXECUTIVE SCOPE CARD) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} }" class="fioriStepSlideAnim">
                         <VBox class="kyraEnterpriseScopeCard sapUiSmallMarginBottom">
                             <!-- Card Header -->
@@ -669,6 +669,8 @@
                                     </HBox>
                                     <ComboBox
                                         id="inPageBusinessFunctionSelect"
+                                        selectionChange=".onInPageFunctionChange"
+                                        change=".onInPageFunctionChange"
                                         selectedKey="{accessModel>/selectedFunction}"
                                         items="{accessModel>/availableFunctions}"
                                         placeholder="Select Business Function..."
@@ -749,7 +751,7 @@
                         </HBox>
                     </VBox>
 
-                    <!-- STEP 3: ACCESS CONFIGURATION (SEQUENTIAL TARGET SYSTEM SLIDES & DURATION/JUSTIFICATION) -->
+                    <!-- STEP 3: ACCESS CONFIGURATION (SEQUENTIAL TARGET SYSTEM SLIDES &amp; DURATION/JUSTIFICATION) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 3 }" class="fioriStepSlideAnim">
                         
                         <!-- SUB-STEP 3.1: TARGET SYSTEMS SLIDE CONFIGURATION -->
@@ -856,24 +858,15 @@
 
                             <!-- Single Unified Down Footer Action Bar -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
-                                <!-- Left Navigation Button: Goes to Previous System Slide or Back to Step 2 Region -->
                                 <Button
                                     text="Previous"
                                     type="Default"
-                                    visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/addAccessCurrentSystemIndex} &gt; 0 }"
-                                    press=".onPrevSystemSlide"
-                                    class="kyraSecondaryBtn" />
-                                <Button
-                                    text="Previous"
-                                    type="Default"
-                                    visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (!${accessModel>/addAccessCurrentSystemIndex} || ${accessModel>/addAccessCurrentSystemIndex} === 0) }"
-                                    press=".onGoToAddAccessStep2"
+                                    visible="{= !${accessModel>/isEditingFromSummary} }"
+                                    press=".onStep3Slide1Previous"
                                     class="kyraSecondaryBtn" />
                                 <Text text="" visible="{accessModel>/isEditingFromSummary}" />
 
-                                <!-- Right Action Buttons -->
                                 <HBox alignItems="Center">
-                                    <!-- Simple OK button shown ONLY when editing from Summary -->
                                     <Button
                                         text="OK"
                                         type="Emphasized"
@@ -881,44 +874,23 @@
                                         press=".onSaveAndReturnToSummary"
                                         class="kyraPrimaryBtn"
                                         tooltip="Save changes and return straight to Summary" />
-
                                     <Button
                                         text="Cancel"
                                         type="Default"
                                         visible="{= !${accessModel>/isEditingFromSummary} }"
                                         press=".onCloseAddAccessSector"
                                         class="kyraSecondaryBtn sapUiSmallMarginEnd" />
-
-                                    <!-- Next System Slide Continue Button -->
                                     <Button
                                         text="Next"
                                         type="Emphasized"
-                                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) &lt; ${accessModel>/addAccessSelectedSystems}.length }"
-                                        enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
-                                        press=".onNextSystemSlide"
-                                        class="kyraPrimaryBtn" />
-
-                                    <!-- Complete System Slides and Set Duration Continue Button -->
-                                    <Button
-                                        text="Next"
-                                        type="Emphasized"
-                                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (${accessModel>/addAccessCurrentSystemIndex} + 1) === ${accessModel>/addAccessSelectedSystems}.length }"
-                                        enabled="{= ${accessModel>/addAccessSelectedPersonas} &amp;&amp; ${accessModel>/addAccessSelectedPersonas}.length &gt; 0 }"
-                                        press=".onCompleteSystemSlides"
-                                        class="kyraPrimaryBtn" />
-
-                                    <!-- Fallback Continue Button if no system is selected yet -->
-                                    <Button
-                                        text="Next"
-                                        type="Emphasized"
-                                        visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; (!${accessModel>/addAccessSelectedSystems} || ${accessModel>/addAccessSelectedSystems}.length === 0) }"
-                                        press=".onCompleteSystemSlides"
+                                        visible="{= !${accessModel>/isEditingFromSummary} }"
+                                        press=".onStep3Slide1Continue"
                                         class="kyraPrimaryBtn" />
                                 </HBox>
                             </HBox>
                         </VBox>
 
-                        <!-- SUB-STEP 3.2: DURATION & BUSINESS JUSTIFICATION -->
+                        <!-- SUB-STEP 3.2: DURATION &amp; BUSINESS JUSTIFICATION -->
                         <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
                             <form:SimpleForm
                                 editable="true"
@@ -934,6 +906,8 @@
                                     <Label text="Access Duration" required="true" />
                                     <ComboBox
                                         id="inPageDurationSelect"
+                                        selectionChange=".onInPageDurationChange"
+                                        change=".onInPageDurationChange"
                                         selectedKey="{accessModel>/addAccessDuration}"
                                         placeholder="Select Access Duration..."
                                         width="100%"
@@ -989,7 +963,7 @@
                         </VBox>
                     </VBox>
 
-                    <!-- STEP 4: ACCESS VALIDATION & SOD CONFLICT REVIEW (2-SLIDE PROCESS) -->
+                    <!-- STEP 4: ACCESS VALIDATION &amp; SOD CONFLICT REVIEW (2-SLIDE PROCESS) -->
 
                     <!-- SLIDE 1: ACCESS VALIDATION (THRESHOLD LIMITS, RESTRICTED RECORDS, DUPLICATE ROLES) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 4 &amp;&amp; (${accessModel>/addAccessStep4SubStep} || 1) === 1 }" class="fioriStepSlideAnim sapUiResponsivePadding">
@@ -1192,7 +1166,7 @@
                         </HBox>
                     </VBox>
 
-                    <!-- SLIDE 2: SOD CONFLICT REVIEW (SINGLE UNIFIED SLIDE: EXISTING ACCESS & NEW ACCESS COMBINED) -->
+                    <!-- SLIDE 2: SOD CONFLICT REVIEW (SINGLE UNIFIED SLIDE: EXISTING ACCESS &amp; NEW ACCESS COMBINED) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 }" class="fioriStepSlideAnim kyraSodSlideContainer">
                         <!-- Top Action Bar -->
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSodActionBar sapUiSmallMarginBottom" width="100%">
@@ -1425,7 +1399,7 @@
                         </HBox>
                     </VBox>
 
-                    <!-- STEP 5: ACCESS REQUEST REVIEW & SUMMARY (CLEAN PROJECT-SPECIFIC SPECIFICATION) -->
+                    <!-- STEP 5: ACCESS REQUEST REVIEW &amp; SUMMARY (CLEAN PROJECT-SPECIFIC SPECIFICATION) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 5 }" class="fioriStepSlideAnim sapUiResponsivePadding">
                         <!-- Top Header Banner -->
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
@@ -1438,7 +1412,7 @@
                             </HBox>
                         </HBox>
 
-                        <!-- Top Scope & Governance Metadata Summary Card -->
+                        <!-- Top Scope &amp; Governance Metadata Summary Card -->
                         <VBox class="kyraSummaryTopDetailsCard sapUiSmallMarginBottom">
                             <HBox class="kyraSummaryDetailGrid" alignItems="Center">
                                 <VBox class="kyraSummaryDetailItem">
@@ -2078,7 +2052,7 @@
 
                 <!-- Main White Card Container -->
                 <VBox class="kyraNotifMainOuterCard" width="100%">
-                    <!-- 1. Header Title & Search Row -->
+                    <!-- 1. Header Title &amp; Search Row -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifHeaderRow sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center">
                             <HBox class="kyraNotifBellAvatarBox sapUiMediumMarginEnd" justifyContent="Center" alignItems="Center">
@@ -2098,7 +2072,7 @@
                         </HBox>
                     </HBox>
 
-                    <!-- 2. Filter Tabs & Clear all Button Row -->
+                    <!-- 2. Filter Tabs &amp; Clear all Button Row -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifFilterBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center" class="kyraNotifFilterGroup">
                             <Button
@@ -2216,7 +2190,7 @@
                         </HBox>
                     </HBox>
 
-                    <!-- 2. Centered Hero Title & Subtitle + Centered Search -->
+                    <!-- 2. Centered Hero Title &amp; Subtitle + Centered Search -->
                     <VBox class="kyraHelpHeroSection" alignItems="Center">
                         <Title text="How can we help you?" level="H1" class="kyraHelpHeroTitle" />
                         <Text text="Find helpful information and answers to common questions." class="kyraHelpHeroSubtitle sapUiTinyMarginTop" />
@@ -2292,7 +2266,7 @@
                 </VBox>
             </VBox>
 
-            <!-- DEDICATED FULL PAGE VIEW: CONTACT IT SUPPORT (Modern, Clean White & Light-Blue 2-Column Design) -->
+            <!-- DEDICATED FULL PAGE VIEW: CONTACT IT SUPPORT (Modern, Clean White &amp; Light-Blue 2-Column Design) -->
             <VBox id="kyraContactITPageContainer" visible="{= !!${accessModel>/showContactITPage} }" class="fioriStepSlideAnim kyraContactITPageWrapper" width="100%">
                 <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
@@ -2350,7 +2324,7 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- Row 1: Full Name & Email Address -->
+                            <!-- Row 1: Full Name &amp; Email Address -->
                             <HBox width="100%" class="kyraContactITFormRow sapUiTinyMarginTop">
                                 <VBox class="kyraContactITFormCol">
                                     <HBox alignItems="Center" class="kyraContactITLabelRow">
@@ -2383,7 +2357,7 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- Row 2: Phone Number & Subject -->
+                            <!-- Row 2: Phone Number &amp; Subject -->
                             <HBox width="100%" class="kyraContactITFormRow sapUiSmallMarginTop">
                                 <VBox class="kyraContactITFormCol">
                                     <HBox alignItems="Center" class="kyraContactITLabelRow">
@@ -2466,7 +2440,7 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- Info Tile 2: Secure & Confidential -->
+                            <!-- Info Tile 2: Secure &amp; Confidential -->
                             <HBox class="kyraContactITInfoTile sapUiSmallMarginTop" alignItems="Center">
                                 <HBox class="kyraContactITInfoBadgeCircle" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://shield" class="kyraContactITInfoBadgeIcon" />
@@ -2492,7 +2466,7 @@
                 </VBox>
             </VBox>
 
-            <!-- DEDICATED FULL PAGE VIEW: TROUBLESHOOTING CONTACT SUPPORT & SUBMIT REQUEST FLOW -->
+            <!-- DEDICATED FULL PAGE VIEW: TROUBLESHOOTING CONTACT SUPPORT &amp; SUBMIT REQUEST FLOW -->
             <VBox id="kyraTroubleshootPageContainer" visible="{= !!${accessModel>/showTroubleshootPage} }" class="fioriStepSlideAnim kyraTroubleshootPageWrapper" width="100%">
                 <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
@@ -2605,7 +2579,7 @@
                             </HBox>
                         </VBox>
 
-                        <!-- Bottom Buttons: Cancel & Submit Request -->
+                        <!-- Bottom Buttons: Cancel &amp; Submit Request -->
                         <HBox justifyContent="End" alignItems="Center" class="kyraContactITBtnRow sapUiMediumMarginTop">
                             <Button
                                 text="Cancel"
@@ -2636,7 +2610,7 @@
                             <core:Icon src="sap-icon://accept" class="kyraTroubleshootSuccessCheckIcon" />
                         </HBox>
 
-                        <!-- Heading & Subtitle -->
+                        <!-- Heading &amp; Subtitle -->
                         <Title text="Request Submitted Successfully" level="H1" class="kyraTroubleshootSuccessTitle sapUiSmallMarginTop" />
                         <Text
                             text="Your request has been submitted. Our support team will get back to you shortly."

@@ -91,12 +91,22 @@
         "viewType": "XML",
         "path": "kyra001.pages",
         "async": true,
-        "viewPath": "kyra001.pages"
+        "viewPath": "kyra001.pages",
+        "bypassed": {
+          "target": "TargetLogin"
+        }
       },
       "routes": [
         {
           "name": "Login",
           "pattern": "",
+          "target": [
+            "TargetLogin"
+          ]
+        },
+        {
+          "name": "AppPreviewLogin",
+          "pattern": "app-preview",
           "target": [
             "TargetLogin"
           ]
