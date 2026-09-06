@@ -436,34 +436,34 @@
                         fixedLayout="true"
                         items="{accessModel>/myPendingRequests}"
                         noDataText="No pending access requests at this time."
-                        class="sapUiNoMargin kyraHistoryTable">
+                        class="sapUiNoMargin kyraHistoryTable kyraPendingRequestsTable">
                         <columns>
-                            <Column width="11%" hAlign="Center"><Text text="REQUEST ID" class="kyraHistHeader" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="TYPE" class="kyraHistHeader" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="SYSTEM" class="kyraHistHeader" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="SERVICES" class="kyraHistHeader" /></Column>
-                            <Column width="16%" hAlign="Begin"><Text text="TEAM / ROLE" class="kyraHistHeader" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="PERSONA" class="kyraHistHeader" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="DURATION" class="kyraHistHeader" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="SUBMITTED" class="kyraHistHeader" /></Column>
-                            <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraHistHeader" /></Column>
+                            <Column width="150px" hAlign="Center"><Text text="REQUEST ID" class="kyraHistHeader kyraColHeadCenter" wrapping="false" /></Column>
+                            <Column width="90px" hAlign="Center"><Text text="TYPE" class="kyraHistHeader kyraColHeadCenter" wrapping="false" /></Column>
+                            <Column width="170px" hAlign="Begin"><Text text="SYSTEM" class="kyraHistHeader" wrapping="false" /></Column>
+                            <Column width="140px" hAlign="Begin"><Text text="SERVICES" class="kyraHistHeader" wrapping="false" /></Column>
+                            <Column width="175px" hAlign="Begin"><Text text="TEAM / ROLE" class="kyraHistHeader" wrapping="false" /></Column>
+                            <Column width="195px" hAlign="Begin"><Text text="PERSONA" class="kyraHistHeader" wrapping="false" /></Column>
+                            <Column width="145px" hAlign="Center"><Text text="DURATION" class="kyraHistHeader kyraColHeadCenter" wrapping="false" /></Column>
+                            <Column width="115px" hAlign="Center"><Text text="SUBMITTED" class="kyraHistHeader kyraColHeadCenter" wrapping="false" /></Column>
+                            <Column width="120px" hAlign="Center"><Text text="STATUS" class="kyraHistHeader kyraColHeadCenter" wrapping="false" /></Column>
                         </columns>
                         <items>
-                            <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow">
+                            <ColumnListItem vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow kyraPendingTableRow">
                                 <cells>
-                                    <Text text="{accessModel>requestId}" style="font-weight: 700; white-space: nowrap !important; color: #0F172A;" />
-                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? 'Revoke' : 'Addition' }" style="font-weight: 500; color: #1E293B;" />
-                                    <Text text="{accessModel>system}" style="font-weight: 500; color: #1E293B;" />
-                                    <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" style="font-weight: 500; color: #334155;" />
-                                    <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" style="font-weight: 600; color: #0F172A; line-height: 1.3; text-align: center;" />
-                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" style="white-space: nowrap !important; color: #475569;" />
-                                    <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" style="white-space: nowrap !important; color: #475569;" />
-                                    <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" style="white-space: nowrap !important; color: #475569;" />
+                                    <Text text="{accessModel>requestId}" class="fioriCellBold kyraCellTextCenter kyraPendingReqId" style="color: #0F172A; font-size: 11.5px; white-space: nowrap; font-weight: 700;" />
+                                    <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? 'Revoke' : 'Addition' }" class="kyraCellTextCenter" style="font-weight: 500; color: #1E293B; font-size: 12px; white-space: nowrap;" />
+                                    <Text text="{accessModel>system}" class="kyraCellText" style="font-weight: 600; color: #1E293B; font-size: 11.5px; line-height: 1.3;" />
+                                    <Text text="{= ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" class="kyraCellText" style="font-weight: 500; color: #334155; font-size: 11.5px; line-height: 1.3;" />
+                                    <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" class="kyraCellText" style="font-weight: 600; color: #0F172A; line-height: 1.3; font-size: 11.5px; text-align: left;" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" class="kyraCellText" style="color: #334155; font-size: 11.5px; line-height: 1.3; font-weight: 500;" />
+                                    <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" class="kyraCellTextCenter" style="color: #334155; font-size: 11px; line-height: 1.3; text-align: center; white-space: nowrap;" />
+                                    <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" class="kyraCellTextCenter" style="color: #475569; font-size: 11.5px; white-space: nowrap; text-align: center;" />
                                     <ObjectStatus
                                         text="Pending"
                                         state="Warning"
                                         icon="sap-icon://pending"
-                                        class="kyraApproverStatusBadge" />
+                                        class="kyraApproverStatusBadge kyraPendingStatusBadge" />
                                 </cells>
                             </ColumnListItem>
                         </items>
@@ -1642,50 +1642,69 @@
                 visible="{= !!${accessModel>/showRequestDetailsPage} }"
                 class="kyraRequestDetailsPageContainer fioriStepSlideAnim">
                 
-                <!-- Top Breadcrumb Bar -->
+                                                <!-- TOP HEADER & BREADCRUMB BAR (Clean Kyra Signature Design) -->
                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraReqDetailTopBar sapUiSmallMarginBottom">
+                    <!-- Left: Clean Breadcrumb Trail -->
                     <HBox alignItems="Center" class="kyraBreadcrumbsWrapper">
                         <core:Icon src="sap-icon://home" class="kyraBreadcrumbHomeIcon sapUiTinyMarginEnd" />
-                        <Link text="Home" press=".onNavHomeFromRequestDetails" class="kyraBreadcrumbLink sapUiTinyMarginEnd" />
-                        <Text text="&gt;" class="kyraBreadcrumbSep sapUiTinyMarginEnd" />
-                        <Link text="Requests" press=".onBackFromRequestDetails" class="kyraBreadcrumbLink sapUiTinyMarginEnd" />
-                        <Text text="&gt;" class="kyraBreadcrumbSep sapUiTinyMarginEnd" />
+                        <Link text="Home" press=".onNavHomeFromRequestDetails" class="kyraBreadcrumbLink" />
+                        <Text text="&gt;" class="kyraBreadcrumbSep sapUiTinyMarginBeginEnd" />
+                        <Link text="Requests" press=".onBackFromRequestDetails" class="kyraBreadcrumbLink" />
+                        <Text text="&gt;" class="kyraBreadcrumbSep sapUiTinyMarginBeginEnd" />
                         <Text text="Request Tracking" class="kyraBreadcrumbCurrent" />
                     </HBox>
-                    <HBox alignItems="Center">
-                        <Button icon="sap-icon://navigation-left-arrow" text="Back to Requests" type="Default" press=".onBackFromRequestDetails" class="kyraTopNavBtn" />
+
+                    <!-- Right: Solid Kyra Teal Back Button -->
+                    <HBox alignItems="Center" class="kyraReqDetailActionBox">
+                        <Button
+                            text="Back"
+                            type="Default"
+                            press=".onBackFromRequestDetails"
+                            tooltip="Back to Requests"
+                            class="kyraSimpleBackBtn" />
                     </HBox>
                 </HBox>
 
-                <!-- TOP SUMMARY CARD (Request ID | System | Role | Submitted Date) -->
+                <!-- TOP SUMMARY CARD (Request ID | Type | System | Role | Persona | Submitted Date) -->
                 <HBox class="kyraTrackSummaryCard sapUiSmallMarginBottom" alignItems="Center">
                     <HBox class="kyraTrackDocIconBox sapUiMediumMarginEnd" justifyContent="Center" alignItems="Center">
                         <core:Icon src="sap-icon://document-text" class="kyraTrackDocIcon" />
                     </HBox>
-                    
                     <HBox width="100%" justifyContent="SpaceBetween" alignItems="Center" class="kyraTrackSummaryGrid">
                         <!-- Col 1: Request ID -->
                         <VBox class="kyraTrackCol">
                             <Text text="Request ID" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/requestId} || 'REQ-2026-000378' }" class="kyraTrackReqIdText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/requestId} || 'REQ-2026-979230-01' }" class="kyraTrackReqIdText" />
                         </VBox>
 
-                        <!-- Col 2: System / Application -->
+                        <!-- Col 2: Type -->
+                        <VBox class="kyraTrackCol">
+                            <Text text="Type" class="kyraTrackColLabel" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/type} || 'Addition' }" class="kyraTrackValText" />
+                        </VBox>
+
+                        <!-- Col 3: System / Application -->
                         <VBox class="kyraTrackCol">
                             <Text text="System / Application" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/system} || 'SAP S/4HANA' }" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/system} || 'SAP S/4HANA Enterprise' }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 3: Role / Access -->
+                        <!-- Col 4: Role / Access -->
                         <VBox class="kyraTrackCol">
                             <Text text="Role / Access" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/roleName} || 'Purchase Requisitioner' }" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/roleName} || 'Technical Product Owner' }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 4: Submitted Date -->
+                        <!-- Col 5: Persona -->
+                        <VBox class="kyraTrackCol">
+                            <Text text="Persona" class="kyraTrackColLabel" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || 'Technical Product Manager' }" class="kyraTrackValText" />
+                        </VBox>
+
+                        <!-- Col 6: Submitted Date -->
                         <VBox class="kyraTrackCol kyraTrackColLast">
                             <Text text="Submitted Date" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/submittedDateTime} || 'Aug 22, 2026 10:30 AM' }" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/submittedDateTime} || 'Sep 4, 2026 02:55 PM' }" class="kyraTrackValText kyraTrackDateText" />
                         </VBox>
                     </HBox>
                 </HBox>
@@ -1715,7 +1734,7 @@
                             </HBox>
                             <Text text="{= ${accessModel>/selectedRequestDetail/step1/title} || 'Request Submitted' }" class="kyraStepTitle" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/step1/subtitle} || 'Requester' }" class="kyraStepSubtitle" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/step1/statusText} || 'Completed' }" class="kyraStepStatusGreen" />
+                            <HBox class="kyraStepStatusPillWrap"><HBox class="kyraStepStatusPillGreen" justifyContent="Center" alignItems="Center"><Text text="{= ${accessModel>/selectedRequestDetail/step1/statusText} || 'Completed' }" class="kyraStepStatusPillTextGreen" /></HBox></HBox>
                             <Text text="{= ${accessModel>/selectedRequestDetail/step1/dateTime} || '' }" class="kyraStepTime" visible="{= !!${accessModel>/selectedRequestDetail/step1/dateTime} }" />
                         </VBox>
 
@@ -1760,7 +1779,7 @@
                             </HBox>
                             <Text text="{= ${accessModel>/selectedRequestDetail/step2/title} || 'Engineering &amp; Developer' }" class="kyraStepTitle" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/step2/subtitle} || 'SEGGUM, VEERENDER' }" class="kyraStepSubtitle" />
-                            <Text text="{accessModel>/selectedRequestDetail/step2/statusText}" class="kyraStepStatusGreen" visible="{= ${accessModel>/selectedRequestDetail/step2/state} === 'GREEN' }" />
+                            <HBox class="kyraStepStatusPillGreen" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step2/state} === 'GREEN' }"><Text text="{accessModel>/selectedRequestDetail/step2/statusText}" class="kyraStepStatusPillTextGreen" /></HBox>
                             <HBox class="kyraStepStatusPillBlue" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step2/state} === 'BLUE' }">
                                 <Text text="{accessModel>/selectedRequestDetail/step2/statusText}" class="kyraStepStatusPillText" />
                             </HBox>
@@ -1886,7 +1905,7 @@
                             </HBox>
                             <Text text="{= ${accessModel>/selectedRequestDetail/step4/title} || 'IAM Approver' }" class="kyraStepTitle" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/step4/subtitle} || 'Identity Governance' }" class="kyraStepSubtitle" />
-                            <Text text="{accessModel>/selectedRequestDetail/step4/statusText}" class="kyraStepStatusGreen" visible="{= ${accessModel>/selectedRequestDetail/step4/state} === 'GREEN' }" />
+                            <HBox class="kyraStepStatusPillGreen" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step4/state} === 'GREEN' }"><Text text="{accessModel>/selectedRequestDetail/step4/statusText}" class="kyraStepStatusPillTextGreen" /></HBox>
                             <HBox class="kyraStepStatusPillBlue" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step4/state} === 'BLUE' }">
                                 <Text text="{accessModel>/selectedRequestDetail/step4/statusText}" class="kyraStepStatusPillText" />
                             </HBox>
@@ -1943,7 +1962,7 @@
                             </HBox>
                             <Text text="{= ${accessModel>/selectedRequestDetail/step5/title} || 'IAM Approver 2' }" class="kyraStepTitle" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/step5/subtitle} || 'Access Provisioning' }" class="kyraStepSubtitle" />
-                            <Text text="{accessModel>/selectedRequestDetail/step5/statusText}" class="kyraStepStatusGreen" visible="{= ${accessModel>/selectedRequestDetail/step5/state} === 'GREEN' }" />
+                            <HBox class="kyraStepStatusPillGreen" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step5/state} === 'GREEN' }"><Text text="{accessModel>/selectedRequestDetail/step5/statusText}" class="kyraStepStatusPillTextGreen" /></HBox>
                             <HBox class="kyraStepStatusPillBlue" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step5/state} === 'BLUE' }">
                                 <Text text="{accessModel>/selectedRequestDetail/step5/statusText}" class="kyraStepStatusPillText" />
                             </HBox>
@@ -1991,7 +2010,7 @@
                             </HBox>
                             <Text text="{= ${accessModel>/selectedRequestDetail/step6/title} || 'Completed' }" class="kyraStepTitle" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/step6/subtitle} || 'Access Activated' }" class="kyraStepSubtitle" />
-                            <Text text="{accessModel>/selectedRequestDetail/step6/statusText}" class="kyraStepStatusGreen" visible="{= ${accessModel>/selectedRequestDetail/step6/state} === 'GREEN' }" />
+                            <HBox class="kyraStepStatusPillGreen" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step6/state} === 'GREEN' }"><Text text="{accessModel>/selectedRequestDetail/step6/statusText}" class="kyraStepStatusPillTextGreen" /></HBox>
                             <HBox class="kyraStepStatusPillRed" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step6/state} === 'RED' }">
                                 <Text text="{accessModel>/selectedRequestDetail/step6/statusText}" class="kyraStepStatusPillTextRed" />
                             </HBox>
@@ -2017,22 +2036,24 @@
                         </VBox>
                     </HBox>
 
-                    <!-- Comments List Stream (Dynamic from Requester, Approver, Compliance, IAM 1, IAM 2) -->
+                    <!-- Comments List Stream -->
                     <VBox class="kyraCommentListContainer" items="{accessModel>/selectedRequestDetail/timelineComments}">
                         <HBox class="kyraCommentItemBox" alignItems="Start">
-                            <core:Icon src="{accessModel>icon}" class="{= ${accessModel>state} === 'RED' ? 'kyraCommentStatusIconRed' : (${accessModel>state} === 'BLUE' ? 'kyraCommentStatusIconBlue' : 'kyraCommentStatusIconGreen') } sapUiSmallMarginEnd" />
-                            <VBox width="100%">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                                    <HBox alignItems="Center">
-                                        <Text text="{accessModel>title}" style="font-weight: 700; font-size: 13px; color: #0F172A;" />
-                                        <HBox class="{= ${accessModel>state} === 'RED' ? 'kyraPillBadgeDanger' : (${accessModel>state} === 'BLUE' ? 'kyraStepStatusPillBlue' : 'kyraPillBadgeSuccess') } sapUiSmallMarginBegin" alignItems="Center">
-                                            <Text text="{accessModel>statusBadge}" style="font-size: 10px; font-weight: 700;" />
+                            <HBox class="kyraCommentIconBox sapUiSmallMarginEnd" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="{accessModel>icon}" class="{= ${accessModel>state} === 'RED' ? 'kyraCommentIconRed' : (${accessModel>state} === 'BLUE' ? 'kyraCommentIconBlue' : 'kyraCommentIconGreen') }" />
+                            </HBox>
+                            <VBox width="100%" class="kyraCommentContentBox">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraCommentHeaderRow">
+                                    <HBox alignItems="Center" class="kyraCommentTitleWrap">
+                                        <Text text="{accessModel>title}" class="kyraCommentTitle" />
+                                        <HBox class="{= ${accessModel>state} === 'RED' ? 'kyraCommentBadgeRed' : (${accessModel>state} === 'BLUE' ? 'kyraCommentBadgeBlue' : 'kyraCommentBadgeGreen') } sapUiTinyMarginBegin" alignItems="Center">
+                                            <Text text="{accessModel>statusBadge}" class="{= ${accessModel>state} === 'RED' ? 'kyraCommentBadgeTextRed' : (${accessModel>state} === 'BLUE' ? 'kyraCommentBadgeTextBlue' : 'kyraCommentBadgeTextGreen') }" />
                                         </HBox>
                                     </HBox>
-                                    <Text text="{accessModel>timestamp}" style="font-size: 11.5px; color: #94A3B8;" />
+                                    <Text text="{accessModel>timestamp}" class="kyraCommentTimestamp" />
                                 </HBox>
-                                <Text text="{accessModel>comment}" style="font-size: 12.5px; color: #334155; margin-top: 5px; line-height: 1.45; font-weight: 500;" />
-                                <Text text="{accessModel>author}" style="font-size: 11px; color: #64748B; margin-top: 4px; font-style: italic;" />
+                                <Text text="{accessModel>comment}" class="kyraCommentBody" />
+                                <Text text="{accessModel>author}" class="kyraCommentAuthor" />
                             </VBox>
                         </HBox>
                     </VBox>
@@ -2177,7 +2198,7 @@
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraHelpTopRow sapUiTinyMarginBottom" width="100%">
                         <HBox alignItems="Center">
                             <Button
-                                icon="sap-icon://navigation-left-arrow"
+                                icon="sap-icon://nav-back"
                                 text="Back to Dashboard"
                                 type="Transparent"
                                 press=".onBackFromHelpPage"
@@ -2271,7 +2292,7 @@
                 <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
                     <Button
-                        icon="sap-icon://navigation-left-arrow"
+                        icon="sap-icon://nav-back"
                         text="Back to Help"
                         type="Transparent"
                         press=".onBackFromContactITPage"
@@ -2471,7 +2492,7 @@
                 <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
                     <Button
-                        icon="sap-icon://navigation-left-arrow"
+                        icon="sap-icon://nav-back"
                         text="Back to Help"
                         type="Transparent"
                         press=".onBackFromTroubleshootPage"
@@ -2638,7 +2659,7 @@
                         <!-- Back to Troubleshooting Button -->
                         <Button
                             text="Back to Troubleshooting"
-                            icon="sap-icon://navigation-left-arrow"
+                            icon="sap-icon://nav-back"
                             type="Emphasized"
                             press=".onBackFromTroubleshootPage"
                             class="kyraTroubleshootBackBtn sapUiMediumMarginTop" />

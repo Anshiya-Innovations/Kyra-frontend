@@ -16930,3 +16930,103 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
     overflow-y: auto !important;
     max-height: 275px !important;
 }
+
+
+/* =========================================================================
+   PENDING ACCESS REQUESTS TABLE PERFECT ALIGNMENT & RESPONSIVE SCROLLING
+   ========================================================================= */
+#pendingSectionContainer,
+#pendingSectionContainer.fioriTableCard {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+#pendingSectionContainer .sapMListTblCnt,
+#pendingSectionContainer .sapMListTblCntWrp,
+.kyraPendingRequestsTable .sapMListTblCnt,
+.kyraPendingRequestsTable .sapMListTblCntWrp {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.kyraPendingRequestsTable,
+.kyraPendingRequestsTable.sapMListTbl,
+.kyraPendingRequestsTable.sapMTable {
+    table-layout: fixed !important;
+    width: 1300px !important;
+    min-width: 1300px !important;
+}
+
+/* Headers: strictly single line so DURATION, SUBMITTED, STATUS never break into 2 lines */
+.kyraPendingRequestsTable th .sapMText,
+.kyraPendingRequestsTable th .kyraHistHeader,
+.kyraPendingRequestsTable .kyraHistHeader,
+.kyraPendingRequestsTable th .kyraColHeadCenter {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    text-overflow: clip !important;
+    overflow: visible !important;
+    display: inline-block !important;
+    letter-spacing: 0.04em !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    line-height: normal !important;
+    text-transform: uppercase !important;
+}
+
+/* Row height & vertical alignment */
+.kyraPendingRequestsTable .sapMListTblRow,
+.kyraPendingTableRow {
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+}
+
+.kyraPendingRequestsTable .sapMListTblCell {
+    height: 52px !important;
+    min-height: 52px !important;
+    max-height: 52px !important;
+    vertical-align: middle !important;
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraPendingRequestsTable .sapMText {
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    word-break: normal !important;
+}
+
+.kyraPendingRequestsTable .kyraCellTextCenter,
+.kyraPendingReqId {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Status Column & Badge Centering - Never Clipped */
+.kyraPendingRequestsTable td:last-child,
+.kyraPendingRequestsTable td .kyraApproverStatusBadge,
+.kyraPendingStatusBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    width: auto !important;
+    min-width: 96px !important;
+    white-space: nowrap !important;
+    padding: 3px 10px !important;
+    border-radius: 9999px !important;
+    box-sizing: border-box !important;
+}

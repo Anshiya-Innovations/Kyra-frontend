@@ -21,6 +21,11 @@ sap.ui.define([
         async onInit() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (!oModel.getProperty("/approverPendingTab")) {
+                    oModel.setProperty("/approverPendingTab", "accessRequests");
+                    oModel.setProperty("/pendingAccessCount", 5);
+                    oModel.setProperty("/pendingRevokeCount", 2);
+                }
                 await this._reloadAllRequests(oModel);
             }
         },
@@ -874,6 +879,8 @@ sap.ui.define([
 
             oModel.setProperty("/pendingAccessRequests", aAccessPending);
             oModel.setProperty("/pendingRevokeRequests", aRevokePending);
+            oModel.setProperty("/pendingAccessCount", aAccessPending.length);
+            oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
             oModel.setProperty("/pendingRequests", aPending);
             oModel.setProperty("/processedRequests", aProcessed);
         },
@@ -940,13 +947,13 @@ sap.ui.define([
             ], (Dialog, DatePicker, Label, VBox, HBox, Title, Text, Button, Avatar, Filter, FilterOperator, MessageToast) => {
                 
                 const aSystemOptions = [
-                    { key: "all", title: "All Systems", keyword: "", icon: "sap-icon://world", colorClass: "kyraSysIcon_blue" },
-                    { key: "btp", title: "SAP BTP Cloud Platform", keyword: "BTP", icon: "sap-icon://cloud", colorClass: "kyraSysIcon_blue" },
+                    { key: "all", title: "All Systems", keyword: "", icon: "sap-icon://world", colorClass: "kyraSysIcon_teal" },
+                    { key: "btp", title: "SAP BTP Cloud Platform", keyword: "BTP", icon: "sap-icon://cloud", colorClass: "kyraSysIcon_teal" },
                     { key: "s4hana", title: "SAP S/4HANA Enterprise", keyword: "S/4HANA", icon: "sap-icon://building", colorClass: "kyraSysIcon_green" },
                     { key: "kyra", title: "KYRA Central Governance", keyword: "KYRA", icon: "sap-icon://shield", colorClass: "kyraSysIcon_amber" },
-                    { key: "iam", title: "Active Directory / IAM", keyword: "Active Directory", icon: "sap-icon://group", colorClass: "kyraSysIcon_purple" },
+                    { key: "iam", title: "Active Directory / IAM", keyword: "Active Directory", icon: "sap-icon://group", colorClass: "kyraSysIcon_slate" },
                     { key: "sf", title: "SAP SuccessFactors", keyword: "SuccessFactors", icon: "sap-icon://bar-chart", colorClass: "kyraSysIcon_cyan" },
-                    { key: "ariba", title: "SAP Ariba Supply Network", keyword: "Ariba", icon: "sap-icon://connected-dots", colorClass: "kyraSysIcon_rose" }
+                    { key: "ariba", title: "SAP Ariba Supply Network", keyword: "Ariba", icon: "sap-icon://connected-dots", colorClass: "kyraSysIcon_darkteal" }
                 ];
 
                 if (bIsHistoryTab) {
@@ -1187,7 +1194,7 @@ sap.ui.define([
                             alignItems: "Center",
                             items: [
                                 new Avatar({
-                                    src: bIsHistoryTab ? "sap-icon://history" : "sap-icon://database",
+                                    src: bIsHistoryTab ? "sap-icon://history" : "sap-icon://filter",
                                     displaySize: "S"
                                 }).addStyleClass("kyraSysFilterAvatar"),
                                 new VBox({

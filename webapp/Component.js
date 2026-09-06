@@ -36,6 +36,7 @@ sap.ui.define([
                 isApproverPersona: bIsApprover,
                 pendingRequests: [],
                 processedRequests: [],
+                approverPendingTab: "accessRequests",
                 pendingAccessRequests: [],
                 pendingRevokeRequests: [],
                 activeRoles: [],

@@ -12,65 +12,70 @@
             visible="true"
             class="kyraApproverCard sapUiNoMargin">
             
-            <!-- TOP COMPACT TOOLBAR ROW: LEFT (Title, Subtitle, Access/Revoke) | RIGHT (Pending, History, Search, Filter, Export) -->
-            <HBox justifyContent="SpaceBetween" alignItems="Start" wrap="Wrap" class="kyraApproverTopToolbar sapUiTinyMarginBottom">
-                <!-- LEFT SIDE: Title &amp; Description with Access / Revoke buttons directly below -->
-                <VBox class="kyraApproverLeftCol">
-                    <HBox alignItems="Center" class="kyraCardHeaderLeft sapUiSmallMarginBottom">
-                        <Avatar src="sap-icon://user-edit" class="kyraMasterViewAvatar" displaySize="S" />
-                        <VBox class="kyraCardHeaderTextCol">
-                            <Title text="{= ${accessModel>/showApprovalHistory} ? 'Processed Approval History Log' : 'User Requests' }" level="H4" class="fioriApproverTitle fioriCardHeaderTitle" />
-                            <Text text="{= ${accessModel>/showApprovalHistory} ? 'Audit history of all previously approved, rejected, and cancelled access requests.' : 'Click any request row bar below to open the dedicated full summary review page.' }" class="fioriDescriptionText" />
-                        </VBox>
-                    </HBox>
-                    
-                    <HBox visible="{= !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
-                        <Button
-                            text="{= 'Access (' + (${accessModel>/pendingAccessCount} || 0) + ')' }"
-                            icon="sap-icon://add"
-                            type="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' ? 'Emphasized' : 'Transparent' }"
-                            press=".onSelectAccessRequestsTab"
-                            class="kyraTabPillBtn sapUiTinyMarginEnd" />
-                        <Button
-                            text="{= 'Revoke (' + (${accessModel>/pendingRevokeCount} || 0) + ')' }"
-                            icon="sap-icon://delete"
-                            type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
-                            press=".onSelectRevokeRequestsTab"
-                            class="kyraTabPillBtn" />
-                    </HBox>
-                </VBox>
+                                                            <!-- ROW 1: HEADER (Left: Avatar, Title, Subtitle with teal bar | Right: Solid Kyra Teal Segmented Pill Buttons) -->
+            <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverTopRow">
+                <!-- LEFT: Avatar + Title & Subtitle with vertical accent bar -->
+                <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                    <Avatar src="sap-icon://user-edit" class="kyraMasterViewAvatar kyraSquircleAvatar sapUiSmallMarginEnd" displaySize="S" />
+                    <VBox class="kyraCardHeaderTextCol">
+                        <Title text="{= ${accessModel>/showApprovalHistory} ? 'Processed Approval History Log' : 'User Requests' }" level="H4" class="fioriApproverTitle kyraCardHeaderTitle" />
+                        <Text text="{= ${accessModel>/showApprovalHistory} ? 'Audit history of all previously approved, rejected, and cancelled access requests.' : 'Select any request row below to open the dedicated full summary review page.' }" class="fioriDescriptionText kyraSubtitleWithTealBar" />
+                    </VBox>
+                </HBox>
 
-                <!-- RIGHT SIDE: All Controls (Pending, History, Search, Filter, Export) in ONE compact toolbar -->
-                <HBox alignItems="Center" class="kyraApproverRightToolbar">
-                    <HBox class="kyraApproverPillGroup sapUiTinyMarginEnd" alignItems="Center">
-                        <Button
-                            icon="sap-icon://time-entry-request"
-                            text="{= 'Pending (' + ((${accessModel>/pendingRequests} || []).length) + ')' }"
-                            type="{= !${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
-                            press=".onSelectPendingQueue"
-                            tooltip="Pending Queue"
-                            class="kyraApproverPillBtn" />
-                        <Button
-                            icon="sap-icon://history"
-                            text="{= 'History (' + ((${accessModel>/processedRequests} || []).length) + ')' }"
-                            type="{= ${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
-                            press=".onSelectHistoryLog"
-                            tooltip="Processed History"
-                            class="kyraApproverPillBtn" />
-                    </HBox>
+                <!-- RIGHT: Pending (7) and History (7) Pill Buttons (Solid Kyra Teal #008C9C on selected) -->
+                <HBox class="kyraApproverPillGroup" alignItems="Center">
+                    <Button
+                        icon="sap-icon://time-entry-request"
+                        text="{= 'Pending (' + ((${accessModel>/pendingRequests} || []).length) + ')' }"
+                        type="{= !${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
+                        press=".onSelectPendingQueue"
+                        tooltip="Pending Queue"
+                        class="kyraApproverPillBtn" />
+                    <Button
+                        icon="sap-icon://history"
+                        text="{= 'History (' + ((${accessModel>/processedRequests} || []).length) + ')' }"
+                        type="{= ${accessModel>/showApprovalHistory} ? 'Emphasized' : 'Transparent' }"
+                        press=".onSelectHistoryLog"
+                        tooltip="Processed History"
+                        class="kyraApproverPillBtn" />
+                </HBox>
+            </HBox>
 
+            <!-- ROW 2: SUB-TOOLBAR (Left: Access & Revoke Segmented tabs | Right: Search, Filter, Export) -->
+            <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverSubToolbar">
+                <!-- LEFT: Access & Revoke tab buttons (Solid Kyra Teal #008C9C on selected) -->
+                <HBox visible="{= !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
+                    <Button
+                        text="{= 'Access (' + (${accessModel>/pendingAccessCount} || 5) + ')' }"
+                        icon="sap-icon://key"
+                        type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Transparent' : 'Emphasized' }"
+                        press=".onSelectAccessRequestsTab"
+                        tooltip="Pending Access Requests"
+                        class="kyraTabPillBtn" />
+                    <Button
+                        text="{= 'Revoke (' + (${accessModel>/pendingRevokeCount} || 2) + ')' }"
+                        icon="sap-icon://delete"
+                        type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
+                        press=".onSelectRevokeRequestsTab"
+                        tooltip="Pending Revocation Requests"
+                        class="kyraTabPillBtn" />
+                </HBox>
+
+                <!-- RIGHT: Search, Filter, Export Controls -->
+                <HBox alignItems="Center" class="kyraApproverRightControls">
                     <SearchField
                         placeholder="Search request..."
                         width="210px"
                         liveChange=".onSearchApprovalTable"
-                        class="kyraEntitlementsSearchField sapUiTinyMarginEnd" />
+                        class="kyraEntitlementsSearchField" />
                     
                     <Button
                         icon="sap-icon://filter"
                         type="Transparent"
                         press=".onFilterApprovalsDialog"
                         tooltip="Filter Requests"
-                        class="kyraHistoryExportBtn sapUiTinyMarginEnd" />
+                        class="kyraHistoryExportBtn" />
 
                     <Button
                         icon="sap-icon://excel-attachment"
