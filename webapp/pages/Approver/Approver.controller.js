@@ -448,6 +448,15 @@ sap.ui.define([
         },
 
         _buildApproverHistoryAndPending(aRawRecords) {
+            const getBaseReqId = (num) => {
+                if (!num) return "";
+                const lastDash = num.lastIndexOf('-');
+                if (lastDash > 0 && lastDash >= num.length - 4) {
+                    return num.slice(0, lastDash);
+                }
+                return num;
+            };
+
             const deriveCleanService = (r) => {
                 const roleStr = (r.role_name || r.roleName || r.selected_persona || r.selectedPersona || r.requester_persona || r.persona || "").toLowerCase();
                 if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("lead") || roleStr.includes("product manager")) {
@@ -459,40 +468,105 @@ sap.ui.define([
                 }
             };
 
+            const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+            const isCompliance = sActiveRole.includes("compliance");
+            const isIam1 = sActiveRole.includes("approver 1") || sActiveRole.includes("iam 1") || sActiveRole.includes("iam_1");
+            const isIam2 = sActiveRole.includes("approver 2") || sActiveRole.includes("iam 2") || sActiveRole.includes("iam_2");
+            const isApprover = !isCompliance && !isIam1 && !isIam2;
+
             const oGrouped = {};
             const oPendingGrouped = {};
 
             (aRawRecords || []).forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
                 const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
-                const isApproverApproved = sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
+                const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
+                const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
+                const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
+
+                const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || 
+                                     (r.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                     (r.request_number || "").toUpperCase().includes("-REV-");
 
                 let isPendingForRole = false;
                 let bRoleApproved = false;
+                let isProcessedForRole = false;
 
-                if (sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" || isApproverApproved || sDbStatus === "APPROVED" || sDbStatus === "REJECTED") {
-                    bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved) && sApproverStatus !== "REJECTED";
-                } else if (sDbStatus !== "REJECTED") {
-                    isPendingForRole = true;
+                if (isCompliance) {
+                    // COMPLIANCE REVIEWER:
+                    // Only sees Addition requests that reached PENDING_COMPLIANCE (because of SoD conflict).
+                    // NEVER sees freshly submitted Addition requests (status PENDING)!
+                    // NEVER sees Revocation requests!
+                    if (!isRevocation && sDbStatus === "PENDING_COMPLIANCE" && sCompStatus !== "APPROVED" && sCompStatus !== "REJECTED") {
+                        isPendingForRole = true;
+                    } else if (!isRevocation && (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED")) {
+                        isProcessedForRole = true;
+                        bRoleApproved = (sCompStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sCompStatus !== "REJECTED";
+                    }
+                } else if (isIam1) {
+                    // IAM APPROVER 1:
+                    if (sDbStatus === "PENDING_IAM_1" && sIam1Status !== "APPROVED" && sIam1Status !== "REJECTED") {
+                        isPendingForRole = true;
+                    } else if (sIam1Status === "APPROVED" || sIam1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                        isProcessedForRole = true;
+                        bRoleApproved = (sIam1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sIam1Status !== "REJECTED";
+                    }
+                } else if (isIam2) {
+                    // IAM APPROVER 2:
+                    if (sDbStatus === "PENDING_IAM_2" && sIam2Status !== "APPROVED" && sIam2Status !== "REJECTED") {
+                        isPendingForRole = true;
+                    } else if (sIam2Status === "APPROVED" || sIam2Status === "REJECTED" || sDbStatus === "APPROVED") {
+                        isProcessedForRole = true;
+                        bRoleApproved = (sIam2Status === "APPROVED" || sDbStatus === "APPROVED") && sIam2Status !== "REJECTED";
+                    }
+                } else {
+                    // INITIAL APPROVER (Line Manager):
+                    // Freshly submitted requests start at PENDING -> Only initial Approver sees them in pending queue
+                    const isApproverDecided = sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" ||
+                                              sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
+                                              sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
+
+                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER")) {
+                        isPendingForRole = true;
+                    } else if (isApproverDecided) {
+                        isProcessedForRole = true;
+                        bRoleApproved = (sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED";
+                    }
                 }
 
                 const sService = deriveCleanService(r);
                 const sDate = r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : "2026-09-04");
                 const sUser = r.requester_username || "User";
-                const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION");
+
+                // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
+                const sSector = r.business_sector || "Information Technology & Security";
+                const sFunction = r.business_function || "Corporate Governance";
+                const sDuration = r.access_duration || r.duration || "Permanent";
+                const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
+                const sJustification = r.justification || "";
+                const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
 
                 if (isPendingForRole) {
-                    const sPendKey = r.request_number || (sUser + "_" + (r.business_sector || "") + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
+                    const sBaseId = getBaseReqId(r.request_number);
+                    const sPendKey = sBaseId || r.request_number || (sUser + "_" + sSector + "_" + sFunction + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
                     if (!oPendingGrouped[sPendKey]) {
                         oPendingGrouped[sPendKey] = {
-                            requestId: r.request_number || ("REQ-" + (r.ID || "GEN")),
+                            requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
                             requesterId: sUser,
                             requesterUsername: sUser,
                             selectedPersona: r.selected_persona || r.role_name || "Frontend & UI Developer",
                             persona: r.selected_persona || r.role_name || "Frontend & UI Developer",
-                            sector: r.business_sector || "Information Technology & Security",
+                            sector: sSector,
+                            businessSector: sSector,
+                            function: sFunction,
+                            businessFunction: sFunction,
+                            duration: sDuration,
+                            accessDuration: sDuration,
+                            region: sRegion,
+                            operatingRegion: sRegion,
+                            justification: sJustification,
+                            type: sType,
                             serviceTopic: sService,
-                            function: sService,
                             submissionDate: sDate,
                             decisionDate: sDate,
                             status: isRevocation ? "Revoke Pending" : "Pending Approval",
@@ -508,6 +582,7 @@ sap.ui.define([
                         system: r.target_system,
                         roleName: r.role_name,
                         team: sService,
+                        serviceTopic: sService,
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
@@ -516,89 +591,49 @@ sap.ui.define([
                     return;
                 }
 
-                // Processed Records: Exactly matching Image 1
-                let sGroupKey;
-                if (sUser.toLowerCase() === "stake001") {
-                    sGroupKey = sUser;
-                } else {
-                    if (sDate === "2026-09-04") {
-                        if ((r.business_sector || "").includes("Logistics") || (r.selected_persona || "").includes("Cloud Infrastructure")) {
-                            sGroupKey = "emp018_2026-09-04_cloud";
-                        } else {
-                            sGroupKey = "emp018_2026-09-04_sec";
-                        }
-                    } else {
-                        if ((r.business_sector || "").includes("Security") || (r.selected_persona || "").includes("Cybersecurity") || (r.selected_persona || "").includes("Security Audit")) {
-                            sGroupKey = "emp018_2026-09-03_cyber";
-                        } else if ((r.selected_persona || "").includes("Database") || (r.selected_persona || "").includes("Backend") || (r.business_function || "").includes("Procurement Audit")) {
-                            sGroupKey = "emp018_2026-09-03_database";
-                        } else {
-                            sGroupKey = "emp018_2026-09-03_frontend";
-                        }
-                    }
-                }
+                if (isProcessedForRole) {
+                    const sBaseId = getBaseReqId(r.request_number);
+                    const sGroupKey = sBaseId || r.request_number || (sUser + "_" + sDate + "_" + (r.selected_persona || r.role_name));
 
-                if (!oGrouped[sGroupKey]) {
-                    let sPersona = r.selected_persona || r.role_name;
-                    let sSector = r.business_sector;
-                    let sSvc = sService;
+                    if (!oGrouped[sGroupKey]) {
+                        const sPersona = r.selected_persona || r.role_name || "Engineering & Developer Persona";
 
-                    if (sUser === "stake001") {
-                        sPersona = "Integration Engineering Lead";
-                        sSector = "Finance & Enterprise Performance";
-                        sSvc = "System Owners";
-                    } else if (sUser === "Stake001") {
-                        sPersona = "Technical Product Manager";
-                        sSector = "Global Supply Chain & Logistics";
-                        sSvc = "System Owners";
-                    } else if (sGroupKey === "emp018_2026-09-04_cloud") {
-                        sPersona = "Cloud Infrastructure Administrator Persona";
-                        sSector = "Global Supply Chain & Logistics";
-                        sSvc = "System Administrator";
-                    } else if (sGroupKey === "emp018_2026-09-04_sec") {
-                        sPersona = "Security Audit & GRC";
-                        sSector = "Information Technology & Security";
-                        sSvc = "System Administrator";
-                    } else if (sGroupKey === "emp018_2026-09-03_cyber") {
-                        sPersona = "Cybersecurity Operations Persona";
-                        sSector = "Information Technology & Security";
-                        sSvc = "System Administrator";
-                    } else if (sGroupKey === "emp018_2026-09-03_frontend") {
-                        sPersona = "Frontend & UI Developer Persona";
-                        sSector = "Global Supply Chain & Logistics";
-                        sSvc = "System Administrator";
-                    } else if (sGroupKey === "emp018_2026-09-03_database") {
-                        sPersona = "Database & IAM Administrator Persona";
-                        sSector = "Global Supply Chain & Logistics";
-                        sSvc = "System Administrator";
+                        oGrouped[sGroupKey] = {
+                            requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
+                            requesterId: sUser,
+                            selectedPersona: sPersona,
+                            persona: sPersona,
+                            sector: sSector,
+                            businessSector: sSector,
+                            function: sFunction,
+                            businessFunction: sFunction,
+                            duration: sDuration,
+                            accessDuration: sDuration,
+                            region: sRegion,
+                            operatingRegion: sRegion,
+                            justification: sJustification,
+                            type: sType,
+                            serviceTopic: sService,
+                            decisionDate: sDate,
+                            submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            isRevocation: isRevocation,
+                            _isPendingForRole: false,
+                            entitlements: []
+                        };
                     }
 
-                    oGrouped[sGroupKey] = {
-                        requestId: r.request_number || ("REQ-" + (r.ID || "GEN")),
-                        requesterId: sUser,
-                        selectedPersona: sPersona,
-                        persona: sPersona,
-                        sector: sSector,
-                        serviceTopic: sSvc,
-                        function: sSvc,
-                        decisionDate: sDate,
-                        submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
-                        isRevocation: isRevocation,
-                        _isPendingForRole: false,
-                        entitlements: []
-                    };
+                    oGrouped[sGroupKey].entitlements.push({
+                        requestId: r.request_number,
+                        system: r.target_system,
+                        roleName: r.role_name,
+                        team: sService,
+                        serviceTopic: sService,
+                        status: bRoleApproved ? "Approved" : "Rejected",
+                        statusState: bRoleApproved ? "Success" : "Error",
+                        statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
+                        comment: r.approver_comment || r.reviewer_comment || r.comments || ""
+                    });
                 }
-
-                oGrouped[sGroupKey].entitlements.push({
-                    requestId: r.request_number,
-                    system: r.target_system,
-                    roleName: r.role_name,
-                    team: oGrouped[sGroupKey].serviceTopic,
-                    status: bRoleApproved ? "Approved" : "Rejected",
-                    statusState: bRoleApproved ? "Success" : "Error",
-                    statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
-                    comment: r.reviewer_comment || r.comments || ""
-                });
             });
 
             const aProcessed = Object.values(oGrouped);
@@ -620,38 +655,11 @@ sap.ui.define([
                 }
             });
 
-            const aOrder = [
-                "stake001",
-                "Stake001",
-                "emp018_2026-09-04_cloud",
-                "emp018_2026-09-04_sec",
-                "emp018_2026-09-03_cyber",
-                "emp018_2026-09-03_frontend",
-                "emp018_2026-09-03_database"
-            ];
-
             aProcessed.sort((a, b) => {
-                let keyA = a.requesterId;
-                if (keyA === "emp018") {
-                    if (a.decisionDate === "2026-09-04") {
-                        keyA = a.selectedPersona.includes("Cloud") ? "emp018_2026-09-04_cloud" : "emp018_2026-09-04_sec";
-                    } else {
-                        if (a.selectedPersona.includes("Cyber")) keyA = "emp018_2026-09-03_cyber";
-                        else if (a.selectedPersona.includes("Frontend")) keyA = "emp018_2026-09-03_frontend";
-                        else keyA = "emp018_2026-09-03_database";
-                    }
-                }
-                let keyB = b.requesterId;
-                if (keyB === "emp018") {
-                    if (b.decisionDate === "2026-09-04") {
-                        keyB = b.selectedPersona.includes("Cloud") ? "emp018_2026-09-04_cloud" : "emp018_2026-09-04_sec";
-                    } else {
-                        if (b.selectedPersona.includes("Cyber")) keyB = "emp018_2026-09-03_cyber";
-                        else if (b.selectedPersona.includes("Frontend")) keyB = "emp018_2026-09-03_frontend";
-                        else keyB = "emp018_2026-09-03_database";
-                    }
-                }
-                return aOrder.indexOf(keyA) - aOrder.indexOf(keyB);
+                const dA = new Date(a.decisionDate || a.submissionDate || "1970-01-01").getTime();
+                const dB = new Date(b.decisionDate || b.submissionDate || "1970-01-01").getTime();
+                if (dA !== dB) return dB - dA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
             const aPending = Object.values(oPendingGrouped);
@@ -875,13 +883,15 @@ sap.ui.define([
             }
 
             const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
-            const aRevokePending = aPending.filter(p => p.isRevocation || p.type === "Revocation");
+            const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation");
 
             oModel.setProperty("/pendingAccessRequests", aAccessPending);
             oModel.setProperty("/pendingRevokeRequests", aRevokePending);
             oModel.setProperty("/pendingAccessCount", aAccessPending.length);
             oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
-            oModel.setProperty("/pendingRequests", aPending);
+            // Stale session storage injection removed to prevent data flicker
+
+            oModel.setProperty("/pendingRequests", isCompliance ? aAccessPending : aPending);
             oModel.setProperty("/processedRequests", aProcessed);
         },
 
@@ -901,7 +911,10 @@ sap.ui.define([
                             new Filter("requesterId", FilterOperator.Contains, sQuery),
                             new Filter("requestId", FilterOperator.Contains, sQuery),
                             new Filter("sector", FilterOperator.Contains, sQuery),
+                            new Filter("businessSector", FilterOperator.Contains, sQuery),
                             new Filter("function", FilterOperator.Contains, sQuery),
+                            new Filter("businessFunction", FilterOperator.Contains, sQuery),
+                            new Filter("duration", FilterOperator.Contains, sQuery),
                             new Filter("persona", FilterOperator.Contains, sQuery),
                             new Filter("selectedPersona", FilterOperator.Contains, sQuery)
                         ],

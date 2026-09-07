@@ -1082,45 +1082,40 @@
                             
                             <Table id="restrictedRecordsTable" items="{accessModel>/restrictedRecords}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length &gt; 0 }">
                                 <columns>
-                                    <!-- 1. System -->
-                                    <Column width="15%" hAlign="Begin">
-                                        <Text text="SYSTEM" class="kyraValColHeader" />
+                                    <!-- 1. System Name -->
+                                    <Column width="20%" hAlign="Begin">
+                                        <Text text="SYSTEM NAME" class="kyraValColHeader" />
                                     </Column>
-                                    <!-- 2. Role Title -->
+                                    <!-- 2. Services -->
                                     <Column width="16%" hAlign="Begin">
-                                        <Text text="ROLE TITLE" class="kyraValColHeader" />
+                                        <Text text="SERVICES" class="kyraValColHeader" />
                                     </Column>
-                                    <!-- 3. Business Sector -->
-                                    <Column width="15%" hAlign="Begin">
-                                        <Text text="BUSINESS SECTOR" class="kyraValColHeader" />
+                                    <!-- 3. Team -->
+                                    <Column width="16%" hAlign="Begin">
+                                        <Text text="TEAM" class="kyraValColHeader" />
                                     </Column>
-                                    <!-- 4. Business Function -->
-                                    <Column width="15%" hAlign="Begin">
-                                        <Text text="BUSINESS FUNCTION" class="kyraValColHeader" />
-                                    </Column>
-                                    <!-- 5. Persona -->
-                                    <Column width="17%" hAlign="Begin">
+                                    <!-- 4. Persona -->
+                                    <Column width="20%" hAlign="Begin">
                                         <Text text="PERSONA" class="kyraValColHeader" />
                                     </Column>
-                                    <!-- 6. Security Group -->
-                                    <Column width="11%" hAlign="Begin">
+                                    <!-- 5. Security Group -->
+                                    <Column width="14%" hAlign="Begin">
                                         <Text text="SECURITY GROUP" class="kyraValColHeader" />
                                     </Column>
-                                    <!-- 7. AD Group -->
-                                    <Column width="11%" hAlign="Begin">
+                                    <!-- 6. AD Group -->
+                                    <Column width="14%" hAlign="Begin">
                                         <Text text="AD GROUP" class="kyraValColHeader" />
                                     </Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraValTableRow">
                                         <cells>
-                                            <Text text="{accessModel>system}" wrapping="true" class="kyraValBoldText kyraValCellWrap" />
-                                            <Text text="{accessModel>roleTitle}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                                            <Text text="{accessModel>sector}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                                            <Text text="{accessModel>businessFunction}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                                            <Text text="{accessModel>persona}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                                            <Text text="{accessModel>securityGroup}" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
-                                            <Text text="{accessModel>adGroupName}" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                            <Text text="{= ${accessModel>systemName} || ${accessModel>system} }" wrapping="true" class="kyraValBoldText kyraValCellWrap" />
+                                            <Text text="{= ${accessModel>services} || ${accessModel>serviceTopic} || 'System Administrator' }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{= ${accessModel>team} || ${accessModel>teamRole} || ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Administrators' }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                            <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                            <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -1154,27 +1149,37 @@
         </HBox>
     </HBox>
     
-    <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length &gt; 0 }">
+                <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length &gt; 0 }">
         <columns>
-            <Column width="15%" hAlign="Begin"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
-            <Column width="15%" hAlign="Begin"><Text text="FUNCTIONAL ROLE" class="kyraValColHeader" /></Column>
-            <Column width="14%" hAlign="Begin"><Text text="MODULE NAME" class="kyraValColHeader" /></Column>
-            <Column width="16%" hAlign="Begin"><Text text="SELECTED SECURITY GROUPS" class="kyraValColHeader" /></Column>
-            <Column width="13%" hAlign="Begin"><Text text="TEAM NAME" class="kyraValColHeader" /></Column>
-            <Column width="13%" hAlign="Begin"><Text text="AD GROUP NAME" class="kyraValColHeader" /></Column>
-            <Column width="14%" hAlign="Center"><Text text="EXISTING GROUP/ ROLES" class="kyraValColHeader kyraColHeadCenter" /></Column>
+            <!-- 1. System Name -->
+            <Column width="16%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
+            <!-- 2. Services -->
+            <Column width="14%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
+            <!-- 3. Team -->
+            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
+            <!-- 4. Persona -->
+            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
+            <!-- 5. Security Group -->
+            <Column width="14%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
+            <!-- 6. AD Group -->
+            <Column width="13%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
+            <!-- 7. Existing Role -->
+            <Column width="13%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
         </columns>
         <items>
             <ColumnListItem vAlign="Middle" class="kyraValTableRow">
                 <cells>
-                    <Text text="{accessModel>system}" wrapping="true" class="kyraValBoldText kyraValCellWrap" />
-                    <Text text="{accessModel>functionalRole}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                    <Text text="{accessModel>moduleName}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                    <Text text="{accessModel>selectedSecurityGroups}" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
-                    <Text text="{accessModel>teamName}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
-                    <Text text="{accessModel>adGroupName}" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
-                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                        <ObjectStatus text="{accessModel>existingRoles}" state="{accessModel>statusState}" class="kyraTableStatusBadge" />
+                    <Text text="{= ${accessModel>systemName} || ${accessModel>system} }" wrapping="true" class="kyraValBoldText kyraValCellWrap" />
+                    <Text text="{= ${accessModel>services} || ${accessModel>serviceTopic} || ${accessModel>moduleName} || 'System Administrator' }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                    <Text text="{= ${accessModel>team} || ${accessModel>teamName} || ${accessModel>roleTitle} || ${accessModel>functionalRole} || 'IT Administrators' }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                    <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                    <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                    <HBox justifyContent="Center" alignItems="Center">
+                        <ObjectStatus
+                            text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'revoke in pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'already active' : 'already requested') }"
+                            state="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Warning' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Information' : 'Warning') }"
+                            class="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'kyraBadgeRevokePending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'kyraBadgeAlreadyActive' : 'kyraBadgeAlreadyRequested') }" />
                     </HBox>
                 </cells>
             </ColumnListItem>
@@ -1711,7 +1716,7 @@
                     </HBox>
                 </HBox>
 
-                <!-- TOP SUMMARY CARD (Request ID | Type | System | Role | Persona | Submitted Date) -->
+                                <!-- TOP SUMMARY CARD (Request ID | Type | System | Services | Team | Persona | Submitted Date) -->
                 <HBox class="kyraTrackSummaryCard sapUiSmallMarginBottom" alignItems="Center">
                     <HBox class="kyraTrackDocIconBox sapUiMediumMarginEnd" justifyContent="Center" alignItems="Center">
                         <core:Icon src="sap-icon://document-text" class="kyraTrackDocIcon" />
@@ -1720,7 +1725,7 @@
                         <!-- Col 1: Request ID -->
                         <VBox class="kyraTrackCol">
                             <Text text="Request ID" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/requestId} || 'REQ-2026-979230-01' }" class="kyraTrackReqIdText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/requestId} || 'REQ-2026-398634' }" class="kyraTrackReqIdText" />
                         </VBox>
 
                         <!-- Col 2: Type -->
@@ -1729,28 +1734,34 @@
                             <Text text="{= ${accessModel>/selectedRequestDetail/type} || 'Addition' }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 3: System / Application -->
+                        <!-- Col 3: System -->
                         <VBox class="kyraTrackCol">
-                            <Text text="System / Application" class="kyraTrackColLabel" />
+                            <Text text="System" class="kyraTrackColLabel" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/system} || 'SAP S/4HANA Enterprise' }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 4: Role / Access -->
+                        <!-- Col 4: Services -->
                         <VBox class="kyraTrackCol">
-                            <Text text="Role / Access" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/roleName} || 'Technical Product Owner' }" class="kyraTrackValText" />
+                            <Text text="Services" class="kyraTrackColLabel" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} || 'System Administrator' }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 5: Persona -->
+                        <!-- Col 5: Team -->
+                        <VBox class="kyraTrackCol">
+                            <Text text="Team" class="kyraTrackColLabel" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} || 'IT Developers' }" class="kyraTrackValText" />
+                        </VBox>
+
+                        <!-- Col 6: Persona -->
                         <VBox class="kyraTrackCol">
                             <Text text="Persona" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || 'Technical Product Manager' }" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} || 'Technical Product Manager' }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 6: Submitted Date -->
+                        <!-- Col 7: Submitted Date -->
                         <VBox class="kyraTrackCol kyraTrackColLast">
                             <Text text="Submitted Date" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/submittedDateTime} || 'Sep 4, 2026 02:55 PM' }" class="kyraTrackValText kyraTrackDateText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/submittedDateTime} || ${accessModel>/selectedRequestDetail/submittedDate} || 'Sep 7, 2026 07:58 PM' }" class="kyraTrackValText kyraTrackDateText" />
                         </VBox>
                     </HBox>
                 </HBox>

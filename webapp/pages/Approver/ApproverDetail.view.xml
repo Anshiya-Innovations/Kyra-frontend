@@ -31,65 +31,57 @@
                     </HBox>
                 </VBox>
 
-                <!-- CARD 1: FULL ACCESS GOVERNANCE &amp; REQUESTER DETAILS (4 Grid Columns) -->
+                                                                <!-- CARD 1: FULL ACCESS GOVERNANCE &amp; REQUESTER DETAILS (4 Grid Columns without Type) -->
                 <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                     <Title text="Full Access Governance &amp; Requester Details" level="H3" class="sapUiSmallMarginBottom" />
 
-                    <!-- Grid Layout matching exact columns in user uploaded screenshot -->
+                    <!-- Grid Layout displaying governance details without Type -->
                     <l:Grid defaultSpan="L3 M6 S12" class="sapUiNoContentPadding sapUiSmallMarginBottom">
-                        <!-- Column 1 -->
+                        <!-- Column 1: User ID & Duration -->
                         <VBox class="sapUiSmallMarginBottom">
                             <VBox class="sapUiSmallMarginBottom">
-                                <Label text="Requester User ID" class="fioriFormLabel" />
+                                <Label text="User ID" class="fioriFormLabel" />
                                 <Text text="{accessModel>/selectedRequest/requesterId}" class="sapUiTinyMarginTop" style="font-weight: 700; font-size: 1.05rem;" />
                             </VBox>
                             <VBox>
-                                <Label text="Operating Region" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/region}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                <Label text="Duration" class="fioriFormLabel" />
+                                <Text text="{= ${accessModel>/selectedRequest/duration} || ${accessModel>/selectedRequest/accessDuration} || 'Permanent (Default)' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
                             </VBox>
                         </VBox>
 
-                        <!-- Column 2 -->
-                        <VBox class="sapUiSmallMarginBottom">
-                            <VBox class="sapUiSmallMarginBottom">
-                                <Label text="Requester Role Persona" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/persona}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                            <VBox class="sapUiSmallMarginBottom">
-                                <Label text="Selected Entitlement Persona" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/selectedPersona}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                            <VBox>
-                                <Label text="Access Duration" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/duration}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                        </VBox>
-
-                        <!-- Column 3 -->
+                        <!-- Column 2: Business Sector & Business Justification -->
                         <VBox class="sapUiSmallMarginBottom">
                             <VBox class="sapUiSmallMarginBottom">
                                 <Label text="Business Sector" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/sector}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                <Text text="{= ${accessModel>/selectedRequest/businessSector} || ${accessModel>/selectedRequest/sector} || 'Information Technology &amp; Security' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
                             </VBox>
                             <VBox>
                                 <Label text="Business Justification" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/justification}" class="sapUiTinyMarginTop" style="font-style: italic;" />
+                                <Text text="{= ${accessModel>/selectedRequest/justification} || 'N/A' }" class="sapUiTinyMarginTop" style="font-style: italic;" />
                             </VBox>
                         </VBox>
 
-                        <!-- Column 4 -->
+                        <!-- Column 3: Business Function & Status -->
                         <VBox class="sapUiSmallMarginBottom">
                             <VBox class="sapUiSmallMarginBottom">
                                 <Label text="Business Function" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/function}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                                <Text text="{= ${accessModel>/selectedRequest/businessFunction} || ${accessModel>/selectedRequest/function} || 'Corporate Governance' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
                             </VBox>
                             <VBox>
-                                <Label text="Approval Status" class="fioriFormLabel" />
+                                <Label text="Status" class="fioriFormLabel" />
                                 <ObjectStatus
                                     text="{accessModel>/selectedRequest/status}"
                                     state="{accessModel>/selectedRequest/statusState}"
                                     icon="{accessModel>/selectedRequest/statusIcon}"
                                     class="sapUiTinyMarginTop" />
+                            </VBox>
+                        </VBox>
+
+                        <!-- Column 4: Region -->
+                        <VBox class="sapUiSmallMarginBottom">
+                            <VBox class="sapUiSmallMarginBottom">
+                                <Label text="Region" class="fioriFormLabel" />
+                                <Text text="{= ${accessModel>/selectedRequest/region} || ${accessModel>/selectedRequest/operatingRegion} || 'Global Enterprise (ALL)' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
                             </VBox>
                         </VBox>
                     </l:Grid>

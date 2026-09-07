@@ -50,11 +50,11 @@ sap.ui.define([], function() {
             overlay.style.setProperty("display", "flex", "important");
             overlay.style.setProperty("pointer-events", "all", "important");
 
-            if (typeof iDuration === "number" && iDuration > 0) {
-                dismissTimer = setTimeout(() => {
-                    this.hide(fnComplete);
-                }, iDuration);
-            }
+            // Safety timeout: default to 4500ms max if no explicit duration passed so it NEVER hangs indefinitely
+            const iEffectiveDuration = (typeof iDuration === "number" && iDuration > 0) ? iDuration : 4500;
+            dismissTimer = setTimeout(() => {
+                this.hide(fnComplete);
+            }, iEffectiveDuration);
         },
 
         hide(callback, minDisplayTime = 0) {
@@ -66,7 +66,7 @@ sap.ui.define([], function() {
             const elapsed = Date.now() - startTime;
             const remaining = Math.max(0, minDisplayTime - elapsed);
 
-            setTimeout(() => {
+            const removeOverlay = () => {
                 const overlay = document.getElementById("kyra_loading_slide_overlay");
                 if (overlay) {
                     overlay.classList.remove("kyra-active");
@@ -80,7 +80,13 @@ sap.ui.define([], function() {
                 if (typeof callback === "function") {
                     callback();
                 }
-            }, remaining);
+            };
+
+            if (remaining > 0) {
+                setTimeout(removeOverlay, remaining);
+            } else {
+                removeOverlay();
+            }
         },
 
         isShowing() {

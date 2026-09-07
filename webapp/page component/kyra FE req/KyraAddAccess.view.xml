@@ -461,13 +461,12 @@
                 </HBox>
                 <Table id="restrictedRecordsTable" class="fioriConflictTable" fixedLayout="true" noDataText="No Restricted Records">
                     <columns>
-                        <Column width="14%"><Text text="System" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Sector" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Position" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Module Name" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Security Group" class="fioriConflictTableHeader" /></Column>
-                        <Column width="15%"><Text text="Team Name" class="fioriConflictTableHeader" /></Column>
-                        <Column width="15%"><Text text="Ad Group Name" class="fioriConflictTableHeader" /></Column>
+                        <Column width="20%"><Text text="SYSTEM NAME" class="fioriConflictTableHeader" /></Column>
+                        <Column width="16%"><Text text="SERVICES" class="fioriConflictTableHeader" /></Column>
+                        <Column width="16%"><Text text="TEAM" class="fioriConflictTableHeader" /></Column>
+                        <Column width="20%"><Text text="PERSONA" class="fioriConflictTableHeader" /></Column>
+                        <Column width="14%"><Text text="SECURITY GROUP" class="fioriConflictTableHeader" /></Column>
+                        <Column width="14%"><Text text="AD GROUP" class="fioriConflictTableHeader" /></Column>
                     </columns>
                 </Table>
             </VBox>
@@ -481,15 +480,15 @@
                     </HBox>
                     <ObjectStatus text="0 Duplicates" state="Success" icon="sap-icon://sys-enter-2" style="font-weight: 700;" />
                 </HBox>
-                <Table id="duplicateRolesTable" class="fioriConflictTable" fixedLayout="true" noDataText="No Duplicate Roles">
+                                <Table id="duplicateRolesTable" class="fioriConflictTable" fixedLayout="true" noDataText="No Duplicate Roles">
                     <columns>
-                        <Column width="14%"><Text text="System" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Functional Role" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Module Name" class="fioriConflictTableHeader" /></Column>
-                        <Column width="16%"><Text text="Selected Security Groups" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Team Name" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Ad Group Name" class="fioriConflictTableHeader" /></Column>
-                        <Column width="14%"><Text text="Existing Group/ Roles" class="fioriConflictTableHeader" /></Column>
+                        <Column width="16%"><Text text="SYSTEM NAME" class="fioriConflictTableHeader" /></Column>
+                        <Column width="14%"><Text text="SERVICES" class="fioriConflictTableHeader" /></Column>
+                        <Column width="14%"><Text text="TEAM" class="fioriConflictTableHeader" /></Column>
+                        <Column width="16%"><Text text="PERSONA" class="fioriConflictTableHeader" /></Column>
+                        <Column width="14%"><Text text="SECURITY GROUP" class="fioriConflictTableHeader" /></Column>
+                        <Column width="13%"><Text text="AD GROUP" class="fioriConflictTableHeader" /></Column>
+                        <Column width="13%" hAlign="Center"><Text text="EXISTING ROLE" class="fioriConflictTableHeader kyraColHeadCenter" /></Column>
                     </columns>
                 </Table>
             </VBox>

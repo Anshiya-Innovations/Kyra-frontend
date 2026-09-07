@@ -632,7 +632,12 @@ sap.ui.define([
                 return;
             }
 
-            const aItemsToSubmit = aSummaryItems.filter(item => item.existingStatus !== "Already Applied" && item.existingStatus !== "Already Pending" && item.existingStatus !== "Already Active");
+            const isExcludedFromSubmit = (item) => {
+                const s = (item.existingStatus || "").toLowerCase();
+                const st = (item.statusType || "").toLowerCase();
+                return s.startsWith("already") || s.includes("revoke") || st === "revoke_pending";
+            };
+            const aItemsToSubmit = aSummaryItems.filter(item => !isExcludedFromSubmit(item));
 
             if (aItemsToSubmit.length === 0) {
                 MessageBox.warning("All selected access entitlements are already pending approval or already active in your account. No requests were submitted to the database.");

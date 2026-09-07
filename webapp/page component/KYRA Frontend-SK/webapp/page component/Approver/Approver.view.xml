@@ -12,7 +12,7 @@
             visible="true"
             class="kyraApproverCard sapUiNoMargin">
             
-                                                            <!-- ROW 1: HEADER (Left: Avatar, Title, Subtitle with teal bar | Right: Solid Kyra Teal Segmented Pill Buttons) -->
+            <!-- ROW 1: HEADER (Left: Avatar, Title, Subtitle with teal bar | Right: Solid Kyra Teal Segmented Pill Buttons) -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverTopRow">
                 <!-- LEFT: Avatar + Title & Subtitle with vertical accent bar -->
                 <HBox alignItems="Center" class="kyraCardHeaderLeft">
@@ -97,30 +97,36 @@
                     noDataText="No pending access requests in queue."
                     fixedLayout="true"
                     popinLayout="GridSmall"
-                    class="sapUiNoMargin kyraApproverTable">
+                    class="sapUiNoMargin kyraApproverTable kyraActiveEntitlementsTable">
                     <columns>
-                        <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="22%" hAlign="Begin"><Text text="USER DETAILS" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="19%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="12%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="24%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="Business Sector" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="24%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="Business Function" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="14%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="Duration" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="14%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     </columns>
                     <items>
-                        <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem">
+                        <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem kyraTableRow">
                             <cells>
-                                <Text text="{accessModel>requesterId}" class="kyraUserIdText" />
-                                <Text text="{= ${accessModel>selectedPersona} || (${accessModel>persona} &amp;&amp; ${accessModel>persona} !== 'Requester' ? ${accessModel>persona} : 'Frontend &amp; UI Developer Persona') }" class="kyraUserDetailsText" />
-                                <Text text="{accessModel>sector}" wrapping="true" class="kyraSectorText" />
-                                <Text text="{= ${accessModel>serviceTopic} || ${accessModel>function} }" wrapping="true" class="kyraFunctionText" />
-                                <Text text="{accessModel>submissionDate}" class="kyraDateText" />
-                                <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraApproverStatusBadge" />
+                                <Text text="{accessModel>requesterId}" class="kyraUserIdText kyraCellText" />
+                                <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
+                                <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || 'Permanent' }" class="kyraCellTextCenter" />
+                                </HBox>
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{accessModel>submissionDate}" class="kyraDateText kyraCellTextCenter" />
+                                </HBox>
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                                </HBox>
                             </cells>
                         </ColumnListItem>
                     </items>
                 </Table>
 
-                <!-- CLASSIFICATION 2: REVOKE REQUESTS -->
+                <!-- CLASSIFICATION 2: REVOCATION REQUESTS -->
                 <Table
                     id="approvalRevokeTable"
                     visible="{= ${accessModel>/approverPendingTab} === 'revokeRequests' }"
@@ -128,31 +134,37 @@
                     noDataText="No pending revocation requests in queue."
                     fixedLayout="true"
                     popinLayout="GridSmall"
-                    class="sapUiNoMargin kyraApproverTable">
+                    class="sapUiNoMargin kyraApproverTable kyraActiveEntitlementsTable">
                     <columns>
-                        <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="22%" hAlign="Begin"><Text text="USER DETAILS" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="18%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraEntitlementColHeader" /></Column>
-                        <Column width="19%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="12%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="24%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="Business Sector" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="24%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="Business Function" class="kyraEntitlementColHeader" /></Column>
+                        <Column width="14%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="Duration" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="14%" hAlign="Center"><Text text="APPROVAL STATUS" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     </columns>
                     <items>
-                        <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem">
+                        <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem kyraTableRow">
                             <cells>
-                                <Text text="{accessModel>requesterId}" class="kyraUserIdText" />
-                                <Text text="{= ${accessModel>selectedPersona} || (${accessModel>persona} &amp;&amp; ${accessModel>persona} !== 'Requester' ? ${accessModel>persona} : 'Frontend &amp; UI Developer Persona') }" class="kyraUserDetailsText" />
-                                <Text text="{accessModel>sector}" wrapping="true" class="kyraSectorText" />
-                                <Text text="{= ${accessModel>serviceTopic} || ${accessModel>function} }" wrapping="true" class="kyraFunctionText" />
-                                <Text text="{accessModel>submissionDate}" class="kyraDateText" />
-                                <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraApproverStatusBadge" />
+                                <Text text="{accessModel>requesterId}" class="kyraUserIdText kyraCellText" />
+                                <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
+                                <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || 'Permanent' }" class="kyraCellTextCenter" />
+                                </HBox>
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{accessModel>submissionDate}" class="kyraDateText kyraCellTextCenter" />
+                                </HBox>
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                                </HBox>
                             </cells>
                         </ColumnListItem>
                     </items>
                 </Table>
             </VBox>
 
-            <!-- TABLE 2: PROCESSED APPROVAL HISTORY LOG TABLE -->
+            <!-- SECTION 3: PROCESSED APPROVAL HISTORY LOG -->
             <Table
                 id="approvalHistoryTable"
                 visible="{accessModel>/showApprovalHistory}"
@@ -160,37 +172,43 @@
                 noDataText="No processed approval history available."
                 fixedLayout="true"
                 popinLayout="GridSmall"
-                class="sapUiNoMargin kyraApproverTable">
+                class="sapUiNoMargin kyraApproverTable kyraActiveEntitlementsTable">
                 <columns>
                     <Column width="11%" hAlign="Begin"><Text text="USER ID" class="kyraEntitlementColHeader" /></Column>
-                    <Column width="21%" hAlign="Begin"><Text text="USER DETAILS" class="kyraEntitlementColHeader" /></Column>
-                    <Column width="17%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraEntitlementColHeader" /></Column>
-                    <Column width="16%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
-                    <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DECISION DATE" class="kyraEntitlementColHeader" /></Column>
-                    <Column width="13%" hAlign="Center"><Text text="FINAL DECISION" class="kyraEntitlementColHeader" /></Column>
-                    <Column width="10%" hAlign="Center"><Text text="BREAKDOWN" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="Business Sector" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="Business Function" class="kyraEntitlementColHeader" /></Column>
+                    <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="Duration" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="11%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DECISION DATE" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="12%" hAlign="Center"><Text text="FINAL DECISION" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="10%" hAlign="Center"><Text text="BREAKDOWN" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                 </columns>
                 <items>
-                    <ColumnListItem vAlign="Middle" class="kyraApproverRowItem">
+                    <ColumnListItem vAlign="Middle" class="kyraApproverRowItem kyraTableRow">
                         <cells>
-                            <Text text="{accessModel>requesterId}" class="kyraUserIdText" />
-                            <Text text="{= ${accessModel>selectedPersona} || (${accessModel>persona} &amp;&amp; ${accessModel>persona} !== 'Requester' ? ${accessModel>persona} : 'Frontend &amp; UI Developer Persona') }" class="kyraUserDetailsText" />
-                            <Text text="{accessModel>sector}" wrapping="true" class="kyraSectorText" />
-                            <Text text="{= ${accessModel>serviceTopic} || ${accessModel>function} }" wrapping="true" class="kyraFunctionText" />
-                            <Text text="{accessModel>decisionDate}" class="kyraDateText" />
-                            <ObjectStatus
-                                text="{accessModel>status}"
-                                state="{accessModel>statusState}"
-                                icon="{accessModel>statusIcon}"
-                                class="kyraApproverStatusBadge" />
-                            <HBox justifyContent="Center" alignItems="Center">
+                            <Text text="{accessModel>requesterId}" class="kyraUserIdText kyraCellText" />
+                            <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
+                            <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
+                            <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || 'Permanent' }" class="kyraCellTextCenter" />
+                            </HBox>
+                            <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                <Text text="{accessModel>decisionDate}" class="kyraDateText kyraCellTextCenter" />
+                            </HBox>
+                            <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                <ObjectStatus
+                                    text="{accessModel>status}"
+                                    state="{accessModel>statusState}"
+                                    icon="{accessModel>statusIcon}"
+                                    class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                            </HBox>
+                            <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Button
                                     text="View"
                                     icon="sap-icon://hint"
                                     type="Transparent"
                                     press=".onOpenDecisionBreakdownDialog"
                                     tooltip="View Approved and Rejected Details"
-                                    class="kyraBreakdownViewBtn" />
+                                    class="kyraBreakdownViewBtn kyraTableActionBtn" />
                             </HBox>
                         </cells>
                     </ColumnListItem>
