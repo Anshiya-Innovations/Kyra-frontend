@@ -101,6 +101,24 @@ sap.ui.define([], () => {
                 return true;
             }
 
+            // 3. Fallback for browser reload with active session keys
+            const sFallbackUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER) || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id");
+            if (sFallbackUser) {
+                const sFallbackRole = sessionStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || sessionStorage.getItem("kyra_active_role") || "Requester";
+                const sFallbackUuid = sessionStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || sessionStorage.getItem("kyra_active_user_uuid") || "dev-user-001-uuid";
+                this.setSession(sFallbackUser, sFallbackRole, sFallbackUuid, null, false);
+                return true;
+            }
+
+            // 4. Fallback for remember-me in localStorage
+            const sLocalFallbackUser = localStorage.getItem(AUTH_KEYS.ACTIVE_USER) || localStorage.getItem("kyra_active_user") || localStorage.getItem("kyra_remember_id");
+            if (sLocalFallbackUser) {
+                const sLocalFallbackRole = localStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || localStorage.getItem("kyra_active_role") || localStorage.getItem("kyra_remember_role") || "Requester";
+                const sLocalFallbackUuid = localStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || localStorage.getItem("kyra_active_user_uuid") || "dev-user-001-uuid";
+                this.setSession(sLocalFallbackUser, sLocalFallbackRole, sLocalFallbackUuid, null, true);
+                return true;
+            }
+
             return false;
         },
 

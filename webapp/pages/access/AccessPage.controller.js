@@ -4,8 +4,9 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
-], (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator) => {
+    "sap/ui/model/FilterOperator",
+    "kyra001/model/KyraDialog"
+], (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator, KyraDialog) => {
     "use strict";
 
     function calculateExpiryDays(durationStr, grantedDateInput) {
@@ -3298,6 +3299,17 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
+            const oSource = (oEvent && oEvent.getSource) ? oEvent.getSource() : this.byId("inPageSystemsMultiSelect");
+
+            if (oSource && oSource.getSelectedKeys) {
+                const aSelectedKeys = oSource.getSelectedKeys();
+                oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
+            }
+
+            if (window._kyraSyncMultiDisplay && oSource) {
+                window._kyraSyncMultiDisplay(oSource);
+            }
+
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
             let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
 
@@ -3500,7 +3512,12 @@ sap.ui.define([
             }
 
             if (aServices.length === 0 || aRoles.length === 0 || aPersonas.length === 0) {
-                MessageBox.error("Please complete Service, Team Role, and Persona selections for this system slide.");
+                KyraDialog.show({
+                    type: "error",
+                    title: "Incomplete Selection",
+                    message: "Please complete Service, Team Role, and Persona selections for this system slide.",
+                    buttonText: "Close"
+                });
                 return;
             }
 
@@ -3515,7 +3532,12 @@ sap.ui.define([
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
             if (aSystems.length === 0) {
-                MessageBox.error("Please select at least one Target System.");
+                KyraDialog.show({
+                    type: "error",
+                    title: "System Selection Required",
+                    message: "Please select at least one Target System.",
+                    buttonText: "Close"
+                });
                 return;
             }
 
@@ -3546,7 +3568,12 @@ sap.ui.define([
             }
 
             if (aServices.length === 0 || aRoles.length === 0 || aPersonas.length === 0) {
-                MessageBox.error("Please complete Service, Team Role, and Persona selections for this system slide.");
+                KyraDialog.show({
+                    type: "error",
+                    title: "Incomplete Selection",
+                    message: "Please complete Service, Team Role, and Persona selections for this system slide.",
+                    buttonText: "Close"
+                });
                 return;
             }
 
@@ -4377,6 +4404,7 @@ sap.ui.define([
                     aDuplicateRoles.push({
                         system: sSys,
                         functionalRole: sRole,
+                        persona: sPersona || item.persona || sRole,
                         moduleName: sTopic,
                         selectedSecurityGroups: "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
                         teamName: item.team || sTopic || "System Administrator",
@@ -4388,6 +4416,7 @@ sap.ui.define([
                     aDuplicateRoles.push({
                         system: sSys,
                         functionalRole: sRole,
+                        persona: sPersona || item.persona || sRole,
                         moduleName: sTopic,
                         selectedSecurityGroups: "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
                         teamName: item.team || sTopic || "System Administrator",
@@ -4399,6 +4428,7 @@ sap.ui.define([
                     aDuplicateRoles.push({
                         system: sSys,
                         functionalRole: sRole,
+                        persona: sPersona || item.persona || sRole,
                         moduleName: sTopic,
                         selectedSecurityGroups: "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP",
                         teamName: item.team || sTopic || "System Administrator",
@@ -7431,7 +7461,10 @@ sap.ui.define([
         },
 
         _performLogout() {
-            // 1. Clear session storage & credentials
+            // 1. Clear session storage & credentials via AuthManager
+            if (window.KyraAuthManager && typeof window.KyraAuthManager.clearSession === "function") {
+                window.KyraAuthManager.clearSession();
+            }
             sessionStorage.removeItem("kyra_active_user");
             sessionStorage.removeItem("kyra_active_role");
             sessionStorage.removeItem("kyra_active_user_uuid");

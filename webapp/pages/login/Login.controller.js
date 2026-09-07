@@ -7,8 +7,9 @@ sap.ui.define([
     "sap/m/Label",
     "sap/m/Input",
     "sap/m/VBox",
-    "sap/m/Text"
-], (Controller, JSONModel, MessageToast, Dialog, Button, Label, Input, VBox, Text) => {
+    "sap/m/Text",
+    "kyra001/model/AuthManager"
+], (Controller, JSONModel, MessageToast, Dialog, Button, Label, Input, VBox, Text, AuthManager) => {
     "use strict";
 
     const oSubRolesMap = {
@@ -59,7 +60,24 @@ sap.ui.define([
             oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
         },
 
-                        _onRouteMatched() {
+        _onRouteMatched() {
+            if (AuthManager.isAuthenticated()) {
+                const sSavedRoute = sessionStorage.getItem("kyra_redirect_route");
+                const sSavedArgs = sessionStorage.getItem("kyra_redirect_args");
+                sessionStorage.removeItem("kyra_redirect_route");
+                sessionStorage.removeItem("kyra_redirect_args");
+
+                const oRouter = this.getOwnerComponent().getRouter();
+                if (sSavedRoute && sSavedRoute !== "Login" && sSavedRoute !== "AppPreviewLogin") {
+                    try {
+                        const oParsedArgs = sSavedArgs ? JSON.parse(sSavedArgs) : {};
+                        oRouter.navTo(sSavedRoute, oParsedArgs, true);
+                        return;
+                    } catch(e) {}
+                }
+                oRouter.navTo("AccessPage", {}, true);
+                return;
+            }
 
             const oModel = this.getView().getModel("login");
             if (oModel) {
@@ -202,6 +220,7 @@ sap.ui.define([
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
+                AuthManager.setSession(sUserId, sEffectiveTitle, userUuid, null, bRemember);
                 sessionStorage.setItem("kyra_active_user", sUserId);
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
                 sessionStorage.setItem("kyra_active_role", sEffectiveTitle);

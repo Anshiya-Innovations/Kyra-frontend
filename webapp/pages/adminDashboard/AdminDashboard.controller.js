@@ -18,9 +18,12 @@ sap.ui.define([
                 emphasizedAction: MessageBox.Action.YES,
                 onClose: (sAction) => {
                     if (sAction === MessageBox.Action.YES) {
-                        sessionStorage.removeItem("kyra_active_role");
+                        if (window.KyraAuthManager && typeof window.KyraAuthManager.clearSession === "function") {
+                            window.KyraAuthManager.clearSession();
+                        }
+                        sessionStorage.clear();
                         MessageToast.show("Signed out successfully.");
-                        oRouter.navTo("Login");
+                        oRouter.navTo("Login", {}, true);
                     }
                 }
             });
