@@ -154,7 +154,6 @@
                                         <ObjectStatus
                                             text="{accessModel>status}"
                                             state="{accessModel>statusState}"
-                                            icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }"
                                             class="kyraTableStatusBadge" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
@@ -200,11 +199,11 @@
         <core:Icon src="sap-icon://error" class="kyraKpiIconBox" />
     </HBox>
 
-    <!-- 4. REMOVED BOX -->
-    <HBox id="kpiCardRemoved" width="23.8%" class="kyraHistoryKpiCard kyraKpiRemoved fioriClickableCard" tooltip="Filter by Removed Access">
+    <!-- 4. REVOKED BOX -->
+    <HBox id="kpiCardRemoved" width="23.8%" class="kyraHistoryKpiCard kyraKpiRemoved fioriClickableCard" tooltip="Filter by Revoked Access">
         <VBox class="kyraKpiContent">
-            <Text text="{= ${accessModel>/removedHistoryCount} || 0 }" class="kyraKpiCount" />
-            <Text text="Removed" class="kyraKpiLabel" />
+            <Text text="{= ${accessModel>/revokedHistoryCount} !== undefined ? ${accessModel>/revokedHistoryCount} : (${accessModel>/removedHistoryCount} || 0) }" class="kyraKpiCount" />
+            <Text text="Revoked" class="kyraKpiLabel" />
         </VBox>
         <core:Icon src="sap-icon://delete" class="kyraKpiIconBox" />
     </HBox>
@@ -289,7 +288,7 @@
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" wrapping="true" style="font-weight: 600; color: #0F172A; line-height: 1.4; text-align: left;" />
                                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" wrapping="true" style="color: #475569;" />
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" style="white-space: nowrap; color: #475569;" />
+                                        <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? (${accessModel>accessDuration} || ${accessModel>duration} || '(27 days left)') : (${accessModel>accessDuration} || 'Permanent (Default)') }" style="white-space: nowrap; color: #475569;" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" style="white-space: nowrap; color: #475569;" />
@@ -298,8 +297,8 @@
                                         <ObjectStatus
                                             text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'Revoked' : (${accessModel>status} || 'Pending') }"
                                             state="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'Success' : (${accessModel>statusState} || 'Warning') }"
-                                            icon="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'sap-icon://sys-enter-2' : ((${accessModel>status} === 'Rejected' || ${accessModel>statusState} === 'Error') ? 'sap-icon://error' : (${accessModel>statusIcon} || 'sap-icon://history')) }"
-                                            class="kyraApproverStatusBadge kyraTableStatusBadge" />
+                                            icon="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'sap-icon://sys-enter-2' : (${accessModel>statusIcon} || 'sap-icon://pending') }"
+                                            class="kyraApproverStatusBadge" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>
@@ -357,7 +356,6 @@
                                         <ObjectStatus
                                             text="{accessModel>status}"
                                             state="{accessModel>statusState}"
-                                            icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }"
                                             class="kyraTableStatusBadge" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
@@ -486,7 +484,7 @@
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" wrapping="true" class="kyraCellText" />
                                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" wrapping="true" class="kyraCellText" />
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" class="kyraCellTextCenter" />
+                                        <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? (${accessModel>accessDuration} || ${accessModel>duration} || '(27 days left)') : (${accessModel>accessDuration} || 'Permanent (Default)') }" class="kyraCellTextCenter" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" class="kyraCellTextCenter" />
@@ -495,8 +493,8 @@
                                         <ObjectStatus
                                             text="Pending"
                                             state="Warning"
-                                            icon="sap-icon://history"
-                                            class="kyraApproverStatusBadge kyraTableStatusBadge kyraPendingStatusBadge" />
+                                            icon="sap-icon://pending"
+                                            class="kyraApproverStatusBadge kyraPendingStatusBadge" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>
@@ -1665,7 +1663,7 @@
                                         <ObjectStatus
                                             text="{= ${accessModel>status} || 'Active' }"
                                             state="{= (${accessModel>status} === 'Revoke Pending' || ${accessModel>status} === 'Pending') ? 'Warning' : 'Success' }"
-                                            icon="{= (${accessModel>status} === 'Revoke Pending' || ${accessModel>status} === 'Pending') ? 'sap-icon://history' : 'sap-icon://sys-enter-2' }"
+                                            icon="{= (${accessModel>status} === 'Revoke Pending' || ${accessModel>status} === 'Pending') ? 'sap-icon://pending' : 'sap-icon://sys-enter-2' }"
                                             class="kyraTableStatusBadge" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">

@@ -25,19 +25,19 @@ sap.ui.define([
     }
 
     function deriveServiceTopicFromRole(roleStr, rawService) {
-        const rLower = String(roleStr || "").toLowerCase();
-        if (rLower.includes("role owner") || rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
-            return "System Owners";
-        }
-        if (rLower.includes("iam") || rLower.includes("grc") || rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
-            return "System Administrator";
-        }
-        if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
-            return "Stakeholders";
-        }
         const sRawService = String(rawService || "").replace(/\s*\([^)]*\)/g, "").trim();
         if (sRawService === "System Administrator" || sRawService === "System Owners" || sRawService === "Stakeholders") {
             return sRawService;
+        }
+        const rLower = String(roleStr || "").toLowerCase();
+        if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
+            return "System Administrator";
+        }
+        if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
+            return "System Owners";
+        }
+        if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
+            return "Stakeholders";
         }
         return "System Administrator";
     }
@@ -182,14 +182,11 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (!oModel) return;
 
-                const isBlankOrDash = (v) => !v || v === "—" || v === "–" || v === "-" || v === "--" || String(v).trim() === "" || String(v).trim() === "—" || String(v).trim() === "–" || String(v).trim() === "-";
-
                 const sBaseReqId = getBaseReqId(sReqId);
 
                 const matchReq = (r) => {
                     if (!r) return false;
                     if (r.requestId === sReqId || r.requestNumber === sReqId) return true;
-                    if (sReqId === "AR-0018" && (r.requesterId === "emp018" || r.requesterUsername === "emp018" || r.requester_username === "emp018" || (r.requestId && r.requestId.includes("750011")))) return true;
                     if (sBaseReqId && getBaseReqId(r.requestId || r.requestNumber) === sBaseReqId) return true;
                     if (r.entitlements && r.entitlements.some(e => e.requestId === sReqId || (sBaseReqId && getBaseReqId(e.requestId) === sBaseReqId))) return true;
                     return false;
@@ -212,34 +209,31 @@ sap.ui.define([
                         const resp = await fetch("/odata/v4/admin-portal/GovernanceHistory");
                         const dbData = await resp.json();
                         const aAllDb = dbData && dbData.value ? dbData.value : [];
-                        const aMatching = aAllDb.filter(r => r.request_number === sReqId || (sBaseReqId && getBaseReqId(r.request_number) === sBaseReqId) || (sReqId === "AR-0018" && (r.requester_username === "emp018" || (r.request_number && r.request_number.includes("750011")))));
+                        const aMatching = aAllDb.filter(r => r.request_number === sReqId || (sBaseReqId && getBaseReqId(r.request_number) === sBaseReqId));
                         if (aMatching.length > 0) {
                             const first = aMatching[0];
                             const sSvc = deriveServiceTopicFromRole(first.role_name, first.service_topic || first.service);
-                            const isEmp018OrAR = (sReqId === "AR-0018") || (first.requester_username === "emp018") || (first.request_number && first.request_number.includes("750011"));
                             oRequest = {
-                                requestId: sReqId.startsWith("AR-") ? sReqId : first.request_number,
-                                displayRequestId: isEmp018OrAR ? "AR-0018" : (first.request_number || sReqId),
-                                requesterId: isEmp018OrAR ? "emp018" : (first.requester_username || "Requester"),
-                                requesterUsername: isEmp018OrAR ? "emp018" : (first.requester_username || "Requester"),
-                                persona: isEmp018OrAR ? "Security Audit & GRC" : (first.requester_persona || "Requester"),
-                                system: first.target_system || "SAP BTP Cloud Platform",
-                                serviceAndRole: (first.role_name || "Role Owner") + " (" + sSvc + ")",
+                                requestId: first.request_number,
+                                requesterId: first.requester_username || "Requester",
+                                requesterUsername: first.requester_username || "Requester",
+                                persona: first.requester_persona || "Requester",
+                                system: first.target_system || "SAP System",
+                                serviceAndRole: (first.role_name || "Role") + " (" + sSvc + ")",
                                 serviceTopic: sSvc,
                                 submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                                duration: isBlankOrDash(first.access_duration) ? "Permanent" : (String(first.access_duration).includes("Permanent") ? "Permanent" : String(first.access_duration)),
-                                accessDuration: isBlankOrDash(first.access_duration) ? "Permanent" : (String(first.access_duration).includes("Permanent") ? "Permanent" : String(first.access_duration)),
-                                sector: isBlankOrDash(first.business_sector) ? "Global Supply Chain & Logistics" : String(first.business_sector),
-                                businessSector: isBlankOrDash(first.business_sector) ? "Global Supply Chain & Logistics" : String(first.business_sector),
-                                function: isBlankOrDash(first.business_function) ? "Procurement Audit" : String(first.business_function),
-                                businessFunction: isBlankOrDash(first.business_function) ? "Procurement Audit" : String(first.business_function),
-                                region: isBlankOrDash(first.operating_region) ? "Africa" : String(first.operating_region),
-                                operatingRegion: isBlankOrDash(first.operating_region) ? "Africa" : String(first.operating_region),
-                                justification: isBlankOrDash(first.justification) ? "Standard business operational access and governance privileges." : String(first.justification),
-                                selectedPersona: cleanPersonaName(first.selected_persona || "Security Audit & GRC"),
+                                duration: first.access_duration || "Permanent (Default)",
+                                sector: first.business_sector || "Information Technology & Security",
+                                businessSector: first.business_sector || "Information Technology & Security",
+                                function: first.business_function || "Corporate Governance",
+                                businessFunction: first.business_function || "Corporate Governance",
+                                duration: first.access_duration || "Permanent (Default)",
+                                region: first.operating_region || "Global Enterprise (ALL)",
+                                justification: first.justification || "Access Request",
+                                selectedPersona: cleanPersonaName(first.selected_persona || "Engineering & Developer"),
                                 status: "Pending Approval",
                                 statusState: "Warning",
-                                statusIcon: "sap-icon://history",
+                                statusIcon: "sap-icon://pending",
                                 approverRemark: first.approver_comment || "",
                                 entitlements: aMatching.map(m => ({
                                     requestId: m.request_number,
@@ -247,12 +241,12 @@ sap.ui.define([
                                     roleName: (m.role_name || "").replace(/\s*\([^)]*\)/g, "").trim(),
                                     team: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     serviceTopic: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
-                                    selectedPersona: isEmp018OrAR ? "Access Governance Approver" : cleanPersonaName(m.selected_persona || "Access Governance Approver"),
+                                    selectedPersona: cleanPersonaName(m.selected_persona || "Engineering & Developer"),
                                     grantedDate: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                                     expiryDate: m.access_duration || "Permanent",
-                                    status: (m.status === "Approved" || m.status === "Rejected") ? m.status : "Pending",
-                                    statusState: m.status === "Approved" ? "Success" : (m.status === "Rejected" ? "Error" : "Warning"),
-                                    statusIcon: m.status === "Approved" ? "sap-icon://sys-enter-2" : (m.status === "Rejected" ? "sap-icon://error" : "sap-icon://pending"),
+                                    status: "Pending",
+                                    statusState: "Warning",
+                                    statusIcon: "sap-icon://pending",
                                     approverRemark: m.approver_comment || "",
                                     comment: ""
                                 }))
@@ -292,7 +286,7 @@ sap.ui.define([
                         oRequest.entitlements.forEach(ent => {
                             const sInitStatus = (ent.status === "Approved" || ent.status === "Rejected") ? ent.status : "Pending";
                             const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
-                            const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://history");
+                            const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
 
                             let sApproverRemark = "";
                             if (isCompliancePersona) {
@@ -308,7 +302,8 @@ sap.ui.define([
                                 roleName: cleanRole(sRawRole),
                                 team: sService,
                                 serviceTopic: sService,
-                                selectedPersona: cleanPersonaName(ent.selectedPersona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                                selectedPersona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                                persona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
                                 grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
                                 expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
                                 status: sInitStatus,
@@ -321,7 +316,7 @@ sap.ui.define([
                     } else {
                         const sInitStatus = (oRequest.status === "Approved" || oRequest.status === "Rejected") ? oRequest.status : "Pending";
                         const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
-                        const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://history");
+                        const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
 
                         let sApproverRemark = "";
                         if (isCompliancePersona) {
@@ -346,6 +341,32 @@ sap.ui.define([
                             approverRemark: sApproverRemark,
                             comment: oRequest.comment || ""
                         });
+                    }
+
+                    // Always enrich entitlements with live DB records to ensure each individual item's persona is 100% accurate
+                    try {
+                        const respLive = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                        if (respLive.ok) {
+                            const liveData = await respLive.json();
+                            if (liveData && liveData.value) {
+                                const dbMap = {};
+                                liveData.value.forEach(dbItem => {
+                                    if (dbItem.request_number) {
+                                        dbMap[dbItem.request_number] = dbItem;
+                                    }
+                                });
+                                aEntList.forEach(item => {
+                                    const dbRec = dbMap[item.requestId];
+                                    if (dbRec && (dbRec.selected_persona || dbRec.persona)) {
+                                        const sCleanP = cleanPersonaName(dbRec.selected_persona || dbRec.persona);
+                                        item.selectedPersona = sCleanP;
+                                        item.persona = sCleanP;
+                                    }
+                                });
+                            }
+                        }
+                    } catch(e) {
+                        console.warn("Could not enrich live personas:", e);
                     }
 
                     const oSystemIconsMap = {
@@ -374,42 +395,24 @@ sap.ui.define([
                         return tbl;
                     });
 
-                    const isBlankOrDash = (v) => !v || v === "—" || v === "–" || v === "-" || v === "--" || String(v).trim() === "" || String(v).trim() === "—" || String(v).trim() === "–" || String(v).trim() === "-";
-
-                    const rawDuration = oRequest.accessDuration || oRequest.duration || (aEntList[0] && aEntList[0].expiryDate);
-                    const cleanDuration = isBlankOrDash(rawDuration) ? "Permanent" : (String(rawDuration).includes("Permanent") ? "Permanent" : String(rawDuration));
-
-                    const rawRegion = oRequest.operatingRegion || oRequest.region || (oRequest.entitlements && oRequest.entitlements[0] && oRequest.entitlements[0].region);
-                    const cleanRegion = isBlankOrDash(rawRegion) ? "Africa" : String(rawRegion);
-
-                    const rawJustification = oRequest.justification;
-                    const cleanJustification = (isBlankOrDash(rawJustification) || rawJustification === "Business Access Entitlement" || rawJustification === "Access Request") ? "Standard business operational access and governance privileges." : String(rawJustification);
-
-                    const rawSector = oRequest.businessSector || oRequest.sector;
-                    const cleanSector = isBlankOrDash(rawSector) ? "Global Supply Chain & Logistics" : String(rawSector);
-
-                    const rawFunction = oRequest.businessFunction || oRequest.function;
-                    const cleanFunction = isBlankOrDash(rawFunction) ? "Procurement Audit" : String(rawFunction);
-
                     oModel.setProperty("/selectedRequest", {
                         requestId: oRequest.requestId,
-                        displayRequestId: oRequest.displayRequestId || oRequest.requestId,
                         requesterId: sRequesterId,
-                        persona: oRequest.persona || "Security Audit & GRC",
-                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Security Audit & GRC"),
-                        region: cleanRegion,
-                        operatingRegion: cleanRegion,
-                        sector: cleanSector,
-                        businessSector: cleanSector,
-                        function: cleanFunction,
-                        businessFunction: cleanFunction,
-                        duration: cleanDuration,
-                        accessDuration: cleanDuration,
-                        justification: cleanJustification,
+                        persona: oRequest.persona,
+                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                        region: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
+                        operatingRegion: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
+                        sector: oRequest.businessSector || oRequest.sector || "Information Technology & Security",
+                        businessSector: oRequest.businessSector || oRequest.sector || "Information Technology & Security",
+                        function: oRequest.businessFunction || oRequest.function || "Corporate Governance",
+                        businessFunction: oRequest.businessFunction || oRequest.function || "Corporate Governance",
+                        duration: oRequest.accessDuration || oRequest.duration || "Permanent (Default)",
+                        accessDuration: oRequest.accessDuration || oRequest.duration || "Permanent (Default)",
+                        justification: oRequest.justification || "Business Access Entitlement",
                         type: oRequest.type || (oRequest.isRevocation ? "Revocation" : "Addition"),
-                        status: oRequest.status || "Pending Approval",
-                        statusState: oRequest.statusState || "Warning",
-                        statusIcon: oRequest.statusIcon || "sap-icon://history",
+                        status: oRequest.status,
+                        statusState: oRequest.statusState,
+                        statusIcon: oRequest.statusIcon,
                         entitlements: aEntList,
                         summaryTables: aSummaryTables
                     });
@@ -1256,9 +1259,10 @@ sap.ui.define([
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
 
-                const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || 
-                                     (r.business_function || "").toUpperCase().includes("REVOCATION") ||
-                                     (r.request_number || "").toUpperCase().includes("-REV-");
+                const isRevocation = (r.access_type || r.request_type || "").toUpperCase().includes("REV") ||
+                             (r.business_function || "").toUpperCase().includes("REVOCATION") ||
+                             (r.request_number || "").toUpperCase().startsWith("REV-") ||
+                             (r.request_number || "").toUpperCase().includes("-REV-");
 
                 let isPendingForRole = false;
                 let bRoleApproved = false;
@@ -1310,14 +1314,12 @@ sap.ui.define([
                 const sDate = r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : "2026-09-04");
                 const sUser = r.requester_username || "User";
 
-                const isBlankOrDashLocal = (v) => !v || v === "—" || v === "–" || v === "-" || v === "--" || String(v).trim() === "" || String(v).trim() === "—" || String(v).trim() === "–" || String(v).trim() === "-";
-
                 // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
-                const sSector = isBlankOrDashLocal(r.business_sector) ? "Global Supply Chain & Logistics" : String(r.business_sector);
-                const sFunction = isBlankOrDashLocal(r.business_function) ? "Procurement Audit" : String(r.business_function);
-                const sDuration = isBlankOrDashLocal(r.access_duration || r.duration) ? "Permanent" : (String(r.access_duration || r.duration).includes("Permanent") ? "Permanent" : String(r.access_duration || r.duration));
-                const sRegion = isBlankOrDashLocal(r.operating_region || r.region) ? "Africa" : String(r.operating_region || r.region);
-                const sJustification = isBlankOrDashLocal(r.justification) ? "Standard business operational access and governance privileges." : String(r.justification);
+                const sSector = r.business_sector || "Information Technology & Security";
+                const sFunction = r.business_function || "Corporate Governance";
+                const sDuration = r.access_duration || r.duration || "Permanent (Default)";
+                const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
+                const sJustification = r.justification || "";
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
 
                 if (isPendingForRole) {
@@ -1357,6 +1359,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
@@ -1402,6 +1406,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
                         status: bRoleApproved ? "Approved" : "Rejected",
                         statusState: bRoleApproved ? "Success" : "Error",
                         statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
@@ -1535,52 +1541,6 @@ sap.ui.define([
             this._showBatchDecisionRemarkDialog(false);
         },
 
-        onRequestChanges() {
-            sap.ui.require(["sap/m/Dialog", "sap/m/Button", "sap/m/TextArea", "sap/m/VBox", "sap/m/HBox", "sap/ui/core/Icon", "sap/m/Text", "sap/m/Title", "sap/m/MessageToast"], (Dialog, Button, TextArea, VBox, HBox, Icon, Text, Title, MessageToast) => {
-                const oTextArea = new TextArea({
-                    width: "100%",
-                    rows: 4,
-                    placeholder: "Specify the required changes, additional justification, or entitlement adjustments needed..."
-                });
-
-                const oDialog = new Dialog({
-                    title: "Request Changes / Clarification",
-                    contentWidth: "480px",
-                    content: [
-                        new VBox({
-                            items: [
-                                new Text({ text: "Provide details on what the requester needs to modify or clarify before this request can be approved:" }).addStyleClass("sapUiSmallMarginBottom"),
-                                oTextArea
-                            ]
-                        }).addStyleClass("sapUiSmallMargin")
-                    ],
-                    beginButton: new Button({
-                        text: "Submit Change Request",
-                        type: "Emphasized",
-                        press: () => {
-                            const sComment = oTextArea.getValue().trim();
-                            if (!sComment) {
-                                MessageToast.show("Please enter the details of the required change.");
-                                return;
-                            }
-                            oDialog.close();
-                            oDialog.destroy();
-                            MessageToast.show("Change request sent to requester successfully.");
-                        }
-                    }),
-                    endButton: new Button({
-                        text: "Cancel",
-                        press: () => {
-                            oDialog.close();
-                            oDialog.destroy();
-                        }
-                    })
-                });
-
-                oDialog.open();
-            });
-        },
-
         _showBatchDecisionRemarkDialog(bIsApprove) {
             sap.ui.require([
                 "sap/m/Dialog", "sap/m/Button", "sap/m/TextArea", "sap/m/VBox", "sap/m/HBox",
@@ -1611,14 +1571,11 @@ sap.ui.define([
                     }
                 }).addStyleClass("kyraBatchRemarkTextArea");
 
-                let oDialog;
-                oDialog = new Dialog({
+                const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "520px",
+                    contentWidth: "480px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
-                    draggable: false,
-                    resizable: false,
                     content: [
                         new VBox({
                             items: [
@@ -1636,7 +1593,7 @@ sap.ui.define([
                                                         new Icon({
                                                             src: sIconSrc,
                                                             color: sIconColor,
-                                                            size: "18px"
+                                                            size: "20px"
                                                         })
                                                     ]
                                                 }).addStyleClass(sIconClass),
@@ -1661,34 +1618,29 @@ sap.ui.define([
                                         new Text({ text: "Remark / Justification" }).addStyleClass("kyraBatchRemarkLabel"),
                                         oTextArea
                                     ]
-                                }).addStyleClass("kyraBatchDialogBody"),
-
-                                new HBox({
-                                    justifyContent: "End",
-                                    alignItems: "Center",
-                                    items: [
-                                        new Button({
-                                            text: "Cancel",
-                                            type: "Transparent",
-                                            press: () => oDialog.close()
-                                        }).addStyleClass("kyraBatchDialogCancelBtn"),
-                                        new Button({
-                                            text: sBtnText,
-                                            press: () => {
-                                                const sRemark = (oTextArea.getValue() || "").trim();
-                                                if (!sRemark) {
-                                                    oTextArea.setValueState("Error");
-                                                    oTextArea.setValueStateText("Please enter a remark before proceeding.");
-                                                    return;
-                                                }
-                                                this._applyBatchDecisionToAll(bIsApprove, sRemark);
-                                                oDialog.close();
-                                            }
-                                        }).addStyleClass(sBtnClass)
-                                    ]
-                                }).addStyleClass("kyraBatchDialogFooter")
+                                }).addStyleClass("kyraBatchDialogBody")
                             ]
-                        }).addStyleClass("kyraBatchDialogCard")
+                        })
+                    ],
+                    buttons: [
+                        new Button({
+                            text: "Cancel",
+                            type: "Transparent",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraBatchDialogCancelBtn"),
+                        new Button({
+                            text: sBtnText,
+                            press: () => {
+                                const sRemark = (oTextArea.getValue() || "").trim();
+                                if (!sRemark) {
+                                    oTextArea.setValueState("Error");
+                                    oTextArea.setValueStateText("Please enter a remark before proceeding.");
+                                    return;
+                                }
+                                this._applyBatchDecisionToAll(bIsApprove, sRemark);
+                                oDialog.close();
+                            }
+                        }).addStyleClass(sBtnClass)
                     ],
                     afterClose: () => oDialog.destroy()
                 }).addStyleClass("kyraBatchDecisionDialog");

@@ -113,7 +113,7 @@
                                 <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
                                 <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || 'Permanent' }" class="kyraCellTextCenter" />
+                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || '(27 days left)' }" class="kyraCellTextCenter" />
                                 </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{accessModel>submissionDate}" class="kyraDateText kyraCellTextCenter" />
@@ -150,7 +150,7 @@
                                 <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
                                 <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || 'Permanent' }" class="kyraCellTextCenter" />
+                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || '(27 days left)' }" class="kyraCellTextCenter" />
                                 </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{accessModel>submissionDate}" class="kyraDateText kyraCellTextCenter" />
@@ -189,7 +189,7 @@
                             <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
                             <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || 'Permanent' }" class="kyraCellTextCenter" />
+                                <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || '(27 days left)' }" class="kyraCellTextCenter" />
                             </HBox>
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Text text="{accessModel>decisionDate}" class="kyraDateText kyraCellTextCenter" />

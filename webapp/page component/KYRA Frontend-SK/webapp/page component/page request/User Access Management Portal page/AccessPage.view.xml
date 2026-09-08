@@ -199,11 +199,11 @@
         <core:Icon src="sap-icon://error" class="kyraKpiIconBox" />
     </HBox>
 
-    <!-- 4. REMOVED BOX -->
-    <HBox id="kpiCardRemoved" width="23.8%" class="kyraHistoryKpiCard kyraKpiRemoved fioriClickableCard" tooltip="Filter by Removed Access">
+    <!-- 4. REVOKED BOX -->
+    <HBox id="kpiCardRemoved" width="23.8%" class="kyraHistoryKpiCard kyraKpiRemoved fioriClickableCard" tooltip="Filter by Revoked Access">
         <VBox class="kyraKpiContent">
-            <Text text="{= ${accessModel>/removedHistoryCount} || 0 }" class="kyraKpiCount" />
-            <Text text="Removed" class="kyraKpiLabel" />
+            <Text text="{= ${accessModel>/revokedHistoryCount} !== undefined ? ${accessModel>/revokedHistoryCount} : (${accessModel>/removedHistoryCount} || 0) }" class="kyraKpiCount" />
+            <Text text="Revoked" class="kyraKpiLabel" />
         </VBox>
         <core:Icon src="sap-icon://delete" class="kyraKpiIconBox" />
     </HBox>
@@ -288,7 +288,7 @@
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" wrapping="true" style="font-weight: 600; color: #0F172A; line-height: 1.4; text-align: left;" />
                                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" wrapping="true" style="color: #475569;" />
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" style="white-space: nowrap; color: #475569;" />
+                                        <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? (${accessModel>accessDuration} || ${accessModel>duration} || '(27 days left)') : (${accessModel>accessDuration} || 'Permanent (Default)') }" style="white-space: nowrap; color: #475569;" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" style="white-space: nowrap; color: #475569;" />
@@ -484,7 +484,7 @@
                                     <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || 'IT Developers' }" wrapping="true" class="kyraCellText" />
                                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || 'Engineering &amp; Developer' }" wrapping="true" class="kyraCellText" />
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{= ${accessModel>accessDuration} || 'Permanent (Default)' }" class="kyraCellTextCenter" />
+                                        <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? (${accessModel>accessDuration} || ${accessModel>duration} || '(27 days left)') : (${accessModel>accessDuration} || 'Permanent (Default)') }" class="kyraCellTextCenter" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{= ${accessModel>submittedDate} || ${accessModel>createdDate} || ${accessModel>submissionDate} || '2026-08-25' }" class="kyraCellTextCenter" />
