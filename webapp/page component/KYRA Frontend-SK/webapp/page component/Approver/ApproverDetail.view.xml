@@ -5,90 +5,122 @@
     xmlns:l="sap.ui.layout"
     xmlns:core="sap.ui.core">
 
-    <Page id="approverDetailPage" showHeader="false" enableScrolling="true" class="fioriDashboardBg">
+    <Page id="approverDetailPage" showHeader="false" enableScrolling="true" class="kyraGovPageBg">
         <content>
-            <VBox class="sapUiResponsiveMargin fioriStepSlideAnim">
-                <!-- Dynamic Page Title Banner Card for Summary Review -->
-                <VBox class="fioriHeaderBannerCard sapUiSmallMarginBottom">
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" width="100%">
-                        <HBox alignItems="Center" class="sapUiTinyMarginBottom">
-                            <Avatar
-                                src="sap-icon://summary-detail"
-                                displaySize="L"
-                                backgroundColor="Accent1"
-                                class="fioriShieldHeaderAvatar sapUiMediumMarginEnd" />
-                            <VBox>
-                                <Title text="Access Request Governance Summary Review" level="H1" class="fioriBannerTitle" />
-                                <Text text="{= 'Reviewing entitlement submission for Requester User ID: ' + ${accessModel>/selectedRequest/requesterId} }" class="fioriBannerSubtitle" />
+            <VBox class="kyraGovPageContainer fioriStepSlideAnim">
+                <!-- Page Header: Avatar + Title + Subtitle + Back to Portal Button -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraGovHeaderRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="sapUiTinyMarginBottom">
+                        <Avatar
+                            src="sap-icon://customer"
+                            displaySize="M"
+                            class="kyraGovHeaderAvatar sapUiSmallMarginEnd" />
+                        <VBox>
+                            <Title text="Access Request Governance Review" level="H2" class="kyraGovHeaderTitle" />
+                            <Text text="Review and validate entitlement request before approval" class="kyraGovHeaderSubtitle" />
+                        </VBox>
+                    </HBox>
+                    <Button
+                        text="Back"
+                        icon="sap-icon://navigation-left-arrow"
+                        press=".onCloseRequestSummaryView"
+                        class="kyraBackTealBtn"
+                        tooltip="Back to Dashboard" />
+                </HBox>
+
+                <!-- CARD 1: REQUEST & REQUESTER OVERVIEW CARD (Matching Exact Design from Template) -->
+                <VBox class="kyraGovCard kyraGovOverviewCard sapUiSmallMarginBottom">
+                    <!-- Mint Banner Box: User ID + Subtitle + Pending Status Badge -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraGovRequestBannerBox" width="100%">
+                        <HBox alignItems="Center">
+                            <HBox class="kyraGovDocIconBox" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://customer" class="kyraGovDocIcon" />
+                            </HBox>
+                            <VBox class="sapUiSmallMarginBegin">
+                                <Text text="User ID" class="kyraGovInfoLabel" />
+                                <Title text="{= ${accessModel>/selectedRequest/requesterId} || 'Stake001' }" level="H4" class="kyraGovBannerReqNum" />
+                                <Text text="Employee access governance review" class="kyraGovBannerReqSub" />
                             </VBox>
                         </HBox>
-                        <Button
-                            text="Back to User Access Portal"
-                            icon="sap-icon://navigation-left-arrow"
-                            type="Default"
-                            press=".onCloseRequestSummaryView"
-                            class="kyraBackToPortalBtn" />
+                        <HBox class="kyraGovPendingBadge" alignItems="Center">
+                            <core:Icon src="sap-icon://history" class="kyraGovPendingClockIcon sapUiTinyMarginEnd" />
+                            <Text text="{= ${accessModel>/selectedRequest/status} || 'Pending Approval' }" class="kyraGovPendingBadgeText" />
+                        </HBox>
+                    </HBox>
+
+                    <!-- Row 1: 4-Column Grid (Business Sector, Business Function, Region, Duration) -->
+                    <HBox class="kyraGovRequesterGrid" width="100%">
+                        <!-- Column 1: Business Sector -->
+                        <VBox class="kyraGovRequesterCol" width="25%">
+                            <HBox alignItems="Center" class="kyraGovInfoItem">
+                                <HBox class="kyraGovInfoIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://building" class="kyraGovInfoIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Business Sector" class="kyraGovInfoLabel" />
+                                    <Text text="{= (${accessModel>/selectedRequest/businessSector} &amp;&amp; ${accessModel>/selectedRequest/businessSector} !== '—' &amp;&amp; ${accessModel>/selectedRequest/businessSector} !== '–' &amp;&amp; ${accessModel>/selectedRequest/businessSector} !== '-') ? ${accessModel>/selectedRequest/businessSector} : ((${accessModel>/selectedRequest/sector} &amp;&amp; ${accessModel>/selectedRequest/sector} !== '—' &amp;&amp; ${accessModel>/selectedRequest/sector} !== '–' &amp;&amp; ${accessModel>/selectedRequest/sector} !== '-') ? ${accessModel>/selectedRequest/sector} : 'Global Supply Chain &amp; Logistics') }" class="kyraGovInfoValue" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Column 2: Business Function -->
+                        <VBox class="kyraGovRequesterCol" width="25%">
+                            <HBox alignItems="Center" class="kyraGovInfoItem">
+                                <HBox class="kyraGovInfoIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://action-settings" class="kyraGovInfoIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Business Function" class="kyraGovInfoLabel" />
+                                    <Text text="{= (${accessModel>/selectedRequest/businessFunction} &amp;&amp; ${accessModel>/selectedRequest/businessFunction} !== '—' &amp;&amp; ${accessModel>/selectedRequest/businessFunction} !== '–' &amp;&amp; ${accessModel>/selectedRequest/businessFunction} !== '-') ? ${accessModel>/selectedRequest/businessFunction} : ((${accessModel>/selectedRequest/function} &amp;&amp; ${accessModel>/selectedRequest/function} !== '—' &amp;&amp; ${accessModel>/selectedRequest/function} !== '–' &amp;&amp; ${accessModel>/selectedRequest/function} !== '-') ? ${accessModel>/selectedRequest/function} : 'Procurement Audit') }" class="kyraGovInfoValue" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Column 3: Region -->
+                        <VBox class="kyraGovRequesterCol" width="25%">
+                            <HBox alignItems="Center" class="kyraGovInfoItem">
+                                <HBox class="kyraGovInfoIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://locate-me" class="kyraGovInfoIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Region" class="kyraGovInfoLabel" />
+                                    <Text text="{= (${accessModel>/selectedRequest/operatingRegion} &amp;&amp; ${accessModel>/selectedRequest/operatingRegion} !== '—' &amp;&amp; ${accessModel>/selectedRequest/operatingRegion} !== '–' &amp;&amp; ${accessModel>/selectedRequest/operatingRegion} !== '-') ? ${accessModel>/selectedRequest/operatingRegion} : ((${accessModel>/selectedRequest/region} &amp;&amp; ${accessModel>/selectedRequest/region} !== '—' &amp;&amp; ${accessModel>/selectedRequest/region} !== '–' &amp;&amp; ${accessModel>/selectedRequest/region} !== '-') ? ${accessModel>/selectedRequest/region} : 'Africa') }" class="kyraGovInfoValue" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Column 4: Duration -->
+                        <VBox class="kyraGovRequesterCol kyraGovRequesterColLast" width="25%">
+                            <HBox alignItems="Center" class="kyraGovInfoItem">
+                                <HBox class="kyraGovInfoIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://suitcase" class="kyraGovInfoIcon" />
+                                </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Text text="Duration" class="kyraGovInfoLabel" />
+                                    <Text text="{= (${accessModel>/selectedRequest/accessDuration} &amp;&amp; ${accessModel>/selectedRequest/accessDuration} !== '—' &amp;&amp; ${accessModel>/selectedRequest/accessDuration} !== '–' &amp;&amp; ${accessModel>/selectedRequest/accessDuration} !== '-') ? ${accessModel>/selectedRequest/accessDuration} : ((${accessModel>/selectedRequest/duration} &amp;&amp; ${accessModel>/selectedRequest/duration} !== '—' &amp;&amp; ${accessModel>/selectedRequest/duration} !== '–' &amp;&amp; ${accessModel>/selectedRequest/duration} !== '-') ? ${accessModel>/selectedRequest/duration} : 'Permanent') }" class="kyraGovInfoValue" />
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Row 2: Business Justification -->
+                    <HBox width="100%" alignItems="Center" class="sapUiMediumMarginTop">
+                        <HBox alignItems="Center" class="kyraGovInfoItem" width="100%">
+                            <HBox class="kyraGovInfoIconCircle" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://document-text" class="kyraGovInfoIcon" />
+                            </HBox>
+                            <VBox class="sapUiSmallMarginBegin">
+                                <Text text="Business Justification" class="kyraGovInfoLabel" />
+                                <Text text="{= (${accessModel>/selectedRequest/justification} &amp;&amp; ${accessModel>/selectedRequest/justification} !== '—' &amp;&amp; ${accessModel>/selectedRequest/justification} !== '–' &amp;&amp; ${accessModel>/selectedRequest/justification} !== '-') ? ${accessModel>/selectedRequest/justification} : 'Standard business operational access and governance privileges.' }" class="kyraGovInfoValue" />
+                            </VBox>
+                        </HBox>
                     </HBox>
                 </VBox>
 
-                                                                <!-- CARD 1: FULL ACCESS GOVERNANCE &amp; REQUESTER DETAILS (4 Grid Columns without Type) -->
-                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
-                    <Title text="Full Access Governance &amp; Requester Details" level="H3" class="sapUiSmallMarginBottom" />
 
-                    <!-- Grid Layout displaying governance details without Type -->
-                    <l:Grid defaultSpan="L3 M6 S12" class="sapUiNoContentPadding sapUiSmallMarginBottom">
-                        <!-- Column 1: User ID & Duration -->
-                        <VBox class="sapUiSmallMarginBottom">
-                            <VBox class="sapUiSmallMarginBottom">
-                                <Label text="User ID" class="fioriFormLabel" />
-                                <Text text="{accessModel>/selectedRequest/requesterId}" class="sapUiTinyMarginTop" style="font-weight: 700; font-size: 1.05rem;" />
-                            </VBox>
-                            <VBox>
-                                <Label text="Duration" class="fioriFormLabel" />
-                                <Text text="{= ${accessModel>/selectedRequest/duration} || ${accessModel>/selectedRequest/accessDuration} || 'Permanent (Default)' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                        </VBox>
 
-                        <!-- Column 2: Business Sector & Business Justification -->
-                        <VBox class="sapUiSmallMarginBottom">
-                            <VBox class="sapUiSmallMarginBottom">
-                                <Label text="Business Sector" class="fioriFormLabel" />
-                                <Text text="{= ${accessModel>/selectedRequest/businessSector} || ${accessModel>/selectedRequest/sector} || 'Information Technology &amp; Security' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                            <VBox>
-                                <Label text="Business Justification" class="fioriFormLabel" />
-                                <Text text="{= ${accessModel>/selectedRequest/justification} || 'N/A' }" class="sapUiTinyMarginTop" style="font-style: italic;" />
-                            </VBox>
-                        </VBox>
-
-                        <!-- Column 3: Business Function & Status -->
-                        <VBox class="sapUiSmallMarginBottom">
-                            <VBox class="sapUiSmallMarginBottom">
-                                <Label text="Business Function" class="fioriFormLabel" />
-                                <Text text="{= ${accessModel>/selectedRequest/businessFunction} || ${accessModel>/selectedRequest/function} || 'Corporate Governance' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                            <VBox>
-                                <Label text="Status" class="fioriFormLabel" />
-                                <ObjectStatus
-                                    text="{accessModel>/selectedRequest/status}"
-                                    state="{accessModel>/selectedRequest/statusState}"
-                                    icon="{accessModel>/selectedRequest/statusIcon}"
-                                    class="sapUiTinyMarginTop" />
-                            </VBox>
-                        </VBox>
-
-                        <!-- Column 4: Region -->
-                        <VBox class="sapUiSmallMarginBottom">
-                            <VBox class="sapUiSmallMarginBottom">
-                                <Label text="Region" class="fioriFormLabel" />
-                                <Text text="{= ${accessModel>/selectedRequest/region} || ${accessModel>/selectedRequest/operatingRegion} || 'Global Enterprise (ALL)' }" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                            </VBox>
-                        </VBox>
-                    </l:Grid>
-                </VBox>
-
-                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (WITHOUT 'STEP 4' WORD) -->
-                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (Visible only when conflicts exist) -->
+                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom" visible="{= ((${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) || (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) || (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0)) }">
                     <!-- Top Action Bar -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSodActionBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center">
@@ -96,9 +128,6 @@
                             <Text text="|" class="kyraSodDivider sapUiSmallMarginBegin sapUiSmallMarginEnd" />
                             <Text text="Requester ID:" class="kyraSodReqLabel sapUiTinyMarginEnd" />
                             <Text text="{= ${accessModel>/selectedRequest/requesterId} || 'Stake001' }" class="kyraSodReqValue" />
-                        </HBox>
-                        <HBox alignItems="Center">
-                            <Button text="Need help?" icon="sap-icon://sys-help" type="Transparent" class="kyraSodHelpBtn" />
                         </HBox>
                     </HBox>
 
@@ -305,92 +334,107 @@
                     </VBox>
                 </VBox>
 
-                <!-- CARD 3: TARGET SYSTEMS SEPARATED TABLE CARDS (SYSTEM HEADER AT TOP &amp; SYSTEM COLUMN REMOVED) -->
+                <!-- CARD 3+: TARGET SYSTEMS SEPARATED TABLE CARDS (Matching Template Image 2) -->
                 <VBox items="{accessModel>/selectedRequest/summaryTables}">
                     <items>
-                        <VBox class="fioriConflictSectionBox sapUiSmallMarginBottom">
+                        <VBox class="kyraGovCard kyraGovTargetSystemCard sapUiSmallMarginBottom">
                             <!-- Target System Header Banner at Top -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom fioriConflictHeaderBanner">
-                                <HBox alignItems="Center">
-                                    <Avatar src="{accessModel>systemIcon}" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
-                                    <VBox>
-                                        <Title text="{= 'Target System ' + ${accessModel>systemIndex} + ': ' + ${accessModel>systemName} }" level="H5" class="fioriConflictSectionTitle" />
-                                        <Text text="{= ${accessModel>items}.length + ' Configured Entitlement(s)' }" class="fioriDescriptionText" />
-                                    </VBox>
+                            <HBox alignItems="Center" class="kyraGovSystemHeader">
+                                <HBox class="kyraGovCloudIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://cloud" class="kyraGovCloudIcon" />
                                 </HBox>
+                                <VBox class="sapUiSmallMarginBegin">
+                                    <Title text="{= 'Target System ' + ${accessModel>systemIndex} + ': ' + ${accessModel>systemName} }" level="H4" class="kyraGovSystemTitle" />
+                                    <Text text="{= ${accessModel>items}.length + ' Configured Entitlement(s)' }" class="kyraGovSystemSubtitle" />
+                                </VBox>
                             </HBox>
 
-                            <!-- Table Header (Clean 8 Columns, Exactly Aligned via CSS Grid) -->
-                            <HBox class="kyraTableHeadRow" width="100%">
-                                <Text text="REQUEST ID" class="kyraColHeadText kyraColHeadLeft" />
-                                <Text text="TEAM" class="kyraColHeadText kyraColHeadLeft" />
-                                <Text text="ROLES" class="kyraColHeadText kyraColHeadLeft" />
-                                <Text text="SELECTED PERSONA" class="kyraColHeadText kyraColHeadLeft" />
-                                <Text text="GRANTED DATE" class="kyraColHeadText kyraColHeadCenter" />
-                                <Text text="STATUS" class="kyraColHeadText kyraColHeadCenter" />
-                                <Text text="REMARKS" class="kyraColHeadText kyraColHeadLeft" />
-                                <Text text="DECISION" class="kyraColHeadText kyraColHeadCenter" />
-                            </HBox>
+                            <!-- Table Container with 8 Columns, Perfect Gaps, Alignment & Vertical Dividers -->
+                            <VBox class="kyraGovTableWrapper">
+                                <!-- 8-Column Header Row with Vertical Dividers -->
+                                <HBox class="kyraGovTableHeadRow" width="100%" renderType="Bare">
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol1" alignItems="Center"><Text text="REQUEST ID" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol2" alignItems="Center"><Text text="TEAM" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol3" alignItems="Center"><Text text="ROLES" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol4" alignItems="Center"><Text text="SELECTED PERSONA" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol5" alignItems="Center"><Text text="GRANTED DATE" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol6" alignItems="Center" justifyContent="Center"><Text text="STATUS" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol7" alignItems="Center"><Text text="REMARKS" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol8 kyraGovHeadColLast" alignItems="Center" justifyContent="Center"><Text text="DECISION" class="kyraGovColHeadText" /></HBox>
+                                </HBox>
 
-                            <!-- Items List with Small Approver Remark Row Below Every Request Row -->
-                            <VBox items="{accessModel>items}" class="kyraEntitlementsListContainer">
-                                <items>
-                                    <VBox class="kyraEntitlementRowWrapper">
-                                        <!-- 1. Main Request Data Row (Direct 8-element CSS Grid, Exact 1-to-1 Alignment) -->
-                                        <HBox class="kyraRequestDataRow" width="100%">
-                                            <Text text="{accessModel>requestId}" class="kyraReqIdText" />
-                                            <Text text="{accessModel>team}" class="kyraTeamText" />
-                                            <Text text="{accessModel>roleName}" class="kyraRoleText" />
-                                            <Text text="{accessModel>selectedPersona}" class="kyraPersonaText" />
-                                            <Text text="{accessModel>grantedDate}" class="kyraDateText" />
-                                            <HBox class="kyraStatusCellBox" justifyContent="Center" alignItems="Center">
-                                                <ObjectStatus
-                                                    text="{accessModel>status}"
-                                                    state="{accessModel>statusState}"
-                                                    icon="{accessModel>statusIcon}"
-                                                    class="kyraApproverStatusBadge" />
+                                <!-- Items List Container -->
+                                <VBox items="{accessModel>items}" class="kyraGovTableBody">
+                                    <items>
+                                        <VBox class="kyraGovDataRowWrapper">
+                                            <!-- Main Request Data Row (8 Columns with Matching Grid & Dividers) -->
+                                            <HBox class="kyraGovDataRow" width="100%" renderType="Bare">
+                                                <HBox class="kyraGovCell kyraGovCell1" alignItems="Center">
+                                                    <Text text="{accessModel>requestId}" class="kyraGovReqIdText" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell2" alignItems="Center">
+                                                    <Text text="{accessModel>team}" class="kyraGovTeamText" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell3" alignItems="Center">
+                                                    <Text text="{accessModel>roleName}" class="kyraGovRoleText" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell4" alignItems="Center">
+                                                    <Text text="{accessModel>selectedPersona}" class="kyraGovPersonaText" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell5" alignItems="Center">
+                                                    <Text text="{accessModel>grantedDate}" class="kyraGovDateText" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell6" alignItems="Center" justifyContent="Center">
+                                                    <ObjectStatus
+                                                        text="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'Approved' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'Rejected' : 'Pending') }"
+                                                        state="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'Success' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'Error' : 'Warning') }"
+                                                        icon="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'sap-icon://sys-enter-2' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'sap-icon://error' : 'sap-icon://history') }"
+                                                        class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell7" alignItems="Center">
+                                                    <Input
+                                                        value="{accessModel>comment}"
+                                                        liveChange=".onRemarkLiveChange"
+                                                        placeholder="Add remark..."
+                                                        class="kyraGovRemarkInput"
+                                                        width="100%" />
+                                                </HBox>
+                                                <HBox class="kyraGovCell kyraGovCell8 kyraGovCellLast" alignItems="Center" justifyContent="Center">
+                                                    <Button
+                                                        icon="sap-icon://accept"
+                                                        press=".onAcceptEntitlement"
+                                                        class="kyraGovApproveBtn"
+                                                        tooltip="Approve this entitlement" />
+                                                    <Button
+                                                        icon="sap-icon://decline"
+                                                        press=".onRejectEntitlement"
+                                                        class="kyraGovRejectBtn"
+                                                        tooltip="Reject this entitlement" />
+                                                </HBox>
                                             </HBox>
-                                            <Input
-                                                value="{accessModel>comment}"
-                                                liveChange=".onRemarkLiveChange"
-                                                placeholder="Add remark..."
-                                                width="100%"
-                                                class="kyraRemarkInput" />
-                                            <HBox class="kyraDecisionCellBox" justifyContent="Center" alignItems="Center">
-                                                <Button
-                                                    icon="sap-icon://accept"
-                                                    press=".onAcceptEntitlement"
-                                                    class="kyraDecisionIconBtnApprove"
-                                                    tooltip="Approve this entitlement" />
-                                                <Button
-                                                    icon="sap-icon://decline"
-                                                    press=".onRejectEntitlement"
-                                                    class="kyraDecisionIconBtnReject sapUiTinyMarginBegin"
-                                                    tooltip="Reject this entitlement" />
-                                            </HBox>
-                                        </HBox>
 
-                                        <!-- 2. Small Full-Width Approver Remark Row Below Request Row (Visible ONLY in Compliance Reviewer page) -->
-                                        <HBox class="kyraApproverRemarkSubRow" alignItems="Center" width="100%" visible="{= ${accessModel>/isCompliancePersona} === true }">
-                                            <Text text="Approver Remark:" class="kyraApproverRemarkLabel" />
-                                            <Text text="{= ${accessModel>approverRemark} || 'Access approved for this requester.' }" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
-                                        </HBox>
-                                    </VBox>
-                                </items>
+                                            <!-- Approver Remark Sub-Row (Visible only for Compliance Reviewer) -->
+                                            <HBox class="kyraApproverRemarkSubRow" alignItems="Center" width="100%" visible="{= ${accessModel>/isCompliancePersona} === true }">
+                                                <Text text="Approver Remark:" class="kyraApproverRemarkLabel" />
+                                                <Text text="{= ${accessModel>approverRemark} || 'Access approved for this requester.' }" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
+                                            </HBox>
+                                        </VBox>
+                                    </items>
+                                </VBox>
                             </VBox>
                         </VBox>
                     </items>
                 </VBox>
 
-                <!-- Batch Operations &amp; Footer Action Bar -->
-                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
-                        <HBox alignItems="Center" class="sapUiTinyMarginBottom">
+                <!-- Batch Operations & Footer Action Bar -->
+                <VBox class="kyraGovCard kyraGovBottomCard sapUiSmallMarginBottom">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" width="100%">
+                        <HBox alignItems="Center" class="kyraGovBottomLeftBtns sapUiTinyMarginBottom">
                             <Button
                                 text="Approve All"
                                 icon="sap-icon://accept"
                                 press=".onAcceptAllRequests"
-                                class="kyraBatchApproveBtn sapUiSmallMarginEnd"
+                                class="kyraBatchApproveBtn"
                                 tooltip="Approve all entitlements" />
                             <Button
                                 text="Reject All"
@@ -399,19 +443,21 @@
                                 class="kyraBatchRejectBtn"
                                 tooltip="Reject all entitlements" />
                         </HBox>
-                        <HBox alignItems="Center">
+                        <HBox alignItems="Center" class="kyraGovBottomRightBtns">
                             <Button
-                                text="Back to Dashboard"
+                                text="Back"
                                 icon="sap-icon://navigation-left-arrow"
                                 press=".onCloseRequestSummaryView"
-                                class="kyraSecondaryBtn sapUiSmallMarginEnd" />
+                                class="kyraBackTealBtn"
+                                tooltip="Back to Dashboard" />
                             <Button
                                 text="Submit Decision"
                                 icon="sap-icon://navigation-right-arrow"
                                 iconFirst="false"
                                 type="Emphasized"
                                 press=".onApproveSelectedRequest"
-                                class="kyraPrimaryBtn" />
+                                class="kyraPrimaryBtn fioriEmphasizedBtn"
+                                tooltip="Submit Decision" />
                         </HBox>
                     </HBox>
                 </VBox>

@@ -154,6 +154,7 @@
                                         <ObjectStatus
                                             text="{accessModel>status}"
                                             state="{accessModel>statusState}"
+                                            icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }"
                                             class="kyraTableStatusBadge" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
@@ -297,8 +298,8 @@
                                         <ObjectStatus
                                             text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'Revoked' : (${accessModel>status} || 'Pending') }"
                                             state="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'Success' : (${accessModel>statusState} || 'Warning') }"
-                                            icon="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'sap-icon://sys-enter-2' : (${accessModel>statusIcon} || 'sap-icon://pending') }"
-                                            class="kyraApproverStatusBadge" />
+                                            icon="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revoke' || ${accessModel>isRevocation} || ${accessModel>requestType} === 'Revoke') &amp;&amp; (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Revoked') ? 'sap-icon://sys-enter-2' : ((${accessModel>status} === 'Rejected' || ${accessModel>statusState} === 'Error') ? 'sap-icon://error' : (${accessModel>statusIcon} || 'sap-icon://history')) }"
+                                            class="kyraApproverStatusBadge kyraTableStatusBadge" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>
@@ -356,6 +357,7 @@
                                         <ObjectStatus
                                             text="{accessModel>status}"
                                             state="{accessModel>statusState}"
+                                            icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }"
                                             class="kyraTableStatusBadge" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
@@ -493,8 +495,8 @@
                                         <ObjectStatus
                                             text="Pending"
                                             state="Warning"
-                                            icon="sap-icon://pending"
-                                            class="kyraApproverStatusBadge kyraPendingStatusBadge" />
+                                            icon="sap-icon://history"
+                                            class="kyraApproverStatusBadge kyraTableStatusBadge kyraPendingStatusBadge" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>
@@ -1663,7 +1665,7 @@
                                         <ObjectStatus
                                             text="{= ${accessModel>status} || 'Active' }"
                                             state="{= (${accessModel>status} === 'Revoke Pending' || ${accessModel>status} === 'Pending') ? 'Warning' : 'Success' }"
-                                            icon="{= (${accessModel>status} === 'Revoke Pending' || ${accessModel>status} === 'Pending') ? 'sap-icon://pending' : 'sap-icon://sys-enter-2' }"
+                                            icon="{= (${accessModel>status} === 'Revoke Pending' || ${accessModel>status} === 'Pending') ? 'sap-icon://history' : 'sap-icon://sys-enter-2' }"
                                             class="kyraTableStatusBadge" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">

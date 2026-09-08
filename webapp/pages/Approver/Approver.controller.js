@@ -327,7 +327,7 @@ sap.ui.define([
                 return;
             }
             const sDate = new Date().toISOString().split("T")[0];
-            const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
+            const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://history");
 
             const oProcessedItem = Object.assign({}, oData, {
                 requesterName: "Requester",
@@ -538,12 +538,14 @@ sap.ui.define([
                 const sDate = r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : "2026-09-04");
                 const sUser = r.requester_username || "User";
 
+                const isBlankOrDash = (v) => !v || v === "—" || v === "–" || v === "-" || v === "--" || String(v).trim() === "" || String(v).trim() === "—" || String(v).trim() === "–" || String(v).trim() === "-";
+
                 // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
-                const sSector = r.business_sector || "Information Technology & Security";
-                const sFunction = r.business_function || "Corporate Governance";
-                const sDuration = r.access_duration || r.duration || "Permanent";
-                const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
-                const sJustification = r.justification || "";
+                const sSector = isBlankOrDash(r.business_sector) ? "Information Technology & Security" : String(r.business_sector);
+                const sFunction = isBlankOrDash(r.business_function) ? "Corporate Governance" : String(r.business_function);
+                const sDuration = isBlankOrDash(r.access_duration || r.duration) ? "Permanent" : (String(r.access_duration || r.duration).includes("Permanent") ? "Permanent" : String(r.access_duration || r.duration));
+                const sRegion = isBlankOrDash(r.operating_region || r.region) ? "Global Enterprise (ALL)" : String(r.operating_region || r.region);
+                const sJustification = isBlankOrDash(r.justification) ? "Standard business operational access and governance privileges." : String(r.justification);
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
 
                 if (isPendingForRole) {

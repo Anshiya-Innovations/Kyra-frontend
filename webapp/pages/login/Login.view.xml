@@ -9,31 +9,31 @@
         <content>
             <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="Wrap" height="100%" width="100%">
                 
-                <!-- ================= LEFT SECTION (50% COLUMN - PURE VECTOR SECURITY ARCHITECTURE) ================= -->
+                <!-- ================= LEFT SECTION (50% COLUMN - HERO SECURITY ARCHITECTURE DESIGN) ================= -->
                 <VBox class="kyraLoginLeftPanel" justifyContent="Center" alignItems="Center">
-                    
-                    <!-- Top-Left Branding Header -->
-                    <HBox alignItems="Center" class="kyraLeftBrandHeader">
-                        <Image src="{login>/brandHeaderUrl}" height="42px" densityAware="false" class="kyraBrandHeaderImg" />
-                    </HBox>
-
-                    <!-- Main Hero Content: Headline with Teal Accent Bar, Styled Description and Native Vector Security Architecture -->
-                    <VBox class="kyraLeftCenteredBlock" justifyContent="Center" alignItems="Start">
-                        <VBox class="kyraHeroTitleContainer">
-                            <Text text="Secure Access." class="kyraHeroTitleWhite" />
+                    <VBox class="kyraHeroContentPanel">
+                        
+                        <!-- Top Header: Crisp Typography & Teal Accent (Seamless on Background) -->
+                        <VBox class="kyraHeroHeaderBox" width="100%">
+                            <Text text="Secure Access." class="kyraHeroTitleDark" />
                             <Text text="Total Control." class="kyraHeroTitleTeal" />
                             <HBox class="kyraHeroTealDashBar" />
+                            <FormattedText 
+                                htmlText="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your &lt;strong class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/strong&gt;" 
+                                class="kyraHeroSubtitleText" />
                         </VBox>
-                        
-                        <!-- Formatted Governance Description with Highlighted Hybrid Cloud Ecosystem -->
-                        <FormattedText
-                            htmlText="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your &lt;span class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/span&gt;"
-                            class="kyraHeroDescription" />
 
-                        <!-- Native Vector Security Architecture Graphic (Zero Image Compression Seams) -->
-                        <VBox class="kyraHeroVectorGraphicContainer" alignItems="Center" justifyContent="Center" width="100%">
-                            <Image src="{login>/securityVectorUrl}" width="100%" maxWidth="520px" densityAware="false" class="kyraSecurityVectorImgNative" />
+                        <!-- 3D Security Architecture Graphic (Seamless on Background) -->
+                        <VBox class="kyraHeroGraphicWrapper" alignItems="Center" justifyContent="Center" width="100%">
+                            <Image 
+                                id="kyraSecurity3dGraphic"
+                                src="{= ${login>/securityIllustrationUrl} || 'images/kyra_security_illustration.png' }"
+                                width="100%" 
+                                densityAware="false" 
+                                class="kyraHero3dGraphicImg" 
+                                tooltip="KYRA Secure Access Platform" />
                         </VBox>
+
                     </VBox>
                 </VBox>
 
