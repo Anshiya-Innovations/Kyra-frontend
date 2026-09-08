@@ -88,10 +88,19 @@ sap.ui.define([
         async onInit() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                if (!oModel.getProperty("/approverPendingTab")) {
+                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+                const isCompliance = sActiveRole.includes("compliance");
+                oModel.setProperty("/isCompliance", isCompliance);
+                oModel.setProperty("/isComplianceReviewer", isCompliance);
+                oModel.setProperty("/isCompliancePersona", isCompliance);
+
+                if (!oModel.getProperty("/approverPendingTab") || isCompliance) {
                     oModel.setProperty("/approverPendingTab", "accessRequests");
                     oModel.setProperty("/pendingAccessCount", 5);
-                    oModel.setProperty("/pendingRevokeCount", 2);
+                    oModel.setProperty("/pendingRevokeCount", isCompliance ? 0 : 2);
+                }
+                if (!oModel.getProperty("/approverHistoryTab")) {
+                    oModel.setProperty("/approverHistoryTab", "accessRequests");
                 }
                 await this._reloadAllRequests(oModel);
             }
@@ -101,28 +110,73 @@ sap.ui.define([
         onSelectPendingQueue() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+                const isCompliance = sActiveRole.includes("compliance");
+                oModel.setProperty("/isCompliance", isCompliance);
+                oModel.setProperty("/isComplianceReviewer", isCompliance);
+                oModel.setProperty("/isCompliancePersona", isCompliance);
                 oModel.setProperty("/showApprovalHistory", false);
+                if (isCompliance) {
+                    oModel.setProperty("/approverPendingTab", "accessRequests");
+                }
             }
         },
 
         onSelectHistoryLog() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+                const isCompliance = sActiveRole.includes("compliance");
+                oModel.setProperty("/isCompliance", isCompliance);
+                oModel.setProperty("/isComplianceReviewer", isCompliance);
+                oModel.setProperty("/isCompliancePersona", isCompliance);
                 oModel.setProperty("/showApprovalHistory", true);
+                if (!oModel.getProperty("/approverHistoryTab")) {
+                    oModel.setProperty("/approverHistoryTab", "accessRequests");
+                }
+                this._updateDisplayedHistoryRequests();
             }
         },
 
         onSelectAccessRequestsTab() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                oModel.setProperty("/approverPendingTab", "accessRequests");
+                if (oModel.getProperty("/showApprovalHistory")) {
+                    oModel.setProperty("/approverHistoryTab", "accessRequests");
+                    this._updateDisplayedHistoryRequests();
+                } else {
+                    oModel.setProperty("/approverPendingTab", "accessRequests");
+                }
             }
         },
 
         onSelectRevokeRequestsTab() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                oModel.setProperty("/approverPendingTab", "revokeRequests");
+                if (oModel.getProperty("/showApprovalHistory")) {
+                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
+                    this._updateDisplayedHistoryRequests();
+                } else {
+                    oModel.setProperty("/approverPendingTab", "revokeRequests");
+                }
+            }
+        },
+
+        _updateDisplayedHistoryRequests() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const bIsCompliance = !!oModel.getProperty("/isCompliance");
+            if (bIsCompliance) {
+                const aProcessed = oModel.getProperty("/processedRequests") || [];
+                oModel.setProperty("/displayedHistoryRequests", aProcessed);
+            } else {
+                const sTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
+                const aAccess = oModel.getProperty("/historyAccessRequests") || [];
+                const aRevoke = oModel.getProperty("/historyRevokeRequests") || [];
+                oModel.setProperty("/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
+            }
+            if (this._sCurrentSearchQuery) {
+                this._applySearchFilter(this._sCurrentSearchQuery);
             }
         },
 
@@ -933,6 +987,39 @@ sap.ui.define([
                             statusIcon: "sap-icon://error"
                         }
                     ]
+                },
+                {
+                    requestId: "REQ-2026-8201",
+                    requesterId: "User011",
+                    persona: "Requester",
+                    system: "Active Directory / IAM",
+                    serviceAndRole: "IT Security (Security Governance)",
+                    submissionDate: "2026-07-10",
+                    decisionDate: "2026-07-11",
+                    duration: "Permanent",
+                    sector: "Information Technology & Security",
+                    function: "Cybersecurity & Access Control",
+                    region: "North America (US-EAST)",
+                    justification: "Employee role change - Revoke previous domain admin privileges",
+                    status: "Approved",
+                    statusState: "Success",
+                    statusIcon: "sap-icon://sys-enter-2",
+                    isRevocation: true,
+                    type: "Revocation",
+                    entitlements: [
+                        {
+                            requestId: "REQ-2026-8201",
+                            system: "Active Directory / IAM",
+                            roleName: "Domain Admin",
+                            team: "Security Governance",
+                            selectedPersona: "IAM Specialist Persona",
+                            grantedDate: "2026-07-11",
+                            expiryDate: "Permanent",
+                            status: "Approved",
+                            statusState: "Success",
+                            statusIcon: "sap-icon://sys-enter-2"
+                        }
+                    ]
                 }
             ];
 
@@ -940,6 +1027,12 @@ sap.ui.define([
             let aProcessed = [];
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
             const isCompliance = sActiveRole.includes("compliance");
+            oModel.setProperty("/isCompliance", isCompliance);
+            oModel.setProperty("/isComplianceReviewer", isCompliance);
+            oModel.setProperty("/isCompliancePersona", isCompliance);
+            if (isCompliance) {
+                oModel.setProperty("/approverPendingTab", "accessRequests");
+            }
 
             try {
 
@@ -957,14 +1050,22 @@ sap.ui.define([
             const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation");
 
+            const aAccessProcessed = aProcessed.filter(p => !p.isRevocation && p.type !== "Revocation");
+            const aRevokeProcessed = aProcessed.filter(p => p.isRevocation || p.type === "Revocation");
+
             oModel.setProperty("/pendingAccessRequests", aAccessPending);
             oModel.setProperty("/pendingRevokeRequests", aRevokePending);
             oModel.setProperty("/pendingAccessCount", aAccessPending.length);
             oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
-            // Stale session storage injection removed to prevent data flicker
+
+            oModel.setProperty("/historyAccessRequests", aAccessProcessed);
+            oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
+            oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
+            oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
 
             oModel.setProperty("/pendingRequests", isCompliance ? aAccessPending : aPending);
             oModel.setProperty("/processedRequests", aProcessed);
+            this._updateDisplayedHistoryRequests();
         },
 
         onOpenDecisionBreakdownDialog(oEvent) {
@@ -973,8 +1074,7 @@ sap.ui.define([
             this._showDecisionSummarySlide(oData, true);
         },
 
-        onSearchApprovalTable(oEvent) {
-            const sQuery = oEvent.getParameter("newValue") || oEvent.getParameter("query") || "";
+        _applySearchFilter(sQuery) {
             sap.ui.require(["sap/ui/model/Filter", "sap/ui/model/FilterOperator"], (Filter, FilterOperator) => {
                 const aFilters = [];
                 if (sQuery && sQuery.trim()) {
@@ -1004,6 +1104,12 @@ sap.ui.define([
                     }
                 });
             });
+        },
+
+        onSearchApprovalTable(oEvent) {
+            const sQuery = oEvent.getParameter("newValue") || oEvent.getParameter("query") || "";
+            this._sCurrentSearchQuery = sQuery;
+            this._applySearchFilter(sQuery);
         },
 
         onExportApprovals() {

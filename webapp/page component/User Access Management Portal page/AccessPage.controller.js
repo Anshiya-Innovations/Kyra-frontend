@@ -778,10 +778,13 @@ sap.ui.define([
 
             if (oModel) {
                 const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
-                const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+                const isCompliancePersona = sActiveRole.toLowerCase().includes("compliance");
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
                 oModel.setProperty("/isApproverPersona", bIsApprover);
+                oModel.setProperty("/isCompliance", isCompliancePersona);
+                oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
+                oModel.setProperty("/isCompliancePersona", isCompliancePersona);
                 
                 if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
                     oModel.setProperty("/showApprovalHistory", true);
@@ -1731,6 +1734,9 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/pendingRevokeRequests", aApprPendingRevoke);
             this._setSmartProperty(oModel, "/pendingAccessCount", aApprPendingAccess.length);
             this._setSmartProperty(oModel, "/pendingRevokeCount", aApprPendingRevoke.length);
+            this._setSmartProperty(oModel, "/isCompliance", isCompliancePersona);
+            this._setSmartProperty(oModel, "/isComplianceReviewer", isCompliancePersona);
+            this._setSmartProperty(oModel, "/isCompliancePersona", isCompliancePersona);
 
             const aFinalProcessed = oApproverData.processed || [];
             // Stale session storage injection removed to prevent data flicker
@@ -3948,12 +3954,18 @@ sap.ui.define([
             }
             if (!sDuration || sDuration.trim() === "") {
                 const oDurSelect = this.byId("inPageDurationSelect");
-                sDuration = (oDurSelect && (oDurSelect.getSelectedKey() || oDurSelect.getValue())) || "30 Days (Temporary)";
-                oModel.setProperty("/addAccessDuration", sDuration);
+                sDuration = oDurSelect ? (oDurSelect.getSelectedKey() || oDurSelect.getValue() || "").trim() : "";
+                if (sDuration) {
+                    oModel.setProperty("/addAccessDuration", sDuration);
+                }
             }
-            if (!sJustification) {
-                sJustification = "Standard business operational access and governance privileges.";
-                oModel.setProperty("/addAccessJustification", sJustification);
+            if (!sDuration || sDuration.trim() === "") {
+                MessageBox.warning("Please select an Access Duration before proceeding.");
+                return;
+            }
+            if (!sJustification || sJustification.trim() === "") {
+                MessageBox.warning("Please provide a business justification before proceeding.");
+                return;
             }
 
             const sSector = oModel.getProperty("/selectedSector");

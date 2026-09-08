@@ -45,20 +45,21 @@
             <!-- ROW 2: SUB-TOOLBAR (Left: Access & Revoke Segmented tabs | Right: Search, Filter, Export) -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverSubToolbar">
                 <!-- LEFT: Access & Revoke tab buttons (Solid Kyra Teal #008C9C on selected) -->
-                <HBox visible="{= !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
+                <HBox visible="{= !${accessModel>/isCompliance} || !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
                     <Button
-                        text="{= 'Access (' + (${accessModel>/pendingAccessCount} || 5) + ')' }"
+                        text="{= 'Access (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyAccessCount} || 0) : (${accessModel>/pendingAccessCount} || 0)) + ')' }"
                         icon="sap-icon://key"
-                        type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Transparent' : 'Emphasized' }"
+                        type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'accessRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectAccessRequestsTab"
-                        tooltip="Pending Access Requests"
+                        tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Access Requests' : 'Pending Access Requests' }"
                         class="kyraTabPillBtn" />
                     <Button
-                        text="{= 'Revoke (' + (${accessModel>/pendingRevokeCount} || 2) + ')' }"
+                        visible="{= !${accessModel>/isCompliance} }"
+                        text="{= 'Revoke (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyRevokeCount} || 0) : (${accessModel>/pendingRevokeCount} || 0)) + ')' }"
                         icon="sap-icon://delete"
-                        type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
+                        type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectRevokeRequestsTab"
-                        tooltip="Pending Revocation Requests"
+                        tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Revocation Requests' : 'Pending Revocation Requests' }"
                         class="kyraTabPillBtn" />
                 </HBox>
 
@@ -129,7 +130,7 @@
                 <!-- CLASSIFICATION 2: REVOCATION REQUESTS -->
                 <Table
                     id="approvalRevokeTable"
-                    visible="{= ${accessModel>/approverPendingTab} === 'revokeRequests' }"
+                    visible="{= !${accessModel>/isCompliance} &amp;&amp; ${accessModel>/approverPendingTab} === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
                     noDataText="No pending revocation requests in queue."
                     fixedLayout="true"
@@ -168,8 +169,8 @@
             <Table
                 id="approvalHistoryTable"
                 visible="{accessModel>/showApprovalHistory}"
-                items="{accessModel>/processedRequests}"
-                noDataText="No processed approval history available."
+                items="{accessModel>/displayedHistoryRequests}"
+                noDataText="{= ${accessModel>/isCompliance} ? 'No processed approval history available.' : ((${accessModel>/approverHistoryTab} || 'accessRequests') === 'revokeRequests' ? 'No processed revocation history available.' : 'No processed access history available.') }"
                 fixedLayout="true"
                 popinLayout="GridSmall"
                 class="sapUiNoMargin kyraApproverTable kyraActiveEntitlementsTable">

@@ -45,20 +45,21 @@
             <!-- ROW 2: SUB-TOOLBAR (Left: Access & Revoke Segmented tabs | Right: Search, Filter, Export) -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverSubToolbar">
                 <!-- LEFT: Access & Revoke tab buttons (Solid Kyra Teal #008C9C on selected) -->
-                <HBox visible="{= !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
+                <HBox visible="{= !${accessModel>/isCompliance} || !${accessModel>/showApprovalHistory} }" class="{= ${accessModel>/isCompliance} ? 'kyraAccessRevokeBar kyraSingleAccessBar' : 'kyraAccessRevokeBar' }" alignItems="Center">
                     <Button
-                        text="{= 'Access (' + (${accessModel>/pendingAccessCount} || 5) + ')' }"
+                        text="{= 'Access (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyAccessCount} || 0) : (${accessModel>/pendingAccessCount} || 0)) + ')' }"
                         icon="sap-icon://key"
-                        type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Transparent' : 'Emphasized' }"
+                        type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'accessRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectAccessRequestsTab"
-                        tooltip="Pending Access Requests"
-                        class="kyraTabPillBtn" />
+                        tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Access Requests' : 'Pending Access Requests' }"
+                        class="{= ${accessModel>/isCompliance} ? 'kyraTabPillBtn kyraStaticPillBtn' : 'kyraTabPillBtn' }" />
                     <Button
-                        text="{= 'Revoke (' + (${accessModel>/pendingRevokeCount} || 2) + ')' }"
+                        visible="{= !${accessModel>/isCompliance} }"
+                        text="{= 'Revoke (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyRevokeCount} || 0) : (${accessModel>/pendingRevokeCount} || 0)) + ')' }"
                         icon="sap-icon://delete"
-                        type="{= ${accessModel>/approverPendingTab} === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
+                        type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectRevokeRequestsTab"
-                        tooltip="Pending Revocation Requests"
+                        tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Revocation Requests' : 'Pending Revocation Requests' }"
                         class="kyraTabPillBtn" />
                 </HBox>
 
@@ -110,16 +111,16 @@
                         <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem kyraTableRow">
                             <cells>
                                 <Text text="{accessModel>requesterId}" class="kyraUserIdText kyraCellText" />
-                                <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
-                                <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
+                                <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText" />
+                                <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText" />
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || '(27 days left)' }" class="kyraCellTextCenter" />
+                                    <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" class="kyraCellTextCenter" />
                                 </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{accessModel>submissionDate}" class="kyraDateText kyraCellTextCenter" />
                                 </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                    <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                                    <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }" class="kyraTableStatusBadge kyraApproverStatusBadge" />
                                 </HBox>
                             </cells>
                         </ColumnListItem>
@@ -129,7 +130,7 @@
                 <!-- CLASSIFICATION 2: REVOCATION REQUESTS -->
                 <Table
                     id="approvalRevokeTable"
-                    visible="{= ${accessModel>/approverPendingTab} === 'revokeRequests' }"
+                    visible="{= !${accessModel>/isCompliance} &amp;&amp; ${accessModel>/approverPendingTab} === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
                     noDataText="No pending revocation requests in queue."
                     fixedLayout="true"
@@ -147,16 +148,16 @@
                         <ColumnListItem type="Navigation" press=".onOpenRequestSummaryDialog" vAlign="Middle" class="kyraApproverRowItem kyraTableRow">
                             <cells>
                                 <Text text="{accessModel>requesterId}" class="kyraUserIdText kyraCellText" />
-                                <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
-                                <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
+                                <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText" />
+                                <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText" />
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                    <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || '(27 days left)' }" class="kyraCellTextCenter" />
+                                    <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" class="kyraCellTextCenter" />
                                 </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{accessModel>submissionDate}" class="kyraDateText kyraCellTextCenter" />
                                 </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                    <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{accessModel>statusIcon}" class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                                    <ObjectStatus text="{accessModel>status}" state="{accessModel>statusState}" icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }" class="kyraTableStatusBadge kyraApproverStatusBadge" />
                                 </HBox>
                             </cells>
                         </ColumnListItem>
@@ -168,8 +169,8 @@
             <Table
                 id="approvalHistoryTable"
                 visible="{accessModel>/showApprovalHistory}"
-                items="{accessModel>/processedRequests}"
-                noDataText="No processed approval history available."
+                items="{accessModel>/displayedHistoryRequests}"
+                noDataText="{= ${accessModel>/isCompliance} ? 'No processed approval history available.' : ((${accessModel>/approverHistoryTab} || 'accessRequests') === 'revokeRequests' ? 'No processed revocation history available.' : 'No processed access history available.') }"
                 fixedLayout="true"
                 popinLayout="GridSmall"
                 class="sapUiNoMargin kyraApproverTable kyraActiveEntitlementsTable">
@@ -186,10 +187,10 @@
                     <ColumnListItem vAlign="Middle" class="kyraApproverRowItem kyraTableRow">
                         <cells>
                             <Text text="{accessModel>requesterId}" class="kyraUserIdText kyraCellText" />
-                            <Text text="{= ${accessModel>businessSector} || ${accessModel>sector} || 'Information Technology &amp; Security' }" wrapping="true" class="kyraSectorText kyraCellText" />
-                            <Text text="{= ${accessModel>businessFunction} || ${accessModel>function} || 'Corporate Governance' }" wrapping="true" class="kyraFunctionText kyraCellText" />
+                            <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText" />
+                            <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText" />
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                <Text text="{= ${accessModel>duration} || ${accessModel>accessDuration} || '(27 days left)' }" class="kyraCellTextCenter" />
+                                <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" class="kyraCellTextCenter" />
                             </HBox>
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Text text="{accessModel>decisionDate}" class="kyraDateText kyraCellTextCenter" />
@@ -198,7 +199,7 @@
                                 <ObjectStatus
                                     text="{accessModel>status}"
                                     state="{accessModel>statusState}"
-                                    icon="{accessModel>statusIcon}"
+                                    icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }"
                                     class="kyraTableStatusBadge kyraApproverStatusBadge" />
                             </HBox>
                             <HBox justifyContent="Center" alignItems="Center" width="100%">

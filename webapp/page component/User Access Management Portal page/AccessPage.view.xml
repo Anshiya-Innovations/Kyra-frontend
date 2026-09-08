@@ -950,14 +950,16 @@
                                     </ComboBox>
 
                                     <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
-                                    <Label text="Business Justification" required="true" />
+                                    <Label text="Business Justification" required="true" class="kyraJustificationLabel" />
                                     <TextArea
                                         id="inPageJustificationArea"
                                         value="{accessModel>/addAccessJustification}"
                                         valueLiveUpdate="true"
                                         placeholder="Provide detailed business justification for requesting these system permissions..."
-                                        rows="4"
-                                        width="100%" />
+                                        rows="3"
+                                        growing="false"
+                                        width="100%"
+                                        class="kyraJustificationTextArea" />
                                  </form:content>
                             </form:SimpleForm>
 
@@ -999,16 +1001,7 @@
 
                     <!-- SLIDE 1: ACCESS VALIDATION (THRESHOLD LIMITS, RESTRICTED RECORDS, DUPLICATE ROLES) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 4 &amp;&amp; (${accessModel>/addAccessStep4SubStep} || 1) === 1 }" class="fioriStepSlideAnim sapUiResponsivePadding">
-                        <!-- Sub Header Bar -->
-                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
-                            <HBox alignItems="Center">
-                                <Title text="Step 4: Access Validation" level="H4" class="fioriBannerTitle" />
-                            </HBox>
-                            <HBox alignItems="Center">
-                                <Text text="Requester ID: " class="fioriRequestForLabel" />
-                                <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
-                            </HBox>
-                        </HBox>
+
 
                                                 <!-- SECTION 1: Threshold Limits Card -->
                         <VBox class="kyraValidationCard sapUiSmallMarginBottom">
@@ -1211,16 +1204,7 @@
 
                     <!-- SLIDE 2: SOD CONFLICT REVIEW (SINGLE UNIFIED SLIDE: EXISTING ACCESS &amp; NEW ACCESS COMBINED) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 }" class="fioriStepSlideAnim kyraSodSlideContainer">
-                        <!-- Top Action Bar -->
-                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSodActionBar sapUiSmallMarginBottom" width="100%">
-                            <HBox alignItems="Center">
-                                <Title text="Step 4: SoD Conflict Review" level="H4" class="fioriBannerTitle" />
-                            </HBox>
-                            <HBox alignItems="Center">
-                                <Text text="Requester ID:" class="kyraSodReqLabel sapUiTinyMarginEnd" />
-                                <Text text="{= ${accessModel>/activeUser} || 'Stake001' }" class="kyraSodReqValue" />
-                            </HBox>
-                        </HBox>
+
 
                         <!-- ================= SINGLE UNIFIED SOD CONFLICT REVIEW ================= -->
                         <!-- 1. FIRST: EXISTING ACCESS - CONFLICTS WITH ACTIVE / EXISTING ACCESS -->
@@ -1444,16 +1428,7 @@
 
                     <!-- STEP 5: ACCESS REQUEST REVIEW &amp; SUMMARY (CLEAN PROJECT-SPECIFIC SPECIFICATION) -->
                     <VBox visible="{= ${accessModel>/addAccessStep} === 5 }" class="fioriStepSlideAnim sapUiResponsivePadding">
-                        <!-- Top Header Banner -->
-                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriConflictHeaderBanner sapUiSmallMarginBottom">
-                            <HBox alignItems="Center">
-                                <Title text="Step 5: Review &amp; Summary" level="H4" class="fioriBannerTitle" />
-                            </HBox>
-                            <HBox alignItems="Center">
-                                <Text text="Requester ID: " class="fioriRequestForLabel" />
-                                <Text text="{= ${accessModel>/activeUser} || 'Dev001' }" class="fioriRequestForUser sapUiTinyMarginBegin" />
-                            </HBox>
-                        </HBox>
+
 
                         <!-- Top Scope &amp; Governance Metadata Summary Card -->
                         <VBox class="kyraSummaryTopDetailsCard sapUiSmallMarginBottom">
@@ -1479,9 +1454,12 @@
                                     <Text text="{accessModel>/addAccessDuration}" class="kyraSummaryDetailValue" />
                                 </VBox>
                             </HBox>
-                            <VBox class="kyraSummaryJustificationBox" visible="{= !!${accessModel>/addAccessJustification} }">
-                                <Text text="BUSINESS JUSTIFICATION" class="kyraSummaryDetailLabel" />
-                                <Text text="{accessModel>/addAccessJustification}" class="kyraSummaryDetailJustification" />
+                            <VBox class="kyraSummaryJustificationBox">
+                                <HBox alignItems="Center" class="sapUiTinyMarginBottom">
+                                    <core:Icon src="sap-icon://notes" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
+                                    <Text text="BUSINESS JUSTIFICATION" class="kyraSummaryDetailLabel" />
+                                </HBox>
+                                <Text text="{= ${accessModel>/addAccessJustification} ? ${accessModel>/addAccessJustification} : 'No business justification provided' }" class="kyraSummaryDetailJustification" />
                             </VBox>
                         </VBox>
 
@@ -1515,65 +1493,63 @@
                                         <columns>
                                             <!-- 1. REQUEST ID -->
                                             <Column width="14%" hAlign="Begin">
-                                                <HBox alignItems="Center">
+                                                <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://document" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="REQUEST ID" class="kyraSummaryColHeader" />
+                                                    <Text text="REQUEST ID" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 2. TOPIC -->
-                                            <Column width="18%" hAlign="Begin">
-                                                <HBox alignItems="Center">
+                                            <Column width="14%" hAlign="Begin">
+                                                <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://comment" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="TOPIC" class="kyraSummaryColHeader" />
+                                                    <Text text="TOPIC" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 3. ROLE TITLE -->
-                                            <Column width="14%" hAlign="Begin">
-                                                <HBox alignItems="Center">
+                                            <Column width="18%" hAlign="Begin">
+                                                <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://shield" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="ROLE TITLE" class="kyraSummaryColHeader" />
+                                                    <Text text="ROLE TITLE" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 4. ASSIGNED PERSONA -->
-                                            <Column width="20%" hAlign="Begin">
-                                                <HBox alignItems="Center">
+                                            <Column width="19%" hAlign="Begin">
+                                                <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://customer" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="ASSIGNED PERSONA" class="kyraSummaryColHeader" />
+                                                    <Text text="ASSIGNED PERSONA" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 5. DURATION -->
-                                            <Column width="14%" hAlign="Center">
-                                                <HBox alignItems="Center" justifyContent="Center" width="100%">
+                                            <Column width="13%" hAlign="Begin">
+                                                <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://calendar" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="DURATION" class="kyraSummaryColHeader kyraColHeadCenter" />
+                                                    <Text text="DURATION" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 6. STATUS -->
-                                            <Column width="12%" hAlign="Center">
-                                                <HBox alignItems="Center" justifyContent="Center" width="100%">
+                                            <Column width="12%" hAlign="Begin">
+                                                <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://message-information" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="STATUS" class="kyraSummaryColHeader kyraColHeadCenter" />
+                                                    <Text text="STATUS" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
                                             <!-- 7. ACTION -->
-                                            <Column width="8%" hAlign="Center">
-                                                <HBox alignItems="Center" justifyContent="Center" width="100%">
+                                            <Column width="10%" hAlign="Center">
+                                                <HBox alignItems="Center" justifyContent="Center" width="100%" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://action-settings" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="ACTION" class="kyraSummaryColHeader kyraColHeadCenter" />
+                                                    <Text text="ACTION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                                 </HBox>
                                             </Column>
                                         </columns>
                                         <items>
                                             <ColumnListItem vAlign="Middle" class="kyraTableRow">
                                                 <cells>
-                                                    <Text text="{accessModel>requestId}" class="kyraSummaryReqIdText kyraCellText" wrapping="true" />
+                                                    <Text text="{accessModel>requestId}" class="kyraSummaryReqIdText kyraCellText" wrapping="false" />
                                                     <Text text="{accessModel>topic}" class="kyraSummaryTopicText kyraCellText" wrapping="true" />
                                                     <Text text="{accessModel>roleTitle}" class="kyraSummaryRoleTitleText kyraCellText" wrapping="true" />
                                                     <Text text="{accessModel>persona}" class="kyraSummaryPersonaText kyraCellText" wrapping="true" />
-                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                                        <Text text="{accessModel>duration}" class="kyraSummaryDurationText kyraCellTextCenter" wrapping="true" />
-                                                    </HBox>
-                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                                    <Text text="{accessModel>duration}" class="kyraSummaryDurationText kyraCellText" wrapping="false" />
+                                                    <HBox alignItems="Center" width="100%">
                                                         <ObjectStatus
                                                             text="{accessModel>existingStatus}"
                                                             state="{accessModel>existingState}"
