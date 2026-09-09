@@ -31,7 +31,7 @@ sap.ui.define([
         }
         const rLower = String(roleStr || "").toLowerCase();
         if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
-            return "System Administrator";
+            return "";
         }
         if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
             return "System Owners";
@@ -39,7 +39,7 @@ sap.ui.define([
         if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
             return "Stakeholders";
         }
-        return "System Administrator";
+        return "";
     }
 
     function getBaseReqId(num) {
@@ -222,15 +222,15 @@ sap.ui.define([
                                 serviceAndRole: (first.role_name || "Role") + " (" + sSvc + ")",
                                 serviceTopic: sSvc,
                                 submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                                duration: first.access_duration || "Permanent (Default)",
-                                sector: first.business_sector || "Information Technology & Security",
-                                businessSector: first.business_sector || "Information Technology & Security",
-                                function: first.business_function || "Corporate Governance",
-                                businessFunction: first.business_function || "Corporate Governance",
-                                duration: first.access_duration || "Permanent (Default)",
-                                region: first.operating_region || "Global Enterprise (ALL)",
+                                duration: first.access_duration || "",
+                                sector: first.business_sector || "",
+                                businessSector: first.business_sector || "",
+                                function: first.business_function || "",
+                                businessFunction: first.business_function || "",
+                                duration: first.access_duration || "",
+                                region: first.operating_region || "",
                                 justification: first.justification || "Access Request",
-                                selectedPersona: cleanPersonaName(first.selected_persona || "Engineering & Developer"),
+                                selectedPersona: cleanPersonaName(first.selected_persona || ""),
                                 status: "Pending Approval",
                                 statusState: "Warning",
                                 statusIcon: "sap-icon://pending",
@@ -241,7 +241,7 @@ sap.ui.define([
                                     roleName: (m.role_name || "").replace(/\s*\([^)]*\)/g, "").trim(),
                                     team: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     serviceTopic: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
-                                    selectedPersona: cleanPersonaName(m.selected_persona || "Engineering & Developer"),
+                                    selectedPersona: cleanPersonaName(m.selected_persona || ""),
                                     grantedDate: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                                     expiryDate: m.access_duration || "Permanent",
                                     status: "Pending",
@@ -263,7 +263,7 @@ sap.ui.define([
                     oModel.setProperty("/activeRole", sActiveRole);
                     oModel.setProperty("/isCompliancePersona", isCompliancePersona);
 
-                    const sRequesterId = oRequest.requesterId || "Dev001";
+                    const sRequesterId = oRequest.requesterId || oRequest.requesterUsername || "";
                     const aEntList = [];
 
                     const cleanRole = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").trim();
@@ -276,7 +276,7 @@ sap.ui.define([
                             } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
                                 return "Stakeholders";
                             } else {
-                                return "System Administrator";
+                                return "";
                             }
                         }
                         return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
@@ -290,20 +290,25 @@ sap.ui.define([
 
                             let sApproverRemark = "";
                             if (isCompliancePersona) {
-                                sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Access approved for this requester.";
+                                sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
                             }
 
                             const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
                             const sService = getCleanServiceTopic(ent) || getCleanServiceTopic(oRequest);
+                            const sTeam = cleanRole(sRawRole);
+                            const sPersona = cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "");
 
                             aEntList.push({
                                 requestId: ent.requestId || oRequest.requestId,
                                 system: ent.system || oRequest.system || "SAP System",
-                                roleName: cleanRole(sRawRole),
-                                team: sService,
+                                services: sService,
                                 serviceTopic: sService,
-                                selectedPersona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
-                                persona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                                service: sService,
+                                team: sTeam,
+                                teamName: sTeam,
+                                roleName: sTeam,
+                                selectedPersona: sPersona,
+                                persona: sPersona,
                                 grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
                                 expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
                                 status: sInitStatus,
@@ -320,19 +325,25 @@ sap.ui.define([
 
                         let sApproverRemark = "";
                         if (isCompliancePersona) {
-                            sApproverRemark = oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Access approved for this requester.";
+                            sApproverRemark = oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
                         }
 
                         const sRawRole = oRequest.roleName || oRequest.serviceAndRole || "System Role";
                         const sService = getCleanServiceTopic(oRequest);
+                        const sTeam = cleanRole(sRawRole);
+                        const sPersona = cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "");
 
                         aEntList.push({
                             requestId: oRequest.requestId,
                             system: oRequest.system || "SAP System",
-                            roleName: cleanRole(sRawRole),
-                            team: sService,
+                            services: sService,
                             serviceTopic: sService,
-                            selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                            service: sService,
+                            team: sTeam,
+                            teamName: sTeam,
+                            roleName: sTeam,
+                            selectedPersona: sPersona,
+                            persona: sPersona,
                             grantedDate: oRequest.submissionDate || new Date().toISOString().split("T")[0],
                             expiryDate: oRequest.duration || "Permanent",
                             status: sInitStatus,
@@ -357,10 +368,24 @@ sap.ui.define([
                                 });
                                 aEntList.forEach(item => {
                                     const dbRec = dbMap[item.requestId];
-                                    if (dbRec && (dbRec.selected_persona || dbRec.persona)) {
-                                        const sCleanP = cleanPersonaName(dbRec.selected_persona || dbRec.persona);
-                                        item.selectedPersona = sCleanP;
-                                        item.persona = sCleanP;
+                                    if (dbRec) {
+                                        if (dbRec.selected_persona || dbRec.persona) {
+                                            const sCleanP = cleanPersonaName(dbRec.selected_persona || dbRec.persona);
+                                            item.selectedPersona = sCleanP;
+                                            item.persona = sCleanP;
+                                        }
+                                        if (dbRec.role_name) {
+                                            const sCleanR = cleanRole(dbRec.role_name);
+                                            item.team = sCleanR;
+                                            item.teamName = sCleanR;
+                                            item.roleName = sCleanR;
+                                        }
+                                        if (dbRec.service_topic || dbRec.service) {
+                                            const sCleanS = (dbRec.service_topic || dbRec.service).trim();
+                                            item.services = sCleanS;
+                                            item.serviceTopic = sCleanS;
+                                            item.service = sCleanS;
+                                        }
                                     }
                                 });
                             }
@@ -399,7 +424,7 @@ sap.ui.define([
                         requestId: oRequest.requestId,
                         requesterId: sRequesterId,
                         persona: oRequest.persona,
-                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || ""),
                         region: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
                         operatingRegion: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
                         sector: oRequest.businessSector || oRequest.sector || "Information Technology & Security",
@@ -419,6 +444,9 @@ sap.ui.define([
 
                     await this._evaluateSodConflictsForRequest(oRequest, aEntList, oModel);
                     oModel.setProperty("/approverSodTab", 1);
+
+                    // Wait for UI5 binding updates and DOM rendering to finish before dismissing loader
+                    await new Promise(resolve => setTimeout(resolve, 400));
                 } else {
                     MessageBox.error("Request ID " + sReqId + " not found in the database access records.");
                 }
@@ -510,11 +538,47 @@ sap.ui.define([
                 return isPending && !isCurrentReq;
             });
 
+            const normalizeSystemName = (sys) => {
+                if (!sys) return "";
+                let s = String(sys).trim().toLowerCase();
+                if (s.includes("btp")) return "btp";
+                if (s.includes("s/4hana") || s.includes("s4hana")) return "s4hana";
+                if (s.includes("ariba")) return "ariba";
+                if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
+                if (s.includes("concur")) return "concur";
+                if (s.includes("analytics")) return "analytics";
+                return s;
+            };
+
             const isSameSystem = (sysA, sysB) => {
-                if (!sysA || !sysB) return false;
-                const sA = String(sysA).trim().toLowerCase();
-                const sB = String(sysB).trim().toLowerCase();
-                return sA === sB;
+                if (!sysA || !sysB) return true;
+                const normA = normalizeSystemName(sysA);
+                const normB = normalizeSystemName(sysB);
+                return normA === normB || normA.includes(normB) || normB.includes(normA);
+            };
+
+            const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+
+            const isSameAccess = (itemA, itemB) => {
+                const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
+                const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
+                if (!isSameSystem(sA, sB)) return false;
+
+                const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
+                const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
+                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
+                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
+
+                if (persA && persB) {
+                    if (persA === persB) return true;
+                    const pA = persA.replace(/persona/g, "").trim();
+                    const pB = persB.replace(/persona/g, "").trim();
+                    if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
+                }
+                if (roleA && roleB) {
+                    return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
+                }
+                return false;
             };
 
             const cleanPersonaName = (s) => {
@@ -526,19 +590,19 @@ sap.ui.define([
             };
 
             const getFunctionalArchetype = (roleStr, personaStr) => {
-                const cleanR = String(roleStr || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-                const cleanP = String(personaStr || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                const cleanR = cleanStr(roleStr);
+                const cleanP = cleanStr(personaStr);
                 const combined = cleanR + " " + cleanP;
 
-                if (combined.includes("developer") || combined.includes("frontend") || combined.includes("backend")) return "developer";
-                if (combined.includes("administrator") || combined.includes("it admin") || combined.includes("cloud infrastructure") || combined.includes("database & iam") || combined.includes("cloud platform admin")) return "admin";
-                if (combined.includes("security") || combined.includes("isrm") || combined.includes("audit") || combined.includes("cybersecurity") || combined.includes("iam / grc") || combined.includes("identity & access") || combined.includes("governance risk")) return "security";
-                if (combined.includes("lead engineer") || combined.includes("principal systems") || combined.includes("devops")) return "engineer";
-                if (combined.includes("compliance") || combined.includes("privacy") || combined.includes("regulatory") || combined.includes("data privacy")) return "compliance";
-                if (combined.includes("product owner") || combined.includes("solution architecture") || combined.includes("product manager") || combined.includes("business strategy")) return "owner";
-                if (combined.includes("product group") || combined.includes("product suite") || combined.includes("integration engineering")) return "product_group";
-                if (combined.includes("line manager") || combined.includes("people operations") || combined.includes("resource manager") || combined.includes("department resource")) return "manager";
-                if (combined.includes("role owner") || combined.includes("role custodian") || combined.includes("access governance approver") || combined.includes("entitlement & role")) return "role_owner";
+                if (combined.includes("developer") || cleanP.includes("developer")) return "developer";
+                if (combined.includes("administrator") || combined.includes("it admin") || cleanP.includes("cloud infrastructure") || cleanP.includes("database & iam") || cleanR.includes("admin")) return "admin";
+                if (combined.includes("security") || cleanP.includes("security") || cleanP.includes("cybersecurity") || cleanR.includes("isrm") || cleanP.includes("isrm") || cleanR.includes("audit") || cleanP.includes("audit")) return "security";
+                if (combined.includes("lead engineer") || cleanP.includes("principal systems") || cleanP.includes("devops & platform") || cleanR.includes("engineer")) return "engineer";
+                if (combined.includes("compliance") || cleanP.includes("compliance") || cleanP.includes("auditor") || cleanP.includes("privacy")) return "compliance";
+                if (combined.includes("product owner") || cleanP.includes("solution architecture") || cleanP.includes("product manager")) return "owner";
+                if (combined.includes("product group") || cleanP.includes("product suite") || cleanP.includes("integration engineering")) return "product_group";
+                if (combined.includes("line manager") || cleanP.includes("people operations") || cleanP.includes("resource manager")) return "manager";
+                if (combined.includes("role owner") || cleanP.includes("role custodian") || cleanP.includes("access governance approver")) return "role_owner";
                 return cleanR || "user";
             };
 
@@ -555,13 +619,28 @@ sap.ui.define([
             };
 
             const checkConflictMatch = (roleA, personaA, roleB, personaB, rule) => {
+                const sR1 = String(rule.role1 || rule.role_a || rule.roleA || "").toLowerCase().trim();
+                const sR2 = String(rule.role2 || rule.role_b || rule.roleB || "").toLowerCase().trim();
+                const cRA = cleanStr(roleA);
+                const cRB = cleanStr(roleB);
+                const cPA = cleanStr(personaA);
+                const cPB = cleanStr(personaB);
+
                 const archA = getFunctionalArchetype(roleA, personaA);
                 const archB = getFunctionalArchetype(roleB, personaB);
 
+                if (archA === archB && (cRA === cRB || (cPA && cPB && cPA === cPB))) {
+                    return false;
+                }
+
+                const directMatch1 = (cRA.includes(sR1) || cPA.includes(sR1)) && (cRB.includes(sR2) || cPB.includes(sR2));
+                const directMatch2 = (cRA.includes(sR2) || cPA.includes(sR2)) && (cRB.includes(sR1) || cPB.includes(sR1));
+                if (directMatch1 || directMatch2) return true;
+
                 if (archA === archB) return false;
 
-                const r1 = getRuleArchetype(rule.role1 || rule.role_a || rule.roleA);
-                const r2 = getRuleArchetype(rule.role2 || rule.role_b || rule.roleB);
+                const r1 = getRuleArchetype(sR1);
+                const r2 = getRuleArchetype(sR2);
 
                 return (archA === r1 && archB === r2) || (archA === r2 && archB === r1);
             };
@@ -569,20 +648,22 @@ sap.ui.define([
             const aActiveConflicts = [];
             const aPendingConflicts = [];
             const aBatchConflicts = [];
-            const oSeenActiveKeys = new Set();
-            const oSeenPendingKeys = new Set();
-            const oSeenBatchKeys = new Set();
 
-            const aItemsToCheck = aEntList && aEntList.length > 0 ? aEntList : (oRequest.entitlements && oRequest.entitlements.length > 0 ? oRequest.entitlements : [oRequest]);
+            const aItemsToCheck = (aEntList && aEntList.length > 0 ? aEntList : (oRequest.entitlements && oRequest.entitlements.length > 0 ? oRequest.entitlements : [oRequest])).slice();
+            aItemsToCheck.sort((a, b) => String(a.requestId || a.request_number || "").localeCompare(String(b.requestId || b.request_number || ""), undefined, { numeric: true }));
 
+            // 1. Check Active Conflicts against LIVE active access of this requester
+            const activeConflictMap = new Map();
             aItemsToCheck.forEach(newItem => {
                 const sNewSys = newItem.system || newItem.target_system || "";
                 const sNewRoleName = newItem.roleName || newItem.role_name || newItem.roleTitle || "Requested Role";
                 const sNewPersona = newItem.selectedPersona || newItem.selected_persona || newItem.persona || sNewRoleName;
 
-                // 1. Check Active Conflicts against LIVE active access of this requester
                 aUserActiveRoles.forEach(activeRole => {
                     const sActiveSys = activeRole.target_system || activeRole.system || "";
+                    if (!isSameSystem(sActiveSys, sNewSys)) return;
+                    if (isSameAccess(activeRole, newItem)) return;
+
                     const sActiveRoleName = activeRole.role_name || activeRole.roleName || activeRole.roleTitle || "Active Role";
                     const sActivePersona = activeRole.selected_persona || activeRole.selectedPersona || activeRole.persona || sActiveRoleName;
 
@@ -590,25 +671,56 @@ sap.ui.define([
                         const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and newly requested access.";
 
                         if (checkConflictMatch(sNewRoleName, sNewPersona, sActiveRoleName, sActivePersona, rule)) {
-                            const sKey = `${sActiveSys}:::${sActiveRoleName}:::${sNewSys}:::${sNewRoleName}`;
-                            if (!oSeenActiveKeys.has(sKey)) {
-                                oSeenActiveKeys.add(sKey);
-                                aActiveConflicts.push({
-                                    existingRole: `${sActiveSys} — ${cleanPersonaName(sActiveRoleName)}`,
-                                    existingPersona: cleanPersonaName(sActivePersona),
-                                    newRole: `${sNewSys} — ${cleanPersonaName(sNewRoleName)}`,
-                                    newPersona: cleanPersonaName(sNewPersona),
+                            const sCleanActiveRole = cleanPersonaName(sActiveRoleName);
+                            const sCleanNewRole = cleanPersonaName(sNewRoleName);
+                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sNewSys}:::${sCleanNewRole}`;
+                            if (!activeConflictMap.has(sKey)) {
+                                activeConflictMap.set(sKey, {
+                                    system: sNewSys,
+                                    existingRole: `${sActiveSys} — ${sCleanActiveRole}`,
+                                    newRole: `${sNewSys} — ${sCleanNewRole}`,
+                                    cleanActiveRole: sCleanActiveRole,
+                                    cleanNewRole: sCleanNewRole,
+                                    existingPersonas: new Set(),
+                                    newPersonas: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
+                            const entry = activeConflictMap.get(sKey);
+                            if (sActivePersona) entry.existingPersonas.add(cleanPersonaName(sActivePersona));
+                            if (sNewPersona) entry.newPersonas.add(cleanPersonaName(sNewPersona));
                         }
                     });
                 });
+            });
 
-                // 2. Check Pending Conflicts against LIVE other in-flight requests of this requester
+            activeConflictMap.forEach(entry => {
+                const sExisting = Array.from(entry.existingPersonas).join("\n");
+                const sNew = Array.from(entry.newPersonas).join("\n");
+                aActiveConflicts.push({
+                    system: entry.system,
+                    existingRole: entry.existingRole,
+                    existingPersona: sExisting,
+                    newRole: entry.newRole,
+                    newPersona: sNew,
+                    conflictTitle: entry.conflictTitle,
+                    conflictDesc: entry.conflictDesc
+                });
+            });
+
+            // 2. Check Pending Conflicts against LIVE other in-flight requests of this requester
+            const pendingConflictMap = new Map();
+            aItemsToCheck.forEach(newItem => {
+                const sNewSys = newItem.system || newItem.target_system || "";
+                const sNewRoleName = newItem.roleName || newItem.role_name || newItem.roleTitle || "Requested Role";
+                const sNewPersona = newItem.selectedPersona || newItem.selected_persona || newItem.persona || sNewRoleName;
+
                 aUserPendingRequests.forEach(pendingReq => {
                     const sPendingSys = pendingReq.target_system || pendingReq.system || "";
+                    if (!isSameSystem(sPendingSys, sNewSys)) return;
+                    if (isSameAccess(pendingReq, newItem)) return;
+
                     const sPendingRoleName = pendingReq.role_name || pendingReq.roleName || pendingReq.roleTitle || "Pending Role";
                     const sPendingPersona = pendingReq.selected_persona || pendingReq.selectedPersona || pendingReq.persona || sPendingRoleName;
 
@@ -616,24 +728,46 @@ sap.ui.define([
                         const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected against pending access request.";
 
                         if (checkConflictMatch(sNewRoleName, sNewPersona, sPendingRoleName, sPendingPersona, rule)) {
-                            const sKey = `${sPendingSys}:::${sPendingRoleName}:::${sNewSys}:::${sNewRoleName}`;
-                            if (!oSeenPendingKeys.has(sKey)) {
-                                oSeenPendingKeys.add(sKey);
-                                aPendingConflicts.push({
-                                    existingRole: `${sPendingSys} — ${cleanPersonaName(sPendingRoleName)}`,
-                                    existingPersona: cleanPersonaName(sPendingPersona),
-                                    newRole: `${sNewSys} — ${cleanPersonaName(sNewRoleName)}`,
-                                    newPersona: cleanPersonaName(sNewPersona),
+                            const sCleanPendingRole = cleanPersonaName(sPendingRoleName);
+                            const sCleanNewRole = cleanPersonaName(sNewRoleName);
+                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sNewSys}:::${sCleanNewRole}`;
+                            if (!pendingConflictMap.has(sKey)) {
+                                pendingConflictMap.set(sKey, {
+                                    system: sNewSys,
+                                    existingRole: `${sPendingSys} — ${sCleanPendingRole}`,
+                                    newRole: `${sNewSys} — ${cleanPersonaName(sCleanNewRole)}`,
+                                    cleanPendingRole: sCleanPendingRole,
+                                    cleanNewRole: sCleanNewRole,
+                                    existingPersonas: new Set(),
+                                    newPersonas: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
+                            const entry = pendingConflictMap.get(sKey);
+                            if (sPendingPersona) entry.existingPersonas.add(cleanPersonaName(sPendingPersona));
+                            if (sNewPersona) entry.newPersonas.add(cleanPersonaName(sNewPersona));
                         }
                     });
                 });
             });
 
+            pendingConflictMap.forEach(entry => {
+                const sExisting = Array.from(entry.existingPersonas).join("\n");
+                const sNew = Array.from(entry.newPersonas).join("\n");
+                aPendingConflicts.push({
+                    system: entry.system,
+                    existingRole: entry.existingRole,
+                    existingPersona: sExisting,
+                    newRole: entry.newRole,
+                    newPersona: sNew,
+                    conflictTitle: entry.conflictTitle,
+                    conflictDesc: entry.conflictDesc
+                });
+            });
+
             // 3. Check Batch Intra-Role Conflicts (within the newly added items / current request batch)
+            const batchConflictMap = new Map();
             for (let i = 0; i < aItemsToCheck.length; i++) {
                 for (let j = i + 1; j < aItemsToCheck.length; j++) {
                     const itemA = aItemsToCheck[i];
@@ -641,6 +775,9 @@ sap.ui.define([
 
                     const sSysA = itemA.system || itemA.target_system || "Enterprise System";
                     const sSysB = itemB.system || itemB.target_system || "Enterprise System";
+
+                    if (!isSameSystem(sSysA, sSysB)) continue;
+                    if (isSameAccess(itemA, itemB)) continue;
 
                     const sRoleA = itemA.roleName || itemA.role_name || itemA.roleTitle || "";
                     const sPersonaA = itemA.selectedPersona || itemA.selected_persona || itemA.persona || sRoleA;
@@ -651,26 +788,83 @@ sap.ui.define([
                         const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between multiple newly added roles selected together in this request.";
 
                         if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
-                            const sKey = `${sSysA}:::${sRoleA}:::${sSysB}:::${sRoleB}`;
-                            if (!oSeenBatchKeys.has(sKey)) {
-                                oSeenBatchKeys.add(sKey);
-                                aBatchConflicts.push({
-                                    roleA: `${sSysA} — ${cleanPersonaName(sRoleA)}`,
-                                    personaA: cleanPersonaName(sPersonaA),
-                                    roleB: `${sSysB} — ${cleanPersonaName(sRoleB)}`,
-                                    personaB: cleanPersonaName(sPersonaB),
-                                    existingRole: `${sSysA} — ${cleanPersonaName(sRoleA)}`,
-                                    existingPersona: cleanPersonaName(sPersonaA),
-                                    newRole: `${sSysB} — ${cleanPersonaName(sRoleB)}`,
-                                    newPersona: cleanPersonaName(sPersonaB),
+                            const sCleanRoleA = cleanPersonaName(sRoleA);
+                            const sCleanRoleB = cleanPersonaName(sRoleB);
+
+                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sSysB}:::${sCleanRoleB}`;
+                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sSysA}:::${sCleanRoleA}`;
+
+                            let targetKey = sKey;
+                            let bIsReverse = false;
+                            if (batchConflictMap.has(sReverseKey)) {
+                                targetKey = sReverseKey;
+                                bIsReverse = true;
+                            }
+
+                            if (!batchConflictMap.has(targetKey)) {
+                                batchConflictMap.set(targetKey, {
+                                    system: sSysA,
+                                    roleA: `${sSysA} — ${sCleanRoleA}`,
+                                    roleB: `${sSysB} — ${sCleanRoleB}`,
+                                    cleanRoleA: sCleanRoleA,
+                                    cleanRoleB: sCleanRoleB,
+                                    personasA: new Set(),
+                                    personasB: new Set(),
                                     conflictTitle: "Batch Selection SoD Conflict",
                                     conflictDesc: sDesc
                                 });
+                            }
+
+                            const entry = batchConflictMap.get(targetKey);
+                            if (!bIsReverse) {
+                                if (sPersonaA) entry.personasA.add(cleanPersonaName(sPersonaA));
+                                if (sPersonaB) entry.personasB.add(cleanPersonaName(sPersonaB));
+                            } else {
+                                if (sPersonaA) entry.personasB.add(cleanPersonaName(sPersonaA));
+                                if (sPersonaB) entry.personasA.add(cleanPersonaName(sPersonaB));
                             }
                         }
                     });
                 }
             }
+
+            // Also ensure any matching items in the batch are collected for these conflicted roles
+            batchConflictMap.forEach(entry => {
+                aItemsToCheck.forEach(item => {
+                    const itemSys = item.system || item.target_system || "Enterprise System";
+                    if (!isSameSystem(itemSys, entry.system)) return;
+                    const itemRole = cleanPersonaName(item.roleName || item.role_name || item.roleTitle || "");
+                    const itemPersona = cleanPersonaName(item.selectedPersona || item.selected_persona || item.persona || "");
+                    if (!itemPersona) return;
+
+                    const arch = getFunctionalArchetype(itemRole, itemPersona);
+                    const archA = getFunctionalArchetype(entry.cleanRoleA, entry.cleanRoleA);
+                    const archB = getFunctionalArchetype(entry.cleanRoleB, entry.cleanRoleB);
+
+                    if (itemRole === entry.cleanRoleA || arch === archA) {
+                        entry.personasA.add(itemPersona);
+                    } else if (itemRole === entry.cleanRoleB || arch === archB) {
+                        entry.personasB.add(itemPersona);
+                    }
+                });
+
+                const sPersonaA = Array.from(entry.personasA).join("\n");
+                const sPersonaB = Array.from(entry.personasB).join("\n");
+
+                aBatchConflicts.push({
+                    system: entry.system,
+                    roleA: entry.roleA,
+                    personaA: sPersonaA,
+                    roleB: entry.roleB,
+                    personaB: sPersonaB,
+                    existingRole: entry.roleA,
+                    existingPersona: sPersonaA,
+                    newRole: entry.roleB,
+                    newPersona: sPersonaB,
+                    conflictTitle: "Batch Selection SoD Conflict",
+                    conflictDesc: entry.conflictDesc
+                });
+            });
 
             oModel.setProperty("/selectedRequestSodActiveConflicts", aActiveConflicts);
             oModel.setProperty("/selectedRequestSodPendingConflicts", aPendingConflicts);
@@ -695,12 +889,15 @@ sap.ui.define([
             try {
                 const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
                 if (oRouter) {
-                    oRouter.navTo("AccessPage");
-                } else {
-                    window.location.hash = "#/accessPage";
+                    oRouter.navTo("AccessPage", {}, true);
+                } else if (window.history && window.history.length > 1) {
+                    window.history.back();
                 }
             } catch(e) {
-                window.location.hash = "#/accessPage";
+                console.warn("Navigation error:", e);
+                if (window.history && window.history.length > 1) {
+                    window.history.back();
+                }
             }
         },
 
@@ -867,7 +1064,7 @@ sap.ui.define([
                 <div style="font-family: inherit; color: #0F172A;">
                     <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                         <div>
-                            <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || 'Dev001'})</div>
+                            <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || oData.requesterUsername || ""})</div>
                             <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
                                 Request ID: <strong style="color: #1E293B;">${oData.requestId}</strong> • Sector: <span style="color: #475569;">${oData.sector || 'Enterprise Governance'}</span>
                             </div>
@@ -904,7 +1101,7 @@ sap.ui.define([
                                         ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
                                     </div>
                                     <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
+                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
@@ -938,7 +1135,7 @@ sap.ui.define([
                                         ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
                                     </div>
                                     <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
+                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
@@ -1046,7 +1243,7 @@ sap.ui.define([
                     function: sFunc,
                     businessFunction: sFunc,
                     duration: sDur,
-                    serviceTopic: oData.serviceTopic || "System Administrator",
+                    serviceTopic: oData.serviceTopic || "",
                     decisionDate: new Date().toISOString().split("T")[0],
                     submissionDate: oData.submissionDate || new Date().toISOString().split("T")[0],
                     status: sOverallStatus,
@@ -1058,8 +1255,8 @@ sap.ui.define([
                         requestId: e.requestId || oData.requestId,
                         system: e.system,
                         roleName: e.roleName,
-                        team: oData.serviceTopic || "System Administrator",
-                        serviceTopic: oData.serviceTopic || "System Administrator",
+                        team: oData.team || oData.roleName || oData.serviceTopic || "",
+                        serviceTopic: oData.serviceTopic || "",
                         status: (e.status || "").toLowerCase().includes("reject") ? "Rejected" : "Approved",
                         statusState: (e.status || "").toLowerCase().includes("reject") ? "Error" : "Success",
                         statusIcon: (e.status || "").toLowerCase().includes("reject") ? "sap-icon://error" : "sap-icon://sys-enter-2",
@@ -1118,7 +1315,7 @@ sap.ui.define([
                     const aUserNotifications = JSON.parse(sessionStorage.getItem("kyra_user_notifications") || "[]");
                     aUserNotifications.unshift({
                         id: "NOTIF-" + Date.now(),
-                        requesterId: oData.requesterId || "Dev001",
+                        requesterId: oData.requesterId || oData.requesterUsername || "",
                         requestId: oData.requestId,
                         title: sOverallStatus === "Approved" ? ("Access Request Approved: " + oData.requestId) : (sOverallStatus === "Rejected" ? ("Access Request Rejected: " + oData.requestId) : ("Access Request Partially Approved: " + oData.requestId)),
                         description: sNotifDesc,
@@ -1239,7 +1436,7 @@ sap.ui.define([
                 } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("isrm")) {
                     return "Stakeholders";
                 } else {
-                    return "System Administrator";
+                    return "";
                 }
             };
 
@@ -1359,8 +1556,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
@@ -1374,7 +1571,7 @@ sap.ui.define([
                     const sGroupKey = sBaseId || r.request_number || (sUser + "_" + sDate + "_" + (r.selected_persona || r.role_name));
 
                     if (!oGrouped[sGroupKey]) {
-                        const sPersona = r.selected_persona || r.role_name || "Engineering & Developer Persona";
+                        const sPersona = r.selected_persona || r.role_name || "";
 
                         oGrouped[sGroupKey] = {
                             requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
@@ -1406,8 +1603,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
                         status: bRoleApproved ? "Approved" : "Rejected",
                         statusState: bRoleApproved ? "Success" : "Error",
                         statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
@@ -1460,11 +1657,11 @@ sap.ui.define([
                 if (!oGroupedMap[sReqId]) {
                     oGroupedMap[sReqId] = {
                         requestId: sReqId,
-                        requesterId: item.requesterId || item.requesterUsername || "Dev001",
-                        requesterUsername: item.requesterUsername || item.requesterId || "Dev001",
+                        requesterId: item.requesterId || item.requesterUsername || "",
+                        requesterUsername: item.requesterUsername || item.requesterId || "",
                         type: item.type || "Addition",
-                        persona: cleanPersonaName(item.persona || item.selectedPersona || "Engineering & Developer"),
-                        selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || "Engineering & Developer"),
+                        persona: cleanPersonaName(item.persona || item.selectedPersona || ""),
+                        selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || ""),
                         accessDuration: item.accessDuration || "Permanent (Default)",
                         submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
                         createdAtRaw: item.createdAtRaw || new Date().toISOString(),

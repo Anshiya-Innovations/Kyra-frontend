@@ -523,7 +523,7 @@ sap.ui.define([
             }
 
             const sSubmissionDate = new Date().toISOString().split("T")[0];
-            const sUser = sessionStorage.getItem("kyra_active_user") || "Dev001";
+            const sUser = sessionStorage.getItem("kyra_active_user") || "";
             const sUserPersona = sessionStorage.getItem("kyra_active_role") || "Requester";
             const sJustification = (oModel.getProperty("/justification") || "").trim();
             const aExistingSubmitted = JSON.parse(sessionStorage.getItem("kyra_submitted_requests") || "[]");
@@ -533,8 +533,8 @@ sap.ui.define([
                 type: "Addition",
                 system: item.system,
                 roleName: item.roleName,
-                serviceTopic: item.service || "System Administrator",
-                selectedPersona: item.persona || "Engineering & Developer Persona",
+                serviceTopic: item.service || "",
+                selectedPersona: item.persona || "",
                 accessDuration: item.duration || oModel.getProperty("/duration") || "Permanent (Default)",
                 submissionDate: sSubmissionDate,
                 createdAtRaw: new Date().toISOString(),
@@ -556,8 +556,8 @@ sap.ui.define([
                 roleName: item.roleName,
                 businessSector: item.sector || oModel.getProperty("/sector") || "Information Technology & Security",
                 businessFunction: item.function || oModel.getProperty("/function") || "Identity & Access Governance",
-                serviceTopic: item.service || "System Administrator",
-                selectedPersona: item.persona || "Engineering & Developer Persona",
+                serviceTopic: item.service || "",
+                selectedPersona: item.persona || "",
                 accessType: item.accessType || "DEFAULT",
                 operatingRegion: oModel.getProperty("/region") || "Global Enterprise (ALL)",
                 accessDuration: item.duration || oModel.getProperty("/duration") || "Permanent (Default)",

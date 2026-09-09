@@ -44,7 +44,7 @@
                         </HBox>
                         <HBox class="kyraGovPendingBadge" alignItems="Center">
                             <core:Icon src="sap-icon://history" class="kyraGovPendingClockIcon sapUiTinyMarginEnd" />
-                            <Text text="{= ${accessModel>/selectedRequest/status} || 'Pending Approval' }" class="kyraGovPendingBadgeText" />
+                            <Text text="{accessModel>/selectedRequest/status}" class="kyraGovPendingBadgeText" />
                         </HBox>
                     </HBox>
 
@@ -119,15 +119,19 @@
 
 
 
-                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (Visible only when conflicts exist) -->
-                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom" visible="{= ((${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) || (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) || (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0)) }">
+                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (Always visible, displays 0 count when no conflicts detected) -->
+                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom" visible="true">
                     <!-- Top Action Bar -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSodActionBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center">
                             <Title text="SoD Conflict Review" level="H3" class="sapUiTinyMarginEnd" />
                             <Text text="|" class="kyraSodDivider sapUiSmallMarginBegin sapUiSmallMarginEnd" />
                             <Text text="Requester ID:" class="kyraSodReqLabel sapUiTinyMarginEnd" />
-                            <Text text="{= ${accessModel>/selectedRequest/requesterId} || 'Stake001' }" class="kyraSodReqValue" />
+                            <Text text="{= ${accessModel>/selectedRequest/requesterId} || ${accessModel>/selectedRequest/requesterUsername} || '' }" class="kyraSodReqValue" />
+                        </HBox>
+                        <HBox class="{= ((${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) || (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) || (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0)) ? 'kyraPillBadgeDanger' : 'kyraPillBadgeSuccess' }" alignItems="Center">
+                            <core:Icon src="{= ((${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) || (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) || (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0)) ? 'sap-icon://alert' : 'sap-icon://accept' }" size="12px" class="sapUiTinyMarginEnd" />
+                            <Text text="{= (((${accessModel>/selectedRequestSodActiveConflicts} ? ${accessModel>/selectedRequestSodActiveConflicts}.length : 0) + (${accessModel>/selectedRequestSodPendingConflicts} ? ${accessModel>/selectedRequestSodPendingConflicts}.length : 0) + (${accessModel>/selectedRequestSodBatchConflicts} ? ${accessModel>/selectedRequestSodBatchConflicts}.length : 0))) + ' Conflicts' }" class="{= ((${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0) || (${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0) || (${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0)) ? 'kyraPillBadgeDangerText' : 'kyraPillBadgeSuccessText' }" />
                         </HBox>
                     </HBox>
 
@@ -150,7 +154,7 @@
                         </HBox>
 
                         <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                        <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodActiveConflicts} &amp;&amp; ${accessModel>/selectedRequestSodActiveConflicts}.length > 0 }">
+                        <HBox class="kyraSodTableHeadRed" width="100%" alignItems="Center">
                             <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
                             <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
                             <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
@@ -217,7 +221,7 @@
                         </HBox>
 
                         <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                        <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodPendingConflicts} &amp;&amp; ${accessModel>/selectedRequestSodPendingConflicts}.length > 0 }">
+                        <HBox class="kyraSodTableHeadYellow" width="100%" alignItems="Center">
                             <HBox width="35%" class="kyraSodHeadCol"><Text text="EXISTING ACCESS" class="kyraSodColHeader" /></HBox>
                             <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS" class="kyraSodColHeader" /></HBox>
                             <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
@@ -284,7 +288,7 @@
                         </HBox>
 
                         <!-- 3-Column Header Bar: 35% / 35% / 30% -->
-                        <HBox class="kyraSodTableHeadGreen" width="100%" alignItems="Center" visible="{= ${accessModel>/selectedRequestSodBatchConflicts} &amp;&amp; ${accessModel>/selectedRequestSodBatchConflicts}.length > 0 }">
+                        <HBox class="kyraSodTableHeadGreen" width="100%" alignItems="Center">
                             <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE A)" class="kyraSodColHeader" /></HBox>
                             <HBox width="35%" class="kyraSodHeadCol"><Text text="NEWLY ADDED ACCESS (ROLE B)" class="kyraSodColHeader" /></HBox>
                             <HBox width="30%" class="kyraSodHeadCol"><Text text="SEGREGATION OF DUTIES (SOD) CONFLICT DETAIL" class="kyraSodColHeader" /></HBox>
@@ -354,9 +358,9 @@
                                 <!-- 8-Column Header Row with Vertical Dividers -->
                                 <HBox class="kyraGovTableHeadRow" width="100%" renderType="Bare">
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol1" alignItems="Center"><Text text="REQUEST ID" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol2" alignItems="Center"><Text text="TEAM" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol3" alignItems="Center"><Text text="ROLES" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol4" alignItems="Center"><Text text="SELECTED PERSONA" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol2" alignItems="Center"><Text text="SERVICES" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol3" alignItems="Center"><Text text="TEAM" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol4" alignItems="Center"><Text text="PERSONA" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol5" alignItems="Center"><Text text="GRANTED DATE" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol6" alignItems="Center" justifyContent="Center"><Text text="STATUS" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol7" alignItems="Center"><Text text="REMARKS" class="kyraGovColHeadText" /></HBox>
@@ -373,13 +377,13 @@
                                                     <Text text="{accessModel>requestId}" class="kyraGovReqIdText" />
                                                 </HBox>
                                                 <HBox class="kyraGovCell kyraGovCell2" alignItems="Center">
-                                                    <Text text="{accessModel>team}" class="kyraGovTeamText" />
+                                                    <Text text="{= ${accessModel>services} || ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" class="kyraGovTeamText" />
                                                 </HBox>
                                                 <HBox class="kyraGovCell kyraGovCell3" alignItems="Center">
-                                                    <Text text="{accessModel>roleName}" class="kyraGovRoleText" />
+                                                    <Text text="{= ${accessModel>team} || ${accessModel>teamName} || ${accessModel>roleName} || 'IT Developers' }" class="kyraGovRoleText" />
                                                 </HBox>
                                                 <HBox class="kyraGovCell kyraGovCell4" alignItems="Center">
-                                                    <Text text="{accessModel>selectedPersona}" class="kyraGovPersonaText" />
+                                                    <Text text="{= ${accessModel>selectedPersona} || ${accessModel>persona} }" class="kyraGovPersonaText" />
                                                 </HBox>
                                                 <HBox class="kyraGovCell kyraGovCell5" alignItems="Center">
                                                     <Text text="{accessModel>grantedDate}" class="kyraGovDateText" />
@@ -416,7 +420,7 @@
                                             <!-- Approver Remark Sub-Row (Visible only for Compliance Reviewer) -->
                                             <HBox class="kyraApproverRemarkSubRow" alignItems="Center" width="100%" visible="{= ${accessModel>/isCompliancePersona} === true }">
                                                 <Text text="Approver Remark:" class="kyraApproverRemarkLabel" />
-                                                <Text text="{= ${accessModel>approverRemark} || 'Access approved for this requester.' }" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
+                                                <Text text="{accessModel>approverRemark}" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
                                             </HBox>
                                         </VBox>
                                     </items>

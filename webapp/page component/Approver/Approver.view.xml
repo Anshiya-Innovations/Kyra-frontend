@@ -168,7 +168,7 @@
             <!-- SECTION 3: PROCESSED APPROVAL HISTORY LOG -->
             <Table
                 id="approvalHistoryTable"
-                visible="{accessModel>/showApprovalHistory}"
+                visible="{= ${accessModel>/showApprovalHistory} === true }"
                 items="{accessModel>/displayedHistoryRequests}"
                 noDataText="{= ${accessModel>/isCompliance} ? 'No processed approval history available.' : ((${accessModel>/approverHistoryTab} || 'accessRequests') === 'revokeRequests' ? 'No processed revocation history available.' : 'No processed access history available.') }"
                 fixedLayout="true"

@@ -17,19 +17,19 @@ sap.ui.define([
     "use strict";
 
     function cleanPersonaName(sPersona) {
-        if (!sPersona) return "Engineering and Developer";
+        if (!sPersona) return "";
         let p = String(sPersona).trim();
         p = p.replace(/\s*\([^)]*\)/g, '').trim();
         p = p.replace(/\s+persona$/i, '').trim();
-        if (!p || p === 'undefined') return 'Engineering and Developer';
+        if (!p || p === 'undefined') return '';
         return p;
     }
 
     function cleanRoleStr(sRole) {
-        if (!sRole) return "IT Developers";
+        if (!sRole) return "";
         let r = String(sRole).trim();
         r = r.replace(/\s*\([^)]*\)/g, '').trim();
-        if (!r || r === 'undefined') return 'IT Developers';
+        if (!r || r === 'undefined') return '';
         return r;
     }
 
@@ -205,6 +205,12 @@ sap.ui.define([
         onOpenRequestSummaryDialog(oEvent) {
             const oItem = oEvent.getSource();
             const oData = oItem.getBindingContext("accessModel").getObject();
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Governance Review...",
+                    subtitle: "Fetching request details and evaluating live SoD conflict matrix..."
+                });
+            }
             this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
                 requestId: oData.requestId
             });
@@ -366,7 +372,7 @@ sap.ui.define([
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="kyra-requester-title">Requester (${oData.requesterId || 'Dev001'})</div>
+                                    <div class="kyra-requester-title">Requester (${oData.requesterId || oData.requesterUsername || ''})</div>
                                     <div class="kyra-requester-details">Sector: <strong>${oData.sector || 'HCM'}</strong> • Function: <strong>${oData.function || 'Payroll'}</strong></div>
                                 </div>
                             </div>
@@ -705,8 +711,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
@@ -720,7 +726,7 @@ sap.ui.define([
                     const sGroupKey = sBaseId || r.request_number || (sUser + "_" + sDate + "_" + (r.selected_persona || r.role_name));
 
                     if (!oGrouped[sGroupKey]) {
-                        const sPersona = r.selected_persona || r.role_name || "Engineering & Developer Persona";
+                        const sPersona = r.selected_persona || r.role_name || "";
 
                         oGrouped[sGroupKey] = {
                             requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
@@ -752,8 +758,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
                         status: bRoleApproved ? "Approved" : "Rejected",
                         statusState: bRoleApproved ? "Success" : "Error",
                         statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
@@ -798,230 +804,7 @@ sap.ui.define([
         async _reloadAllRequests(oModel) {
             if (!oModel) return;
 
-            const aDefaultPending = [
-                {
-                    requestId: "REQ-2026-9055",
-                    requesterId: "User003",
-                    persona: "Requester",
-                    system: "KYRA Central Governance",
-                    serviceAndRole: "Business Product Owner (Stakeholders)",
-                    submissionDate: "2026-07-28",
-                    decisionDate: "2026-07-28",
-                    duration: "Permanent (Default)",
-                    sector: "Information Technology & Security",
-                    function: "Identity & Access Governance",
-                    region: "Global Enterprise (ALL)",
-                    justification: "Requires access for Q3 Identity Governance project",
-                    status: "Pending Approval",
-                    statusState: "Warning",
-                    statusIcon: "sap-icon://pending",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-9055",
-                            system: "KYRA Central Governance",
-                            roleName: "Business Product Owner",
-                            team: "Stakeholders",
-                            selectedPersona: "Business Strategy Lead Persona",
-                            grantedDate: "2026-07-28",
-                            expiryDate: "Permanent (Default)",
-                            status: "Pending",
-                            statusState: "Warning",
-                            statusIcon: "sap-icon://pending"
-                        }
-                    ]
-                },
-                {
-                    requestId: "REQ-2026-9082",
-                    requesterId: "Dev001",
-                    persona: "Requester",
-                    system: "SAP BTP Cloud Platform",
-                    serviceAndRole: "IT Developers (System Administrator)",
-                    submissionDate: "2026-08-01",
-                    decisionDate: "2026-08-01",
-                    duration: "Permanent (Default)",
-                    sector: "Information Technology & Security",
-                    function: "Cloud Systems & Infrastructure",
-                    region: "North America (US-EAST)",
-                    justification: "Backend API development & UI integration testing",
-                    status: "Pending Approval",
-                    statusState: "Warning",
-                    statusIcon: "sap-icon://pending",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-9082",
-                            system: "SAP BTP Cloud Platform",
-                            roleName: "IT Developers",
-                            team: "System Administrator",
-                            selectedPersona: "Frontend & UI Developer Persona",
-                            grantedDate: "2026-08-01",
-                            expiryDate: "Permanent (Default)",
-                            status: "Pending",
-                            statusState: "Warning",
-                            statusIcon: "sap-icon://pending"
-                        }
-                    ]
-                },
-                {
-                    requestId: "REQ-2026-8910",
-                    requesterId: "User014",
-                    persona: "Compliance Reviewer",
-                    system: "SAP S/4HANA Enterprise",
-                    serviceAndRole: "Financial Auditing (Corporate Accounting)",
-                    submissionDate: "2026-08-04",
-                    decisionDate: "2026-08-04",
-                    duration: "30 Days (Temporary)",
-                    sector: "Finance & Enterprise Performance",
-                    function: "Financial Auditing",
-                    region: "Europe & Middle East (EMEA)",
-                    justification: "Quarterly Sarbanes-Oxley (SOX) audit compliance review",
-                    status: "Pending Approval",
-                    statusState: "Warning",
-                    statusIcon: "sap-icon://pending",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-8910",
-                            system: "SAP S/4HANA Enterprise",
-                            roleName: "Financial Auditing",
-                            team: "Corporate Accounting",
-                            selectedPersona: "Regulatory Compliance Officer Persona",
-                            grantedDate: "2026-08-04",
-                            expiryDate: "30 Days (Temporary)",
-                            status: "Pending",
-                            statusState: "Warning",
-                            statusIcon: "sap-icon://pending"
-                        }
-                    ]
-                },
-                {
-                    requestId: "REQ-2026-8744",
-                    requesterId: "User022",
-                    persona: "Requester",
-                    system: "Active Directory / IAM",
-                    serviceAndRole: "IT Security (Security Governance)",
-                    submissionDate: "2026-08-06",
-                    decisionDate: "2026-08-06",
-                    duration: "Permanent (Default)",
-                    sector: "Information Technology & Security",
-                    function: "Cybersecurity & Access Control",
-                    region: "Asia Pacific & Japan (APJ)",
-                    justification: "Role assignment for enterprise security posture monitoring",
-                    status: "Pending Approval",
-                    statusState: "Warning",
-                    statusIcon: "sap-icon://pending",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-8744",
-                            system: "Active Directory / IAM",
-                            roleName: "IT Security",
-                            team: "Security Governance",
-                            selectedPersona: "IAM Specialist Persona",
-                            grantedDate: "2026-08-06",
-                            expiryDate: "Permanent (Default)",
-                            status: "Pending",
-                            statusState: "Warning",
-                            statusIcon: "sap-icon://pending"
-                        }
-                    ]
-                }
-            ];
-
-            const aDefaultProcessed = [
-                {
-                    requestId: "REQ-2026-8512",
-                    requesterId: "User008",
-                    persona: "Requester",
-                    system: "SAP BTP Cloud Platform",
-                    serviceAndRole: "IT Developers (Cloud Systems)",
-                    submissionDate: "2026-07-20",
-                    decisionDate: "2026-07-21",
-                    duration: "Permanent",
-                    sector: "Information Technology & Security",
-                    function: "Cloud Systems & Infrastructure",
-                    region: "North America (US-EAST)",
-                    justification: "Approved cloud infrastructure access",
-                    status: "Approved",
-                    statusState: "Success",
-                    statusIcon: "sap-icon://sys-enter-2",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-8512",
-                            system: "SAP BTP Cloud Platform",
-                            roleName: "IT Developers",
-                            team: "Cloud Systems",
-                            selectedPersona: "Cloud Architect Persona",
-                            grantedDate: "2026-07-21",
-                            expiryDate: "Permanent",
-                            status: "Approved",
-                            statusState: "Success",
-                            statusIcon: "sap-icon://sys-enter-2"
-                        }
-                    ]
-                },
-                {
-                    requestId: "REQ-2026-8430",
-                    requesterId: "User019",
-                    persona: "Compliance Reviewer",
-                    system: "SAP S/4HANA Enterprise",
-                    serviceAndRole: "Financial Auditing (Accounting)",
-                    submissionDate: "2026-07-15",
-                    decisionDate: "2026-07-16",
-                    duration: "30 Days",
-                    sector: "Finance & Enterprise Performance",
-                    function: "Financial Auditing",
-                    region: "Europe & Middle East (EMEA)",
-                    justification: "Conflict of interest identified during review",
-                    status: "Rejected",
-                    statusState: "Error",
-                    statusIcon: "sap-icon://error",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-8430",
-                            system: "SAP S/4HANA Enterprise",
-                            roleName: "Financial Auditing",
-                            team: "Accounting",
-                            selectedPersona: "Auditor Persona",
-                            grantedDate: "2026-07-16",
-                            expiryDate: "30 Days",
-                            status: "Rejected",
-                            statusState: "Error",
-                            statusIcon: "sap-icon://error"
-                        }
-                    ]
-                },
-                {
-                    requestId: "REQ-2026-8201",
-                    requesterId: "User011",
-                    persona: "Requester",
-                    system: "Active Directory / IAM",
-                    serviceAndRole: "IT Security (Security Governance)",
-                    submissionDate: "2026-07-10",
-                    decisionDate: "2026-07-11",
-                    duration: "Permanent",
-                    sector: "Information Technology & Security",
-                    function: "Cybersecurity & Access Control",
-                    region: "North America (US-EAST)",
-                    justification: "Employee role change - Revoke previous domain admin privileges",
-                    status: "Approved",
-                    statusState: "Success",
-                    statusIcon: "sap-icon://sys-enter-2",
-                    isRevocation: true,
-                    type: "Revocation",
-                    entitlements: [
-                        {
-                            requestId: "REQ-2026-8201",
-                            system: "Active Directory / IAM",
-                            roleName: "Domain Admin",
-                            team: "Security Governance",
-                            selectedPersona: "IAM Specialist Persona",
-                            grantedDate: "2026-07-11",
-                            expiryDate: "Permanent",
-                            status: "Approved",
-                            statusState: "Success",
-                            statusIcon: "sap-icon://sys-enter-2"
-                        }
-                    ]
-                }
-            ];
+            const aDefaultPending = []; const aDefaultProcessed = [];
 
             let aPending = [];
             let aProcessed = [];
@@ -1049,6 +832,12 @@ sap.ui.define([
 
             const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation");
+            aPending.sort(sortChronologicallyDesc);
+            aProcessed.sort(sortChronologicallyDesc);
+            aAccessPending.sort(sortChronologicallyDesc);
+            aRevokePending.sort(sortChronologicallyDesc);
+            aAccessProcessed.sort(sortChronologicallyDesc);
+            aRevokeProcessed.sort(sortChronologicallyDesc);
 
             const aAccessProcessed = aProcessed.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aRevokeProcessed = aProcessed.filter(p => p.isRevocation || p.type === "Revocation");

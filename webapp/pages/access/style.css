@@ -4254,8 +4254,8 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
     font-size: 11px !important;
     color: #64748B !important;
     margin-top: 2px !important;
-    line-height: 1.25 !important;
-    white-space: normal !important;
+    line-height: 1.35 !important;
+    white-space: pre-line !important;
     word-break: break-word !important;
 }
 

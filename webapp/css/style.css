@@ -4254,8 +4254,8 @@ html body .sapMBtn.kyraBackToPortalBtn:hover .sapMBtnText {
     font-size: 11px !important;
     color: #64748B !important;
     margin-top: 2px !important;
-    line-height: 1.25 !important;
-    white-space: normal !important;
+    line-height: 1.35 !important;
+    white-space: pre-line !important;
     word-break: break-word !important;
 }
 
@@ -21754,39 +21754,39 @@ html body .sapMBtn.kyraGovBtnApprove:hover .sapMBtnInner {
 }
 
 .kyraGovHeadCol2, .kyraGovCell2 {
+    flex: 0 0 12% !important;
+    width: 12% !important;
+    max-width: 12% !important;
+    min-width: 12% !important;
+}
+
+.kyraGovHeadCol3, .kyraGovCell3 {
+    flex: 0 0 13% !important;
+    width: 13% !important;
+    max-width: 13% !important;
+    min-width: 13% !important;
+}
+
+.kyraGovHeadCol4, .kyraGovCell4 {
+    flex: 0 0 16% !important;
+    width: 16% !important;
+    max-width: 16% !important;
+    min-width: 16% !important;
+}
+
+.kyraGovHeadCol5, .kyraGovCell5 {
     flex: 0 0 11% !important;
     width: 11% !important;
     max-width: 11% !important;
     min-width: 11% !important;
 }
 
-.kyraGovHeadCol3, .kyraGovCell3 {
-    flex: 0 0 15% !important;
-    width: 15% !important;
-    max-width: 15% !important;
-    min-width: 15% !important;
-}
-
-.kyraGovHeadCol4, .kyraGovCell4 {
-    flex: 0 0 15% !important;
-    width: 15% !important;
-    max-width: 15% !important;
-    min-width: 15% !important;
-}
-
-.kyraGovHeadCol5, .kyraGovCell5 {
-    flex: 0 0 9% !important;
-    width: 9% !important;
-    max-width: 9% !important;
-    min-width: 9% !important;
-}
-
-/* Status Column (Column 6): Generous 14% width, centered, no cramping */
+/* Status Column (Column 6): Generous 12% width, centered, no cramping */
 .kyraGovHeadCol6, .kyraGovCell6 {
-    flex: 0 0 14% !important;
-    width: 14% !important;
-    max-width: 14% !important;
-    min-width: 14% !important;
+    flex: 0 0 12% !important;
+    width: 12% !important;
+    max-width: 12% !important;
+    min-width: 12% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;

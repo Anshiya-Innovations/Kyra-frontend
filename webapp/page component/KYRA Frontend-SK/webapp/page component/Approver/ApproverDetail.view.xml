@@ -44,7 +44,7 @@
                         </HBox>
                         <HBox class="kyraGovPendingBadge" alignItems="Center">
                             <core:Icon src="sap-icon://history" class="kyraGovPendingClockIcon sapUiTinyMarginEnd" />
-                            <Text text="{= ${accessModel>/selectedRequest/status} || 'Pending Approval' }" class="kyraGovPendingBadgeText" />
+                            <Text text="{accessModel>/selectedRequest/status}" class="kyraGovPendingBadgeText" />
                         </HBox>
                     </HBox>
 
@@ -416,7 +416,7 @@
                                             <!-- Approver Remark Sub-Row (Visible only for Compliance Reviewer) -->
                                             <HBox class="kyraApproverRemarkSubRow" alignItems="Center" width="100%" visible="{= ${accessModel>/isCompliancePersona} === true }">
                                                 <Text text="Approver Remark:" class="kyraApproverRemarkLabel" />
-                                                <Text text="{= ${accessModel>approverRemark} || 'Access approved for this requester.' }" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
+                                                <Text text="{accessModel>approverRemark}" class="kyraApproverRemarkContent sapUiTinyMarginBegin" />
                                             </HBox>
                                         </VBox>
                                     </items>

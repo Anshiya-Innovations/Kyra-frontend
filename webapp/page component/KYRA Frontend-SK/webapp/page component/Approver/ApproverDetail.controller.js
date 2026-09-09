@@ -31,7 +31,7 @@ sap.ui.define([
         }
         const rLower = String(roleStr || "").toLowerCase();
         if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
-            return "System Administrator";
+            return "";
         }
         if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
             return "System Owners";
@@ -39,7 +39,7 @@ sap.ui.define([
         if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
             return "Stakeholders";
         }
-        return "System Administrator";
+        return "";
     }
 
     function getBaseReqId(num) {
@@ -222,15 +222,15 @@ sap.ui.define([
                                 serviceAndRole: (first.role_name || "Role") + " (" + sSvc + ")",
                                 serviceTopic: sSvc,
                                 submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                                duration: first.access_duration || "Permanent (Default)",
-                                sector: first.business_sector || "Information Technology & Security",
-                                businessSector: first.business_sector || "Information Technology & Security",
-                                function: first.business_function || "Corporate Governance",
-                                businessFunction: first.business_function || "Corporate Governance",
-                                duration: first.access_duration || "Permanent (Default)",
-                                region: first.operating_region || "Global Enterprise (ALL)",
+                                duration: first.access_duration || "",
+                                sector: first.business_sector || "",
+                                businessSector: first.business_sector || "",
+                                function: first.business_function || "",
+                                businessFunction: first.business_function || "",
+                                duration: first.access_duration || "",
+                                region: first.operating_region || "",
                                 justification: first.justification || "Access Request",
-                                selectedPersona: cleanPersonaName(first.selected_persona || "Engineering & Developer"),
+                                selectedPersona: cleanPersonaName(first.selected_persona || ""),
                                 status: "Pending Approval",
                                 statusState: "Warning",
                                 statusIcon: "sap-icon://pending",
@@ -241,7 +241,7 @@ sap.ui.define([
                                     roleName: (m.role_name || "").replace(/\s*\([^)]*\)/g, "").trim(),
                                     team: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     serviceTopic: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
-                                    selectedPersona: cleanPersonaName(m.selected_persona || "Engineering & Developer"),
+                                    selectedPersona: cleanPersonaName(m.selected_persona || ""),
                                     grantedDate: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                                     expiryDate: m.access_duration || "Permanent",
                                     status: "Pending",
@@ -263,7 +263,7 @@ sap.ui.define([
                     oModel.setProperty("/activeRole", sActiveRole);
                     oModel.setProperty("/isCompliancePersona", isCompliancePersona);
 
-                    const sRequesterId = oRequest.requesterId || "Dev001";
+                    const sRequesterId = oRequest.requesterId || oRequest.requesterUsername || "";
                     const aEntList = [];
 
                     const cleanRole = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").trim();
@@ -276,7 +276,7 @@ sap.ui.define([
                             } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
                                 return "Stakeholders";
                             } else {
-                                return "System Administrator";
+                                return "";
                             }
                         }
                         return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
@@ -290,7 +290,7 @@ sap.ui.define([
 
                             let sApproverRemark = "";
                             if (isCompliancePersona) {
-                                sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Access approved for this requester.";
+                                sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
                             }
 
                             const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
@@ -302,8 +302,8 @@ sap.ui.define([
                                 roleName: cleanRole(sRawRole),
                                 team: sService,
                                 serviceTopic: sService,
-                                selectedPersona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
-                                persona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                                selectedPersona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || ""),
+                                persona: cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || ""),
                                 grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
                                 expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
                                 status: sInitStatus,
@@ -320,7 +320,7 @@ sap.ui.define([
 
                         let sApproverRemark = "";
                         if (isCompliancePersona) {
-                            sApproverRemark = oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "Access approved for this requester.";
+                            sApproverRemark = oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
                         }
 
                         const sRawRole = oRequest.roleName || oRequest.serviceAndRole || "System Role";
@@ -332,7 +332,7 @@ sap.ui.define([
                             roleName: cleanRole(sRawRole),
                             team: sService,
                             serviceTopic: sService,
-                            selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                            selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || ""),
                             grantedDate: oRequest.submissionDate || new Date().toISOString().split("T")[0],
                             expiryDate: oRequest.duration || "Permanent",
                             status: sInitStatus,
@@ -399,7 +399,7 @@ sap.ui.define([
                         requestId: oRequest.requestId,
                         requesterId: sRequesterId,
                         persona: oRequest.persona,
-                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || ""),
                         region: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
                         operatingRegion: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
                         sector: oRequest.businessSector || oRequest.sector || "Information Technology & Security",
@@ -695,12 +695,15 @@ sap.ui.define([
             try {
                 const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
                 if (oRouter) {
-                    oRouter.navTo("AccessPage");
-                } else {
-                    window.location.hash = "#/accessPage";
+                    oRouter.navTo("AccessPage", {}, true);
+                } else if (window.history && window.history.length > 1) {
+                    window.history.back();
                 }
             } catch(e) {
-                window.location.hash = "#/accessPage";
+                console.warn("Navigation error:", e);
+                if (window.history && window.history.length > 1) {
+                    window.history.back();
+                }
             }
         },
 
@@ -867,7 +870,7 @@ sap.ui.define([
                 <div style="font-family: inherit; color: #0F172A;">
                     <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                         <div>
-                            <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || 'Dev001'})</div>
+                            <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || oData.requesterUsername || ""})</div>
                             <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
                                 Request ID: <strong style="color: #1E293B;">${oData.requestId}</strong> • Sector: <span style="color: #475569;">${oData.sector || 'Enterprise Governance'}</span>
                             </div>
@@ -904,7 +907,7 @@ sap.ui.define([
                                         ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
                                     </div>
                                     <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
+                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
@@ -938,7 +941,7 @@ sap.ui.define([
                                         ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
                                     </div>
                                     <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || 'Engineering & Developer Persona'}
+                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
@@ -1046,7 +1049,7 @@ sap.ui.define([
                     function: sFunc,
                     businessFunction: sFunc,
                     duration: sDur,
-                    serviceTopic: oData.serviceTopic || "System Administrator",
+                    serviceTopic: oData.serviceTopic || "",
                     decisionDate: new Date().toISOString().split("T")[0],
                     submissionDate: oData.submissionDate || new Date().toISOString().split("T")[0],
                     status: sOverallStatus,
@@ -1058,8 +1061,8 @@ sap.ui.define([
                         requestId: e.requestId || oData.requestId,
                         system: e.system,
                         roleName: e.roleName,
-                        team: oData.serviceTopic || "System Administrator",
-                        serviceTopic: oData.serviceTopic || "System Administrator",
+                        team: oData.team || oData.roleName || oData.serviceTopic || "",
+                        serviceTopic: oData.serviceTopic || "",
                         status: (e.status || "").toLowerCase().includes("reject") ? "Rejected" : "Approved",
                         statusState: (e.status || "").toLowerCase().includes("reject") ? "Error" : "Success",
                         statusIcon: (e.status || "").toLowerCase().includes("reject") ? "sap-icon://error" : "sap-icon://sys-enter-2",
@@ -1118,7 +1121,7 @@ sap.ui.define([
                     const aUserNotifications = JSON.parse(sessionStorage.getItem("kyra_user_notifications") || "[]");
                     aUserNotifications.unshift({
                         id: "NOTIF-" + Date.now(),
-                        requesterId: oData.requesterId || "Dev001",
+                        requesterId: oData.requesterId || oData.requesterUsername || "",
                         requestId: oData.requestId,
                         title: sOverallStatus === "Approved" ? ("Access Request Approved: " + oData.requestId) : (sOverallStatus === "Rejected" ? ("Access Request Rejected: " + oData.requestId) : ("Access Request Partially Approved: " + oData.requestId)),
                         description: sNotifDesc,
@@ -1239,7 +1242,7 @@ sap.ui.define([
                 } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("isrm")) {
                     return "Stakeholders";
                 } else {
-                    return "System Administrator";
+                    return "";
                 }
             };
 
@@ -1359,8 +1362,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
@@ -1374,7 +1377,7 @@ sap.ui.define([
                     const sGroupKey = sBaseId || r.request_number || (sUser + "_" + sDate + "_" + (r.selected_persona || r.role_name));
 
                     if (!oGrouped[sGroupKey]) {
-                        const sPersona = r.selected_persona || r.role_name || "Engineering & Developer Persona";
+                        const sPersona = r.selected_persona || r.role_name || "";
 
                         oGrouped[sGroupKey] = {
                             requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
@@ -1406,8 +1409,8 @@ sap.ui.define([
                         roleName: r.role_name,
                         team: sService,
                         serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || "Engineering & Developer"),
+                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
                         status: bRoleApproved ? "Approved" : "Rejected",
                         statusState: bRoleApproved ? "Success" : "Error",
                         statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
@@ -1460,11 +1463,11 @@ sap.ui.define([
                 if (!oGroupedMap[sReqId]) {
                     oGroupedMap[sReqId] = {
                         requestId: sReqId,
-                        requesterId: item.requesterId || item.requesterUsername || "Dev001",
-                        requesterUsername: item.requesterUsername || item.requesterId || "Dev001",
+                        requesterId: item.requesterId || item.requesterUsername || "",
+                        requesterUsername: item.requesterUsername || item.requesterId || "",
                         type: item.type || "Addition",
-                        persona: cleanPersonaName(item.persona || item.selectedPersona || "Engineering & Developer"),
-                        selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || "Engineering & Developer"),
+                        persona: cleanPersonaName(item.persona || item.selectedPersona || ""),
+                        selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || ""),
                         accessDuration: item.accessDuration || "Permanent (Default)",
                         submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
                         createdAtRaw: item.createdAtRaw || new Date().toISOString(),
