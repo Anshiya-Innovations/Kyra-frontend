@@ -4257,18 +4257,15 @@ sap.ui.define([
                         const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
 
                         // If both items specify personas and they differ, they are separate entitlements
-                        if (persA && persB && persA !== persB) {
-                            return false;
+                        if (persA && persB) {
+                            return persA === persB;
                         }
 
-                        // 1. Role match on same system
-                        if (roleA && roleB && (roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA))) {
-                            return true;
+                        // If neither or only one specifies persona, match on exact role/team on the same system
+                        if (roleA && roleB) {
+                            return roleA === roleB;
                         }
-                        // 2. Persona match on same system
-                        if (persA && persB && (persA === persB || persA.includes(persB) || persB.includes(persA))) {
-                            return true;
-                        }
+
                         return false;
                     };
 
@@ -4284,13 +4281,17 @@ sap.ui.define([
                     const aPendingList = oModel.getProperty("/myPendingRequests") || oModel.getProperty("/pendingAccessRequests") || [];
                     const bAlreadyPending = aPendingList.some(pr => {
                         const sStat = (pr.status || "").toLowerCase();
+                        if (sStat.includes("reject")) return false;
                         const isPending = sStat.includes("pending") || sStat.includes("submitted");
                         if (!isPending) return false;
-                        if (isMatch(pr, oItem)) return true;
                         if (Array.isArray(pr.entitlements)) {
-                            return pr.entitlements.some(e => isMatch(e, oItem));
+                            return pr.entitlements.some(e => {
+                                const eStat = (e.status || "").toLowerCase();
+                                if (eStat.includes("reject")) return false;
+                                return isMatch(e, oItem);
+                            });
                         }
-                        return false;
+                        return isMatch(pr, oItem);
                     });
 
                     // Check 3: Revoke in Pending
@@ -4530,14 +4531,16 @@ sap.ui.define([
                 const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
                 const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
 
-                // 1. Role match on same system
-                if (roleA && roleB && (roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA))) {
-                    return true;
+                // If both items specify personas and they differ, they are separate entitlements
+                if (persA && persB) {
+                    return persA === persB;
                 }
-                // 2. Persona match on same system
-                if (persA && persB && (persA === persB || persA.includes(persB) || persB.includes(persA))) {
-                    return true;
+
+                // If neither or only one specifies persona, match on exact role/team on the same system
+                if (roleA && roleB) {
+                    return roleA === roleB;
                 }
+
                 return false;
             };
 
@@ -4594,11 +4597,16 @@ sap.ui.define([
 
                 // Check 3: Pending Access Requests Section (already requested)
                 const bFoundInPending = aPendingRequests.some(pr => {
-                    if (isMatch(pr, item)) return true;
+                    const pStat = (pr.status || "").toLowerCase();
+                    if (pStat.includes("reject")) return false;
                     if (Array.isArray(pr.entitlements)) {
-                        return pr.entitlements.some(e => isMatch(e, item));
+                        return pr.entitlements.some(e => {
+                            const eStat = (e.status || "").toLowerCase();
+                            if (eStat.includes("reject")) return false;
+                            return isMatch(e, item);
+                        });
                     }
-                    return false;
+                    return isMatch(pr, item);
                 });
 
                 const sServices = item.services || item.serviceTopic || sTopic || "";
@@ -4626,6 +4634,8 @@ sap.ui.define([
                         adGroup: sAdGrp,
                         adGroupName: sAdGrp,
                         existingRoles: "revoke in pending",
+                        existingStatus: "Revoke in Pending",
+                        statusType: "revoke_pending",
                         statusState: "Warning"
                     });
                 } else if (bFoundInActive) {
@@ -4647,6 +4657,8 @@ sap.ui.define([
                         adGroup: sAdGrp,
                         adGroupName: sAdGrp,
                         existingRoles: "already active",
+                        existingStatus: "Already Active",
+                        statusType: "existing",
                         statusState: "Information"
                     });
                 } else if (bFoundInPending) {
@@ -4668,6 +4680,8 @@ sap.ui.define([
                         adGroup: sAdGrp,
                         adGroupName: sAdGrp,
                         existingRoles: "already requested",
+                        existingStatus: "Already in Pending",
+                        statusType: "pending",
                         statusState: "Warning"
                     });
                 }
@@ -4730,9 +4744,20 @@ sap.ui.define([
                 }
             });
 
+            // Deduplicate duplicate roles table entries to ensure no redundant rows
+            const aUniqueDuplicateRoles = [];
+            const seenDupKeys = new Set();
+            aDuplicateRoles.forEach(dup => {
+                const k = `${dup.system || dup.systemName}:::${dup.team || dup.roleName}:::${dup.persona || dup.selectedPersona}:::${dup.existingRoles || dup.existingStatus}`;
+                if (!seenDupKeys.has(k)) {
+                    seenDupKeys.add(k);
+                    aUniqueDuplicateRoles.push(dup);
+                }
+            });
+
             // Set evaluated threshold limits and duplicate roles
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
-            oModel.setProperty("/duplicateRoles", aDuplicateRoles);
+            oModel.setProperty("/duplicateRoles", aUniqueDuplicateRoles);
         },
 
         _loadBackendSoDMatrix() {

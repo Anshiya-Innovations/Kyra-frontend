@@ -719,6 +719,7 @@ sap.ui.define([
                             statusIcon: "sap-icon://pending",
                             isRevocation: isRevocation,
                             _isPendingForRole: true,
+                            approverRemark: r.approver_comment || r.approverRemark || "",
                             entitlements: []
                         };
                     }
@@ -733,6 +734,7 @@ sap.ui.define([
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
+                        approverRemark: r.approver_comment || r.approverRemark || "",
                         comment: r.reviewer_comment || r.comments || ""
                     });
                     return;

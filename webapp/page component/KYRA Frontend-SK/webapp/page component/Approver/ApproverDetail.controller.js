@@ -380,6 +380,10 @@ sap.ui.define([
                                 aEntList.forEach(item => {
                                     const dbRec = dbMap[item.requestId];
                                     if (dbRec) {
+                                        if (dbRec.approver_comment || dbRec.approverRemark) {
+                                            const sRem = dbRec.approver_comment || dbRec.approverRemark;
+                                            item.approverRemark = sRem;
+                                        }
                                         if (dbRec.selected_persona || dbRec.persona) {
                                             const sCleanP = cleanPersonaName(dbRec.selected_persona || dbRec.persona);
                                             item.selectedPersona = sCleanP;
@@ -449,6 +453,7 @@ sap.ui.define([
                         status: oRequest.status,
                         statusState: oRequest.statusState,
                         statusIcon: oRequest.statusIcon,
+                        approverRemark: oRequest.approverRemark || (aEntList[0] && aEntList[0].approverRemark) || "",
                         entitlements: aEntList,
                         summaryTables: aSummaryTables
                     });
@@ -1558,6 +1563,7 @@ sap.ui.define([
                             statusIcon: "sap-icon://pending",
                             isRevocation: isRevocation,
                             _isPendingForRole: true,
+                            approverRemark: r.approver_comment || r.approverRemark || "",
                             entitlements: []
                         };
                     }
@@ -1572,6 +1578,7 @@ sap.ui.define([
                         status: "Pending",
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
+                        approverRemark: r.approver_comment || r.approverRemark || "",
                         comment: r.reviewer_comment || r.comments || ""
                     });
                     return;
