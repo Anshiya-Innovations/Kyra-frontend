@@ -179,7 +179,18 @@ sap.ui.define([
 
             try {
                 const sReqId = oEvent.getParameter("arguments").requestId;
-                const oModel = this.getView().getModel("accessModel");
+                let oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+                if (!oModel) {
+                    oModel = new sap.ui.model.json.JSONModel({});
+                    this.getView().setModel(oModel, "accessModel");
+                    if (this.getOwnerComponent()) this.getOwnerComponent().setModel(oModel, "accessModel");
+                }
+
+                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+                const isCompliance = sActiveRole.includes("compliance");
+                oModel.setProperty("/isCompliance", isCompliance);
+                oModel.setProperty("/isComplianceReviewer", isCompliance);
+                oModel.setProperty("/isCompliancePersona", isCompliance);
                 if (!oModel) return;
 
                 const sBaseReqId = getBaseReqId(sReqId);

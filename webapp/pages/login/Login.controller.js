@@ -281,13 +281,19 @@ sap.ui.define([
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
                 sessionStorage.setItem("kyra_active_role", sEffectiveTitle);
 
-                const bIsApprover = (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || sEffectiveTitle === "Administrator");
+                const bIsApprover = (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance") || sEffectiveTitle.toLowerCase().includes("admin"))));
+                const isCompliance = typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance");
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
                     oAccessModel.setProperty("/activeUser", sUserId);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
+                    oAccessModel.setProperty("/isCompliance", isCompliance);
+                    oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
+                    oAccessModel.setProperty("/isCompliancePersona", isCompliance);
+                    oAccessModel.setProperty("/approverPendingTab", "accessRequests");
+                    oAccessModel.setProperty("/showApprovalHistory", false);
                     oAccessModel.setProperty("/activeRoles", []);
                     oAccessModel.setProperty("/userAccessList", []);
                     oAccessModel.setProperty("/myApprovedRequests", []);

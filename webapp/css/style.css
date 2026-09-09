@@ -47,7 +47,7 @@ body::-webkit-scrollbar {
     overflow-x: hidden !important;
     overflow-y: auto !important;
     scrollbar-width: thin !important;
-    scrollbar-color: #10B981 transparent !important;
+    scrollbar-color: #CBD5E1 transparent !important;
 }
 
 * {
@@ -79,20 +79,20 @@ body::-webkit-scrollbar {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #10B981 !important;
-    background-color: #10B981 !important;
+    background: #CBD5E1 !important;
+    background-color: #CBD5E1 !important;
     border-radius: 9999px !important;
     border: none !important;
     transition: background-color 0.2s ease !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #059669 !important;
-    background-color: #059669 !important;
+    background: #94A3B8 !important;
+    background-color: #94A3B8 !important;
 }
 
 ::-webkit-scrollbar-thumb:active {
-    background: #047857 !important;
+    background: #64748B !important;
     background-color: #047857 !important;
 }
 
@@ -861,7 +861,6 @@ html body .sapUiTheme-sap_horizon .fioriDescriptionText.sapMText {
     color: #00778B !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblHeader .sapMListTblCell,
 .sapMListTblHeader .sapMListTblCell {
     background-color: #F8FAFC !important;
     border-top: 1px solid #E2E8F0 !important;
@@ -871,7 +870,6 @@ html body .sapUiTheme-sap_horizon .fioriDescriptionText.sapMText {
 }
 
 .kyraEntitlementColHeader,
-.kyraActiveEntitlementsTable .sapMListTblHeader .sapMText,
 .sapMListTblHeader .sapMText {
     color: #475569 !important;
     font-weight: 700 !important;
@@ -880,7 +878,6 @@ html body .sapUiTheme-sap_horizon .fioriDescriptionText.sapMText {
     letter-spacing: 0.05em !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListNoDataText,
 .sapMListNoDataText {
     color: #334155 !important;
     font-size: 14px !important;
@@ -2545,7 +2542,7 @@ html body .sapMBtn.region-chip-btn:hover .sapMBtnIcon,
 
 .fioriEmphasizedBtn:hover .sapMBtnInner,
 .fioriEmphasizedBtn .sapMBtnInner:hover {
-    background: #047857 !important;
+    background: #64748B !important;
     background-color: #047857 !important;
     border-color: #007684 !important;
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35) !important;
@@ -7134,75 +7131,293 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     font-size: 11.5px !important;
 }
 
-/* Approver Table Clean Spacing */
-.kyraApproverTable .sapMListTblCell {
-    padding: 12px 14px !important;
-    vertical-align: middle !important;
-    text-align: center !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+/* =========================================================================
+   UNIVERSAL TABLE RESET: ELIMINATE DUMMY HIGHLIGHT & EMPTY SPACE COLUMNS
+   ========================================================================= */
+.sapMListTbl colgroup col.sapMListTblHighlightCol,
+.sapMListTbl colgroup col.sapMListTblNavigatedCol,
+.sapMListTbl th.sapMListTblHighlightCol,
+.sapMListTbl td.sapMListTblHighlightCell,
+.sapMListTbl .sapMListTblHighlightCol,
+.sapMListTbl .sapMListTblHighlightCell,
+.sapMListTbl .sapMListTblNavigatedCol,
+.sapMListTbl .sapMListTblNavigatedCell,
+.sapMListTbl .sapMListTblCellNavigated,
+.sapMListTblHighlightCol,
+.sapMListTblHighlightCell,
+.sapMListTblNavigatedCol,
+.sapMListTblNavigatedCell,
+.sapMListTblCellNavigated,
+.sapMLIBHighlight {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
-.kyraApproverTable .sapMListTblCell:not(:last-child) {
-    border-right: 1px solid #F1F5F9 !important;
+/* =========================================================================
+   KYRA APPROVER TABLES: PERFECT ALIGNMENT & NAVIGATION CHEVRON
+   ========================================================================= */
+.kyraApproverTable,
+.kyraApproverTable.sapMListTbl,
+.kyraApproverTable.sapMTable {
+    table-layout: fixed !important;
+    width: 100% !important;
+    min-width: 1060px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Completely Hide Dummy SAPUI5 Highlight & Navigated Columns */
+.kyraApproverTable colgroup col.sapMListTblHighlightCol,
+.kyraApproverTable colgroup col.sapMListTblNavigatedCol,
+.kyraApproverTable th.sapMListTblHighlightCol,
+.kyraApproverTable td.sapMListTblHighlightCell,
+.kyraApproverTable .sapMListTblHighlightCol,
+.kyraApproverTable .sapMListTblNavigatedCol,
+.kyraApproverTable .sapMListTblHighlightCell,
+.kyraApproverTable .sapMListTblNavigatedCell,
+.kyraApproverTable .sapMListTblCellNavigated {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.kyraApproverTable th:first-child,
+.kyraApproverTable td:first-child,
+.kyraApproverTable th:not(.sapMListTblHighlightCol):first-of-type,
+.kyraApproverTable td:not(.sapMListTblHighlightCell):first-of-type {
+    border-left: none !important;
+}
+
+/* Header Row & Cells */
+.kyraApproverTable .sapMListTblHeader {
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    height: 48px !important;
 }
 
 .kyraApproverTable .sapMListTblHeaderCell {
-    padding: 12px 14px !important;
     background: #F8FAFC !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #475569 !important;
-    letter-spacing: 0.04em !important;
-    text-transform: uppercase !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 12px !important;
     vertical-align: middle !important;
-    text-align: center !important;
     border-bottom: 1px solid #E2E8F0 !important;
-    white-space: nowrap !important;
-}
-
-.kyraApproverTable .sapMListTblHeaderCell:not(:last-child) {
     border-right: 1px solid #E2E8F0 !important;
-}
-
-.kyraApproverTable .kyraColHeader {
-    white-space: nowrap !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #475569 !important;
-    letter-spacing: 0.04em !important;
-    display: inline-block !important;
+    box-sizing: border-box !important;
     text-align: center !important;
 }
 
+/* Header Typography: Bold/Semibold 700, 12px, high contrast */
+.kyraApproverTable th .sapMText,
+.kyraApproverTable th .kyraEntitlementColHeader,
+.kyraApproverTable .kyraEntitlementColHeader,
+.kyraApproverTable .kyraColHeader {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    line-height: normal !important;
+    display: inline-block !important;
+}
+
+/* Header Alignment */
+.kyraApproverTable th .kyraColHeadCenter {
+    text-align: center !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.kyraApproverTable th .kyraColHeadLeft {
+    text-align: left !important;
+    display: block !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+}
+
+/* Table Rows: Equal 52px height, hover effect */
+.kyraApproverTable .sapMListTblRow,
+.kyraApproverTable .kyraApproverRowItem,
+.kyraApproverTable .kyraTableRow {
+    height: 52px !important;
+    min-height: 52px !important;
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraApproverTable .sapMListTblRow:hover,
+.kyraApproverTable .kyraApproverRowItem:hover,
+.kyraApproverTable .sapMListTblRow:hover td {
+    background-color: #F8FAFC !important;
+}
+
+.kyraApproverTable .sapMListTblRow:last-child,
+.kyraApproverTable .sapMListTblRow:last-child td {
+    border-bottom: none !important;
+}
+
+/* Table Cells: Straight vertical borders, uniform padding, vertical centering */
+.kyraApproverTable .sapMListTblCell {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 12px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-right: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Body Text: Normal/regular weight (400), 11.5px (slightly smaller than 12px headers) */
+.kyraApproverTable .sapMListTblCell .sapMText,
 .kyraApproverTable .kyraUserIdText,
 .kyraApproverTable .kyraUserDetailsText,
 .kyraApproverTable .kyraSectorText,
 .kyraApproverTable .kyraFunctionText,
-.kyraApproverTable .kyraDateText {
-    text-align: center !important;
+.kyraApproverTable .kyraDateText,
+.kyraApproverTable .kyraCellText,
+.kyraApproverTable .kyraCellTextCenter {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    line-height: 1.4 !important;
+}
+
+/* Left-aligned data cells: BUSINESS SECTOR & BUSINESS FUNCTION */
+.kyraApproverTable .kyraSectorText,
+.kyraApproverTable .kyraFunctionText,
+.kyraApproverTable .kyraCellTextLeft {
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
     display: block !important;
     width: 100% !important;
+    padding-left: 2px !important;
 }
 
-.kyraApproverTable .kyraApproverStatusBadge {
-    margin: 0 auto !important;
+/* Centered data cells: USER ID, DURATION, SUBMISSION DATE */
+.kyraApproverTable .kyraUserIdText,
+.kyraApproverTable .kyraDateText,
+.kyraApproverTable .kyraCellTextCenter {
+    text-align: center !important;
+    display: inline-block !important;
+}
+
+.kyraApproverTable .kyraDateCell {
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+}
+
+/* Status Column & Badge: Perfectly Centered Pill */
+.kyraApproverTable .kyraApproverStatusBadge,
+.kyraApproverTable .kyraTableStatusBadge {
     display: inline-flex !important;
-    justify-content: center !important;
     align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    width: auto !important;
+    min-width: 95px !important;
+    white-space: nowrap !important;
+    padding: 4px 14px !important;
+    border-radius: 9999px !important;
+    box-sizing: border-box !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+    background: #FEF3C7 !important;
+    border: 1px solid #FDE68A !important;
+    color: #B45309 !important;
 }
 
-.kyraApproverTable .sapMLIB.sapMLIBTypeNavigation {
-    cursor: pointer !important;
-    transition: background 0.15s ease !important;
+.kyraApproverTable .kyraApproverStatusBadge .sapMObjStatusIcon,
+.kyraApproverTable .kyraApproverStatusBadge .sapUiIcon {
+    font-size: 13px !important;
+    color: #B45309 !important;
 }
 
-.kyraApproverTable .sapMLIB.sapMLIBTypeNavigation:hover {
-    background-color: #F8FAFC !important;
+.kyraApproverTable .kyraApproverStatusBadge .sapMObjStatusText {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #B45309 !important;
 }
 
-.kyraApproverTable .sapMLIBNavIcon {
+/* Navigation Arrow Column: Fixed width, perfectly aligned, straight left divider, no right border */
+.kyraApproverTable th.sapMListTblNavCol,
+.kyraApproverTable td.sapMListTblNavCol,
+.kyraApproverTable .sapMListTblNavCol {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    padding: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border-right: none !important;
+    box-sizing: border-box !important;
+}
+
+.kyraApproverTable th.sapMListTblNavCol {
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.kyraApproverTable td.sapMListTblNavCol {
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.kyraApproverTable th:last-child,
+.kyraApproverTable td:last-child {
+    border-right: none !important;
+}
+
+.kyraApproverTable .sapMLIBImgNav,
+.kyraApproverTable .sapMLIBNavIcon,
+.kyraApproverTable .sapMListTblNavCol .sapUiIcon {
     color: #008C9C !important;
     font-size: 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
 }
 
 /* =========================================================================
@@ -7769,94 +7984,110 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 }
 
 /* =========================================================================
-   MY HISTORY TABLE ALIGNMENT & NOWRAP STYLING
+   KYRA ENTERPRISE REQUEST TABLES: BASELINE & ALIGNMENT STYLES
    ========================================================================= */
-.kyraHistoryTable.sapMListTbl {
+.kyraHistoryTable.sapMListTbl,
+.kyraPendingRequestsTable.sapMListTbl {
     border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     overflow: hidden !important;
     background: #FFFFFF !important;
     width: 100% !important;
     table-layout: fixed !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
-.kyraHistoryTable .sapMListTblHeader {
+.kyraHistoryTable colgroup col.sapMListTblHighlightCol,
+.kyraHistoryTable colgroup col.sapMListTblNavigatedCol,
+.kyraHistoryTable th.sapMListTblHighlightCol,
+.kyraHistoryTable td.sapMListTblHighlightCell,
+.kyraHistoryTable .sapMListTblHighlightCol,
+.kyraHistoryTable .sapMListTblNavigatedCol,
+.kyraHistoryTable .sapMListTblHighlightCell,
+.kyraHistoryTable .sapMListTblNavigatedCell,
+.kyraHistoryTable .sapMListTblCellNavigated,
+.kyraPendingRequestsTable colgroup col.sapMListTblHighlightCol,
+.kyraPendingRequestsTable colgroup col.sapMListTblNavigatedCol,
+.kyraPendingRequestsTable th.sapMListTblHighlightCol,
+.kyraPendingRequestsTable td.sapMListTblHighlightCell,
+.kyraPendingRequestsTable .sapMListTblHighlightCol,
+.kyraPendingRequestsTable .sapMListTblNavigatedCol,
+.kyraPendingRequestsTable .sapMListTblHighlightCell,
+.kyraPendingRequestsTable .sapMListTblNavigatedCell,
+.kyraPendingRequestsTable .sapMListTblCellNavigated {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.kyraHistoryTable th:first-child,
+.kyraHistoryTable td:first-child,
+.kyraHistoryTable th:not(.sapMListTblHighlightCol):first-of-type,
+.kyraHistoryTable td:not(.sapMListTblHighlightCell):first-of-type,
+.kyraPendingRequestsTable th:first-child,
+.kyraPendingRequestsTable td:first-child,
+.kyraPendingRequestsTable th:not(.sapMListTblHighlightCol):first-of-type,
+.kyraPendingRequestsTable td:not(.sapMListTblHighlightCell):first-of-type {
+    border-left: none !important;
+}
+
+.kyraHistoryTable .sapMListTblHeader,
+.kyraPendingRequestsTable .sapMListTblHeader {
     background: #F8FAFC !important;
     border-bottom: 1px solid #E2E8F0 !important;
+    height: 48px !important;
 }
 
-.kyraHistoryTable .sapMListTblHeaderCell {
+.kyraHistoryTable .sapMListTblHeaderCell,
+.kyraPendingRequestsTable .sapMListTblHeaderCell {
     white-space: nowrap !important;
     word-break: normal !important;
     overflow: visible !important;
     font-weight: 700 !important;
     font-size: 11px !important;
-    letter-spacing: 0.04em !important;
+    letter-spacing: 0.05em !important;
     color: #475569 !important;
     background: #F8FAFC !important;
-    padding: 12px 10px !important;
+    padding: 10px 12px !important;
     border-bottom: 1px solid #E2E8F0 !important;
+    border-right: 1px solid #E2E8F0 !important;
     text-transform: uppercase !important;
     vertical-align: middle !important;
-    text-align: center !important;
+    box-sizing: border-box !important;
 }
 
-.kyraHistoryTable .sapMListTblHeaderCell:not(:last-child) {
-    border-right: 1px solid #E2E8F0 !important;
+.kyraHistoryTable .sapMListTblHeaderCell:last-child,
+.kyraPendingRequestsTable .sapMListTblHeaderCell:last-child {
+    border-right: none !important;
 }
 
-.kyraHistHeader,
-.kyraHistoryTable th .sapMText {
-    white-space: nowrap !important;
-    word-break: normal !important;
-    hyphens: none !important;
-    font-weight: 700 !important;
-    font-size: 11px !important;
-    letter-spacing: 0.04em !important;
-    color: #475569 !important;
-    display: inline-block !important;
-    text-align: center !important;
-}
-
-.kyraHistoryTable .sapMListTblCell {
-    padding: 12px 10px !important;
+.kyraHistoryTable .sapMListTblCell,
+.kyraPendingRequestsTable .sapMListTblCell {
+    padding: 10px 12px !important;
     vertical-align: middle !important;
-    text-align: center !important;
     border-bottom: 1px solid #F1F5F9 !important;
-}
-
-.kyraHistoryTable .sapMListTblCell:not(:last-child) {
     border-right: 1px solid #F1F5F9 !important;
+    box-sizing: border-box !important;
 }
 
-.kyraHistoryTable .sapMListTblCell .sapMText {
-    font-size: 12.5px !important;
-    color: #334155 !important;
-    line-height: 1.35 !important;
-    text-align: center !important;
-    display: block !important;
-    width: 100% !important;
+.kyraHistoryTable .sapMListTblCell:last-child,
+.kyraPendingRequestsTable .sapMListTblCell:last-child {
+    border-right: none !important;
 }
 
-.kyraHistoryTable .sapMListTblCell .sapMVBox {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-}
-
-.kyraHistoryTable .sapMListTblRow:hover {
+.kyraHistoryTable .sapMListTblRow:hover,
+.kyraPendingRequestsTable .sapMListTblRow:hover {
     background: #F8FAFC !important;
-}
-
-.kyraHistoryTable .sapMListTblCell .kyraApproverStatusBadge {
-    white-space: nowrap !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    max-width: none !important;
 }
 
 /* =========================================================================
@@ -8161,90 +8392,17 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     margin-right: 2px !important;
 }
 
-/* Approver Table Styling */
-.kyraApproverTable.sapMListTbl {
-    border: 1px solid #E2E8F0 !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    background: #FFFFFF !important;
-}
-
-.kyraApproverTable .sapMListTblHeader {
-    background: #F8FAFC !important;
-    border-bottom: 1px solid #E2E8F0 !important;
-}
-
-.kyraApproverTable .sapMListTblHeaderCell {
-    background: #F8FAFC !important;
-    padding: 10px 14px !important;
-    border-bottom: 1px solid #E2E8F0 !important;
-    vertical-align: middle !important;
-}
-
-.kyraColHeader {
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #64748B !important;
-    letter-spacing: 0.05em !important;
-    text-transform: uppercase !important;
-}
-
-.kyraApproverTable .sapMListTblRow,
-.kyraApproverRowItem {
-    cursor: pointer !important;
-    transition: background 0.15s ease !important;
-}
-
-.kyraApproverTable .sapMListTblRow:hover,
-.kyraApproverRowItem:hover {
-    background: #F8FAFC !important;
-}
-
-.kyraApproverTable .sapMListTblCell {
-    padding: 12px 10px !important;
-    vertical-align: middle !important;
-    border-bottom: 1px solid #F1F5F9 !important;
-}
-
-.kyraApproverTable .sapMListTblCell:last-child {
-    padding-right: 6px !important;
-}
-
-.kyraUserIdText {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    color: #0F172A !important;
-}
-
-.kyraUserDetailsText {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    color: #0F172A !important;
-}
-
-.kyraSectorText {
-    font-size: 12.5px !important;
-    font-weight: 500 !important;
-    color: #334155 !important;
-}
-
-.kyraFunctionText {
-    font-size: 12.5px !important;
-    font-weight: 400 !important;
-    color: #475569 !important;
-}
-
+/* Approver Table Body Typography & Layout */
+.kyraUserIdText,
+.kyraUserDetailsText,
+.kyraSectorText,
+.kyraFunctionText,
 .kyraDateText {
-    font-size: 12.5px !important;
-    color: #64748B !important;
-}
-
-/* Navigation chevron arrow on the right */
-.kyraApproverTable .sapMListTblNavCol,
-.kyraApproverTable .sapMListTblNavCol .sapUiIcon,
-.kyraApproverTable .sapMListTblNavCol .sapMBtnIcon {
-    color: #008C9C !important;
-    font-size: 14px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    line-height: 1.4 !important;
 }
 
 /* Compact Status Pill Badges */
@@ -10815,7 +10973,7 @@ html body .sapMTokenSelected .sapMTokenIcon {
 
 .sapMPopoverCont::-webkit-scrollbar-thumb:hover,
 .sapMPopoverScroll::-webkit-scrollbar-thumb:hover {
-    background: #047857 !important;
+    background: #64748B !important;
     background-color: #047857 !important;
 }
 
@@ -14180,7 +14338,6 @@ html body .sapUiTheme-sap_horizon .sapMCb:not(.sapMCbMarkChecked) .sapMCbBg {
 
 /* 1. Global Table Layout & Boundary Fixes */
 .sapMListTbl,
-.kyraActiveEntitlementsTable,
 .kyraHistoryTable,
 .kyraApproverTable,
 .kyraValTable,
@@ -14196,7 +14353,6 @@ html body .sapUiTheme-sap_horizon .sapMCb:not(.sapMCbMarkChecked) .sapMCbBg {
 /* 2. Global Table Headers Alignment, Typography & Padding */
 .sapMListTblHeaderCell,
 .sapMListTblTh,
-.kyraActiveEntitlementsTable .sapMListTblHeader .sapMListTblCell,
 .sapMListTblHeader .sapMListTblCell {
     background-color: #F8FAFC !important;
     border-top: none !important;
@@ -14255,7 +14411,6 @@ th[aria-sort].sapMListTblHeaderCell[style*="text-align: center"],
 
 /* 4. Global Table Cells - Perfect Vertical Centering & Spacing */
 .sapMListTblCell,
-.kyraActiveEntitlementsTable .sapMListTblCell,
 .kyraHistoryTable .sapMListTblCell,
 .kyraApproverTable .sapMListTblCell,
 .kyraValTable .sapMListTblCell,
@@ -15694,8 +15849,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
    ========================================================================= */
 
 /* 1. Global Table Container & Layout */
-.kyraActiveEntitlementsTable,
-.kyraActiveEntitlementsTable.sapMListTbl,
 .kyraHistoryTable,
 .kyraHistoryTable.sapMListTbl,
 .kyraApproverTable,
@@ -15713,7 +15866,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 /* 2. Table Headers (Prominent, Bold, Uppercase, Perfectly Aligned) */
-.kyraActiveEntitlementsTable .sapMListTblHeader,
 .kyraHistoryTable .sapMListTblHeader,
 .sapMListTblHeader {
     background-color: #F8FAFC !important;
@@ -15721,8 +15873,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     border-bottom: 1px solid #E2E8F0 !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblHeaderCell,
-.kyraActiveEntitlementsTable .sapMListTblHeader .sapMListTblCell,
 .kyraHistoryTable .sapMListTblHeaderCell,
 .sapMListTblHeaderCell,
 .sapMListTblTh {
@@ -15739,7 +15889,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 
 .kyraEntitlementColHeader,
 .kyraHistHeader,
-.kyraActiveEntitlementsTable .sapMListTblHeader .sapMText,
 .kyraHistoryTable .sapMListTblHeader .sapMText,
 .sapMListTblHeader .sapMText,
 .sapMListTblHeaderCell .sapMText,
@@ -15787,7 +15936,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 /* 3. Table Rows (Equal Height, Smooth Hover, Subtle Separators) */
-.kyraActiveEntitlementsTable .sapMListTblRow,
 .kyraHistoryTable .sapMListTblRow,
 .sapMListTblRow,
 .sapMLIB.sapMListTblRow,
@@ -15800,21 +15948,18 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     transition: background-color 0.15s ease !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblRow:hover,
 .kyraHistoryTable .sapMListTblRow:hover,
 .sapMListTblRow:hover,
 .sapMLIB.sapMListTblRow:hover {
     background-color: #F8FAFC !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblRow:last-child,
 .kyraHistoryTable .sapMListTblRow:last-child,
 .sapMListTblRow:last-child {
     border-bottom: none !important;
 }
 
 /* 4. Table Cells (Balanced Padding, Vertical Centering) */
-.kyraActiveEntitlementsTable .sapMListTblCell,
 .kyraHistoryTable .sapMListTblCell,
 .sapMListTblCell {
     height: 52px !important;
@@ -15827,7 +15972,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblRow:last-child .sapMListTblCell,
 .kyraHistoryTable .sapMListTblRow:last-child .sapMListTblCell,
 .sapMListTblRow:last-child .sapMListTblCell {
     border-bottom: none !important;
@@ -15855,7 +15999,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 /* 5. Cell Content Typography & Formatting */
-.kyraActiveEntitlementsTable .sapMListTblCell .sapMText,
 .kyraHistoryTable .sapMListTblCell .sapMText,
 .sapMListTblCell .sapMText,
 .kyraCellText {
@@ -15871,14 +16014,12 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 /* Bold Identifiers (System Name) */
-.kyraActiveEntitlementsTable .fioriCellBold,
 .fioriCellBold {
     font-weight: 600 !important;
     color: #0F172A !important;
 }
 
 /* 6. ObjectStatus / Status Badges (Clean Rounded Status Pills - Matching Design) */
-.kyraActiveEntitlementsTable .sapMObjStatus,
 .kyraHistoryTable .sapMObjStatus,
 .sapMListTblCell .sapMObjStatus,
 .kyraGovCell6 .sapMObjStatus,
@@ -16020,7 +16161,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 /* 7. Action Button inside Table Cells */
-.kyraActiveEntitlementsTable .sapMBtn,
 .sapMListTblCell .fioriThreeDotBtn,
 .kyraTableActionBtn {
     width: 32px !important;
@@ -16082,8 +16222,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 /* 8. Intentional, Centered Empty State */
 .sapMListNoData,
 .sapMLIB.sapMListNoData,
-.kyraActiveEntitlementsTable .sapMListNoData,
-.kyraActiveEntitlementsTable .sapMLIB.sapMListNoData,
 .kyraHistoryTable .sapMListNoData {
     height: 140px !important;
     min-height: 140px !important;
@@ -16092,7 +16230,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 .sapMListNoDataCell,
-.kyraActiveEntitlementsTable .sapMListNoDataCell,
 .kyraHistoryTable .sapMListNoDataCell {
     text-align: center !important;
     vertical-align: middle !important;
@@ -16102,7 +16239,6 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 }
 
 .sapMListNoDataText,
-.kyraActiveEntitlementsTable .sapMListNoDataText,
 .kyraHistoryTable .sapMListNoDataText {
     color: #64748B !important;
     font-size: 14px !important;
@@ -17084,10 +17220,14 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
 
 
 /* =========================================================================
-   PENDING ACCESS REQUESTS TABLE PERFECT ALIGNMENT & RESPONSIVE SCROLLING
+   KYRA ENTERPRISE REQUEST TABLES: PENDING ACCESS REQUESTS & MY REQUESTS
+   PIXEL-PERFECT ALIGNMENT, RESPONSIVE SCROLLING, UNIFORM BORDERS & WRAPPING
    ========================================================================= */
+
+/* Container responsive scrolling */
 #pendingSectionContainer,
-#pendingSectionContainer.fioriTableCard {
+#historySectionContainer,
+.fioriTableCard {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     max-width: 100% !important;
@@ -17096,90 +17236,319 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
 
 #pendingSectionContainer .sapMListTblCnt,
 #pendingSectionContainer .sapMListTblCntWrp,
+#historySectionContainer .sapMListTblCnt,
+#historySectionContainer .sapMListTblCntWrp,
 .kyraPendingRequestsTable .sapMListTblCnt,
-.kyraPendingRequestsTable .sapMListTblCntWrp {
+.kyraPendingRequestsTable .sapMListTblCntWrp,
+.kyraHistoryTable .sapMListTblCnt,
+.kyraHistoryTable .sapMListTblCntWrp {
     overflow-x: auto !important;
     overflow-y: hidden !important;
     max-width: 100% !important;
     -webkit-overflow-scrolling: touch !important;
 }
 
+/* Table grid: fixedLayout, 100% width with min-width 1060px */
 .kyraPendingRequestsTable,
 .kyraPendingRequestsTable.sapMListTbl,
-.kyraPendingRequestsTable.sapMTable {
+.kyraPendingRequestsTable.sapMTable,
+.kyraHistoryTable,
+.kyraHistoryTable.sapMListTbl,
+.kyraHistoryTable.sapMTable {
     table-layout: fixed !important;
-    width: 1300px !important;
-    min-width: 1300px !important;
+    width: 100% !important;
+    min-width: 1120px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
-/* Headers: strictly single line so DURATION, SUBMITTED, STATUS never break into 2 lines */
+/* Completely Hide Dummy SAPUI5 Highlight & Navigated Columns */
+.kyraPendingRequestsTable colgroup col.sapMListTblHighlightCol,
+.kyraPendingRequestsTable colgroup col.sapMListTblNavigatedCol,
+.kyraPendingRequestsTable th.sapMListTblHighlightCol,
+.kyraPendingRequestsTable td.sapMListTblHighlightCell,
+.kyraPendingRequestsTable .sapMListTblHighlightCol,
+.kyraPendingRequestsTable .sapMListTblNavigatedCol,
+.kyraPendingRequestsTable .sapMListTblHighlightCell,
+.kyraPendingRequestsTable .sapMListTblNavigatedCell,
+.kyraPendingRequestsTable .sapMListTblCellNavigated,
+.kyraHistoryTable colgroup col.sapMListTblHighlightCol,
+.kyraHistoryTable colgroup col.sapMListTblNavigatedCol,
+.kyraHistoryTable th.sapMListTblHighlightCol,
+.kyraHistoryTable td.sapMListTblHighlightCell,
+.kyraHistoryTable .sapMListTblHighlightCol,
+.kyraHistoryTable .sapMListTblNavigatedCol,
+.kyraHistoryTable .sapMListTblHighlightCell,
+.kyraHistoryTable .sapMListTblNavigatedCell,
+.kyraHistoryTable .sapMListTblCellNavigated {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.kyraPendingRequestsTable th:first-child,
+.kyraPendingRequestsTable td:first-child,
+.kyraPendingRequestsTable th:not(.sapMListTblHighlightCol):first-of-type,
+.kyraPendingRequestsTable td:not(.sapMListTblHighlightCell):first-of-type,
+.kyraHistoryTable th:first-child,
+.kyraHistoryTable td:first-child,
+.kyraHistoryTable th:not(.sapMListTblHighlightCol):first-of-type,
+.kyraHistoryTable td:not(.sapMListTblHighlightCell):first-of-type {
+    border-left: none !important;
+}
+
+/* Headers: bold, uppercase, single horizontal line, non-breaking */
+.kyraPendingRequestsTable .sapMListTblHeader,
+.kyraHistoryTable .sapMListTblHeader {
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    height: 48px !important;
+}
+
+.kyraPendingRequestsTable .sapMListTblHeaderCell,
+.kyraHistoryTable .sapMListTblHeaderCell {
+    background: #F8FAFC !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 10px 6px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-right: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraPendingRequestsTable .sapMListTblHeaderCell:last-child,
+.kyraHistoryTable .sapMListTblHeaderCell:last-child,
+.kyraPendingRequestsTable th:last-child,
+.kyraHistoryTable th:last-child {
+    border-right: none !important;
+}
+
+/* Header typography */
 .kyraPendingRequestsTable th .sapMText,
 .kyraPendingRequestsTable th .kyraHistHeader,
 .kyraPendingRequestsTable .kyraHistHeader,
-.kyraPendingRequestsTable th .kyraColHeadCenter {
+.kyraHistoryTable th .sapMText,
+.kyraHistoryTable th .kyraHistHeader,
+.kyraHistoryTable .kyraHistHeader {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 800 !important;
+    font-size: 11.5px !important;
+    letter-spacing: 0.02em !important;
+    color: #0F172A !important;
+    text-transform: uppercase !important;
     white-space: nowrap !important;
     word-break: keep-all !important;
     word-wrap: normal !important;
     overflow-wrap: normal !important;
     hyphens: none !important;
-    -webkit-hyphens: none !important;
-    text-overflow: clip !important;
-    overflow: visible !important;
-    display: inline-block !important;
-    letter-spacing: 0.04em !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #475569 !important;
     line-height: normal !important;
-    text-transform: uppercase !important;
+    display: inline-block !important;
 }
 
-/* Row height & vertical alignment */
+/* Header alignment */
+.kyraPendingRequestsTable th .kyraColHeadCenter,
+.kyraHistoryTable th .kyraColHeadCenter,
+.kyraColHeadCenter {
+    text-align: center !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.kyraPendingRequestsTable th .kyraColHeadLeft,
+.kyraHistoryTable th .kyraColHeadLeft,
+.kyraColHeadLeft {
+    text-align: left !important;
+    display: block !important;
+    width: 100% !important;
+    padding-left: 2px !important;
+}
+
+/* Table rows: flexible height with min-height 52px */
 .kyraPendingRequestsTable .sapMListTblRow,
+.kyraHistoryTable .sapMListTblRow,
 .kyraPendingTableRow {
-    height: 52px !important;
     min-height: 52px !important;
-    max-height: 52px !important;
+    height: auto !important;
+    max-height: none !important;
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    box-sizing: border-box !important;
+    transition: background-color 0.15s ease !important;
 }
 
-.kyraPendingRequestsTable .sapMListTblCell {
-    height: 52px !important;
+.kyraPendingRequestsTable .sapMListTblRow:hover,
+.kyraHistoryTable .sapMListTblRow:hover {
+    background-color: #F8FAFC !important;
+}
+
+.kyraPendingRequestsTable .sapMListTblRow:last-child,
+.kyraHistoryTable .sapMListTblRow:last-child {
+    border-bottom: none !important;
+}
+
+/* Table cells: uniform padding, vertical centering, straight borders */
+.kyraPendingRequestsTable .sapMListTblCell,
+.kyraHistoryTable .sapMListTblCell {
     min-height: 52px !important;
-    max-height: 52px !important;
+    height: auto !important;
+    max-height: none !important;
+    padding: 10px 12px !important;
     vertical-align: middle !important;
-    padding: 8px 12px !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    border-right: 1px solid #F1F5F9 !important;
     box-sizing: border-box !important;
 }
 
-.kyraPendingRequestsTable .sapMText {
-    hyphens: none !important;
-    -webkit-hyphens: none !important;
-    word-break: normal !important;
+.kyraPendingRequestsTable .sapMListTblCell:last-child,
+.kyraHistoryTable .sapMListTblCell:last-child,
+.kyraPendingRequestsTable td:last-child,
+.kyraHistoryTable td:last-child {
+    border-right: none !important;
 }
 
+/* Body typography: strict normal weight, crisp slate colors */
+.kyraPendingRequestsTable .sapMListTblCell .sapMText,
+.kyraHistoryTable .sapMListTblCell .sapMText,
+.kyraPendingRequestsTable .kyraCellText,
+.kyraHistoryTable .kyraCellText,
 .kyraPendingRequestsTable .kyraCellTextCenter,
-.kyraPendingReqId {
+.kyraHistoryTable .kyraCellTextCenter {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 13px !important;
+    color: #1E293B !important;
+    line-height: 1.4 !important;
+}
+
+/* Left-aligned data cells: SYSTEM, SERVICES, TEAM / ROLE, PERSONA */
+.kyraPendingRequestsTable .kyraCellText,
+.kyraPendingRequestsTable .kyraCellTextLeft,
+.kyraHistoryTable .kyraCellText,
+.kyraHistoryTable .kyraCellTextLeft {
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    display: block !important;
+    width: 100% !important;
+    font-weight: 400 !important;
+    color: #1E293B !important;
+    padding-left: 2px !important;
+}
+
+/* Centered data cells */
+.kyraPendingRequestsTable .kyraCellTextCenter,
+.kyraHistoryTable .kyraCellTextCenter {
+    text-align: center !important;
+    display: inline-block !important;
+    font-weight: 400 !important;
+}
+
+/* REQUEST ID: centered & wrapped cleanly into 2 lines */
+.kyraPendingRequestsTable .kyraReqIdCell,
+.kyraHistoryTable .kyraReqIdCell,
+.kyraPendingReqId,
+.kyraReqIdCell {
+    display: inline-block !important;
+    max-width: 95px !important;
+    text-align: center !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    line-height: 1.35 !important;
+    font-weight: 400 !important;
+    font-size: 13px !important;
+    color: #1E293B !important;
+    margin: 0 auto !important;
+}
+
+/* TYPE column */
+.kyraTypeCell {
+    white-space: nowrap !important;
+    text-align: center !important;
+    font-weight: 400 !important;
+    font-size: 13px !important;
+}
+
+/* DURATION column: centered, wrapped without breaking letters */
+.kyraDurationCell {
+    text-align: center !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.35 !important;
+    font-weight: 400 !important;
+    font-size: 13px !important;
+}
+
+/* SUBMITTED column: centered date, single line, no awkward hyphen breaking */
+.kyraDateCell {
     white-space: nowrap !important;
     word-break: keep-all !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    text-align: center !important;
+    font-weight: 400 !important;
+    font-size: 13px !important;
+    color: #1E293B !important;
+    letter-spacing: 0.01em !important;
 }
 
-/* Status Column & Badge Centering - Never Clipped */
+/* STATUS column: centered pill badge, fully visible, not cut off */
 .kyraPendingRequestsTable td:last-child,
-.kyraPendingRequestsTable td .kyraApproverStatusBadge,
+.kyraHistoryTable td:last-child {
+    text-align: center !important;
+    padding: 10px 10px !important;
+}
+
+.kyraPendingRequestsTable .kyraApproverStatusBadge,
+.kyraPendingRequestsTable .kyraPendingStatusBadge,
+.kyraHistoryTable .kyraApproverStatusBadge,
+.kyraHistoryTable .kyraPendingStatusBadge,
 .kyraPendingStatusBadge {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    gap: 6px !important;
     margin: 0 auto !important;
     text-align: center !important;
     width: auto !important;
-    min-width: 96px !important;
+    min-width: 92px !important;
     white-space: nowrap !important;
-    padding: 3px 10px !important;
+    padding: 4px 14px !important;
     border-radius: 9999px !important;
     box-sizing: border-box !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+    background: #FEF3C7 !important;
+    border: 1px solid #FDE68A !important;
+    color: #B45309 !important;
+}
+
+.kyraPendingStatusBadge .sapMObjStatusIcon,
+.kyraPendingStatusBadge .sapUiIcon {
+    font-size: 13px !important;
+    color: #B45309 !important;
+}
+
+.kyraPendingStatusBadge .sapMObjStatusText {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #B45309 !important;
 }
 
 /* REQUEST TRACKING REDESIGN: TOP NAV BUTTON, 6-TILE SUMMARY, STEPPER, COMMENTS */
@@ -20090,7 +20459,7 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
     overflow-x: hidden !important;
     scrollbar-width: thin !important;
-    scrollbar-color: #10B981 transparent !important;
+    scrollbar-color: #CBD5E1 transparent !important;
 }
 
 .sapMPopover ::-webkit-scrollbar,
@@ -20959,7 +21328,7 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
     border-bottom: 1px solid #E2E8F0 !important;
     height: 48px !important;
     min-height: 48px !important;
-    padding: 12px 14px !important;
+    padding: 10px 6px !important;
     vertical-align: middle !important;
     box-sizing: border-box !important;
 }
@@ -20974,12 +21343,16 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
 .kyraColHeader {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     font-size: 11.5px !important;
-    font-weight: 700 !important;
-    color: #475569 !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.06em !important;
+    letter-spacing: 0.02em !important;
     line-height: 1.2 !important;
     white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
     overflow: visible !important;
     text-overflow: clip !important;
     display: inline-block !important;
@@ -21016,7 +21389,6 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
 }
 
 /* 3. Table Rows (Equal Height, Smooth Hover, Subtle Separators) */
-.kyraActiveEntitlementsTable .sapMListTblRow,
 .kyraHistoryTable .sapMListTblRow,
 .sapMListTblRow,
 .sapMLIB.sapMListTblRow,
@@ -21029,21 +21401,18 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
     transition: background-color 0.15s ease !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblRow:hover,
 .kyraHistoryTable .sapMListTblRow:hover,
 .sapMListTblRow:hover,
 .sapMLIB.sapMListTblRow:hover {
     background-color: #F8FAFC !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblRow:last-child,
 .kyraHistoryTable .sapMListTblRow:last-child,
 .sapMListTblRow:last-child {
     border-bottom: none !important;
 }
 
 /* 4. Table Cells (Balanced Padding, Vertical Centering) */
-.kyraActiveEntitlementsTable .sapMListTblCell,
 .kyraHistoryTable .sapMListTblCell,
 .sapMListTblCell {
     height: 52px !important;
@@ -21056,7 +21425,6 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListTblRow:last-child .sapMListTblCell,
 .kyraHistoryTable .sapMListTblRow:last-child .sapMListTblCell,
 .sapMListTblRow:last-child .sapMListTblCell {
     border-bottom: none !important;
@@ -21084,7 +21452,6 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
 }
 
 /* 5. Cell Content Typography & Formatting - FULL TEXT DISPLAY, ZERO CUT-OFF */
-.kyraActiveEntitlementsTable .sapMListTblCell .sapMText,
 .kyraHistoryTable .sapMListTblCell .sapMText,
 .sapMListTblCell .sapMText,
 .kyraCellText {
@@ -22829,6 +23196,629 @@ html body .sapMBtn.kyraPrimaryBtn .sapMBtnText {
     font-weight: 600 !important;
     font-size: 13.5px !important;
 }
+
+/* =========================================================================
+   STRICT TABLE HEADER BOLD & NON-BREAKING TYPOGRAPHY (HIGHEST CASCADE PRECEDENCE)
+   ========================================================================= */
+.kyraPendingRequestsTable th,
+.kyraHistoryTable th,
+.sapMListTblTh,
+.sapMListTblHeaderCell {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    white-space: nowrap !important;
+}
+
+.kyraPendingRequestsTable th .sapMText,
+.kyraPendingRequestsTable th .kyraHistHeader,
+.kyraPendingRequestsTable .kyraHistHeader,
+.kyraHistoryTable th .sapMText,
+.kyraHistoryTable th .kyraHistHeader,
+.kyraHistoryTable .kyraHistHeader,
+.kyraEntitlementColHeader,
+.kyraColHeader,
+th .sapMText,
+.sapMListTblHeaderCell .sapMText,
+.sapMListTblHeaderCell .sapMLabel {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    letter-spacing: 0.02em !important;
+    color: #0F172A !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    line-height: 1.2 !important;
+    display: inline-block !important;
+}
+
+/* =========================================================================
+   KYRA APPROVER TABLES: PERFECT ALIGNMENT, DIVIDERS & TYPOGRAPHY
+   ========================================================================= */
+.kyraApproverTable,
+.kyraApproverTable.sapMListTbl,
+.kyraApproverTable.sapMTable {
+    table-layout: fixed !important;
+    width: 100% !important;
+    min-width: 1060px !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Completely Hide Dummy SAPUI5 Highlight & Navigated Columns */
+.kyraApproverTable colgroup col.sapMListTblHighlightCol,
+.kyraApproverTable colgroup col.sapMListTblNavigatedCol,
+.kyraApproverTable th.sapMListTblHighlightCol,
+.kyraApproverTable td.sapMListTblHighlightCell,
+.kyraApproverTable .sapMListTblHighlightCol,
+.kyraApproverTable .sapMListTblNavigatedCol,
+.kyraApproverTable .sapMListTblHighlightCell,
+.kyraApproverTable .sapMListTblNavigatedCell,
+.kyraApproverTable .sapMListTblCellNavigated {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    box-shadow: none !important;
+}
+
+.kyraApproverTable th:first-child,
+.kyraApproverTable td:first-child,
+.kyraApproverTable th:not(.sapMListTblHighlightCol):first-of-type,
+.kyraApproverTable td:not(.sapMListTblHighlightCell):first-of-type {
+    border-left: none !important;
+}
+
+/* Table Header Row & Cells */
+.kyraApproverTable .sapMListTblHeader {
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    height: 48px !important;
+}
+
+.kyraApproverTable th,
+.kyraApproverTable .sapMListTblHeaderCell {
+    background: #F8FAFC !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 12px !important;
+    vertical-align: middle !important;
+    border-top: none !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-right: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+}
+
+/* Header Typography: Bold/Semibold 700, 12px, high contrast */
+.kyraApproverTable th .sapMText,
+.kyraApproverTable th .kyraEntitlementColHeader,
+.kyraApproverTable th .kyraColHeader,
+.kyraApproverTable .sapMListTblHeaderCell .sapMText {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    line-height: normal !important;
+    display: inline-block !important;
+}
+
+.kyraApproverTable th .kyraColHeadCenter {
+    text-align: center !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.kyraApproverTable th .kyraColHeadLeft {
+    text-align: left !important;
+    display: block !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+}
+
+/* Table Rows: Equal 52px height, smooth hover */
+.kyraApproverTable .sapMListTblRow,
+.kyraApproverTable .kyraApproverRowItem,
+.kyraApproverTable .kyraTableRow {
+    height: 52px !important;
+    min-height: 52px !important;
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraApproverTable .sapMListTblRow:hover,
+.kyraApproverTable .kyraApproverRowItem:hover,
+.kyraApproverTable .sapMListTblRow:hover td {
+    background-color: #F8FAFC !important;
+}
+
+.kyraApproverTable .sapMListTblRow:last-child,
+.kyraApproverTable .sapMListTblRow:last-child td {
+    border-bottom: none !important;
+}
+
+/* Body Cells: 52px height, straight vertical dividers (#E2E8F0), 12px padding */
+.kyraApproverTable td,
+.kyraApproverTable .sapMListTblCell {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 0 12px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-right: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Body Text Typography: Normal/regular weight 400, 11.5px (slightly smaller than 12px headers) */
+.kyraApproverTable td .sapMText,
+.kyraApproverTable .kyraUserIdText,
+.kyraApproverTable .kyraUserDetailsText,
+.kyraApproverTable .kyraSectorText,
+.kyraApproverTable .kyraFunctionText,
+.kyraApproverTable .kyraDateText,
+.kyraApproverTable .kyraCellText,
+.kyraApproverTable .kyraCellTextCenter,
+.kyraApproverTable .kyraDurationCell {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    line-height: 1.4 !important;
+}
+
+/* Left-aligned data cells: BUSINESS SECTOR & BUSINESS FUNCTION */
+.kyraApproverTable .kyraSectorText,
+.kyraApproverTable .kyraFunctionText,
+.kyraApproverTable .kyraCellTextLeft {
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* Centered data cells: USER ID, DURATION, SUBMISSION DATE */
+.kyraApproverTable .kyraUserIdText,
+.kyraApproverTable .kyraDateText,
+.kyraApproverTable .kyraCellTextCenter,
+.kyraApproverTable .kyraDurationCell {
+    text-align: center !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    display: inline-block !important;
+}
+
+/* Pending Approval Status Badge: Perfectly Centered Pill Badge */
+.kyraApproverTable .kyraApproverStatusBadge,
+.kyraApproverTable .kyraTableStatusBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    width: auto !important;
+    min-width: 125px !important;
+    max-width: 160px !important;
+    white-space: nowrap !important;
+    padding: 4px 12px !important;
+    border-radius: 9999px !important;
+    box-sizing: border-box !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+}
+
+/* Navigation Arrow Column: Fixed 44px width, perfectly aligned, no right border */
+.kyraApproverTable th.sapMListTblNavCol,
+.kyraApproverTable td.sapMListTblNavCol,
+.kyraApproverTable .sapMListTblNavCol {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    padding: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border-right: none !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraApproverTable th:last-child,
+.kyraApproverTable td:last-child {
+    border-right: none !important;
+}
+
+.kyraApproverTable .sapMLIBImgNav,
+.kyraApproverTable .sapMLIBNavIcon,
+.kyraApproverTable .sapMListTblNavCol .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+/* =========================================================================
+   KYRA ACTIVE ENTITLEMENTS TABLE: CLEAN, OPEN, BORDERLESS MODERN DESIGN
+   ========================================================================= */
+
+/* 1. Outer Container: Subtle rounded boundary, no internal grid lines */
+.kyraActiveEntitlementsTable,
+.kyraActiveEntitlementsTable.sapMListTbl,
+.kyraActiveEntitlementsTable.sapMTable {
+    table-layout: fixed !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* 2. Completely Hide Dummy SAPUI5 Highlight & Navigated Columns */
+.kyraActiveEntitlementsTable colgroup col.sapMListTblHighlightCol,
+.kyraActiveEntitlementsTable colgroup col.sapMListTblNavigatedCol,
+.kyraActiveEntitlementsTable th.sapMListTblHighlightCol,
+.kyraActiveEntitlementsTable td.sapMListTblHighlightCell,
+.kyraActiveEntitlementsTable .sapMListTblHighlightCol,
+.kyraActiveEntitlementsTable .sapMListTblNavigatedCol,
+.kyraActiveEntitlementsTable .sapMListTblHighlightCell,
+.kyraActiveEntitlementsTable .sapMListTblNavigatedCell,
+.kyraActiveEntitlementsTable .sapMListTblCellNavigated {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+}
+
+/* 3. REMOVE ALL INTERNAL VERTICAL AND HORIZONTAL DIVIDER LINES */
+.kyraActiveEntitlementsTable th,
+.kyraActiveEntitlementsTable td,
+.kyraActiveEntitlementsTable .sapMListTblHeader,
+.kyraActiveEntitlementsTable .sapMListTblHeaderCell,
+.kyraActiveEntitlementsTable .sapMListTblCell,
+.kyraActiveEntitlementsTable .sapMListTblRow,
+.kyraActiveEntitlementsTable .kyraTableRow,
+.kyraActiveEntitlementsTable tr,
+.kyraActiveEntitlementsTable tbody tr {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 4. Header Row: Light grey background banner (#F8FAFC), 48px height, vertically centered */
+.kyraActiveEntitlementsTable .sapMListTblHeader {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    height: 48px !important;
+    border: none !important;
+}
+
+.kyraActiveEntitlementsTable th,
+.kyraActiveEntitlementsTable .sapMListTblHeaderCell {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+    border: none !important;
+    box-sizing: border-box !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListTblHeaderCellInner {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 5. Header Typography: Bold 700, 11.5px, uppercase, clean spacing */
+.kyraActiveEntitlementsTable th .sapMText,
+.kyraActiveEntitlementsTable th .kyraEntitlementColHeader,
+.kyraActiveEntitlementsTable .kyraEntitlementColHeader {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    word-wrap: normal !important;
+    overflow-wrap: normal !important;
+    line-height: normal !important;
+}
+
+/* Header Alignment: Left-align Columns 1-4 (System Name, Services, Team, Persona) */
+.kyraActiveEntitlementsTable th:has(.kyraColHeadLeft),
+.kyraActiveEntitlementsTable th.kyraColHeadLeft,
+.kyraActiveEntitlementsTable .kyraColHeadLeft {
+    text-align: left !important;
+}
+
+.kyraActiveEntitlementsTable th:has(.kyraColHeadLeft) .sapMListTblHeaderCellInner {
+    justify-content: flex-start !important;
+    text-align: left !important;
+}
+
+.kyraActiveEntitlementsTable th:has(.kyraColHeadLeft) .sapMText {
+    text-align: left !important;
+}
+
+/* Header Alignment: Center-align Columns 5-7 (Expiry Date, Status, Action) */
+.kyraActiveEntitlementsTable th:has(.kyraColHeadCenter),
+.kyraActiveEntitlementsTable th.kyraColHeadCenter,
+.kyraActiveEntitlementsTable .kyraColHeadCenter {
+    text-align: center !important;
+}
+
+.kyraActiveEntitlementsTable th:has(.kyraColHeadCenter) .sapMListTblHeaderCellInner {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.kyraActiveEntitlementsTable th:has(.kyraColHeadCenter) .sapMText {
+    text-align: center !important;
+    margin: 0 auto !important;
+}
+
+/* 6. Table Rows: Equal 56px height, subtle hover, no borders, vertically centered */
+.kyraActiveEntitlementsTable .sapMListTblRow,
+.kyraActiveEntitlementsTable .kyraTableRow,
+.kyraActiveEntitlementsTable tbody tr {
+    height: 56px !important;
+    min-height: 56px !important;
+    background-color: #FFFFFF !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListTblRow:hover,
+.kyraActiveEntitlementsTable .kyraTableRow:hover,
+.kyraActiveEntitlementsTable tbody tr:hover,
+.kyraActiveEntitlementsTable .sapMListTblRow:hover td {
+    background-color: #F8FAFC !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListTblRow:last-child,
+.kyraActiveEntitlementsTable .sapMListTblRow:last-child td,
+.kyraActiveEntitlementsTable tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* 7. Body Cells: 56px equal height, 16px padding, vertically centered, no borders */
+.kyraActiveEntitlementsTable td,
+.kyraActiveEntitlementsTable .sapMListTblCell {
+    height: 56px !important;
+    min-height: 56px !important;
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-sizing: border-box !important;
+}
+
+/* 8. Body Typography: Normal/regular 400, 13px */
+.kyraActiveEntitlementsTable td .sapMText,
+.kyraActiveEntitlementsTable .kyraCellText,
+.kyraActiveEntitlementsTable .kyraCellTextLeft,
+.kyraActiveEntitlementsTable .kyraCellTextCenter {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    line-height: 1.35 !important;
+}
+
+/* Left-aligned data cells: System Name, Services, Team, Persona with clean wrapping */
+.kyraActiveEntitlementsTable td:has(.kyraCellTextLeft),
+.kyraActiveEntitlementsTable .kyraCellTextLeft {
+    text-align: left !important;
+}
+
+.kyraActiveEntitlementsTable .kyraCellTextLeft {
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* Center-aligned data cells: Expiry Date, Status, Action */
+.kyraActiveEntitlementsTable td:has(.kyraCellTextCenter),
+.kyraActiveEntitlementsTable td:has(.kyraTableStatusBadge),
+.kyraActiveEntitlementsTable td:has(.kyraTableActionBtn),
+.kyraActiveEntitlementsTable .kyraCellTextCenter {
+    text-align: center !important;
+}
+
+.kyraActiveEntitlementsTable td .sapMHBox {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.kyraActiveEntitlementsTable .kyraCellTextCenter {
+    text-align: center !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    display: inline-block !important;
+    margin: 0 auto !important;
+}
+
+/* 9. Status Pill Badges: Perfectly Centered Pill */
+.kyraActiveEntitlementsTable .kyraTableStatusBadge,
+.kyraActiveEntitlementsTable .sapMObjStatus {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    padding: 4px 14px !important;
+    border-radius: 9999px !important;
+    box-sizing: border-box !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: normal !important;
+    border: none !important;
+}
+
+/* Active Status Badge (Green) */
+.kyraActiveEntitlementsTable .sapMObjStatus:not(.sapMObjStatusWarning):not(.sapMObjStatusError),
+.kyraActiveEntitlementsTable .sapMObjStatus.sapMObjStatusSuccess,
+.kyraActiveEntitlementsTable .sapMObjStatus.sapMObjStatusNone {
+    background: #DCFCE7 !important;
+    background-color: #DCFCE7 !important;
+    color: #15803D !important;
+}
+
+.kyraActiveEntitlementsTable .sapMObjStatus:not(.sapMObjStatusWarning):not(.sapMObjStatusError) .sapMObjStatusText,
+.kyraActiveEntitlementsTable .sapMObjStatus.sapMObjStatusSuccess .sapMObjStatusText,
+.kyraActiveEntitlementsTable .sapMObjStatus.sapMObjStatusNone .sapMObjStatusText {
+    color: #15803D !important;
+    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+}
+
+/* Revoke Pending Status Badge (Amber/Yellow) */
+.kyraActiveEntitlementsTable .sapMObjStatus.sapMObjStatusWarning,
+.kyraActiveEntitlementsTable .sapMObjStatus[data-sap-ui-state="Warning"] {
+    background: #FEF3C7 !important;
+    background-color: #FEF3C7 !important;
+    color: #B45309 !important;
+}
+
+.kyraActiveEntitlementsTable .sapMObjStatus.sapMObjStatusWarning .sapMObjStatusText,
+.kyraActiveEntitlementsTable .sapMObjStatus[data-sap-ui-state="Warning"] .sapMObjStatusText {
+    color: #B45309 !important;
+    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    white-space: nowrap !important;
+}
+
+.kyraActiveEntitlementsTable .sapMObjStatusIcon {
+    display: none !important;
+}
+
+/* 10. Three-Dot Action Button (...): Centered, clean hover */
+.kyraActiveEntitlementsTable .fioriThreeDotBtn,
+.kyraActiveEntitlementsTable .kyraTableActionBtn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:hover {
+    background-color: #F1F5F9 !important;
+}
+
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnInner {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnIcon,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+/* 11. No Data Row */
+.kyraActiveEntitlementsTable .sapMListNoData {
+    border: none !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListNoDataText {
+    color: #64748B !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    padding: 32px 0 !important;
+    text-align: center !important;
+    border: none !important;
+}
+
 
 
 

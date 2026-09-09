@@ -787,7 +787,9 @@ sap.ui.define([
 
             if (oModel) {
                 const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-                const isCompliancePersona = sActiveRole.toLowerCase().includes("compliance");
+                const sRoleLower = (sActiveRole || "").toLowerCase();
+                const isCompliancePersona = sRoleLower.includes("compliance");
+                const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
                 oModel.setProperty("/isApproverPersona", bIsApprover);
@@ -1242,17 +1244,7 @@ sap.ui.define([
                 this._setSmartProperty(oModel, "/myPendingRequests", []);
                 this._setSmartProperty(oModel, "/myApprovedRequests", []);
                 this._setSmartProperty(oModel, "/myHistoryRequests", []);
-                            const sortChronologicallyDesc = (a, b) => {
-                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || a.decisionDate || 0).getTime();
-                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || b.decisionDate || 0).getTime();
-                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
-                return (b.requestId || "").localeCompare(a.requestId || "");
-            };
-            aApprPending.sort(sortChronologicallyDesc);
-            aApprPendingAccess.sort(sortChronologicallyDesc);
-            aApprPendingRevoke.sort(sortChronologicallyDesc);
-            aMyHistory.sort(sortChronologicallyDesc);
-            this._setSmartProperty(oModel, "/pendingRequests", []);
+                this._setSmartProperty(oModel, "/pendingRequests", []);
                 this._setSmartProperty(oModel, "/pendingAccessRequests", []);
                 this._setSmartProperty(oModel, "/pendingRevokeRequests", []);
                 this._setSmartProperty(oModel, "/pendingAccessCount", 0);
@@ -1269,9 +1261,14 @@ sap.ui.define([
 
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+            const sRoleLower = (sActiveRole || "").toLowerCase();
+            const isCompliancePersona = sRoleLower.includes("compliance");
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
             oModel.setProperty("/activeRole", sActiveRole);
             oModel.setProperty("/isApproverPersona", bIsApprover);
+            oModel.setProperty("/isCompliance", isCompliancePersona);
+            oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
+            oModel.setProperty("/isCompliancePersona", isCompliancePersona);
 
             const pendingRevocations = new Set();
             aRawDbRequests.forEach(r => {
@@ -1299,8 +1296,6 @@ sap.ui.define([
             const oGrouped = {};
             const roleStates = {};
 
-            const sRoleLower = (sActiveRole || "").toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
             const isIamApp2Persona = sRoleLower.includes("approver 2") || sRoleLower.includes("approver2") || sRoleLower.includes("iam 2") || sRoleLower.includes("iam_2");
             const isIamApp1Persona = !isCompliancePersona && !isIamApp2Persona && (sRoleLower.includes("approver 1") || sRoleLower.includes("approver1") || sRoleLower.includes("iam 1") || sRoleLower.includes("iam_1") || sRoleLower.includes("iam approver"));
             const isInitialApproverPersona = !isCompliancePersona && !isIamApp1Persona && !isIamApp2Persona && sRoleLower.includes("approver");
@@ -1770,6 +1765,17 @@ sap.ui.define([
             const aApprPending = oApproverData.pending;
             const aApprPendingAccess = aApprPending.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => p.isRevocation || p.type === "Revocation");
+
+            const sortChronologicallyDesc = (a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || a.decisionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || b.decisionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            };
+            aApprPending.sort(sortChronologicallyDesc);
+            aApprPendingAccess.sort(sortChronologicallyDesc);
+            aApprPendingRevoke.sort(sortChronologicallyDesc);
+            aMyHistory.sort(sortChronologicallyDesc);
 
             this._setSmartProperty(oModel, "/pendingRequests", isCompliancePersona ? aApprPendingAccess : aApprPending);
             this._setSmartProperty(oModel, "/pendingAccessRequests", aApprPendingAccess);

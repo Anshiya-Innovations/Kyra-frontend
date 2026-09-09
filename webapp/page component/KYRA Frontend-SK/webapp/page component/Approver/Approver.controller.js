@@ -83,10 +83,29 @@ sap.ui.define([
         return "(" + daysLeft + " days left)";
     }
 
+    function sortChronologicallyDesc(a, b) {
+        const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || a.decisionDate || a.submittedDate || 0).getTime();
+        const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || b.decisionDate || b.submittedDate || 0).getTime();
+        if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
+        return (b.requestId || "").localeCompare(a.requestId || "");
+    }
+
     return Controller.extend("kyra001.pages.Approver.Approver", {
 
-        async onInit() {
-            const oModel = this.getView().getModel("accessModel");
+        onInit() {
+            const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
+            if (oRouter && oRouter.getRoute("AccessPage")) {
+                oRouter.getRoute("AccessPage").attachPatternMatched(this._onRouteMatched, this);
+            }
+            this._syncModelAndRequests();
+        },
+
+        _onRouteMatched() {
+            this._syncModelAndRequests();
+        },
+
+        _syncModelAndRequests() {
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
                 const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
                 const isCompliance = sActiveRole.includes("compliance");
@@ -96,13 +115,11 @@ sap.ui.define([
 
                 if (!oModel.getProperty("/approverPendingTab") || isCompliance) {
                     oModel.setProperty("/approverPendingTab", "accessRequests");
-                    oModel.setProperty("/pendingAccessCount", 5);
-                    oModel.setProperty("/pendingRevokeCount", isCompliance ? 0 : 2);
                 }
                 if (!oModel.getProperty("/approverHistoryTab")) {
                     oModel.setProperty("/approverHistoryTab", "accessRequests");
                 }
-                await this._reloadAllRequests(oModel);
+                this._reloadAllRequests(oModel);
             }
         },
 
@@ -205,6 +222,12 @@ sap.ui.define([
         onOpenRequestSummaryDialog(oEvent) {
             const oItem = oEvent.getSource();
             const oData = oItem.getBindingContext("accessModel").getObject();
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Governance Review...",
+                    subtitle: "Fetching request details and evaluating live SoD conflict matrix..."
+                });
+            }
             this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
                 requestId: oData.requestId
             });
@@ -826,9 +849,15 @@ sap.ui.define([
 
             const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation");
-
             const aAccessProcessed = aProcessed.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aRevokeProcessed = aProcessed.filter(p => p.isRevocation || p.type === "Revocation");
+
+            aPending.sort(sortChronologicallyDesc);
+            aProcessed.sort(sortChronologicallyDesc);
+            aAccessPending.sort(sortChronologicallyDesc);
+            aRevokePending.sort(sortChronologicallyDesc);
+            aAccessProcessed.sort(sortChronologicallyDesc);
+            aRevokeProcessed.sort(sortChronologicallyDesc);
 
             oModel.setProperty("/pendingAccessRequests", aAccessPending);
             oModel.setProperty("/pendingRevokeRequests", aRevokePending);
