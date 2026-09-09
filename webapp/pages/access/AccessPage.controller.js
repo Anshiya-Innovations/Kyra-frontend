@@ -6796,22 +6796,37 @@ sap.ui.define([
                 "sap/m/MessageToast"
             ], (Dialog, DatePicker, VBox, HBox, Label, Title, Text, Avatar, Button, Filter, FilterOperator, MessageToast) => {
 
-                const aOptions = [
-                    { key: "ALL", title: "All History", desc: "Show all submitted & historical requests", icon: "sap-icon://history", colorClass: "kyraHistIcon_teal" },
-                    { key: "PERMANENT", title: "Permanent", desc: "Standard continuous access requests", icon: "sap-icon://shield", colorClass: "kyraHistIcon_emerald" },
-                    { key: "30DAYS", title: "30 Days", desc: "Temporary 30-day access requests", icon: "sap-icon://appointment-2", colorClass: "kyraHistIcon_amber" },
-                    { key: "90DAYS", title: "90 Days", desc: "Project-based 90-day access requests", icon: "sap-icon://calendar", colorClass: "kyraHistIcon_darkteal" },
-                    { key: "CUSTOM", title: "Custom Date Range", desc: "Filter by specific start & end dates", icon: "sap-icon://date-time", colorClass: "kyraHistIcon_teal" }
-                ];
+                const sActiveKpi = String(oModel.getProperty("/activeKpiFilter") || oModel.getProperty("/historyFilterTitle") || "ALL").toUpperCase();
+                const bIsAllHistory = !sActiveKpi || sActiveKpi === "ALL" || sActiveKpi.includes("ALL HIST") || sActiveKpi === "";
 
                 // Multiple selection state
                 const oSelectionState = {
                     ALL: true,
+                    ADDITION: false,
+                    REVOKE: false,
                     PERMANENT: false,
                     "30DAYS": false,
                     "90DAYS": false,
                     CUSTOM: false
                 };
+
+                const aOptions = [
+                    { key: "ALL", title: "All History", desc: "Show all submitted & historical requests", icon: "sap-icon://history", colorClass: "kyraHistIcon_teal", section: null }
+                ];
+
+                if (bIsAllHistory) {
+                    aOptions.push(
+                        { key: "ADDITION", title: "Addition", desc: "New access & role addition requests", icon: "sap-icon://add", colorClass: "kyraHistIcon_addition", section: "REQUEST TYPE" },
+                        { key: "REVOKE", title: "Revoke", desc: "Access removal & revocation requests", icon: "sap-icon://delete", colorClass: "kyraHistIcon_revoke", section: "REQUEST TYPE" }
+                    );
+                }
+
+                aOptions.push(
+                    { key: "PERMANENT", title: "Permanent", desc: "Standard continuous access requests", icon: "sap-icon://shield", colorClass: "kyraHistIcon_emerald", section: "DURATION & TIMELINE" },
+                    { key: "30DAYS", title: "30 Days", desc: "Temporary 30-day access requests", icon: "sap-icon://appointment-2", colorClass: "kyraHistIcon_amber", section: "DURATION & TIMELINE" },
+                    { key: "90DAYS", title: "90 Days", desc: "Project-based 90-day access requests", icon: "sap-icon://calendar", colorClass: "kyraHistIcon_darkteal", section: "DURATION & TIMELINE" },
+                    { key: "CUSTOM", title: "Custom Date Range", desc: "Filter by specific start & end dates", icon: "sap-icon://date-time", colorClass: "kyraHistIcon_teal", section: "DURATION & TIMELINE" }
+                );
 
                 const oStartDatePicker = new DatePicker({
                     placeholder: "Select start date (dd-MM-yyyy)",
@@ -6854,6 +6869,8 @@ sap.ui.define([
                 }).addStyleClass("kyraHistCustomDateWrapper sapUiSmallMarginTop");
 
                 const aRowItems = [];
+                const aContainerItems = [];
+                let sLastSection = null;
 
                 const updateUI = () => {
                     aRowItems.forEach(item => {
@@ -6870,6 +6887,8 @@ sap.ui.define([
                 const toggleKey = (sKey) => {
                     if (sKey === "ALL") {
                         oSelectionState.ALL = true;
+                        oSelectionState.ADDITION = false;
+                        oSelectionState.REVOKE = false;
                         oSelectionState.PERMANENT = false;
                         oSelectionState["30DAYS"] = false;
                         oSelectionState["90DAYS"] = false;
@@ -6879,8 +6898,14 @@ sap.ui.define([
                         oSelectionState[sKey] = !oSelectionState[sKey];
                         oSelectionState.ALL = false;
 
-                        const bAnyDurationChecked = oSelectionState.PERMANENT || oSelectionState["30DAYS"] || oSelectionState["90DAYS"];
-                        if (!bAnyDurationChecked) {
+                        const bAnyChecked = !!(
+                            oSelectionState.ADDITION ||
+                            oSelectionState.REVOKE ||
+                            oSelectionState.PERMANENT ||
+                            oSelectionState["30DAYS"] ||
+                            oSelectionState["90DAYS"]
+                        );
+                        if (!bAnyChecked) {
                             oSelectionState.ALL = true;
                         }
                     }
@@ -6888,6 +6913,13 @@ sap.ui.define([
                 };
 
                 aOptions.forEach(opt => {
+                    if (opt.section && opt.section !== sLastSection) {
+                        sLastSection = opt.section;
+                        aContainerItems.push(
+                            new Text({ text: opt.section }).addStyleClass("kyraHistSectionLabel")
+                        );
+                    }
+
                     const oCheckIndicator = new sap.ui.core.HTML({
                         content: '<div class="kyraCheckboxSquare"><span class="kyraCheckMark">✓</span></div>'
                     });
@@ -6933,23 +6965,29 @@ sap.ui.define([
                         key: opt.key,
                         row: oRow
                     });
+
+                    aContainerItems.push(oRow);
                 });
 
                 const oListContainer = new VBox({
-                    items: aRowItems.map(item => item.row)
+                    items: aContainerItems
                 }).addStyleClass("kyraHistMultiList");
 
                 const applySelectedFilter = () => {
-                    const sActiveKpi = String(oModel.getProperty("/activeKpiFilter") || oModel.getProperty("/historyFilterTitle") || "ALL").toUpperCase();
-                    const aDurationLabels = [];
+                    const aTypeLabels = [];
+                    if (bIsAllHistory && !oSelectionState.ALL) {
+                        if (oSelectionState.ADDITION) aTypeLabels.push("Addition");
+                        if (oSelectionState.REVOKE) aTypeLabels.push("Revoke");
+                    }
 
+                    const aDurationLabels = [];
                     if (!oSelectionState.ALL) {
                         if (oSelectionState.PERMANENT) aDurationLabels.push("Permanent");
                         if (oSelectionState["30DAYS"]) aDurationLabels.push("30 Days");
                         if (oSelectionState["90DAYS"]) aDurationLabels.push("90 Days");
                     }
 
-                    const aLabels = [].concat(aDurationLabels);
+                    const aLabels = [].concat(aTypeLabels).concat(aDurationLabels);
 
                     let dFrom = null;
                     let dTo = null;
@@ -6985,7 +7023,30 @@ sap.ui.define([
                         });
                     }
 
-                    // 2. Duration UI5 Filter Objects
+                    // 2. Type Filter (Addition / Revoke)
+                    let oTypeUI5Filter = null;
+                    if (bIsAllHistory && !oSelectionState.ALL) {
+                        if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
+                            oTypeUI5Filter = new Filter({
+                                path: "type",
+                                test: (sVal) => {
+                                    const s = String(sVal || "").toLowerCase();
+                                    return !s.includes("revok");
+                                }
+                            });
+                        } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
+                            oTypeUI5Filter = new Filter({
+                                filters: [
+                                    new Filter("type", FilterOperator.Contains, "Revok"),
+                                    new Filter("requestId", FilterOperator.StartsWith, "REV-"),
+                                    new Filter("isRevocation", FilterOperator.EQ, true)
+                                ],
+                                and: false
+                            });
+                        }
+                    }
+
+                    // 3. Duration UI5 Filter Objects
                     const aDurationUI5Filters = [];
                     if (!oSelectionState.ALL && aDurationLabels.length > 0) {
                         if (oSelectionState.PERMANENT) {
@@ -7025,10 +7086,26 @@ sap.ui.define([
 
                     const aFinalUI5Filters = [];
                     if (oStatusUI5Filter) aFinalUI5Filters.push(oStatusUI5Filter);
+                    if (oTypeUI5Filter) aFinalUI5Filters.push(oTypeUI5Filter);
                     if (oDurationCombined) aFinalUI5Filters.push(oDurationCombined);
                     if (oDateCombined) aFinalUI5Filters.push(oDateCombined);
 
-                    // 3. Direct Model Array Filtering (dual-layer fallback)
+                    // 4. Direct Model Array Filtering (dual-layer fallback)
+                    const checkRevoc = (item) => {
+                        if (!item) return false;
+                        const sType = String(item.type || "").toLowerCase();
+                        const sFunc = String(item.function || item.businessFunction || "").toLowerCase();
+                        const sReqId = String(item.requestId || "").toUpperCase();
+                        const sReqType = String(item.requestType || "").toLowerCase();
+                        const sAccessType = String(item.accessType || "").toLowerCase();
+                        return item.isRevocation === true ||
+                               sType.includes("revok") ||
+                               sReqType.includes("revok") ||
+                               sAccessType.includes("revok") ||
+                               sFunc.includes("revocation") ||
+                               sReqId.startsWith("REV-");
+                    };
+
                     const matchesItem = (item) => {
                         if (!item) return false;
 
@@ -7045,6 +7122,16 @@ sap.ui.define([
                         } else if (sActiveKpi.includes("EXPIRED") || sActiveKpi.includes("EXPAIR")) {
                             const sStat = String(item.status || "").toLowerCase();
                             if (!sStat.includes("expired") && !sStat.includes("revoke")) return false;
+                        }
+
+                        // Check Request Type (Addition / Revoke)
+                        if (bIsAllHistory && !oSelectionState.ALL) {
+                            const isRevoc = checkRevoc(item);
+                            if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
+                                if (isRevoc) return false;
+                            } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
+                                if (!isRevoc) return false;
+                            }
                         }
 
                         // Check duration
@@ -7074,8 +7161,11 @@ sap.ui.define([
                         return true;
                     };
 
-                    if (!this._masterMyHistoryRequests && oModel.getProperty("/myHistoryRequests")) {
-                        this._masterMyHistoryRequests = [].concat(oModel.getProperty("/myHistoryRequests") || []);
+                    if (!this._masterMyHistoryRequests) {
+                        const aCurrent = oModel.getProperty("/requestHistory") || oModel.getProperty("/myHistoryRequests") || [];
+                        if (aCurrent.length > 0) {
+                            this._masterMyHistoryRequests = [].concat(aCurrent);
+                        }
                     }
                     if (!this._masterPendingAccessRequests && oModel.getProperty("/pendingAccessRequests")) {
                         this._masterPendingAccessRequests = [].concat(oModel.getProperty("/pendingAccessRequests") || []);
@@ -7088,7 +7178,11 @@ sap.ui.define([
                     }
 
                     if (oSelectionState.ALL && !oSelectionState.CUSTOM && (sActiveKpi === "ALL" || sActiveKpi === "ALL HISTORY")) {
-                        if (this._masterMyHistoryRequests) oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                        if (this._masterMyHistoryRequests) {
+                            oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                            oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                            oModel.setProperty("/filteredHistoryCount", this._masterMyHistoryRequests.length);
+                        }
                         if (this._masterPendingAccessRequests) {
                             oModel.setProperty("/pendingAccessRequests", [].concat(this._masterPendingAccessRequests));
                             oModel.setProperty("/pendingAccessCount", this._masterPendingAccessRequests.length);
@@ -7104,6 +7198,7 @@ sap.ui.define([
                             }
                         });
 
+                        oModel.setProperty("/historyFilterTitle", "All History");
                         oModel.setProperty("/historyFilterSubtitle", "All submitted and historical access requests.");
                         MessageToast.show("Showing all history requests.");
                         oDialog.close();
@@ -7113,6 +7208,8 @@ sap.ui.define([
                     if (this._masterMyHistoryRequests) {
                         const aFiltered = this._masterMyHistoryRequests.filter(matchesItem);
                         oModel.setProperty("/myHistoryRequests", aFiltered);
+                        oModel.setProperty("/requestHistory", aFiltered);
+                        oModel.setProperty("/filteredHistoryCount", aFiltered.length);
                     }
                     if (this._masterPendingAccessRequests) {
                         const aFiltered = this._masterPendingAccessRequests.filter(matchesItem);
@@ -7139,6 +7236,14 @@ sap.ui.define([
                     const sSectionLabel = (sActiveKpi === "ALL" || sActiveKpi === "ALL HISTORY") ? "" : (sActiveKpi + " requests");
                     const sFilterSummary = aLabels.length > 0 ? aLabels.join(", ") : "All Duration";
                     const sFinalMsg = sSectionLabel ? (sSectionLabel + " filtered by: " + sFilterSummary) : ("Filtered by: " + sFilterSummary);
+
+                    let sTitleText = "All History";
+                    if (aTypeLabels.length === 1) {
+                        sTitleText = aTypeLabels[0] + " History";
+                    } else if (aLabels.length > 0) {
+                        sTitleText = "Filtered History";
+                    }
+                    oModel.setProperty("/historyFilterTitle", sTitleText);
                     oModel.setProperty("/historyFilterSubtitle", sFinalMsg);
                     MessageToast.show(sFinalMsg);
                     oDialog.close();

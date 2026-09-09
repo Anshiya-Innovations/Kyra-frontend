@@ -8371,21 +8371,18 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 .kyraModernHistoryFilterDialog.sapMDialog {
     width: 500px !important;
     max-width: 500px !important;
+    max-height: 90vh !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18) !important;
     border: 1px solid #E2E8F0 !important;
-    overflow: hidden !important;
-    overflow-x: hidden !important;
-    overflow-y: hidden !important;
     background: #FFFFFF !important;
 }
 
 .kyraModernHistoryFilterDialog .sapMDialogSection {
     padding: 22px 26px 26px 26px !important;
     background: #FFFFFF !important;
-    overflow: hidden !important;
-    overflow-x: hidden !important;
-    overflow-y: hidden !important;
+    max-height: calc(90vh - 20px) !important;
+    overflow-y: auto !important;
     box-sizing: border-box !important;
 }
 
@@ -8564,10 +8561,33 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 }
 
 .kyraHistIcon_blue {
-    background: #F8FAFC !important;
+    background: #EFF6FF !important;
+    border: 1px solid #BFDBFE !important;
 }
-.kyraHistIcon_blue .sapFAvatarIcon {
-    color: #008C9C !important;
+.kyraHistIcon_blue .sapFAvatarIcon,
+.kyraHistIcon_blue .sapUiIcon {
+    color: #2563EB !important;
+}
+
+.kyraHistIcon_rose {
+    background: #FFF1F2 !important;
+    border: 1px solid #FECDD3 !important;
+}
+.kyraHistIcon_rose .sapFAvatarIcon,
+.kyraHistIcon_rose .sapUiIcon {
+    color: #E11D48 !important;
+}
+
+.kyraHistSectionLabel {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    color: #64748B !important;
+    margin-top: 10px !important;
+    margin-bottom: 2px !important;
+    padding-left: 2px !important;
+    user-select: none !important;
 }
 
 .kyraHistRowTextCol {
@@ -19836,6 +19856,46 @@ html body .sapUiTheme-sap_horizon .kyraHistIcon_darkteal .sapFAvatarIcon,
 html body .sapUiTheme-sap_horizon .kyraHistIcon_darkteal .sapUiIcon {
     color: #007684 !important;
     fill: #007684 !important;
+}
+
+/* Addition: Vibrant Blue */
+.kyraHistIcon_addition,
+html body .kyraHistIcon_addition,
+html body .sapUiTheme-sap_horizon .kyraHistIcon_addition {
+    background: #EFF6FF !important;
+    background-color: #EFF6FF !important;
+    border: 1px solid #BFDBFE !important;
+}
+
+.kyraHistIcon_addition .sapFAvatarIcon,
+.kyraHistIcon_addition .sapUiIcon,
+.kyraHistIcon_addition *,
+html body .kyraHistIcon_addition .sapFAvatarIcon,
+html body .kyraHistIcon_addition .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistIcon_addition .sapFAvatarIcon,
+html body .sapUiTheme-sap_horizon .kyraHistIcon_addition .sapUiIcon {
+    color: #2563EB !important;
+    fill: #2563EB !important;
+}
+
+/* Revoke: Vibrant Rose / Red */
+.kyraHistIcon_revoke,
+html body .kyraHistIcon_revoke,
+html body .sapUiTheme-sap_horizon .kyraHistIcon_revoke {
+    background: #FFF1F2 !important;
+    background-color: #FFF1F2 !important;
+    border: 1px solid #FECDD3 !important;
+}
+
+.kyraHistIcon_revoke .sapFAvatarIcon,
+.kyraHistIcon_revoke .sapUiIcon,
+.kyraHistIcon_revoke *,
+html body .kyraHistIcon_revoke .sapFAvatarIcon,
+html body .kyraHistIcon_revoke .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistIcon_revoke .sapFAvatarIcon,
+html body .sapUiTheme-sap_horizon .kyraHistIcon_revoke .sapUiIcon {
+    color: #E11D48 !important;
+    fill: #E11D48 !important;
 }
 
 /* Row titles and text */
