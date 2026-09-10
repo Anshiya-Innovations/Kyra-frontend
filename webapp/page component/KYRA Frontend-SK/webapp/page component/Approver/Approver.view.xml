@@ -142,7 +142,7 @@
                         <Column width="10%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
                         <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
-                        <Column width="14%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="14%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="A/R Duration" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="16%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="18%" hAlign="Center"><Text text="APPROVAL STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     </columns>

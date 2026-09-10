@@ -96,7 +96,7 @@
                                     <core:Icon src="sap-icon://suitcase" class="kyraGovInfoIcon" />
                                 </HBox>
                                 <VBox class="sapUiSmallMarginBegin">
-                                    <Text text="Duration" class="kyraGovInfoLabel" />
+                                    <Text text="{= ${accessModel>/selectedRequest/isRevocation} ? 'Available /  Requested Duration ' : 'Duration' }" class="kyraGovInfoLabel" />
                                     <Text text="{= (${accessModel>/selectedRequest/accessDuration} &amp;&amp; ${accessModel>/selectedRequest/accessDuration} !== '—' &amp;&amp; ${accessModel>/selectedRequest/accessDuration} !== '–' &amp;&amp; ${accessModel>/selectedRequest/accessDuration} !== '-') ? ${accessModel>/selectedRequest/accessDuration} : ((${accessModel>/selectedRequest/duration} &amp;&amp; ${accessModel>/selectedRequest/duration} !== '—' &amp;&amp; ${accessModel>/selectedRequest/duration} !== '–' &amp;&amp; ${accessModel>/selectedRequest/duration} !== '-') ? ${accessModel>/selectedRequest/duration} : 'Permanent') }" class="kyraGovInfoValue" />
                                 </VBox>
                             </HBox>

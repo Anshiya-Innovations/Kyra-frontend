@@ -51,6 +51,42 @@ sap.ui.define([
         return String(num).trim();
     }
 
+    function formatArDuration(r, matchingApproved) {
+        const orig = matchingApproved || r;
+        const rawDur = String((orig && (orig.access_duration || orig.duration || orig.accessDuration)) || "").toLowerCase();
+        
+        if (rawDur.includes("permanent") && !rawDur.includes("30") && !rawDur.includes("90")) {
+            return "Permanent (Default)";
+        }
+        
+        let totalDays = 30;
+        if (rawDur.includes("90")) totalDays = 90;
+        else if (rawDur.includes("30")) totalDays = 30;
+        else if (rawDur.includes("60")) totalDays = 60;
+        else if (rawDur.includes("180")) totalDays = 180;
+        else if (rawDur.includes("365")) totalDays = 365;
+
+        const sGrant = (matchingApproved && (matchingApproved.granted_date || matchingApproved.grantedDate || matchingApproved.created_at)) || 
+                       (r && (r.created_at || r.createdAt || r.submissionDate)) || "";
+        
+        let gDate;
+        try {
+            gDate = sGrant ? new Date(sGrant) : new Date();
+            if (isNaN(gDate.getTime())) gDate = new Date("2026-09-09");
+        } catch(e) {
+            gDate = new Date("2026-09-09");
+        }
+
+        const now = new Date();
+        const gUtc = Date.UTC(gDate.getUTCFullYear(), gDate.getUTCMonth(), gDate.getUTCDate());
+        const nowUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const elapsed = Math.max(0, Math.floor((nowUtc - gUtc) / (1000 * 60 * 60 * 24)));
+        
+        let remainingDays = totalDays - elapsed;
+        if (remainingDays <= 0) remainingDays = 0;
+        
+        return remainingDays + "/" + totalDays + " days left";
+    }
 
     return Controller.extend("kyra001.pages.Approver.ApproverDetail", {
         onInit() {
@@ -366,10 +402,11 @@ sap.ui.define([
                     }
 
                     // Always enrich entitlements with live DB records to ensure each individual item's persona is 100% accurate
+                    let liveData = null;
                     try {
                         const respLive = await fetch("/odata/v4/admin-portal/GovernanceHistory");
                         if (respLive.ok) {
-                            const liveData = await respLive.json();
+                            liveData = await respLive.json();
                             if (liveData && liveData.value) {
                                 const dbMap = {};
                                 liveData.value.forEach(dbItem => {
@@ -409,6 +446,35 @@ sap.ui.define([
                         console.warn("Could not enrich live personas:", e);
                     }
 
+                    const isRevocation = (oRequest.type === "Revocation") || !!oRequest.isRevocation || String(oRequest.requestId || sReqId).startsWith("REV-") || String(oRequest.requestId || sReqId).includes("-REV-");
+
+                    let matchingApproved = null;
+                    if (isRevocation) {
+                        const aAllDbRecords = (liveData && liveData.value) || [];
+                        matchingApproved = aAllDbRecords.find(cand => {
+                            if (!cand) return false;
+                            const candRev = (cand.access_type || cand.request_type || "").toUpperCase().includes("REV") ||
+                                            (cand.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                            (cand.request_number || "").toUpperCase().startsWith("REV-") ||
+                                            (cand.request_number || "").includes("-REV-");
+                            if (candRev) return false;
+                            const candDb = (cand.db_status || cand.status || "").toUpperCase();
+                            if (candDb !== "APPROVED" && candDb !== "ACTIVE") return false;
+                            if ((cand.requester_username || "").toLowerCase() !== (sRequesterId || "").toLowerCase()) return false;
+                            const cRoleA = (cand.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                            const cRoleB = ((aEntList[0] && aEntList[0].roleName) || oRequest.roleName || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                            return !cRoleA || !cRoleB || cRoleA === cRoleB || cRoleA.includes(cRoleB) || cRoleB.includes(cRoleA);
+                        });
+                    }
+
+                    const sFinalFunction = (isRevocation && matchingApproved && matchingApproved.business_function)
+                        ? matchingApproved.business_function
+                        : (oRequest.businessFunction && oRequest.businessFunction !== "Access Revocation" ? oRequest.businessFunction : (oRequest.function && oRequest.function !== "Access Revocation" ? oRequest.function : "Corporate Governance"));
+
+                    const sFinalDuration = isRevocation
+                        ? formatArDuration(oRequest, matchingApproved)
+                        : (oRequest.accessDuration || oRequest.duration || "Permanent (Default)");
+
                     const oSystemIconsMap = {
                         "SAP BTP Cloud Platform": "sap-icon://cloud",
                         "SAP S/4HANA Enterprise": "sap-icon://database",
@@ -436,20 +502,21 @@ sap.ui.define([
                     });
 
                     oModel.setProperty("/selectedRequest", {
+                        isRevocation: isRevocation,
                         requestId: oRequest.requestId,
                         requesterId: sRequesterId,
                         persona: oRequest.persona,
                         selectedPersona: cleanPersonaName(oRequest.selectedPersona || oRequest.persona || ""),
                         region: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
                         operatingRegion: oRequest.region || oRequest.operatingRegion || "Global Enterprise (ALL)",
-                        sector: oRequest.businessSector || oRequest.sector || "Information Technology & Security",
-                        businessSector: oRequest.businessSector || oRequest.sector || "Information Technology & Security",
-                        function: oRequest.businessFunction || oRequest.function || "Corporate Governance",
-                        businessFunction: oRequest.businessFunction || oRequest.function || "Corporate Governance",
-                        duration: oRequest.accessDuration || oRequest.duration || "Permanent (Default)",
-                        accessDuration: oRequest.accessDuration || oRequest.duration || "Permanent (Default)",
+                        sector: (matchingApproved && matchingApproved.business_sector) || oRequest.businessSector || oRequest.sector || "Information Technology & Security",
+                        businessSector: (matchingApproved && matchingApproved.business_sector) || oRequest.businessSector || oRequest.sector || "Information Technology & Security",
+                        function: sFinalFunction,
+                        businessFunction: sFinalFunction,
+                        duration: sFinalDuration,
+                        accessDuration: sFinalDuration,
                         justification: oRequest.justification || "Business Access Entitlement",
-                        type: oRequest.type || (oRequest.isRevocation ? "Revocation" : "Addition"),
+                        type: isRevocation ? "Revocation" : (oRequest.type || "Addition"),
                         status: oRequest.status,
                         statusState: oRequest.statusState,
                         statusIcon: oRequest.statusIcon,
@@ -1528,9 +1595,30 @@ sap.ui.define([
                 const sUser = r.requester_username || "User";
 
                 // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
-                const sSector = r.business_sector || "Information Technology & Security";
-                const sFunction = r.business_function || "Corporate Governance";
-                const sDuration = r.access_duration || r.duration || "Permanent (Default)";
+                let matchingApproved = null;
+                if (isRevocation) {
+                    matchingApproved = (aRawRecords || []).find(cand => {
+                        if (!cand) return false;
+                        const candRev = (cand.access_type || cand.request_type || "").toUpperCase().includes("REV") ||
+                                        (cand.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                        (cand.request_number || "").toUpperCase().startsWith("REV-") ||
+                                        (cand.request_number || "").includes("-REV-");
+                        if (candRev) return false;
+                        const candDb = (cand.db_status || cand.status || "").toUpperCase();
+                        if (candDb !== "APPROVED" && candDb !== "ACTIVE") return false;
+                        if ((cand.requester_username || "").toLowerCase() !== (r.requester_username || "").toLowerCase()) return false;
+                        if ((cand.target_system || "") !== (r.target_system || "")) return false;
+                        const cRoleA = (cand.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                        const cRoleB = (r.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                        return cRoleA === cRoleB || (cRoleA && cRoleB && (cRoleA.includes(cRoleB) || cRoleB.includes(cRoleA)));
+                    });
+                }
+
+                const sSector = (matchingApproved && matchingApproved.business_sector) || r.business_sector || "Information Technology & Security";
+                const sFunction = (isRevocation && matchingApproved && matchingApproved.business_function)
+                    ? matchingApproved.business_function
+                    : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : "Corporate Governance");
+                const sDuration = isRevocation ? formatArDuration(r, matchingApproved) : (r.access_duration || r.duration || "Permanent (Default)");
                 const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
                 const sJustification = r.justification || "";
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));

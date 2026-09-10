@@ -51,48 +51,49 @@ sap.ui.define([
         return { isPermanent: false, text: daysLeft + " Days Left", isExpired: false, daysLeft: daysLeft };
     }
 
-        function calculateRevokeRemainingDays(r, matchingActiveRole) {
-        if (matchingActiveRole && matchingActiveRole.daysLeft !== undefined && matchingActiveRole.daysLeft !== 99999) {
-            return "(" + matchingActiveRole.daysLeft + " days left)";
+    function formatArDuration(r, matchingApproved) {
+        const orig = matchingApproved || r;
+        const rawDur = String((orig && (orig.access_duration || orig.duration || orig.accessDuration)) || "").toLowerCase();
+        
+        if (rawDur.includes("permanent") && !rawDur.includes("30") && !rawDur.includes("90")) {
+            return "Permanent (Default)";
         }
-        if (matchingActiveRole && matchingActiveRole.expiryDate && matchingActiveRole.expiryDate !== 'Permanent') {
-            const dMatch = String(matchingActiveRole.expiryDate).match(/(\d+)\s*Days Left/i);
-            if (dMatch) return "(" + dMatch[1] + " days left)";
+        
+        let totalDays = 30;
+        if (rawDur.includes("90")) totalDays = 90;
+        else if (rawDur.includes("30")) totalDays = 30;
+        else if (rawDur.includes("60")) totalDays = 60;
+        else if (rawDur.includes("180")) totalDays = 180;
+        else if (rawDur.includes("365")) totalDays = 365;
+
+        if (orig && orig.daysLeft !== undefined && orig.daysLeft !== 99999) {
+            return orig.daysLeft + "/" + totalDays + " days left";
         }
 
-        const sGrant = (r && (r.granted_date || r.grantedDate)) || 
-                       (matchingActiveRole && (matchingActiveRole.granted_date || matchingActiveRole.grantedDate)) || 
-                       (r && (r.created_at || r.createdAt || r.submissionDate || r.submittedDate)) || "";
+        const sGrant = (matchingApproved && (matchingApproved.granted_date || matchingApproved.grantedDate || matchingApproved.created_at)) || 
+                       (r && (r.created_at || r.createdAt || r.submissionDate)) || "";
         
         let gDate;
         try {
-            gDate = new Date(sGrant);
-            if (isNaN(gDate.getTime())) gDate = new Date("2026-08-15");
+            gDate = sGrant ? new Date(sGrant) : new Date();
+            if (isNaN(gDate.getTime())) gDate = new Date();
         } catch(e) {
-            gDate = new Date("2026-08-15");
+            gDate = new Date();
         }
 
         const now = new Date();
-        const gUtcMidnight = Date.UTC(gDate.getUTCFullYear(), gDate.getUTCMonth(), gDate.getUTCDate());
-        const nowUtcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-        const msPerDay = 1000 * 60 * 60 * 24;
-        const utcDaysElapsed = Math.floor((nowUtcMidnight - gUtcMidnight) / msPerDay);
+        const gUtc = Date.UTC(gDate.getUTCFullYear(), gDate.getUTCMonth(), gDate.getUTCDate());
+        const nowUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const elapsed = Math.max(0, Math.floor((nowUtc - gUtc) / (1000 * 60 * 60 * 24)));
+        
+        let remainingDays = totalDays - elapsed;
+        if (remainingDays <= 0) remainingDays = 0;
+        
+        return remainingDays + "/" + totalDays + " days left";
+    }
 
-        let totalDays = 30;
-        const rawDur = String((r && (r.access_duration || r.duration || r.accessDuration)) || "").toLowerCase();
-        if (rawDur.includes("90")) totalDays = 90;
-        else if (rawDur.includes("30")) totalDays = 30;
-
-        let daysLeft = totalDays - utcDaysElapsed;
-        if (daysLeft <= 0 || daysLeft > 30) {
-            const sHashStr = (r && (r.request_number || r.requestId || r.role_name || r.roleName || "")) + "";
-            let hash = 0;
-            for (let i = 0; i < sHashStr.length; i++) hash = (hash * 31 + sHashStr.charCodeAt(i)) % 25;
-            daysLeft = 27 - (hash % 10);
-            if (daysLeft <= 0) daysLeft = 27;
-        }
-
-        return "(" + daysLeft + " days left)";
+    function calculateRevokeRemainingDays(r, matchingActiveRole) {
+        return formatArDuration(r, matchingActiveRole);
     }
 
     function deriveServiceTopicFromRole(roleStr, rawService) {
@@ -1008,8 +1009,9 @@ sap.ui.define([
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
 
-                const isRevocation = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || 
+                const isRevocation = (r.access_type || r.request_type || "").toUpperCase().includes("REV") || 
                                      (r.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                     (r.request_number || "").toUpperCase().startsWith("REV-") ||
                                      (r.request_number || "").toUpperCase().includes("-REV-");
 
                 let isPendingForRole = false;
@@ -1054,9 +1056,31 @@ sap.ui.define([
                 const sDate = r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : "2026-09-04");
                 const sUser = r.requester_username || "User";
 
-                const sSector = r.business_sector || "Information Technology & Security";
-                const sFunction = r.business_function || "Corporate Governance";
-                const sDuration = isRevocation ? calculateRevokeRemainingDays(r) : (r.access_duration || r.duration || "Permanent");
+                // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
+                let matchingApproved = null;
+                if (isRevocation) {
+                    matchingApproved = (aRawRecords || []).find(cand => {
+                        if (!cand) return false;
+                        const candRev = (cand.access_type || cand.request_type || "").toUpperCase().includes("REV") ||
+                                        (cand.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                        (cand.request_number || "").toUpperCase().startsWith("REV-") ||
+                                        (cand.request_number || "").includes("-REV-");
+                        if (candRev) return false;
+                        const candDb = (cand.db_status || cand.status || "").toUpperCase();
+                        if (candDb !== "APPROVED" && candDb !== "ACTIVE") return false;
+                        if ((cand.requester_username || "").toLowerCase() !== (r.requester_username || "").toLowerCase()) return false;
+                        if ((cand.target_system || "") !== (r.target_system || "")) return false;
+                        const cRoleA = (cand.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                        const cRoleB = (r.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                        return cRoleA === cRoleB || (cRoleA && cRoleB && (cRoleA.includes(cRoleB) || cRoleB.includes(cRoleA)));
+                    });
+                }
+
+                const sSector = (matchingApproved && matchingApproved.business_sector) || r.business_sector || "Information Technology & Security";
+                const sFunction = (isRevocation && matchingApproved && matchingApproved.business_function)
+                    ? matchingApproved.business_function
+                    : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : "Corporate Governance");
+                const sDuration = isRevocation ? formatArDuration(r, matchingApproved) : (r.access_duration || r.duration || "Permanent");
                 const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
                 const sJustification = r.justification || "";
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
@@ -1360,8 +1384,29 @@ sap.ui.define([
 
                 const sRawDuration = r.access_duration || "Permanent (Default)";
                 let sCleanDuration = sRawDuration;
+                let matchingApprovedReq = null;
                 if (isRevocationReq) {
-                    sCleanDuration = calculateRevokeRemainingDays(r);
+                    matchingApprovedReq = (aRawDbRequests || []).find(cand => {
+                        if (!cand) return false;
+                        const candRev = (cand.access_type || cand.request_type || "").toUpperCase().includes("REV") ||
+                                        (cand.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                        (cand.request_number || "").toUpperCase().startsWith("REV-") ||
+                                        (cand.request_number || "").includes("-REV-");
+                        if (candRev) return false;
+                        const candDb = (cand.db_status || cand.status || "").toUpperCase();
+                        if (candDb !== "APPROVED" && candDb !== "ACTIVE") return false;
+                        if ((cand.requester_username || "").toLowerCase() !== (r.requester_username || "").toLowerCase()) return false;
+                        if ((cand.target_system || "") !== (r.target_system || "")) return false;
+                        return cleanRoleStr(cand.role_name) === sCleanItemRole;
+                    });
+
+                    if (matchingApprovedReq) {
+                        const sGrant = matchingApprovedReq.granted_date || (matchingApprovedReq.created_at ? matchingApprovedReq.created_at.split("T")[0] : null) || matchingApprovedReq.submissionDate || "";
+                        const expInfo = calculateExpiryDays(matchingApprovedReq.access_duration, sGrant);
+                        sCleanDuration = expInfo.text;
+                    } else {
+                        sCleanDuration = calculateRevokeRemainingDays(r);
+                    }
                 } else if (sRawDuration === "Permanent" || sRawDuration === "Permanent (Default)") {
                     sCleanDuration = "Permanent (Default)";
                 } else if (sRawDuration.includes("30")) {
@@ -1369,6 +1414,10 @@ sap.ui.define([
                 } else if (sRawDuration.includes("90")) {
                     sCleanDuration = "90 Days (Project)";
                 }
+
+                const sEffectiveFunction = (isRevocationReq && matchingApprovedReq && matchingApprovedReq.business_function)
+                    ? matchingApprovedReq.business_function
+                    : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : "Corporate Governance");
 
                 const oReqObj = {
                     requestId: r.request_number || ("REQ-" + r.ID),
@@ -1395,7 +1444,8 @@ sap.ui.define([
                     region: r.operating_region || "",
                     justification: r.justification || "",
                     sector: r.business_sector || "",
-                    function: r.business_function || ""
+                    function: sEffectiveFunction,
+                    businessFunction: sEffectiveFunction
                 };
 
                 const bIsUserMatch = !!(r.requester_username && sActiveUser && r.requester_username.toLowerCase() === sActiveUser.toLowerCase());
@@ -1900,8 +1950,8 @@ sap.ui.define([
                             serviceTopic: oData.category || "Revocation Request",
                             selectedPersona: sCleanPersona,
                             persona: sCleanPersona,
-                            accessDuration: calculateRevokeRemainingDays(oData),
-                            duration: calculateRevokeRemainingDays(oData),
+                            accessDuration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
+                            duration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
                             submissionDate: new Date().toISOString().split("T")[0],
                             createdAtRaw: new Date().toISOString(),
                             approver: "Line Manager / ISRM Team",
@@ -1911,7 +1961,8 @@ sap.ui.define([
                             region: oData.region || "Global Enterprise (ALL)",
                             justification: "Revocation of access for role " + sCleanRole,
                             sector: oData.sector || "Information Technology & Security",
-                            function: "Access Revocation"
+                            function: oData.function || oData.businessFunction || "Corporate Governance",
+                            businessFunction: oData.function || oData.businessFunction || "Corporate Governance"
                         };
 
                         const aMyPending = oModel.getProperty("/myPendingRequests") || [];
@@ -1928,14 +1979,14 @@ sap.ui.define([
                                     requesterUsername: sActiveUser,
                                     requesterPersona: sActiveRole,
                                     businessSector: oData.sector || "Information Technology & Security",
-                                    businessFunction: "Access Revocation",
+                                    businessFunction: oData.function || oData.businessFunction || "Corporate Governance",
                                     operatingRegion: oData.region || "Global Enterprise (ALL)",
                                     targetSystem: oData.system,
                                     serviceTopic: oData.category || "Revocation Request",
                                     roleName: oData.roleName,
                                     selectedPersona: oData.persona || "User",
                                     accessType: "REVOCATION",
-                                    accessDuration: "Permanent",
+                                    accessDuration: oData.accessDuration || oData.duration || "30 Days (Temporary)",
                                     justification: "Revocation of access for role " + oData.roleName
                                 }]
                             })
@@ -6775,6 +6826,10 @@ sap.ui.define([
         onFilterHistoryByAll() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
+                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                }
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "ALL");
                 oModel.setProperty("/historyFilterTitle", "All History");
@@ -6798,6 +6853,10 @@ sap.ui.define([
         onFilterHistoryByPending() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
+                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                }
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "PENDING");
                 oModel.setProperty("/historyFilterTitle", "Pending");
@@ -6823,6 +6882,10 @@ sap.ui.define([
         onFilterHistoryByExpired() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
+                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                }
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "EXPIRED");
                 oModel.setProperty("/historyFilterTitle", "Expired");
@@ -6851,13 +6914,17 @@ sap.ui.define([
             }
         },
 
-                onFilterHistoryByRemoved() {
+        onFilterHistoryByRemoved() {
             this.onFilterHistoryByRevoked();
         },
 
         onFilterHistoryByRevoked() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
+                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                }
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "REVOKED");
                 oModel.setProperty("/historyFilterTitle", "Revoked Access History");
@@ -6889,6 +6956,10 @@ sap.ui.define([
         onFilterHistoryByApproved() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
+                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                }
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "APPROVED");
                 oModel.setProperty("/historyFilterTitle", "Approved");
@@ -6920,6 +6991,10 @@ sap.ui.define([
         onFilterHistoryByRejected() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
+                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
+                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
+                }
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "REJECTED");
                 oModel.setProperty("/historyFilterTitle", "Rejected");
@@ -6974,6 +7049,23 @@ sap.ui.define([
 
                 const sActiveKpi = String(oModel.getProperty("/activeKpiFilter") || oModel.getProperty("/historyFilterTitle") || "ALL").toUpperCase();
                 const bIsAllHistory = !sActiveKpi || sActiveKpi === "ALL" || sActiveKpi.includes("ALL HIST") || sActiveKpi === "";
+                const bIsRejected = sActiveKpi.includes("REJECT");
+                const bIsApproved = sActiveKpi.includes("APPROV");
+                const bIsRevoked = sActiveKpi.includes("REVOK") || sActiveKpi.includes("REMOV");
+                const bShowRequestTypeFilter = bIsAllHistory || bIsRejected;
+
+                let sTopTitle = "All History";
+                let sTopDesc = "Show all submitted & historical requests";
+                if (bIsApproved) {
+                    sTopTitle = "All Approved";
+                    sTopDesc = "Show all approved requests";
+                } else if (bIsRevoked) {
+                    sTopTitle = "All Revoked";
+                    sTopDesc = "Show all revoked requests";
+                } else if (bIsRejected) {
+                    sTopTitle = "All Rejected";
+                    sTopDesc = "Show all rejected requests";
+                }
 
                 // Multiple selection state
                 const oSelectionState = {
@@ -6987,14 +7079,22 @@ sap.ui.define([
                 };
 
                 const aOptions = [
-                    { key: "ALL", title: "All History", desc: "Show all submitted & historical requests", icon: "sap-icon://history", colorClass: "kyraHistIcon_teal", section: null },
-                    { key: "ADDITION", title: "Addition", desc: "New access & role addition requests", icon: "sap-icon://add", colorClass: "kyraHistIcon_addition", section: "REQUEST TYPE" },
-                    { key: "REVOKE", title: "Revoke", desc: "Access removal & revocation requests", icon: "sap-icon://delete", colorClass: "kyraHistIcon_revoke", section: "REQUEST TYPE" },
+                    { key: "ALL", title: sTopTitle, desc: sTopDesc, icon: "sap-icon://history", colorClass: "kyraHistIcon_teal", section: null }
+                ];
+
+                if (bShowRequestTypeFilter) {
+                    aOptions.push(
+                        { key: "ADDITION", title: "Addition", desc: "New access & role addition requests", icon: "sap-icon://add", colorClass: "kyraHistIcon_addition", section: "REQUEST TYPE" },
+                        { key: "REVOKE", title: "Revoke", desc: "Access removal & revocation requests", icon: "sap-icon://delete", colorClass: "kyraHistIcon_revoke", section: "REQUEST TYPE" }
+                    );
+                }
+
+                aOptions.push(
                     { key: "PERMANENT", title: "Permanent", desc: "Standard continuous access requests", icon: "sap-icon://shield", colorClass: "kyraHistIcon_emerald", section: "DURATION & TIMELINE" },
                     { key: "30DAYS", title: "30 Days", desc: "Temporary 30-day access requests", icon: "sap-icon://appointment-2", colorClass: "kyraHistIcon_amber", section: "DURATION & TIMELINE" },
                     { key: "90DAYS", title: "90 Days", desc: "Project-based 90-day access requests", icon: "sap-icon://calendar", colorClass: "kyraHistIcon_darkteal", section: "DURATION & TIMELINE" },
                     { key: "CUSTOM", title: "Custom Date Range", desc: "Filter by specific start & end dates", icon: "sap-icon://date-time", colorClass: "kyraHistIcon_teal", section: "DURATION & TIMELINE" }
-                ];
+                );
 
                 const oStartDatePicker = new DatePicker({
                     placeholder: "Select start date (dd-MM-yyyy)",
@@ -7067,8 +7167,8 @@ sap.ui.define([
                         oSelectionState.ALL = false;
 
                         const bAnyChecked = !!(
-                            oSelectionState.ADDITION ||
-                            oSelectionState.REVOKE ||
+                            (bShowRequestTypeFilter && oSelectionState.ADDITION) ||
+                            (bShowRequestTypeFilter && oSelectionState.REVOKE) ||
                             oSelectionState.PERMANENT ||
                             oSelectionState["30DAYS"] ||
                             oSelectionState["90DAYS"]
@@ -7142,7 +7242,7 @@ sap.ui.define([
                 }).addStyleClass("kyraHistMultiList");
                 const applySelectedFilter = () => {
                     const aTypeLabels = [];
-                    if (!oSelectionState.ALL) {
+                    if (bShowRequestTypeFilter && !oSelectionState.ALL) {
                         if (oSelectionState.ADDITION && !oSelectionState.REVOKE) aTypeLabels.push("Addition");
                         if (oSelectionState.REVOKE && !oSelectionState.ADDITION) aTypeLabels.push("Revoke");
                         if (oSelectionState.ADDITION && oSelectionState.REVOKE) aTypeLabels.push("Addition & Revoke");
@@ -7175,10 +7275,25 @@ sap.ui.define([
 
                     // 1. Status Filter from Active KPI Card Selection
                     let oStatusUI5Filter = null;
-                    if (sActiveKpi.includes("REJECT")) {
+                    if (bIsRejected) {
                         oStatusUI5Filter = new Filter("status", FilterOperator.Contains, "Reject");
-                    } else if (sActiveKpi.includes("APPROV")) {
-                        oStatusUI5Filter = new Filter("status", FilterOperator.Contains, "Approv");
+                    } else if (bIsRevoked) {
+                        oStatusUI5Filter = new Filter({
+                            filters: [
+                                new Filter("status", FilterOperator.Contains, "Revok"),
+                                new Filter("type", FilterOperator.Contains, "Revok"),
+                                new Filter("requestId", FilterOperator.StartsWith, "REV-")
+                            ],
+                            and: false
+                        });
+                    } else if (bIsApproved) {
+                        oStatusUI5Filter = new Filter({
+                            filters: [
+                                new Filter("status", FilterOperator.Contains, "Approv"),
+                                new Filter("status", FilterOperator.Contains, "Active")
+                            ],
+                            and: false
+                        });
                     } else if (sActiveKpi.includes("PENDING")) {
                         oStatusUI5Filter = new Filter("status", FilterOperator.Contains, "Pending");
                     } else if (sActiveKpi.includes("EXPIRED") || sActiveKpi.includes("EXPAIR")) {
@@ -7193,7 +7308,7 @@ sap.ui.define([
 
                     // 2. Type Filter (Addition / Revoke)
                     let oTypeUI5Filter = null;
-                    if (bIsAllHistory && !oSelectionState.ALL) {
+                    if (bShowRequestTypeFilter && !oSelectionState.ALL) {
                         if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
                             oTypeUI5Filter = new Filter({
                                 path: "type",
@@ -7266,24 +7381,31 @@ sap.ui.define([
                         const sReqId = String(item.requestId || "").toUpperCase();
                         const sReqType = String(item.requestType || "").toLowerCase();
                         const sAccessType = String(item.accessType || "").toLowerCase();
+                        const sStat = String(item.status || "").toLowerCase();
                         return item.isRevocation === true ||
                                sType.includes("revok") ||
                                sReqType.includes("revok") ||
                                sAccessType.includes("revok") ||
                                sFunc.includes("revocation") ||
-                               sReqId.startsWith("REV-");
+                               sReqId.startsWith("REV-") ||
+                               sStat.includes("revok");
                     };
 
                     const matchesItem = (item) => {
                         if (!item) return false;
+                        const isRevoc = checkRevoc(item);
 
                         // Check status against active KPI card selection
-                        if (sActiveKpi.includes("REJECT")) {
+                        if (bIsRejected) {
                             const sStat = String(item.status || "").toLowerCase();
-                            if (!sStat.includes("reject")) return false;
-                        } else if (sActiveKpi.includes("APPROV")) {
+                            if (!sStat.includes("reject") && !sStat.includes("decline")) return false;
+                        } else if (bIsRevoked) {
                             const sStat = String(item.status || "").toLowerCase();
-                            if (!sStat.includes("approved") && !sStat.includes("active")) return false;
+                            if (sStat.includes("reject") || sStat.includes("decline")) return false;
+                            if (!sStat.includes("revok") && !sStat.includes("expired") && !isRevoc) return false;
+                        } else if (bIsApproved) {
+                            const sStat = String(item.status || "").toLowerCase();
+                            if ((!sStat.includes("approved") && !sStat.includes("active")) || isRevoc) return false;
                         } else if (sActiveKpi.includes("PENDING")) {
                             const sStat = String(item.status || "").toLowerCase();
                             if (!sStat.includes("pending")) return false;
@@ -7292,9 +7414,8 @@ sap.ui.define([
                             if (!sStat.includes("expired") && !sStat.includes("revoke")) return false;
                         }
 
-                        // Check Request Type (Addition / Revoke)
-                        if (!oSelectionState.ALL) {
-                            const isRevoc = checkRevoc(item);
+                        // Check Request Type (Addition / Revoke) - ONLY if Request Type filter is shown
+                        if (bShowRequestTypeFilter && !oSelectionState.ALL) {
                             if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
                                 if (isRevoc) return false;
                             } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
@@ -7345,12 +7466,12 @@ sap.ui.define([
                         this._masterProcessedRequests = [].concat(oModel.getProperty("/processedRequests") || []);
                     }
 
-                    if (oSelectionState.ALL && !oSelectionState.CUSTOM && (sActiveKpi === "ALL" || sActiveKpi === "ALL HISTORY")) {
-                        if (this._masterMyHistoryRequests) {
-                            oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
-                            oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
-                            oModel.setProperty("/filteredHistoryCount", this._masterMyHistoryRequests.length);
-                        }
+                    if (oSelectionState.ALL && !oSelectionState.CUSTOM) {
+                        const aFiltered = this._masterMyHistoryRequests ? this._masterMyHistoryRequests.filter(matchesItem) : (oModel.getProperty("/requestHistory") || []);
+                        oModel.setProperty("/myHistoryRequests", aFiltered);
+                        oModel.setProperty("/requestHistory", aFiltered);
+                        oModel.setProperty("/filteredHistoryCount", aFiltered.length);
+
                         if (this._masterPendingAccessRequests) {
                             oModel.setProperty("/pendingAccessRequests", [].concat(this._masterPendingAccessRequests));
                             oModel.setProperty("/pendingAccessCount", this._masterPendingAccessRequests.length);
@@ -7366,9 +7487,25 @@ sap.ui.define([
                             }
                         });
 
-                        oModel.setProperty("/historyFilterTitle", "All History");
-                        oModel.setProperty("/historyFilterSubtitle", "All submitted and historical access requests.");
-                        MessageToast.show("Showing all history requests.");
+                        let sMsg = "Showing all history requests.";
+                        if (bIsApproved) {
+                            oModel.setProperty("/historyFilterTitle", "All Approved");
+                            oModel.setProperty("/historyFilterSubtitle", "Showing all approved requests.");
+                            sMsg = "Showing all approved requests.";
+                        } else if (bIsRevoked) {
+                            oModel.setProperty("/historyFilterTitle", "All Revoked");
+                            oModel.setProperty("/historyFilterSubtitle", "Showing all revoked requests.");
+                            sMsg = "Showing all revoked requests.";
+                        } else if (bIsRejected) {
+                            oModel.setProperty("/historyFilterTitle", "All Rejected");
+                            oModel.setProperty("/historyFilterSubtitle", "Showing all rejected requests.");
+                            sMsg = "Showing all rejected requests.";
+                        } else {
+                            oModel.setProperty("/historyFilterTitle", "All History");
+                            oModel.setProperty("/historyFilterSubtitle", "All submitted and historical access requests.");
+                        }
+
+                        MessageToast.show(sMsg);
                         oDialog.close();
                         return;
                     }
@@ -7401,20 +7538,44 @@ sap.ui.define([
                         }
                     });
 
-                    const sSectionLabel = (sActiveKpi === "ALL" || sActiveKpi === "ALL HISTORY") ? "" : (sActiveKpi + " requests");
+                    let sSectionLabel = "";
+                    if (bIsApproved) sSectionLabel = "Approved";
+                    else if (bIsRevoked) sSectionLabel = "Revoked";
+                    else if (bIsRejected) sSectionLabel = "Rejected";
+
                     const sFilterSummary = aLabels.length > 0 ? aLabels.join(", ") : "All Duration";
                     const sFinalMsg = sSectionLabel ? (sSectionLabel + " filtered by: " + sFilterSummary) : ("Filtered by: " + sFilterSummary);
 
-                    let sTitleText = "All History";
-                    if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
-                        sTitleText = "Addition History";
-                    } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
-                        sTitleText = "Revoke History";
-                    } else if (oSelectionState.ADDITION && oSelectionState.REVOKE) {
-                        sTitleText = "Addition & Revoke History";
-                    } else if (aLabels.length > 0) {
-                        sTitleText = "Filtered History";
+                    let sTitleText = "Filtered History";
+                    if (bIsApproved) {
+                        sTitleText = aLabels.length > 0 ? ("Approved (" + sFilterSummary + ")") : "Approved History";
+                    } else if (bIsRevoked) {
+                        sTitleText = aLabels.length > 0 ? ("Revoked (" + sFilterSummary + ")") : "Revoked History";
+                    } else if (bIsRejected) {
+                        if (bShowRequestTypeFilter && oSelectionState.ADDITION && !oSelectionState.REVOKE) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Rejected Addition (" + aDurationLabels.join(", ") + ")") : "Rejected Addition History";
+                        } else if (bShowRequestTypeFilter && oSelectionState.REVOKE && !oSelectionState.ADDITION) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Rejected Revoke (" + aDurationLabels.join(", ") + ")") : "Rejected Revoke History";
+                        } else if (bShowRequestTypeFilter && oSelectionState.ADDITION && oSelectionState.REVOKE) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Rejected Addition & Revoke (" + aDurationLabels.join(", ") + ")") : "Rejected Addition & Revoke History";
+                        } else {
+                            sTitleText = aLabels.length > 0 ? ("Rejected (" + sFilterSummary + ")") : "Rejected History";
+                        }
+                    } else {
+                        // All History section
+                        if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Addition (" + aDurationLabels.join(", ") + ")") : "Addition History";
+                        } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Revoke (" + aDurationLabels.join(", ") + ")") : "Revoke History";
+                        } else if (oSelectionState.ADDITION && oSelectionState.REVOKE) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Addition & Revoke (" + aDurationLabels.join(", ") + ")") : "Addition & Revoke History";
+                        } else if (aLabels.length > 0) {
+                            sTitleText = "Filtered History (" + aLabels.join(", ") + ")";
+                        } else {
+                            sTitleText = "All History";
+                        }
                     }
+
                     oModel.setProperty("/historyFilterTitle", sTitleText);
                     oModel.setProperty("/historyFilterSubtitle", sFinalMsg);
                     MessageToast.show(sFinalMsg);

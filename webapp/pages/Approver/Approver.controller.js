@@ -38,49 +38,45 @@ sap.ui.define([
     }
 
 
-        function calculateRevokeRemainingDays(r, matchingActiveRole) {
-        if (matchingActiveRole && matchingActiveRole.daysLeft !== undefined && matchingActiveRole.daysLeft !== 99999) {
-            return "(" + matchingActiveRole.daysLeft + " days left)";
-        }
-        if (matchingActiveRole && matchingActiveRole.expiryDate && matchingActiveRole.expiryDate !== 'Permanent') {
-            const dMatch = String(matchingActiveRole.expiryDate).match(/(\d+)\s*Days Left/i);
-            if (dMatch) return "(" + dMatch[1] + " days left)";
-        }
+    function calculateRevokeRemainingDays(r, matchingActiveRole) {
+        return formatArDuration(r, matchingActiveRole);
+    }
 
-        const sGrant = (r && (r.granted_date || r.grantedDate)) || 
-                       (matchingActiveRole && (matchingActiveRole.granted_date || matchingActiveRole.grantedDate)) || 
-                       (r && (r.created_at || r.createdAt || r.submissionDate || r.submittedDate)) || 
-                       "2026-08-15";
+    function formatArDuration(r, matchingApproved) {
+        const orig = matchingApproved || r;
+        const rawDur = String((orig && (orig.access_duration || orig.duration || orig.accessDuration)) || "").toLowerCase();
+        
+        if (rawDur.includes("permanent") && !rawDur.includes("30") && !rawDur.includes("90")) {
+            return "Permanent (Default)";
+        }
+        
+        let totalDays = 30;
+        if (rawDur.includes("90")) totalDays = 90;
+        else if (rawDur.includes("30")) totalDays = 30;
+        else if (rawDur.includes("60")) totalDays = 60;
+        else if (rawDur.includes("180")) totalDays = 180;
+        else if (rawDur.includes("365")) totalDays = 365;
+
+        const sGrant = (matchingApproved && (matchingApproved.granted_date || matchingApproved.grantedDate || matchingApproved.created_at)) || 
+                       (r && (r.created_at || r.createdAt || r.submissionDate)) || "";
         
         let gDate;
         try {
-            gDate = new Date(sGrant);
-            if (isNaN(gDate.getTime())) gDate = new Date("2026-08-15");
+            gDate = sGrant ? new Date(sGrant) : new Date();
+            if (isNaN(gDate.getTime())) gDate = new Date("2026-09-09");
         } catch(e) {
-            gDate = new Date("2026-08-15");
+            gDate = new Date("2026-09-09");
         }
 
         const now = new Date();
-        const gUtcMidnight = Date.UTC(gDate.getUTCFullYear(), gDate.getUTCMonth(), gDate.getUTCDate());
-        const nowUtcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-        const msPerDay = 1000 * 60 * 60 * 24;
-        const utcDaysElapsed = Math.floor((nowUtcMidnight - gUtcMidnight) / msPerDay);
-
-        let totalDays = 30;
-        const rawDur = String((r && (r.access_duration || r.duration || r.accessDuration)) || "").toLowerCase();
-        if (rawDur.includes("90")) totalDays = 90;
-        else if (rawDur.includes("30")) totalDays = 30;
-
-        let daysLeft = totalDays - utcDaysElapsed;
-        if (daysLeft <= 0 || daysLeft > 30) {
-            const sHashStr = (r && (r.request_number || r.requestId || r.role_name || r.roleName || "")) + "";
-            let hash = 0;
-            for (let i = 0; i < sHashStr.length; i++) hash = (hash * 31 + sHashStr.charCodeAt(i)) % 25;
-            daysLeft = 27 - (hash % 10);
-            if (daysLeft <= 0) daysLeft = 27;
-        }
-
-        return "(" + daysLeft + " days left)";
+        const gUtc = Date.UTC(gDate.getUTCFullYear(), gDate.getUTCMonth(), gDate.getUTCDate());
+        const nowUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+        const elapsed = Math.max(0, Math.floor((nowUtc - gUtc) / (1000 * 60 * 60 * 24)));
+        
+        let remainingDays = totalDays - elapsed;
+        if (remainingDays <= 0) remainingDays = 0;
+        
+        return remainingDays + "/" + totalDays + " days left";
     }
 
     function sortChronologicallyDesc(a, b) {
@@ -684,9 +680,30 @@ sap.ui.define([
                 const sUser = r.requester_username || "User";
 
                 // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
-                const sSector = r.business_sector || "Information Technology & Security";
-                const sFunction = r.business_function || "Corporate Governance";
-                const sDuration = isRevocation ? calculateRevokeRemainingDays(r) : (r.access_duration || r.duration || "Permanent");
+                let matchingApproved = null;
+                if (isRevocation) {
+                    matchingApproved = (aRawRecords || []).find(cand => {
+                        if (!cand) return false;
+                        const candRev = (cand.access_type || cand.request_type || "").toUpperCase().includes("REV") ||
+                                        (cand.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                        (cand.request_number || "").toUpperCase().startsWith("REV-") ||
+                                        (cand.request_number || "").includes("-REV-");
+                        if (candRev) return false;
+                        const candDb = (cand.db_status || cand.status || "").toUpperCase();
+                        if (candDb !== "APPROVED" && candDb !== "ACTIVE") return false;
+                        if ((cand.requester_username || "").toLowerCase() !== (r.requester_username || "").toLowerCase()) return false;
+                        if ((cand.target_system || "") !== (r.target_system || "")) return false;
+                        const cRoleA = (cand.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                        const cRoleB = (r.role_name || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                        return cRoleA === cRoleB || (cRoleA && cRoleB && (cRoleA.includes(cRoleB) || cRoleB.includes(cRoleA)));
+                    });
+                }
+
+                const sSector = (matchingApproved && matchingApproved.business_sector) || r.business_sector || "Information Technology & Security";
+                const sFunction = (isRevocation && matchingApproved && matchingApproved.business_function)
+                    ? matchingApproved.business_function
+                    : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : "Corporate Governance");
+                const sDuration = isRevocation ? formatArDuration(r, matchingApproved) : (r.access_duration || r.duration || "Permanent");
                 const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
                 const sJustification = r.justification || "";
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
