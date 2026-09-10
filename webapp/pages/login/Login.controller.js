@@ -38,11 +38,22 @@ sap.ui.define([
             const sLogoUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
             const sBrandHeaderUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
             const sSecurityArchitectureUrl = sap.ui.require.toUrl("kyra001/images/kyra_security_3d_architecture.png");
+            const sShieldIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_shield.webp");
+            const sUserIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_user.webp");
+            const sVerifiedIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_verified.webp");
+            const sServerIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_server.webp");
+            const sAnalyticsIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_analytics.webp");
 
             const oModel = new JSONModel({
                 logoUrl: sLogoUrl,
                 brandHeaderUrl: sBrandHeaderUrl,
                 securityArchitectureUrl: sSecurityArchitectureUrl,
+                shieldArchitectureUrl: sSecurityArchitectureUrl,
+                iconShieldUrl: sShieldIconUrl,
+                iconUserUrl: sUserIconUrl,
+                iconVerifiedUrl: sVerifiedIconUrl,
+                iconServerUrl: sServerIconUrl,
+                iconAnalyticsUrl: sAnalyticsIconUrl,
                 architectureSvgHtml: "",
                 selectedRole: "Requester",
                 userId: "",
@@ -219,6 +230,10 @@ sap.ui.define([
             oModel.setProperty("/errorMessage", "");
         },
 
+        onContactSupport() {
+            MessageToast.show("Please contact your IT Security Administrator or Kyra Support team at support@kyra.enterprise");
+        },
+
         onLogin() {
             const oView = this.getView();
             const oModel = oView.getModel("login");
@@ -233,14 +248,8 @@ sap.ui.define([
 
             // 1. Check ID Field presence
             if (!sUserId) {
-                let sErr = "Please enter your Requester ID.";
-                if (sEffectiveTitle === "Approver") {
-                    sErr = "Please enter your Approver ID.";
-                } else if (sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver") {
-                    sErr = "Please enter your Compliance Review ID.";
-                } else if (sEffectiveTitle === "Administrator") {
-                    sErr = "Please enter your Administrator ID.";
-                }
+                const sIdLabel = oModel.getProperty("/idLabel") || "Requester ID";
+                const sErr = `${sIdLabel} is required.`;
                 oModel.setProperty("/idState", "Error");
                 oModel.setProperty("/idStateText", sErr);
                 return;

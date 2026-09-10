@@ -1,16 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" width="100%" height="100%" class="kyra-native-security-architecture">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="30 95 560 295" width="100%" height="100%" class="kyra-native-security-architecture" preserveAspectRatio="xMidYMid meet">
   <defs>
     <!-- Background glow gradients -->
     <radialGradient id="kyraPedestalGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00C4D4" stop-opacity="0.32" />
-      <stop offset="60%" stop-color="#008C9C" stop-opacity="0.12" />
+      <stop offset="0%" stop-color="#00C4D4" stop-opacity="0.38" />
+      <stop offset="60%" stop-color="#008C9C" stop-opacity="0.14" />
       <stop offset="100%" stop-color="#008C9C" stop-opacity="0" />
     </radialGradient>
 
     <radialGradient id="kyraInnerPool" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00E5F5" stop-opacity="0.65" />
-      <stop offset="70%" stop-color="#008C9C" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#008C9C" stop-opacity="0.05" />
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.75" />
+      <stop offset="60%" stop-color="#008C9C" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#008C9C" stop-opacity="0.08" />
     </radialGradient>
 
     <!-- 3D Pedestal Lighting Gradients -->
@@ -47,15 +47,15 @@
     </linearGradient>
 
     <linearGradient id="shieldFaceLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00A5B5" />
+      <stop offset="0%" stop-color="#00B4C6" />
       <stop offset="50%" stop-color="#008C9C" />
-      <stop offset="100%" stop-color="#00717E" />
+      <stop offset="100%" stop-color="#006C79" />
     </linearGradient>
 
     <linearGradient id="shieldFaceRight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#007A88" />
-      <stop offset="50%" stop-color="#00636F" />
-      <stop offset="100%" stop-color="#004D57" />
+      <stop offset="0%" stop-color="#007F8E" />
+      <stop offset="50%" stop-color="#00616D" />
+      <stop offset="100%" stop-color="#004A54" />
     </linearGradient>
 
     <!-- Satellite Stand Gradients -->
@@ -70,37 +70,25 @@
       <stop offset="100%" stop-color="#E2F0F4" />
     </linearGradient>
 
-    <!-- Server Stack Gradients -->
-    <linearGradient id="serverFront" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#D6EDF2" />
-      <stop offset="50%" stop-color="#F2FAFC" />
-      <stop offset="100%" stop-color="#C8E5EC" />
-    </linearGradient>
-
-    <linearGradient id="serverTop" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" />
-      <stop offset="100%" stop-color="#DDEFF3" />
-    </linearGradient>
-
     <!-- Drop Shadows -->
     <filter id="shadowPedestal" x="-20%" y="-20%" width="140%" height="150%">
-      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#008C9C" flood-opacity="0.16" />
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.06" />
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#008C9C" flood-opacity="0.16" />
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.06" />
     </filter>
 
     <filter id="shadowShield" x="-25%" y="-20%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#008C9C" flood-opacity="0.25" />
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.10" />
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#008C9C" flood-opacity="0.25" />
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.08" />
     </filter>
 
     <filter id="shadowNode" x="-30%" y="-25%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#008C9C" flood-opacity="0.14" />
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#008C9C" flood-opacity="0.15" />
     </filter>
   </defs>
 
   <style>
     .track-dash {
-      animation: trackPulse 8s linear infinite;
+      animation: trackPulse 9s linear infinite;
     }
     @keyframes trackPulse {
       0% { stroke-dashoffset: 0; }
@@ -111,59 +99,74 @@
     }
     @keyframes shieldFloatAnim {
       0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-7px); }
+      50% { transform: translateY(-6px); }
     }
     .satellite-node {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), filter 0.25s ease;
       cursor: pointer;
     }
     .satellite-node:hover {
-      transform: translateY(-5px) scale(1.04);
+      transform: translateY(-5px) scale(1.035);
+      filter: drop-shadow(0 10px 16px rgba(0, 140, 156, 0.25)) drop-shadow(0 0 12px rgba(0, 201, 232, 0.45));
+    }
+    .satellite-node:hover .node-label-title {
+      fill: #008C9C;
+      font-weight: 900;
     }
     .node-label-title {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 800;
       letter-spacing: 0.08em;
       fill: #1E293B;
       text-anchor: middle;
-      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+      text-shadow: 0 1px 2px rgba(255,255,255,0.9);
+      transition: fill 0.2s ease;
     }
     .pulse-glow {
-      animation: pulseGlow 3s ease-in-out infinite alternate;
+      animation: pulseGlow 3.5s ease-in-out infinite alternate;
     }
     @keyframes pulseGlow {
       0% { opacity: 0.65; transform: scale(0.98); }
       100% { opacity: 1; transform: scale(1.02); }
     }
+    .data-packet {
+      animation: packetTravel 4s linear infinite;
+    }
+    @keyframes packetTravel {
+      0% { offset-distance: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { offset-distance: 100%; opacity: 0; }
+    }
   </style>
 
   <!-- ================= BACKGROUND CONTOUR WAVES ================= -->
-  <g opacity="0.35">
-    <path d="M 0 200 C 150 160, 280 240, 620 180" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.4" />
-    <path d="M 0 225 C 180 180, 320 260, 620 205" fill="none" stroke="#008C9C" stroke-width="1" stroke-opacity="0.3" />
-    <path d="M 0 250 C 140 210, 350 285, 620 230" fill="none" stroke="#008C9C" stroke-width="0.8" stroke-opacity="0.2" />
+  <g opacity="0.32">
+    <path d="M 10 180 C 140 150, 280 230, 610 170" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.45" />
+    <path d="M 10 205 C 170 170, 320 250, 610 195" fill="none" stroke="#008C9C" stroke-width="1" stroke-opacity="0.35" />
+    <path d="M 10 230 C 130 200, 350 275, 610 220" fill="none" stroke="#008C9C" stroke-width="0.8" stroke-opacity="0.22" />
   </g>
 
   <!-- ================= ORBITAL NETWORK TRACKS & DATA NODES ================= -->
   <g>
     <!-- Outer Track -->
-    <ellipse cx="310" cy="275" rx="255" ry="82" fill="none" stroke="#008C9C" stroke-opacity="0.32" stroke-width="1.4" stroke-dasharray="6 8" class="track-dash" />
+    <ellipse cx="310" cy="275" rx="255" ry="82" fill="none" stroke="#008C9C" stroke-opacity="0.32" stroke-width="1.3" stroke-dasharray="6 8" class="track-dash" />
     <!-- Inner Track -->
-    <ellipse cx="310" cy="275" rx="195" ry="62" fill="none" stroke="#008C9C" stroke-opacity="0.25" stroke-width="1.2" stroke-dasharray="4 6" class="track-dash" style="animation-direction: reverse;" />
+    <ellipse cx="310" cy="275" rx="195" ry="62" fill="none" stroke="#008C9C" stroke-opacity="0.25" stroke-width="1.1" stroke-dasharray="4 6" class="track-dash" style="animation-direction: reverse;" />
 
     <!-- Ambient Teal Glow Beneath Platform -->
     <ellipse cx="310" cy="285" rx="190" ry="60" fill="url(#kyraPedestalGlow)" class="pulse-glow" style="transform-origin: 310px 285px;" />
 
     <!-- Network Circuit Connecting Lines -->
-    <path d="M 125 220 C 190 230, 240 250, 310 265" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.5" />
-    <path d="M 115 320 C 175 315, 230 295, 310 280" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.5" />
-    <path d="M 495 210 C 435 225, 380 250, 310 265" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.5" />
-    <path d="M 505 320 C 440 315, 385 295, 310 280" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.5" />
+    <path d="M 130 228 C 190 235, 240 250, 310 265" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.55" />
+    <path d="M 115 328 C 175 320, 230 295, 310 280" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.55" />
+    <path d="M 485 228 C 435 235, 380 250, 310 265" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.55" />
+    <path d="M 505 328 C 440 320, 385 295, 310 280" fill="none" stroke="#00C4D4" stroke-width="1.2" stroke-opacity="0.55" />
 
     <!-- Glowing Track Nodes -->
-    <circle cx="55" cy="275" r="3" fill="#00C4D4" />
-    <circle cx="565" cy="275" r="3" fill="#00C4D4" />
+    <circle cx="55" cy="275" r="3.2" fill="#00C4D4" />
+    <circle cx="565" cy="275" r="3.2" fill="#00C4D4" />
     <circle cx="205" cy="225" r="2.5" fill="#008C9C" />
     <circle cx="415" cy="225" r="2.5" fill="#008C9C" />
     <circle cx="215" cy="325" r="2.5" fill="#008C9C" />
@@ -175,37 +178,31 @@
   <!-- ================= 3D TIERED CIRCULAR PEDESTAL PLATFORM ================= -->
   <g filter="url(#shadowPedestal)">
     <!-- Base Tier 1 (Lowest Platform) -->
-    <!-- Cylinder Side Extrusion -->
     <path d="M 160 285 A 150 48 0 0 0 460 285 V 302 A 150 48 0 0 1 160 302 Z" fill="url(#pedestalBaseSide)" stroke="#BDDCE4" stroke-width="0.75" />
-    <!-- Cylinder Top Cap -->
     <ellipse cx="310" cy="285" rx="150" ry="48" fill="url(#pedestalBaseTop)" stroke="#FFFFFF" stroke-width="1.2" />
 
-    <!-- Stepped Notch Feature on Bottom Tier (as in reference image) -->
+    <!-- Stepped Notch Feature on Bottom Tier (matching reference image) -->
     <path d="M 430 288 A 150 48 0 0 1 455 297 V 307 A 150 48 0 0 0 430 298 Z" fill="#B3D5DF" opacity="0.6" />
 
     <!-- Middle Tier 2 -->
-    <!-- Cylinder Side Extrusion -->
     <path d="M 190 270 A 120 38 0 0 0 430 270 V 283 A 120 38 0 0 1 190 283 Z" fill="url(#pedestalMidSide)" stroke="#B4D6E0" stroke-width="0.75" />
-    <!-- Cylinder Top Cap -->
     <ellipse cx="310" cy="270" rx="120" ry="38" fill="url(#pedestalMidTop)" stroke="#FFFFFF" stroke-width="1" />
 
     <!-- Top Tier 3 (Inner Glowing Basin) -->
-    <!-- Cylinder Side Extrusion -->
     <path d="M 220 256 A 90 29 0 0 0 400 256 V 266 A 90 29 0 0 1 220 266 Z" fill="url(#pedestalMidSide)" stroke="#A9D0DC" stroke-width="0.75" />
-    <!-- Cylinder Top Cap -->
     <ellipse cx="310" cy="256" rx="90" ry="29" fill="#FFFFFF" stroke="#E1EFF3" stroke-width="1" />
 
     <!-- Radiant Inner Teal Energy Pool -->
     <ellipse cx="310" cy="256" rx="82" ry="25" fill="url(#kyraInnerPool)" />
     <!-- Neon Accent Ring -->
-    <ellipse cx="310" cy="256" rx="76" ry="23" fill="none" stroke="#00E5F5" stroke-width="2" stroke-opacity="0.85" filter="drop-shadow(0 0 4px #00E5F5)" />
+    <ellipse cx="310" cy="256" rx="76" ry="23" fill="none" stroke="#00E5F5" stroke-width="2" stroke-opacity="0.9" filter="drop-shadow(0 0 5px #00E5F5)" />
     <ellipse cx="310" cy="256" rx="66" ry="20" fill="none" stroke="#008C9C" stroke-width="1" stroke-opacity="0.4" />
   </g>
 
   <!-- ================= CENTER FLOATING 3D SHIELD WITH PADLOCK ================= -->
   <g class="floating-shield-group">
     <!-- Soft Glow Under Floating Shield -->
-    <ellipse cx="310" cy="250" rx="42" ry="12" fill="#008C9C" fill-opacity="0.22" filter="blur(6px)" />
+    <ellipse cx="310" cy="250" rx="42" ry="12" fill="#008C9C" fill-opacity="0.25" filter="blur(6px)" />
 
     <g filter="url(#shadowShield)">
       <!-- Outer Shield Bevel Rim (Bright White/Cyan 3D Frame) -->
@@ -221,9 +218,9 @@
             fill="url(#shieldFaceRight)" />
 
       <!-- Center Seam Glint Highlight -->
-      <path d="M 310 131 L 310 259" stroke="#E0F7FA" stroke-width="1" stroke-opacity="0.45" />
+      <path d="M 310 131 L 310 259" stroke="#E0F7FA" stroke-width="1" stroke-opacity="0.5" />
 
-      <!-- Pure White Padlock Icon (High Precision) -->
+      <!-- Pure White Padlock Icon -->
       <!-- Padlock Shackle -->
       <path d="M 299 184 V 171 A 11 11 0 0 1 321 171 V 184"
             fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
@@ -238,96 +235,90 @@
   <!-- ================= 4 SATELLITE INTERACTIVE NODES ================= -->
 
   <!-- NODE 1: TOP-LEFT (IDENTITY GOVERNANCE) -->
-  <g class="satellite-node" filter="url(#shadowNode)">
+  <g id="nodeIdGovernance" class="satellite-node" filter="url(#shadowNode)">
     <!-- 3D Pedestal Stand -->
     <path d="M 94 228 A 36 12 0 0 0 166 228 V 238 A 36 12 0 0 1 94 238 Z" fill="url(#standSide)" stroke="#C6DFE7" stroke-width="0.75" />
     <ellipse cx="130" cy="228" rx="36" ry="12" fill="url(#standTop)" stroke="#FFFFFF" stroke-width="1" />
-    <ellipse cx="130" cy="228" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.7" />
+    <ellipse cx="130" cy="228" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.75" />
 
     <!-- Spherical Icon Glow -->
-    <circle cx="130" cy="204" r="17" fill="#FFFFFF" filter="drop-shadow(0 4px 8px rgba(0,140,156,0.18))" stroke="#E1EFF3" stroke-width="1" />
+    <circle cx="130" cy="204" r="17" fill="#FFFFFF" filter="drop-shadow(0 4px 8px rgba(0,140,156,0.2))" stroke="#E1EFF3" stroke-width="1" />
     <!-- User Avatar Icon -->
     <circle cx="130" cy="198" r="5" fill="#008C9C" />
     <path d="M 120 214 C 120 207, 140 207, 140 214 Z" fill="#008C9C" />
 
     <!-- Labels matching user reference image -->
-    <text x="130" y="260" class="node-label-title">IDENTITY</text>
-    <text x="130" y="272" class="node-label-title">GOVERNANCE</text>
+    <text x="130" y="258" class="node-label-title">IDENTITY</text>
+    <text x="130" y="270" class="node-label-title">GOVERNANCE</text>
   </g>
 
   <!-- NODE 2: BOTTOM-LEFT (ROLE MANAGEMENT) -->
-  <g class="satellite-node" filter="url(#shadowNode)">
+  <g id="nodeRoleMgmt" class="satellite-node" filter="url(#shadowNode)">
     <!-- 3D Pedestal Stand -->
     <path d="M 79 328 A 36 12 0 0 0 151 328 V 338 A 36 12 0 0 1 79 338 Z" fill="url(#standSide)" stroke="#C6DFE7" stroke-width="0.75" />
     <ellipse cx="115" cy="328" rx="36" ry="12" fill="url(#standTop)" stroke="#FFFFFF" stroke-width="1" />
-    <ellipse cx="115" cy="328" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.7" />
+    <ellipse cx="115" cy="328" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.75" />
 
     <!-- Spherical Icon Glow -->
-    <circle cx="115" cy="304" r="17" fill="#FFFFFF" filter="drop-shadow(0 4px 8px rgba(0,140,156,0.18))" stroke="#E1EFF3" stroke-width="1" />
+    <circle cx="115" cy="304" r="17" fill="#FFFFFF" filter="drop-shadow(0 4px 8px rgba(0,140,156,0.2))" stroke="#E1EFF3" stroke-width="1" />
     <!-- Role Shield + Check Icon -->
     <path d="M 115 295 L 123 298 C 123 306, 115 311, 115 313 C 115 311, 107 306, 107 298 Z" fill="#008C9C" />
     <path d="M 111 303.5 L 114 306.5 L 119.5 300.5" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
 
     <!-- Labels matching user reference image -->
-    <text x="115" y="360" class="node-label-title">ROLE</text>
-    <text x="115" y="372" class="node-label-title">MANAGEMENT</text>
+    <text x="115" y="358" class="node-label-title">ROLE</text>
+    <text x="115" y="370" class="node-label-title">MANAGEMENT</text>
   </g>
 
-  <!-- NODE 3: TOP-RIGHT (ENTITLEMENT PROVISIONING - 3D DATABASE SERVERS) -->
-  <g class="satellite-node" filter="url(#shadowNode)">
+  <!-- NODE 3: TOP-RIGHT (ENTITLEMENT PROVISIONING - 3D SERVERS) -->
+  <g id="nodeEntitlement" class="satellite-node" filter="url(#shadowNode)">
     <!-- 3D Base Stand -->
     <path d="M 449 228 A 36 12 0 0 0 521 228 V 238 A 36 12 0 0 1 449 238 Z" fill="url(#standSide)" stroke="#C6DFE7" stroke-width="0.75" />
     <ellipse cx="485" cy="228" rx="36" ry="12" fill="url(#standTop)" stroke="#FFFFFF" stroke-width="1" />
-    <ellipse cx="485" cy="228" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.7" />
+    <ellipse cx="485" cy="228" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.75" />
 
-    <!-- 3D Isometric Server Stack (Disk 1, 2, 3) -->
+    <!-- 3D Isometric Server Stack -->
     <!-- Disk 3 (Bottom) -->
-    <path d="M 470 206 L 500 206 L 493 216 L 463 216 Z" fill="#B7DBE5" />
-    <path d="M 463 216 L 493 216 L 493 222 L 463 222 Z" fill="#008C9C" />
-    <rect x="466" y="210" width="34" height="9" rx="2" fill="#008C9C" />
-    <circle cx="472" cy="214.5" r="1.5" fill="#00E5F5" />
-    <circle cx="477" cy="214.5" r="1.5" fill="#00E5F5" />
-    <line x1="486" y1="214.5" x2="496" y2="214.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
+    <rect x="466" y="210" width="38" height="10" rx="2" fill="#008C9C" />
+    <circle cx="472" cy="215" r="1.6" fill="#00E5F5" />
+    <circle cx="477" cy="215" r="1.6" fill="#00E5F5" />
+    <line x1="486" y1="215" x2="498" y2="215" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round" />
 
     <!-- Disk 2 (Middle) -->
-    <rect x="466" y="198" width="34" height="9" rx="2" fill="#FFFFFF" stroke="#BDDCE4" stroke-width="0.8" />
-    <circle cx="472" cy="202.5" r="1.5" fill="#008C9C" />
-    <circle cx="477" cy="202.5" r="1.5" fill="#008C9C" />
-    <line x1="486" y1="202.5" x2="496" y2="202.5" stroke="#008C9C" stroke-width="1.2" stroke-linecap="round" />
+    <rect x="466" y="198" width="38" height="10" rx="2" fill="#FFFFFF" stroke="#BDDCE4" stroke-width="0.9" />
+    <circle cx="472" cy="203" r="1.6" fill="#008C9C" />
+    <circle cx="477" cy="203" r="1.6" fill="#008C9C" />
+    <line x1="486" y1="203" x2="498" y2="203" stroke="#008C9C" stroke-width="1.3" stroke-linecap="round" />
 
     <!-- Disk 1 (Top Server Blade) -->
-    <rect x="466" y="186" width="34" height="9" rx="2" fill="#FFFFFF" stroke="#BDDCE4" stroke-width="0.8" />
-    <!-- Isometric Diamond Logo on Top Server -->
-    <polygon points="483,180 488,183 483,186 478,183" fill="#FFFFFF" stroke="#00C4D4" stroke-width="1" />
-    <circle cx="472" cy="190.5" r="1.5" fill="#008C9C" />
-    <circle cx="477" cy="190.5" r="1.5" fill="#008C9C" />
-    <line x1="486" y1="190.5" x2="496" y2="190.5" stroke="#008C9C" stroke-width="1.2" stroke-linecap="round" />
+    <rect x="466" y="186" width="38" height="10" rx="2" fill="#FFFFFF" stroke="#BDDCE4" stroke-width="0.9" />
+    <polygon points="485,180 490,183 485,186 480,183" fill="#FFFFFF" stroke="#00C4D4" stroke-width="1" />
+    <circle cx="472" cy="191" r="1.6" fill="#008C9C" />
+    <circle cx="477" cy="191" r="1.6" fill="#008C9C" />
+    <line x1="486" y1="191" x2="498" y2="191" stroke="#008C9C" stroke-width="1.3" stroke-linecap="round" />
 
     <!-- Labels matching user reference image -->
-    <text x="485" y="260" class="node-label-title">ENTITLEMENT</text>
-    <text x="485" y="272" class="node-label-title">PROVISIONING</text>
+    <text x="485" y="258" class="node-label-title">ENTITLEMENT</text>
+    <text x="485" y="270" class="node-label-title">PROVISIONING</text>
   </g>
 
   <!-- NODE 4: BOTTOM-RIGHT (CONTINUOUS COMPLIANCE - 3D ANALYTICS) -->
-  <g class="satellite-node" filter="url(#shadowNode)">
+  <g id="nodeCompliance" class="satellite-node" filter="url(#shadowNode)">
     <!-- 3D Pedestal Stand -->
     <path d="M 469 328 A 36 12 0 0 0 541 328 V 338 A 36 12 0 0 1 469 338 Z" fill="url(#standSide)" stroke="#C6DFE7" stroke-width="0.75" />
     <ellipse cx="505" cy="328" rx="36" ry="12" fill="url(#standTop)" stroke="#FFFFFF" stroke-width="1" />
-    <ellipse cx="505" cy="328" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.7" />
+    <ellipse cx="505" cy="328" rx="28" ry="9" fill="#E8F7F9" stroke="#00C4D4" stroke-width="1" stroke-opacity="0.75" />
 
-    <!-- Spherical/Prismatic Backing Badge -->
-    <path d="M 495 292 C 495 285, 515 285, 515 292 L 518 316 C 518 322, 492 322, 492 316 Z" fill="#FFFFFF" stroke="#E1EFF3" stroke-width="1" filter="drop-shadow(0 3px 6px rgba(0,140,156,0.15))" />
+    <!-- Capsule Badge -->
+    <path d="M 493 292 C 493 285, 517 285, 517 292 L 520 316 C 520 322, 490 322, 490 316 Z" fill="#FFFFFF" stroke="#E1EFF3" stroke-width="1" filter="drop-shadow(0 3px 6px rgba(0,140,156,0.18))" />
 
     <!-- 3D Bar Graph Pillars -->
-    <!-- Bar 1 (Short) -->
-    <rect x="498" y="304" width="4.5" height="11" rx="1" fill="#00A5B5" />
-    <!-- Bar 2 (Medium) -->
-    <rect x="504.5" y="297" width="4.5" height="18" rx="1" fill="#008C9C" />
-    <!-- Bar 3 (Tall) -->
-    <rect x="511" y="291" width="4.5" height="24" rx="1" fill="#006E7D" />
+    <rect x="496" y="304" width="5" height="12" rx="1.2" fill="#00A5B5" />
+    <rect x="503" y="297" width="5" height="19" rx="1.2" fill="#008C9C" />
+    <rect x="510" y="290" width="5" height="26" rx="1.2" fill="#006E7D" />
 
     <!-- Labels matching user reference image -->
-    <text x="505" y="360" class="node-label-title">CONTINUOUS</text>
-    <text x="505" y="372" class="node-label-title">COMPLIANCE</text>
+    <text x="505" y="358" class="node-label-title">CONTINUOUS</text>
+    <text x="505" y="370" class="node-label-title">COMPLIANCE</text>
   </g>
 </svg>

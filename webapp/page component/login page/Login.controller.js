@@ -38,11 +38,22 @@ sap.ui.define([
             const sLogoUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
             const sBrandHeaderUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
             const sSecurityArchitectureUrl = sap.ui.require.toUrl("kyra001/images/kyra_security_3d_architecture.png");
+            const sShieldIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_shield.webp");
+            const sUserIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_user.webp");
+            const sVerifiedIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_verified.webp");
+            const sServerIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_server.webp");
+            const sAnalyticsIconUrl = sap.ui.require.toUrl("kyra001/images/kyra_icon_analytics.webp");
 
             const oModel = new JSONModel({
                 logoUrl: sLogoUrl,
                 brandHeaderUrl: sBrandHeaderUrl,
                 securityArchitectureUrl: sSecurityArchitectureUrl,
+                shieldArchitectureUrl: sSecurityArchitectureUrl,
+                iconShieldUrl: sShieldIconUrl,
+                iconUserUrl: sUserIconUrl,
+                iconVerifiedUrl: sVerifiedIconUrl,
+                iconServerUrl: sServerIconUrl,
+                iconAnalyticsUrl: sAnalyticsIconUrl,
                 architectureSvgHtml: "",
                 selectedRole: "Requester",
                 userId: "",
@@ -57,34 +68,64 @@ sap.ui.define([
 
             this.getView().setModel(oModel, "login");
 
+            // Load pure vector interactive 3D architecture SVG into DOM
+            fetch(sap.ui.require.toUrl("kyra001/images/kyra_security_architecture.svg"))
+                .then(r => r.text())
+                .then(sSvg => {
+                    oModel.setProperty("/architectureSvgHtml", sSvg);
+                    this._attachSvgInteractions();
+                })
+                .catch(err => console.error("Architecture SVG load error:", err));
+
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
         },
 
         onAfterRendering() {
-            this._attachPillarInteractions();
+            this._attachSvgInteractions();
         },
 
-        _attachPillarInteractions() {
+        _attachSvgInteractions() {
             setTimeout(() => {
-                const aPillars = [
-                    { selector: ".kyraPillarItem1", msg: "Identity Governance: Centralized enterprise directory synchronization active." },
-                    { selector: ".kyraPillarItem2", msg: "Role Management: Dynamic least-privilege role enforcement active." },
-                    { selector: ".kyraPillarItem3", msg: "Entitlement Provisioning: Automated multi-cloud access entitlement provisioning active." },
-                    { selector: ".kyraPillarItem4", msg: "Continuous Compliance: Automated SOD conflict detection & audit trail active." }
+                const aNodes = [
+                    { id: "nodeIdGovernance", label: "Identity Governance", msg: "Identity Governance: Centralized enterprise identity governance active." },
+                    { id: "nodeRoleMgmt", label: "Role Management", msg: "Role Management: Dynamic role entitlement provisioning enabled." },
+                    { id: "nodeEntitlement", label: "Entitlement Provisioning", msg: "Entitlement Provisioning: Enterprise multi-cloud directories synchronized." },
+                    { id: "nodeCompliance", label: "Continuous Compliance", msg: "Continuous Compliance: Continuous automated compliance active across hybrid cloud." }
                 ];
 
-                aPillars.forEach(item => {
-                    const el = document.querySelector(item.selector);
+                aNodes.forEach(node => {
+                    const el = document.getElementById(node.id);
                     if (el && !el.dataset.bound) {
                         el.dataset.bound = "true";
                         el.style.cursor = "pointer";
                         el.addEventListener("click", () => {
-                            MessageToast.show(item.msg);
+                            MessageToast.show(node.msg);
                         });
                     }
                 });
-            }, 250);
+
+                const shieldEl = document.querySelector(".kyraSvgFloatingShield");
+                if (shieldEl && !shieldEl.dataset.bound) {
+                    shieldEl.dataset.bound = "true";
+                    shieldEl.style.cursor = "pointer";
+                    shieldEl.addEventListener("click", () => {
+                        MessageToast.show("KYRA Core Shield: Total Access Control and Security Gateway Active");
+                    });
+                }
+
+                const aPills = document.querySelectorAll(".kyraArchPill");
+                aPills.forEach(pill => {
+                    if (pill && !pill.dataset.bound) {
+                        pill.dataset.bound = "true";
+                        pill.style.cursor = "pointer";
+                        pill.addEventListener("click", () => {
+                            const txt = pill.textContent ? pill.textContent.trim() : "Security Architecture";
+                            MessageToast.show(txt + ": Active and Protected by KYRA Security Architecture");
+                        });
+                    }
+                });
+            }, 300);
         },
 
         _onRouteMatched() {
@@ -189,6 +230,10 @@ sap.ui.define([
             oModel.setProperty("/errorMessage", "");
         },
 
+        onContactSupport() {
+            MessageToast.show("Please contact your IT Security Administrator or Kyra Support team at support@kyra.enterprise");
+        },
+
         onLogin() {
             const oView = this.getView();
             const oModel = oView.getModel("login");
@@ -203,14 +248,8 @@ sap.ui.define([
 
             // 1. Check ID Field presence
             if (!sUserId) {
-                let sErr = "Please enter your Requester ID.";
-                if (sEffectiveTitle === "Approver") {
-                    sErr = "Please enter your Approver ID.";
-                } else if (sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver") {
-                    sErr = "Please enter your Compliance Review ID.";
-                } else if (sEffectiveTitle === "Administrator") {
-                    sErr = "Please enter your Administrator ID.";
-                }
+                const sIdLabel = oModel.getProperty("/idLabel") || "Requester ID";
+                const sErr = `${sIdLabel} is required.`;
                 oModel.setProperty("/idState", "Error");
                 oModel.setProperty("/idStateText", sErr);
                 return;

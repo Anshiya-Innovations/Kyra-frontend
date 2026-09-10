@@ -9955,78 +9955,35 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: space-evenly !important;
+    justify-content: center !important;
     align-items: stretch !important;
-    padding: 24px 44px 20px 52px !important;
+    gap: 12px !important;
+    padding: 0 44px 0 52px !important;
     box-sizing: border-box !important;
     position: relative !important;
     overflow: hidden !important;
     animation: kyraHeroEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* Top Hero Brand Pill Badge */
-.kyraHeroBrandPill {
-    display: inline-flex !important;
-    align-items: center !important;
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(0, 140, 156, 0.22) !important;
-    border-radius: 9999px !important;
-    padding: 5px 16px 5px 8px !important;
-    box-shadow: 0 4px 18px rgba(0, 140, 156, 0.08) !important;
-    width: fit-content !important;
-    margin-bottom: 4px !important;
-}
-
-.kyraHeroBrandLogo {
-    height: 28px !important;
-    width: auto !important;
-    margin-right: 10px !important;
-    filter: drop-shadow(0 2px 6px rgba(0, 140, 156, 0.35)) !important;
-}
-
-.kyraHeroBrandTextCol {
+/* Top Hero Brand Logo Only (Clean & Proper) */
+.kyraHeroBrandLogoContainer {
     display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    margin-right: 16px !important;
+    align-items: center !important;
+    margin-bottom: 2px !important;
+    padding-left: 2px !important;
 }
 
-.kyraHeroBrandTitle {
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    color: #0F172A !important;
-    letter-spacing: 0.1em !important;
-    line-height: 1.1 !important;
-    margin: 0 !important;
+.kyraHeroBrandLogoOnly {
+    height: 44px !important;
+    width: auto !important;
+    filter: drop-shadow(0 4px 14px rgba(0, 140, 156, 0.28)) !important;
+    transition: transform 0.25s ease, filter 0.25s ease !important;
+    cursor: pointer !important;
 }
 
-.kyraHeroBrandTag {
-    font-size: 9px !important;
-    font-weight: 700 !important;
-    color: #008C9C !important;
-    letter-spacing: 0.12em !important;
-    line-height: 1.1 !important;
-    margin: 0 !important;
-}
-
-.kyraHeroBrandStatusDot {
-    width: 7px !important;
-    height: 7px !important;
-    border-radius: 50% !important;
-    background-color: #10B981 !important;
-    box-shadow: 0 0 8px #10B981 !important;
-    margin-right: 6px !important;
-    animation: kyraLivePulse 2s infinite !important;
-}
-
-.kyraHeroBrandStatusText {
-    font-size: 10px !important;
-    font-weight: 700 !important;
-    color: #059669 !important;
-    letter-spacing: 0.08em !important;
-    margin: 0 !important;
+.kyraHeroBrandLogoOnly:hover {
+    transform: scale(1.05) !important;
+    filter: drop-shadow(0 6px 20px rgba(0, 140, 156, 0.42)) !important;
 }
 
 /* Hero Typography: Dual Headline + Gradient Shimmer */
@@ -10034,11 +9991,11 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
-    margin: 2px 0 6px 0 !important;
+    margin: 0 !important;
 }
 
 .kyraHeroTitleDark {
-    font-size: 36px !important;
+    font-size: 34px !important;
     font-weight: 800 !important;
     color: #0F172A !important;
     line-height: 1.1 !important;
@@ -10047,11 +10004,11 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 }
 
 .kyraHeroTitleTeal {
-    font-size: 36px !important;
+    font-size: 34px !important;
     font-weight: 800 !important;
     line-height: 1.1 !important;
     letter-spacing: -0.025em !important;
-    margin: 0 0 8px 0 !important;
+    margin: 0 0 6px 0 !important;
     background: linear-gradient(90deg, #008C9C 0%, #00C9E8 40%, #059669 80%, #008C9C 100%) !important;
     background-size: 200% auto !important;
     -webkit-background-clip: text !important;
@@ -10061,20 +10018,20 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 }
 
 .kyraHeroTealDashBar {
-    width: 44px !important;
+    width: 42px !important;
     height: 3.5px !important;
     background: linear-gradient(90deg, #008C9C 0%, #00C9E8 100%) !important;
     border-radius: 9999px !important;
     box-shadow: 0 2px 8px rgba(0, 140, 156, 0.4) !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 6px !important;
 }
 
 .kyraHeroSubtitleText {
-    font-size: 13px !important;
+    font-size: 12.5px !important;
     font-weight: 500 !important;
     color: #475569 !important;
-    line-height: 1.5 !important;
-    max-width: 520px !important;
+    line-height: 1.45 !important;
+    max-width: 490px !important;
     margin: 0 !important;
 }
 
@@ -10083,220 +10040,209 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     font-weight: 700 !important;
 }
 
-/* 3D Security Architecture Graphic Showcase (User Reference Design Match) */
-@keyframes kyraPlatformFloat {
-    0% { transform: translateY(0px) scale(1); }
-    100% { transform: translateY(-6px) scale(1.01); }
-}
-
-@keyframes kyraShieldAura {
-    0%, 100% {
-        opacity: 0.55;
-        transform: scale(0.95);
-    }
-    50% {
-        opacity: 0.85;
-        transform: scale(1.12);
-    }
-}
-
-.kyraHero3dShowcaseWrapper {
+/* =========================================================================
+   3D CYBER CONSTELLATION HUB (ALL 5 SEPARATE 3D ICONS INTERACTIVE STAGE)
+   ========================================================================= */
+.kyraCyberStageWrapper {
     width: 100% !important;
+    max-width: 540px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 2px 0 !important;
+    margin: 6px 0 !important;
     position: relative !important;
-    max-width: 530px !important;
     overflow: visible !important;
 }
 
-.kyra3dGraphicFrame {
+/* Outer Stage Canvas */
+.kyra3dStageCanvas {
     position: relative !important;
-    width: 100% !important;
-    max-width: 520px !important;
+    width: 510px !important;
+    height: 330px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    overflow: visible !important;
+    perspective: 1000px !important;
 }
 
-.kyra3dCenterGlowAura {
+/* Ambient Radar Rings behind the constellation */
+.kyra3dStageCanvas::before {
+    content: '' !important;
     position: absolute !important;
-    top: 30% !important;
-    left: 25% !important;
-    width: 260px !important;
-    height: 150px !important;
+    width: 440px !important;
+    height: 250px !important;
     border-radius: 50% !important;
-    background: radial-gradient(circle, rgba(0, 201, 232, 0.35) 0%, rgba(0, 140, 156, 0.12) 55%, transparent 75%) !important;
-    filter: blur(28px) !important;
+    border: 1px dashed rgba(0, 180, 216, 0.28) !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     pointer-events: none !important;
     z-index: 1 !important;
-    animation: kyraShieldAura 4s ease-in-out infinite !important;
+    animation: kyraOrbitRingSpin 40s linear infinite !important;
 }
 
-.kyraHero3dArchitectureImg {
-    width: 100% !important;
-    max-width: 490px !important;
-    height: auto !important;
-    max-height: 290px !important;
-    display: block !important;
-    object-fit: contain !important;
-    filter: drop-shadow(0 12px 24px rgba(0, 140, 156, 0.20)) !important;
-    animation: kyraPlatformFloat 5s ease-in-out infinite alternate !important;
-    position: relative !important;
-    z-index: 2 !important;
-    pointer-events: auto !important;
-    transition: filter 0.25s ease !important;
-}
-
-.kyraHero3dArchitectureImg:hover {
-    filter: drop-shadow(0 16px 32px rgba(0, 140, 156, 0.30)) drop-shadow(0 0 16px rgba(0, 201, 232, 0.35)) !important;
-}
-
-/* 4 Pedestal Labels Overlay Matching Reference Design */
-.kyraPillarLabelBadge {
+.kyra3dStageCanvas::after {
+    content: '' !important;
     position: absolute !important;
-    z-index: 4 !important;
-    background: rgba(255, 255, 255, 0.94) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1.2px solid rgba(0, 140, 156, 0.28) !important;
-    border-radius: 7px !important;
-    padding: 3px 8px !important;
-    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.12), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    cursor: default !important;
-    pointer-events: auto !important;
-    white-space: nowrap !important;
+    width: 320px !important;
+    height: 180px !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(0, 140, 156, 0.16) !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
 }
 
-.kyraPillarLabelBadge:hover {
-    transform: translateY(-2px) scale(1.06) !important;
-    background: #FFFFFF !important;
-    border-color: #008C9C !important;
-    box-shadow: 0 6px 18px rgba(0, 140, 156, 0.28), 0 0 12px rgba(0, 201, 232, 0.35) !important;
+@keyframes kyraOrbitRingSpin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-.kyraPillarLabelText {
-    font-size: 10px !important;
-    font-weight: 800 !important;
-    color: #0F172A !important;
-    letter-spacing: 0.08em !important;
-    line-height: 1.1 !important;
-    text-align: center !important;
-    text-transform: uppercase !important;
-    margin: 0 !important;
-}
-
-/* Pedestal Positions on 520px Frame */
-.kyraPillarIdentity {
-    top: 53% !important;
-    left: 8% !important;
-}
-
-.kyraPillarRole {
-    bottom: 2% !important;
-    left: 9% !important;
-}
-
-.kyraPillarEntitlement {
-    top: 48% !important;
-    right: 6% !important;
-}
-
-.kyraPillarCompliance {
-    bottom: 2% !important;
-    right: 8% !important;
-}
-
-/* 4 Interactive Orbital Architecture Pills Row */
-.kyraArchPillsRow {
-    width: 100% !important;
-    max-width: 510px !important;
+/* Central Core 3D Shield Node */
+.kyraCenterShieldNode {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 10 !important;
     display: flex !important;
-    flex-direction: row !important;
+    flex-direction: column !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    gap: 6px !important;
-    margin: 4px 0 6px 0 !important;
-    box-sizing: border-box !important;
+    justify-content: center !important;
 }
 
-.kyraArchPill {
-    display: inline-flex !important;
-    align-items: center !important;
-    background: rgba(255, 255, 255, 0.88) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(0, 140, 156, 0.22) !important;
-    border-radius: 9999px !important;
-    padding: 4px 9px !important;
-    box-shadow: 0 3px 10px rgba(0, 140, 156, 0.08) !important;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+.kyra3dCenterShieldImg {
+    width: 175px !important;
+    height: 175px !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 14px 28px rgba(0, 140, 156, 0.35)) !important;
+    animation: kyraCenterShieldFloat 4.5s ease-in-out infinite alternate !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease !important;
     cursor: pointer !important;
-    box-sizing: border-box !important;
 }
 
-.kyraArchPill:hover {
-    transform: translateY(-2px) !important;
-    background: #FFFFFF !important;
-    border-color: #008C9C !important;
-    box-shadow: 0 6px 16px rgba(0, 140, 156, 0.2) !important;
+.kyra3dCenterShieldImg:hover {
+    transform: scale(1.08) translateY(-4px) !important;
+    filter: drop-shadow(0 20px 38px rgba(0, 140, 156, 0.5)) drop-shadow(0 0 20px rgba(0, 201, 232, 0.55)) !important;
 }
 
-.kyraArchPillIcon {
-    font-size: 11px !important;
-    margin-right: 5px !important;
+.kyraCenterGlowAura {
+    position: absolute !important;
+    width: 130px !important;
+    height: 50px !important;
+    bottom: -6px !important;
+    background: radial-gradient(ellipse, rgba(0, 201, 232, 0.32) 0%, rgba(0, 140, 156, 0) 70%) !important;
+    border-radius: 50% !important;
+    pointer-events: none !important;
+    z-index: 8 !important;
 }
 
-.kyraPillEmerald { color: #059669 !important; }
-.kyraPillCyan { color: #0284C7 !important; }
-.kyraPillBlue { color: #2563EB !important; }
-.kyraPillPurple { color: #7C3AED !important; }
+@keyframes kyraCenterShieldFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-7px); }
+}
 
-.kyraArchPillText {
+/* Orbit Satellite Nodes */
+.kyraOrbitNode {
+    position: absolute !important;
+    z-index: 12 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    cursor: pointer !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.kyra3dSatelliteImg {
+    width: 105px !important;
+    height: 105px !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 8px 18px rgba(0, 140, 156, 0.22)) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease !important;
+}
+
+.kyraOrbitNode:hover .kyra3dSatelliteImg {
+    transform: scale(1.12) translateY(-4px) !important;
+    filter: drop-shadow(0 14px 26px rgba(0, 140, 156, 0.38)) drop-shadow(0 0 14px rgba(0, 201, 232, 0.45)) !important;
+}
+
+.kyraNodeBadgeLabel {
     font-size: 10.5px !important;
     font-weight: 700 !important;
-    color: #1E293B !important;
-    line-height: 1 !important;
-    margin: 0 !important;
+    color: #0F766E !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1px solid rgba(0, 140, 156, 0.25) !important;
+    border-radius: 9999px !important;
+    padding: 2px 9px !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.08) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    transition: all 0.25s ease !important;
 }
 
-/* Left Live Status Footer */
-.kyraLeftLiveStatusRow {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding-top: 6px !important;
+.kyraOrbitNode:hover .kyraNodeBadgeLabel {
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.3) !important;
+    transform: translateY(-2px) !important;
 }
 
-.kyraLivePulseDot {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    background-color: #10B981 !important;
-    animation: kyraLivePulse 2s infinite !important;
-    flex-shrink: 0 !important;
+/* Positions for the 4 satellites perfectly recreating the isometric layout */
+/* Top-Left: User Identity */
+.kyraNodeTopLeft {
+    top: 8px !important;
+    left: 28px !important;
+    animation: kyraNodeFloatTL 5s ease-in-out infinite alternate !important;
 }
 
-.kyraLiveStatusHighlight {
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    color: #059669 !important;
+/* Bottom-Left: Verified Compliance */
+.kyraNodeBottomLeft {
+    bottom: 8px !important;
+    left: 12px !important;
+    animation: kyraNodeFloatBL 5.5s ease-in-out 0.5s infinite alternate !important;
 }
 
-.kyraLiveStatusSep {
-    font-size: 11px !important;
-    color: #CBD5E1 !important;
+/* Top-Right: Cloud Server */
+.kyraNodeTopRight {
+    top: 8px !important;
+    right: 28px !important;
+    animation: kyraNodeFloatTR 5.2s ease-in-out 1s infinite alternate !important;
 }
 
-.kyraLiveStatusText {
-    font-size: 11px !important;
-    font-weight: 500 !important;
-    color: #64748B !important;
+/* Bottom-Right: Continuous Analytics */
+.kyraNodeBottomRight {
+    bottom: 8px !important;
+    right: 12px !important;
+    animation: kyraNodeFloatBR 5.8s ease-in-out 1.5s infinite alternate !important;
+}
+
+@keyframes kyraNodeFloatTL {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+}
+
+@keyframes kyraNodeFloatBL {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-6px); }
+}
+
+@keyframes kyraNodeFloatTR {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+}
+
+@keyframes kyraNodeFloatBR {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-6px); }
 }
 
 /* =========================================================================
@@ -10312,114 +10258,80 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 24px 40px !important;
+    padding: 0 32px !important;
     box-sizing: border-box !important;
     position: relative !important;
     overflow: hidden !important;
 }
 
-/* Centered Glassmorphism Card */
+/* Centered Glassmorphism Card: Clean Mock Design Matching */
 .kyraLoginCardContainer {
-    background: rgba(255, 255, 255, 0.94) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border-radius: 24px !important;
-    border: 1.5px solid rgba(0, 140, 156, 0.2) !important;
-    box-shadow: 0 25px 65px -12px rgba(0, 140, 156, 0.18), 0 8px 24px rgba(15, 23, 42, 0.04) !important;
-    padding: 34px 36px 28px 36px !important;
-    max-width: 420px !important;
-    width: 420px !important;
+    background: #FFFFFF !important;
+    border-radius: 28px !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 24px 60px -10px rgba(0, 140, 156, 0.12), 0 4px 18px rgba(15, 23, 42, 0.04) !important;
+    padding: 34px 34px 32px 34px !important;
+    max-width: 395px !important;
+    width: 395px !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     position: relative !important;
     z-index: 2 !important;
     overflow: hidden !important;
     animation: kyraCardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-/* Top Card Glowing Line Accent */
-.kyraCardGlowTop {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 4px !important;
-    background: linear-gradient(90deg, #008C9C 0%, #00C9E8 50%, #059669 100%) !important;
-    box-shadow: 0 2px 10px rgba(0, 201, 232, 0.5) !important;
-}
-
-/* Card Header Box */
-.kyraCardHeaderBox {
-    text-align: center !important;
-    margin-bottom: 16px !important;
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-}
-
-/* Glowing Faceted K Logo Badge */
-.kyraLogoGlowBadge {
-    width: 68px !important;
-    height: 68px !important;
-    border-radius: 20px !important;
-    background: radial-gradient(circle, rgba(0, 201, 232, 0.14) 0%, rgba(255, 255, 255, 0.95) 75%) !important;
-    border: 1.5px solid rgba(0, 201, 232, 0.4) !important;
-    box-shadow: 0 0 24px rgba(0, 201, 232, 0.3) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-bottom: 10px !important;
-    animation: kyraPulseGlow 3s ease-in-out infinite !important;
-    transition: transform 0.2s ease !important;
-}
-
-.kyraLogoGlowBadge:hover {
-    transform: scale(1.05) rotate(2deg) !important;
-}
-
-.kyraFacetedKLogoImg {
-    height: 50px !important;
+/* Top Card Header: Clean Direct Logo Only */
+.kyraCardLogoImgDirect {
+    height: 46px !important;
     width: auto !important;
-    max-width: 50px !important;
+    max-width: 46px !important;
     display: block !important;
     object-fit: contain !important;
-    filter: drop-shadow(0 4px 8px rgba(0, 140, 156, 0.35)) !important;
+    margin: 0 auto 6px auto !important;
+    filter: drop-shadow(0 3px 10px rgba(0, 140, 156, 0.28)) !important;
+    transition: transform 0.25s ease, filter 0.25s ease !important;
+    cursor: pointer !important;
+}
+
+.kyraCardLogoImgDirect:hover {
+    transform: scale(1.06) !important;
+    filter: drop-shadow(0 6px 18px rgba(0, 140, 156, 0.42)) !important;
 }
 
 .kyraCardBrandTitle {
-    font-size: 21px !important;
+    font-size: 18px !important;
     font-weight: 800 !important;
     color: #0F172A !important;
     letter-spacing: 0.18em !important;
     line-height: 1.1 !important;
-    margin: 0 0 2px 0 !important;
+    margin: 0 0 3px 0 !important;
 }
 
 .kyraCardBrandSub {
-    font-size: 9.5px !important;
+    font-size: 10px !important;
     font-weight: 700 !important;
     color: #008C9C !important;
-    letter-spacing: 0.18em !important;
+    letter-spacing: 0.2em !important;
     text-transform: uppercase !important;
-    margin: 0 0 10px 0 !important;
+    margin: 0 0 16px 0 !important;
 }
 
 .kyraCardPortalTitle {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    color: #334155 !important;
-    letter-spacing: -0.01em !important;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.02em !important;
     line-height: 1.2 !important;
-    margin: 0 0 2px 0 !important;
+    margin: 0 0 6px 0 !important;
 }
 
 .kyraCardWelcomeText {
-    font-size: 12px !important;
+    font-size: 12.5px !important;
     font-weight: 400 !important;
     color: #64748B !important;
-    line-height: 1.35 !important;
-    margin: 0 !important;
+    line-height: 1.3 !important;
+    margin: 0 0 18px 0 !important;
 }
 
 /* Error Strip */
@@ -10440,26 +10352,26 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 .kyraFormGroup {
     width: 100% !important;
     box-sizing: border-box !important;
-    margin-bottom: 14px !important;
+    margin-bottom: 15px !important;
 }
 
 .kyraLabelRow {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 7px !important;
     margin-bottom: 6px !important;
 }
 
 .kyraLabelIcon {
-    font-size: 13px !important;
+    font-size: 15px !important;
     color: #008C9C !important;
 }
 
 .kyraFormLabel {
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
-    color: #1E293B !important;
+    color: #0F172A !important;
     line-height: 1 !important;
     margin: 0 !important;
 }
@@ -10494,7 +10406,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 
 .kyraModernSelect .sapMSltLabel {
     line-height: 43px !important;
-    font-size: 13.5px !important;
+    font-size: 14px !important;
     font-weight: 600 !important;
     color: #0F172A !important;
     padding-left: 14px !important;
@@ -10509,7 +10421,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     box-shadow: none !important;
     background: transparent !important;
     padding-right: 14px !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
 }
 
 /* Modern Input */
@@ -10556,10 +10468,15 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     box-shadow: 0 0 0 3px rgba(0, 201, 232, 0.22) !important;
 }
 
+.kyraModernInput.sapMInputBaseError .sapMInputBaseContentWrapper {
+    border-color: #EF4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18) !important;
+}
+
 .kyraModernInput .sapMInputBaseInner {
-    height: 44px !important;
-    min-height: 44px !important;
-    line-height: 44px !important;
+    height: 43px !important;
+    min-height: 43px !important;
+    line-height: 43px !important;
     border: none !important;
     font-size: 13.5px !important;
     font-weight: 500 !important;
@@ -10577,7 +10494,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     opacity: 1 !important;
 }
 
-/* Full Width Solid Vibrant Teal Sign In Button with Sweep Effect */
+/* Full Width Solid Vibrant Teal Sign In Button with Arrow */
 .kyraPrimarySignInBtn,
 .kyraPrimarySignInBtn.sapMBtn {
     width: 100% !important;
@@ -10599,11 +10516,11 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     min-height: 48px !important;
     max-height: 48px !important;
     line-height: 46px !important;
-    background: linear-gradient(135deg, #008C9C 0%, #007A88 50%, #00606B 100%) !important;
-    background-color: #008C9C !important;
-    border: 1.5px solid rgba(0, 201, 232, 0.3) !important;
+    background: linear-gradient(180deg, #008799 0%, #00707E 100%) !important;
+    background-color: #007A8A !important;
+    border: none !important;
     border-radius: 12px !important;
-    box-shadow: 0 6px 20px rgba(0, 140, 156, 0.32) !important;
+    box-shadow: 0 8px 20px rgba(0, 112, 126, 0.32) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -10616,15 +10533,14 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 }
 
 .kyraPrimarySignInBtn:hover .sapMBtnInner {
-    background: linear-gradient(135deg, #009FB2 0%, #008C9C 50%, #006E7B 100%) !important;
-    box-shadow: 0 10px 26px rgba(0, 140, 156, 0.44), 0 0 16px rgba(0, 201, 232, 0.3) !important;
-    transform: translateY(-2px) !important;
-    border-color: rgba(0, 201, 232, 0.6) !important;
+    background: linear-gradient(180deg, #0093A6 0%, #007C8C 100%) !important;
+    box-shadow: 0 10px 26px rgba(0, 112, 126, 0.44) !important;
+    transform: translateY(-1px) !important;
 }
 
 .kyraPrimarySignInBtn:active .sapMBtnInner {
     transform: translateY(0) !important;
-    box-shadow: 0 3px 10px rgba(0, 140, 156, 0.28) !important;
+    box-shadow: 0 3px 10px rgba(0, 112, 126, 0.28) !important;
 }
 
 .kyraPrimarySignInBtn .sapMBtnContent {
@@ -10639,7 +10555,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     font-size: 15px !important;
     font-weight: 700 !important;
     color: #FFFFFF !important;
-    letter-spacing: 0.03em !important;
+    letter-spacing: 0.02em !important;
     margin: 0 !important;
 }
 
@@ -10651,27 +10567,6 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 
 .kyraPrimarySignInBtn:hover .sapMBtnIcon {
     transform: translateX(3px) !important;
-}
-
-/* Card Security Trust Footnote */
-.kyraCardSecurityFootnote {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin-top: 16px !important;
-}
-
-.kyraFootnoteLock {
-    font-size: 12px !important;
-    color: #059669 !important;
-}
-
-.kyraFootnoteText {
-    font-size: 11px !important;
-    font-weight: 500 !important;
-    color: #64748B !important;
-    line-height: 1 !important;
-    margin: 0 !important;
 }
 
 /* Select Picker List Popover */
@@ -11422,6 +11317,71 @@ html body .sapMTokenSelected .sapMTokenIcon {
         max-width: 480px !important;
         padding: 32px 24px !important;
         margin-top: 0 !important;
+    }
+}
+
+@media (max-height: 820px) {
+    .kyraLoginLeftPanel {
+        gap: 8px !important;
+        padding: 0 36px 0 44px !important;
+    }
+    .kyraHero3dArchitectureImg {
+        max-height: 220px !important;
+    }
+    .kyraHeroTitleDark,
+    .kyraHeroTitleTeal {
+        font-size: 27px !important;
+    }
+    .kyraHeroSubtitleText {
+        font-size: 11.5px !important;
+        line-height: 1.35 !important;
+    }
+    .kyraLoginCardContainer {
+        padding: 16px 26px 14px 26px !important;
+        max-width: 360px !important;
+        width: 360px !important;
+    }
+    .kyraCardLogoImgDirect {
+        height: 38px !important;
+        max-width: 38px !important;
+        margin-bottom: 6px !important;
+    }
+    .kyraCardBrandTitle {
+        font-size: 17px !important;
+    }
+    .kyraCardHeaderBox {
+        margin-bottom: 6px !important;
+    }
+    .kyraFormGroup {
+        margin-bottom: 8px !important;
+    }
+    .kyraModernSelect,
+    .kyraModernSelect.sapMSlt,
+    .kyraModernInput,
+    .kyraModernInput.sapMInput,
+    .kyraModernInput.sapMInputBase {
+        height: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+    }
+    .kyraModernSelect .sapMSltLabel,
+    .kyraModernSelect .sapMSltArrow,
+    .kyraModernInput .sapMInputBaseInner {
+        line-height: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+    }
+    .kyraPrimarySignInBtn,
+    .kyraPrimarySignInBtn.sapMBtn {
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+    }
+    .kyraPrimarySignInBtn .sapMBtnInner {
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+        line-height: 40px !important;
     }
 }
 
