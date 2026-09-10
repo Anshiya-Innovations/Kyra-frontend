@@ -1,4 +1,4 @@
-/* KYRA Enterprise 2026 - Master SAP Fiori Horizon LIGHT THEME Design System */
+﻿/* KYRA Enterprise 2026 - Master SAP Fiori Horizon LIGHT THEME Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -1399,7 +1399,7 @@ html body .sapUiTheme-sap_horizon .fioriCellActionBtn:hover .sapMBtnIcon {
     font-weight: 600 !important;
 }
 
-/* PROMINENT LARGE ENTERPRISE ACTION CONTROLS: ✓ APPROVE & ✕ REJECT */
+/* PROMINENT LARGE ENTERPRISE ACTION CONTROLS: âœ“ APPROVE & âœ• REJECT */
 .fioriRowActionBtnBox {
     display: flex !important;
     align-items: center !important;
@@ -7431,7 +7431,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     width: 100% !important;
 }
 
-/* Green Icon-Only ✓ Approve Button */
+/* Green Icon-Only âœ“ Approve Button */
 .kyraDecisionIconBtnApprove {
     background: transparent !important;
     border: none !important;
@@ -7472,7 +7472,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     font-size: 14px !important;
 }
 
-/* Red Icon-Only ✕ Reject Button */
+/* Red Icon-Only âœ• Reject Button */
 .kyraDecisionIconBtnReject {
     background: transparent !important;
     border: none !important;
@@ -14417,7 +14417,7 @@ th[aria-sort].sapMListTblHeaderCell[style*="text-align: center"],
 .kyraSummaryTable .sapMListTblCell {
     padding: 10px 14px !important;
     vertical-align: middle !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     font-size: 13px !important;
     color: #1E293B !important;
@@ -15312,7 +15312,7 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
     visibility: hidden !important;
 }
 
-/* SELECTED CHECKBOX: GREEN BACKGROUND WITH A CLEAR WHITE ✓ TICK SYMBOL CENTERED INSIDE */
+/* SELECTED CHECKBOX: GREEN BACKGROUND WITH A CLEAR WHITE âœ“ TICK SYMBOL CENTERED INSIDE */
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
 .sapMMultiComboBoxPopup .sapMLIB[aria-selected="true"] .sapMCbBg,
 .sapMMultiComboBoxItems .sapMLIBSelected .sapMCbBg,
@@ -15943,7 +15943,7 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     height: 52px !important;
     min-height: 52px !important;
     background-color: #FFFFFF !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     transition: background-color 0.15s ease !important;
 }
@@ -15965,7 +15965,7 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     height: 52px !important;
     padding: 10px 16px !important;
     vertical-align: middle !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     font-size: 13.5px !important;
     color: #334155 !important;
@@ -17387,7 +17387,7 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
     height: auto !important;
     max-height: none !important;
     background-color: #FFFFFF !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     transition: background-color 0.15s ease !important;
 }
@@ -20831,7 +20831,7 @@ li.sapMLIB.sapMLIBSelected:hover .sapMSLITitle {
    DROPDOWN POPOVERS: EXACTLY ONE SLEEK SIDE SCROLLBAR ACROSS ALL DROPDOWNS
    ========================================================================= */
 
-/* Strictly hide all scrollbar buttons globally so ▲ - ▼ - ◀ - ▶ never appears anywhere */
+/* Strictly hide all scrollbar buttons globally so â–² - â–¼ - â—€ - â–¶ never appears anywhere */
 ::-webkit-scrollbar-button,
 *::-webkit-scrollbar-button,
 ::-webkit-scrollbar-button:single-button,
@@ -21396,7 +21396,7 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
     height: 52px !important;
     min-height: 52px !important;
     background-color: #FFFFFF !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     transition: background-color 0.15s ease !important;
 }
@@ -21418,7 +21418,7 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
     height: 52px !important;
     padding: 12px 14px !important;
     vertical-align: middle !important;
-    border-bottom: 1px solid #F1F5F9 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     font-size: 13px !important;
     color: #334155 !important;
@@ -22932,7 +22932,7 @@ html body .sapMBtn.kyraBatchDialogConfirmRejectBtn:hover {
     box-sizing: border-box !important;
 }
 
-/* Bottom bar inner HBox — flex row, no wrap, full height */
+/* Bottom bar inner HBox â€” flex row, no wrap, full height */
 .kyraGovCard.kyraGovBottomCard > div,
 .kyraGovCard.kyraGovBottomCard .sapMHBox {
     display: flex !important;
@@ -23034,7 +23034,7 @@ html body .sapMBtn.kyraDarkBackBtn:active .sapMBtnInner {
 }
 
 /* =========================================================
-   TEAL BACK BUTTON (.kyraBackTealBtn) — matches project Back button image
+   TEAL BACK BUTTON (.kyraBackTealBtn) â€” matches project Back button image
    Background: #008C9C teal | White bold text | Rounded corners
    ========================================================= */
 .kyraBackTealBtn,
@@ -23204,9 +23204,10 @@ html body .sapMBtn.kyraPrimaryBtn .sapMBtnText {
 .kyraHistoryTable th,
 .sapMListTblTh,
 .sapMListTblHeaderCell {
-    padding-left: 6px !important;
-    padding-right: 6px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
     white-space: nowrap !important;
+    overflow: visible !important;
 }
 
 .kyraPendingRequestsTable th .sapMText,
@@ -23234,6 +23235,9 @@ th .sapMText,
     -webkit-hyphens: none !important;
     line-height: 1.2 !important;
     display: inline-block !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
 }
 
 /* =========================================================================
@@ -23509,7 +23513,7 @@ th .sapMText,
     border: none !important;
 }
 
-/* 3. REMOVE ALL INTERNAL VERTICAL AND HORIZONTAL DIVIDER LINES */
+/* 3. REMOVE VERTICAL BORDERS ONLY - keep bottom for row dividers */
 .kyraActiveEntitlementsTable th,
 .kyraActiveEntitlementsTable td,
 .kyraActiveEntitlementsTable .sapMListTblHeader,
@@ -23519,9 +23523,7 @@ th .sapMText,
 .kyraActiveEntitlementsTable .kyraTableRow,
 .kyraActiveEntitlementsTable tr,
 .kyraActiveEntitlementsTable tbody tr {
-    border: none !important;
     border-top: none !important;
-    border-bottom: none !important;
     border-left: none !important;
     border-right: none !important;
     box-shadow: none !important;
@@ -23544,7 +23546,10 @@ th .sapMText,
     min-height: 48px !important;
     padding: 0 16px !important;
     vertical-align: middle !important;
-    border: none !important;
+    border-bottom: 1.5px solid #CBD5E1 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
     box-sizing: border-box !important;
 }
 
@@ -23615,8 +23620,9 @@ th .sapMText,
     height: 56px !important;
     min-height: 56px !important;
     background-color: #FFFFFF !important;
-    border: none !important;
-    border-bottom: none !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
     box-sizing: border-box !important;
     vertical-align: middle !important;
     transition: background-color 0.15s ease !important;
@@ -23635,15 +23641,17 @@ th .sapMText,
     border-bottom: none !important;
 }
 
-/* 7. Body Cells: 56px equal height, 16px padding, vertically centered, no borders */
+/* 7. Body Cells: 56px equal height, 16px padding, vertically centered, row-divider line */
 .kyraActiveEntitlementsTable td,
 .kyraActiveEntitlementsTable .sapMListTblCell {
     height: 56px !important;
     min-height: 56px !important;
     padding: 0 16px !important;
     vertical-align: middle !important;
-    border: none !important;
-    border-bottom: none !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
     box-sizing: border-box !important;
 }
 
@@ -23822,3 +23830,208 @@ th .sapMText,
 
 
 
+
+/* =========================================================================
+   ACTIVE ENTITLEMENTS TABLE: VISIBLE ROW DIVIDER LINES (REFERENCE STYLE)
+   ========================================================================= */
+/* Outer table border */
+.kyraActiveEntitlementsTable,
+.kyraActiveEntitlementsTable.sapMListTbl,
+.kyraActiveEntitlementsTable.sapMTable {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+/* Clear 1px row divider lines between every body row */
+.kyraActiveEntitlementsTable td,
+.kyraActiveEntitlementsTable .sapMListTblCell {
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Stronger separator under the header row */
+.kyraActiveEntitlementsTable th,
+.kyraActiveEntitlementsTable .sapMListTblHeaderCell {
+    border-bottom: 1.5px solid #CBD5E1 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* No bottom line on last row */
+.kyraActiveEntitlementsTable .sapMListTblRow:last-child td,
+.kyraActiveEntitlementsTable tbody tr:last-child td,
+.kyraActiveEntitlementsTable .sapMListTblRow:last-child .sapMListTblCell {
+    border-bottom: none !important;
+}
+/* =========================================================================
+   HISTORY & PENDING TABLES: SAME REFERENCE DESIGN AS ACTIVE ENTITLEMENTS
+   - kyraHistoryTable (All History / My Requests)
+   - kyraPendingRequestsTable (Pending Access Requests in-page)
+   ========================================================================= */
+
+/* Outer table border + rounded corners */
+.kyraHistoryTable,
+.kyraHistoryTable.sapMListTbl,
+.kyraHistoryTable.sapMTable,
+.kyraPendingRequestsTable,
+.kyraPendingRequestsTable.sapMListTbl,
+.kyraPendingRequestsTable.sapMTable {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Clear 1px row divider between body rows */
+.kyraHistoryTable td,
+.kyraHistoryTable .sapMListTblCell,
+.kyraPendingRequestsTable td,
+.kyraPendingRequestsTable .sapMListTblCell {
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Slightly stronger separator under header */
+.kyraHistoryTable th,
+.kyraHistoryTable .sapMListTblHeaderCell,
+.kyraPendingRequestsTable th,
+.kyraPendingRequestsTable .sapMListTblHeaderCell {
+    border-bottom: 1.5px solid #CBD5E1 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+}
+
+/* No bottom border on last row */
+.kyraHistoryTable .sapMListTblRow:last-child td,
+.kyraHistoryTable tbody tr:last-child td,
+.kyraHistoryTable .sapMListTblRow:last-child .sapMListTblCell,
+.kyraPendingRequestsTable .sapMListTblRow:last-child td,
+.kyraPendingRequestsTable tbody tr:last-child td,
+.kyraPendingRequestsTable .sapMListTblRow:last-child .sapMListTblCell {
+    border-bottom: none !important;
+}
+
+/* Row height, background, hover consistent with reference */
+.kyraHistoryTable .sapMListTblRow,
+.kyraHistoryTable .kyraTableRow,
+.kyraHistoryTable .kyraPendingTableRow,
+.kyraPendingRequestsTable .sapMListTblRow,
+.kyraPendingRequestsTable .kyraTableRow,
+.kyraPendingRequestsTable .kyraPendingTableRow {
+    height: 52px !important;
+    min-height: 52px !important;
+    background-color: #FFFFFF !important;
+    box-sizing: border-box !important;
+}
+
+.kyraHistoryTable .sapMListTblRow:hover,
+.kyraPendingRequestsTable .sapMListTblRow:hover {
+    background-color: #F8FAFC !important;
+}
+
+/* Cell padding consistent - 16px left/right, vertically centered */
+.kyraHistoryTable .sapMListTblCell,
+.kyraHistoryTable td,
+.kyraPendingRequestsTable .sapMListTblCell,
+.kyraPendingRequestsTable td {
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+    height: 52px !important;
+    box-sizing: border-box !important;
+}
+
+/* Header cells: consistent height and padding */
+.kyraHistoryTable .sapMListTblHeaderCell,
+.kyraHistoryTable th,
+.kyraPendingRequestsTable .sapMListTblHeaderCell,
+.kyraPendingRequestsTable th {
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+}
+/* =========================================================================
+   APPROVER TABLE: SAME REFERENCE DESIGN (BORDER + ROW DIVIDERS)
+   - kyraApproverTable (Approver Access / Revoke / History tabs)
+   ========================================================================= */
+
+/* Outer border - override the existing rule that may already set this */
+.kyraApproverTable,
+.kyraApproverTable.sapMListTbl,
+.kyraApproverTable.sapMTable {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* Clear visible row divider lines between body rows */
+.kyraApproverTable td,
+.kyraApproverTable .sapMListTblCell {
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Stronger separator line under the header */
+.kyraApproverTable th,
+.kyraApproverTable .sapMListTblHeaderCell {
+    border-bottom: 1.5px solid #CBD5E1 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+}
+
+/* No bottom border on last row */
+.kyraApproverTable .sapMListTblRow:last-child td,
+.kyraApproverTable tbody tr:last-child td,
+.kyraApproverTable .sapMListTblRow:last-child .sapMListTblCell {
+    border-bottom: none !important;
+}
+
+/* Row height and background */
+.kyraApproverTable .sapMListTblRow,
+.kyraApproverTable .kyraTableRow,
+.kyraApproverTable .kyraApproverRowItem {
+    height: 52px !important;
+    min-height: 52px !important;
+    background-color: #FFFFFF !important;
+    box-sizing: border-box !important;
+}
+
+.kyraApproverTable .sapMListTblRow:hover,
+.kyraApproverTable .kyraTableRow:hover {
+    background-color: #F8FAFC !important;
+}
+
+/* Cell padding - consistent with reference (16px L/R, vertically centered) */
+.kyraApproverTable .sapMListTblCell,
+.kyraApproverTable td {
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+    height: 52px !important;
+    box-sizing: border-box !important;
+}
+
+/* Header cell height and padding */
+.kyraApproverTable .sapMListTblHeaderCell,
+.kyraApproverTable th {
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+}

@@ -265,14 +265,14 @@
                         class="sapUiNoMargin kyraHistoryTable">
                         <columns>
                             <Column width="11%" hAlign="Center"><Text text="REQUEST ID" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="7%" hAlign="Center"><Text text="TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="13.5%" hAlign="Begin"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="13.5%" hAlign="Begin"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="9.5%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="9.5%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="10%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="12%" hAlign="Begin"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="12%" hAlign="Begin"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="12%" hAlign="Begin"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="11%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="11%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow kyraPendingTableRow">
@@ -461,14 +461,14 @@
                         class="sapUiNoMargin kyraHistoryTable kyraPendingRequestsTable">
                         <columns>
                             <Column width="11%" hAlign="Center"><Text text="REQUEST ID" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="7%" hAlign="Center"><Text text="TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="13.5%" hAlign="Begin"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="13%" hAlign="Begin"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="13.5%" hAlign="Begin"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
-                            <Column width="9.5%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="9.5%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="10%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="13%" hAlign="Begin"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="12%" hAlign="Begin"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="12%" hAlign="Begin"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="12%" hAlign="Begin"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadLeft" /></Column>
+                            <Column width="11%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="11%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="9%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow kyraPendingTableRow">
