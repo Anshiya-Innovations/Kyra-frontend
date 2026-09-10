@@ -55,7 +55,7 @@ sap.ui.define([
                 iconServerUrl: sServerIconUrl,
                 iconAnalyticsUrl: sAnalyticsIconUrl,
                 architectureSvgHtml: "",
-                selectedRole: "Requester",
+                selectedRole: "",
                 userId: "",
                 isBusy: false,
                 hasError: false,
@@ -83,6 +83,13 @@ sap.ui.define([
 
         onAfterRendering() {
             this._attachSvgInteractions();
+            this._updateSelectStyle(this.getView().getModel("login").getProperty("/selectedRole"));
+            // Prevent aggressive initial focus ring so the card opens in pristine resting state
+            setTimeout(() => {
+                if (document.activeElement && (document.activeElement.classList.contains("sapMSlt") || document.activeElement.classList.contains("sapMInputBaseInner") || document.activeElement.tagName === "BODY")) {
+                    document.activeElement.blur();
+                }
+            }, 60);
         },
 
         _attachSvgInteractions() {
@@ -149,7 +156,7 @@ sap.ui.define([
 
             const oModel = this.getView().getModel("login");
             if (oModel) {
-                oModel.setProperty("/selectedRole", "Requester");
+                oModel.setProperty("/selectedRole", "");
                 oModel.setProperty("/userId", "");
                 oModel.setProperty("/hasError", false);
                 oModel.setProperty("/errorMessage", "");
@@ -158,6 +165,8 @@ sap.ui.define([
                 oModel.setProperty("/idState", "None");
                 oModel.setProperty("/idStateText", "");
             }
+
+            this._updateSelectStyle("");
 
             if (this.byId("idInput")) {
                 this.byId("idInput").setValue("");
@@ -177,7 +186,8 @@ sap.ui.define([
         },
 
         onRoleChange(oEvent) {
-            const sSelectedRole = oEvent.getParameter("selectedItem").getKey();
+            const oSelectedItem = oEvent.getParameter("selectedItem");
+            const sSelectedRole = oSelectedItem ? oSelectedItem.getKey() : "";
             const oModel = this.getView().getModel("login");
 
             let sLabel = "Requester ID";
@@ -192,21 +202,54 @@ sap.ui.define([
             } else if (sSelectedRole === "Administrator") {
                 sLabel = "Administrator ID";
                 sPlaceholder = "Enter your Administrator ID";
+            } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
+                sLabel = "Requester ID";
+                sPlaceholder = "Enter your Requester ID";
             }
 
             oModel.setProperty("/selectedRole", sSelectedRole);
             oModel.setProperty("/idLabel", sLabel);
             oModel.setProperty("/idPlaceholder", sPlaceholder);
 
+            this._updateSelectStyle(sSelectedRole);
             this._resetErrorStates();
+        },
+
+        _updateSelectStyle(sRole) {
+            const oSelect = this.byId("roleSelect");
+            if (oSelect) {
+                if (!sRole || sRole === "" || sRole === "Select persona") {
+                    oSelect.addStyleClass("kyraSelectPlaceholderState");
+                    oSelect.setSelectedKey("");
+                } else {
+                    oSelect.removeStyleClass("kyraSelectPlaceholderState");
+                }
+            }
         },
 
         _resetErrorStates() {
             const oModel = this.getView().getModel("login");
-            oModel.setProperty("/idState", "None");
-            oModel.setProperty("/idStateText", "");
-            oModel.setProperty("/hasError", false);
-            oModel.setProperty("/errorMessage", "");
+            if (oModel) {
+                oModel.setProperty("/idState", "None");
+                oModel.setProperty("/idStateText", "");
+                oModel.setProperty("/hasError", false);
+                oModel.setProperty("/errorMessage", "");
+            }
+        },
+
+        _triggerErrorShake() {
+            const oCard = this.byId("kyraLoginCardContainer");
+            if (oCard) {
+                const oDom = oCard.getDomRef();
+                if (oDom) {
+                    oDom.classList.remove("kyraCardShake");
+                    void oDom.offsetWidth; // Force reflow
+                    oDom.classList.add("kyraCardShake");
+                    setTimeout(() => {
+                        oDom.classList.remove("kyraCardShake");
+                    }, 500);
+                }
+            }
         },
 
         onInputChange() {
@@ -239,7 +282,10 @@ sap.ui.define([
             const oModel = oView.getModel("login");
             const oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            const sEffectiveTitle = oModel.getProperty("/selectedRole") || "Requester";
+            let sEffectiveTitle = oModel.getProperty("/selectedRole");
+            if (!sEffectiveTitle || sEffectiveTitle === "Select Persona" || sEffectiveTitle === "Select persona" || sEffectiveTitle === "Review") {
+                sEffectiveTitle = "Requester";
+            }
             const sUserId = (oView.byId("idInput").getValue() || "").trim();
             oModel.setProperty("/userId", sUserId);
             const bRemember = oModel.getProperty("/rememberMe");
@@ -249,9 +295,12 @@ sap.ui.define([
             // 1. Check ID Field presence
             if (!sUserId) {
                 const sIdLabel = oModel.getProperty("/idLabel") || "Requester ID";
-                const sErr = `${sIdLabel} is required.`;
+                const sErr = `${sIdLabel} is required. Please enter your credentials.`;
+                oModel.setProperty("/hasError", true);
+                oModel.setProperty("/errorMessage", sErr);
                 oModel.setProperty("/idState", "Error");
-                oModel.setProperty("/idStateText", sErr);
+                oModel.setProperty("/idStateText", "");
+                this._triggerErrorShake();
                 return;
             }
 
@@ -340,13 +389,14 @@ sap.ui.define([
                 } else if (oError && oError.message) {
                     sMessage = oError.message;
                 } else {
-                    sMessage = "Invalid user ID or login failed.";
+                    sMessage = "Invalid User ID. User not registered in database.";
                 }
 
                 oModel.setProperty("/hasError", true);
                 oModel.setProperty("/errorMessage", sMessage);
                 oModel.setProperty("/idState", "Error");
-                oModel.setProperty("/idStateText", sMessage);
+                oModel.setProperty("/idStateText", "");
+                this._triggerErrorShake();
             };
 
             // Strict Database Authentication against connected backend

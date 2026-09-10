@@ -19,21 +19,30 @@
             <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="Wrap" height="100%" width="100%">
                 
                 <!-- ================= LEFT SECTION (58% COLUMN - ZERO-TRUST CYBERSECURITY HUB) ================= -->
-                <VBox class="kyraLoginLeftPanel" justifyContent="Center" alignItems="Stretch">
+                <VBox class="kyraLoginLeftPanel" justifyContent="Start" alignItems="Stretch">
                     
-                    <!-- Top Brand Logo Only (Clean & Proper) -->
+                    <!-- Top Brand Logo (Clean & Proper) -->
                     <HBox alignItems="Center" class="kyraHeroBrandLogoContainer">
-                        <Image src="{login>/logoUrl}" height="48px" densityAware="false" class="kyraHeroBrandLogoOnly" />
+                        <Image src="{login>/logoUrl}" height="44px" densityAware="false" class="kyraHeroBrandLogoOnly" tooltip="KYRA Secure Access" />
                     </HBox>
 
                     <!-- Hero Typography & Core Value Proposition -->
                     <VBox class="kyraHeroMainContentBox">
-                        <Text text="Secure Access." class="kyraHeroTitleDark" />
-                        <Text text="Total Control." class="kyraHeroTitleTeal" />
+                        <!-- Headline in One Single Line -->
+                        <HBox alignItems="Baseline" class="kyraHeroHeadlineRow">
+                            <Text text="Secure Access." class="kyraHeroTitleDark" />
+                            <Text text="Total Control." class="kyraHeroTitleTeal" />
+                        </HBox>
                         <HBox class="kyraHeroTealDashBar" />
-                        <FormattedText 
-                            htmlText="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your &lt;strong class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/strong&gt;" 
-                            class="kyraHeroSubtitleText" />
+                        <!-- Subtitle in Exactly Two Lines with 'provisioning, and' on first line -->
+                        <VBox class="kyraHeroSubtitleContainer">
+                            <Text 
+                                text="Centralized enterprise identity governance, dynamic role entitlement provisioning, and" 
+                                class="kyraHeroSubtitleLine kyraHeroSubtitleLine1" />
+                            <FormattedText 
+                                htmlText="continuous automated compliance across your &lt;strong class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/strong&gt;" 
+                                class="kyraHeroSubtitleLine kyraHeroSubtitleLine2" />
+                        </VBox>
                     </VBox>
 
                     <!-- 3D Cyber Constellation Hub (All 5 Separate Icons Interactive Stage) -->
@@ -100,7 +109,7 @@
 
                 <!-- ================= RIGHT SECTION (42% COLUMN - MODERN GLASSMORPHIC LOGIN CARD) ================= -->
                 <VBox class="kyraLoginRightPanel" justifyContent="Center" alignItems="Center">
-                    <VBox class="kyraLoginCardContainer">
+                    <VBox id="kyraLoginCardContainer" class="kyraLoginCardContainer">
                         
                         <!-- Top Card Header: Clean Logo Only + Wordmark -->
                         <VBox alignItems="Center" class="kyraCardHeaderBox">
@@ -114,32 +123,48 @@
                             <Text text="Welcome back! Please sign in to continue." class="kyraCardWelcomeText" />
                         </VBox>
 
-                        <!-- Error Notification MessageStrip -->
-                        <MessageStrip
+                        <!-- Enterprise Sleek Inline Error Banner (Dismissable, Never Obscures Sign In Button) -->
+                        <HBox
+                            id="kyraLoginErrorBanner"
                             visible="{login>/hasError}"
-                            text="{login>/errorMessage}"
-                            type="Error"
-                            showIcon="true"
-                            showCloseButton="true"
-                            close=".onDismissError"
-                            class="sapUiTinyMarginBottom kyraLoginErrorStrip" />
+                            alignItems="Center"
+                            justifyContent="SpaceBetween"
+                            class="kyraCustomErrorBanner sapUiTinyMarginBottom">
+                            <HBox alignItems="Center" class="kyraErrorLeftGroup">
+                                <HBox class="kyraErrorIconBadge" alignItems="Center" justifyContent="Center">
+                                    <core:Icon src="sap-icon://alert" class="kyraErrorBadgeIcon" />
+                                </HBox>
+                                <VBox class="kyraErrorTextGroup sapUiTinyMarginBegin">
+                                    <Text text="Authentication Failed" class="kyraErrorTitle" />
+                                    <Text text="{login>/errorMessage}" class="kyraErrorMessage" />
+                                </VBox>
+                            </HBox>
+                            <Button
+                                icon="sap-icon://decline"
+                                type="Transparent"
+                                press=".onDismissError"
+                                class="kyraErrorCloseBtn"
+                                tooltip="Dismiss error" />
+                        </HBox>
 
                         <!-- Form Controls Container -->
                         <VBox width="100%" class="kyraLoginFormBody">
                             
-                            <!-- Login As Dropdown -->
+                            <!-- Persona Dropdown -->
                             <VBox class="kyraFormGroup" width="100%">
                                 <HBox alignItems="Center" class="kyraLabelRow">
-                                    <core:Icon src="sap-icon://customer" class="kyraLabelIcon" />
-                                    <Label text="Login As" labelFor="roleSelect" class="kyraFormLabel" />
+                                    <core:Icon src="sap-icon://role" class="kyraLabelIcon" />
+                                    <Label text="Persona" labelFor="roleSelect" class="kyraFormLabel" />
                                 </HBox>
                                 <Select
                                     id="roleSelect"
                                     selectedKey="{login>/selectedRole}"
                                     change=".onRoleChange"
+                                    forceSelection="true"
                                     width="100%"
-                                    class="kyraModernSelect">
+                                    class="kyraModernSelect kyraSelectPlaceholderState">
                                     <items>
+                                        <core:Item key="" text="Select persona" />
                                         <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
                                         <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
                                         <core:Item key="Compliance Review" text="Compliance Review" icon="sap-icon://user-settings" />
@@ -150,7 +175,7 @@
                             <!-- Dynamic ID Input Field -->
                             <VBox class="kyraFormGroup" width="100%">
                                 <HBox alignItems="Center" class="kyraLabelRow">
-                                    <core:Icon src="sap-icon://customer" class="kyraLabelIcon" />
+                                    <core:Icon src="sap-icon://employee" class="kyraLabelIcon" />
                                     <Label text="{login>/idLabel}" labelFor="idInput" class="kyraFormLabel" />
                                 </HBox>
                                 <Input
@@ -158,7 +183,7 @@
                                     value="{login>/userId}"
                                     placeholder="{login>/idPlaceholder}"
                                     valueState="{login>/idState}"
-                                    valueStateText="{login>/idStateText}"
+                                    showValueStateMessage="false"
                                     liveChange=".onInputChange"
                                     change=".onInputChange"
                                     submit=".onLogin"

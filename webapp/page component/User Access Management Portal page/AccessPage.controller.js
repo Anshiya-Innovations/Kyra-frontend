@@ -3403,9 +3403,17 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showRemoveAccessSector", false);
-                oModel.setProperty("/showMyAccessMasterSection", true);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/selectedTabKey", "myAccess");
+                oModel.setProperty("/showHistorySection", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showHelpPage", false);
             }
             MessageToast.show("Remove Access section closed.");
+            this._scrollToTop();
         },
 
         onInPageFunctionChange(oEvent) {
@@ -3431,13 +3439,24 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     oModel.setProperty("/showAddAccessSector", false);
-                    oModel.setProperty("/showMyAccessMasterSection", true);
+                    oModel.setProperty("/showMyAccessMasterSection", false);
+                    oModel.setProperty("/selectedTabKey", "myAccess");
+                    oModel.setProperty("/showHistorySection", false);
+                    oModel.setProperty("/showPendingSection", false);
+                    oModel.setProperty("/showApprovedSection", false);
+                    oModel.setProperty("/showRemoveAccessSector", false);
+                    oModel.setProperty("/showRequestDetailsPage", false);
+                    oModel.setProperty("/showAllNotificationsPage", false);
+                    oModel.setProperty("/showHelpPage", false);
+                    oModel.setProperty("/showTroubleshootPage", false);
+                    oModel.setProperty("/showContactITPage", false);
                     oModel.setProperty("/addAccessStep", 1);
                     oModel.setProperty("/addAccessConfigSubStep", 1);
                     oModel.setProperty("/isEditingFromSummary", false);
                 }
                 this._resetAddAccessState();
                 MessageToast.show("Access request closed.");
+                this._scrollToTop();
             });
         },
 
@@ -5749,6 +5768,7 @@ sap.ui.define([
             this._updateSelectAllButtonState();
 
             oModel.setProperty("/showAddAccessSector", false);
+            oModel.setProperty("/showMyAccessMasterSection", false);
             oModel.setProperty("/selectedSector", "");
             oModel.setProperty("/selectedFunction", "");
             oModel.setProperty("/availableFunctions", []);
