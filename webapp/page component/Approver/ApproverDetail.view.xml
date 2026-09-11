@@ -357,14 +357,14 @@
                             <VBox class="kyraGovTableWrapper">
                                 <!-- 8-Column Header Row with Vertical Dividers -->
                                 <HBox class="kyraGovTableHeadRow" width="100%" renderType="Bare">
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol1" alignItems="Center"><Text text="REQUEST ID" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol2" alignItems="Center"><Text text="SERVICES" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol3" alignItems="Center"><Text text="TEAM" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol4" alignItems="Center"><Text text="PERSONA" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol5" alignItems="Center"><Text text="GRANTED DATE" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol6" alignItems="Center" justifyContent="Center"><Text text="STATUS" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol7" alignItems="Center"><Text text="REMARKS" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol8 kyraGovHeadColLast" alignItems="Center" justifyContent="Center"><Text text="DECISION" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol1" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="REQUEST ID" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol2" alignItems="Center" renderType="Bare"><Text text="SERVICES" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol3" alignItems="Center" renderType="Bare"><Text text="TEAM" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol4" alignItems="Center" renderType="Bare"><Text text="PERSONA" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol5" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="GRANTED DATE" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol6" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="STATUS" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol7" alignItems="Center" renderType="Bare"><Text text="REMARKS" class="kyraGovColHeadText" /></HBox>
+                                    <HBox class="kyraGovHeadCol kyraGovHeadCol8 kyraGovHeadColLast" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="DECISION" class="kyraGovColHeadText" /></HBox>
                                 </HBox>
 
                                 <!-- Items List Container -->
@@ -373,29 +373,29 @@
                                         <VBox class="kyraGovDataRowWrapper">
                                             <!-- Main Request Data Row (8 Columns with Matching Grid & Dividers) -->
                                             <HBox class="kyraGovDataRow" width="100%" renderType="Bare">
-                                                <HBox class="kyraGovCell kyraGovCell1" alignItems="Center">
+                                                <HBox class="kyraGovCell kyraGovCell1" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <Text text="{accessModel>requestId}" class="kyraGovReqIdText" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell2" alignItems="Center">
+                                                <HBox class="kyraGovCell kyraGovCell2" alignItems="Center" renderType="Bare">
                                                     <Text text="{= ${accessModel>services} || ${accessModel>serviceTopic} || ${accessModel>service} || 'System Administrator' }" class="kyraGovTeamText" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell3" alignItems="Center">
+                                                <HBox class="kyraGovCell kyraGovCell3" alignItems="Center" renderType="Bare">
                                                     <Text text="{= ${accessModel>team} || ${accessModel>teamName} || ${accessModel>roleName} || 'IT Developers' }" class="kyraGovRoleText" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell4" alignItems="Center">
+                                                <HBox class="kyraGovCell kyraGovCell4" alignItems="Center" renderType="Bare">
                                                     <Text text="{= ${accessModel>selectedPersona} || ${accessModel>persona} }" class="kyraGovPersonaText" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell5" alignItems="Center">
+                                                <HBox class="kyraGovCell kyraGovCell5" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <Text text="{accessModel>grantedDate}" class="kyraGovDateText" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell6" alignItems="Center" justifyContent="Center">
+                                                <HBox class="kyraGovCell kyraGovCell6" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <ObjectStatus
                                                         text="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'Approved' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'Rejected' : 'Pending') }"
                                                         state="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'Success' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'Error' : 'Warning') }"
                                                         icon="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'sap-icon://sys-enter-2' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'sap-icon://error' : 'sap-icon://history') }"
                                                         class="kyraTableStatusBadge kyraApproverStatusBadge" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell7" alignItems="Center">
+                                                 <HBox class="kyraGovCell kyraGovCell7" alignItems="Center" renderType="Bare">
                                                     <Input
                                                         value="{accessModel>comment}"
                                                         liveChange=".onRemarkLiveChange"
@@ -403,7 +403,7 @@
                                                         class="kyraGovRemarkInput"
                                                         width="100%" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell8 kyraGovCellLast" alignItems="Center" justifyContent="Center">
+                                                <HBox class="kyraGovCell kyraGovCell8 kyraGovCellLast" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <Button
                                                         icon="sap-icon://accept"
                                                         press=".onAcceptEntitlement"

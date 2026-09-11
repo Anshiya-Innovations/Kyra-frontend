@@ -1860,9 +1860,26 @@ sap.ui.define([
                 const sBtnClass = bIsApprove ? "kyraBatchDialogConfirmApproveBtn" : "kyraBatchDialogConfirmRejectBtn";
                 const sBtnText = bIsApprove ? "Approve All" : "Reject All";
 
+                const oErrorText = new Text({
+                    text: "Please enter a remark before proceeding."
+                }).addStyleClass("kyraBatchErrorText");
+
+                const oErrorBox = new HBox({
+                    visible: false,
+                    alignItems: "Center",
+                    items: [
+                        new Icon({
+                            src: "sap-icon://alert",
+                            size: "15px"
+                        }).addStyleClass("kyraBatchErrorIcon"),
+                        oErrorText
+                    ]
+                }).addStyleClass("kyraBatchErrorBox");
+
                 const oTextArea = new TextArea({
                     width: "100%",
                     rows: 4,
+                    showValueStateMessage: false,
                     placeholder: bIsApprove
                         ? "Enter your approval remark (e.g., Approved after verifying business justification)..."
                         : "Enter rejection reason / remark (e.g., Access not required for current project scope)...",
@@ -1870,13 +1887,14 @@ sap.ui.define([
                         const val = oEvt.getParameter("value") || "";
                         if (val.trim()) {
                             oTextArea.setValueState("None");
+                            oErrorBox.setVisible(false);
                         }
                     }
                 }).addStyleClass("kyraBatchRemarkTextArea");
 
                 const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "480px",
+                    contentWidth: "500px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
                     content: [
@@ -1919,31 +1937,41 @@ sap.ui.define([
                                 new VBox({
                                     items: [
                                         new Text({ text: "Remark / Justification" }).addStyleClass("kyraBatchRemarkLabel"),
-                                        oTextArea
+                                        oTextArea,
+                                        oErrorBox
                                     ]
-                                }).addStyleClass("kyraBatchDialogBody")
+                                }).addStyleClass("kyraBatchDialogBody"),
+
+                                new HBox({
+                                    justifyContent: "End",
+                                    alignItems: "Center",
+                                    items: [
+                                        new Button({
+                                            text: "Cancel",
+                                            type: "Transparent",
+                                            press: () => oDialog.close()
+                                        }).addStyleClass("kyraBatchDialogCancelBtn"),
+                                        new Button({
+                                            text: sBtnText,
+                                            press: () => {
+                                                const sRemark = (oTextArea.getValue() || "").trim();
+                                                if (!sRemark) {
+                                                    oTextArea.setValueState("Error");
+                                                    oErrorText.setText("Please enter a remark before proceeding.");
+                                                    oErrorBox.setVisible(true);
+                                                    setTimeout(() => {
+                                                        oTextArea.focus();
+                                                    }, 50);
+                                                    return;
+                                                }
+                                                this._applyBatchDecisionToAll(bIsApprove, sRemark);
+                                                oDialog.close();
+                                            }
+                                        }).addStyleClass(sBtnClass)
+                                    ]
+                                }).addStyleClass("kyraBatchDialogFooter")
                             ]
                         })
-                    ],
-                    buttons: [
-                        new Button({
-                            text: "Cancel",
-                            type: "Transparent",
-                            press: () => oDialog.close()
-                        }).addStyleClass("kyraBatchDialogCancelBtn"),
-                        new Button({
-                            text: sBtnText,
-                            press: () => {
-                                const sRemark = (oTextArea.getValue() || "").trim();
-                                if (!sRemark) {
-                                    oTextArea.setValueState("Error");
-                                    oTextArea.setValueStateText("Please enter a remark before proceeding.");
-                                    return;
-                                }
-                                this._applyBatchDecisionToAll(bIsApprove, sRemark);
-                                oDialog.close();
-                            }
-                        }).addStyleClass(sBtnClass)
                     ],
                     afterClose: () => oDialog.destroy()
                 }).addStyleClass("kyraBatchDecisionDialog");

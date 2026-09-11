@@ -179,12 +179,12 @@
                 popinLayout="GridSmall"
                 class="sapUiNoMargin kyraApproverTable">
                 <columns>
-                    <Column width="10%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                    <Column width="21%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
-                    <Column width="21%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
-                    <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="8%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
+                    <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
+                    <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DECISION DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                    <Column width="12%" hAlign="Center"><Text text="FINAL DECISION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="17%" hAlign="Center"><Text text="FINAL DECISION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     <Column width="10%" hAlign="Center"><Text text="BREAKDOWN" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                 </columns>
                 <items>
@@ -196,7 +196,7 @@
                             <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextLeft" />
                             <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextLeft" />
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" wrapping="false" class="kyraCellTextCenter kyraDurationCell" />
+                                <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" wrapping="true" class="kyraCellTextCenter kyraDurationCell" />
                             </HBox>
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Text text="{accessModel>decisionDate}" wrapping="false" class="kyraDateText kyraCellTextCenter kyraDateCell" />
@@ -206,16 +206,15 @@
                                     text="{accessModel>status}"
                                     state="{accessModel>statusState}"
                                     icon="{= ${accessModel>statusIcon} || (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active' ? 'sap-icon://sys-enter-2' : (${accessModel>status} === 'Rejected' ? 'sap-icon://error' : 'sap-icon://history')) }"
-                                    class="kyraTableStatusBadge kyraApproverStatusBadge" />
+                                    class="kyraTableStatusBadge kyraApproverStatusBadge kyraHistoryStatusBadge" />
                             </HBox>
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Button
-                                    text="View"
                                     icon="sap-icon://hint"
                                     type="Transparent"
                                     press=".onOpenDecisionBreakdownDialog"
-                                    tooltip="View Approved and Rejected Details"
-                                    class="kyraBreakdownViewBtn kyraTableActionBtn" />
+                                    tooltip="View Decision Breakdown"
+                                    class="kyraBreakdownViewBtn kyraTableActionBtn kyraBreakdownIconBtn" />
                             </HBox>
                         </cells>
                     </ColumnListItem>
