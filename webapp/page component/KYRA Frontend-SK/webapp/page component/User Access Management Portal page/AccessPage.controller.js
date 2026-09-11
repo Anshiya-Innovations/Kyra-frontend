@@ -433,6 +433,19 @@ sap.ui.define([
 
             // Apply full-row clickability to MultiComboBox dropdowns
             this._applyMultiComboBoxRowClickSelection();
+
+            // Clear unwanted initial focus on header buttons when entering the page
+            setTimeout(() => {
+                const oBell = this.byId("kyraHeaderBellBtn");
+                if (oBell && oBell.getDomRef()) {
+                    oBell.getDomRef().blur();
+                    const oInner = oBell.getDomRef().querySelector(".sapMBtnInner");
+                    if (oInner) oInner.blur();
+                }
+                if (document.activeElement && typeof document.activeElement.blur === "function" && document.activeElement !== document.body) {
+                    document.activeElement.blur();
+                }
+            }, 60);
         },
 
         _setupMultiComboBoxRowClickSelection() {
@@ -2074,11 +2087,27 @@ sap.ui.define([
         },
 
         onRefreshAccess() {
-            MessageToast.show("Refreshing Access Governance Data...");
+            var oBtn = this.byId("fioriHeaderRefreshBtn");
+            if (oBtn) {
+                oBtn.addStyleClass("kyraBtnSpinning");
+            }
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Refreshing Governance Data...",
+                    subtitle: "Synchronizing entitlements, request queues, and compliance status...",
+                    duration: 1500
+                });
+            }
             this._loadSubmittedRequests(this.getView().getModel("accessModel"));
             setTimeout(() => {
+                if (oBtn) {
+                    oBtn.removeStyleClass("kyraBtnSpinning");
+                }
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
                 MessageToast.show("Access page data refreshed successfully.");
-            }, 300);
+            }, 800);
         },
 
         
@@ -5872,6 +5901,7 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (!oModel) return;
                 oModel.setProperty("/selectedTabKey", "myAccess");
+                oModel.setProperty("/showHistorySection", false);
                 oModel.setProperty("/showMyAccessMasterSection", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
@@ -7826,7 +7856,8 @@ sap.ui.define([
 
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
-                    contentWidth: "290px",
+                    contentWidth: "295px",
+                    contentHeight: "430px",
                     horizontalScrolling: false,
                     verticalScrolling: true,
                     placement: "Bottom",

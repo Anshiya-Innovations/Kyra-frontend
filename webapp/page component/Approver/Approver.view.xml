@@ -66,24 +66,24 @@
                 <!-- RIGHT: Search, Filter, Export Controls -->
                 <HBox alignItems="Center" class="kyraApproverRightControls">
                     <SearchField
-                        placeholder="Search request..."
-                        width="210px"
+                        placeholder="Search request ID, role, or user..."
+                        width="260px"
                         liveChange=".onSearchApprovalTable"
                         class="kyraEntitlementsSearchField" />
                     
                     <Button
                         icon="sap-icon://filter"
-                        type="Transparent"
+                        text="Filter"
                         press=".onFilterApprovalsDialog"
-                        tooltip="Filter Requests"
-                        class="kyraHistoryExportBtn" />
+                        tooltip="Filter Requests by system or date"
+                        class="kyraApproverFilterBtn" />
 
                     <Button
                         icon="sap-icon://excel-attachment"
-                        type="Transparent"
+                        text="Export"
                         press=".onExportApprovals"
-                        tooltip="Export Audit Log"
-                        class="kyraHistoryExportBtn" />
+                        tooltip="Export Audit Log to Excel"
+                        class="kyraApproverExportBtn" />
                 </HBox>
             </HBox>
 
@@ -101,8 +101,8 @@
                     class="sapUiNoMargin kyraApproverTable">
                     <columns>
                         <Column width="10%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                        <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
-                        <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
+                        <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="14%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="16%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="18%" hAlign="Center"><Text text="APPROVAL STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -113,8 +113,12 @@
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{accessModel>requesterId}" wrapping="false" class="kyraUserIdText kyraCellTextCenter" />
                                 </HBox>
-                                <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextLeft" />
-                                <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextLeft" />
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextCenter" />
+                                </HBox>
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextCenter" />
+                                </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" wrapping="false" class="kyraCellTextCenter kyraDurationCell" />
                                 </HBox>
@@ -140,8 +144,8 @@
                     class="sapUiNoMargin kyraApproverTable">
                     <columns>
                         <Column width="10%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                        <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
-                        <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
+                        <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                        <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="14%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="A/R Duration" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="16%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="SUBMISSION DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="18%" hAlign="Center"><Text text="APPROVAL STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -152,8 +156,12 @@
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{accessModel>requesterId}" wrapping="false" class="kyraUserIdText kyraCellTextCenter" />
                                 </HBox>
-                                <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextLeft" />
-                                <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextLeft" />
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextCenter" />
+                                </HBox>
+                                <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                    <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextCenter" />
+                                </HBox>
                                 <HBox justifyContent="Center" alignItems="Center" width="100%">
                                     <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" wrapping="false" class="kyraCellTextCenter kyraDurationCell" />
                                 </HBox>
@@ -180,8 +188,8 @@
                 class="sapUiNoMargin kyraApproverTable">
                 <columns>
                     <Column width="8%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                    <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
-                    <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Begin"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadLeft" /></Column>
+                    <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                    <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS FUNCTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     <Column width="12%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     <Column width="13%" minScreenWidth="Desktop" demandPopin="true" hAlign="Center"><Text text="DECISION DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     <Column width="17%" hAlign="Center"><Text text="FINAL DECISION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -193,8 +201,12 @@
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Text text="{accessModel>requesterId}" wrapping="false" class="kyraUserIdText kyraCellTextCenter" />
                             </HBox>
-                            <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextLeft" />
-                            <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextLeft" />
+                            <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                <Text text="{= (${accessModel>businessSector} &amp;&amp; ${accessModel>businessSector} !== '—' &amp;&amp; ${accessModel>businessSector} !== '–' &amp;&amp; ${accessModel>businessSector} !== '-') ? ${accessModel>businessSector} : ((${accessModel>sector} &amp;&amp; ${accessModel>sector} !== '—' &amp;&amp; ${accessModel>sector} !== '–' &amp;&amp; ${accessModel>sector} !== '-') ? ${accessModel>sector} : 'Information Technology &amp; Security') }" wrapping="true" class="kyraSectorText kyraCellText kyraCellTextCenter" />
+                            </HBox>
+                            <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                <Text text="{= (${accessModel>businessFunction} &amp;&amp; ${accessModel>businessFunction} !== '—' &amp;&amp; ${accessModel>businessFunction} !== '–' &amp;&amp; ${accessModel>businessFunction} !== '-') ? ${accessModel>businessFunction} : ((${accessModel>function} &amp;&amp; ${accessModel>function} !== '—' &amp;&amp; ${accessModel>function} !== '–' &amp;&amp; ${accessModel>function} !== '-') ? ${accessModel>function} : 'Corporate Governance') }" wrapping="true" class="kyraFunctionText kyraCellText kyraCellTextCenter" />
+                            </HBox>
                             <HBox justifyContent="Center" alignItems="Center" width="100%">
                                 <Text text="{= (${accessModel>duration} &amp;&amp; ${accessModel>duration} !== '—' &amp;&amp; ${accessModel>duration} !== '–' &amp;&amp; ${accessModel>duration} !== '-') ? ${accessModel>duration} : ((${accessModel>accessDuration} &amp;&amp; ${accessModel>accessDuration} !== '—' &amp;&amp; ${accessModel>accessDuration} !== '–' &amp;&amp; ${accessModel>accessDuration} !== '-') ? ${accessModel>accessDuration} : 'Permanent') }" wrapping="true" class="kyraCellTextCenter kyraDurationCell" />
                             </HBox>

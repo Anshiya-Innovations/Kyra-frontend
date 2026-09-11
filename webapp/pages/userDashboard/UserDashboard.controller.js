@@ -30,7 +30,19 @@ sap.ui.define([
         },
 
         onRefreshData() {
-            MessageToast.show("User metrics refreshed!");
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Refreshing Dashboard Data...",
+                    subtitle: "Synchronizing user metrics, requests, and activity status...",
+                    duration: 1000
+                });
+            }
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                MessageToast.show("User metrics refreshed!");
+            }, 700);
         },
 
         onTilePress(oEvent) {

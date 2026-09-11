@@ -353,21 +353,18 @@ sap.ui.define([
                     <div class="kyra-breakdown-modal-header">
                         <div class="kyra-breakdown-header-left">
                             <div class="kyra-breakdown-avatar-icon">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 11l3 3L22 4"></path>
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                                 </svg>
                             </div>
                             <div>
                                 <div class="kyra-breakdown-main-title">Decision Breakdown Summary</div>
-                                <div class="kyra-breakdown-sub-title">Request ID: <strong>${oData.requestId}</strong></div>
+                                <div class="kyra-breakdown-sub-title">System access evaluation and approval status</div>
                             </div>
                         </div>
                         <button type="button" class="kyra-breakdown-close-x" id="kyra_btn_breakdown_close_x" aria-label="Close">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
                             </svg>
@@ -379,7 +376,7 @@ sap.ui.define([
                         <div class="kyra-breakdown-requester-card">
                             <div class="kyra-requester-card-left">
                                 <div class="kyra-user-circle-avatar">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="12" cy="7" r="4"></circle>
                                     </svg>
@@ -396,8 +393,11 @@ sap.ui.define([
 
                         <!-- Approved Section -->
                         <div class="kyra-breakdown-section-wrapper">
-                            <div class="kyra-breakdown-sec-header kyra-text-approved">
-                                <span>Approved System Entitlements</span>
+                            <div class="kyra-breakdown-sec-header">
+                                <div class="kyra-breakdown-sec-title kyra-text-approved">
+                                    <span class="kyra-sec-dot kyra-dot-approved"></span>
+                                    <span>Approved System Entitlements</span>
+                                </div>
                                 <span class="kyra-count-badge kyra-count-approved">${aFinalApproved.length}</span>
                             </div>
                             <div class="kyra-breakdown-card-list">
@@ -407,8 +407,11 @@ sap.ui.define([
 
                         <!-- Rejected Section -->
                         <div class="kyra-breakdown-section-wrapper">
-                            <div class="kyra-breakdown-sec-header kyra-text-rejected">
-                                <span>Rejected System Entitlements</span>
+                            <div class="kyra-breakdown-sec-header">
+                                <div class="kyra-breakdown-sec-title kyra-text-rejected">
+                                    <span class="kyra-sec-dot kyra-dot-rejected"></span>
+                                    <span>Rejected System Entitlements</span>
+                                </div>
                                 <span class="kyra-count-badge kyra-count-rejected">${aRejectedItems.length}</span>
                             </div>
                             <div class="kyra-breakdown-card-list">
@@ -428,7 +431,9 @@ sap.ui.define([
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML"], (Dialog, HTML) => {
                 const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "560px",
+                    contentWidth: "580px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
                     content: [
                         new HTML({ content: sHtmlContent })
                     ],

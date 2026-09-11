@@ -1149,7 +1149,7 @@ sap.ui.define([
                         <div>
                             <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || oData.requesterUsername || ""})</div>
                             <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
-                                Request ID: <strong style="color: #1E293B;">${oData.requestId}</strong> • Sector: <span style="color: #475569;">${oData.sector || 'Enterprise Governance'}</span>
+                                Sector: <strong style="color: #1E293B;">${oData.sector || 'Enterprise Governance'}</strong>
                             </div>
                         </div>
                         <div style="text-align: right;">
@@ -1239,7 +1239,7 @@ sap.ui.define([
 
             if (typeof KyraDialog !== "undefined") {
                 KyraDialog.show({
-                    title: "Decision Breakdown Summary - " + oData.requestId,
+                    title: "Decision Breakdown Summary",
                     type: sOverallState,
                     maxWidth: "520px",
                     messageHtml: sBodyHtml,

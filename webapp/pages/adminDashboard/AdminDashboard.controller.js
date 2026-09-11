@@ -30,7 +30,19 @@ sap.ui.define([
         },
 
         onRefreshData() {
-            MessageToast.show("System administration metrics refreshed!");
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Refreshing Dashboard Data...",
+                    subtitle: "Synchronizing system metrics, alerts, and user queues...",
+                    duration: 1000
+                });
+            }
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                MessageToast.show("System administration metrics refreshed!");
+            }, 700);
         },
 
         onTilePress(oEvent) {

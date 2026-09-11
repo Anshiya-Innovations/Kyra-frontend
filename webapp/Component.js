@@ -122,6 +122,20 @@ sap.ui.define([
                     } catch(e) {}
                 }
             }
+
+            // Gracefully dismiss initial HTML loader once UI5 component is ready
+            setTimeout(() => {
+                const initLoader = document.getElementById("kyra_initial_loader");
+                if (initLoader) {
+                    initLoader.style.transition = "opacity 0.25s ease";
+                    initLoader.style.opacity = "0";
+                    setTimeout(() => {
+                        if (initLoader && initLoader.parentNode) {
+                            initLoader.parentNode.removeChild(initLoader);
+                        }
+                    }, 280);
+                }
+            }, 350);
         },
 
         _setupDropdownPlacementEnhancement() {

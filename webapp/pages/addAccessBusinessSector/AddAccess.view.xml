@@ -272,22 +272,30 @@
                             fixedLayout="true"
                             class="sapUiNoMargin kyraActiveEntitlementsTable">
                             <columns>
-                                 <Column width="12%" hAlign="Begin"><Text text="Request ID" class="kyraEntitlementColHeader" /></Column>
-                                 <Column width="14%" hAlign="Begin"><Text text="Target System" class="kyraEntitlementColHeader" /></Column>
-                                 <Column width="18%" hAlign="Begin"><Text text="Role Title &amp; Sector" class="kyraEntitlementColHeader" /></Column>
-                                 <Column width="16%" hAlign="Begin"><Text text="Persona" class="kyraEntitlementColHeader" /></Column>
-                                 <Column width="12%" hAlign="Center"><Text text="Access Status" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="11%" hAlign="Center"><Text text="Access Type" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="8%" hAlign="Center"><Text text="Duration" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="9%" hAlign="Center"><Text text="Actions" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="12%" hAlign="Center"><Text text="REQUEST ID" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="14%" hAlign="Center"><Text text="TARGET SYSTEM" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="18%" hAlign="Center"><Text text="ROLE TITLE &amp; SECTOR" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="16%" hAlign="Center"><Text text="PERSONA" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="12%" hAlign="Center"><Text text="ACCESS STATUS" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="11%" hAlign="Center"><Text text="ACCESS TYPE" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="8%" hAlign="Center"><Text text="DURATION" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                                 <Column width="9%" hAlign="Center"><Text text="ACTIONS" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                              </columns>
                              <items>
                                  <ColumnListItem vAlign="Middle" class="kyraTableRow">
                                      <cells>
-                                         <ObjectIdentifier title="{addAccessModel>requestId}" class="kyraCellText" />
-                                         <Text text="{addAccessModel>system}" wrapping="true" class="fioriCellBold kyraCellText" />
-                                         <ObjectIdentifier title="{addAccessModel>roleName}" subtitle="{addAccessModel>sector}" class="kyraCellText" />
-                                         <Text text="{addAccessModel>persona}" wrapping="true" class="kyraCellText" />
+                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                             <ObjectIdentifier title="{addAccessModel>requestId}" class="kyraCellText kyraCellTextCenter" />
+                                         </HBox>
+                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                             <Text text="{addAccessModel>system}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
+                                         </HBox>
+                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                             <ObjectIdentifier title="{addAccessModel>roleName}" subtitle="{addAccessModel>sector}" class="kyraCellText kyraCellTextCenter" />
+                                         </HBox>
+                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                             <Text text="{addAccessModel>persona}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
+                                         </HBox>
                                          <HBox justifyContent="Center" alignItems="Center" width="100%">
                                              <ObjectStatus
                                                  text="{addAccessModel>existingStatus}"
