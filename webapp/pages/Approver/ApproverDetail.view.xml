@@ -22,7 +22,6 @@
                     </HBox>
                     <Button
                         text="Back"
-                        icon="sap-icon://navigation-left-arrow"
                         press=".onCloseRequestSummaryView"
                         class="kyraBackTealBtn"
                         tooltip="Back to Dashboard" />
@@ -450,14 +449,11 @@
                         <HBox alignItems="Center" class="kyraGovBottomRightBtns">
                             <Button
                                 text="Back"
-                                icon="sap-icon://navigation-left-arrow"
                                 press=".onCloseRequestSummaryView"
                                 class="kyraBackTealBtn"
                                 tooltip="Back to Dashboard" />
                             <Button
                                 text="Submit Decision"
-                                icon="sap-icon://navigation-right-arrow"
-                                iconFirst="false"
                                 type="Emphasized"
                                 press=".onApproveSelectedRequest"
                                 class="kyraPrimaryBtn fioriEmphasizedBtn"

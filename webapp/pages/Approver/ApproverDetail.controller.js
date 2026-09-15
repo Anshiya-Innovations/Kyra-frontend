@@ -1177,14 +1177,14 @@ sap.ui.define([
                             <div style="border: 1px solid #BBF7D0; background: #F0FDF4; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(22,163,74,0.06);">
                                 <div style="flex: 1; min-width: 0; padding-right: 8px;">
                                     <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
-                                        <span style="font-weight: 700; font-size: 11px; color: #15803D;">${i.requestId || oData.requestId}</span>
                                         <span style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #166534;">${i.system}</span>
+                                        ${(i.requestId || oData.requestId) ? `<span style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #334155;">${i.requestId || oData.requestId}</span>` : ''}
                                     </div>
                                     <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
-                                        ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
+                                        ${sCleanRole}
                                     </div>
                                     <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
+                                        ${(i.team || oData.function) ? `<span style="font-weight: 600; color: #334155;">Team:</span> ${i.team || oData.function} • ` : ''}<span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">
@@ -1211,14 +1211,14 @@ sap.ui.define([
                             <div style="border: 1px solid #FECACA; background: #FEF2F2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(220,38,38,0.06);">
                                 <div style="flex: 1; min-width: 0; padding-right: 8px;">
                                     <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
-                                        <span style="font-weight: 700; font-size: 11px; color: #B91C1C;">${i.requestId || oData.requestId}</span>
                                         <span style="background: #FFFFFF; border: 1px solid #FCA5A5; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #991B1B;">${i.system}</span>
+                                        ${(i.requestId || oData.requestId) ? `<span style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #334155;">${i.requestId || oData.requestId}</span>` : ''}
                                     </div>
                                     <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
-                                        ${sCleanRole} <span style="font-weight: 500; font-size: 11px; color: #64748B;">(${i.team || oData.function || 'Governance'})</span>
+                                        ${sCleanRole}
                                     </div>
                                     <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        <span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
+                                        ${(i.team || oData.function) ? `<span style="font-weight: 600; color: #334155;">Team:</span> ${i.team || oData.function} • ` : ''}<span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
                                     </div>
                                 </div>
                                 <div style="flex-shrink: 0;">

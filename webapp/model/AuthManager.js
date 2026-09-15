@@ -44,22 +44,21 @@ sap.ui.define([], () => {
             // Backward compatibility aliases for existing components
             sessionStorage.setItem("kyra_user_id", sUserId);
 
+            // Always persist core auth keys to localStorage so hard-refresh and
+            // server restarts don't silently lose the session. The existing
+            // isAuthenticated() fallback will restore sessionStorage from here.
+            localStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
+            localStorage.setItem(AUTH_KEYS.ACTIVE_USER, sUserId);
+            localStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sEffectiveRole);
+            localStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sEffectiveUuid);
+            localStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sEffectiveToken);
+            localStorage.setItem(AUTH_KEYS.AUTH_TIMESTAMP, sNow);
+
+            // Remember-me: also persist credentials for next browser launch
             if (bRemember) {
-                localStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
-                localStorage.setItem(AUTH_KEYS.ACTIVE_USER, sUserId);
-                localStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sEffectiveRole);
-                localStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sEffectiveUuid);
-                localStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sEffectiveToken);
-                localStorage.setItem(AUTH_KEYS.AUTH_TIMESTAMP, sNow);
                 localStorage.setItem(AUTH_KEYS.REMEMBER_ID, sUserId);
                 localStorage.setItem(AUTH_KEYS.REMEMBER_ROLE, sEffectiveRole);
             } else {
-                localStorage.removeItem(AUTH_KEYS.IS_AUTHENTICATED);
-                localStorage.removeItem(AUTH_KEYS.ACTIVE_USER);
-                localStorage.removeItem(AUTH_KEYS.ACTIVE_ROLE);
-                localStorage.removeItem(AUTH_KEYS.ACTIVE_UUID);
-                localStorage.removeItem(AUTH_KEYS.AUTH_TOKEN);
-                localStorage.removeItem(AUTH_KEYS.AUTH_TIMESTAMP);
                 localStorage.removeItem(AUTH_KEYS.REMEMBER_ID);
                 localStorage.removeItem(AUTH_KEYS.REMEMBER_ROLE);
             }

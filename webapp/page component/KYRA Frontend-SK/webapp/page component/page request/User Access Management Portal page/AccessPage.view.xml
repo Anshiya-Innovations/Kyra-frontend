@@ -1675,9 +1675,8 @@
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Button
-                                            text="Remove"
                                             icon="sap-icon://delete"
-                                            type="Reject"
+                                            type="Transparent"
                                             press=".onRemoveAccessClick"
                                             tooltip="Revoke Access"
                                             class="kyraDestructiveBtn kyraTableActionBtn" />
@@ -2126,13 +2125,20 @@
 
             <!-- DEDICATED SEPARATE FULL PAGE VIEW: ALL NOTIFICATIONS -->
             <VBox id="kyraNotificationsPageContainer" visible="{= !!${accessModel>/showAllNotificationsPage} }" class="fioriStepSlideAnim kyraNotifPageWrapper" width="100%">
-                <!-- Top Back Button outside Card -->
-                <HBox class="kyraNotifTopRow sapUiSmallMarginBottom" width="100%">
-                    <Button
-                        text="Back"
-                        type="Transparent"
-                        press=".onBackFromNotificationsPage"
-                        class="kyraNotifBackBtn" />
+                <!-- Top Navigation Row outside Card -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
+                        <Button
+                            text="Back"
+                            type="Transparent"
+                            press=".onBackFromNotificationsPage"
+                            class="kyraBackTealBtn" />
+                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                            <Link text="Home" press=".onBackFromNotificationsPage" class="kyraHelpBreadcrumbLink" />
+                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                            <Text text="All Notifications" class="kyraHelpBreadcrumbCurrent" />
+                        </HBox>
+                    </HBox>
                 </HBox>
 
                 <!-- Main White Card Container -->
@@ -2257,37 +2263,35 @@
 
             <!-- DEDICATED FULL PAGE VIEW: HELP CENTER (Single Desktop Screen, 4 Equal Cards, No Scroll) -->
             <VBox id="kyraHelpPageContainer" visible="{= !!${accessModel>/showHelpPage} }" class="fioriStepSlideAnim kyraHelpPageWrapper" width="100%">
-                <VBox class="kyraHelpMainOuterCard" width="100%">
-                    <!-- 1. Top Navigation Row (Back to Dashboard + Home / Help) -->
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraHelpTopRow sapUiTinyMarginBottom" width="100%">
-                        <HBox alignItems="Center">
-                            <Button
-                                icon="sap-icon://nav-back"
-                                text="Back to Dashboard"
-                                type="Transparent"
-                                press=".onBackFromHelpPage"
-                                class="kyraNotifBackBtn sapUiMediumMarginEnd" />
-                            <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
-                                <Link text="Home" press=".onBackFromHelpPage" class="kyraHelpBreadcrumbLink" />
-                                <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                                <Text text="Help" class="kyraHelpBreadcrumbCurrent" />
-                            </HBox>
+                <!-- Top Navigation Row outside Card -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
+                        <Button
+                            text="Back"
+                            type="Transparent"
+                            press=".onBackFromHelpPage"
+                            class="kyraBackTealBtn" />
+                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                            <Link text="Home" press=".onBackFromHelpPage" class="kyraHelpBreadcrumbLink" />
+                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                            <Text text="Help Center" class="kyraHelpBreadcrumbCurrent" />
                         </HBox>
                     </HBox>
+                </HBox>
+
+                <VBox class="kyraHelpMainOuterCard" width="100%">
 
                     <!-- 2. Centered Hero Title &amp; Subtitle + Centered Search -->
                     <VBox class="kyraHelpHeroSection" alignItems="Center">
                         <Title text="How can we help you?" level="H1" class="kyraHelpHeroTitle" />
                         <Text text="Find helpful information and answers to common questions." class="kyraHelpHeroSubtitle sapUiTinyMarginTop" />
                         
-                        <!-- Wide Centered Search Bar matching mockup with crisp left icon and upright text -->
-                        <HBox class="kyraModernSearchContainer sapUiSmallMarginTop" alignItems="Center">
-                            <core:Icon src="sap-icon://search" class="kyraModernSearchIcon" />
-                            <Input
-                                placeholder="Search for help topics..."
-                                liveChange=".onHelpSearchLiveChange"
-                                class="kyraModernSearchInputField" />
-                        </HBox>
+                        <!-- Wide Centered Search Bar (Clean Single Enterprise Search Field) -->
+                        <SearchField
+                            placeholder="Search for help topics..."
+                            width="540px"
+                            liveChange=".onHelpSearchLiveChange"
+                            class="kyraHelpSearchField sapUiSmallMarginTop" />
                     </VBox>
 
                     <!-- 3. Browse Help Topics Section Header (Aligned with content) -->
@@ -2346,25 +2350,28 @@
 
                     <!-- 5. Centered Footer Copyright -->
                     <HBox justifyContent="Center" class="kyraHelpFooterRow sapUiSmallMarginTop">
-                        <Text text="© 2025 KYRA. All rights reserved." class="kyraHelpFooterText" />
+                        <Text text="© 2026 KYRA Enterprise. All rights reserved." class="kyraHelpFooterText" />
                     </HBox>
                 </VBox>
             </VBox>
 
             <!-- DEDICATED FULL PAGE VIEW: CONTACT IT SUPPORT (Modern, Clean White &amp; Light-Blue 2-Column Design) -->
             <VBox id="kyraContactITPageContainer" visible="{= !!${accessModel>/showContactITPage} }" class="fioriStepSlideAnim kyraContactITPageWrapper" width="100%">
-                <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
-                    <Button
-                        icon="sap-icon://nav-back"
-                        text="Back to Help"
-                        type="Transparent"
-                        press=".onBackFromContactITPage"
-                        class="kyraContactITBackBtn" />
-                    <Text text="KYRA" class="kyraContactITBrandLogo" />
-                    <HBox alignItems="Center" class="kyraContactITHelpCenterBox">
-                        <core:Icon src="sap-icon://sys-help" class="kyraContactITHelpIcon sapUiTinyMarginEnd" />
-                        <Link text="Help Center" press=".onBackFromContactITPage" class="kyraContactITHelpLink" />
+                <!-- 1. Top Navigation Bar (Consistent Unified Breadcrumbs & Back Button) -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
+                        <Button
+                            text="Back"
+                            type="Transparent"
+                            press=".onBackFromContactITPage"
+                            class="kyraBackTealBtn" />
+                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                            <Link text="Home" press=".onBackToHomeFromContactITPage" class="kyraHelpBreadcrumbLink" />
+                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                            <Link text="Help Center" press=".onBackFromContactITPage" class="kyraHelpBreadcrumbLink" />
+                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                            <Text text="IT Support" class="kyraHelpBreadcrumbCurrent" />
+                        </HBox>
                     </HBox>
                 </HBox>
 
@@ -2495,8 +2502,6 @@
                             <!-- Full-Width Blue Submit Request Button -->
                             <Button
                                 text="Submit Request"
-                                icon="sap-icon://paper-plane"
-                                iconFirst="true"
                                 type="Emphasized"
                                 press=".onSubmitContactITRequest"
                                 width="100%"
@@ -2553,18 +2558,21 @@
 
             <!-- DEDICATED FULL PAGE VIEW: TROUBLESHOOTING CONTACT SUPPORT &amp; SUBMIT REQUEST FLOW -->
             <VBox id="kyraTroubleshootPageContainer" visible="{= !!${accessModel>/showTroubleshootPage} }" class="fioriStepSlideAnim kyraTroubleshootPageWrapper" width="100%">
-                <!-- 1. Top Navigation Bar (Back to Help on left, KYRA center, Help Center link right) -->
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNav" width="100%">
-                    <Button
-                        icon="sap-icon://nav-back"
-                        text="Back to Help"
-                        type="Transparent"
-                        press=".onBackFromTroubleshootPage"
-                        class="kyraContactITBackBtn" />
-                    <Text text="KYRA" class="kyraContactITBrandLogo" />
-                    <HBox alignItems="Center" class="kyraContactITHelpCenterBox">
-                        <core:Icon src="sap-icon://sys-help" class="kyraContactITHelpIcon sapUiTinyMarginEnd" />
-                        <Link text="Help Center" press=".onBackFromTroubleshootPage" class="kyraContactITHelpLink" />
+                <!-- 1. Top Navigation Bar (Consistent Unified Breadcrumbs & Back Button) -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
+                        <Button
+                            text="Back"
+                            type="Transparent"
+                            press=".onBackFromTroubleshootPage"
+                            class="kyraBackTealBtn" />
+                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                            <Link text="Home" press=".onBackToHomeFromTroubleshootPage" class="kyraHelpBreadcrumbLink" />
+                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                            <Link text="Help Center" press=".onBackFromTroubleshootPage" class="kyraHelpBreadcrumbLink" />
+                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                            <Text text="Contact Support" class="kyraHelpBreadcrumbCurrent" />
+                        </HBox>
                     </HBox>
                 </HBox>
 
@@ -2672,8 +2680,6 @@
                                 class="kyraContactITCancelBtn sapUiSmallMarginEnd" />
                             <Button
                                 text="Submit Request"
-                                icon="sap-icon://paper-plane"
-                                iconFirst="true"
                                 type="Emphasized"
                                 press=".onSubmitTroubleshootRequest"
                                 class="kyraContactITSubmitBtn" />
@@ -2723,7 +2729,6 @@
                         <!-- Back to Troubleshooting Button -->
                         <Button
                             text="Back to Troubleshooting"
-                            icon="sap-icon://nav-back"
                             type="Emphasized"
                             press=".onBackFromTroubleshootPage"
                             class="kyraTroubleshootBackBtn sapUiMediumMarginTop" />

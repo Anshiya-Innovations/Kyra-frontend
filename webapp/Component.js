@@ -127,15 +127,15 @@ sap.ui.define([
             setTimeout(() => {
                 const initLoader = document.getElementById("kyra_initial_loader");
                 if (initLoader) {
-                    initLoader.style.transition = "opacity 0.25s ease";
+                    initLoader.style.transition = "opacity 0.3s ease";
                     initLoader.style.opacity = "0";
                     setTimeout(() => {
                         if (initLoader && initLoader.parentNode) {
                             initLoader.parentNode.removeChild(initLoader);
                         }
-                    }, 280);
+                    }, 320);
                 }
-            }, 350);
+            }, 850);
         },
 
         _setupDropdownPlacementEnhancement() {

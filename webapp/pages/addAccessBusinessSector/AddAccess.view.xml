@@ -23,10 +23,10 @@
                 </f:profile>
                 <f:additionalContent>
                     <Button
-                        icon="sap-icon://navigation-left-arrow"
                         text="Back to User Portal"
-                        type="Transparent"
+                        type="Emphasized"
                         press=".onNavBackToPortal"
+                        class="kyraBackTealBtn"
                         tooltip="Back to Access Portal" />
                 </f:additionalContent>
             </f:ShellBar>
@@ -224,9 +224,8 @@
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
                         <Button
                             text="Back to Step 1"
-                            icon="sap-icon://navigation-left-arrow"
-                            type="Default"
-                            press=".onBackToStep1" />
+                            press=".onBackToStep1"
+                            class="kyraBackTealBtn" />
                         <HBox>
                             <Button
                                 text="Cancel"

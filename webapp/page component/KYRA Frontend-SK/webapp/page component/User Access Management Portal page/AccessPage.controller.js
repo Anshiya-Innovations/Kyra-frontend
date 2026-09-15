@@ -1897,128 +1897,172 @@ sap.ui.define([
             const oData = oItem.getBindingContext("accessModel").getObject();
             const oModel = this.getView().getModel("accessModel");
 
-            MessageBox.confirm("Are you sure you want to request revocation for role '" + oData.roleName + "' on " + oData.system + "?", {
+            const sRoleName = oData.roleName || oData.roleTitle || "Entitlement Role";
+            const sSystem = oData.system || "Target System";
+            const sPersona = cleanPersonaStr(oData.persona || oData.selectedPersona) || "Standard User";
+            const sCleanRole = cleanRoleStr(sRoleName);
+            const sReqId = "REV-2026-" + Math.floor(100000 + Math.random() * 900000);
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+
+            const sMessageHtml = `
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <p style="margin: 0; color: #334155; font-size: 14.5px; line-height: 1.55;">
+                        Are you sure you want to request revocation for role <strong style="color: #0F172A;">'${sRoleName}'</strong> on <strong style="color: #0F172A;">${sSystem}</strong>?
+                    </p>
+                    
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Target System</span>
+                            <span style="font-size: 13px; font-weight: 700; color: #0F172A; background: #FFFFFF; padding: 4px 10px; border-radius: 6px; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);">${sSystem}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Entitlement / Role</span>
+                            <span style="font-size: 13px; font-weight: 700; color: #008C9C; background: rgba(0, 140, 156, 0.08); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(0, 140, 156, 0.2);">${sRoleName}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Persona</span>
+                            <span style="font-size: 12.5px; font-weight: 600; color: #475569;">${sPersona}</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: flex-start; gap: 10px; background: #FFF1F2; border: 1px solid #FFE4E6; border-radius: 8px; padding: 10px 12px;">
+                        <svg style="width: 18px; height: 18px; min-width: 18px; color: #E11D48; margin-top: 1px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <span style="font-size: 12.5px; color: #9F1239; line-height: 1.45;">This action will initiate a revocation workflow (ID: <strong>${sReqId}</strong>). Active access will remain until approved by governance.</span>
+                    </div>
+                </div>
+            `;
+
+            KyraDialog.show({
+                type: "danger",
                 title: "Confirm Access Removal",
-                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
-                onClose: (sAction) => {
-                    if (sAction === MessageBox.Action.OK) {
-                        const sReqId = "REV-2026-" + Math.floor(100000 + Math.random() * 900000);
-                        const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
-                        const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+                messageHtml: sMessageHtml,
+                buttonText: "Revoke Access",
+                secondaryButtonText: "Cancel",
+                btnColor: "#E11D48",
+                maxWidth: "520px",
+                onConfirm: () => {
+                    // Store in local in-flight cache to prevent background sync race conditions
+                    const sCleanPersona = cleanPersonaStr(oData.persona || oData.selectedPersona);
+                    const sCleanRole = cleanRoleStr(oData.roleName);
+                    const sCacheKey = (oData.system || "") + "_" + sCleanRole + "_" + sCleanPersona;
+                    const oRevokeRecord = {
+                        requestId: sReqId,
+                        system: oData.system,
+                        roleName: sCleanRole,
+                        category: oData.category || "Revocation Request",
+                        persona: sCleanPersona,
+                        region: oData.region || "Global Enterprise (ALL)",
+                        sector: oData.sector || "Information Technology & Security",
+                        justification: "Revocation of access for role " + sCleanRole,
+                        createdAt: new Date().toISOString()
+                    };
+                    this._localInFlightRevocations[sCacheKey] = oRevokeRecord;
+                    this._localInFlightRevocations[(oData.system || "") + ":::" + sCleanRole] = oRevokeRecord;
+                    try {
+                        const aStoredRev = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                        aStoredRev.push(oRevokeRecord);
+                        sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredRev));
+                    } catch(e) {}
 
-                        // Store in local in-flight cache to prevent background sync race conditions
-                        const sCleanPersona = cleanPersonaStr(oData.persona || oData.selectedPersona);
-                        const sCleanRole = cleanRoleStr(oData.roleName);
-                        const sCacheKey = (oData.system || "") + "_" + sCleanRole + "_" + sCleanPersona;
-                        const oRevokeRecord = {
-                            requestId: sReqId,
-                            system: oData.system,
-                            roleName: sCleanRole,
-                            category: oData.category || "Revocation Request",
-                            persona: sCleanPersona,
-                            region: oData.region || "Global Enterprise (ALL)",
-                            sector: oData.sector || "Information Technology & Security",
-                            justification: "Revocation of access for role " + sCleanRole,
-                            createdAt: new Date().toISOString()
-                        };
-                        this._localInFlightRevocations[sCacheKey] = oRevokeRecord;
-                        this._localInFlightRevocations[(oData.system || "") + ":::" + sCleanRole] = oRevokeRecord;
-                        try {
-                            const aStoredRev = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                            aStoredRev.push(oRevokeRecord);
-                            sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredRev));
-                        } catch(e) {}
+                    // Update status in My Access section immediately to "Revoke Pending"
+                    const aAccessList = oModel.getProperty("/userAccessList") || [];
+                    aAccessList.forEach(item => {
+                        const itemR = cleanRoleStr(item.roleName);
+                        if (item.system === oData.system && (itemR === sCleanRole || item.roleId === oData.roleId)) {
+                            item.status = "Revoke Pending";
+                            item.statusState = "Warning";
+                            item.statusIcon = "sap-icon://pending";
+                        }
+                    });
+                    
+                    // Exclude the revoked item from the Remove Access section list immediately
+                    const aActiveRoles = aAccessList.filter(item => item.status !== "Revoke Pending");
+                    
+                    this._setSmartProperty(oModel, "/userAccessList", aAccessList);
+                    this._setSmartProperty(oModel, "/displayedUserAccessList", aAccessList);
+                    this._setSmartProperty(oModel, "/activeRoles", aActiveRoles);
 
-                        // Update status in My Access section immediately to "Revoke Pending"
-                        const aAccessList = oModel.getProperty("/userAccessList") || [];
-                        aAccessList.forEach(item => {
-                            const itemR = cleanRoleStr(item.roleName);
-                            if (item.system === oData.system && (itemR === sCleanRole || item.roleId === oData.roleId)) {
-                                item.status = "Revoke Pending";
-                                item.statusState = "Warning";
-                                item.statusIcon = "sap-icon://pending";
-                            }
-                        });
-                        
-                        // Exclude the revoked item from the Remove Access section list immediately
-                        const aActiveRoles = aAccessList.filter(item => item.status !== "Revoke Pending");
-                        
-                        this._setSmartProperty(oModel, "/userAccessList", aAccessList);
-                        this._setSmartProperty(oModel, "/displayedUserAccessList", aAccessList);
-                        this._setSmartProperty(oModel, "/activeRoles", aActiveRoles);
+                    // Construct pending request object and prepend to myPendingRequests immediately
+                    const oNewPendingReq = {
+                        requestId: sReqId,
+                        requesterId: sActiveUser,
+                        requesterUsername: sActiveUser,
+                        type: "Revoke",
+                        requestType: "Revoke",
+                        accessType: "REVOCATION",
+                        isRevocation: true,
+                        system: oData.system,
+                        roleName: sCleanRole,
+                        roleTitle: sCleanRole,
+                        team: this._deriveCleanTeamName(oData),
+                        serviceTopic: oData.category || "Revocation Request",
+                        selectedPersona: sCleanPersona,
+                        persona: sCleanPersona,
+                        accessDuration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
+                        duration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
+                        submissionDate: new Date().toISOString().split("T")[0],
+                        createdAtRaw: new Date().toISOString(),
+                        approver: "Line Manager / ISRM Team",
+                        status: "Pending Approval",
+                        statusState: "Warning",
+                        statusIcon: "sap-icon://pending",
+                        region: oData.region || "Global Enterprise (ALL)",
+                        justification: "Revocation of access for role " + sCleanRole,
+                        sector: oData.sector || "Information Technology & Security",
+                        function: oData.function || oData.businessFunction || "Corporate Governance",
+                        businessFunction: oData.function || oData.businessFunction || "Corporate Governance"
+                    };
 
-                        // Construct pending request object and prepend to myPendingRequests immediately
-                        const oNewPendingReq = {
-                            requestId: sReqId,
-                            requesterId: sActiveUser,
-                            requesterUsername: sActiveUser,
-                            type: "Revoke",
-                            requestType: "Revoke",
-                            accessType: "REVOCATION",
-                            isRevocation: true,
-                            system: oData.system,
-                            roleName: sCleanRole,
-                            roleTitle: sCleanRole,
-                            team: this._deriveCleanTeamName(oData),
-                            serviceTopic: oData.category || "Revocation Request",
-                            selectedPersona: sCleanPersona,
-                            persona: sCleanPersona,
-                            accessDuration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
-                            duration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
-                            submissionDate: new Date().toISOString().split("T")[0],
-                            createdAtRaw: new Date().toISOString(),
-                            approver: "Line Manager / ISRM Team",
-                            status: "Pending Approval",
-                            statusState: "Warning",
-                            statusIcon: "sap-icon://pending",
-                            region: oData.region || "Global Enterprise (ALL)",
-                            justification: "Revocation of access for role " + sCleanRole,
-                            sector: oData.sector || "Information Technology & Security",
-                            function: oData.function || oData.businessFunction || "Corporate Governance",
-                            businessFunction: oData.function || oData.businessFunction || "Corporate Governance"
-                        };
+                    const aMyPending = oModel.getProperty("/myPendingRequests") || [];
+                    aMyPending.unshift(oNewPendingReq);
+                    this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
 
-                        const aMyPending = oModel.getProperty("/myPendingRequests") || [];
-                        aMyPending.unshift(oNewPendingReq);
-                        this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
+                    // Also prepend to requestHistory list
+                    const aHistory = oModel.getProperty("/requestHistory") || [];
+                    aHistory.unshift(oNewPendingReq);
+                    this._setSmartProperty(oModel, "/requestHistory", aHistory);
+                    this._setSmartProperty(oModel, "/filteredHistoryRequests", aHistory);
 
-                        // Persist Revocation Request to PostgreSQL database
-                        fetch("/odata/v4/auth/submitAccessRequest", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                requests: [{
-                                    requestNumber: sReqId,
-                                    requesterUsername: sActiveUser,
-                                    requesterPersona: sActiveRole,
-                                    businessSector: oData.sector || "Information Technology & Security",
-                                    businessFunction: oData.function || oData.businessFunction || "Corporate Governance",
-                                    operatingRegion: oData.region || "Global Enterprise (ALL)",
-                                    targetSystem: oData.system,
-                                    serviceTopic: oData.category || "Revocation Request",
-                                    roleName: oData.roleName,
-                                    selectedPersona: oData.persona || "User",
-                                    accessType: "REVOCATION",
-                                    accessDuration: oData.accessDuration || oData.duration || "30 Days (Temporary)",
-                                    justification: "Revocation of access for role " + oData.roleName
-                                }]
-                            })
+                    // Re-calculate KPI badge counters
+                    this._recalculateAllHistoryKpiCounters(oModel);
+
+                    // Persist Revocation Request to PostgreSQL database
+                    fetch("/odata/v4/auth/submitAccessRequest", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            requests: [{
+                                requestNumber: sReqId,
+                                requesterUsername: sActiveUser,
+                                requesterPersona: sActiveRole,
+                                businessSector: oData.sector || "Information Technology & Security",
+                                businessFunction: oData.function || oData.businessFunction || "Corporate Governance",
+                                operatingRegion: oData.region || "Global Enterprise (ALL)",
+                                targetSystem: oData.system,
+                                serviceTopic: oData.category || "Revocation Request",
+                                roleName: oData.roleName,
+                                selectedPersona: oData.persona || "User",
+                                accessType: "REVOCATION",
+                                accessDuration: oData.accessDuration || oData.duration || "30 Days (Temporary)",
+                                justification: "Revocation of access for role " + oData.roleName
+                            }]
                         })
-                        .then(res => res.json())
-                        .then(() => {
-                            MessageToast.show("Revocation Request " + sReqId + " submitted successfully.");
-                            this._notifyDatabaseMutation();
-                            this._loadSubmittedRequests(oModel);
-                        })
-                        .catch(err => {
-                            console.error("Error submitting revocation request:", err);
-                            MessageToast.show("Submitted revocation request " + sReqId);
-                            this._notifyDatabaseMutation();
-                            this._loadSubmittedRequests(oModel);
-                        });
+                    })
+                    .then(res => res.json())
+                    .then(() => {
+                        MessageToast.show("Revocation Request " + sReqId + " submitted successfully.");
+                        this._notifyDatabaseMutation();
+                        this._loadSubmittedRequests(oModel);
+                    })
+                    .catch(err => {
+                        console.error("Error submitting revocation request:", err);
+                        MessageToast.show("Submitted revocation request " + sReqId);
+                        this._notifyDatabaseMutation();
+                        this._loadSubmittedRequests(oModel);
+                    });
 
-                        // SECTION STAYS OPEN (No setProperty showRemoveAccessSector false, no tab navigation)
-                    }
+                    // SECTION STAYS OPEN (No setProperty showRemoveAccessSector false, no tab navigation)
                 }
             });
         },
@@ -2086,20 +2130,23 @@ sap.ui.define([
             MessageToast.show("Exporting My Requests audit trail to CSV...");
         },
 
-        onRefreshAccess() {
-            var oBtn = this.byId("fioriHeaderRefreshBtn");
+        async onRefreshAccess() {
+            const oBtn = this.byId("fioriHeaderRefreshBtn");
             if (oBtn) {
                 oBtn.addStyleClass("kyraBtnSpinning");
             }
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                 window.KyraLoader.show({
                     title: "Refreshing Governance Data...",
-                    subtitle: "Synchronizing entitlements, request queues, and compliance status...",
-                    duration: 1500
+                    subtitle: "Synchronizing entitlements, request queues, and compliance status..."
                 });
             }
-            this._loadSubmittedRequests(this.getView().getModel("accessModel"));
-            setTimeout(() => {
+            try {
+                await this._loadSubmittedRequests(this.getView().getModel("accessModel"));
+                await new Promise(resolve => setTimeout(resolve, 600));
+            } catch (err) {
+                console.error("Error refreshing access data:", err);
+            } finally {
                 if (oBtn) {
                     oBtn.removeStyleClass("kyraBtnSpinning");
                 }
@@ -2107,7 +2154,7 @@ sap.ui.define([
                     window.KyraLoader.hide();
                 }
                 MessageToast.show("Access page data refreshed successfully.");
-            }, 800);
+            }
         },
 
         
@@ -2635,6 +2682,27 @@ sap.ui.define([
             this._scrollToTop();
         },
 
+        onBackToHomeFromTroubleshootPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            oModel.setProperty("/showTroubleshootPage", false);
+            oModel.setProperty("/troubleshootSuccess", false);
+            oModel.setProperty("/showHelpPage", false);
+            oModel.setProperty("/showContactITPage", false);
+            this._scrollToTop();
+        },
+
+        onBackToHomeFromContactITPage() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            oModel.setProperty("/showContactITPage", false);
+            oModel.setProperty("/showHelpPage", false);
+            oModel.setProperty("/showTroubleshootPage", false);
+            this._scrollToTop();
+        },
+
         onSubmitTroubleshootRequest() {
             sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
                 const oName = this.byId("kyraTroubleshootName");
@@ -2865,17 +2933,33 @@ sap.ui.define([
                 } else if (sTopic === "FAQs") {
                     sTitle = "Frequently Asked Questions";
                     sBodyHtml = `
-                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
-                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #DCFCE7; border: 1px solid #BBF7D0; display: flex; align-items: center; justify-content: center; font-size: 22px;">❓</div>
+                        <div style="padding: 20px 24px 4px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0;">
+                                <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #008C9C, #01C3D0); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,140,156,0.25);">
+                                    <span style="font-size: 20px; line-height: 1;">❓</span>
+                                </div>
                                 <div>
-                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">Common Questions</h3>
-                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Quick answers to frequently asked questions.</p>
+                                    <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0F172A;">Common Questions</h3>
+                                    <p style="margin: 3px 0 0 0; font-size: 12.5px; color: #64748B;">Quick answers to frequently asked questions.</p>
                                 </div>
                             </div>
-                            <div style="font-size: 13.5px; line-height: 1.5; color: #334155;">
-                                <p style="margin: 0 0 8px 0;"><strong>Q: How long does approval take?</strong><br/><span style="color: #64748B;">Standard requests are reviewed by Line Managers within 24 to 48 hours.</span></p>
-                                <p style="margin: 0 0 8px 0;"><strong>Q: How do I request temporary access?</strong><br/><span style="color: #64748B;">Select duration dates during Step 3 of the Request New Access wizard.</span></p>
+                            <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 8px;">
+                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
+                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">How long does approval take?</p>
+                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Standard requests are reviewed by Line Managers within 24 to 48 hours.</p>
+                                </div>
+                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
+                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">How do I request temporary access?</p>
+                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Select duration dates during Step 3 of the Request New Access wizard.</p>
+                                </div>
+                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
+                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">Can I track my request status?</p>
+                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Yes — use the <strong>My Requests</strong> tab to view real-time approval status and comments.</p>
+                                </div>
+                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
+                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">Who approves my access request?</p>
+                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Your Line Manager and a designated Compliance Approver both review and sign off on requests.</p>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2898,19 +2982,43 @@ sap.ui.define([
                     `;
                 }
 
+                // Append a native HTML footer row with a Close button to the body HTML
+                // This bypasses SAPUI5's button text-clipping issue entirely
+                const sDialogId = "kyraHelpDialog_" + Date.now();
+                const sFooterHtml = `
+                    <div style="display:flex; justify-content:flex-end; align-items:center;
+                                padding: 12px 24px 16px 24px;">
+                        <button id="${sDialogId}_closeBtn"
+                            style="display:inline-flex; align-items:center; justify-content:center;
+                                   background:#008C9C; color:#FFFFFF; border:none; border-radius:8px;
+                                   font-size:13.5px; font-weight:600; height:38px; padding:0 28px;
+                                   cursor:pointer; font-family:inherit; letter-spacing:0.01em;
+                                   box-shadow: 0 2px 8px rgba(0,140,156,0.3);
+                                   transition: background 0.15s ease, box-shadow 0.15s ease;"
+                            onmouseover="this.style.background='#007684';this.style.boxShadow='0 4px 14px rgba(0,140,156,0.4)'"
+                            onmouseout="this.style.background='#008C9C';this.style.boxShadow='0 2px 8px rgba(0,140,156,0.3)'"
+                            onmousedown="this.style.transform='scale(0.97)'"
+                            onmouseup="this.style.transform='scale(1)'">
+                            Close
+                        </button>
+                    </div>
+                `;
+
                 const oDialog = new Dialog({
                     title: sTitle,
-                    contentWidth: "480px",
+                    contentWidth: "500px",
+                    verticalScrolling: true,
+                    horizontalScrolling: false,
                     content: [
-                        new HTML({ content: sBodyHtml })
+                        new HTML({ content: sBodyHtml + sFooterHtml })
                     ],
-                    beginButton: new Button({
-                        text: "Close",
-                        type: "Emphasized",
-                        press: () => oDialog.close()
-                    }),
+                    afterOpen: () => {
+                        const oBtn = document.getElementById(`${sDialogId}_closeBtn`);
+                        if (oBtn) oBtn.addEventListener("click", () => oDialog.close());
+                    },
                     afterClose: () => oDialog.destroy()
                 });
+                oDialog.addStyleClass("kyraHelpTopicDialog kyraHelpTopicDialogNoFooter");
 
                 this.getView().addDependent(oDialog);
                 oDialog.open();
@@ -7147,14 +7255,14 @@ sap.ui.define([
                 );
 
                 const oStartDatePicker = new DatePicker({
-                    placeholder: "Select start date (dd-MM-yyyy)",
+                    placeholder: "dd-MM-yyyy",
                     displayFormat: "dd-MM-yyyy",
                     valueFormat: "yyyy-MM-dd",
                     width: "100%"
                 }).addStyleClass("kyraHistDatePicker");
 
                 const oEndDatePicker = new DatePicker({
-                    placeholder: "Select end date (dd-MM-yyyy)",
+                    placeholder: "dd-MM-yyyy",
                     displayFormat: "dd-MM-yyyy",
                     valueFormat: "yyyy-MM-dd",
                     width: "100%"
@@ -7667,7 +7775,7 @@ sap.ui.define([
                     alignItems: "Center",
                     items: [
                         new Button({
-                            text: "Reset Filter",
+                            text: "Reset",
                             icon: "sap-icon://refresh",
                             type: "Transparent",
                             press: () => {

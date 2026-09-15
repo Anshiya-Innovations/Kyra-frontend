@@ -313,37 +313,57 @@ sap.ui.define([
             const sOverallBadgeClass = aRejectedItems.length === 0 ? "kyra-badge-approved" : (aFinalApproved.length === 0 ? "kyra-badge-rejected" : "kyra-badge-partial");
             const sOverallIcon = aRejectedItems.length === 0 ? "✓" : (aFinalApproved.length === 0 ? "✕" : "⚠");
 
-            const sApprovedCardsHtml = aFinalApproved.length > 0 ? aFinalApproved.map(e => `
+            const sApprovedCardsHtml = aFinalApproved.length > 0 ? aFinalApproved.map(e => {
+                const sTeamVal = e.team || e.teamRole || oData.team || oData.function || '';
+                const sPersonaVal = e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona';
+                const sReqId = e.requestId || oData.requestId || oData.id || '';
+                return `
                 <div class="kyra-entitlement-summary-card kyra-card-approved">
                     <div class="kyra-card-main-left">
-                        <div class="kyra-card-system-badge kyra-sys-approved">
-                            <span class="kyra-sys-name">${e.system || 'System'}</span>
+                        <div class="kyra-card-badge-row">
+                            <div class="kyra-card-system-badge kyra-sys-approved">
+                                <span class="kyra-sys-name">${e.system || 'System'}</span>
+                            </div>
+                            ${sReqId ? `
+                            <div class="kyra-card-system-badge kyra-card-reqid-badge">
+                                <span class="kyra-reqid-name">${sReqId}</span>
+                            </div>` : ''}
                         </div>
                         <div class="kyra-card-role-title">${e.roleName || 'System Role'}</div>
-                        <div class="kyra-card-role-sub">Persona: <strong>${e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona'}</strong>${e.team ? ' • Team: ' + e.team : ''}</div>
+                        <div class="kyra-card-role-sub">${sTeamVal ? 'Team: <strong>' + sTeamVal + '</strong> • ' : ''}Persona: <strong>${sPersonaVal}</strong></div>
                     </div>
                     <div class="kyra-card-status-pill kyra-pill-approved">
                         ✓ Approved
                     </div>
                 </div>
-            `).join('') : `
+            `;}).join('') : `
                 <div class="kyra-empty-summary-box">No entitlements in this category.</div>
             `;
 
-            const sRejectedCardsHtml = aRejectedItems.length > 0 ? aRejectedItems.map(e => `
+            const sRejectedCardsHtml = aRejectedItems.length > 0 ? aRejectedItems.map(e => {
+                const sTeamVal = e.team || e.teamRole || oData.team || oData.function || '';
+                const sPersonaVal = e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona';
+                const sReqId = e.requestId || oData.requestId || oData.id || '';
+                return `
                 <div class="kyra-entitlement-summary-card kyra-card-rejected">
                     <div class="kyra-card-main-left">
-                        <div class="kyra-card-system-badge kyra-sys-rejected">
-                            <span class="kyra-sys-name">${e.system || 'System'}</span>
+                        <div class="kyra-card-badge-row">
+                            <div class="kyra-card-system-badge kyra-sys-rejected">
+                                <span class="kyra-sys-name">${e.system || 'System'}</span>
+                            </div>
+                            ${sReqId ? `
+                            <div class="kyra-card-system-badge kyra-card-reqid-badge">
+                                <span class="kyra-reqid-name">${sReqId}</span>
+                            </div>` : ''}
                         </div>
                         <div class="kyra-card-role-title">${e.roleName || 'System Role'}</div>
-                        <div class="kyra-card-role-sub">Persona: <strong>${e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona'}</strong>${e.team ? ' • Team: ' + e.team : ''}</div>
+                        <div class="kyra-card-role-sub">${sTeamVal ? 'Team: <strong>' + sTeamVal + '</strong> • ' : ''}Persona: <strong>${sPersonaVal}</strong></div>
                     </div>
                     <div class="kyra-card-status-pill kyra-pill-rejected">
                         ✕ Rejected
                     </div>
                 </div>
-            `).join('') : `
+            `;}).join('') : `
                 <div class="kyra-empty-summary-box">No entitlements were rejected.</div>
             `;
 
@@ -422,7 +442,7 @@ sap.ui.define([
 
                     <!-- Footer Actions -->
                     <div class="kyra-breakdown-modal-footer">
-                        ${!bReadOnly ? '<button type="button" class="kyra-btn-secondary" id="kyra_btn_breakdown_back">Back</button>' : ''}
+                        ${!bReadOnly ? '<button type="button" class="kyra-btn-secondary kyra-btn-back-teal" id="kyra_btn_breakdown_back">Back</button>' : ''}
                         <button type="button" class="kyra-btn-primary" id="kyra_btn_breakdown_okay">Okay</button>
                     </div>
                 </div>
@@ -1000,14 +1020,14 @@ sap.ui.define([
                 };
 
                 const oStartDatePicker = new DatePicker({
-                    placeholder: "Select start date (dd-MM-yyyy)",
+                    placeholder: "dd-MM-yyyy",
                     displayFormat: "dd-MM-yyyy",
                     valueFormat: "yyyy-MM-dd",
                     width: "100%"
                 }).addStyleClass("kyraHistDatePicker");
 
                 const oEndDatePicker = new DatePicker({
-                    placeholder: "Select end date (dd-MM-yyyy)",
+                    placeholder: "dd-MM-yyyy",
                     displayFormat: "dd-MM-yyyy",
                     valueFormat: "yyyy-MM-dd",
                     width: "100%"

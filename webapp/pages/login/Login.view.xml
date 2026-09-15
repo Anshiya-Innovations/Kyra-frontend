@@ -192,12 +192,10 @@
                                     width="100%" />
                             </VBox>
 
-                            <!-- Full Width Solid Vibrant Teal Sign In Button with Arrow & Shine -->
+                            <!-- Full Width Solid Vibrant Teal Sign In Button without Arrow -->
                             <Button
                                 id="signInButton"
                                 text="Sign In"
-                                icon="sap-icon://navigation-right-arrow"
-                                iconFirst="false"
                                 type="Emphasized"
                                 width="100%"
                                 press=".onLogin"
