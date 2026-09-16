@@ -1,0 +1,84 @@
+<svg width="1200" height="120" viewBox="0 0 1200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Cyan glow filters -->
+    <filter id="waveGlow" x="-30%" y="-50%" width="160%" height="200%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="5" result="blur1" />
+      <feGaussianBlur stdDeviation="2" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur1" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="softVeil" x="-20%" y="-40%" width="140%" height="180%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+    </filter>
+
+    <!-- Gradients -->
+    <linearGradient id="ribbonGrad1" x1="30%" y1="100%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0" />
+      <stop offset="25%" stop-color="#00F0FF" stop-opacity="0.4" />
+      <stop offset="50%" stop-color="#22D3EE" stop-opacity="0.9" />
+      <stop offset="68%" stop-color="#E0F7FA" stop-opacity="1" />
+      <stop offset="85%" stop-color="#00E5FF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#008C9C" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="ribbonGrad2" x1="35%" y1="0%" x2="95%" y2="90%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0" />
+      <stop offset="30%" stop-color="#00E5FF" stop-opacity="0.65" />
+      <stop offset="52%" stop-color="#22D3EE" stop-opacity="0.85" />
+      <stop offset="75%" stop-color="#00F0FF" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#008C9C" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="veilGrad" x1="25%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0" />
+      <stop offset="40%" stop-color="#00E5FF" stop-opacity="0.16" />
+      <stop offset="65%" stop-color="#22D3EE" stop-opacity="0.25" />
+      <stop offset="90%" stop-color="#00F0FF" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#008C9C" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Ambient Glow Spot -->
+    <radialGradient id="crossGlow" cx="54%" cy="48%" r="24%">
+      <stop offset="0%" stop-color="#A5F3FC" stop-opacity="0.6" />
+      <stop offset="30%" stop-color="#22D3EE" stop-opacity="0.35" />
+      <stop offset="70%" stop-color="#008C9C" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#003844" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Light Spreads -->
+  <rect x="0" y="0" width="1200" height="120" fill="url(#crossGlow)" />
+
+  <!-- Translucent Wave Veils (Flowing body between the curves) -->
+  <path d="M 360 120 C 500 85, 620 45, 780 32 C 920 20, 1060 40, 1200 65 L 1200 120 Z" 
+        fill="url(#veilGrad)" opacity="0.45" filter="url(#softVeil)" />
+  <path d="M 420 0 C 560 45, 680 82, 860 85 C 990 85, 1100 60, 1200 35 L 1200 0 Z" 
+        fill="url(#veilGrad)" opacity="0.35" filter="url(#softVeil)" />
+
+  <!-- Main Rising Ribbon 1 -->
+  <path d="M 360 120 C 500 88, 620 46, 780 30 C 920 16, 1060 30, 1200 55" 
+        stroke="url(#ribbonGrad1)" stroke-width="5" fill="none" filter="url(#waveGlow)" />
+  <path d="M 360 120 C 500 88, 620 46, 780 30 C 920 16, 1060 30, 1200 55" 
+        stroke="#FFFFFF" stroke-width="1.2" stroke-opacity="0.9" fill="none" />
+
+  <!-- Secondary Parallel Ribbon 1b -->
+  <path d="M 400 120 C 540 92, 660 54, 810 38 C 950 24, 1080 38, 1200 65" 
+        stroke="url(#ribbonGrad1)" stroke-width="2.5" stroke-opacity="0.6" fill="none" />
+
+  <!-- Descending Intersecting Ribbon 2 -->
+  <path d="M 420 0 C 550 42, 670 82, 850 84 C 990 85, 1100 62, 1200 38" 
+        stroke="url(#ribbonGrad2)" stroke-width="4" fill="none" filter="url(#waveGlow)" />
+  <path d="M 420 0 C 550 42, 670 82, 850 84 C 990 85, 1100 62, 1200 38" 
+        stroke="#FFFFFF" stroke-width="1" stroke-opacity="0.75" fill="none" />
+
+  <!-- Secondary Parallel Ribbon 2b -->
+  <path d="M 460 0 C 590 50, 710 92, 890 94 C 1020 94, 1130 75, 1200 50" 
+        stroke="url(#ribbonGrad2)" stroke-width="2" stroke-opacity="0.45" fill="none" />
+
+  <!-- Crossing Intersection Glow Flare -->
+  <ellipse cx="650" cy="56" rx="70" ry="24" fill="#E0F7FA" opacity="0.4" filter="url(#waveGlow)" />
+</svg>

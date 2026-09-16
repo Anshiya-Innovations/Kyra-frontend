@@ -52,10 +52,17 @@
                 <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} &amp;&amp; !${accessModel>/showTroubleshootPage} }">
                     <!-- Enterprise Top Header Banner -->
                     <VBox class="fioriWelcomeCard sapUiSmallMarginBottom">
+                        <!-- Security Shield Focus Background Emblem (Center Pulse Effect) -->
+                        <HBox class="kyraBannerShieldFocus" alignItems="Center" justifyContent="Center">
+                            <Image src="{= ${accessModel>/shieldFocusUrl} || 'images/kyra_shield_focus.svg' }" class="kyraShieldFocusImg" densityAware="false" alt="Security Shield" />
+                        </HBox>
+
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraBannerRow">
                             <HBox alignItems="Center" class="kyraBannerLeftGroup">
-                                <!-- Shield Avatar Icon Box -->
-                                <Avatar src="sap-icon://shield" displaySize="M" class="kyraBannerShieldAvatar" />
+                                <!-- KYRA Project Logo Badge (K Logo) -->
+                                <HBox alignItems="Center" justifyContent="Center" class="kyraBannerShieldAvatar" tooltip="KYRA Governance Portal">
+                                    <Image src="{= ${accessModel>/brandLogoUrl} || 'images/kyra_k_logo.png' }" width="30px" height="36px" densityAware="false" class="kyraBannerLogoImg" alt="KYRA Logo" />
+                                </HBox>
                                 <VBox class="kyraBannerTextGroup">
                                     <Title text="Enterprise Identity &amp; Access Governance" level="H2" class="fioriWelcomeTitle" />
                                     <HBox alignItems="Center" class="kyraBannerPersonaRow">
@@ -415,7 +422,13 @@
                                 <Text text="Pending Requests" class="kyraCardPendingLabel" />
                             </HBox>
                             <HBox class="kyraCardCircleArrow kyraArrowAmber">
-                                <core:Icon src="sap-icon://navigation-down-arrow" class="kyraArrowIcon" />
+                                <customData>
+                                    <core:CustomData key="expanded" value="{= ${accessModel>/showPendingSection} ? 'true' : 'false' }" writeToDom="true" />
+                                </customData>
+                                <core:Icon
+                                    id="arrowPendingRequests"
+                                    src="{= ${accessModel>/showPendingSection} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    class="kyraArrowIcon" />
                             </HBox>
                         </HBox>
                     </VBox>
@@ -435,7 +448,13 @@
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
                             <Text text="Create Request" class="fioriActionLinkTeal" />
                             <HBox class="kyraCardCircleArrow kyraArrowTeal">
-                                <core:Icon src="sap-icon://navigation-down-arrow" class="kyraArrowIcon" />
+                                <customData>
+                                    <core:CustomData key="expanded" value="{= ${accessModel>/showAddAccessSector} ? 'true' : 'false' }" writeToDom="true" />
+                                </customData>
+                                <core:Icon
+                                    id="arrowAddAccess"
+                                    src="{= ${accessModel>/showAddAccessSector} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    class="kyraArrowIcon" />
                             </HBox>
                         </HBox>
                     </VBox>
@@ -455,7 +474,13 @@
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
                             <Text text="Remove Access" class="fioriActionLinkRose" />
                             <HBox class="kyraCardCircleArrow kyraArrowRose">
-                                <core:Icon src="sap-icon://navigation-down-arrow" class="kyraArrowIcon" />
+                                <customData>
+                                    <core:CustomData key="expanded" value="{= ${accessModel>/showRemoveAccessSector} ? 'true' : 'false' }" writeToDom="true" />
+                                </customData>
+                                <core:Icon
+                                    id="arrowRemoveAccess"
+                                    src="{= ${accessModel>/showRemoveAccessSector} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    class="kyraArrowIcon" />
                             </HBox>
                         </HBox>
                     </VBox>
@@ -1678,8 +1703,8 @@
                                             icon="sap-icon://delete"
                                             type="Transparent"
                                             press=".onRemoveAccessClick"
-                                            tooltip="Revoke Access"
-                                            class="kyraDestructiveBtn kyraTableActionBtn" />
+                                            tooltip="Remove Access"
+                                            class="kyraTableActionBtn" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>
@@ -2125,20 +2150,17 @@
 
             <!-- DEDICATED SEPARATE FULL PAGE VIEW: ALL NOTIFICATIONS -->
             <VBox id="kyraNotificationsPageContainer" visible="{= !!${accessModel>/showAllNotificationsPage} }" class="fioriStepSlideAnim kyraNotifPageWrapper" width="100%">
-                <!-- Top Navigation Row outside Card -->
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
-                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
-                        <Button
-                            text="Back"
-                            type="Transparent"
-                            press=".onBackFromNotificationsPage"
-                            class="kyraBackTealBtn" />
-                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
-                            <Link text="Home" press=".onBackFromNotificationsPage" class="kyraHelpBreadcrumbLink" />
-                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                            <Text text="All Notifications" class="kyraHelpBreadcrumbCurrent" />
-                        </HBox>
+                <!-- Top Navigation Row outside Card: Breadcrumbs on LEFT, Back Button on RIGHT -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraHelpTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                        <Link text="Home" press=".onBackFromNotificationsPage" class="kyraHelpBreadcrumbLink" />
+                        <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                        <Text text="All Notifications" class="kyraHelpBreadcrumbCurrent" />
                     </HBox>
+                    <Button
+                        text="Back"
+                        press=".onBackFromNotificationsPage"
+                        class="kyraTroubleshootRightBackBtn" />
                 </HBox>
 
                 <!-- Main White Card Container -->
@@ -2168,22 +2190,30 @@
                         <HBox alignItems="Center" class="kyraNotifFilterGroup">
                             <Button
                                 text="{= 'All (' + (${accessModel>/allNotificationsCount} || 0) + ')' }"
-                                type="Default"
+                                type="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'Emphasized' : 'Transparent' }"
                                 press=".onFilterNotifications"
-                                customData:key="all"
-                                class="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'kyraNotifPillTab kyraNotifTabActive' : 'kyraNotifPillTab kyraNotifTabInactive' }" />
+                                class="kyraNotifPillTab">
+                                <customData>
+                                    <core:CustomData key="key" value="all" />
+                                    <core:CustomData key="active" value="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'true' : 'false' }" writeToDom="true" />
+                                </customData>
+                            </Button>
                             <Button
                                 text="{= 'Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')' }"
-                                type="Default"
+                                type="{= ${accessModel>/notifFilterKey} === 'unread' ? 'Emphasized' : 'Transparent' }"
                                 press=".onFilterNotifications"
-                                customData:key="unread"
-                                class="{= ${accessModel>/notifFilterKey} === 'unread' ? 'kyraNotifPillTab kyraNotifTabActive' : 'kyraNotifPillTab kyraNotifTabInactive' }" />
+                                class="kyraNotifPillTab">
+                                <customData>
+                                    <core:CustomData key="key" value="unread" />
+                                    <core:CustomData key="active" value="{= ${accessModel>/notifFilterKey} === 'unread' ? 'true' : 'false' }" writeToDom="true" />
+                                </customData>
+                            </Button>
                         </HBox>
 
                         <Button
                             icon="sap-icon://delete"
                             text="Clear all"
-                            type="Default"
+                            type="Transparent"
                             press=".onClearReadNotifications"
                             class="kyraNotifClearAllBtn" />
                     </HBox>
@@ -2196,19 +2226,32 @@
                         <!-- Horizontal Notification Cards -->
                         <List items="{accessModel>/filteredNotificationsList}" showSeparators="None" class="sapUiNoMargin">
                             <CustomListItem type="Active" press=".onNotificationItemPress" class="kyraNotifListItem">
+                                <customData>
+                                    <core:CustomData key="unread" value="{= ${accessModel>unread} ? 'true' : 'false' }" writeToDom="true" />
+                                    <core:CustomData key="statusType" value="{accessModel>type}" writeToDom="true" />
+                                </customData>
                                 <HBox
-                                    class="{= 'kyraNotifListRow ' + (${accessModel>unread} ? 'kyraNotifCardUnread' : 'kyraNotifCardRead') }"
+                                    class="kyraNotifListRow"
                                     alignItems="Start"
                                     justifyContent="SpaceBetween"
                                     width="100%">
+                                    <customData>
+                                        <core:CustomData key="unread" value="{= ${accessModel>unread} ? 'true' : 'false' }" writeToDom="true" />
+                                        <core:CustomData key="statusType" value="{accessModel>type}" writeToDom="true" />
+                                    </customData>
                                     <!-- Left Section: status icon → title → Request ID → description → time -->
                                     <HBox alignItems="Start" class="kyraNotifCardLeftSection">
-                                        <!-- 1. Status Icon -->
+                                        <!-- 1. Status Icon Circle -->
                                         <HBox
-                                            class="{= 'kyraNotifRowIconCircle ' + (${accessModel>type} === 'approved' ? 'kyraNotifIconGreen' : (${accessModel>type} === 'rejected' ? 'kyraNotifIconRed' : (${accessModel>type} === 'submitted' || ${accessModel>type} === 'new_request' ? 'kyraNotifIconBlue' : (${accessModel>type} === 'warning' ? 'kyraNotifIconYellow' : 'kyraNotifIconPurple')))) }"
+                                            class="kyraNotifRowIconCircle"
                                             justifyContent="Center"
                                             alignItems="Center">
-                                            <core:Icon src="{= ${accessModel>icon} || (${accessModel>type} === 'approved' ? 'sap-icon://sys-enter-2' : (${accessModel>type} === 'rejected' ? 'sap-icon://error' : 'sap-icon://pending')) }" class="kyraNotifRowIcon" />
+                                            <customData>
+                                                <core:CustomData key="statusType" value="{accessModel>type}" writeToDom="true" />
+                                            </customData>
+                                            <core:Icon
+                                                src="{= ${accessModel>icon} || (${accessModel>type} === 'approved' ? 'sap-icon://sys-enter-2' : (${accessModel>type} === 'rejected' ? 'sap-icon://error' : 'sap-icon://pending')) }"
+                                                class="kyraNotifRowIcon" />
                                         </HBox>
 
                                         <!-- 2. Text Col: Title → Request ID → Description → Remark → Time -->
@@ -2264,19 +2307,16 @@
             <!-- DEDICATED FULL PAGE VIEW: HELP CENTER (Single Desktop Screen, 4 Equal Cards, No Scroll) -->
             <VBox id="kyraHelpPageContainer" visible="{= !!${accessModel>/showHelpPage} }" class="fioriStepSlideAnim kyraHelpPageWrapper" width="100%">
                 <!-- Top Navigation Row outside Card -->
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
-                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
-                        <Button
-                            text="Back"
-                            type="Transparent"
-                            press=".onBackFromHelpPage"
-                            class="kyraBackTealBtn" />
-                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
-                            <Link text="Home" press=".onBackFromHelpPage" class="kyraHelpBreadcrumbLink" />
-                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                            <Text text="Help Center" class="kyraHelpBreadcrumbCurrent" />
-                        </HBox>
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraHelpTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                        <Link text="Home" press=".onBackFromHelpPage" class="kyraHelpBreadcrumbLink" />
+                        <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                        <Text text="Help Center" class="kyraHelpBreadcrumbCurrent" />
                     </HBox>
+                    <Button
+                        text="Back"
+                        press=".onBackFromHelpPage"
+                        class="kyraTroubleshootRightBackBtn" />
                 </HBox>
 
                 <VBox class="kyraHelpMainOuterCard" width="100%">
@@ -2347,32 +2387,24 @@
                             <Link text="Contact Now →" press=".onHelpCardPress" customData:topic="Contact IT" class="kyraHelpCardLink" />
                         </VBox>
                     </HBox>
-
-                    <!-- 5. Centered Footer Copyright -->
-                    <HBox justifyContent="Center" class="kyraHelpFooterRow sapUiSmallMarginTop">
-                        <Text text="© 2026 KYRA Enterprise. All rights reserved." class="kyraHelpFooterText" />
-                    </HBox>
                 </VBox>
             </VBox>
 
             <!-- DEDICATED FULL PAGE VIEW: CONTACT IT SUPPORT (Modern, Clean White &amp; Light-Blue 2-Column Design) -->
             <VBox id="kyraContactITPageContainer" visible="{= !!${accessModel>/showContactITPage} }" class="fioriStepSlideAnim kyraContactITPageWrapper" width="100%">
                 <!-- 1. Top Navigation Bar (Consistent Unified Breadcrumbs & Back Button) -->
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
-                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
-                        <Button
-                            text="Back"
-                            type="Transparent"
-                            press=".onBackFromContactITPage"
-                            class="kyraBackTealBtn" />
-                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
-                            <Link text="Home" press=".onBackToHomeFromContactITPage" class="kyraHelpBreadcrumbLink" />
-                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                            <Link text="Help Center" press=".onBackFromContactITPage" class="kyraHelpBreadcrumbLink" />
-                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                            <Text text="IT Support" class="kyraHelpBreadcrumbCurrent" />
-                        </HBox>
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraContactITTopNavRow sapUiSmallMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                        <Link text="Home" press=".onBackToHomeFromContactITPage" class="kyraHelpBreadcrumbLink" />
+                        <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                        <Link text="Help Center" press=".onBackFromContactITPage" class="kyraHelpBreadcrumbLink" />
+                        <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                        <Text text="IT Support" class="kyraHelpBreadcrumbCurrent" />
                     </HBox>
+                    <Button
+                        text="Back"
+                        press=".onBackFromContactITPage"
+                        class="kyraTroubleshootRightBackBtn" />
                 </HBox>
 
                 <!-- 2. Hero Header with IT Support Tag -->
@@ -2416,21 +2448,18 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- Row 1: Full Name &amp; Email Address -->
+                            <!-- Row 1: Full Name & Email Address -->
                             <HBox width="100%" class="kyraContactITFormRow sapUiTinyMarginTop">
                                 <VBox class="kyraContactITFormCol">
                                     <HBox alignItems="Center" class="kyraContactITLabelRow">
                                         <Text text="Full Name" class="kyraContactITLabelText" />
                                         <Text text="*" class="kyraContactITRequiredStar" />
                                     </HBox>
-                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                        <Input
-                                            id="kyraContactITFullName"
-                                            value="{= ${accessModel>/activeUser} ? ${accessModel>/activeUser} : '' }"
-                                            placeholder="Enter your full name"
-                                            class="kyraContactITInputField" />
-                                        <core:Icon src="sap-icon://person-placeholder" class="kyraContactITFieldIcon" />
-                                    </HBox>
+                                    <Input
+                                        id="kyraContactITFullName"
+                                        value="{= ${accessModel>/activeUser} ? ${accessModel>/activeUser} : '' }"
+                                        placeholder="Enter your full name"
+                                        class="kyraContactITInputField" />
                                 </VBox>
 
                                 <VBox class="kyraContactITFormCol">
@@ -2438,31 +2467,25 @@
                                         <Text text="Email Address" class="kyraContactITLabelText" />
                                         <Text text="*" class="kyraContactITRequiredStar" />
                                     </HBox>
-                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                        <Input
-                                            id="kyraContactITEmail"
-                                            type="Email"
-                                            placeholder="Enter your email address"
-                                            class="kyraContactITInputField" />
-                                        <core:Icon src="sap-icon://email" class="kyraContactITFieldIcon" />
-                                    </HBox>
+                                    <Input
+                                        id="kyraContactITEmail"
+                                        type="Email"
+                                        placeholder="Enter your email address"
+                                        class="kyraContactITInputField" />
                                 </VBox>
                             </HBox>
 
-                            <!-- Row 2: Phone Number &amp; Subject -->
+                            <!-- Row 2: Phone Number & Subject -->
                             <HBox width="100%" class="kyraContactITFormRow sapUiSmallMarginTop">
                                 <VBox class="kyraContactITFormCol">
                                     <HBox alignItems="Center" class="kyraContactITLabelRow">
                                         <Text text="Phone Number" class="kyraContactITLabelText" />
                                     </HBox>
-                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                        <Input
-                                            id="kyraContactITPhone"
-                                            type="Tel"
-                                            placeholder="Enter your phone number"
-                                            class="kyraContactITInputField" />
-                                        <core:Icon src="sap-icon://phone" class="kyraContactITFieldIcon" />
-                                    </HBox>
+                                    <Input
+                                        id="kyraContactITPhone"
+                                        type="Tel"
+                                        placeholder="Enter your phone number"
+                                        class="kyraContactITInputField" />
                                 </VBox>
 
                                 <VBox class="kyraContactITFormCol">
@@ -2470,13 +2493,10 @@
                                         <Text text="Subject" class="kyraContactITLabelText" />
                                         <Text text="*" class="kyraContactITRequiredStar" />
                                     </HBox>
-                                    <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                        <Input
-                                            id="kyraContactITSubject"
-                                            placeholder="Brief issue description"
-                                            class="kyraContactITInputField" />
-                                        <core:Icon src="sap-icon://document-text" class="kyraContactITFieldIcon" />
-                                    </HBox>
+                                    <Input
+                                        id="kyraContactITSubject"
+                                        placeholder="Brief issue description"
+                                        class="kyraContactITInputField" />
                                 </VBox>
                             </HBox>
 
@@ -2490,6 +2510,7 @@
                                     id="kyraContactITMessage"
                                     placeholder="Describe your issue, error codes, or what you need help with..."
                                     rows="5"
+                                    height="125px"
                                     liveChange=".onContactITDescLiveChange"
                                     growing="false"
                                     width="100%"
@@ -2506,12 +2527,6 @@
                                 press=".onSubmitContactITRequest"
                                 width="100%"
                                 class="kyraContactITFullSubmitBtn sapUiMediumMarginTop" />
-
-                            <!-- Bottom Security Trust Note -->
-                            <HBox justifyContent="Center" alignItems="Center" class="sapUiSmallMarginTop">
-                                <core:Icon src="sap-icon://locked" class="kyraContactITLockIcon sapUiTinyMarginEnd" />
-                                <Text text="Your information is secure and will only be used to assist with your request." class="kyraContactITFooterNoteText" />
-                            </HBox>
                         </VBox>
 
                         <!-- Right Column: "We’re Here for You" Panel -->
@@ -2558,26 +2573,26 @@
 
             <!-- DEDICATED FULL PAGE VIEW: TROUBLESHOOTING CONTACT SUPPORT &amp; SUBMIT REQUEST FLOW -->
             <VBox id="kyraTroubleshootPageContainer" visible="{= !!${accessModel>/showTroubleshootPage} }" class="fioriStepSlideAnim kyraTroubleshootPageWrapper" width="100%">
-                <!-- 1. Top Navigation Bar (Consistent Unified Breadcrumbs & Back Button) -->
-                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSubpageTopNavRow sapUiSmallMarginBottom" width="100%">
-                    <HBox alignItems="Center" class="kyraSubpageNavLeft">
-                        <Button
-                            text="Back"
-                            type="Transparent"
-                            press=".onBackFromTroubleshootPage"
-                            class="kyraBackTealBtn" />
-                        <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
-                            <Link text="Home" press=".onBackToHomeFromTroubleshootPage" class="kyraHelpBreadcrumbLink" />
-                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                            <Link text="Help Center" press=".onBackFromTroubleshootPage" class="kyraHelpBreadcrumbLink" />
-                            <Text text="/" class="kyraHelpBreadcrumbSlash" />
-                            <Text text="Contact Support" class="kyraHelpBreadcrumbCurrent" />
-                        </HBox>
+                <!-- 1. Top Navigation Bar (Full Width across page: Breadcrumbs on Left, Back Button on Right) -->
+                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraTroubleshootTopNav sapUiMediumMarginBottom" width="100%">
+                    <HBox alignItems="Center" class="kyraHelpBreadcrumbBox">
+                        <Link text="Home" press=".onBackToHomeFromTroubleshootPage" class="kyraHelpBreadcrumbLink" />
+                        <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                        <Link text="Help Center" press=".onBackFromTroubleshootPage" class="kyraHelpBreadcrumbLink" />
+                        <Text text="/" class="kyraHelpBreadcrumbSlash" />
+                        <Text text="Contact Support" class="kyraHelpBreadcrumbCurrent" />
                     </HBox>
+                    <Button
+                        text="Back"
+                        type="Transparent"
+                        press=".onBackFromTroubleshootPage"
+                        class="kyraTroubleshootRightBackBtn" />
                 </HBox>
 
-                <!-- 2. STATE A: FORM VIEW (Visible when !troubleshootSuccess) -->
-                <VBox visible="{= !${accessModel>/troubleshootSuccess} }" width="100%" alignItems="Center">
+                <!-- 2. Centered Main Column (Hero Header & Form Card) -->
+                <VBox class="kyraTroubleshootMainColumn" width="100%">
+                    <!-- STATE A: FORM VIEW (Visible when !troubleshootSuccess) -->
+                    <VBox visible="{= !${accessModel>/troubleshootSuccess} }" width="100%" alignItems="Center">
                     <!-- Hero Header -->
                     <VBox class="kyraContactITHeroSection" alignItems="Center">
                         <HBox class="kyraTroubleshootAvatarCircle" justifyContent="Center" alignItems="Center">
@@ -2595,14 +2610,11 @@
                                 <Text text="Name" class="kyraContactITLabelText" />
                                 <Text text="*" class="kyraContactITRequiredStar" />
                             </HBox>
-                            <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                <Input
-                                    id="kyraTroubleshootName"
-                                    value="{= ${accessModel>/activeUser} ? ${accessModel>/activeUser} : '' }"
-                                    placeholder="Enter your full name"
-                                    class="kyraContactITInputField" />
-                                <core:Icon src="sap-icon://person-placeholder" class="kyraContactITFieldIcon" />
-                            </HBox>
+                            <Input
+                                id="kyraTroubleshootName"
+                                value="{= ${accessModel>/activeUser} ? ${accessModel>/activeUser} : '' }"
+                                placeholder="Enter your full name"
+                                class="kyraContactITInputField" />
                         </VBox>
 
                         <!-- 2. Email Address Field -->
@@ -2611,14 +2623,11 @@
                                 <Text text="Email Address" class="kyraContactITLabelText" />
                                 <Text text="*" class="kyraContactITRequiredStar" />
                             </HBox>
-                            <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                <Input
-                                    id="kyraTroubleshootEmail"
-                                    type="Email"
-                                    placeholder="Enter your email address (e.g. user@enterprise.com)"
-                                    class="kyraContactITInputField" />
-                                <core:Icon src="sap-icon://email" class="kyraContactITFieldIcon" />
-                            </HBox>
+                            <Input
+                                id="kyraTroubleshootEmail"
+                                type="Email"
+                                placeholder="Enter your email address (e.g. user@enterprise.com)"
+                                class="kyraContactITInputField" />
                         </VBox>
 
                         <!-- 3. Issue / Subject Field -->
@@ -2627,13 +2636,10 @@
                                 <Text text="Issue / Subject" class="kyraContactITLabelText" />
                                 <Text text="*" class="kyraContactITRequiredStar" />
                             </HBox>
-                            <HBox class="kyraContactITInputWrapper" alignItems="Center">
-                                <Input
-                                    id="kyraTroubleshootSubject"
-                                    placeholder="Enter a short title or summary for your issue"
-                                    class="kyraContactITInputField" />
-                                <core:Icon src="sap-icon://document-text" class="kyraContactITFieldIcon" />
-                            </HBox>
+                            <Input
+                                id="kyraTroubleshootSubject"
+                                placeholder="Enter a short title or summary for your issue"
+                                class="kyraContactITInputField" />
                         </VBox>
 
                         <!-- 4. Describe Your Issue Field -->
@@ -2645,7 +2651,8 @@
                             <TextArea
                                 id="kyraTroubleshootDescription"
                                 placeholder="Describe the issue you are experiencing in detail..."
-                                rows="4"
+                                rows="5"
+                                height="125px"
                                 liveChange=".onTroubleshootDescLiveChange"
                                 growing="false"
                                 width="100%"
@@ -2685,12 +2692,6 @@
                                 class="kyraContactITSubmitBtn" />
                         </HBox>
                     </VBox>
-
-                    <!-- Footer Trust Note -->
-                    <HBox justifyContent="Center" alignItems="Center" class="kyraContactITFooterNote sapUiSmallMarginTop">
-                        <core:Icon src="sap-icon://locked" class="kyraContactITLockIcon sapUiTinyMarginEnd" />
-                        <Text text="Your information is safe and will only be used to assist you." class="kyraContactITFooterNoteText" />
-                    </HBox>
                 </VBox>
 
                 <!-- 3. STATE B: SUCCESS PAGE (Visible when troubleshootSuccess) -->
@@ -2734,6 +2735,7 @@
                             class="kyraTroubleshootBackBtn sapUiMediumMarginTop" />
                     </VBox>
                 </VBox>
+            </VBox>
             </VBox>
             </VBox>
         </content>

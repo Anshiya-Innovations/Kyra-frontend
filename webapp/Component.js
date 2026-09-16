@@ -295,94 +295,212 @@ sap.ui.define([
                     };
                 }
 
+                // Helper to get raw DOM element of a popover/picker
+                const getPickerDom = (oPicker) => {
+                    if (!oPicker) return null;
+                    if (typeof oPicker.getDomRef === "function") {
+                        const dom = oPicker.getDomRef();
+                        if (dom) return dom;
+                    }
+                    if (typeof oPicker._getPopover === "function") {
+                        const pop = oPicker._getPopover();
+                        if (pop && typeof pop.getDomRef === "function") {
+                            const dom = pop.getDomRef();
+                            if (dom) return dom;
+                        }
+                    }
+                    if (typeof oPicker.getPopover === "function") {
+                        const pop = oPicker.getPopover();
+                        if (pop && typeof pop.getDomRef === "function") {
+                            const dom = pop.getDomRef();
+                            if (dom) return dom;
+                        }
+                    }
+                    return null;
+                };
+
+                const positionPickerDirectly = (oControl, oPicker) => {
+                    if (!oControl || !oPicker) return;
+                    try {
+                        const oOpenerDom = typeof oControl.getDomRef === "function" ? oControl.getDomRef() : null;
+                        const oPickerDom = getPickerDom(oPicker);
+                        if (!oOpenerDom || !oPickerDom) return;
+
+                        const rect = oOpenerDom.getBoundingClientRect();
+                        if (rect.width === 0 && rect.height === 0) return;
+
+                        const scrollX = window.pageXOffset || (document.documentElement && document.documentElement.scrollLeft) || 0;
+                        const scrollY = window.pageYOffset || (document.documentElement && document.documentElement.scrollTop) || 0;
+
+                        let offsetParentLeft = 0;
+                        let offsetParentTop = 0;
+                        if (oPickerDom.offsetParent && oPickerDom.offsetParent !== document.body && oPickerDom.offsetParent !== document.documentElement) {
+                            const pRect = oPickerDom.offsetParent.getBoundingClientRect();
+                            offsetParentLeft = pRect.left + scrollX;
+                            offsetParentTop = pRect.top + scrollY;
+                        }
+
+                        const iLeft = Math.round(rect.left + scrollX - offsetParentLeft);
+                        const iTop = Math.round(rect.bottom + scrollY - offsetParentTop + 2);
+                        const iWidth = Math.round(rect.width || oOpenerDom.offsetWidth);
+
+                        oPickerDom.style.setProperty("position", "absolute", "important");
+                        oPickerDom.style.setProperty("left", iLeft + "px", "important");
+                        oPickerDom.style.setProperty("top", iTop + "px", "important");
+                        oPickerDom.style.setProperty("right", "auto", "important");
+                        oPickerDom.style.setProperty("bottom", "auto", "important");
+                        oPickerDom.style.setProperty("transform", "none", "important");
+                        oPickerDom.style.setProperty("margin", "0", "important");
+
+                        if (iWidth > 0) {
+                            oPickerDom.style.setProperty("width", iWidth + "px", "important");
+                            oPickerDom.style.setProperty("min-width", iWidth + "px", "important");
+                            oPickerDom.style.setProperty("max-width", iWidth + "px", "important");
+                        }
+                        oPickerDom.style.setProperty("z-index", "100000", "important");
+
+                        oPickerDom.classList.remove("sapMPopoverTop");
+                        oPickerDom.classList.add("sapMPopoverBottom");
+
+                        // Single sleek scrollbar setup
+                        const oScrollDom = oPickerDom.querySelector(".sapMPopoverScroll");
+                        const oContDom = oPickerDom.querySelector(".sapMPopoverCont");
+
+                        if (oScrollDom) {
+                            oScrollDom.style.overflowX = "hidden";
+                            oScrollDom.style.overflowY = "auto";
+                            oScrollDom.style.maxHeight = "320px";
+                            oScrollDom.style.scrollbarWidth = "thin";
+                            if (oContDom) {
+                                oContDom.style.overflow = "hidden";
+                                oContDom.style.scrollbarWidth = "none";
+                            }
+                        } else if (oContDom) {
+                            oContDom.style.overflowX = "hidden";
+                            oContDom.style.overflowY = "auto";
+                            oContDom.style.maxHeight = "320px";
+                            oContDom.style.scrollbarWidth = "thin";
+                        }
+
+                        const aInnerLists = oPickerDom.querySelectorAll(".sapMListUl, .sapMList");
+                        aInnerLists.forEach(el => {
+                            el.style.overflow = "visible";
+                            el.style.overflowY = "visible";
+                            el.style.overflowX = "visible";
+                            el.style.scrollbarWidth = "none";
+                            el.style.width = "100%";
+                            el.style.boxSizing = "border-box";
+                        });
+                    } catch(e) {}
+                };
+
+                const startAlignmentLoop = (oControl, oPicker) => {
+                    let rafId = null;
+                    const startTime = Date.now();
+                    const loop = () => {
+                        positionPickerDirectly(oControl, oPicker);
+                        const bIsOpen = typeof oControl.isOpen === "function" ? oControl.isOpen() : true;
+                        if (Date.now() - startTime < 3000 || bIsOpen) {
+                            rafId = requestAnimationFrame(loop);
+                        }
+                    };
+                    loop();
+                    return () => {
+                        if (rafId) cancelAnimationFrame(rafId);
+                    };
+                };
+
+                // Hook into internal Popup instance to ensure every position calculation anchors strictly below opener
+                const hookPopupPositioning = (oPicker, oControl) => {
+                    if (!oPicker || !oControl) return;
+                    try {
+                        const pop = (typeof oPicker._getPopover === "function" && oPicker._getPopover()) ||
+                                    (typeof oPicker.getPopover === "function" && oPicker.getPopover()) ||
+                                    oPicker;
+                        const oPopup = (pop && pop._oPopup) || oPicker._oPopup;
+                        if (oPopup && !oPopup._kyraApplyPositionHooked) {
+                            oPopup._kyraApplyPositionHooked = true;
+                            oPopup._applyPosition = function() {
+                                positionPickerDirectly(oControl, oPicker);
+                            };
+                        }
+                    } catch(e) {}
+                };
+
                 const snapPickerToOpener = (oControl, oPicker) => {
                     if (!oControl || !oPicker) return;
                     try {
-                        oPicker.setPlacement("Bottom");
-                        oPicker.setShowArrow(false);
-                        oPicker.setOffsetX(0);
-                        oPicker.setOffsetY(2);
+                        if (typeof oPicker.setPlacement === "function") {
+                            oPicker.setPlacement(PlacementType.Bottom || "Bottom");
+                        }
+                        if (typeof oPicker.setShowArrow === "function") {
+                            oPicker.setShowArrow(false);
+                        }
+                        if (typeof oPicker.setOffsetX === "function") oPicker.setOffsetX(0);
+                        if (typeof oPicker.setOffsetY === "function") oPicker.setOffsetY(2);
+                        if (typeof oPicker.addStyleClass === "function") oPicker.addStyleClass("kyraDropdownBottomOnly");
+
+                        const pop = (typeof oPicker._getPopover === "function" && oPicker._getPopover()) ||
+                                    (typeof oPicker.getPopover === "function" && oPicker.getPopover());
+                        if (pop) {
+                            if (typeof pop.setPlacement === "function") {
+                                pop.setPlacement(PlacementType.Bottom || "Bottom");
+                            }
+                            if (typeof pop.setShowArrow === "function") {
+                                pop.setShowArrow(false);
+                            }
+                            if (typeof pop.setOffsetX === "function") pop.setOffsetX(0);
+                            if (typeof pop.setOffsetY === "function") pop.setOffsetY(2);
+                            if (typeof pop.addStyleClass === "function") pop.addStyleClass("kyraDropdownBottomOnly");
+                        }
                     } catch(e) {}
 
-                    const alignFn = () => {
-                        try {
-                            const oDom = oControl.getDomRef();
-                            const oPickerDom = oPicker.getDomRef();
-                            if (oDom && oPickerDom) {
-                                const rect = oDom.getBoundingClientRect();
-                                const iWidth = rect.width;
-                                if (iWidth > 0) {
-                                    oPickerDom.style.width = iWidth + "px";
-                                    oPickerDom.style.minWidth = iWidth + "px";
-                                    oPickerDom.style.maxWidth = iWidth + "px";
-                                    oPickerDom.style.left = rect.left + "px";
-                                    oPickerDom.style.top = (rect.bottom + 2) + "px";
-                                }
+                    hookPopupPositioning(oPicker, oControl);
 
-                                // Check whether sapMPopoverScroll exists to ensure ONLY ONE single side scrollbar
-                                const oScrollDom = oPickerDom.querySelector(".sapMPopoverScroll");
-                                const oContDom = oPickerDom.querySelector(".sapMPopoverCont");
-
-                                if (oScrollDom) {
-                                    // Only oScrollDom gets the single sleek side scrollbar
-                                    oScrollDom.style.overflowX = "hidden";
-                                    oScrollDom.style.overflowY = "auto";
-                                    oScrollDom.style.maxHeight = "380px";
-                                    oScrollDom.style.scrollbarWidth = "thin";
-                                    if (oContDom) {
-                                        oContDom.style.overflow = "hidden";
-                                        oContDom.style.scrollbarWidth = "none";
-                                    }
-                                } else if (oContDom) {
-                                    oContDom.style.overflowX = "hidden";
-                                    oContDom.style.overflowY = "auto";
-                                    oContDom.style.maxHeight = "380px";
-                                    oContDom.style.scrollbarWidth = "thin";
-                                }
-
-                                // Make inner lists visible so they never create a second scrollbar
-                                const aInnerLists = oPickerDom.querySelectorAll(".sapMListUl, .sapMList");
-                                aInnerLists.forEach(el => {
-                                    el.style.overflow = "visible";
-                                    el.style.overflowY = "visible";
-                                    el.style.overflowX = "visible";
-                                    el.style.scrollbarWidth = "none";
-                                });
-                            }
-                        } catch(e) {}
-                    };
+                    // Clear selection highlight inside input field when dropdown opens
+                    try {
+                        const oInputDom = (typeof oControl.getDomRef === "function" && oControl.getDomRef("inner")) || null;
+                        if (oInputDom) {
+                            oInputDom.setSelectionRange(0, 0);
+                            if (window.getSelection) window.getSelection().removeAllRanges();
+                        }
+                    } catch(e) {}
 
                     if (!oPicker._kyraSnapped) {
                         oPicker._kyraSnapped = true;
-                        oPicker.attachBeforeOpen(function() {
+                        let stopLoop = null;
+
+                        const triggerReposition = () => {
+                            hookPopupPositioning(oPicker, oControl);
+                            positionPickerDirectly(oControl, oPicker);
+                        };
+
+                        oPicker.attachBeforeOpen(() => {
                             try {
-                                this.setPlacement("Bottom");
-                                this.setShowArrow(false);
-                                this.setOffsetX(0);
-                                this.setOffsetY(2);
-                                const oDom = oControl.getDomRef();
+                                const oDom = typeof oControl.getDomRef === "function" ? oControl.getDomRef() : null;
                                 if (oDom) {
                                     const iWidth = oDom.offsetWidth;
-                                    if (iWidth > 0) {
-                                        this.setContentWidth(iWidth + "px");
-                                        this.setContentMinWidth(iWidth + "px");
-                                        this.setContentMaxWidth(iWidth + "px");
+                                    if (iWidth > 0 && typeof oPicker.setContentWidth === "function") {
+                                        oPicker.setContentWidth(iWidth + "px");
                                     }
                                 }
                             } catch(e) {}
+                            triggerReposition();
+                            stopLoop = startAlignmentLoop(oControl, oPicker);
                         });
 
                         oPicker.attachAfterOpen(() => {
-                            alignFn();
-                            setTimeout(alignFn, 10);
-                            setTimeout(alignFn, 40);
-                            setTimeout(alignFn, 100);
+                            triggerReposition();
+                            if (!stopLoop) stopLoop = startAlignmentLoop(oControl, oPicker);
 
-                            const oPickerDom = oPicker.getDomRef();
+                            // Keep dropdown anchored if window is resized or scrolled while open
+                            window.addEventListener("scroll", triggerReposition, { passive: true, capture: true });
+                            window.addEventListener("resize", triggerReposition, { passive: true });
+
+                            const oPickerDom = getPickerDom(oPicker);
                             if (oPickerDom && !oPickerDom._kyraMultiEventsAttached) {
                                 oPickerDom._kyraMultiEventsAttached = true;
 
-                                // Prevent auto-close while user is interacting inside picker
                                 const markInteracting = () => {
                                     oControl._bPreventAutoClose = true;
                                 };
@@ -401,37 +519,119 @@ sap.ui.define([
                                 oPickerDom.addEventListener("pointerup", clearInteracting, true);
                             }
                         });
+
+                        oPicker.attachAfterClose(() => {
+                            if (stopLoop) {
+                                stopLoop();
+                                stopLoop = null;
+                            }
+                            window.removeEventListener("scroll", triggerReposition, { capture: true });
+                            window.removeEventListener("resize", triggerReposition);
+                        });
                     }
                 };
 
-                if (typeof ComboBoxBase !== "undefined" && ComboBoxBase && ComboBoxBase.prototype) {
-                    const origGetPicker = ComboBoxBase.prototype.getPicker;
-                    ComboBoxBase.prototype.getPicker = function() {
-                        const oPicker = origGetPicker.apply(this, arguments);
-                        snapPickerToOpener(this, oPicker);
-                        return oPicker;
-                    };
-                    const origOpen = ComboBoxBase.prototype.open;
-                    ComboBoxBase.prototype.open = function() {
-                        const oPicker = this.getPicker();
-                        snapPickerToOpener(this, oPicker);
-                        return origOpen.apply(this, arguments);
-                    };
-                }
+                const aComboPrototypes = [ComboBoxBase, ComboBox, MultiComboBox, Select];
+                aComboPrototypes.forEach(CtrlClass => {
+                    if (typeof CtrlClass !== "undefined" && CtrlClass && CtrlClass.prototype) {
+                        const proto = CtrlClass.prototype;
+                        if (!proto._kyraPickerSnapped) {
+                            proto._kyraPickerSnapped = true;
+                            const origGetPicker = proto.getPicker;
+                            if (typeof origGetPicker === "function") {
+                                proto.getPicker = function() {
+                                    const oPicker = origGetPicker.apply(this, arguments);
+                                    if (oPicker) {
+                                        snapPickerToOpener(this, oPicker);
+                                    }
+                                    return oPicker;
+                                };
+                            }
+                            const origOpen = proto.open;
+                            if (typeof origOpen === "function") {
+                                proto.open = function() {
+                                    const oPicker = (typeof this.getPicker === "function" && this.getPicker()) ||
+                                                    (typeof this._getPicker === "function" && this._getPicker());
+                                    if (oPicker) {
+                                        snapPickerToOpener(this, oPicker);
+                                    }
+                                    const res = origOpen.apply(this, arguments);
+                                    if (oPicker) {
+                                        startAlignmentLoop(this, oPicker);
+                                    }
+                                    return res;
+                                };
+                            }
 
-                if (typeof Select !== "undefined" && Select && Select.prototype) {
-                    const origGetSelectPicker = Select.prototype.getPicker;
-                    Select.prototype.getPicker = function() {
-                        const oPicker = origGetSelectPicker.apply(this, arguments);
-                        snapPickerToOpener(this, oPicker);
-                        return oPicker;
-                    };
-                    const origOpenSelect = Select.prototype.open;
-                    Select.prototype.open = function() {
-                        const oPicker = this.getPicker();
-                        snapPickerToOpener(this, oPicker);
-                        return origOpenSelect.apply(this, arguments);
-                    };
+                            // Make the entire dropdown box clickable to open/toggle across all controls
+                            const origOntap = proto.ontap;
+                            proto.ontap = function(oEvent) {
+                                if (typeof this.getEnabled === "function" && !this.getEnabled()) return;
+                                if (oEvent && oEvent.target && oEvent.target.closest) {
+                                    // If user clicked token delete icon in MultiComboBox, don't open dropdown
+                                    if (oEvent.target.closest(".sapMTokenIcon")) {
+                                        if (typeof origOntap === "function") origOntap.apply(this, arguments);
+                                        return;
+                                    }
+                                }
+                                const oInputDom = (typeof this.getDomRef === "function" && this.getDomRef("inner")) || null;
+                                if (oInputDom) {
+                                    oInputDom.setSelectionRange(0, 0);
+                                    if (window.getSelection) window.getSelection().removeAllRanges();
+                                }
+                                if (typeof this.isOpen === "function") {
+                                    if (this.isOpen()) {
+                                        this.close();
+                                    } else {
+                                        this.open();
+                                    }
+                                } else if (typeof origOntap === "function") {
+                                    origOntap.apply(this, arguments);
+                                }
+                            };
+                        }
+                    }
+                });
+
+                // Global capture-phase click handler ensuring every dropdown box (including the arrow icon) is 100% clickable everywhere
+                if (typeof document !== "undefined" && !document._kyraGlobalDropdownClickAttached) {
+                    document._kyraGlobalDropdownClickAttached = true;
+                    document.addEventListener("click", (e) => {
+                        if (!e.target || !e.target.closest) return;
+                        if (e.target.closest(".sapMTokenIcon")) return;
+                        if (e.target.closest(".sapMPopover, .sapMDialog, .sapMComboBoxBasePicker, .sapMSltPicker")) return;
+
+                        const oComboDom = e.target.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect, .sapMSelectArrow, .sapMComboBoxArrow, .sapMInputBaseIconContainer");
+                        if (!oComboDom) return;
+
+                        const oMainDom = oComboDom.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect") || oComboDom;
+
+                        if (typeof sap !== "undefined" && sap.ui) {
+                            const oControl = (typeof sap.ui.getCore === "function" && (sap.ui.getCore().byId(oMainDom.id) || sap.ui.getCore().byId(oComboDom.id))) ||
+                                             (sap.ui.core && sap.ui.core.Element && typeof sap.ui.core.Element.getElementById === "function" && (sap.ui.core.Element.getElementById(oMainDom.id) || sap.ui.core.Element.getElementById(oComboDom.id))) ||
+                                             (typeof jQuery !== "undefined" && jQuery(oMainDom).control && jQuery(oMainDom).control(0)) ||
+                                             null;
+                            if (oControl && typeof oControl.getEnabled === "function" && oControl.getEnabled()) {
+                                const oInputDom = oMainDom.querySelector("input, .sapMInputBaseInner");
+                                if (oInputDom) {
+                                    oInputDom.setSelectionRange(0, 0);
+                                    if (window.getSelection) window.getSelection().removeAllRanges();
+                                }
+
+                                e.stopPropagation();
+
+                                if (typeof oControl.isOpen === "function") {
+                                    if (oControl.isOpen()) {
+                                        oControl.close();
+                                    } else {
+                                        oControl.open();
+                                    }
+                                } else if (typeof oControl.open === "function") {
+                                    oControl.open();
+                                }
+                            }
+                        }
+                    }, true);
                 }
             } catch(err) {
                 console.warn("Dropdown placement setup error:", err);

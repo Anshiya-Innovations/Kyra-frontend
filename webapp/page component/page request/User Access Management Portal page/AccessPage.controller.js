@@ -170,7 +170,18 @@ sap.ui.define([
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             const isCompliance = sActiveRole.toLowerCase().includes("compliance");
+            let sBrandLogoUrl = "images/kyra_k_logo.png";
+            let sShieldFocusUrl = "images/kyra_shield_focus.svg";
+            try {
+                sBrandLogoUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
+                sShieldFocusUrl = sap.ui.require.toUrl("kyra001/images/kyra_shield_focus.svg");
+            } catch(e) {
+                sBrandLogoUrl = "images/kyra_k_logo.png";
+                sShieldFocusUrl = "images/kyra_shield_focus.svg";
+            }
             const oModel = new JSONModel({
+                brandLogoUrl: sBrandLogoUrl,
+                shieldFocusUrl: sShieldFocusUrl,
                 activeUser: sActiveUser,
                 activeRole: sActiveRole,
                 isApproverPersona: bIsApprover,
@@ -418,6 +429,7 @@ sap.ui.define([
             bindClick("cardApprovedRequests", this.onNavToApprovedRequests);
             bindClick("cardAddAccess", this.onNavToAddAccess);
             bindClick("cardRemoveAccess", this.onNavToRemoveAccess);
+            this._updateActionCardArrows();
 
             // Bind click for 5 History KPI Cards
             bindClick("kpiCardAll", this.onFilterHistoryByAll);
@@ -433,6 +445,9 @@ sap.ui.define([
 
             // Apply full-row clickability to MultiComboBox dropdowns
             this._applyMultiComboBoxRowClickSelection();
+
+            // Setup Step 1 Business Sector and Function pure-selection fields (no selection fill, downwards only)
+            this._setupStep1SelectFields();
 
             // Clear unwanted initial focus on header buttons when entering the page
             setTimeout(() => {
@@ -495,30 +510,7 @@ sap.ui.define([
                     }
                 }
 
-                // Force all dropdowns (MultiComboBox, ComboBox, Select) to open downward
-                if (typeof sap !== "undefined" && sap.m) {
-                    ["MultiComboBox", "ComboBox", "Select"].forEach(sClass => {
-                        if (sap.m[sClass] && sap.m[sClass].prototype) {
-                            const p = sap.m[sClass].prototype;
-                            if (!p._bDownPlacementPatched) {
-                                p._bDownPlacementPatched = true;
-                                const fnOrigOpen = p.open;
-                                if (typeof fnOrigOpen === "function") {
-                                    p.open = function() {
-                                        try {
-                                            const oPicker = (typeof this.getPicker === "function" && this.getPicker()) || 
-                                                            (typeof this._getPicker === "function" && this._getPicker());
-                                            if (oPicker && typeof oPicker.setPlacement === "function") {
-                                                oPicker.setPlacement(sap.m.PlacementType.Bottom);
-                                            }
-                                        } catch(err) {}
-                                        return fnOrigOpen.apply(this, arguments);
-                                    };
-                                }
-                            }
-                        }
-                    });
-                }
+
             } catch(e) {
                 console.warn("MultiComboBox prototype setup warning:", e);
             }
@@ -623,11 +615,60 @@ sap.ui.define([
                         }
 
                         // Touching / clicking anywhere on the box opens the dropdown
-                        /* manual open only */
+                        if (typeof oControl.isOpen === "function") {
+                            if (oControl.isOpen()) {
+                                oControl.close();
+                            } else {
+                                oControl.open();
+                            }
+                        } else if (typeof oControl.open === "function") {
+                            oControl.open();
+                        }
                     }
                 };
 
                 oControl.addEventDelegate(oControl._rowClickDelegate);
+            });
+        },
+
+        _setupStep1SelectFields() {
+            const aControls = [
+                this.byId("inPageBusinessSectorSelect"),
+                this.byId("inPageBusinessFunctionSelect")
+            ];
+
+            aControls.forEach(oControl => {
+                if (!oControl) return;
+
+                if (oControl._step1Delegate) {
+                    oControl.removeEventDelegate(oControl._step1Delegate);
+                    oControl._step1Delegate = null;
+                }
+
+                const fnApply = () => {
+                    const oInputDom = oControl.getDomRef("inner");
+                    if (oInputDom) {
+                        oInputDom.setAttribute("readonly", "readonly");
+                        oInputDom.style.caretColor = "transparent";
+                        oInputDom.style.userSelect = "none";
+                        oInputDom.style.webkitUserSelect = "none";
+                        oInputDom.style.cursor = "pointer";
+                    }
+                    const oDom = oControl.getDomRef();
+                    if (oDom) {
+                        oDom.style.cursor = "pointer";
+                        const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
+                        if (oWrapper) {
+                            oWrapper.style.cursor = "pointer";
+                        }
+                    }
+                };
+
+                fnApply();
+                oControl._step1Delegate = {
+                    onAfterRendering: fnApply
+                };
+                oControl.addEventDelegate(oControl._step1Delegate);
             });
         },
 
@@ -2254,7 +2295,7 @@ sap.ui.define([
                             approverComment: "",
                             timestamp: formatTimeAgo(sCreatedTime),
                             rawTimestamp: new Date(sCreatedTime).getTime(),
-                            icon: isRevoke ? "sap-icon://delete" : "sap-icon://customer-and-supplier",
+                            icon: isRevoke ? "sap-icon://decline" : "sap-icon://customer-and-supplier",
                             state: isRevoke ? "Warning" : "Information",
                             unread: aSavedStatusMap[sNotifId] !== undefined ? aSavedStatusMap[sNotifId] : true
                         });
@@ -2881,147 +2922,110 @@ sap.ui.define([
         },
 
         _showHelpTopicDialog(sTopic) {
-            sap.ui.require(["sap/m/Dialog", "sap/m/Button", "sap/ui/core/HTML"], (Dialog, Button, HTML) => {
-                let sTitle = sTopic;
-                let sBodyHtml = "";
+            let sTitle = sTopic || "User Guide";
+            let sBodyHtml = "";
+            let sMaxWidth = "500px";
 
-                if (sTopic === "Contact IT") {
-                    sTitle = "Contact IT Support";
-                    sBodyHtml = `
-                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px;">
-                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #FEF3C7; border: 1px solid #FDE68A; display: flex; align-items: center; justify-content: center; font-size: 22px;">📧</div>
-                                <div>
-                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">IT Support Helpdesk</h3>
-                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Reach out directly to our enterprise identity and access team.</p>
-                                </div>
+            if (sTopic === "User Guide") {
+                sTitle = "KYRA User Guide";
+                sMaxWidth = "520px";
+                sBodyHtml = `
+                    <div style="display: flex; flex-direction: column; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1E293B;">
+                        <!-- Step 1 -->
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; transition: all 0.15s ease;">
+                            <div style="width: 26px; height: 26px; border-radius: 6px; background: #008C9C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 2px;">
+                                1
                             </div>
-                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; margin-bottom: 16px;">
-                                <div style="margin-bottom: 12px;">
-                                    <div style="font-size: 11.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Support Email</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #2563EB; margin-top: 2px;">itsupport@enterprise.kyra.com</div>
-                                </div>
-                                <div style="margin-bottom: 12px;">
-                                    <div style="font-size: 11.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Direct Hotline</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: #0F172A; margin-top: 2px;">+1 (800) 555-0199 (Ext. 4040)</div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 11.5px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Service Availability</div>
-                                    <div style="font-size: 13.5px; color: #16A34A; font-weight: 600; margin-top: 2px;">● 24/7 Global Enterprise Support</div>
-                                </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 2px;">Requesting Access</div>
+                                <div style="font-size: 13px; color: #475569; line-height: 1.45;">Click <strong style="color: #008C9C;">"+ Request New Access"</strong> to select your business sector, operating region, systems, team roles, and personas.</div>
                             </div>
                         </div>
-                    `;
-                } else if (sTopic === "User Guide") {
-                    sTitle = "KYRA User Guide";
-                    sBodyHtml = `
-                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
-                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EFF6FF; border: 1px solid #DBEAFE; display: flex; align-items: center; justify-content: center; font-size: 22px;">📖</div>
-                                <div>
-                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">User Access Guide</h3>
-                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Overview of core features in KYRA Portal.</p>
-                                </div>
-                            </div>
-                            <div style="font-size: 13.5px; line-height: 1.6; color: #334155;">
-                                <p style="margin: 0 0 10px 0;"><strong>1. Requesting Access:</strong> Click <em>"+ Request New Access"</em> to select your business sector, country, and systems.</p>
-                                <p style="margin: 0 0 10px 0;"><strong>2. Approvals:</strong> Track your multi-level approvals under <em>My Requests</em> tab in real-time.</p>
-                                <p style="margin: 0;"><strong>3. Access Management:</strong> View and manage all assigned systems and roles directly under <em>My Access</em>.</p>
-                            </div>
-                        </div>
-                    `;
-                } else if (sTopic === "FAQs") {
-                    sTitle = "Frequently Asked Questions";
-                    sBodyHtml = `
-                        <div style="padding: 20px 24px 4px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #E2E8F0;">
-                                <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, #008C9C, #01C3D0); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,140,156,0.25);">
-                                    <span style="font-size: 20px; line-height: 1;">❓</span>
-                                </div>
-                                <div>
-                                    <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0F172A;">Common Questions</h3>
-                                    <p style="margin: 3px 0 0 0; font-size: 12.5px; color: #64748B;">Quick answers to frequently asked questions.</p>
-                                </div>
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 12px; padding-bottom: 8px;">
-                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
-                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">How long does approval take?</p>
-                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Standard requests are reviewed by Line Managers within 24 to 48 hours.</p>
-                                </div>
-                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
-                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">How do I request temporary access?</p>
-                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Select duration dates during Step 3 of the Request New Access wizard.</p>
-                                </div>
-                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
-                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">Can I track my request status?</p>
-                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Yes — use the <strong>My Requests</strong> tab to view real-time approval status and comments.</p>
-                                </div>
-                                <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; padding: 14px 16px;">
-                                    <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">Who approves my access request?</p>
-                                    <p style="margin: 0; font-size: 13px; color: #64748B; line-height: 1.5;">Your Line Manager and a designated Compliance Approver both review and sign off on requests.</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    sTitle = "Troubleshooting";
-                    sBodyHtml = `
-                        <div style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
-                            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
-                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #F3E8FF; border: 1px solid #E9D5FF; display: flex; align-items: center; justify-content: center; font-size: 22px;">🔧</div>
-                                <div>
-                                    <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">Troubleshooting &amp; Fixes</h3>
-                                    <p style="margin: 3px 0 0 0; font-size: 13px; color: #64748B;">Common resolutions for portal connectivity and session issues.</p>
-                                </div>
-                            </div>
-                            <div style="font-size: 13.5px; line-height: 1.6; color: #334155;">
-                                <p style="margin: 0 0 8px 0;">• <strong>Session expired:</strong> Log out and sign in using SSO credentials.</p>
-                                <p style="margin: 0 0 8px 0;">• <strong>Access not showing:</strong> Ensure your approver has finalized the governance sign-off.</p>
-                            </div>
-                        </div>
-                    `;
-                }
 
-                // Append a native HTML footer row with a Close button to the body HTML
-                // This bypasses SAPUI5's button text-clipping issue entirely
-                const sDialogId = "kyraHelpDialog_" + Date.now();
-                const sFooterHtml = `
-                    <div style="display:flex; justify-content:flex-end; align-items:center;
-                                padding: 12px 24px 16px 24px;">
-                        <button id="${sDialogId}_closeBtn"
-                            style="display:inline-flex; align-items:center; justify-content:center;
-                                   background:#008C9C; color:#FFFFFF; border:none; border-radius:8px;
-                                   font-size:13.5px; font-weight:600; height:38px; padding:0 28px;
-                                   cursor:pointer; font-family:inherit; letter-spacing:0.01em;
-                                   box-shadow: 0 2px 8px rgba(0,140,156,0.3);
-                                   transition: background 0.15s ease, box-shadow 0.15s ease;"
-                            onmouseover="this.style.background='#007684';this.style.boxShadow='0 4px 14px rgba(0,140,156,0.4)'"
-                            onmouseout="this.style.background='#008C9C';this.style.boxShadow='0 2px 8px rgba(0,140,156,0.3)'"
-                            onmousedown="this.style.transform='scale(0.97)'"
-                            onmouseup="this.style.transform='scale(1)'">
-                            Close
-                        </button>
+                        <!-- Step 2 -->
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; transition: all 0.15s ease;">
+                            <div style="width: 26px; height: 26px; border-radius: 6px; background: #008C9C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 2px;">
+                                2
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 2px;">Approvals &amp; Tracking</div>
+                                <div style="font-size: 13px; color: #475569; line-height: 1.45;">Track multi-level approval workflows (Line Manager &amp; ISRM Compliance) in real-time under the <strong style="color: #0F172A;">My History</strong> queue.</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; transition: all 0.15s ease;">
+                            <div style="width: 26px; height: 26px; border-radius: 6px; background: #008C9C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 2px;">
+                                3
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 2px;">Access Management &amp; Revocation</div>
+                                <div style="font-size: 13px; color: #475569; line-height: 1.45;">View all assigned systems and roles directly under <strong style="color: #0F172A;">My Access</strong> or submit instant revocation requests.</div>
+                            </div>
+                        </div>
                     </div>
                 `;
+            } else if (sTopic === "Contact IT") {
+                sTitle = "Contact IT Support";
+                sMaxWidth = "520px";
+                sBodyHtml = `
+                    <div style="display: flex; flex-direction: column; gap: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EDF2F7; padding-bottom: 10px;">
+                                <span style="font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase;">Support Email</span>
+                                <span style="font-size: 13.5px; font-weight: 700; color: #008C9C;">itsupport@enterprise.kyra.com</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #EDF2F7; padding-bottom: 10px;">
+                                <span style="font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase;">Direct Hotline</span>
+                                <span style="font-size: 13.5px; font-weight: 700; color: #0F172A;">+1 (800) 555-0199 (Ext. 4040)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase;">Service Availability</span>
+                                <span style="font-size: 13px; font-weight: 600; color: #16A34A; background: #ECFDF5; padding: 3px 8px; border-radius: 6px; border: 1px solid #BBF7D0;">● 24/7 Global Enterprise Support</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (sTopic === "FAQs") {
+                sTitle = "Frequently Asked Questions";
+                sMaxWidth = "560px";
+                sBodyHtml = `
+                    <div style="display: flex; flex-direction: column; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                        <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; border: 1px solid #E2E8F0; border-left-width: 3px; border-left-color: #008C9C; padding: 12px 14px;">
+                            <p style="margin: 0 0 3px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">How long does approval take?</p>
+                            <p style="margin: 0; font-size: 12.5px; color: #64748B; line-height: 1.45;">Standard requests are reviewed by Line Managers and Compliance within 24 to 48 hours.</p>
+                        </div>
+                        <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; border: 1px solid #E2E8F0; border-left-width: 3px; border-left-color: #008C9C; padding: 12px 14px;">
+                            <p style="margin: 0 0 3px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">How do I request temporary access?</p>
+                            <p style="margin: 0; font-size: 12.5px; color: #64748B; line-height: 1.45;">Select custom duration days (e.g., 30 or 90 days) during Step 3 of the Request Wizard.</p>
+                        </div>
+                        <div style="background: #F8FAFC; border-radius: 10px; border-left: 3px solid #008C9C; border: 1px solid #E2E8F0; border-left-width: 3px; border-left-color: #008C9C; padding: 12px 14px;">
+                            <p style="margin: 0 0 3px 0; font-size: 13.5px; font-weight: 700; color: #0F172A;">Can I track request status?</p>
+                            <p style="margin: 0; font-size: 12.5px; color: #64748B; line-height: 1.45;">Yes — use the <strong>My History</strong> tab to view real-time stage approval timestamps and comments.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                sTitle = "Troubleshooting";
+                sMaxWidth = "520px";
+                sBodyHtml = `
+                    <div style="display: flex; flex-direction: column; gap: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1E293B;">
+                        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.55; color: #334155;">
+                            <p style="margin: 0 0 8px 0;">• <strong>Session Expired:</strong> Log out and sign in again with your SSO corporate credentials.</p>
+                            <p style="margin: 0 0 8px 0;">• <strong>Access Not Showing:</strong> Verify that both Line Manager and ISRM have finalized approval.</p>
+                            <p style="margin: 0;">• <strong>Browser Issues:</strong> Clear your browser cache and refresh using the top header refresh button.</p>
+                        </div>
+                    </div>
+                `;
+            }
 
-                const oDialog = new Dialog({
-                    title: sTitle,
-                    contentWidth: "500px",
-                    verticalScrolling: true,
-                    horizontalScrolling: false,
-                    content: [
-                        new HTML({ content: sBodyHtml + sFooterHtml })
-                    ],
-                    afterOpen: () => {
-                        const oBtn = document.getElementById(`${sDialogId}_closeBtn`);
-                        if (oBtn) oBtn.addEventListener("click", () => oDialog.close());
-                    },
-                    afterClose: () => oDialog.destroy()
-                });
-                oDialog.addStyleClass("kyraHelpTopicDialog kyraHelpTopicDialogNoFooter");
-
-                this.getView().addDependent(oDialog);
-                oDialog.open();
+            KyraDialog.show({
+                type: "info",
+                title: sTitle,
+                messageHtml: sBodyHtml,
+                buttonText: "Got It",
+                btnColor: "#008C9C",
+                maxWidth: sMaxWidth
             });
         },
 
@@ -3441,6 +3445,30 @@ sap.ui.define([
             });
         },
 
+        _updateActionCardArrows(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const bPending = !!oModel.getProperty("/showPendingSection");
+            const bAdd = !!oModel.getProperty("/showAddAccessSector");
+            const bRemove = !!oModel.getProperty("/showRemoveAccessSector");
+
+            const oArrowPending = this.byId("arrowPendingRequests");
+            if (oArrowPending) {
+                oArrowPending.setSrc(bPending ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+            }
+
+            const oArrowAdd = this.byId("arrowAddAccess");
+            if (oArrowAdd) {
+                oArrowAdd.setSrc(bAdd ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+            }
+
+            const oArrowRemove = this.byId("arrowRemoveAccess");
+            if (oArrowRemove) {
+                oArrowRemove.setSrc(bRemove ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+            }
+        },
+
         onNavToAddAccess() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
@@ -3449,6 +3477,7 @@ sap.ui.define([
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
+                this._updateActionCardArrows(oModel);
 
                 if (!bCurr) {
                     this._aSelectedRegionIds = [];
@@ -3479,6 +3508,7 @@ sap.ui.define([
                         if (oPage && oTarget) {
                             oPage.scrollToElement(oTarget, 400);
                         }
+                        this._setupStep1SelectFields();
                     }, 100);
                 }
             }
@@ -3487,6 +3517,14 @@ sap.ui.define([
         onInPageSectorChange(oEvent) {
             const sSector = oEvent.getSource().getSelectedKey();
             this.onSelectSectorTile(sSector);
+            const oInputDom = oEvent.getSource().getDomRef("inner");
+            if (oInputDom) {
+                oInputDom.setSelectionRange(0, 0);
+                if (window.getSelection) window.getSelection().removeAllRanges();
+            }
+            setTimeout(() => {
+                this._setupStep1SelectFields();
+            }, 50);
         },
 
         onSelectSectorTile(sSectorKey) {
@@ -3548,6 +3586,7 @@ sap.ui.define([
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
+                this._updateActionCardArrows(oModel);
             }
             MessageToast.show("Remove Access section closed.");
             this._scrollToTop();
@@ -3559,6 +3598,11 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel && sKey) {
                 oModel.setProperty("/selectedFunction", sKey);
+            }
+            const oInputDom = oSource.getDomRef("inner");
+            if (oInputDom) {
+                oInputDom.setSelectionRange(0, 0);
+                if (window.getSelection) window.getSelection().removeAllRanges();
             }
         },
 
@@ -3590,6 +3634,7 @@ sap.ui.define([
                     oModel.setProperty("/addAccessStep", 1);
                     oModel.setProperty("/addAccessConfigSubStep", 1);
                     oModel.setProperty("/isEditingFromSummary", false);
+                    this._updateActionCardArrows(oModel);
                 }
                 this._resetAddAccessState();
                 MessageToast.show("Access request closed.");
@@ -3633,17 +3678,7 @@ sap.ui.define([
         },
 
         _scrollToWizardContainer() {
-            setTimeout(() => {
-                const oPage = this.byId("accessPortalPage");
-                const oTarget = this.byId("addAccessSectionContainer");
-                if (oPage && oTarget) {
-                    oPage.scrollToElement(oTarget, 300);
-                }
-                const domTarget = document.getElementById(this.createId("addAccessSectionContainer"));
-                if (domTarget) {
-                    domTarget.scrollIntoView({ behavior: "smooth", block: "start" });
-                }
-            }, 60);
+            // Keep page position stable - do not automatically scroll down
         },
 
         onGoToAddAccessStep3() {
@@ -6016,6 +6051,7 @@ sap.ui.define([
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
+                this._updateActionCardArrows(oModel);
             });
         },
 
@@ -6029,6 +6065,7 @@ sap.ui.define([
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
+                    this._updateActionCardArrows(oModel);
                     
                     if (!bCurr) {
                         setTimeout(() => {
@@ -6053,6 +6090,7 @@ sap.ui.define([
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
+                    this._updateActionCardArrows(oModel);
                     
                     if (!bCurr) {
                         setTimeout(() => {
@@ -6071,6 +6109,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showPendingSection", false);
+                this._updateActionCardArrows(oModel);
             }
         },
 
@@ -6645,20 +6684,10 @@ sap.ui.define([
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
+                    this._updateActionCardArrows(oModel);
 
                     if (bNewState) {
-                        setTimeout(() => {
-                            const oSec = this.byId("removeAccessSection");
-                            const oDom = oSec ? oSec.getDomRef() : document.getElementById(this.createId("removeAccessSection"));
-                            if (oDom) {
-                                oDom.scrollIntoView({ behavior: "smooth", block: "start" });
-                            } else {
-                                const oPage = this.byId("accessPortalPage");
-                                if (oPage && oSec) {
-                                    oPage.scrollToElement(oSec, 400);
-                                }
-                            }
-                        }, 120);
+                        // Keep page stable
                     }
                 }
             });

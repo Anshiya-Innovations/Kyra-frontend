@@ -1,0 +1,76 @@
+<svg width="1200" height="120" viewBox="0 0 1200 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Cyan glow filters -->
+    <filter id="waveGlow" x="-30%" y="-50%" width="160%" height="200%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="4" result="blur1" />
+      <feGaussianBlur stdDeviation="1.5" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur1" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-30%" y="-50%" width="160%" height="200%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+    </filter>
+
+    <!-- Linear Gradients -->
+    <linearGradient id="cyberLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0" />
+      <stop offset="30%" stop-color="#22D3EE" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="1" />
+      <stop offset="70%" stop-color="#22D3EE" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0" />
+      <stop offset="40%" stop-color="#22D3EE" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#22D3EE" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0" />
+    </linearGradient>
+
+    <radialGradient id="centerGlowSpot" cx="52%" cy="50%" r="30%">
+      <stop offset="0%" stop-color="#00F5FF" stop-opacity="0.45" />
+      <stop offset="40%" stop-color="#22D3EE" stop-opacity="0.2" />
+      <stop offset="80%" stop-color="#008C9C" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#003844" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Dotted Grid Pattern -->
+    <pattern id="cyberDots" x="0" y="0" width="16" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="8" cy="6" r="1.2" fill="#22D3EE" fill-opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <!-- Ambient Light Spreads -->
+  <rect x="0" y="0" width="1200" height="120" fill="url(#centerGlowSpot)" />
+
+  <!-- Dotted Cyber Matrix Grids -->
+  <!-- Grid 1: Center-Left (X: 350 to 480, Y: 60 to 95) -->
+  <rect x="340" y="62" width="130" height="32" fill="url(#cyberDots)" opacity="0.85" />
+  <!-- Grid 2: Center-Right (X: 680 to 820, Y: 60 to 95) -->
+  <rect x="680" y="62" width="140" height="32" fill="url(#cyberDots)" opacity="0.85" />
+
+  <!-- Horizontal Center Laser Guidelines -->
+  <line x1="280" y1="42" x2="880" y2="42" stroke="url(#beamGrad)" stroke-width="1.2" opacity="0.55" />
+  <line x1="380" y1="78" x2="820" y2="78" stroke="url(#beamGrad)" stroke-width="1" opacity="0.45" />
+
+  <!-- Horizontal Tech Streaks / Glowing Data Capsules -->
+  <!-- Left Cluster -->
+  <rect x="380" y="38" width="45" height="4.5" rx="2.25" fill="#22D3EE" filter="url(#waveGlow)" opacity="0.85" />
+  <rect x="440" y="52" width="28" height="3.5" rx="1.75" fill="#00F0FF" filter="url(#waveGlow)" opacity="0.75" />
+  <rect x="360" y="68" width="55" height="4" rx="2" fill="#22D3EE" opacity="0.65" />
+  <rect x="300" y="58" width="24" height="3" rx="1.5" fill="#00E5FF" opacity="0.5" />
+
+  <!-- Right Cluster -->
+  <rect x="710" y="36" width="38" height="4" rx="2" fill="#00F0FF" filter="url(#waveGlow)" opacity="0.85" />
+  <rect x="760" y="48" width="48" height="4.5" rx="2.25" fill="#22D3EE" filter="url(#waveGlow)" opacity="0.9" />
+  <rect x="820" y="38" width="30" height="3" rx="1.5" fill="#00E5FF" opacity="0.6" />
+  <rect x="700" y="74" width="60" height="4" rx="2" fill="#22D3EE" opacity="0.55" />
+
+  <!-- Intense Center-Right Light Flare -->
+  <ellipse cx="680" cy="50" rx="90" ry="20" fill="#00F0FF" opacity="0.38" filter="url(#softGlow)" />
+  <circle cx="680" cy="50" r="4.5" fill="#FFFFFF" opacity="0.9" filter="url(#waveGlow)" />
+</svg>
