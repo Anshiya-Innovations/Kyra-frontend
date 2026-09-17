@@ -1958,10 +1958,6 @@ sap.ui.define([
                             <span style="font-size: 13px; font-weight: 700; color: #0F172A; background: #FFFFFF; padding: 4px 10px; border-radius: 6px; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);">${sSystem}</span>
                         </div>
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Entitlement / Role</span>
-                            <span style="font-size: 13px; font-weight: 700; color: #008C9C; background: rgba(0, 140, 156, 0.08); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(0, 140, 156, 0.2);">${sRoleName}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
                             <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Persona</span>
                             <span style="font-size: 12.5px; font-weight: 600; color: #475569;">${sPersona}</span>
                         </div>
@@ -5800,15 +5796,15 @@ sap.ui.define([
 
             let sPopupHtml = `
                 <div style="font-family: inherit; color: #0F172A;">
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                        <div>
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                        <div style="flex: 1; min-width: 0;">
                             <div style="font-weight: 800; font-size: 13.5px; color: #0F172A;">Governance Request Submission</div>
                             <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
                                 Your access requests have been successfully recorded in the database.
                             </div>
                         </div>
-                        <div style="text-align: right;">
-                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11.5px; background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;">
+                        <div style="flex-shrink: 0; white-space: nowrap; text-align: right;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 12px; border-radius: 12px; font-weight: 700; font-size: 12px; background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; white-space: nowrap; flex-shrink: 0;">
                                 ✔ ${aValidItems.length} Submitted
                             </span>
                         </div>

@@ -1616,8 +1616,7 @@
                                                         <Button
                                                             icon="sap-icon://delete"
                                                             class="kyraSummaryDeleteBtn"
-                                                            press=".onRemoveInPageSummaryItem"
-                                                            tooltip="Remove this access item" />
+                                                            press=".onRemoveInPageSummaryItem" />
                                                     </HBox>
                                                 </cells>
                                             </ColumnListItem>
@@ -1703,7 +1702,6 @@
                                             icon="sap-icon://delete"
                                             type="Transparent"
                                             press=".onRemoveAccessClick"
-                                            tooltip="Remove Access"
                                             class="kyraTableActionBtn" />
                                     </HBox>
                                 </cells>
@@ -2281,7 +2279,6 @@
                                             icon="sap-icon://delete"
                                             type="Transparent"
                                             press=".onDeleteNotification"
-                                            tooltip="Delete notification"
                                             class="kyraNotifRowDeleteBtn" />
                                     </HBox>
                                 </HBox>

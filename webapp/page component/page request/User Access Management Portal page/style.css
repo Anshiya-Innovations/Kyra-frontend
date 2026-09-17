@@ -24040,20 +24040,37 @@ li.sapMLIB.sapMLIBSelected:hover .sapMSLITitle {
     overflow: hidden !important;
 }
 
+/* When selected items exist, make input text completely transparent to avoid double text overlap with .kyraMultiSelectDisplayText */
+.sapMMultiComboBox.kyraHasSelectedItems .sapMInputBaseInner,
+.sapMMultiComboBox .kyraHasSelectedItems .sapMInputBaseInner,
+.sapMMultiComboBox:has(.kyraMultiSelectDisplayText:not(:empty)) .sapMInputBaseInner,
+.kyraHasSelectedItems .sapMInputBaseInner {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    caret-color: transparent !important;
+}
+
 /* Ensure placeholder is visible when no items selected */
-.sapMMultiComboBox:not(:has(.kyraMultiSelectDisplayText:not(:empty))) .sapMInputBaseInner::placeholder,
-.sapMMultiComboBox:not(:has(.kyraMultiSelectDisplayText:not(:empty))) .sapMInputBaseInner::-webkit-input-placeholder {
+.sapMMultiComboBox:not(.kyraHasSelectedItems):not(:has(.kyraMultiSelectDisplayText:not(:empty))) .sapMInputBaseInner::placeholder,
+.sapMMultiComboBox:not(.kyraHasSelectedItems):not(:has(.kyraMultiSelectDisplayText:not(:empty))) .sapMInputBaseInner::-webkit-input-placeholder {
     color: #94A3B8 !important;
     opacity: 1 !important;
     visibility: visible !important;
 }
 
 /* Hide placeholder when items are selected so it does not interfere */
+.sapMMultiComboBox.kyraHasSelectedItems .sapMInputBaseInner::placeholder,
+.sapMMultiComboBox.kyraHasSelectedItems .sapMInputBaseInner::-webkit-input-placeholder,
+.sapMMultiComboBox .kyraHasSelectedItems .sapMInputBaseInner::placeholder,
+.sapMMultiComboBox .kyraHasSelectedItems .sapMInputBaseInner::-webkit-input-placeholder,
 .sapMMultiComboBox:has(.kyraMultiSelectDisplayText:not(:empty)) .sapMInputBaseInner::placeholder,
-.sapMMultiComboBox:has(.kyraMultiSelectDisplayText:not(:empty)) .sapMInputBaseInner::-webkit-input-placeholder {
+.sapMMultiComboBox:has(.kyraMultiSelectDisplayText:not(:empty)) .sapMInputBaseInner::-webkit-input-placeholder,
+.kyraHasSelectedItems .sapMInputBaseInner::placeholder,
+.kyraHasSelectedItems .sapMInputBaseInner::-webkit-input-placeholder {
     color: transparent !important;
     opacity: 0 !important;
     visibility: hidden !important;
+    display: none !important;
 }
 
 /* =========================================================================
@@ -26534,7 +26551,7 @@ html body .sapMBtn.kyraBatchDialogConfirmApproveBtn {
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.28) !important;
+    box-shadow: none !important;
     transition: all 0.15s ease !important;
 }
 
@@ -26579,7 +26596,7 @@ html body .sapMBtn.kyraBatchDialogConfirmRejectBtn {
     padding: 0 !important;
     margin: 0 !important;
     cursor: pointer !important;
-    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.28) !important;
+    box-shadow: none !important;
     transition: all 0.15s ease !important;
 }
 
@@ -26793,7 +26810,7 @@ html body .sapUiTheme-sap_horizon .kyraTroubleshootBackBtn .sapMBtnInner,
     font-size: 13.5px !important;
     font-weight: 700 !important;
     cursor: pointer !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    box-shadow: none !important;
     transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
     box-sizing: border-box !important;
     outline: none !important;
@@ -26959,7 +26976,7 @@ html body .sapUiTheme-sap_horizon .kyraPrimaryBtn .sapMBtnInner {
     line-height: 36px !important;
     min-width: 120px !important;
     padding: 0 20px !important;
-    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.28) !important;
+    box-shadow: none !important;
     cursor: pointer !important;
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     gap: 8px !important;
@@ -28238,4 +28255,147 @@ html body .sapUiTheme-sap_horizon .sapMComboBox.sapMInputBaseFocused .sapMInputB
 .sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-thumb {
     background: rgba(0, 140, 156, 0.35) !important;
     border-radius: 4px !important;
+}
+
+/* =========================================================================
+   UNIVERSAL BUTTON ENGINE: STRICTLY NO SHADOW / SHADE AT NORMAL (IDLE) TIME
+   ========================================================================= */
+.sapMBtn:not(:hover),
+.sapMBtn:not(:hover) .sapMBtnInner,
+.kyraPrimaryBtn:not(:hover),
+.kyraPrimaryBtn:not(:hover) .sapMBtnInner,
+.kyraSecondaryBtn:not(:hover),
+.kyraSecondaryBtn:not(:hover) .sapMBtnInner,
+.fioriEmphasizedBtn:not(:hover),
+.fioriEmphasizedBtn:not(:hover) .sapMBtnInner,
+.sapMBtnEmphasized:not(:hover),
+.sapMBtnEmphasized:not(:hover) .sapMBtnInner,
+.kyraSodFooterContinueBtn:not(:hover),
+.kyraSodFooterContinueBtn:not(:hover) .sapMBtnInner,
+.kyraSubmitDecisionBtn:not(:hover),
+.kyraSubmitDecisionBtn:not(:hover) .sapMBtnInner,
+.kyraWizardNextBtn:not(:hover),
+.kyraWizardNextBtn:not(:hover) .sapMBtnInner,
+.fioriWizardFooter .sapMBtn:not(:hover),
+.fioriWizardFooter .sapMBtn:not(:hover) .sapMBtnInner,
+.kyraFooterBtnGroup .sapMBtn:not(:hover),
+.kyraFooterBtnGroup .sapMBtn:not(:hover) .sapMBtnInner,
+.kyraViewAllBtn:not(:hover),
+.kyraViewAllBtn:not(:hover) .sapMBtnInner,
+.kyraBatchDialogConfirmApproveBtn:not(:hover),
+.kyraBatchDialogConfirmApproveBtn:not(:hover) .sapMBtnInner,
+.kyraBatchDialogConfirmRejectBtn:not(:hover),
+.kyraBatchDialogConfirmRejectBtn:not(:hover) .sapMBtnInner,
+.kyraBackTealBtn:not(:hover),
+.kyraBackTealBtn:not(:hover) .sapMBtnInner,
+.kyraSimpleBackBtn:not(:hover),
+.kyraSimpleBackBtn:not(:hover) .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMBtn:not(:hover),
+html body .sapUiTheme-sap_horizon .sapMBtnInner:not(:hover),
+html body .sapUiTheme-sap_horizon .kyraPrimaryBtn:not(:hover) .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriEmphasizedBtn:not(:hover) .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:not(:hover) .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMBtnInner {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+/* =========================================================================
+   KYRA TABLE REMOVE / DELETE ICON BUTTON ENGINE (ROSE-RED SQUIRCLE ICON BUTTON)
+   ========================================================================= */
+.kyraTableActionBtn,
+.kyraTableActionBtn.sapMBtn,
+.kyraSummaryDeleteBtn,
+.kyraSummaryDeleteBtn.sapMBtn,
+.kyraNotifRowDeleteBtn,
+.kyraNotifRowDeleteBtn.sapMBtn {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    border-radius: 10px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
+}
+
+.kyraTableActionBtn .sapMBtnInner,
+.kyraSummaryDeleteBtn .sapMBtnInner,
+.kyraNotifRowDeleteBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraTableActionBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    border-radius: 10px !important;
+    background: #FFF1F2 !important;
+    background-color: #FFF1F2 !important;
+    border: 1px solid #FFE4E6 !important;
+    border-color: #FFE4E6 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraTableActionBtn .sapMBtnIcon,
+.kyraTableActionBtn .sapUiIcon,
+.kyraSummaryDeleteBtn .sapMBtnIcon,
+.kyraSummaryDeleteBtn .sapUiIcon,
+.kyraNotifRowDeleteBtn .sapMBtnIcon,
+.kyraNotifRowDeleteBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraTableActionBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon {
+    color: #E11D48 !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    width: 15px !important;
+    height: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraTableActionBtn:hover .sapMBtnInner,
+.kyraSummaryDeleteBtn:hover .sapMBtnInner,
+.kyraNotifRowDeleteBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraTableActionBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
+    background: #FEE2E2 !important;
+    background-color: #FEE2E2 !important;
+    border-color: #FECDD3 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.kyraTableActionBtn:hover .sapMBtnIcon,
+.kyraSummaryDeleteBtn:hover .sapMBtnIcon,
+.kyraNotifRowDeleteBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraTableActionBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnIcon {
+    color: #BE123C !important;
 }
