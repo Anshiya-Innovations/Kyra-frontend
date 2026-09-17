@@ -318,7 +318,7 @@ sap.ui.define([
                 const sPersonaVal = e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona';
                 const sReqId = e.requestId || oData.requestId || oData.id || '';
                 return `
-                <div class="kyra-entitlement-summary-card kyra-card-approved">
+                <div class="kyra-entitlement-summary-card kyra-card-approved kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
                     <div class="kyra-card-main-left">
                         <div class="kyra-card-badge-row">
                             <div class="kyra-card-system-badge kyra-sys-approved">
@@ -345,7 +345,7 @@ sap.ui.define([
                 const sPersonaVal = e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona';
                 const sReqId = e.requestId || oData.requestId || oData.id || '';
                 return `
-                <div class="kyra-entitlement-summary-card kyra-card-rejected">
+                <div class="kyra-entitlement-summary-card kyra-card-rejected kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
                     <div class="kyra-card-main-left">
                         <div class="kyra-card-badge-row">
                             <div class="kyra-card-system-badge kyra-sys-rejected">
@@ -482,8 +482,103 @@ sap.ui.define([
                             oDialog.close();
                         };
                     }
+
+                    // Enable clicking any specific request card to navigate to its Live Request Tracking page
+                    const cardList = (oDialog.getDomRef() || document).querySelectorAll(".kyra-clickable-card");
+                    cardList.forEach(card => {
+                        card.onclick = (ev) => {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            const sClickedReqId = card.getAttribute("data-req-id");
+                            if (sClickedReqId) {
+                                oDialog.close();
+                                this._navigateToLiveRequestTracking(sClickedReqId, oData);
+                            }
+                        };
+                    });
                 }, 50);
             });
+        },
+
+        async _navigateToLiveRequestTracking(sReqId, oData) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Request Tracking...",
+                    subtitle: "Retrieving live governance status from database..."
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Loading Request Tracking...", "Retrieving live governance status from database...");
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.show(0);
+            }
+
+            const oCleanData = Object.assign({}, oData || {});
+            delete oCleanData.requestId;
+            delete oCleanData.requestNumber;
+            const oTargetItem = {
+                ...oCleanData,
+                requestId: sReqId,
+                requestNumber: sReqId
+            };
+
+            try {
+                if (window.openKyraRequestTracking && typeof window.openKyraRequestTracking === "function") {
+                    await window.openKyraRequestTracking(sReqId, oTargetItem);
+                    return;
+                }
+
+                const [response] = await Promise.all([
+                    fetch("/odata/v4/admin-portal/GovernanceHistory"),
+                    new Promise(r => setTimeout(r, 450))
+                ]);
+                const data = await response.json();
+                let oDbItem = null;
+                if (data && data.value) {
+                    // Exact match first
+                    oDbItem = data.value.find(r => r.request_number === sReqId || r.id === sReqId);
+                    if (!oDbItem) {
+                        oDbItem = data.value.find(r => (
+                            ("REQ-" + r.ID) === sReqId ||
+                            ("REQ-" + r.id) === sReqId ||
+                            (sReqId && r.request_number && r.request_number.startsWith(sReqId))
+                        ));
+                    }
+                }
+
+                const oLiveDetails = this._buildRequestDetailFromItem ?
+                    this._buildRequestDetailFromItem(oTargetItem, oDbItem) :
+                    null;
+
+                if (oLiveDetails) {
+                    oModel.setProperty("/selectedRequestDetail", oLiveDetails);
+                }
+                oModel.setProperty("/showRequestDetailsPage", true);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } catch (e) {
+                console.error("Error navigating to live request tracking:", e);
+                oModel.setProperty("/showRequestDetailsPage", true);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } finally {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
+            }
         },
 
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
@@ -891,10 +986,61 @@ sap.ui.define([
                 console.error("Error fetching OData requests:", err);
             }
 
-            const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
-            const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation");
-            const aAccessProcessed = aProcessed.filter(p => !p.isRevocation && p.type !== "Revocation");
-            const aRevokeProcessed = aProcessed.filter(p => p.isRevocation || p.type === "Revocation");
+            // Merge any in-flight pending revocations from sessionStorage if not yet reflected from OData
+            if (!isCompliance) {
+                try {
+                    const aStoredRevs = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                    aStoredRevs.forEach(sr => {
+                        const sSrId = sr.requestId || sr.requestNumber;
+                        if (sSrId && !aPending.some(p => p.requestId === sSrId || (p.requestId && p.requestId.startsWith(sSrId)))) {
+                            aPending.push({
+                                requestId: sSrId,
+                                requesterId: sr.requesterUsername || sr.requesterId || "emp001",
+                                requesterUsername: sr.requesterUsername || sr.requesterId || "emp001",
+                                selectedPersona: sr.persona || sr.selectedPersona || "Requester",
+                                persona: sr.persona || sr.selectedPersona || "Requester",
+                                sector: sr.sector || "Information Technology & Security",
+                                businessSector: sr.sector || "Information Technology & Security",
+                                function: sr.function || sr.businessFunction || "Corporate Governance",
+                                businessFunction: sr.function || sr.businessFunction || "Corporate Governance",
+                                duration: sr.accessDuration || sr.duration || "30/30 days left",
+                                accessDuration: sr.accessDuration || sr.duration || "30/30 days left",
+                                region: sr.region || "Global Enterprise (ALL)",
+                                operatingRegion: sr.region || "Global Enterprise (ALL)",
+                                justification: sr.justification || ("Revocation of access for role " + (sr.roleName || "")),
+                                type: "Revocation",
+                                serviceTopic: sr.category || "Revocation Request",
+                                submissionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                                decisionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                                status: "Revoke Pending",
+                                statusState: "Error",
+                                statusIcon: "sap-icon://pending",
+                                isRevocation: true,
+                                _isPendingForRole: true,
+                                entitlements: [{
+                                    requestId: sSrId,
+                                    system: sr.system,
+                                    roleName: sr.roleName,
+                                    team: sr.team || "System Administrator",
+                                    serviceTopic: sr.category || "Revocation Request",
+                                    selectedPersona: sr.persona || "Requester",
+                                    persona: sr.persona || "Requester",
+                                    status: "Pending",
+                                    statusState: "Warning",
+                                    statusIcon: "sap-icon://pending"
+                                }]
+                            });
+                        }
+                    });
+                } catch(e) {
+                    console.warn("Error merging stored pending revocations:", e);
+                }
+            }
+
+            const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation" && !String(p.requestId || '').startsWith("REV-"));
+            const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
+            const aAccessProcessed = aProcessed.filter(p => !p.isRevocation && p.type !== "Revocation" && !String(p.requestId || '').startsWith("REV-"));
+            const aRevokeProcessed = aProcessed.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
 
             aPending.sort(sortChronologicallyDesc);
             aProcessed.sort(sortChronologicallyDesc);

@@ -301,6 +301,18 @@ sap.ui.define([
             if (oRouter && oRouter.getRoute("AccessPage")) {
                 oRouter.getRoute("AccessPage").attachPatternMatched(this._onRouteMatched, this);
             }
+
+            // Expose global Request Tracking handler for child components (e.g. Decision Breakdown Summary)
+            window.openKyraRequestTracking = async (sReqId, oExtra) => {
+                const oCleanExtra = Object.assign({}, oExtra || {});
+                delete oCleanExtra.requestId;
+                delete oCleanExtra.requestNumber;
+                return this.onOpenPendingRequestDetails({
+                    ...oCleanExtra,
+                    requestId: sReqId,
+                    requestNumber: sReqId
+                });
+            };
         },
 
         _notifyDatabaseMutation() {
@@ -1621,7 +1633,7 @@ sap.ui.define([
                     isProcessedForRole = !isOverallPending;
                 }
 
-                if (isAnyReviewerPersona && !isPendingForRole && !isProcessedForRole) {
+                if (isAnyReviewerPersona && (bIsUserMatch || (!isPendingForRole && !isProcessedForRole))) {
                     return;
                 }
 
@@ -2083,18 +2095,18 @@ sap.ui.define([
                         body: JSON.stringify({
                             requests: [{
                                 requestNumber: sReqId,
-                                requesterUsername: sActiveUser,
-                                requesterPersona: sActiveRole,
-                                businessSector: oData.sector || "Information Technology & Security",
-                                businessFunction: oData.function || oData.businessFunction || "Corporate Governance",
-                                operatingRegion: oData.region || "Global Enterprise (ALL)",
+                                requesterUsername: sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018",
+                                requesterPersona: sActiveRole || "Requester",
+                                businessSector: oData.sector || oData.businessSector || "Global Supply Chain & Logistics",
+                                businessFunction: oData.function || oData.businessFunction || "Inventory Governance",
+                                operatingRegion: oData.region || oData.operatingRegion || "Asia",
                                 targetSystem: oData.system,
-                                serviceTopic: oData.category || "Revocation Request",
-                                roleName: oData.roleName,
-                                selectedPersona: oData.persona || "User",
+                                serviceTopic: oData.services || oData.serviceTopic || (oData.category && oData.category !== "Revocation Request" ? oData.category : "System Administrator"),
+                                roleName: oData.roleName || "IT Developers",
+                                selectedPersona: oData.persona || oData.selectedPersona || "Frontend & UI Developer",
                                 accessType: "REVOCATION",
                                 accessDuration: oData.accessDuration || oData.duration || "30 Days (Temporary)",
-                                justification: "Revocation of access for role " + oData.roleName
+                                justification: "Revocation of access for role " + (oData.roleName || "IT Developers")
                             }]
                         })
                     })
@@ -2211,20 +2223,28 @@ sap.ui.define([
             if (!oModel) oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "emp018").trim();
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "").trim();
+            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
+            const sRoleLower = sActiveRole.toLowerCase();
+            const isCompliancePersona = sRoleLower.includes("compliance");
+            const isApproverPersona = sRoleLower.includes("approver") || sRoleLower.includes("manager") || sRoleLower.includes("admin") || !!oModel.getProperty("/isApproverPersona");
+            const isAnyReviewerPersona = isCompliancePersona || isApproverPersona;
+
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+            const sDeletedStorageKey = sActiveUser ? ("kyra_deleted_notification_ids_" + sActiveUser.toLowerCase()) : "kyra_deleted_notification_ids";
 
             let aSavedStatusMap = {};
             let aSavedNotifications = [];
             try {
-                aSavedNotifications = JSON.parse(sessionStorage.getItem("kyra_user_notifications") || "[]");
+                aSavedNotifications = JSON.parse(sessionStorage.getItem(sUserStorageKey) || "[]");
                 (aSavedNotifications || []).forEach(n => {
-                    if (n.id) aSavedStatusMap[n.id] = n.unread;
+                    if (n && n.id) aSavedStatusMap[n.id] = n.unread;
                 });
             } catch (e) {}
 
             let aDeletedIds = [];
             try {
-                aDeletedIds = JSON.parse(sessionStorage.getItem("kyra_deleted_notification_ids") || "[]");
+                aDeletedIds = JSON.parse(sessionStorage.getItem(sDeletedStorageKey) || "[]");
             } catch (e) {}
             const oDeletedSet = new Set(aDeletedIds);
 
@@ -2263,14 +2283,10 @@ sap.ui.define([
             let aNotifications = [];
 
             // -------------------------------------------------------------------------
-            // Reviewer Notifications (Approver & Compliance Reviewer)
+            // 1. Reviewer Notifications (Approver & Compliance Reviewer) - "Users Notification"
+            // Displays requests of other users received to make the approve or reject decision.
+            // Approvers/Compliance Reviewers do NOT receive notifications once decided or for downstream stages.
             // -------------------------------------------------------------------------
-            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
-            const sRoleLower = sActiveRole.toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
-            const isApproverPersona = sRoleLower.includes("approver") || sRoleLower.includes("manager") || sRoleLower.includes("admin") || !!oModel.getProperty("/isApproverPersona");
-            const isAnyReviewerPersona = isCompliancePersona || isApproverPersona;
-
             if (isAnyReviewerPersona) {
                 const aPendingAccess = oModel.getProperty("/pendingAccessRequests") || [];
                 const aPendingRevoke = oModel.getProperty("/pendingRevokeRequests") || [];
@@ -2278,7 +2294,13 @@ sap.ui.define([
 
                 aAllPendingReview.forEach(g => {
                     const sReqId = g.requestId || g.requestNumber || "REQ-GENERAL";
-                    const sRequester = g.requesterId || g.requesterUsername || "User";
+                    const sRequester = (g.requesterId || g.requesterUsername || "User").trim();
+
+                    // Only other users' requests
+                    if (sActiveUser && sRequester.toLowerCase() === sActiveUser.toLowerCase()) {
+                        return;
+                    }
+
                     const iCount = (g.entitlements && g.entitlements.length > 0) ? g.entitlements.length : 1;
                     const isRevoke = !!g.isRevocation || (g.requestType || "").toLowerCase().includes("revoke") || (g.type || "").toLowerCase().includes("revoke") || (g.status || "").toLowerCase().includes("revoke");
                     const sCreatedTime = g.createdAtRaw || g.created_at || g.submissionDate || new Date().toISOString();
@@ -2290,19 +2312,19 @@ sap.ui.define([
                             scope: "users",
                             requesterId: sRequester,
                             requestId: sReqId,
-                            system: g.system || "SAP S/4HANA Enterprise",
-                            roleTitle: isRevoke ? "Revoke Access Request" : (g.roleName || "Line Manager"),
-                            roleName: isRevoke ? "Revoke Request" : (g.roleName || "Line Manager"),
-                            team: g.team || g.sector || "System Administrator",
-                            persona: g.persona || "People Operations Lead",
+                            system: g.system || "SAP System",
+                            roleName: isRevoke ? "Revoke Request" : "Access Request",
+                            persona: g.persona || "Requester",
                             type: isRevoke ? "revocation" : "access_review",
                             isRevocation: isRevoke,
                             targetPage: "ApproverDetail",
                             category: isRevoke ? "Revocation Requests" : "Access Requests",
-                            title: isRevoke ? "New Revoke Request Received" : "New Access Request Received",
+                            title: isRevoke ? "New Revoke Request Received" : (isCompliancePersona ? "New Compliance Review Required" : "New Access Request Received"),
                             description: isRevoke
                                 ? `User ${sRequester} submitted a revoke request (${sReqId}) with ${iCount} ${iCount === 1 ? 'entitlement' : 'entitlements'} for your review.`
-                                : `User ${sRequester} submitted an access request (${sReqId}) with ${iCount} ${iCount === 1 ? 'entitlement' : 'entitlements'} for your review.`,
+                                : (isCompliancePersona
+                                    ? `User ${sRequester} submitted access request (${sReqId}) with SoD conflict requiring compliance review.`
+                                    : `User ${sRequester} submitted an access request (${sReqId}) with ${iCount} ${iCount === 1 ? 'entitlement' : 'entitlements'} for your review.`),
                             approverComment: "",
                             timestamp: formatTimeAgo(sCreatedTime),
                             rawTimestamp: new Date(sCreatedTime).getTime(),
@@ -2314,23 +2336,103 @@ sap.ui.define([
                 });
             }
 
-            // Filter requests for current logged in user (Requester Notifications)
-            const aUserRequests = aSourceRequests.filter(r => {
-                const u = r.requester_username || r.requesterId || r.requesterUsername || "";
-                if (!u || !sActiveUser) return true;
-                return u.toLowerCase() === sActiveUser.toLowerCase();
+            // -------------------------------------------------------------------------
+            // 2. Requester Notifications - "My Notification"
+            // ONLY displays requests submitted by the logged-in user itself from Add/Remove Access.
+            // Receives stage progression updates (Approver -> Compliance -> IAM 1 -> IAM 2).
+            // -------------------------------------------------------------------------
+            const aUserRequests = (!sActiveUser) ? [] : aSourceRequests.filter(r => {
+                const u = (r.requester_username || r.requesterId || r.requesterUsername || "").trim();
+                return u && u.toLowerCase() === sActiveUser.toLowerCase();
             });
 
             aUserRequests.forEach(r => {
                 const sReqNum = r.request_number || r.requestId || r.requestNumber || ("REQ-" + (r.id || r.ID || "000"));
-                const sSys = r.target_system || r.system || "SAP S/4HANA Enterprise";
-                const sPersona = cleanPersonaStr(r.selected_persona || r.selectedPersona || r.persona || "People Operations Lead");
-                const sRawRole = r.role_name || r.roleName || (r.entitlements && r.entitlements[0] && r.entitlements[0].roleName) || "Line Manager";
-                const sTeam = r.team || r.team_name || r.business_function || (sRawRole.includes("(") ? sRawRole.split("(")[1].replace(")", "").trim() : "System Administrator");
-                const sRoleTitle = cleanPersonaStr(sRawRole);
+                const sSys = r.target_system || r.system || "SAP System";
+                const sPersona = cleanPersonaStr(r.selected_persona || r.selectedPersona || r.persona || r.role_name || r.roleName || "System Role");
                 const sCreatedTime = r.created_at || r.createdAtRaw || r.submissionDate || new Date().toISOString();
                 const sUpdatedTime = r.updated_at || r.updatedAtRaw || r.created_at || sCreatedTime;
                 const hasConflict = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
+                const isRevocationReq = (r.access_type || r.request_type || "").toUpperCase() === "REVOCATION" || (r.business_function || "").toUpperCase().includes("REVOCATION") || sReqNum.startsWith("REV-");
+
+                if (isRevocationReq) {
+                    const sSubId = "notif-sub-" + sReqNum;
+                    if (!oDeletedSet.has(sSubId)) {
+                        aNotifications.push({
+                            id: sSubId,
+                            scope: "my",
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                            persona: sPersona,
+                            type: "revocation",
+                            isRevocation: true,
+                            category: "Revocation Requests",
+                            title: "Revoke Request Submitted",
+                            description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) was submitted successfully and is awaiting review.`,
+                            approverComment: "",
+                            timestamp: formatTimeAgo(sCreatedTime),
+                            rawTimestamp: new Date(sCreatedTime).getTime(),
+                            icon: "sap-icon://decline",
+                            state: "Information",
+                            unread: aSavedStatusMap[sSubId] !== undefined ? aSavedStatusMap[sSubId] : true
+                        });
+                    }
+
+                    const sRevDbStatus = (r.db_status || r.status || "").toUpperCase();
+                    const sRevApprStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
+                    if (sRevDbStatus === "APPROVED" || sRevApprStatus === "APPROVED") {
+                        const sRevApprId = "notif-rev-appr-" + sReqNum;
+                        if (!oDeletedSet.has(sRevApprId)) {
+                            aNotifications.push({
+                                id: sRevApprId,
+                                scope: "my",
+                                requesterId: sActiveUser,
+                                requestId: sReqNum,
+                                system: sSys,
+                                roleName: sPersona,
+                                persona: sPersona,
+                                type: "approved",
+                                isRevocation: true,
+                                category: "Revocation Decisions",
+                                title: "Access Revocation Approved",
+                                description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) has been approved and access is revoked.`,
+                                approverComment: r.approver_comment || r.approverComment || "",
+                                timestamp: formatTimeAgo(sUpdatedTime),
+                                rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                                icon: "sap-icon://sys-enter-2",
+                                state: "Success",
+                                unread: aSavedStatusMap[sRevApprId] !== undefined ? aSavedStatusMap[sRevApprId] : true
+                            });
+                        }
+                    } else if (sRevDbStatus === "REJECTED" || sRevApprStatus === "REJECTED") {
+                        const sRevRejId = "notif-rev-rej-" + sReqNum;
+                        if (!oDeletedSet.has(sRevRejId)) {
+                            aNotifications.push({
+                                id: sRevRejId,
+                                scope: "my",
+                                requesterId: sActiveUser,
+                                requestId: sReqNum,
+                                system: sSys,
+                                roleName: sPersona,
+                                persona: sPersona,
+                                type: "rejected",
+                                isRevocation: true,
+                                category: "Revocation Decisions",
+                                title: "Access Revocation Rejected",
+                                description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) was rejected.`,
+                                approverComment: r.approver_comment || r.approverComment || "",
+                                timestamp: formatTimeAgo(sUpdatedTime),
+                                rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                                icon: "sap-icon://error",
+                                state: "Error",
+                                unread: aSavedStatusMap[sRevRejId] !== undefined ? aSavedStatusMap[sRevRejId] : true
+                            });
+                        }
+                    }
+                    return;
+                }
 
                 // 1. Notification: Request Submitted
                 const sSubId = "notif-sub-" + sReqNum;
@@ -2341,9 +2443,7 @@ sap.ui.define([
                         requesterId: sActiveUser,
                         requestId: sReqNum,
                         system: sSys,
-                        roleTitle: sRoleTitle,
-                        roleName: sRoleTitle,
-                        team: sTeam,
+                        roleName: sPersona,
                         persona: sPersona,
                         type: "submitted",
                         category: "Access Requests",
@@ -2370,9 +2470,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "approved",
                             category: "Access Decisions",
@@ -2395,9 +2493,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "rejected",
                             category: "Access Decisions",
@@ -2424,9 +2520,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "approved",
                             category: "Access Decisions",
@@ -2449,9 +2543,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "rejected",
                             category: "Access Decisions",
@@ -2478,9 +2570,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "approved",
                             category: "Access Decisions",
@@ -2503,9 +2593,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "rejected",
                             category: "Access Decisions",
@@ -2533,9 +2621,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "approved",
                             category: "Access Decisions",
@@ -2558,9 +2644,7 @@ sap.ui.define([
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
-                            roleTitle: sRoleTitle,
-                            roleName: sRoleTitle,
-                            team: sTeam,
+                            roleName: sPersona,
                             persona: sPersona,
                             type: "rejected",
                             category: "Access Decisions",
@@ -2577,39 +2661,32 @@ sap.ui.define([
                 }
             });
 
-            // Include any saved custom notifications
+            // Include any saved custom notifications strictly matching current user context
             (aSavedNotifications || []).forEach(sn => {
-                if (sn.id && !aNotifications.some(n => n.id === sn.id)) {
-                    if (!sn.scope) {
-                        sn.scope = (sn.id.includes("review") || sn.id.includes("incoming")) ? "users" : "my";
+                if (sn && sn.id && !aNotifications.some(n => n.id === sn.id)) {
+                    if (sn.scope === "users") {
+                        if (isAnyReviewerPersona && (!sActiveUser || (sn.requesterId || "").toLowerCase() !== sActiveUser.toLowerCase())) {
+                            aNotifications.push(sn);
+                        }
+                    } else {
+                        if (sActiveUser && (sn.requesterId || "").toLowerCase() === sActiveUser.toLowerCase()) {
+                            aNotifications.push(sn);
+                        }
                     }
-                    if (!sn.system) sn.system = "SAP S/4HANA Enterprise";
-                    if (!sn.roleTitle) sn.roleTitle = sn.roleName || sn.title || "Line Manager";
-                    if (!sn.team) sn.team = "System Administrator";
-                    if (!sn.persona) sn.persona = "People Operations Lead";
-                    aNotifications.push(sn);
-                }
-            });
-
-            // Ensure every notification has a valid scope
-            aNotifications.forEach(n => {
-                if (!n.scope) {
-                    n.scope = (n.id && (n.id.includes("review") || n.id.includes("incoming"))) ? "users" : "my";
                 }
             });
 
             // Sort notifications in REVERSE CHRONOLOGICAL ORDER (newest first)
             aNotifications.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
 
+            sessionStorage.setItem(sUserStorageKey, JSON.stringify(aNotifications));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aNotifications));
-
-            const iUnreadCount = aNotifications.filter(n => n.unread !== false).length;
 
             const aMyNotifs = aNotifications.filter(n => (n.scope || "my") === "my");
             const iMyAll = aMyNotifs.length;
             const iMyUnread = aMyNotifs.filter(n => n.unread !== false).length;
 
-            const aUsersNotifs = aNotifications.filter(n => (n.scope || "my") === "users");
+            const aUsersNotifs = aNotifications.filter(n => n.scope === "users");
             const iUsersAll = aUsersNotifs.length;
             const iUsersUnread = aUsersNotifs.filter(n => n.unread !== false).length;
 
@@ -2617,10 +2694,12 @@ sap.ui.define([
             const iScopeAll = sScope === "users" ? iUsersAll : iMyAll;
             const iScopeUnread = sScope === "users" ? iUsersUnread : iMyUnread;
 
+            const iBadgeCount = isAnyReviewerPersona ? iUsersUnread : iMyUnread;
+
             this._setSmartProperty(oModel, "/notificationsList", aNotifications);
-            this._setSmartProperty(oModel, "/notificationsCount", iUnreadCount);
+            this._setSmartProperty(oModel, "/notificationsCount", iBadgeCount);
             this._setSmartProperty(oModel, "/allNotificationsCount", aNotifications.length);
-            this._setSmartProperty(oModel, "/unreadNotificationsCount", iUnreadCount);
+            this._setSmartProperty(oModel, "/unreadNotificationsCount", isAnyReviewerPersona ? iUsersUnread : iMyUnread);
 
             this._setSmartProperty(oModel, "/myNotificationsCount", iMyAll);
             this._setSmartProperty(oModel, "/myUnreadNotificationsCount", iMyUnread);
@@ -2648,6 +2727,9 @@ sap.ui.define([
             // 1. In Reviewer Persona (Approver / Compliance), filter by Scope ("my" vs "users")
             if (bIsReviewer) {
                 aFiltered = aFiltered.filter(n => (n.scope || "my") === sScope);
+            } else {
+                // Regular requester only sees "my" notifications
+                aFiltered = aFiltered.filter(n => (n.scope || "my") === "my");
             }
 
             // 2. Filter by tab key ("unread", "all", etc.)
@@ -3171,12 +3253,15 @@ sap.ui.define([
             const aList = oModel.getProperty("/notificationsList") || [];
             const bIsReviewer = !!oModel.getProperty("/isReviewerRole");
             const sScope = oModel.getProperty("/notifScope") || "my";
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
 
             aList.forEach(n => {
                 if (!bIsReviewer || (n.scope || "my") === sScope) {
                     n.unread = false;
                 }
             });
+            sessionStorage.setItem(sUserStorageKey, JSON.stringify(aList));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
 
             this._loadNotifications(oModel);
@@ -3191,10 +3276,13 @@ sap.ui.define([
             let aList = oModel.getProperty("/notificationsList") || [];
             const bIsReviewer = !!oModel.getProperty("/isReviewerRole");
             const sScope = oModel.getProperty("/notifScope") || "my";
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+            const sDeletedStorageKey = sActiveUser ? ("kyra_deleted_notification_ids_" + sActiveUser.toLowerCase()) : "kyra_deleted_notification_ids";
 
             let aDeletedIds = [];
             try {
-                aDeletedIds = JSON.parse(sessionStorage.getItem("kyra_deleted_notification_ids") || "[]");
+                aDeletedIds = JSON.parse(sessionStorage.getItem(sDeletedStorageKey) || "[]");
             } catch (e) {}
 
             aList.forEach(n => {
@@ -3205,12 +3293,14 @@ sap.ui.define([
                 }
             });
 
-            sessionStorage.setItem("kyra_deleted_notification_ids", JSON.stringify(aDeletedIds));
+            sessionStorage.setItem(sDeletedStorageKey, JSON.stringify(aDeletedIds));
 
             if (bIsReviewer) {
                 const aRemaining = aList.filter(n => (n.scope || "my") !== sScope);
+                sessionStorage.setItem(sUserStorageKey, JSON.stringify(aRemaining));
                 sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aRemaining));
             } else {
+                sessionStorage.setItem(sUserStorageKey, "[]");
                 sessionStorage.setItem("kyra_user_notifications", "[]");
             }
 
@@ -3229,6 +3319,9 @@ sap.ui.define([
             oNotif.unread = !oNotif.unread;
 
             const aList = oModel.getProperty("/notificationsList") || [];
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+            sessionStorage.setItem(sUserStorageKey, JSON.stringify(aList));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
 
             this._loadNotifications(oModel);
@@ -3242,20 +3335,24 @@ sap.ui.define([
             if (!oNotif) return;
 
             const oModel = this.getView().getModel("accessModel");
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+            const sDeletedStorageKey = sActiveUser ? ("kyra_deleted_notification_ids_" + sActiveUser.toLowerCase()) : "kyra_deleted_notification_ids";
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
             
             let aDeletedIds = [];
             try {
-                aDeletedIds = JSON.parse(sessionStorage.getItem("kyra_deleted_notification_ids") || "[]");
+                aDeletedIds = JSON.parse(sessionStorage.getItem(sDeletedStorageKey) || "[]");
             } catch (e) {}
 
             if (oNotif.id && !aDeletedIds.includes(oNotif.id)) {
                 aDeletedIds.push(oNotif.id);
             }
 
-            sessionStorage.setItem("kyra_deleted_notification_ids", JSON.stringify(aDeletedIds));
+            sessionStorage.setItem(sDeletedStorageKey, JSON.stringify(aDeletedIds));
 
             let aList = oModel.getProperty("/notificationsList") || [];
             aList = aList.filter(n => n.id !== oNotif.id);
+            sessionStorage.setItem(sUserStorageKey, JSON.stringify(aList));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
 
             this._loadNotifications(oModel);
@@ -3272,6 +3369,9 @@ sap.ui.define([
             oNotif.unread = false;
             const oModel = this.getView().getModel("accessModel");
             const aList = oModel.getProperty("/notificationsList") || [];
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+            sessionStorage.setItem(sUserStorageKey, JSON.stringify(aList));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
             this._loadNotifications(oModel);
 
@@ -3311,7 +3411,7 @@ sap.ui.define([
             });
         },
 
-                        onNotificationItemPress(oEvent) {
+        onNotificationItemPress(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -3328,6 +3428,9 @@ sap.ui.define([
             // Mark as read
             oNotif.unread = false;
             const aList = oModel.getProperty("/notificationsList") || [];
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+            sessionStorage.setItem(sUserStorageKey, JSON.stringify(aList));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
             this._loadNotifications(oModel);
 
@@ -3544,6 +3647,9 @@ sap.ui.define([
                             el.onclick = () => {
                                 n.unread = false;
                                 const aList = oModel.getProperty("/notificationsList") || [];
+                                const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim();
+                                const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+                                sessionStorage.setItem(sUserStorageKey, JSON.stringify(aList));
                                 sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
                                 this._loadNotifications(oModel);
                                 oPopover.close();
@@ -6294,7 +6400,15 @@ sap.ui.define([
                 const data = await response.json();
                 let oDbItem = null;
                 if (data && data.value) {
-                    oDbItem = data.value.find(r => (r.request_number === sReqNum || r.id === sReqNum || ("REQ-" + r.ID) === sReqNum || ("REQ-" + r.id) === sReqNum));
+                    // Prioritize EXACT match by request_number or id first
+                    oDbItem = data.value.find(r => r.request_number === sReqNum || r.id === sReqNum);
+                    if (!oDbItem) {
+                        oDbItem = data.value.find(r => (
+                            ("REQ-" + r.ID) === sReqNum || 
+                            ("REQ-" + r.id) === sReqNum ||
+                            (sReqNum && r.request_number && r.request_number.startsWith(sReqNum))
+                        ));
+                    }
                 }
 
                 // 3. Build live details directly from fresh database record
@@ -6336,14 +6450,14 @@ sap.ui.define([
 
             const sRequesterUsername = (oDbItem && oDbItem.requester_username) || (oItem && (oItem.requesterUsername || oItem.requesterId)) || "";
             
-            const sRawType = (oItem && (oItem.type || oItem.requestType || oItem.accessType)) || (oDbItem && (oDbItem.access_type || oDbItem.request_type)) || "Addition";
+            const sRawType = (oDbItem && (oDbItem.access_type || oDbItem.request_type)) || (oItem && (oItem.type || oItem.requestType || oItem.accessType)) || "Addition";
             const isRevoc = (sRawType === "REVOCATION" || sRawType === "Revocation" || sRawType === "Revoke" || (oItem && oItem.isRevocation) || (oDbItem && (oDbItem.business_function || "").toUpperCase().includes("REVOCATION")));
             const sType = isRevoc ? "Revoke" : "Addition";
 
             const sSystem = (oDbItem && (oDbItem.target_system || oDbItem.system)) || (oItem && oItem.system) || "";
-            const sServices = (oItem && (oItem.services || oItem.serviceTopic || oItem.service || oItem.category)) || (oDbItem && (oDbItem.services || oDbItem.service_topic)) || "";
-            const sTeam = (oItem && (oItem.team || oItem.teamName || oItem.roleTitle || oItem.roleName || oItem.teamRole)) || (oDbItem && (oDbItem.team || oDbItem.team_name || oDbItem.role_name)) || "";
-            const sPersona = (oItem && (oItem.persona || oItem.selectedPersona)) || (oDbItem && (oDbItem.selected_persona || oDbItem.persona)) || "";
+            const sServices = (oDbItem && (oDbItem.service_topic || oDbItem.services)) || (oItem && (oItem.services || oItem.serviceTopic || oItem.service || oItem.category)) || "";
+            const sTeam = (oDbItem && (oDbItem.role_name || oDbItem.team || oDbItem.team_name)) || (oItem && (oItem.team || oItem.teamName || oItem.roleTitle || oItem.roleName || oItem.teamRole)) || "";
+            const sPersona = (oDbItem && (oDbItem.selected_persona || oDbItem.persona)) || (oItem && (oItem.persona || oItem.selectedPersona)) || "";
 
             const sCreatedAtRaw = (oDbItem && oDbItem.created_at) || (oItem && (oItem.createdAtRaw || oItem.createdAt || oItem.submittedDate || oItem.submissionDate)) || new Date().toISOString();
             const sUpdatedAtRaw = (oDbItem && oDbItem.updated_at) || (oItem && (oItem.updatedAtRaw || oItem.updatedAt)) || sCreatedAtRaw;
@@ -6883,7 +6997,9 @@ sap.ui.define([
                 const sTeam = this._deriveCleanTeamName ? this._deriveCleanTeamName(oItem) : (oItem.team ? String(oItem.team).replace(/\s+team$/i, "") : "");
                 const sService = oItem.serviceTopic || oItem.service || oItem.category || "";
                 const sPers = oItem.selectedPersona || oItem.persona || (oModel ? oModel.getProperty("/activeRole") : null) || "";
-                const sRegion = oItem.region || (oModel ? oModel.getProperty("/addAccessRegion") : null) || "";
+                const sSector = oItem.sector || oItem.businessSector || (oModel ? (oModel.getProperty("/selectedBusinessSector") || oModel.getProperty("/addAccessBusinessSector")) : null) || "Information Technology & Security";
+                const sFunction = oItem.function || oItem.businessFunction || (oModel ? (oModel.getProperty("/selectedBusinessFunction") || oModel.getProperty("/addAccessBusinessFunction")) : null) || "Corporate Governance";
+                const sRegion = oItem.region || oItem.operatingRegion || (oModel ? oModel.getProperty("/addAccessRegion") : null) || "Asia";
                 const sGranted = oItem.grantedDate || oItem.submissionDate || "";
                 const sExpiry = oItem.expiryDate || oItem.duration || "";
                 const sJustification = oItem.justification || "Business operational governance, audit compliance, and system execution privileges.";
@@ -6929,28 +7045,32 @@ sap.ui.define([
                                 <!-- Details Card Grid with Full Selection Fields -->
                                 <div class="kyra-modal-details-card">
                                     <div class="kyra-modal-grid-row">
+                                        <span class="kyra-modal-label">Business Sector</span>
+                                        <span class="kyra-modal-val">${sSector}</span>
+                                    </div>
+                                    <div class="kyra-modal-grid-row">
+                                        <span class="kyra-modal-label">Business Function</span>
+                                        <span class="kyra-modal-val">${sFunction}</span>
+                                    </div>
+                                    <div class="kyra-modal-grid-row">
+                                        <span class="kyra-modal-label">Operating Region</span>
+                                        <span class="kyra-modal-val">${sRegion}</span>
+                                    </div>
+                                    <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">System Name</span>
                                         <span class="kyra-modal-val">${sSys}</span>
-                                    </div>
-                                    <div class="kyra-modal-grid-row">
-                                        <span class="kyra-modal-label">Business Role</span>
-                                        <span class="kyra-modal-val">${sRole}</span>
-                                    </div>
-                                    <div class="kyra-modal-grid-row">
-                                        <span class="kyra-modal-label">Team</span>
-                                        <span class="kyra-modal-val">${sTeam}</span>
                                     </div>
                                     <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">Service / Topic</span>
                                         <span class="kyra-modal-val">${sService}</span>
                                     </div>
                                     <div class="kyra-modal-grid-row">
-                                        <span class="kyra-modal-label">Assigned Persona</span>
-                                        <span class="kyra-modal-val">${sPers}</span>
+                                        <span class="kyra-modal-label">Team</span>
+                                        <span class="kyra-modal-val">${sRole}</span>
                                     </div>
                                     <div class="kyra-modal-grid-row">
-                                        <span class="kyra-modal-label">Operating Region</span>
-                                        <span class="kyra-modal-val">${sRegion}</span>
+                                        <span class="kyra-modal-label">Assigned Persona</span>
+                                        <span class="kyra-modal-val">${sPers}</span>
                                     </div>
                                     <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">Granted Date</span>

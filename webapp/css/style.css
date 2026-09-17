@@ -10791,6 +10791,18 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     cursor: default;
 }
 
+.kyra-clickable-card {
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyra-clickable-card:hover {
+    cursor: pointer !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.12) !important;
+    transform: translateY(-1px);
+}
+
 .kyra-card-approved {
     border-left: 3.5px solid #16A34A;
 }
