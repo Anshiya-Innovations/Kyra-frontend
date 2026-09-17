@@ -227,7 +227,7 @@
                                     type="Transparent"
                                     press=".onOpenDecisionBreakdownDialog"
                                     tooltip="View Decision Breakdown"
-                                    class="kyraBreakdownViewBtn kyraTableActionBtn kyraBreakdownIconBtn" />
+                                    class="kyraBreakdownViewBtn kyraBreakdownIconBtn" />
                             </HBox>
                         </cells>
                     </ColumnListItem>

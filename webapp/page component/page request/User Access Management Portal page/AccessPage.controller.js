@@ -3469,7 +3469,6 @@ sap.ui.define([
                     `;
                 } else {
                     aTopNotifs.forEach((n, idx) => {
-                        const sHasStripe = idx === 0 ? "kyra-notif-item-has-stripe" : "";
                         const sDotHtml = n.unread !== false ? `<span class="kyra-notif-blue-dot"></span>` : "";
                         
                         let sAvatarHtml = "";
@@ -3538,7 +3537,7 @@ sap.ui.define([
                         }
 
                         sItemsHtml += `
-                            <div class="kyra-notif-item ${sHasStripe}" id="kyra_notif_item_${idx}" data-reqid="${n.requestId || ''}" style="cursor: pointer;">
+                            <div class="kyra-notif-item" id="kyra_notif_item_${idx}" data-reqid="${n.requestId || ''}" style="cursor: pointer;">
                                 <div class="kyra-notif-avatar-col">
                                     ${sAvatarHtml}
                                 </div>

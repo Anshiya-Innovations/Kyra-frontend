@@ -314,26 +314,69 @@ sap.ui.define([
             const sOverallIcon = aRejectedItems.length === 0 ? "✓" : (aFinalApproved.length === 0 ? "✕" : "⚠");
 
             const sApprovedCardsHtml = aFinalApproved.length > 0 ? aFinalApproved.map(e => {
-                const sTeamVal = e.team || e.teamRole || oData.team || oData.function || '';
-                const sPersonaVal = e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona';
                 const sReqId = e.requestId || oData.requestId || oData.id || '';
+                const sSystemVal = e.system || oData.system || 'SAP S/4HANA Enterprise';
+
+                // Team: e.g. "Line Manager", "Role Owner", "IT Developers"
+                let sTeamVal = cleanRoleStr(e.roleName || e.roleTitle || e.teamRole || "");
+                if (!sTeamVal && e.team && !e.team.includes("Administrator") && !e.team.includes("Owners") && !e.team.includes("Stakeholders")) {
+                    sTeamVal = cleanRoleStr(e.team);
+                }
+                if (!sTeamVal) {
+                    sTeamVal = "Line Manager";
+                }
+
+                // Service: e.g. "System Administrator", "System Owners", "Stakeholders"
+                let sServiceVal = e.serviceTopic || e.service || oData.serviceTopic || oData.service || "";
+                if (!sServiceVal) {
+                    if (e.team && (e.team.includes("Administrator") || e.team.includes("Owners") || e.team.includes("Stakeholders"))) {
+                        sServiceVal = e.team;
+                    } else if (oData.team && (oData.team.includes("Administrator") || oData.team.includes("Owners") || oData.team.includes("Stakeholders"))) {
+                        sServiceVal = oData.team;
+                    } else {
+                        const sCombined = (sTeamVal + " " + (e.selectedPersona || "")).toLowerCase();
+                        if (sCombined.includes("owner") || sCombined.includes("custodian")) {
+                            sServiceVal = "System Owners";
+                        } else {
+                            sServiceVal = "System Administrator";
+                        }
+                    }
+                }
+
+                const sPersonaVal = cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || 'People Operations Lead');
+
                 return `
                 <div class="kyra-entitlement-summary-card kyra-card-approved kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
-                    <div class="kyra-card-main-left">
-                        <div class="kyra-card-badge-row">
-                            <div class="kyra-card-system-badge kyra-sys-approved">
-                                <span class="kyra-sys-name">${e.system || 'System'}</span>
+                    <div class="kyra-card-body-content">
+                        <div class="kyra-card-top-row">
+                            <div class="kyra-card-badge-row">
+                                <div class="kyra-card-system-badge kyra-sys-approved">
+                                    <span class="kyra-card-meta-label">System:</span>
+                                    <span class="kyra-card-meta-val">${sSystemVal}</span>
+                                </div>
+                                ${sReqId ? `
+                                <div class="kyra-card-reqid-badge">
+                                    <span class="kyra-reqid-name">${sReqId}</span>
+                                </div>` : ''}
                             </div>
-                            ${sReqId ? `
-                            <div class="kyra-card-system-badge kyra-card-reqid-badge">
-                                <span class="kyra-reqid-name">${sReqId}</span>
-                            </div>` : ''}
+                            <div class="kyra-card-status-pill kyra-pill-approved">
+                                ✓ Approved
+                            </div>
                         </div>
-                        <div class="kyra-card-role-title">${e.roleName || 'System Role'}</div>
-                        <div class="kyra-card-role-sub">${sTeamVal ? 'Team: <strong>' + sTeamVal + '</strong> • ' : ''}Persona: <strong>${sPersonaVal}</strong></div>
-                    </div>
-                    <div class="kyra-card-status-pill kyra-pill-approved">
-                        ✓ Approved
+                        <div class="kyra-card-service-row">
+                            <span class="kyra-card-meta-label">Service:</span>
+                            <span class="kyra-card-meta-val">${sServiceVal}</span>
+                        </div>
+                        <div class="kyra-card-meta-row">
+                            <div class="kyra-card-team-col">
+                                <span class="kyra-card-meta-label">Team:</span>
+                                <span class="kyra-card-meta-val">${sTeamVal}</span>
+                            </div>
+                            <div class="kyra-card-persona-col">
+                                <span class="kyra-card-meta-label">Persona:</span>
+                                <span class="kyra-card-meta-val">${sPersonaVal}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;}).join('') : `
@@ -341,26 +384,69 @@ sap.ui.define([
             `;
 
             const sRejectedCardsHtml = aRejectedItems.length > 0 ? aRejectedItems.map(e => {
-                const sTeamVal = e.team || e.teamRole || oData.team || oData.function || '';
-                const sPersonaVal = e.selectedPersona || oData.selectedPersona || oData.persona || 'Engineering Persona';
                 const sReqId = e.requestId || oData.requestId || oData.id || '';
+                const sSystemVal = e.system || oData.system || 'SAP S/4HANA Enterprise';
+
+                // Team: e.g. "Line Manager", "Role Owner", "IT Developers"
+                let sTeamVal = cleanRoleStr(e.roleName || e.roleTitle || e.teamRole || "");
+                if (!sTeamVal && e.team && !e.team.includes("Administrator") && !e.team.includes("Owners") && !e.team.includes("Stakeholders")) {
+                    sTeamVal = cleanRoleStr(e.team);
+                }
+                if (!sTeamVal) {
+                    sTeamVal = "Line Manager";
+                }
+
+                // Service: e.g. "System Administrator", "System Owners", "Stakeholders"
+                let sServiceVal = e.serviceTopic || e.service || oData.serviceTopic || oData.service || "";
+                if (!sServiceVal) {
+                    if (e.team && (e.team.includes("Administrator") || e.team.includes("Owners") || e.team.includes("Stakeholders"))) {
+                        sServiceVal = e.team;
+                    } else if (oData.team && (oData.team.includes("Administrator") || oData.team.includes("Owners") || oData.team.includes("Stakeholders"))) {
+                        sServiceVal = oData.team;
+                    } else {
+                        const sCombined = (sTeamVal + " " + (e.selectedPersona || "")).toLowerCase();
+                        if (sCombined.includes("owner") || sCombined.includes("custodian")) {
+                            sServiceVal = "System Owners";
+                        } else {
+                            sServiceVal = "System Administrator";
+                        }
+                    }
+                }
+
+                const sPersonaVal = cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || 'People Operations Lead');
+
                 return `
                 <div class="kyra-entitlement-summary-card kyra-card-rejected kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
-                    <div class="kyra-card-main-left">
-                        <div class="kyra-card-badge-row">
-                            <div class="kyra-card-system-badge kyra-sys-rejected">
-                                <span class="kyra-sys-name">${e.system || 'System'}</span>
+                    <div class="kyra-card-body-content">
+                        <div class="kyra-card-top-row">
+                            <div class="kyra-card-badge-row">
+                                <div class="kyra-card-system-badge kyra-sys-rejected">
+                                    <span class="kyra-card-meta-label">System:</span>
+                                    <span class="kyra-card-meta-val">${sSystemVal}</span>
+                                </div>
+                                ${sReqId ? `
+                                <div class="kyra-card-reqid-badge">
+                                    <span class="kyra-reqid-name">${sReqId}</span>
+                                </div>` : ''}
                             </div>
-                            ${sReqId ? `
-                            <div class="kyra-card-system-badge kyra-card-reqid-badge">
-                                <span class="kyra-reqid-name">${sReqId}</span>
-                            </div>` : ''}
+                            <div class="kyra-card-status-pill kyra-pill-rejected">
+                                ✕ Rejected
+                            </div>
                         </div>
-                        <div class="kyra-card-role-title">${e.roleName || 'System Role'}</div>
-                        <div class="kyra-card-role-sub">${sTeamVal ? 'Team: <strong>' + sTeamVal + '</strong> • ' : ''}Persona: <strong>${sPersonaVal}</strong></div>
-                    </div>
-                    <div class="kyra-card-status-pill kyra-pill-rejected">
-                        ✕ Rejected
+                        <div class="kyra-card-service-row">
+                            <span class="kyra-card-meta-label">Service:</span>
+                            <span class="kyra-card-meta-val">${sServiceVal}</span>
+                        </div>
+                        <div class="kyra-card-meta-row">
+                            <div class="kyra-card-team-col">
+                                <span class="kyra-card-meta-label">Team:</span>
+                                <span class="kyra-card-meta-val">${sTeamVal}</span>
+                            </div>
+                            <div class="kyra-card-persona-col">
+                                <span class="kyra-card-meta-label">Persona:</span>
+                                <span class="kyra-card-meta-val">${sPersonaVal}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;}).join('') : `

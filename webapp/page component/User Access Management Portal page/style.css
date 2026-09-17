@@ -7408,14 +7408,9 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 }
 
 .kyra-notif-mark-all:hover {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border-color: #008C9C !important;
-    color: #00778B !important;
-}
-
-.kyra-notif-mark-all:hover svg {
-    stroke: #00778B !important;
+    background: #F8FAFC !important;
+    border-color: #94A3B8 !important;
+    color: #0F172A !important;
 }
 
 /* Empty State inside popover */
@@ -7472,52 +7467,8 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     transition: color 0.18s ease !important;
 }
 
-/* Prevent SAP blue/link color bleeding into description and time text on hover */
-.kyra-notif-item:hover .kyra-notif-item-desc {
-    color: #475569 !important;
-}
-
-.kyra-notif-item:hover .kyra-notif-item-time,
-.kyra-notif-item:hover .kyra-notif-item-time span {
-    color: #64748B !important;
-}
-
-.kyra-notif-item:hover .kyra-notif-item-time svg {
-    stroke: #64748B !important;
-}
-
-/* Suppress ALL SAP Horizon default blue hover on popover content */
-.kyraNotificationPopover .sapMHTMLArea:hover,
-.kyraNotificationPopover .sapMHTMLArea a:hover,
-.kyraNotificationPopover .kyra-notif-item:hover * {
-    text-decoration: none !important;
-}
-
-/* Suppress SAP default popover list item hover (blue background) */
-.kyraNotificationPopover .sapMLIB:hover,
-.kyraNotificationPopover .sapMLIBHover,
-.kyraNotificationPopover .sapMLIB:focus,
-.kyraNotificationPopover .sapMLIBActive {
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-/* Ensure popover root text color is never blue */
-.kyraNotificationPopover .kyra-notif-box-card * {
-    -webkit-text-fill-color: unset !important;
-}
-
-
 .kyra-notif-item-has-stripe::before {
-    content: "" !important;
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    width: 3.5px !important;
-    background-color: #00778B !important; /* Deep teal, no blue */
+    display: none !important;
 }
 
 .kyra-notif-avatar-col {
@@ -10832,6 +10783,18 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     border-color: #E2E8F0;
     box-shadow: none;
     cursor: default;
+}
+
+.kyra-clickable-card {
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyra-clickable-card:hover {
+    cursor: pointer !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.12) !important;
+    transform: translateY(-1px);
 }
 
 .kyra-card-approved {
@@ -17607,40 +17570,128 @@ html body .sapMBtn.kyraContactITSubmitBtn:active .sapMBtnInner {
     gap: 8px !important;
 }
 
-/* Entitlement Card */
-.kyra-entitlement-summary-card {
+/* =========================================================================
+   KYRA DECISION BREAKDOWN ENTITLEMENT CARDS - CURVED ACCENT & HOVER ENGINE
+   ========================================================================= */
+.kyra-entitlement-summary-card,
+html body .kyra-entitlement-summary-card {
+    position: relative !important;
+    overflow: hidden !important;
     background: #FFFFFF !important;
-    border: 1px solid #E2E8F0 !important;
-    border-radius: 10px !important;
-    padding: 12px 16px !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    transition: none !important;
-    cursor: default !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02) !important;
-}
-
-.kyra-entitlement-summary-card:hover {
-    background: #FFFFFF !important;
-    border-color: #E2E8F0 !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02) !important;
-    transform: none !important;
-    cursor: default !important;
-}
-
-.kyra-card-approved {
-    border-left: 4px solid #10B981 !important;
-}
-
-.kyra-card-rejected {
-    border-left: 4px solid #EF4444 !important;
-}
-
-.kyra-card-main-left {
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 12px 16px 12px 18px !important;
+    margin-bottom: 10px !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 3px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+}
+
+/* Base Left Accent Bar - Curved along card's 12px rounded corner (Matches My Profile / Third Image) */
+.kyra-entitlement-summary-card::before,
+html body .kyra-entitlement-summary-card::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 4.5px !important;
+    border-top-left-radius: 12px !important;
+    border-bottom-left-radius: 12px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    z-index: 2 !important;
+}
+
+/* Approved card: Emerald green accent */
+.kyra-card-approved::before,
+html body .kyra-card-approved::before {
+    background: #10B981 !important;
+}
+
+/* Rejected card: Crimson red accent */
+.kyra-card-rejected::before,
+html body .kyra-card-rejected::before {
+    background: #EF4444 !important;
+}
+
+.kyra-card-approved,
+.kyra-card-rejected {
+    border-left: 1.5px solid #E2E8F0 !important;
+}
+
+/* Hover Action - Curved Accent Bar + Soft Tint + Floating Shadow (Matches Third Image) */
+.kyra-entitlement-summary-card:hover,
+.kyra-clickable-card:hover,
+.kyra-entitlement-summary-card.kyra-clickable-card:hover,
+html body .kyra-entitlement-summary-card:hover,
+html body .kyra-entitlement-summary-card.kyra-clickable-card:hover {
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08) !important;
+    cursor: pointer !important;
+}
+
+/* Approved card hover state: soft mint surface, green border, glowing curved accent */
+.kyra-card-approved:hover,
+.kyra-entitlement-summary-card.kyra-card-approved:hover,
+.kyra-card-approved.kyra-clickable-card:hover,
+html body .kyra-card-approved:hover,
+html body .kyra-entitlement-summary-card.kyra-card-approved:hover {
+    background: #F0FDF4 !important;
+    background-color: #F0FDF4 !important;
+    border-color: #86EFAC !important;
+}
+
+.kyra-card-approved:hover::before,
+.kyra-entitlement-summary-card.kyra-card-approved:hover::before,
+.kyra-card-approved.kyra-clickable-card:hover::before,
+html body .kyra-card-approved:hover::before,
+html body .kyra-entitlement-summary-card.kyra-card-approved:hover::before {
+    background: #059669 !important;
+    width: 5.5px !important;
+    box-shadow: 2px 0 10px rgba(16, 185, 129, 0.45) !important;
+}
+
+/* Rejected card hover state: soft rose surface, red border, glowing curved accent */
+.kyra-card-rejected:hover,
+.kyra-entitlement-summary-card.kyra-card-rejected:hover,
+.kyra-card-rejected.kyra-clickable-card:hover,
+html body .kyra-card-rejected:hover,
+html body .kyra-entitlement-summary-card.kyra-card-rejected:hover {
+    background: #FEF2F2 !important;
+    background-color: #FEF2F2 !important;
+    border-color: #FECDD3 !important;
+}
+
+.kyra-card-rejected:hover::before,
+.kyra-entitlement-summary-card.kyra-card-rejected:hover::before,
+.kyra-card-rejected.kyra-clickable-card:hover::before,
+html body .kyra-card-rejected:hover::before,
+html body .kyra-entitlement-summary-card.kyra-card-rejected:hover::before {
+    background: #DC2626 !important;
+    width: 5.5px !important;
+    box-shadow: 2px 0 10px rgba(239, 68, 68, 0.45) !important;
+}
+
+/* Card Body Content Layout: Row 1 (System + Req ID + Status) and Row 2 (Team on Left, Persona on Right) */
+.kyra-card-body-content {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+.kyra-card-top-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 10px !important;
 }
 
 .kyra-card-badge-row {
@@ -17648,23 +17699,31 @@ html body .sapMBtn.kyraContactITSubmitBtn:active .sapMBtnInner {
     flex-direction: row !important;
     align-items: center !important;
     gap: 8px !important;
-    margin-bottom: 2px !important;
     flex-wrap: wrap !important;
 }
 
-.kyra-card-system-badge,
+.kyra-card-system-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 9px !important;
+    border-radius: 6px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    background: #F1F5F9 !important;
+    color: #1E293B !important;
+    border: 1px solid #CBD5E1 !important;
+}
+
 .kyra-card-reqid-badge {
     display: inline-flex !important;
     align-items: center !important;
-    align-self: flex-start !important;
-    padding: 2px 8px !important;
+    padding: 3px 9px !important;
     border-radius: 6px !important;
-    font-size: 11px !important;
+    font-size: 11.5px !important;
     font-weight: 600 !important;
-    letter-spacing: 0.01em !important;
-    margin-bottom: 0 !important;
-    background: #F1F5F9 !important;
-    color: #334155 !important;
+    background: #F8FAFC !important;
+    color: #475569 !important;
     border: 1px solid #E2E8F0 !important;
 }
 
@@ -17673,27 +17732,31 @@ html body .sapMBtn.kyraContactITSubmitBtn:active .sapMBtnInner {
     font-weight: 700 !important;
     color: #0F172A !important;
     line-height: 1.3 !important;
+    margin: 2px 0 0 0 !important;
 }
 
-.kyra-card-role-sub {
+.kyra-card-service-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
     font-size: 12px !important;
-    color: #64748B !important;
-    line-height: 1.3 !important;
-}
-
-.kyra-card-role-sub strong {
-    color: #334155 !important;
+    line-height: 1.35 !important;
+    margin: 1px 0 !important;
+    width: 100% !important;
+    text-align: left !important;
 }
 
 .kyra-card-status-pill {
-    padding: 4px 10px !important;
+    padding: 4px 11px !important;
     border-radius: 20px !important;
     font-size: 11.5px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     white-space: nowrap !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 4px !important;
+    flex-shrink: 0 !important;
 }
 
 .kyra-pill-approved {
@@ -17706,6 +17769,52 @@ html body .sapMBtn.kyraContactITSubmitBtn:active .sapMBtnInner {
     background: #FEF2F2 !important;
     color: #B91C1C !important;
     border: 1px solid #FECACA !important;
+}
+
+/* Row 2: Team (Left) | Persona (Right) */
+.kyra-card-meta-row {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 12px !important;
+}
+
+.kyra-card-team-col {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    font-size: 12px !important;
+    color: #475569 !important;
+    text-align: left !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.kyra-card-persona-col {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    font-size: 12px !important;
+    color: #475569 !important;
+    text-align: right !important;
+    justify-content: flex-end !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
+
+.kyra-card-meta-label {
+    font-weight: 500 !important;
+    color: #64748B !important;
+}
+
+.kyra-card-meta-val {
+    font-weight: 700 !important;
+    color: #0F172A !important;
 }
 
 .kyra-empty-summary-box {
@@ -28563,11 +28672,33 @@ html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn:hover .sapMBtnInner {
 .kyraBreakdownIconBtn .sapMBtnIcon,
 .kyraApproverTable .kyraBreakdownIconBtn .sapMBtnIcon,
 .kyraBreakdownIconBtn .sapUiIcon,
-html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn .sapMBtnIcon {
+html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownViewBtn .sapMBtnIcon {
     color: #008C9C !important;
     font-size: 20px !important;
     margin: 0 !important;
     line-height: 1 !important;
+}
+
+/* Hover/Active/Focus: Keep same consistent brand teal color (NO red on hover) */
+.kyraBreakdownIconBtn:hover .sapMBtnIcon,
+.kyraBreakdownIconBtn:hover .sapUiIcon,
+.kyraBreakdownIconBtn:hover .sapMBtnContent > .sapUiIcon,
+.kyraApproverTable .kyraBreakdownIconBtn:hover .sapMBtnIcon,
+.kyraApproverTable .kyraBreakdownIconBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownViewBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownViewBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMBtn.kyraBreakdownIconBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMBtn.kyraBreakdownIconBtn:hover .sapUiIcon,
+html body .sapMBtn.kyraBreakdownIconBtn:hover .sapMBtnIcon,
+html body .sapMBtn.kyraBreakdownIconBtn:hover .sapUiIcon,
+.kyraBreakdownIconBtn:active .sapMBtnIcon,
+.kyraBreakdownIconBtn:focus .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraBreakdownIconBtn:focus .sapMBtnIcon {
+    color: #008C9C !important;
 }
 /* =========================================================================
    KYRA NAV PILL BUTTON: FORCE ICON VISIBLE IN ALL STATES
@@ -28810,8 +28941,8 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
 /* =========================================================================
    KYRA TABLE REMOVE / DELETE ICON BUTTON ENGINE (ROSE-RED SQUIRCLE ICON BUTTON)
    ========================================================================= */
-.kyraTableActionBtn,
-.kyraTableActionBtn.sapMBtn,
+.kyraDestructiveBtn,
+.kyraDestructiveBtn.sapMBtn,
 .kyraSummaryDeleteBtn,
 .kyraSummaryDeleteBtn.sapMBtn,
 .kyraNotifRowDeleteBtn,
@@ -28835,10 +28966,10 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
     vertical-align: middle !important;
 }
 
-.kyraTableActionBtn .sapMBtnInner,
+.kyraDestructiveBtn .sapMBtnInner,
 .kyraSummaryDeleteBtn .sapMBtnInner,
 .kyraNotifRowDeleteBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraTableActionBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDestructiveBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner {
     width: 34px !important;
@@ -28862,13 +28993,13 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner {
     transition: all 0.15s ease !important;
 }
 
-.kyraTableActionBtn .sapMBtnIcon,
-.kyraTableActionBtn .sapUiIcon,
+.kyraDestructiveBtn .sapMBtnIcon,
+.kyraDestructiveBtn .sapUiIcon,
 .kyraSummaryDeleteBtn .sapMBtnIcon,
 .kyraSummaryDeleteBtn .sapUiIcon,
 .kyraNotifRowDeleteBtn .sapMBtnIcon,
 .kyraNotifRowDeleteBtn .sapUiIcon,
-html body .sapUiTheme-sap_horizon .kyraTableActionBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraDestructiveBtn .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon {
     color: #E11D48 !important;
@@ -28883,10 +29014,10 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon {
     padding: 0 !important;
 }
 
-.kyraTableActionBtn:hover .sapMBtnInner,
+.kyraDestructiveBtn:hover .sapMBtnInner,
 .kyraSummaryDeleteBtn:hover .sapMBtnInner,
 .kyraNotifRowDeleteBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraTableActionBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
     background: #FEE2E2 !important;
@@ -28896,185 +29027,11 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
     transform: none !important;
 }
 
-.kyraTableActionBtn:hover .sapMBtnIcon,
+.kyraDestructiveBtn:hover .sapMBtnIcon,
 .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
 .kyraNotifRowDeleteBtn:hover .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraTableActionBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnIcon {
     color: #BE123C !important;
-}
-
-/* ==========================================================================
-   APPROVED SYSTEM ENTITLEMENTS CARD SECTION
-   Card-style layout matching Image 2: System chip + REQ ID | Role | Team/Persona
-   ========================================================================== */
-
-/* Green Avatar for Approved Section Header */
-.kyraCardAvatarGreen.sapFAvatar,
-.kyraCardAvatarGreen {
-    background: #DCFCE7 !important;
-    background-color: #DCFCE7 !important;
-    border: 1.5px solid #86EFAC !important;
-    color: #15803D !important;
-}
-
-.kyraCardAvatarGreen .sapUiIcon {
-    color: #15803D !important;
-}
-
-/* Approved List: transparent container */
-.kyraApprovedEntitlementsList .sapMListItems,
-.kyraApprovedEntitlementsList {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-}
-
-/* Individual approved entitlement card */
-.kyraApprovedEntitlementCard,
-.kyraApprovedEntitlementCard.sapMLIB,
-.kyraApprovedEntitlementCard.sapMCLI {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border: 1.5px solid #E2E8F0 !important;
-    border-radius: 12px !important;
-    padding: 0 !important;
-    margin: 0 0 12px 0 !important;
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
-    overflow: hidden !important;
-    border-left: 4px solid #22C55E !important;
-    cursor: default !important;
-    transition: none !important;
-}
-
-.kyraApprovedEntitlementCard::before,
-.kyraApprovedEntitlementCard::after {
-    display: none !important;
-    content: none !important;
-}
-
-/* Inner VBox padding */
-.kyraApprovedCardInner {
-    padding: 14px 18px 14px 16px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* Top row: chip group */
-.kyraApprovedCardChipRow {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    flex-wrap: wrap !important;
-    margin-bottom: 7px !important;
-}
-
-/* System chip: e.g. "SAP S/4HANA Enterprise" */
-.kyraApprovedSystemChip {
-    display: inline-flex !important;
-    align-items: center !important;
-    background: #F1F5F9 !important;
-    background-color: #F1F5F9 !important;
-    border: 1px solid #CBD5E1 !important;
-    border-radius: 6px !important;
-    padding: 3px 10px !important;
-}
-
-.kyraApprovedSystemChipText {
-    font-size: 11.5px !important;
-    font-weight: 600 !important;
-    color: #334155 !important;
-    letter-spacing: 0.01em !important;
-}
-
-/* REQ ID chip: e.g. "REQ-2026-384691-01" */
-.kyraApprovedReqIdChip {
-    display: inline-flex !important;
-    align-items: center !important;
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border: 1px solid #99F6E4 !important;
-    border-radius: 6px !important;
-    padding: 3px 10px !important;
-}
-
-.kyraApprovedReqIdChipText {
-    font-size: 11.5px !important;
-    font-weight: 700 !important;
-    color: #008C9C !important;
-    font-family: monospace, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-    letter-spacing: 0.02em !important;
-}
-
-/* Main row: bold role title + Approved pill */
-.kyraApprovedCardMainRow {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    margin-bottom: 5px !important;
-}
-
-.kyraApprovedRoleTitle {
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    color: #0F172A !important;
-    line-height: 1.3 !important;
-    letter-spacing: -0.01em !important;
-}
-
-/* ✓ Approved green pill */
-.kyraApprovedStatusPill {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 5px !important;
-    background: #DCFCE7 !important;
-    background-color: #DCFCE7 !important;
-    border: 1px solid #86EFAC !important;
-    border-radius: 9999px !important;
-    padding: 3px 12px 3px 8px !important;
-    flex-shrink: 0 !important;
-}
-
-.kyraApprovedStatusIcon {
-    color: #16A34A !important;
-    font-size: 13px !important;
-    line-height: 1 !important;
-}
-
-.kyraApprovedStatusText {
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
-    color: #15803D !important;
-    letter-spacing: 0.01em !important;
-}
-
-/* Bottom sub-row: Team: X • Persona: Y */
-.kyraApprovedCardSubRow {
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-    flex-wrap: wrap !important;
-    margin-top: 4px !important;
-}
-
-.kyraApprovedSubLabel {
-    font-size: 12.5px !important;
-    font-weight: 400 !important;
-    color: #64748B !important;
-}
-
-.kyraApprovedSubValue {
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
-    color: #334155 !important;
-    margin-left: 2px !important;
-}
-
-.kyraApprovedSubDot {
-    font-size: 12.5px !important;
-    font-weight: 400 !important;
-    color: #94A3B8 !important;
-    margin: 0 2px !important;
 }

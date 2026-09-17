@@ -24,6 +24,14 @@ sap.ui.define([
         return str || s;
     }
 
+    function cleanRoleStr(sRole) {
+        if (!sRole) return "";
+        let r = String(sRole).trim();
+        r = r.replace(/\s*\([^)]*\)/g, '').trim();
+        if (!r || r === 'undefined') return '';
+        return r;
+    }
+
     function deriveServiceTopicFromRole(roleStr, rawService) {
         const sRawService = String(rawService || "").replace(/\s*\([^)]*\)/g, "").trim();
         if (sRawService === "System Administrator" || sRawService === "System Owners" || sRawService === "Stakeholders") {
@@ -1218,25 +1226,69 @@ sap.ui.define([
                     </div>
                     <div style="margin-bottom: 6px;">
                         ${aFinalApproved.map(i => {
-                            const sCleanRole = (i.roleTitle || i.roleName || 'System Entitlement').replace(/\s*\([^)]*\)/g, "");
+                            const sReqId = i.requestId || oData.requestId || oData.id || '';
+                            const sSystemVal = i.system || oData.system || 'SAP S/4HANA Enterprise';
+
+                            // Team: e.g. "Line Manager", "Role Owner", "IT Developers"
+                            let sTeamVal = cleanRoleStr(i.roleName || i.roleTitle || i.teamRole || "");
+                            if (!sTeamVal && i.team && !i.team.includes("Administrator") && !i.team.includes("Owners") && !i.team.includes("Stakeholders")) {
+                                sTeamVal = cleanRoleStr(i.team);
+                            }
+                            if (!sTeamVal) {
+                                sTeamVal = "Line Manager";
+                            }
+
+                            // Service: e.g. "System Administrator", "System Owners", "Stakeholders"
+                            let sServiceVal = i.serviceTopic || i.service || oData.serviceTopic || oData.service || "";
+                            if (!sServiceVal) {
+                                if (i.team && (i.team.includes("Administrator") || i.team.includes("Owners") || i.team.includes("Stakeholders"))) {
+                                    sServiceVal = i.team;
+                                } else if (oData.team && (oData.team.includes("Administrator") || oData.team.includes("Owners") || oData.team.includes("Stakeholders"))) {
+                                    sServiceVal = oData.team;
+                                } else {
+                                    const sCombined = (sTeamVal + " " + (i.selectedPersona || "")).toLowerCase();
+                                    if (sCombined.includes("owner") || sCombined.includes("custodian")) {
+                                        sServiceVal = "System Owners";
+                                    } else {
+                                        sServiceVal = "System Administrator";
+                                    }
+                                }
+                            }
+
+                            const sPersonaVal = cleanPersonaName(i.selectedPersona || oData.selectedPersona || i.persona || oData.persona || 'People Operations Lead');
+
                             return `
-                            <div class="kyra-clickable-card" data-req-id="${i.requestId || oData.requestId || ''}" title="Click to view live request tracking" style="cursor: pointer; border: 1px solid #BBF7D0; background: #F0FDF4; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(22,163,74,0.06);">
-                                <div style="flex: 1; min-width: 0; padding-right: 8px;">
-                                    <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
-                                        <span style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #166534;">${i.system}</span>
-                                        ${(i.requestId || oData.requestId) ? `<span style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #334155;">${i.requestId || oData.requestId}</span>` : ''}
+                            <div class="kyra-entitlement-summary-card kyra-card-approved kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
+                                <div class="kyra-card-body-content">
+                                    <div class="kyra-card-top-row">
+                                        <div class="kyra-card-badge-row">
+                                            <div class="kyra-card-system-badge kyra-sys-approved">
+                                                <span class="kyra-card-meta-label">System:</span>
+                                                <span class="kyra-card-meta-val">${sSystemVal}</span>
+                                            </div>
+                                            ${sReqId ? `
+                                            <div class="kyra-card-reqid-badge">
+                                                <span class="kyra-reqid-name">${sReqId}</span>
+                                            </div>` : ''}
+                                        </div>
+                                        <div class="kyra-card-status-pill kyra-pill-approved">
+                                            ✓ Approved
+                                        </div>
                                     </div>
-                                    <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
-                                        ${sCleanRole}
+                                    <div class="kyra-card-service-row">
+                                        <span class="kyra-card-meta-label">Service:</span>
+                                        <span class="kyra-card-meta-val">${sServiceVal}</span>
                                     </div>
-                                    <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        ${(i.team || oData.function) ? `<span style="font-weight: 600; color: #334155;">Team:</span> ${i.team || oData.function} • ` : ''}<span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
+                                    <div class="kyra-card-meta-row">
+                                        <div class="kyra-card-team-col">
+                                            <span class="kyra-card-meta-label">Team:</span>
+                                            <span class="kyra-card-meta-val">${sTeamVal}</span>
+                                        </div>
+                                        <div class="kyra-card-persona-col">
+                                            <span class="kyra-card-meta-label">Persona:</span>
+                                            <span class="kyra-card-meta-val">${sPersonaVal}</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="flex-shrink: 0;">
-                                    <span style="background: #16A34A; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                        ✔ Approved
-                                    </span>
                                 </div>
                             </div>
                         `;}).join("")}
@@ -1252,25 +1304,69 @@ sap.ui.define([
                     </div>
                     <div style="margin-bottom: 4px;">
                         ${aRejectedItems.map(i => {
-                            const sCleanRole = (i.roleTitle || i.roleName || 'System Entitlement').replace(/\s*\([^)]*\)/g, "");
+                            const sReqId = i.requestId || oData.requestId || oData.id || '';
+                            const sSystemVal = i.system || oData.system || 'SAP S/4HANA Enterprise';
+
+                            // Team: e.g. "Line Manager", "Role Owner", "IT Developers"
+                            let sTeamVal = cleanRoleStr(i.roleName || i.roleTitle || i.teamRole || "");
+                            if (!sTeamVal && i.team && !i.team.includes("Administrator") && !i.team.includes("Owners") && !i.team.includes("Stakeholders")) {
+                                sTeamVal = cleanRoleStr(i.team);
+                            }
+                            if (!sTeamVal) {
+                                sTeamVal = "Line Manager";
+                            }
+
+                            // Service: e.g. "System Administrator", "System Owners", "Stakeholders"
+                            let sServiceVal = i.serviceTopic || i.service || oData.serviceTopic || oData.service || "";
+                            if (!sServiceVal) {
+                                if (i.team && (i.team.includes("Administrator") || i.team.includes("Owners") || i.team.includes("Stakeholders"))) {
+                                    sServiceVal = i.team;
+                                } else if (oData.team && (oData.team.includes("Administrator") || oData.team.includes("Owners") || oData.team.includes("Stakeholders"))) {
+                                    sServiceVal = oData.team;
+                                } else {
+                                    const sCombined = (sTeamVal + " " + (i.selectedPersona || "")).toLowerCase();
+                                    if (sCombined.includes("owner") || sCombined.includes("custodian")) {
+                                        sServiceVal = "System Owners";
+                                    } else {
+                                        sServiceVal = "System Administrator";
+                                    }
+                                }
+                            }
+
+                            const sPersonaVal = cleanPersonaName(i.selectedPersona || oData.selectedPersona || i.persona || oData.persona || 'People Operations Lead');
+
                             return `
-                            <div class="kyra-clickable-card" data-req-id="${i.requestId || oData.requestId || ''}" title="Click to view live request tracking" style="cursor: pointer; border: 1px solid #FECACA; background: #FEF2F2; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(220,38,38,0.06);">
-                                <div style="flex: 1; min-width: 0; padding-right: 8px;">
-                                    <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 2px; flex-wrap: wrap;">
-                                        <span style="background: #FFFFFF; border: 1px solid #FCA5A5; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #991B1B;">${i.system}</span>
-                                        ${(i.requestId || oData.requestId) ? `<span style="background: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 4px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #334155;">${i.requestId || oData.requestId}</span>` : ''}
+                            <div class="kyra-entitlement-summary-card kyra-card-rejected kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
+                                <div class="kyra-card-body-content">
+                                    <div class="kyra-card-top-row">
+                                        <div class="kyra-card-badge-row">
+                                            <div class="kyra-card-system-badge kyra-sys-rejected">
+                                                <span class="kyra-card-meta-label">System:</span>
+                                                <span class="kyra-card-meta-val">${sSystemVal}</span>
+                                            </div>
+                                            ${sReqId ? `
+                                            <div class="kyra-card-reqid-badge">
+                                                <span class="kyra-reqid-name">${sReqId}</span>
+                                            </div>` : ''}
+                                        </div>
+                                        <div class="kyra-card-status-pill kyra-pill-rejected">
+                                            ✕ Rejected
+                                        </div>
                                     </div>
-                                    <div style="font-size: 12.5px; font-weight: 700; color: #0F172A; line-height: 1.3; margin: 2px 0;">
-                                        ${sCleanRole}
+                                    <div class="kyra-card-service-row">
+                                        <span class="kyra-card-meta-label">Service:</span>
+                                        <span class="kyra-card-meta-val">${sServiceVal}</span>
                                     </div>
-                                    <div style="font-size: 11px; color: #475569; line-height: 1.2;">
-                                        ${(i.team || oData.function) ? `<span style="font-weight: 600; color: #334155;">Team:</span> ${i.team || oData.function} • ` : ''}<span style="font-weight: 600; color: #334155;">Persona:</span> ${i.selectedPersona || oData.selectedPersona || ""}
+                                    <div class="kyra-card-meta-row">
+                                        <div class="kyra-card-team-col">
+                                            <span class="kyra-card-meta-label">Team:</span>
+                                            <span class="kyra-card-meta-val">${sTeamVal}</span>
+                                        </div>
+                                        <div class="kyra-card-persona-col">
+                                            <span class="kyra-card-meta-label">Persona:</span>
+                                            <span class="kyra-card-meta-val">${sPersonaVal}</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style="flex-shrink: 0;">
-                                    <span style="background: #DC2626; color: #FFFFFF; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
-                                        ✕ Rejected
-                                    </span>
                                 </div>
                             </div>
                         `;}).join("")}
