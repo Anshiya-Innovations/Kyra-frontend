@@ -172,17 +172,9 @@ sap.ui.define([
                 this.byId("idInput").setValue("");
             }
 
-            const oView = this.getView();
-            try {
-                let p = oView ? oView.getParent() : null;
-                while (p) {
-                    if (p.isA && (p.isA("sap.m.App") || p.isA("sap.m.NavContainer"))) {
-                        p.to(oView);
-                        break;
-                    }
-                    p = p.getParent && p.getParent();
-                }
-            } catch(e) {}
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            }
         },
 
         onRoleChange(oEvent) {
@@ -325,12 +317,16 @@ sap.ui.define([
                 localStorage.removeItem("kyra_remember_id");
             }
 
-            // Instant, bulletproof login handler with 2.5s network timeout and seamless navigation
-                                    const performLoginSuccess = (oResult) => {
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
+            // Instant, bulletproof login handler with seamless pre-loading and smooth navigation
+            const performLoginSuccess = (oResult) => {
+                // Update loader slide text to indicate pre-loading dashboard data
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading KYRA Governance Dashboard...",
+                        subtitle: "Pre-loading active roles, entitlements, and governance records..."
+                    });
+                } else if (window.showKyraLoading) {
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...");
                 }
                 oModel.setProperty("/isBusy", false);
 
@@ -353,23 +349,15 @@ sap.ui.define([
                     oAccessModel.setProperty("/isCompliancePersona", isCompliance);
                     oAccessModel.setProperty("/approverPendingTab", "accessRequests");
                     oAccessModel.setProperty("/showApprovalHistory", false);
-                    oAccessModel.setProperty("/activeRoles", []);
-                    oAccessModel.setProperty("/userAccessList", []);
-                    oAccessModel.setProperty("/myApprovedRequests", []);
-                    oAccessModel.setProperty("/myPendingRequests", []);
-                    oAccessModel.setProperty("/requestHistory", []);
                 }
 
                 MessageToast.show("Login successful! Welcome back, " + sUserId);
 
-                // 1. Router Navigation
+                // 1. Router Navigation to AccessPage Dashboard
                 try {
                     const oRouter = this.getOwnerComponent().getRouter();
                     if (oRouter) {
                         oRouter.navTo("AccessPage");
-                        if (oRouter.getTargets()) {
-                            oRouter.getTargets().display("TargetAccessPage");
-                        }
                     }
                 } catch(e) {
                     console.warn("Router navigation to AccessPage warning:", e);

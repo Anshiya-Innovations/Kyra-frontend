@@ -23,34 +23,38 @@
             left: 0 !important;
             width: 100vw !important;
             height: 100vh !important;
-            background: rgba(15, 23, 42, 0.42) !important;
-            backdrop-filter: blur(4px) !important;
-            -webkit-backdrop-filter: blur(4px) !important;
+            background: rgba(15, 23, 42, 0.45) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             z-index: 999999 !important;
             opacity: 1 !important;
             pointer-events: all !important;
-            transition: opacity 0.25s ease !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            transition: opacity 0.22s ease !important;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         }
         .kyraLoadingSlideCard {
             background: #FFFFFF !important;
-            width: 330px !important;
+            width: 380px !important;
             max-width: 88vw !important;
-            border-radius: 16px !important;
-            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(226, 232, 240, 0.85) !important;
-            padding: 28px 24px 24px 24px !important;
+            border-radius: 22px !important;
+            box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.85) !important;
+            padding: 34px 28px 28px 28px !important;
             text-align: center !important;
             box-sizing: border-box !important;
+            transform: translateY(0) scale(1) !important;
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         .kyraSimpleCircleSpinner {
-            width: 48px !important;
-            height: 48px !important;
-            margin: 0 auto 16px auto !important;
+            width: 54px !important;
+            height: 54px !important;
+            margin: 0 auto 18px auto !important;
             border-radius: 50% !important;
-            border: 3.5px solid #E2E8F0 !important;
+            border: 4px solid #E2E8F0 !important;
             border-top-color: #008C9C !important;
             border-right-color: #008C9C !important;
             animation: kyraSimpleSpin 0.85s linear infinite !important;
@@ -61,19 +65,20 @@
             100% { transform: rotate(360deg); }
         }
         .kyraLoadingTitle {
-            font-size: 16px !important;
+            font-size: 17px !important;
             font-weight: 700 !important;
             color: #0F172A !important;
-            margin: 0 0 6px 0 !important;
+            margin: 0 0 8px 0 !important;
             line-height: 1.35 !important;
+            letter-spacing: -0.01em !important;
         }
         .kyraLoadingSubtitle {
-            font-size: 12.5px !important;
+            font-size: 13.5px !important;
             font-weight: 400 !important;
             color: #64748B !important;
             line-height: 1.45 !important;
             margin: 0 auto !important;
-            max-width: 270px !important;
+            max-width: 280px !important;
         }
     </style>
     <script

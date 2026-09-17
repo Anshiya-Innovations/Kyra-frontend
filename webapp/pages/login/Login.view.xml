@@ -51,6 +51,11 @@
                         <!-- Main 3D Interactive Stage Canvas -->
                         <HBox class="kyra3dStageCanvas" justifyContent="Center" alignItems="Center">
                             
+                            <!-- Dynamic Holographic Radar Sweep & Energy Pulse Waves -->
+                            <HBox class="kyraRadarScanBeam" />
+                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave1" />
+                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave2" />
+                            
                             <!-- Central Core 3D Shield -->
                             <VBox class="kyraCenterShieldNode" alignItems="Center" justifyContent="Center">
                                 <Image 
@@ -115,7 +120,7 @@
                         <VBox alignItems="Center" class="kyraCardHeaderBox">
                             
                             <!-- Clean Brand Logo Direct -->
-                            <Image src="{login>/logoUrl}" height="48px" densityAware="false" class="kyraCardLogoImgDirect" tooltip="KYRA Secure Access" />
+                            <Image src="{login>/logoUrl}" height="50px" densityAware="false" class="kyraCardLogoImgDirect" tooltip="KYRA Secure Access" />
 
                             <Text text="KYRA" class="kyraCardBrandTitle" />
                             <Text text="ENTERPRISE ACCESS" class="kyraCardBrandSub" />

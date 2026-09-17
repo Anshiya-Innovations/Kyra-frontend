@@ -48,6 +48,10 @@ sap.ui.define([
                 pendingRevokeRequests: [],
                 activeRoles: [],
                 userAccessList: [],
+                myPendingRequests: [],
+                myApprovedRequests: [],
+                myHistoryRequests: [],
+                requestHistory: [],
                 activeSodConflictsList: [],
                 pendingOnlySodConflictsList: [],
                 batchSodConflictsList: [],
@@ -110,32 +114,12 @@ sap.ui.define([
 
             oRouter.initialize();
 
-            // Handle initial root / preview URL launch without disrupting active subroutes
-            const sCurrentHash = window.location.hash || "";
-            const bPureRoot = !sCurrentHash || sCurrentHash === "#" || sCurrentHash === "#app-preview" || sCurrentHash === "#/app-preview" || sCurrentHash === "#/Login";
-            if (bPureRoot) {
-                if (bIsAuthenticated) {
-                    oRouter.navTo("AccessPage", {}, true);
-                } else {
-                    try {
-                        oRouter.navTo("Login", {}, true);
-                    } catch(e) {}
-                }
-            }
-
-            // Gracefully dismiss initial HTML loader once UI5 component is ready
+            // Safety timeout: dismiss initial HTML loader after 5s if no controller dismissed it
             setTimeout(() => {
-                const initLoader = document.getElementById("kyra_initial_loader");
-                if (initLoader) {
-                    initLoader.style.transition = "opacity 0.3s ease";
-                    initLoader.style.opacity = "0";
-                    setTimeout(() => {
-                        if (initLoader && initLoader.parentNode) {
-                            initLoader.parentNode.removeChild(initLoader);
-                        }
-                    }, 320);
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
                 }
-            }, 850);
+            }, 5000);
         },
 
         _setupDropdownPlacementEnhancement() {
@@ -650,12 +634,10 @@ sap.ui.define([
                 const origHide = sap.ui.core.BusyIndicator.hide;
                 sap.ui.core.BusyIndicator.show = function(iDelay) {
                     if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                        if (!window.KyraLoader.isShowing()) {
-                            window.KyraLoader.show({
-                                title: "Processing Request...",
-                                subtitle: "Verifying and synchronizing governance data..."
-                            });
-                        }
+                        window.KyraLoader.show({
+                            title: "Processing Request...",
+                            subtitle: "Verifying and synchronizing governance data..."
+                        });
                     }
                     if (typeof origShow === "function") {
                         origShow.apply(this, arguments);

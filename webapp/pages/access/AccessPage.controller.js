@@ -170,6 +170,7 @@ sap.ui.define([
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             const isCompliance = sActiveRole.toLowerCase().includes("compliance");
+            const isReviewerRole = bIsApprover || isCompliance;
             let sBrandLogoUrl = "images/kyra_k_logo.png";
             let sShieldFocusUrl = "images/kyra_shield_focus.svg";
             try {
@@ -188,6 +189,14 @@ sap.ui.define([
                 isCompliance: isCompliance,
                 isComplianceReviewer: isCompliance,
                 isCompliancePersona: isCompliance,
+                isReviewerRole: isReviewerRole,
+                notifScope: "my",
+                myNotificationsCount: 0,
+                myUnreadNotificationsCount: 0,
+                usersNotificationsCount: 0,
+                usersUnreadNotificationsCount: 0,
+                currentScopeAllCount: 0,
+                currentScopeUnreadCount: 0,
                 pendingRequests: [],
                 pendingAccessRequests: [],
                 pendingRevokeRequests: [],
@@ -821,42 +830,25 @@ sap.ui.define([
             }
         },
 
-                        _onRouteMatched() {
+        _onRouteMatched() {
             const oModel = this.getView().getModel("accessModel");
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-
-            
-
-            const oView = this.getView();
-            try {
-                let p = oView ? oView.getParent() : null;
-                while (p) {
-                    if (p.isA && (p.isA("sap.m.App") || p.isA("sap.m.NavContainer"))) {
-                        p.to(oView);
-                        break;
-                    }
-                    p = p.getParent && p.getParent();
-                }
-            } catch(e) {}
 
             if (oModel) {
                 const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
                 const sRoleLower = (sActiveRole || "").toLowerCase();
                 const isCompliancePersona = sRoleLower.includes("compliance");
                 const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
+                const isReviewerRole = bIsApprover || isCompliancePersona;
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
                 oModel.setProperty("/isApproverPersona", bIsApprover);
                 oModel.setProperty("/isCompliance", isCompliancePersona);
                 oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
                 oModel.setProperty("/isCompliancePersona", isCompliancePersona);
+                oModel.setProperty("/isReviewerRole", isReviewerRole);
                 if (isCompliancePersona) {
-                    oModel.setProperty("/pendingRequests", []);
-                    oModel.setProperty("/pendingAccessRequests", []);
-                    oModel.setProperty("/pendingRevokeRequests", []);
-                    oModel.setProperty("/pendingAccessCount", 0);
-                    oModel.setProperty("/pendingRevokeCount", 0);
                     oModel.setProperty("/approverPendingTab", "accessRequests");
                 }
                 
@@ -1334,6 +1326,11 @@ sap.ui.define([
                 this._setSmartProperty(oModel, "/allPendingCount", 0);
                 this._setSmartProperty(oModel, "/allProcessedCount", 0);
                 this._updateCountBadges(oModel);
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
                 return;
             }
 
@@ -1342,11 +1339,13 @@ sap.ui.define([
             const sRoleLower = (sActiveRole || "").toLowerCase();
             const isCompliancePersona = sRoleLower.includes("compliance");
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
+            const isReviewerRole = bIsApprover || isCompliancePersona;
             oModel.setProperty("/activeRole", sActiveRole);
             oModel.setProperty("/isApproverPersona", bIsApprover);
             oModel.setProperty("/isCompliance", isCompliancePersona);
             oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
             oModel.setProperty("/isCompliancePersona", isCompliancePersona);
+            oModel.setProperty("/isReviewerRole", isReviewerRole);
 
             const pendingRevocations = new Set();
             aRawDbRequests.forEach(r => {
@@ -1931,6 +1930,13 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/removedHistoryCount", iRevokedHistory);
             this._cachedDbRequests = aRawDbRequests;
             this._loadNotifications(oModel, aRawDbRequests);
+
+            // Gracefully dismiss loading slide overlay now that all data is fully populated
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            } else if (window.hideKyraLoading) {
+                window.hideKyraLoading();
+            }
         },
 
         onRemoveAccessClick(oEvent) {
@@ -2065,6 +2071,12 @@ sap.ui.define([
                     this._recalculateAllHistoryKpiCounters(oModel);
 
                     // Persist Revocation Request to PostgreSQL database
+                    if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                        window.KyraLoader.show({
+                            title: "Submitting Revocation Request...",
+                            subtitle: "Processing entitlement revocation and updating governance records..."
+                        });
+                    }
                     fetch("/odata/v4/auth/submitAccessRequest", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -2275,6 +2287,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sNotifId)) {
                         aNotifications.push({
                             id: sNotifId,
+                            scope: "users",
                             requesterId: sRequester,
                             requestId: sReqId,
                             system: g.system || "SAP System",
@@ -2319,6 +2332,7 @@ sap.ui.define([
                 if (!oDeletedSet.has(sSubId)) {
                     aNotifications.push({
                         id: sSubId,
+                        scope: "my",
                         requesterId: sActiveUser,
                         requestId: sReqNum,
                         system: sSys,
@@ -2345,6 +2359,7 @@ sap.ui.define([
                         const nextStage = hasConflict ? "Compliance Reviewer" : "IAM Approver 1";
                         aNotifications.push({
                             id: sAppr1Id,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2367,6 +2382,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sAppr1RejId)) {
                         aNotifications.push({
                             id: sAppr1RejId,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2393,6 +2409,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sCompId)) {
                         aNotifications.push({
                             id: sCompId,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2415,6 +2432,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sCompRejId)) {
                         aNotifications.push({
                             id: sCompRejId,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2441,6 +2459,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sIam1Id)) {
                         aNotifications.push({
                             id: sIam1Id,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2463,6 +2482,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sIam1RejId)) {
                         aNotifications.push({
                             id: sIam1RejId,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2490,6 +2510,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sIam2Id)) {
                         aNotifications.push({
                             id: sIam2Id,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2512,6 +2533,7 @@ sap.ui.define([
                     if (!oDeletedSet.has(sIam2RejId)) {
                         aNotifications.push({
                             id: sIam2RejId,
+                            scope: "my",
                             requesterId: sActiveUser,
                             requestId: sReqNum,
                             system: sSys,
@@ -2535,7 +2557,17 @@ sap.ui.define([
             // Include any saved custom notifications
             (aSavedNotifications || []).forEach(sn => {
                 if (sn.id && !aNotifications.some(n => n.id === sn.id)) {
+                    if (!sn.scope) {
+                        sn.scope = (sn.id.includes("review") || sn.id.includes("incoming")) ? "users" : "my";
+                    }
                     aNotifications.push(sn);
+                }
+            });
+
+            // Ensure every notification has a valid scope
+            aNotifications.forEach(n => {
+                if (!n.scope) {
+                    n.scope = (n.id && (n.id.includes("review") || n.id.includes("incoming"))) ? "users" : "my";
                 }
             });
 
@@ -2546,10 +2578,30 @@ sap.ui.define([
 
             const iUnreadCount = aNotifications.filter(n => n.unread !== false).length;
 
+            const aMyNotifs = aNotifications.filter(n => (n.scope || "my") === "my");
+            const iMyAll = aMyNotifs.length;
+            const iMyUnread = aMyNotifs.filter(n => n.unread !== false).length;
+
+            const aUsersNotifs = aNotifications.filter(n => (n.scope || "my") === "users");
+            const iUsersAll = aUsersNotifs.length;
+            const iUsersUnread = aUsersNotifs.filter(n => n.unread !== false).length;
+
+            const sScope = oModel.getProperty("/notifScope") || "my";
+            const iScopeAll = sScope === "users" ? iUsersAll : iMyAll;
+            const iScopeUnread = sScope === "users" ? iUsersUnread : iMyUnread;
+
             this._setSmartProperty(oModel, "/notificationsList", aNotifications);
             this._setSmartProperty(oModel, "/notificationsCount", iUnreadCount);
             this._setSmartProperty(oModel, "/allNotificationsCount", aNotifications.length);
             this._setSmartProperty(oModel, "/unreadNotificationsCount", iUnreadCount);
+
+            this._setSmartProperty(oModel, "/myNotificationsCount", iMyAll);
+            this._setSmartProperty(oModel, "/myUnreadNotificationsCount", iMyUnread);
+            this._setSmartProperty(oModel, "/usersNotificationsCount", iUsersAll);
+            this._setSmartProperty(oModel, "/usersUnreadNotificationsCount", iUsersUnread);
+
+            this._setSmartProperty(oModel, "/currentScopeAllCount", iScopeAll);
+            this._setSmartProperty(oModel, "/currentScopeUnreadCount", iScopeUnread);
 
             this._applyNotificationFilter(oModel);
         },
@@ -2559,10 +2611,19 @@ sap.ui.define([
             if (!oModel) return;
 
             const aList = oModel.getProperty("/notificationsList") || [];
+            const bIsReviewer = !!oModel.getProperty("/isReviewerRole");
+            const sScope = oModel.getProperty("/notifScope") || "my";
             const sKey = oModel.getProperty("/notifFilterKey") || "all";
             const sQuery = (oModel.getProperty("/notifSearchQuery") || "").toLowerCase().trim();
 
             let aFiltered = aList;
+
+            // 1. In Reviewer Persona (Approver / Compliance), filter by Scope ("my" vs "users")
+            if (bIsReviewer) {
+                aFiltered = aFiltered.filter(n => (n.scope || "my") === sScope);
+            }
+
+            // 2. Filter by tab key ("unread", "all", etc.)
             if (sKey === "unread") {
                 aFiltered = aFiltered.filter(n => n.unread !== false);
             } else if (sKey === "requests") {
@@ -2573,6 +2634,7 @@ sap.ui.define([
                 aFiltered = aFiltered.filter(n => n.type === "system" || (n.category && n.category.toLowerCase().includes("system")));
             }
 
+            // 3. Filter by search query
             if (sQuery) {
                 aFiltered = aFiltered.filter(n => {
                     const sTitle = (n.title || "").toLowerCase();
@@ -2601,9 +2663,10 @@ sap.ui.define([
                 oModel.setProperty("/showMyAccessMasterSection", false);
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/notifScope", "my");
                 oModel.setProperty("/notifFilterKey", "all");
                 oModel.setProperty("/notifSearchQuery", "");
-                this._applyNotificationFilter(oModel);
+                this._loadNotifications(oModel);
                 this._scrollToTop();
             });
         },
@@ -3025,6 +3088,31 @@ sap.ui.define([
             });
         },
 
+        onSelectNotifScope(oEvent) {
+            const oBtn = oEvent.getSource();
+            let sScope = "my";
+            if (oBtn.data) {
+                sScope = oBtn.data("scope") || "my";
+            } else if (oBtn.getCustomData && oBtn.getCustomData().length > 0) {
+                sScope = oBtn.getCustomData()[0].getValue() || "my";
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/notifScope", sScope);
+
+                const iScopeAll = sScope === "users"
+                    ? (oModel.getProperty("/usersNotificationsCount") || 0)
+                    : (oModel.getProperty("/myNotificationsCount") || 0);
+                const iScopeUnread = sScope === "users"
+                    ? (oModel.getProperty("/usersUnreadNotificationsCount") || 0)
+                    : (oModel.getProperty("/myUnreadNotificationsCount") || 0);
+                oModel.setProperty("/currentScopeAllCount", iScopeAll);
+                oModel.setProperty("/currentScopeUnreadCount", iScopeUnread);
+
+                this._applyNotificationFilter(oModel);
+            }
+        },
+
         onFilterNotifications(oEvent) {
             const oBtn = oEvent.getSource();
             let sKey = "all";
@@ -3054,11 +3142,19 @@ sap.ui.define([
             if (!oModel) return;
 
             const aList = oModel.getProperty("/notificationsList") || [];
-            aList.forEach(n => n.unread = false);
+            const bIsReviewer = !!oModel.getProperty("/isReviewerRole");
+            const sScope = oModel.getProperty("/notifScope") || "my";
+
+            aList.forEach(n => {
+                if (!bIsReviewer || (n.scope || "my") === sScope) {
+                    n.unread = false;
+                }
+            });
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
 
             this._loadNotifications(oModel);
-            MessageToast.show("All notifications marked as read.");
+            const sScopeLabel = bIsReviewer ? (sScope === "users" ? "Users" : "My") : "All";
+            MessageToast.show(`${sScopeLabel} notifications marked as read.`);
         },
 
         onClearReadNotifications() {
@@ -3066,22 +3162,34 @@ sap.ui.define([
             if (!oModel) return;
 
             let aList = oModel.getProperty("/notificationsList") || [];
+            const bIsReviewer = !!oModel.getProperty("/isReviewerRole");
+            const sScope = oModel.getProperty("/notifScope") || "my";
+
             let aDeletedIds = [];
             try {
                 aDeletedIds = JSON.parse(sessionStorage.getItem("kyra_deleted_notification_ids") || "[]");
             } catch (e) {}
 
             aList.forEach(n => {
-                if (n.id && !aDeletedIds.includes(n.id)) {
-                    aDeletedIds.push(n.id);
+                if (!bIsReviewer || (n.scope || "my") === sScope) {
+                    if (n.id && !aDeletedIds.includes(n.id)) {
+                        aDeletedIds.push(n.id);
+                    }
                 }
             });
 
             sessionStorage.setItem("kyra_deleted_notification_ids", JSON.stringify(aDeletedIds));
-            sessionStorage.setItem("kyra_user_notifications", "[]");
+
+            if (bIsReviewer) {
+                const aRemaining = aList.filter(n => (n.scope || "my") !== sScope);
+                sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aRemaining));
+            } else {
+                sessionStorage.setItem("kyra_user_notifications", "[]");
+            }
 
             this._loadNotifications(oModel);
-            MessageToast.show("All notifications cleared.");
+            const sScopeLabel = bIsReviewer ? (sScope === "users" ? "Users" : "My") : "All";
+            MessageToast.show(`${sScopeLabel} notifications cleared.`);
         },
 
         onToggleNotificationRead(oEvent) {
@@ -5805,7 +5913,7 @@ sap.ui.define([
                         </div>
                         <div style="flex-shrink: 0; white-space: nowrap; text-align: right;">
                             <span style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 12px; border-radius: 12px; font-weight: 700; font-size: 12px; background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC; white-space: nowrap; flex-shrink: 0;">
-                                ✔ ${aValidItems.length} Submitted
+                                ✔ Submitted ${aValidItems.length}
                             </span>
                         </div>
                     </div>
@@ -8340,32 +8448,15 @@ sap.ui.define([
                 MessageToast.show("Signed out successfully.");
             });
 
-            // 3. SAPUI5 Router navigation & Target Display to Login page
+            // 3. SAPUI5 Router navigation to Login page
             try {
                 const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
                 if (oRouter) {
                     oRouter.navTo("Login", {}, true);
-                    if (oRouter.getTargets()) {
-                        oRouter.getTargets().display("TargetLogin");
-                    }
                 }
             } catch (e) {
                 console.warn("Logout router nav error:", e);
             }
-
-            // 4. Reset Login view state
-            try {
-                const oRoot = this.getOwnerComponent() ? this.getOwnerComponent().getRootControl() : null;
-                if (oRoot && oRoot.byId) {
-                    const oApp = oRoot.byId("app");
-                    if (oApp && oApp.getPages) {
-                        const oLoginPage = oApp.getPages().find(p => p.getId().includes("Login"));
-                        if (oLoginPage) {
-                            oApp.to(oLoginPage);
-                        }
-                    }
-                }
-            } catch(e) {}
         }
     });
 });

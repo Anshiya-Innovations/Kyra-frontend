@@ -418,7 +418,7 @@
                         <HBox class="kyraCardDivider" />
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
                             <HBox alignItems="Center">
-                                <Text text="{= ${accessModel>/myPendingRequests} ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : '' + ${accessModel>/myPendingRequests}.length) : '07' }" class="fioriPendingNumber" />
+                                <Text text="{= ${accessModel>/myPendingRequests} &amp;&amp; ${accessModel>/myPendingRequests}.length ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : '' + ${accessModel>/myPendingRequests}.length) : '00' }" class="fioriPendingNumber" />
                                 <Text text="Pending Requests" class="kyraCardPendingLabel" />
                             </HBox>
                             <HBox class="kyraCardCircleArrow kyraArrowAmber">
@@ -2183,11 +2183,35 @@
                         </HBox>
                     </HBox>
 
-                    <!-- 2. Filter Tabs &amp; Clear all Button Row -->
+                    <!-- Reviewer Role Scope Row (Visible only for Approver & Compliance Reviewer) -->
+                    <HBox visible="{accessModel>/isReviewerRole}" alignItems="Center" class="kyraNotifScopeBar sapUiSmallMarginBottom" width="100%">
+                        <Button
+                            text="{= 'My Notification (' + (${accessModel>/myNotificationsCount} || 0) + ')' }"
+                            type="{= (${accessModel>/notifScope} || 'my') === 'my' ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectNotifScope"
+                            class="kyraNotifPillTab kyraNotifScopeTab sapUiTinyMarginEnd">
+                            <customData>
+                                <core:CustomData key="scope" value="my" />
+                                <core:CustomData key="active" value="{= (${accessModel>/notifScope} || 'my') === 'my' ? 'true' : 'false' }" writeToDom="true" />
+                            </customData>
+                        </Button>
+                        <Button
+                            text="{= 'Users Notification (' + (${accessModel>/usersNotificationsCount} || 0) + ')' }"
+                            type="{= ${accessModel>/notifScope} === 'users' ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectNotifScope"
+                            class="kyraNotifPillTab kyraNotifScopeTab">
+                            <customData>
+                                <core:CustomData key="scope" value="users" />
+                                <core:CustomData key="active" value="{= ${accessModel>/notifScope} === 'users' ? 'true' : 'false' }" writeToDom="true" />
+                            </customData>
+                        </Button>
+                    </HBox>
+
+                    <!-- Filter Tabs &amp; Action Buttons Row -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifFilterBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center" class="kyraNotifFilterGroup">
                             <Button
-                                text="{= 'All (' + (${accessModel>/allNotificationsCount} || 0) + ')' }"
+                                text="{= ${accessModel>/isReviewerRole} ? ('All (' + (${accessModel>/currentScopeAllCount} || 0) + ')') : ('All (' + (${accessModel>/allNotificationsCount} || 0) + ')') }"
                                 type="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'Emphasized' : 'Transparent' }"
                                 press=".onFilterNotifications"
                                 class="kyraNotifPillTab">
@@ -2197,7 +2221,7 @@
                                 </customData>
                             </Button>
                             <Button
-                                text="{= 'Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')' }"
+                                text="{= ${accessModel>/isReviewerRole} ? ('Unread (' + (${accessModel>/currentScopeUnreadCount} || 0) + ')') : ('Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')') }"
                                 type="{= ${accessModel>/notifFilterKey} === 'unread' ? 'Emphasized' : 'Transparent' }"
                                 press=".onFilterNotifications"
                                 class="kyraNotifPillTab">
@@ -2208,12 +2232,20 @@
                             </Button>
                         </HBox>
 
-                        <Button
-                            icon="sap-icon://delete"
-                            text="Clear all"
-                            type="Transparent"
-                            press=".onClearReadNotifications"
-                            class="kyraNotifClearAllBtn" />
+                        <HBox alignItems="Center" class="kyraNotifTopActionsGroup">
+                            <Button
+                                icon="sap-icon://accept"
+                                text="Mark all read"
+                                type="Transparent"
+                                press=".onMarkAllNotificationsRead"
+                                class="kyraNotifMarkAllReadBtn sapUiTinyMarginEnd" />
+                            <Button
+                                icon="sap-icon://delete"
+                                text="Clear all"
+                                type="Transparent"
+                                press=".onClearReadNotifications"
+                                class="kyraNotifClearAllBtn" />
+                        </HBox>
                     </HBox>
 
                     <!-- Subtle Horizontal Divider -->

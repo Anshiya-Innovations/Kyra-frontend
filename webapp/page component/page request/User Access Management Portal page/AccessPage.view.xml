@@ -418,7 +418,7 @@
                         <HBox class="kyraCardDivider" />
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
                             <HBox alignItems="Center">
-                                <Text text="{= ${accessModel>/myPendingRequests} ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : '' + ${accessModel>/myPendingRequests}.length) : '07' }" class="fioriPendingNumber" />
+                                <Text text="{= ${accessModel>/myPendingRequests} &amp;&amp; ${accessModel>/myPendingRequests}.length ? (${accessModel>/myPendingRequests}.length &lt; 10 ? '0' + ${accessModel>/myPendingRequests}.length : '' + ${accessModel>/myPendingRequests}.length) : '00' }" class="fioriPendingNumber" />
                                 <Text text="Pending Requests" class="kyraCardPendingLabel" />
                             </HBox>
                             <HBox class="kyraCardCircleArrow kyraArrowAmber">
@@ -485,6 +485,61 @@
                         </HBox>
                     </VBox>
                 </HBox>
+
+                <!-- IN-PAGE APPROVED SYSTEM ENTITLEMENTS CARDS (Toggled by Approved Card Click - Only on My Access Tab) -->
+                <VBox id="approvedSectionContainer"
+                    visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showApprovedSection} }"
+                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
+                    <!-- Section Header -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
+                            <Avatar src="sap-icon://sys-enter-2" class="kyraCardAvatarGreen fioriCardAvatar" displaySize="S" />
+                            <VBox class="kyraCardHeaderTextCol">
+                                <Title text="{= 'Approved System Entitlements (' + (${accessModel>/requestHistory} ? (${accessModel>/requestHistory}.filter(function(r){return r.status === 'Approved';}).length) : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                <Text text="All approved access entitlements with assigned team and persona roles." class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseApprovedSection" tooltip="Close Section" class="kyraCloseIconBtn" />
+                    </HBox>
+
+                    <!-- Approved Entitlement Cards List -->
+                    <List
+                        id="approvedEntitlementsCardList"
+                        items="{path: 'accessModel>/requestHistory', filters: [{path: 'status', operator: 'EQ', value1: 'Approved'}]}"
+                        noDataText="No approved entitlements found."
+                        showSeparators="None"
+                        class="sapUiNoMargin kyraApprovedEntitlementsList">
+                        <CustomListItem type="Inactive" class="kyraApprovedEntitlementCard sapUiSmallMarginBottom">
+                            <VBox class="kyraApprovedCardInner">
+                                <!-- Top Row: System chip + Request ID chip -->
+                                <HBox alignItems="Center" class="kyraApprovedCardChipRow sapUiTinyMarginBottom">
+                                    <HBox class="kyraApprovedSystemChip">
+                                        <Text text="{= ${accessModel>system} || 'SAP S/4HANA Enterprise' }" class="kyraApprovedSystemChipText" />
+                                    </HBox>
+                                    <HBox class="kyraApprovedReqIdChip sapUiTinyMarginBegin">
+                                        <Text text="{accessModel>requestId}" class="kyraApprovedReqIdChipText" />
+                                    </HBox>
+                                </HBox>
+                                <!-- Middle Row: Role title (bold) + Approved badge -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraApprovedCardMainRow">
+                                    <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || ${accessModel>services} || 'Access Role' }" class="kyraApprovedRoleTitle" />
+                                    <HBox class="kyraApprovedStatusPill" alignItems="Center">
+                                        <core:Icon src="sap-icon://sys-enter-2" class="kyraApprovedStatusIcon" />
+                                        <Text text="Approved" class="kyraApprovedStatusText" />
+                                    </HBox>
+                                </HBox>
+                                <!-- Bottom Row: Team: X • Persona: Y -->
+                                <HBox alignItems="Center" class="kyraApprovedCardSubRow sapUiTinyMarginTop">
+                                    <Text text="Team:" class="kyraApprovedSubLabel" />
+                                    <Text text="{= ${accessModel>teamRole} || ${accessModel>roleName} || ${accessModel>team} || '' }" class="kyraApprovedSubValue" />
+                                    <Text text=" • " class="kyraApprovedSubDot" />
+                                    <Text text="Persona:" class="kyraApprovedSubLabel" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || '' }" class="kyraApprovedSubValue" />
+                                </HBox>
+                            </VBox>
+                        </CustomListItem>
+                    </List>
+                </VBox>
 
                 <!-- IN-PAGE PENDING ACCESS REQUESTS TABLE (Toggled by Card 1 Click - Only on My Access Tab) -->
                 <VBox id="pendingSectionContainer"
@@ -2183,11 +2238,35 @@
                         </HBox>
                     </HBox>
 
-                    <!-- 2. Filter Tabs &amp; Clear all Button Row -->
+                    <!-- Reviewer Role Scope Row (Visible only for Approver & Compliance Reviewer) -->
+                    <HBox visible="{accessModel>/isReviewerRole}" alignItems="Center" class="kyraNotifScopeBar sapUiSmallMarginBottom" width="100%">
+                        <Button
+                            text="{= 'My Notification (' + (${accessModel>/myNotificationsCount} || 0) + ')' }"
+                            type="{= (${accessModel>/notifScope} || 'my') === 'my' ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectNotifScope"
+                            class="kyraNotifPillTab kyraNotifScopeTab sapUiTinyMarginEnd">
+                            <customData>
+                                <core:CustomData key="scope" value="my" />
+                                <core:CustomData key="active" value="{= (${accessModel>/notifScope} || 'my') === 'my' ? 'true' : 'false' }" writeToDom="true" />
+                            </customData>
+                        </Button>
+                        <Button
+                            text="{= 'Users Notification (' + (${accessModel>/usersNotificationsCount} || 0) + ')' }"
+                            type="{= ${accessModel>/notifScope} === 'users' ? 'Emphasized' : 'Transparent' }"
+                            press=".onSelectNotifScope"
+                            class="kyraNotifPillTab kyraNotifScopeTab">
+                            <customData>
+                                <core:CustomData key="scope" value="users" />
+                                <core:CustomData key="active" value="{= ${accessModel>/notifScope} === 'users' ? 'true' : 'false' }" writeToDom="true" />
+                            </customData>
+                        </Button>
+                    </HBox>
+
+                    <!-- Filter Tabs &amp; Action Buttons Row -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraNotifFilterBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center" class="kyraNotifFilterGroup">
                             <Button
-                                text="{= 'All (' + (${accessModel>/allNotificationsCount} || 0) + ')' }"
+                                text="{= ${accessModel>/isReviewerRole} ? ('All (' + (${accessModel>/currentScopeAllCount} || 0) + ')') : ('All (' + (${accessModel>/allNotificationsCount} || 0) + ')') }"
                                 type="{= (${accessModel>/notifFilterKey} || 'all') === 'all' ? 'Emphasized' : 'Transparent' }"
                                 press=".onFilterNotifications"
                                 class="kyraNotifPillTab">
@@ -2197,7 +2276,7 @@
                                 </customData>
                             </Button>
                             <Button
-                                text="{= 'Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')' }"
+                                text="{= ${accessModel>/isReviewerRole} ? ('Unread (' + (${accessModel>/currentScopeUnreadCount} || 0) + ')') : ('Unread (' + (${accessModel>/unreadNotificationsCount} || 0) + ')') }"
                                 type="{= ${accessModel>/notifFilterKey} === 'unread' ? 'Emphasized' : 'Transparent' }"
                                 press=".onFilterNotifications"
                                 class="kyraNotifPillTab">
@@ -2208,12 +2287,20 @@
                             </Button>
                         </HBox>
 
-                        <Button
-                            icon="sap-icon://delete"
-                            text="Clear all"
-                            type="Transparent"
-                            press=".onClearReadNotifications"
-                            class="kyraNotifClearAllBtn" />
+                        <HBox alignItems="Center" class="kyraNotifTopActionsGroup">
+                            <Button
+                                icon="sap-icon://accept"
+                                text="Mark all read"
+                                type="Transparent"
+                                press=".onMarkAllNotificationsRead"
+                                class="kyraNotifMarkAllReadBtn sapUiTinyMarginEnd" />
+                            <Button
+                                icon="sap-icon://delete"
+                                text="Clear all"
+                                type="Transparent"
+                                press=".onClearReadNotifications"
+                                class="kyraNotifClearAllBtn" />
+                        </HBox>
                     </HBox>
 
                     <!-- Subtle Horizontal Divider -->
