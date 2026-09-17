@@ -93,6 +93,9 @@ sap.ui.define([
             if (oRouter && oRouter.getRoute("AccessPage")) {
                 oRouter.getRoute("AccessPage").attachPatternMatched(this._onRouteMatched, this);
             }
+            window.openApproverDecisionBreakdown = (sTargetIdOrData) => {
+                this.openDecisionBreakdownSummary(sTargetIdOrData);
+            };
             this._syncModelAndRequests();
         },
 
@@ -1154,6 +1157,38 @@ sap.ui.define([
             const oItem = oEvent.getSource().getParent().getParent();
             const oData = oItem.getBindingContext("accessModel").getObject();
             this._showDecisionSummarySlide(oData, true);
+        },
+
+        openDecisionBreakdownSummary(sTargetIdOrData) {
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+            if (!oModel) return;
+
+            let oData = null;
+            if (sTargetIdOrData && typeof sTargetIdOrData === "object" && sTargetIdOrData.entitlements) {
+                oData = sTargetIdOrData;
+            } else {
+                const aProcessed = oModel.getProperty("/processedRequests") || [];
+                const sTarget = String(sTargetIdOrData || "").trim().toLowerCase();
+                oData = aProcessed.find(g => {
+                    if (!g) return false;
+                    if ((g.requestId || "").toLowerCase() === sTarget) return true;
+                    if ((g.requesterId || "").toLowerCase() === sTarget) return true;
+                    if (g.entitlements && g.entitlements.some(e => (e.requestId || "").toLowerCase() === sTarget)) return true;
+                    return false;
+                });
+            }
+
+            oModel.setProperty("/showApprovalHistory", true);
+            if (oData && oData.isRevocation) {
+                oModel.setProperty("/approverHistoryTab", "revokeRequests");
+            } else {
+                oModel.setProperty("/approverHistoryTab", "accessRequests");
+            }
+            this._updateDisplayedHistoryRequests();
+
+            if (oData) {
+                this._showDecisionSummarySlide(oData, true);
+            }
         },
 
         _applySearchFilter(sQuery) {

@@ -2306,12 +2306,22 @@ sap.ui.define([
                     const sCreatedTime = g.createdAtRaw || g.created_at || g.submissionDate || new Date().toISOString();
                     const sNotifId = "notif-incoming-review-" + (isCompliancePersona ? "comp-" : "appr-") + sReqId;
 
+                    // Badge Display:
+                    // If revoke request: display request id as it is now (sReqId)
+                    // If access request: display request id ONLY if submitted only 1 request (iCount === 1)
+                    // If access request with multiple requests (iCount > 1): display that user id (sRequester)
+                    const sDisplayBadge = isRevoke ? sReqId : (iCount > 1 ? sRequester : sReqId);
+
                     if (!oDeletedSet.has(sNotifId)) {
                         aNotifications.push({
                             id: sNotifId,
                             scope: "users",
                             requesterId: sRequester,
-                            requestId: sReqId,
+                            requestId: sDisplayBadge,
+                            actualRequestId: sReqId,
+                            targetRequestId: sReqId,
+                            isMultiple: iCount > 1,
+                            entitlementCount: iCount,
                             system: g.system || "SAP System",
                             roleName: isRevoke ? "Revoke Request" : "Access Request",
                             persona: g.persona || "Requester",
@@ -2750,8 +2760,10 @@ sap.ui.define([
                     const sDesc = (n.description || "").toLowerCase();
                     const sSys = (n.system || "").toLowerCase();
                     const sReqId = (n.requestId || "").toLowerCase();
+                    const sActReqId = (n.actualRequestId || "").toLowerCase();
+                    const sReqUser = (n.requesterId || "").toLowerCase();
                     const sCat = (n.category || "").toLowerCase();
-                    return sTitle.includes(sQuery) || sDesc.includes(sQuery) || sSys.includes(sQuery) || sReqId.includes(sQuery) || sCat.includes(sQuery);
+                    return sTitle.includes(sQuery) || sDesc.includes(sQuery) || sSys.includes(sQuery) || sReqId.includes(sQuery) || sActReqId.includes(sQuery) || sReqUser.includes(sQuery) || sCat.includes(sQuery);
                 });
             }
 
@@ -3359,6 +3371,133 @@ sap.ui.define([
             MessageToast.show("Notification deleted.");
         },
 
+        _checkIsRequestDecidedByReviewer(oNotif) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !oNotif) return { isDecided: false, processedItem: null };
+
+            const sTargetId = String(oNotif.actualRequestId || oNotif.targetRequestId || oNotif.requestId || "").trim().toLowerCase();
+            const sRequester = String(oNotif.requesterId || "").trim().toLowerCase();
+            const bIsRevocation = !!oNotif.isRevocation;
+
+            const aProcessed = oModel.getProperty("/processedRequests") || [];
+            const aPending = oModel.getProperty("/pendingRequests") || [];
+            const aPendingAccess = oModel.getProperty("/pendingAccessRequests") || [];
+            const aPendingRevoke = oModel.getProperty("/pendingRevokeRequests") || [];
+            const aAllPending = aPending.concat(aPendingAccess, aPendingRevoke);
+
+            // 1. Check in Processed requests first (already submitted decision)
+            const oFoundProcessed = aProcessed.find(p => {
+                if (!p) return false;
+                if ((p.requestId || "").toLowerCase() === sTargetId) return true;
+                if (!bIsRevocation && sRequester && (p.requesterId || "").toLowerCase() === sRequester) return true;
+                if (p.entitlements && p.entitlements.some(e => (e.requestId || "").toLowerCase() === sTargetId)) return true;
+                return false;
+            });
+            if (oFoundProcessed) {
+                return { isDecided: true, processedItem: oFoundProcessed };
+            }
+
+            // 2. Check if still waiting in pending queue (decision NOT yet submitted)
+            const bStillPending = aAllPending.some(p => {
+                if (!p) return false;
+                if ((p.requestId || "").toLowerCase() === sTargetId) return true;
+                if (!bIsRevocation && sRequester && (p.requesterId || "").toLowerCase() === sRequester) return true;
+                if (p.entitlements && p.entitlements.some(e => (e.requestId || "").toLowerCase() === sTargetId)) return true;
+                return false;
+            });
+            if (bStillPending) {
+                return { isDecided: false, processedItem: null };
+            }
+
+            // 3. Fallback: check cached database records for decision status
+            const aDb = this._cachedDbRequests || [];
+            const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+            const isComp = sActiveRole.includes("compliance");
+            const oDbMatch = aDb.find(r => (r.request_number || "").toLowerCase() === sTargetId || (!bIsRevocation && sRequester && (r.requester_username || "").toLowerCase() === sRequester));
+            if (oDbMatch) {
+                if (isComp) {
+                    const sCompStat = (oDbMatch.compliance_status || oDbMatch.compliance_decision_status || "").toUpperCase();
+                    if (sCompStat === "APPROVED" || sCompStat === "REJECTED") {
+                        return { isDecided: true, processedItem: null };
+                    }
+                } else {
+                    const sApprStat = (oDbMatch.approver_status || oDbMatch.approver_decision_status || "").toUpperCase();
+                    if (sApprStat === "APPROVED" || sApprStat === "REJECTED") {
+                        return { isDecided: true, processedItem: null };
+                    }
+                }
+            }
+
+            return { isDecided: false, processedItem: null };
+        },
+
+        _handleNotificationNavigation(oNotif) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !oNotif) return;
+
+            const sScope = oNotif.scope || oModel.getProperty("/notifScope") || "my";
+            const sActualId = oNotif.actualRequestId || oNotif.targetRequestId || oNotif.requestId;
+
+            // 1. In the "My Notification" section:
+            // Always take the user to that request's live tracking page
+            if (sScope === "my") {
+                this.onOpenPendingRequestDetails({
+                    requestId: sActualId,
+                    requestNumber: sActualId
+                });
+                return;
+            }
+
+            // 2. In the "Users Notification" section:
+            // Check whether the user has already submitted a decision for that request
+            const oDecisionCheck = this._checkIsRequestDecidedByReviewer(oNotif);
+
+            if (oDecisionCheck.isDecided) {
+                // User has already submitted the decision:
+                // Take the user to that request's "Decision Breakdown Summary" which is in the "Processed Approval History Log" page
+                oModel.setProperty("/selectedTabKey", "myAccess");
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showApprovalHistory", true);
+
+                if (oNotif.isRevocation) {
+                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
+                } else {
+                    oModel.setProperty("/approverHistoryTab", "accessRequests");
+                }
+
+                setTimeout(() => {
+                    const oApproverView = this.byId("approverSectionView");
+                    const oApproverCtrl = oApproverView && oApproverView.getController ? oApproverView.getController() : null;
+                    if (oApproverCtrl && typeof oApproverCtrl.openDecisionBreakdownSummary === "function") {
+                        oApproverCtrl.openDecisionBreakdownSummary(oDecisionCheck.processedItem || sActualId);
+                    } else if (typeof window !== "undefined" && typeof window.openApproverDecisionBreakdown === "function") {
+                        window.openApproverDecisionBreakdown(oDecisionCheck.processedItem || sActualId);
+                    }
+                }, 150);
+            } else {
+                // User has not made any decision for that request yet:
+                // Take the user to that request's "Access Request Governance Review" page
+                if (typeof window !== "undefined" && window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading Governance Review...",
+                        subtitle: "Evaluating live Segregation of Duties (SoD) conflict matrix..."
+                    });
+                } else if (typeof window !== "undefined" && window.showKyraLoading) {
+                    window.showKyraLoading("Loading Governance Review...", "Evaluating live Segregation of Duties (SoD) conflict matrix...");
+                }
+
+                this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
+                    requestId: sActualId
+                });
+            }
+        },
+
         onOpenNotificationDetail(oEvent) {
             const oContext = oEvent.getSource().getBindingContext("accessModel");
             if (!oContext) return;
@@ -3375,28 +3514,7 @@ sap.ui.define([
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
             this._loadNotifications(oModel);
 
-            // Open request details page (Request Tracking)
-            const sCurrentRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "").toLowerCase();
-            const isReviewerPersona = sCurrentRole.includes("approver") || sCurrentRole.includes("compliance") || sCurrentRole.includes("manager") || !!oModel.getProperty("/isApproverPersona");
-
-            if (oNotif.targetPage === "ApproverDetail" || isReviewerPersona) {
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading Governance Review...",
-                        subtitle: "Evaluating live Segregation of Duties (SoD) conflict matrix..."
-                    });
-                } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading Governance Review...", "Evaluating live Segregation of Duties (SoD) conflict matrix...");
-                }
-                this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
-                    requestId: oNotif.requestId
-                });
-            } else {
-                this.onOpenPendingRequestDetails({
-                    requestId: oNotif.requestId,
-                    requestNumber: oNotif.requestId
-                });
-            }
+            this._handleNotificationNavigation(oNotif);
         },
 
         onNotifPrevPage() {
@@ -3434,11 +3552,7 @@ sap.ui.define([
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aList));
             this._loadNotifications(oModel);
 
-            // Navigate to Request Tracking page for this request
-            this.onOpenPendingRequestDetails({
-                requestId: oNotif.requestId,
-                requestNumber: oNotif.requestId
-            });
+            this._handleNotificationNavigation(oNotif);
         },
 
         onOpenNotificationsPopover(oEvent) {

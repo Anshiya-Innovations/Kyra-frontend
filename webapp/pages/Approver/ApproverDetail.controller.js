@@ -244,6 +244,7 @@ sap.ui.define([
                     if (r.requestId === sReqId || r.requestNumber === sReqId) return true;
                     if (sBaseReqId && getBaseReqId(r.requestId || r.requestNumber) === sBaseReqId) return true;
                     if (r.entitlements && r.entitlements.some(e => e.requestId === sReqId || (sBaseReqId && getBaseReqId(e.requestId) === sBaseReqId))) return true;
+                    if (sReqId && ((r.requesterId && r.requesterId.toLowerCase() === sReqId.toLowerCase()) || (r.requesterUsername && r.requesterUsername.toLowerCase() === sReqId.toLowerCase()))) return true;
                     return false;
                 };
 
