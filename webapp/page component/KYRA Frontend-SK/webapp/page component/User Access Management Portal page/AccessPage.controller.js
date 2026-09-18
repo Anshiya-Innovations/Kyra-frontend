@@ -1546,50 +1546,54 @@ sap.ui.define([
                         aMyHistory.push(oReqObj);
                     }
 
-                    const sRoleOnlyKey = (r.target_system || "") + ":::" + sCleanItemRole;
+                                        const sRoleOnlyKey = (r.target_system || "") + ":::" + sCleanItemRole;
 
-                    if (isRevocationReq) {
-                        if (isOverallApproved) {
-                            roleStates[sKey] = { request: r, status: 'REVOKED' };
-                            roleStates[sRoleOnlyKey] = { request: r, status: 'REVOKED' };
-                            if (this._localInFlightRevocations) {
-                                delete this._localInFlightRevocations[sKey];
-                                delete this._localInFlightRevocations[sRoleOnlyKey];
-                            }
-                            try {
-                                const aStored = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                                const aFiltered = aStored.filter(item => {
-                                    return (item.requestId !== r.request_number) && !(item.system === r.target_system && cleanRoleStr(item.roleName) === sCleanItemRole);
-                                });
-                                sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aFiltered));
-                            } catch(e) {}
-                        } else if (isOverallRejected) {
-                            if (!roleStates[sKey] || roleStates[sKey].status === 'REVOKE_PENDING') {
+                    if (!roleStates[sKey]) {
+                        if (isRevocationReq) {
+                            if (isOverallApproved) {
+                                roleStates[sKey] = { request: r, status: 'REVOKED' };
+                                if (this._localInFlightRevocations) {
+                                    if (this._localInFlightRevocations[sKey] && this._localInFlightRevocations[sKey].requestId === r.request_number) {
+                                        delete this._localInFlightRevocations[sKey];
+                                    }
+                                    if (this._localInFlightRevocations[sRoleOnlyKey] && this._localInFlightRevocations[sRoleOnlyKey].requestId === r.request_number) {
+                                        delete this._localInFlightRevocations[sRoleOnlyKey];
+                                    }
+                                }
+                                try {
+                                    const aStored = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                    const aFiltered = aStored.filter(item => item.requestId !== r.request_number);
+                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aFiltered));
+                                } catch(e) {}
+                            } else if (isOverallRejected) {
                                 roleStates[sKey] = { request: r, status: 'ACTIVE' };
-                            }
-                            if (this._localInFlightRevocations) {
-                                delete this._localInFlightRevocations[sKey];
-                                delete this._localInFlightRevocations[sRoleOnlyKey];
-                            }
-                            try {
-                                const aStored = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                                const aFiltered = aStored.filter(item => {
-                                    return (item.requestId !== r.request_number) && !(item.system === r.target_system && cleanRoleStr(item.roleName) === sCleanItemRole);
-                                });
-                                sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aFiltered));
-                            } catch(e) {}
-                        } else if (isOverallPending) {
-                            if (!roleStates[sKey] || roleStates[sKey].status !== 'REVOKED') {
+                                if (this._localInFlightRevocations) {
+                                    if (this._localInFlightRevocations[sKey] && this._localInFlightRevocations[sKey].requestId === r.request_number) {
+                                        delete this._localInFlightRevocations[sKey];
+                                    }
+                                    if (this._localInFlightRevocations[sRoleOnlyKey] && this._localInFlightRevocations[sRoleOnlyKey].requestId === r.request_number) {
+                                        delete this._localInFlightRevocations[sRoleOnlyKey];
+                                    }
+                                }
+                                try {
+                                    const aStored = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                    const aFiltered = aStored.filter(item => item.requestId !== r.request_number);
+                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aFiltered));
+                                } catch(e) {}
+                            } else if (isOverallPending) {
                                 roleStates[sKey] = { request: r, status: 'REVOKE_PENDING' };
                             }
-                        }
-                    } else {
-                        if (!roleStates[sKey]) {
+                        } else {
                             if (isOverallApproved) {
                                 roleStates[sKey] = { request: r, status: 'ACTIVE' };
                             }
-                        } else if (roleStates[sKey].status === 'REVOKE_PENDING' && isOverallApproved) {
-                            roleStates[sKey].approvedRequest = r;
+                        }
+                    } else {
+                        // roleStates[sKey] already established by a newer record in reverse-chronological order
+                        if (roleStates[sKey].status === 'REVOKE_PENDING' && !isRevocationReq && isOverallApproved) {
+                            if (!roleStates[sKey].approvedRequest) {
+                                roleStates[sKey].approvedRequest = r;
+                            }
                         }
                     }
                 }
@@ -1692,21 +1696,33 @@ sap.ui.define([
             });
 
             if (this._localInFlightRevocations) {
-                Object.keys(this._localInFlightRevocations).forEach(sKey => {
-                    const inflight = this._localInFlightRevocations[sKey];
-                    // IMPORTANT: Only update if roleStates[sKey] ALREADY exists from DB; do NOT create phantom active entitlement!
-                    if (roleStates[sKey] && roleStates[sKey].status !== 'REVOKED') {
-                        roleStates[sKey].status = 'REVOKE_PENDING';
-                    }
+                Object.keys(this._localInFlightRevocations).forEach(sCacheKey => {
+                    const inflight = this._localInFlightRevocations[sCacheKey];
+                    if (!inflight) return;
 
-                    const alreadyPending = aMyPending.some(p => p.system === inflight.system && p.roleName === inflight.roleName && (p.selectedPersona === inflight.persona || p.persona === inflight.persona));
-                    if (!alreadyPending && roleStates[sKey]) {
+                    let bMatchedState = false;
+                    Object.keys(roleStates).forEach(k => {
+                        const state = roleStates[k];
+                        const r = state.approvedRequest || state.request;
+                        if (!r) return;
+                        const matchSys = (r.target_system || "") === inflight.system;
+                        const matchRole = cleanRoleStr(r.role_name) === inflight.roleName;
+                        if (matchSys && matchRole) {
+                            if (state.status !== 'REVOKED') {
+                                state.status = 'REVOKE_PENDING';
+                            }
+                            bMatchedState = true;
+                        }
+                    });
+
+                    const alreadyPending = aMyPending.some(p => p.system === inflight.system && cleanRoleStr(p.roleName) === inflight.roleName);
+                    if (!alreadyPending && bMatchedState) {
                         const oInflightReqObj = {
                             requestId: inflight.requestId,
-                            requesterId: sActiveUser,
-                            requesterUsername: sActiveUser,
+                            requesterId: inflight.requesterUsername || sActiveUser,
+                            requesterUsername: inflight.requesterUsername || sActiveUser,
                             type: "Revocation",
-                            requestType: "Revoke",
+                            requestType: "Revocation",
                             accessType: "REVOCATION",
                             isRevocation: true,
                             system: inflight.system,
@@ -1715,10 +1731,10 @@ sap.ui.define([
                             selectedPersona: inflight.persona || "User",
                             accessDuration: calculateRevokeRemainingDays(inflight),
                             duration: calculateRevokeRemainingDays(inflight),
-                            submissionDate: inflight.createdAt.split("T")[0],
-                            createdAtRaw: inflight.createdAt,
+                            submissionDate: inflight.createdAt ? inflight.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                            createdAtRaw: inflight.createdAt || new Date().toISOString(),
                             approver: "Line Manager / ISRM Team",
-                            persona: sActiveRole,
+                            persona: inflight.persona || sActiveRole,
                             status: "Pending Approval",
                             statusState: "Warning",
                             statusIcon: "sap-icon://pending",
@@ -1884,14 +1900,65 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/myApprovedRequests", aMyApproved);
             const oApproverData = this._buildApproverHistoryAndPending(aRawDbRequests);
             const aApprPending = oApproverData.pending;
-            const aApprPendingAccess = aApprPending.filter(p => !p.isRevocation && p.type !== "Revocation");
-            const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => p.isRevocation || p.type === "Revocation");
+            const isRevReqHelper = (p) => !!(p.isRevocation || String(p.type || '').toUpperCase().includes('REV') || String(p.accessType || '').toUpperCase().includes('REV') || String(p.requestId || p.requestNumber || '').toUpperCase().startsWith('REV-'));
+            const aApprPendingAccess = aApprPending.filter(p => !isRevReqHelper(p));
+            const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => isRevReqHelper(p));
+
+            if (!isCompliancePersona) {
+                try {
+                    const aStoredRevs = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                    aStoredRevs.forEach(sr => {
+                        const sSrId = sr.requestId || sr.requestNumber;
+                        if (sSrId && !aApprPendingRevoke.some(p => p.requestId === sSrId || (p.requestId && p.requestId.startsWith(sSrId)))) {
+                            const oInflightApproverRev = {
+                                requestId: sSrId,
+                                requesterId: sr.requesterUsername || sr.requesterId || "emp018",
+                                requesterUsername: sr.requesterUsername || sr.requesterId || "emp018",
+                                selectedPersona: sr.persona || sr.selectedPersona || "Requester",
+                                persona: sr.persona || sr.selectedPersona || "Requester",
+                                sector: sr.sector || "Information Technology & Security",
+                                businessSector: sr.sector || "Information Technology & Security",
+                                function: sr.function || sr.businessFunction || "Corporate Governance",
+                                businessFunction: sr.function || sr.businessFunction || "Corporate Governance",
+                                duration: sr.accessDuration || sr.duration || "30/30 days left",
+                                accessDuration: sr.accessDuration || sr.duration || "30/30 days left",
+                                region: sr.region || "Global Enterprise (ALL)",
+                                operatingRegion: sr.region || "Global Enterprise (ALL)",
+                                justification: sr.justification || ("Revocation of access for role " + (sr.roleName || "")),
+                                type: "Revocation",
+                                serviceTopic: sr.category || "Revocation Request",
+                                submissionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                                decisionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                                status: "Revoke Pending",
+                                statusState: "Error",
+                                statusIcon: "sap-icon://pending",
+                                isRevocation: true,
+                                _isPendingForRole: true,
+                                entitlements: [{
+                                    requestId: sSrId,
+                                    system: sr.system,
+                                    roleName: sr.roleName,
+                                    team: sr.team || "System Administrator",
+                                    serviceTopic: sr.category || "Revocation Request",
+                                    selectedPersona: sr.persona || "Requester",
+                                    persona: sr.persona || "Requester",
+                                    status: "Pending",
+                                    statusState: "Warning",
+                                    statusIcon: "sap-icon://pending"
+                                }]
+                            };
+                            aApprPendingRevoke.push(oInflightApproverRev);
+                            aApprPending.push(oInflightApproverRev);
+                        }
+                    });
+                } catch(e) {}
+            }
 
             const sortChronologicallyDesc = (a, b) => {
-                const tA = new Date(a.createdAtRaw || a.created_at || a.submissionDate || a.decisionDate || 0).getTime();
-                const tB = new Date(b.createdAtRaw || b.created_at || b.submissionDate || b.decisionDate || 0).getTime();
+                const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || a.decisionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || b.decisionDate || 0).getTime();
                 if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
-                return (b.requestId || "").localeCompare(a.requestId || "");
+                return (a.requestId || "").localeCompare(b.requestId || "");
             };
             aApprPending.sort(sortChronologicallyDesc);
             aApprPendingAccess.sort(sortChronologicallyDesc);
@@ -2009,6 +2076,8 @@ sap.ui.define([
                     const sCacheKey = (oData.system || "") + "_" + sCleanRole + "_" + sCleanPersona;
                     const oRevokeRecord = {
                         requestId: sReqId,
+                        requesterId: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
+                        requesterUsername: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
                         system: oData.system,
                         roleName: sCleanRole,
                         category: oData.category || "Revocation Request",
@@ -2047,16 +2116,16 @@ sap.ui.define([
                     // Construct pending request object and prepend to myPendingRequests immediately
                     const oNewPendingReq = {
                         requestId: sReqId,
-                        requesterId: sActiveUser,
-                        requesterUsername: sActiveUser,
-                        type: "Revoke",
-                        requestType: "Revoke",
+                        requesterId: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
+                        requesterUsername: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
+                        type: "Revocation",
+                        requestType: "Revocation",
                         accessType: "REVOCATION",
                         isRevocation: true,
                         system: oData.system,
                         roleName: sCleanRole,
                         roleTitle: sCleanRole,
-                        team: this._deriveCleanTeamName(oData),
+                        team: this._deriveCleanTeamName ? this._deriveCleanTeamName(oData) : (oData.teamRole || oData.roleName || oData.team || "IT Developers"),
                         serviceTopic: oData.category || "Revocation Request",
                         selectedPersona: sCleanPersona,
                         persona: sCleanPersona,

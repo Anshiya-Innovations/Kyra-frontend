@@ -81,9 +81,9 @@ sap.ui.define([
 
     function sortChronologicallyDesc(a, b) {
         const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || a.decisionDate || a.submittedDate || 0).getTime();
-        const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || b.decisionDate || b.submittedDate || 0).getTime();
+        const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || b.decisionDate || 0).getTime();
         if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
-        return (b.requestId || "").localeCompare(a.requestId || "");
+        return (a.requestId || "").localeCompare(b.requestId || "");
     }
 
     return Controller.extend("kyra001.pages.Approver.Approver", {
@@ -96,6 +96,28 @@ sap.ui.define([
             window.openApproverDecisionBreakdown = (sTargetIdOrData) => {
                 this.openDecisionBreakdownSummary(sTargetIdOrData);
             };
+            if (typeof BroadcastChannel !== "undefined" && !this._syncChannel) {
+                try {
+                    this._syncChannel = new BroadcastChannel("kyra_db_sync_channel");
+                    this._syncChannel.onmessage = (event) => {
+                        const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+                        if (oM) {
+                            this._reloadAllRequests(oM);
+                        }
+                    };
+                } catch(e) {}
+            }
+            if (!this._boundStorageListener) {
+                this._boundStorageListener = (e) => {
+                    if (e.key === "kyra_last_db_mutation" || e.key === "kyra_pending_revocations") {
+                        const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+                        if (oM) {
+                            this._reloadAllRequests(oM);
+                        }
+                    }
+                };
+                window.addEventListener("storage", this._boundStorageListener);
+            }
             this._syncModelAndRequests();
         },
 
@@ -1126,10 +1148,11 @@ sap.ui.define([
                 }
             }
 
-            const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation" && !String(p.requestId || '').startsWith("REV-"));
-            const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
-            const aAccessProcessed = aProcessed.filter(p => !p.isRevocation && p.type !== "Revocation" && !String(p.requestId || '').startsWith("REV-"));
-            const aRevokeProcessed = aProcessed.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
+            const isRevCheck = (p) => !!(p.isRevocation || String(p.type || '').toUpperCase().includes('REV') || String(p.accessType || '').toUpperCase().includes('REV') || String(p.requestId || p.requestNumber || '').toUpperCase().startsWith('REV-'));
+            const aAccessPending = aPending.filter(p => !isRevCheck(p));
+            const aRevokePending = isCompliance ? [] : aPending.filter(p => isRevCheck(p));
+            const aAccessProcessed = aProcessed.filter(p => !isRevCheck(p));
+            const aRevokeProcessed = aProcessed.filter(p => isRevCheck(p));
 
             aPending.sort(sortChronologicallyDesc);
             aProcessed.sort(sortChronologicallyDesc);
