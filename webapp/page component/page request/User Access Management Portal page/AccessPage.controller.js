@@ -166,7 +166,10 @@ sap.ui.define([
         onInit() {
             this._localInFlightRevocations = {};
             this._aSelectedRegionIds = [];
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "Stake001";
+            const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "emp001";
+            const sActiveUser = (sRawActiveUser || "").trim().toLowerCase();
+            sessionStorage.setItem("kyra_active_user", sActiveUser);
+            sessionStorage.setItem("kyra_user_id", sActiveUser);
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             const isCompliance = sActiveRole.toLowerCase().includes("compliance");
@@ -844,16 +847,19 @@ sap.ui.define([
 
         _onRouteMatched() {
             const oModel = this.getView().getModel("accessModel");
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "";
+            const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "";
+            const sActiveUser = (sRawActiveUser || "").trim().toLowerCase();
+            sessionStorage.setItem("kyra_active_user", sActiveUser);
+            sessionStorage.setItem("kyra_user_id", sActiveUser);
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
             if (oModel) {
-                const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
                 const sRoleLower = (sActiveRole || "").toLowerCase();
                 const isCompliancePersona = sRoleLower.includes("compliance");
                 const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
                 const isReviewerRole = bIsApprover || isCompliancePersona;
                 oModel.setProperty("/activeUser", sActiveUser);
+                oModel.setProperty("/userId", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
                 oModel.setProperty("/isApproverPersona", bIsApprover);
                 oModel.setProperty("/isCompliance", isCompliancePersona);
@@ -1642,7 +1648,7 @@ sap.ui.define([
                 if (!oGrouped[sGroupKey]) {
                     oGrouped[sGroupKey] = {
                         requestId: r.request_number,
-                        requesterId: r.requester_username || "User",
+                        requesterId: (r.requester_username || "User").trim().toLowerCase(),
                         persona: r.requester_persona || "Requester",
                         system: r.target_system || "SAP System",
                         serviceAndRole: (r.role_name || "Role") + " (" + sServiceTopic + ")",
@@ -2290,11 +2296,34 @@ sap.ui.define([
             if (isAnyReviewerPersona) {
                 const aPendingAccess = oModel.getProperty("/pendingAccessRequests") || [];
                 const aPendingRevoke = oModel.getProperty("/pendingRevokeRequests") || [];
+                const aProcessed = oModel.getProperty("/processedRequests") || [];
                 const aAllPendingReview = isCompliancePersona ? aPendingAccess : aPendingAccess.concat(aPendingRevoke);
+                const aProcessedReview = isCompliancePersona ? aProcessed.filter(p => !p.isRevocation) : aProcessed;
 
+                const aAllReviewItems = [];
+                const oAddedReqIds = new Set();
+
+                // 1. Pending requests (undecided)
                 aAllPendingReview.forEach(g => {
+                    const sId = g.requestId || g.requestNumber;
+                    if (sId && !oAddedReqIds.has(sId)) {
+                        oAddedReqIds.add(sId);
+                        aAllReviewItems.push(g);
+                    }
+                });
+
+                // 2. Processed requests (already decided)
+                aProcessedReview.forEach(g => {
+                    const sId = g.requestId || g.requestNumber;
+                    if (sId && !oAddedReqIds.has(sId)) {
+                        oAddedReqIds.add(sId);
+                        aAllReviewItems.push(g);
+                    }
+                });
+
+                aAllReviewItems.forEach(g => {
                     const sReqId = g.requestId || g.requestNumber || "REQ-GENERAL";
-                    const sRequester = (g.requesterId || g.requesterUsername || "User").trim();
+                    const sRequester = (g.requesterId || g.requesterUsername || "User").trim().toLowerCase();
 
                     // Only other users' requests
                     if (sActiveUser && sRequester.toLowerCase() === sActiveUser.toLowerCase()) {
@@ -3375,9 +3404,9 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel || !oNotif) return { isDecided: false, processedItem: null };
 
-            const sTargetId = String(oNotif.actualRequestId || oNotif.targetRequestId || oNotif.requestId || "").trim().toLowerCase();
-            const sRequester = String(oNotif.requesterId || "").trim().toLowerCase();
-            const bIsRevocation = !!oNotif.isRevocation;
+            const sActualId = String(oNotif.actualRequestId || oNotif.targetRequestId || "").trim().toLowerCase();
+            const sBadgeId = String(oNotif.requestId || "").trim().toLowerCase();
+            const sTargetId = sActualId || sBadgeId;
 
             const aProcessed = oModel.getProperty("/processedRequests") || [];
             const aPending = oModel.getProperty("/pendingRequests") || [];
@@ -3385,26 +3414,25 @@ sap.ui.define([
             const aPendingRevoke = oModel.getProperty("/pendingRevokeRequests") || [];
             const aAllPending = aPending.concat(aPendingAccess, aPendingRevoke);
 
-            // 1. Check in Processed requests first (already submitted decision)
-            const oFoundProcessed = aProcessed.find(p => {
+            const matchesItem = (p) => {
                 if (!p) return false;
-                if ((p.requestId || "").toLowerCase() === sTargetId) return true;
-                if (!bIsRevocation && sRequester && (p.requesterId || "").toLowerCase() === sRequester) return true;
-                if (p.entitlements && p.entitlements.some(e => (e.requestId || "").toLowerCase() === sTargetId)) return true;
+                const pId = String(p.requestId || p.requestNumber || "").trim().toLowerCase();
+                if (pId && (pId === sTargetId || (sActualId && pId === sActualId))) return true;
+                if (p.entitlements && p.entitlements.some(e => {
+                    const eId = String(e.requestId || e.requestNumber || "").trim().toLowerCase();
+                    return eId && (eId === sTargetId || (sActualId && eId === sActualId));
+                })) return true;
                 return false;
-            });
+            };
+
+            // 1. Check in Processed requests first (already submitted decision)
+            const oFoundProcessed = aProcessed.find(matchesItem);
             if (oFoundProcessed) {
                 return { isDecided: true, processedItem: oFoundProcessed };
             }
 
             // 2. Check if still waiting in pending queue (decision NOT yet submitted)
-            const bStillPending = aAllPending.some(p => {
-                if (!p) return false;
-                if ((p.requestId || "").toLowerCase() === sTargetId) return true;
-                if (!bIsRevocation && sRequester && (p.requesterId || "").toLowerCase() === sRequester) return true;
-                if (p.entitlements && p.entitlements.some(e => (e.requestId || "").toLowerCase() === sTargetId)) return true;
-                return false;
-            });
+            const bStillPending = aAllPending.some(matchesItem);
             if (bStillPending) {
                 return { isDecided: false, processedItem: null };
             }
@@ -3413,17 +3441,20 @@ sap.ui.define([
             const aDb = this._cachedDbRequests || [];
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
             const isComp = sActiveRole.includes("compliance");
-            const oDbMatch = aDb.find(r => (r.request_number || "").toLowerCase() === sTargetId || (!bIsRevocation && sRequester && (r.requester_username || "").toLowerCase() === sRequester));
+            const oDbMatch = aDb.find(r => {
+                const rNum = String(r.request_number || r.requestId || "").trim().toLowerCase();
+                return rNum && (rNum === sTargetId || (sActualId && rNum === sActualId));
+            });
             if (oDbMatch) {
                 if (isComp) {
                     const sCompStat = (oDbMatch.compliance_status || oDbMatch.compliance_decision_status || "").toUpperCase();
                     if (sCompStat === "APPROVED" || sCompStat === "REJECTED") {
-                        return { isDecided: true, processedItem: null };
+                        return { isDecided: true, processedItem: oDbMatch };
                     }
                 } else {
                     const sApprStat = (oDbMatch.approver_status || oDbMatch.approver_decision_status || "").toUpperCase();
                     if (sApprStat === "APPROVED" || sApprStat === "REJECTED") {
-                        return { isDecided: true, processedItem: null };
+                        return { isDecided: true, processedItem: oDbMatch };
                     }
                 }
             }

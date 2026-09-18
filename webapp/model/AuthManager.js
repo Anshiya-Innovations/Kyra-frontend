@@ -28,6 +28,7 @@ sap.ui.define([], () => {
             if (!sUserId) {
                 return;
             }
+            const sCanonicalUser = String(sUserId).trim().toLowerCase();
             const sNow = String(Date.now());
             const sEffectiveToken = sToken || ("kyra_tok_" + Math.random().toString(36).substring(2) + "_" + sNow);
             const sEffectiveRole = sRole || "Requester";
@@ -35,20 +36,20 @@ sap.ui.define([], () => {
 
             // Always store in sessionStorage (active tab session)
             sessionStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
-            sessionStorage.setItem(AUTH_KEYS.ACTIVE_USER, sUserId);
+            sessionStorage.setItem(AUTH_KEYS.ACTIVE_USER, sCanonicalUser);
             sessionStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sEffectiveRole);
             sessionStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sEffectiveUuid);
             sessionStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sEffectiveToken);
             sessionStorage.setItem(AUTH_KEYS.AUTH_TIMESTAMP, sNow);
 
             // Backward compatibility aliases for existing components
-            sessionStorage.setItem("kyra_user_id", sUserId);
+            sessionStorage.setItem("kyra_user_id", sCanonicalUser);
 
             // Always persist core auth keys to localStorage so hard-refresh and
             // server restarts don't silently lose the session. The existing
             // isAuthenticated() fallback will restore sessionStorage from here.
             localStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
-            localStorage.setItem(AUTH_KEYS.ACTIVE_USER, sUserId);
+            localStorage.setItem(AUTH_KEYS.ACTIVE_USER, sCanonicalUser);
             localStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sEffectiveRole);
             localStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sEffectiveUuid);
             localStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sEffectiveToken);
@@ -56,7 +57,7 @@ sap.ui.define([], () => {
 
             // Remember-me: also persist credentials for next browser launch
             if (bRemember) {
-                localStorage.setItem(AUTH_KEYS.REMEMBER_ID, sUserId);
+                localStorage.setItem(AUTH_KEYS.REMEMBER_ID, sCanonicalUser);
                 localStorage.setItem(AUTH_KEYS.REMEMBER_ROLE, sEffectiveRole);
             } else {
                 localStorage.removeItem(AUTH_KEYS.REMEMBER_ID);

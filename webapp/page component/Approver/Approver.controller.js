@@ -1164,18 +1164,53 @@ sap.ui.define([
             if (!oModel) return;
 
             let oData = null;
-            if (sTargetIdOrData && typeof sTargetIdOrData === "object" && sTargetIdOrData.entitlements) {
+            if (sTargetIdOrData && typeof sTargetIdOrData === "object" && Array.isArray(sTargetIdOrData.entitlements) && sTargetIdOrData.entitlements.length > 0) {
                 oData = sTargetIdOrData;
             } else {
                 const aProcessed = oModel.getProperty("/processedRequests") || [];
-                const sTarget = String(sTargetIdOrData || "").trim().toLowerCase();
-                oData = aProcessed.find(g => {
-                    if (!g) return false;
-                    if ((g.requestId || "").toLowerCase() === sTarget) return true;
-                    if ((g.requesterId || "").toLowerCase() === sTarget) return true;
-                    if (g.entitlements && g.entitlements.some(e => (e.requestId || "").toLowerCase() === sTarget)) return true;
-                    return false;
-                });
+                const sTarget = (typeof sTargetIdOrData === "string" ? sTargetIdOrData : (sTargetIdOrData && (sTargetIdOrData.requestId || sTargetIdOrData.request_number || sTargetIdOrData.requestNumber || "")) || "").trim().toLowerCase();
+                
+                if (sTarget) {
+                    oData = aProcessed.find(g => {
+                        if (!g) return false;
+                        if ((g.requestId || g.requestNumber || "").toLowerCase() === sTarget) return true;
+                        if (g.entitlements && g.entitlements.some(e => (e.requestId || e.requestNumber || "").toLowerCase() === sTarget)) return true;
+                        return false;
+                    });
+                }
+
+                if (!oData && sTarget) {
+                    const aHistory = oModel.getProperty("/requestHistory") || oModel.getProperty("/displayedHistoryRequests") || [];
+                    oData = aHistory.find(g => {
+                        if (!g) return false;
+                        if ((g.requestId || g.requestNumber || "").toLowerCase() === sTarget) return true;
+                        if (g.entitlements && g.entitlements.some(e => (e.requestId || e.requestNumber || "").toLowerCase() === sTarget)) return true;
+                        return false;
+                    });
+                }
+
+                if (!oData && sTargetIdOrData && typeof sTargetIdOrData === "object") {
+                    oData = {
+                        requestId: sTargetIdOrData.request_number || sTargetIdOrData.requestId || sTarget,
+                        requesterId: (sTargetIdOrData.requester_username || sTargetIdOrData.requesterId || "emp018").toLowerCase(),
+                        sector: sTargetIdOrData.business_sector || sTargetIdOrData.sector || "Information Technology & Security",
+                        function: sTargetIdOrData.business_function || sTargetIdOrData.function || "Corporate Governance",
+                        entitlements: [{
+                            requestId: sTargetIdOrData.request_number || sTargetIdOrData.requestId || sTarget,
+                            system: sTargetIdOrData.target_system || sTargetIdOrData.system || "SAP System",
+                            roleName: sTargetIdOrData.role_name || sTargetIdOrData.roleName || "Corporate Role",
+                            status: (sTargetIdOrData.approver_status || sTargetIdOrData.compliance_status || sTargetIdOrData.status || "Approved"),
+                            statusState: ((sTargetIdOrData.approver_status || sTargetIdOrData.compliance_status || "").toUpperCase() === "REJECTED") ? "Error" : "Success",
+                            statusIcon: ((sTargetIdOrData.approver_status || sTargetIdOrData.compliance_status || "").toUpperCase() === "REJECTED") ? "sap-icon://error" : "sap-icon://sys-enter-2",
+                            grantedDate: sTargetIdOrData.created_at ? sTargetIdOrData.created_at.split("T")[0] : "",
+                            expiryDate: sTargetIdOrData.access_duration || "Permanent"
+                        }]
+                    };
+                }
+
+                if (!oData && aProcessed.length > 0) {
+                    oData = aProcessed[0];
+                }
             }
 
             oModel.setProperty("/showApprovalHistory", true);

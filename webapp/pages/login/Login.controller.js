@@ -331,17 +331,25 @@ sap.ui.define([
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
-                AuthManager.setSession(sUserId, sEffectiveTitle, userUuid, null, bRemember);
-                sessionStorage.setItem("kyra_active_user", sUserId);
+                const sCanonicalUser = (oResult && (oResult.userId || oResult.username)) ? (oResult.userId || oResult.username) : sUserId.toLowerCase();
+
+                AuthManager.setSession(sCanonicalUser, sEffectiveTitle, userUuid, null, bRemember);
+                sessionStorage.setItem("kyra_active_user", sCanonicalUser);
+                sessionStorage.setItem("kyra_user_id", sCanonicalUser);
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
                 sessionStorage.setItem("kyra_active_role", sEffectiveTitle);
+
+                if (bRemember) {
+                    localStorage.setItem("kyra_remember_id", sCanonicalUser);
+                }
 
                 const bIsApprover = (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance") || sEffectiveTitle.toLowerCase().includes("admin"))));
                 const isCompliance = typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance");
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
-                    oAccessModel.setProperty("/activeUser", sUserId);
+                    oAccessModel.setProperty("/activeUser", sCanonicalUser);
+                    oAccessModel.setProperty("/userId", sCanonicalUser);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
@@ -351,7 +359,7 @@ sap.ui.define([
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }
 
-                MessageToast.show("Login successful! Welcome back, " + sUserId);
+                MessageToast.show("Login successful! Welcome back, " + sCanonicalUser);
 
                 // 1. Router Navigation to AccessPage Dashboard
                 try {
