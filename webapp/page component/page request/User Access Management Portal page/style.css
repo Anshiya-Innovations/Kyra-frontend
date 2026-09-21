@@ -2122,15 +2122,15 @@ html body .fioriFloatingHeader .sapFAvatar .sapFAvatarIcon {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    box-shadow: 0 4px 10px rgba(0, 140, 156, 0.4), 0 0 0 4px rgba(0, 140, 156, 0.15) !important;
-    transition: all 0.15s ease-out !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
+    transition: all 0.18s ease-out !important;
 }
 
 .map-pin-container:hover .map-pin,
 .map-pin-container.active .map-pin {
     background: #008C9C !important;
-    transform: scale(1.15) !important;
-    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.45), 0 0 0 5px rgba(5, 150, 105, 0.2) !important;
+    transform: none !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.5) !important;
 }
 
 .map-pin svg {
@@ -2156,9 +2156,9 @@ html body .fioriFloatingHeader .sapFAvatar .sapFAvatarIcon {
     font-size: 11px !important;
     font-weight: 700 !important;
     color: #1E293B !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
     pointer-events: none !important;
-    transition: all 0.15s ease-out !important;
+    transition: all 0.18s ease-out !important;
 }
 
 .map-pin-container:hover .pin-label,
@@ -2166,8 +2166,8 @@ html body .fioriFloatingHeader .sapFAvatar .sapFAvatarIcon {
     background: #008C9C !important;
     border-color: #007684 !important;
     color: #FFFFFF !important;
-    font-weight: 800 !important;
-    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 3px 10px rgba(0, 140, 156, 0.35) !important;
     transform: none !important;
 }
 
@@ -3114,6 +3114,12 @@ html body #inPageJustificationArea {
     display: block !important;
     overflow: visible !important;
     box-sizing: border-box !important;
+    cursor: text !important;
+}
+
+#inPageJustificationArea *,
+.kyraJustificationTextArea * {
+    cursor: text !important;
 }
 
 .kyraJustificationTextArea:hover,
@@ -3127,6 +3133,7 @@ html body #inPageJustificationArea {
     border-color: transparent !important;
     box-shadow: none !important;
     outline: none !important;
+    cursor: text !important;
 }
 
 /* Ensure NO inner nested box inside textareas: strip inner wrapper borders, background and height */
@@ -3153,7 +3160,10 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMInputBaseContent
     outline: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    cursor: text !important;
+    box-sizing: border-box !important;
 }
 
 .sapMTextArea .sapMInputBaseContentWrapper:hover,
@@ -3180,6 +3190,7 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMInputBaseContent
     outline: none !important;
     background: transparent !important;
     background-color: transparent !important;
+    cursor: text !important;
 }
 
 /* Pseudo-elements cleanup in Horizon theme */
@@ -3231,6 +3242,8 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMTextAreaInner {
     -ms-overflow-style: none !important;
     box-sizing: border-box !important;
     overflow-y: auto !important;
+    cursor: text !important;
+    display: block !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
@@ -12526,8 +12539,11 @@ textarea.sapMInputBaseInner,
     border-radius: 10px !important;
     border: 1.5px solid #CBD5E1 !important;
     background: #ffffff !important;
-    z-index: 100000 !important;
+    z-index: 2000000 !important;
     box-sizing: border-box !important;
+    min-width: 220px !important;
+    display: block !important;
+    visibility: visible !important;
 }
 
 /* Remove arrow indicator completely for clean downward-attached dropdown appearance */
@@ -12550,6 +12566,10 @@ textarea.sapMInputBaseInner,
     overflow-x: hidden !important;
     box-sizing: border-box !important;
     border-radius: 9px !important;
+    height: auto !important;
+    max-height: 320px !important;
+    display: block !important;
+    visibility: visible !important;
 }
 
 .kyraDropdownBottomOnly .sapMPopoverScroll,
@@ -12559,9 +12579,12 @@ textarea.sapMInputBaseInner,
 .sapMSltPicker .sapMPopoverScroll {
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    max-height: 320px !important;
+    max-height: 300px !important;
+    height: auto !important;
     scrollbar-width: thin !important;
     box-sizing: border-box !important;
+    display: block !important;
+    visibility: visible !important;
 }
 
 /* Inner list items: clean padding, full-width, no text wrapping or horizontal overflow */
@@ -17735,6 +17758,18 @@ html body .kyra-entitlement-summary-card.kyra-card-rejected:hover::before {
     margin: 2px 0 0 0 !important;
 }
 
+.kyra-card-service-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+    margin: 1px 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+
 .kyra-card-status-pill {
     padding: 4px 11px !important;
     border-radius: 20px !important;
@@ -19929,8 +19964,8 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 3.5px rgba(1, 195, 208, 0.8) !important;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25) !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     box-sizing: border-box !important;
 }
 
@@ -19941,7 +19976,7 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     fill: #FFFFFF !important;
     color: #FFFFFF !important;
     transform: none !important;
-    transition: transform 0.22s ease !important;
+    transition: none !important;
 }
 
 /* Pin Label Badge: Pure White Background, Kyra Teal Border, High Contrast Dark Text */
@@ -19955,40 +19990,40 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     border: 1.5px solid #008C9C !important;
-    padding: 5px 13px !important;
+    padding: 4px 12px !important;
     border-radius: 8px !important;
     white-space: nowrap !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    font-size: 12px !important;
+    font-size: 11.5px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
     letter-spacing: -0.01em !important;
     line-height: 1.2 !important;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22), 0 1px 3px rgba(0, 140, 156, 0.18) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     pointer-events: none !important;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     box-sizing: border-box !important;
 }
 
 /* -------------------------------------------------------------------------
-   3. HOVER TIME (HOVER OVER UNSELECTED PIN) - ELECTRIC CYAN PIN & SOLID TEAL BADGE
+   3. HOVER TIME (HOVER OVER UNSELECTED PIN) - CRISP TEAL PIN & SOLID TEAL BADGE
    ------------------------------------------------------------------------- */
 
 .map-pin-container:not(.active):hover {
-    transform: translate(-50%, -6px) scale(1.1) !important;
+    transform: translate(-50%, -3px) !important;
     z-index: 30 !important;
 }
 
 .map-pin-container:not(.active):hover .map-pin {
-    background: #01C3D0 !important;
-    background-color: #01C3D0 !important;
-    border-color: #FFFFFF !important;
-    transform: scale(1.15) !important;
-    box-shadow: 0 8px 24px rgba(1, 195, 208, 0.85), 0 0 0 6px rgba(1, 195, 208, 0.5) !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 2.5px solid #FFFFFF !important;
+    transform: none !important;
+    box-shadow: 0 6px 16px rgba(0, 140, 156, 0.45) !important;
 }
 
 .map-pin-container:not(.active):hover .map-pin svg {
-    transform: scale(1.12) !important;
+    transform: none !important;
     fill: #FFFFFF !important;
 }
 
@@ -19997,12 +20032,12 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     background-color: #008C9C !important;
     border-color: #007684 !important;
     color: #FFFFFF !important;
-    font-weight: 800 !important;
-    box-shadow: 0 6px 20px rgba(0, 140, 156, 0.5), 0 1px 4px rgba(0, 140, 156, 0.3) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
 }
 
 /* -------------------------------------------------------------------------
-   4. ACTIVE / SELECTED STATE (SELECTED REGION PIN) - SOLID TEAL WITH VIBRANT CYAN HALO
+   4. ACTIVE / SELECTED STATE (SELECTED REGION PIN) - SOLID TEAL WITH CRISP FOCUS RING
    ------------------------------------------------------------------------- */
 
 .map-pin-container.active {
@@ -20012,9 +20047,9 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
 .map-pin-container.active .map-pin {
     background: #008C9C !important;
     background-color: #008C9C !important;
-    border-color: #FFFFFF !important;
-    transform: scale(1.12) !important;
-    box-shadow: 0 6px 20px rgba(0, 140, 156, 0.7), 0 0 0 6px rgba(1, 195, 208, 0.6) !important;
+    border: 2.5px solid #FFFFFF !important;
+    transform: none !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.5), 0 0 0 3px rgba(0, 140, 156, 0.25) !important;
 }
 
 .map-pin-container.active .pin-label {
@@ -20022,24 +20057,25 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     background-color: #008C9C !important;
     border-color: #005F6B !important;
     color: #FFFFFF !important;
-    font-weight: 800 !important;
-    box-shadow: 0 4px 16px rgba(0, 140, 156, 0.5), 0 1px 4px rgba(0, 140, 156, 0.25) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 3px 10px rgba(0, 140, 156, 0.35) !important;
 }
 
 /* -------------------------------------------------------------------------
-   5. HOVER TIME OVER ACTIVE / SELECTED PIN - DEEPER LIFT & ELECTRIC CYAN GLOW
+   5. HOVER TIME OVER ACTIVE / SELECTED PIN
    ------------------------------------------------------------------------- */
 
 .map-pin-container.active:hover {
-    transform: translate(-50%, -7px) scale(1.14) !important;
+    transform: translate(-50%, -3px) !important;
     z-index: 35 !important;
 }
 
 .map-pin-container.active:hover .map-pin {
-    background: #01C3D0 !important;
-    background-color: #01C3D0 !important;
-    transform: scale(1.2) !important;
-    box-shadow: 0 8px 28px rgba(1, 195, 208, 0.95), 0 0 0 8px rgba(1, 195, 208, 0.55) !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 2.5px solid #FFFFFF !important;
+    transform: none !important;
+    box-shadow: 0 6px 18px rgba(0, 140, 156, 0.6), 0 0 0 3px rgba(0, 140, 156, 0.3) !important;
 }
 
 .map-pin-container.active:hover .pin-label {
@@ -20047,8 +20083,8 @@ li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     background-color: #007684 !important;
     border-color: #005F6B !important;
     color: #FFFFFF !important;
-    font-weight: 800 !important;
-    box-shadow: 0 6px 22px rgba(0, 140, 156, 0.6) !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.45) !important;
 }
 
 /* -------------------------------------------------------------------------

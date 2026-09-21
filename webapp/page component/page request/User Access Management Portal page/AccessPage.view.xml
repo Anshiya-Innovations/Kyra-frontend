@@ -278,24 +278,32 @@
                         fixedLayout="true"
                         class="sapUiNoMargin kyraHistoryTable">
                         <columns>
-                            <Column width="12%" hAlign="Center"><Text text="REQUEST ID" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="7%" hAlign="Center"><Text text="TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="14.5%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="13.5%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="13.5%" hAlign="Center"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="14.5%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="8.5%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="8.5%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="16%" hAlign="Center"><Text text="REQUEST / TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="13%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="13%" hAlign="Center"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow kyraPendingTableRow">
                                 <cells>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{accessModel>requestId}" wrapping="true" class="kyraReqIdCell kyraCellTextCenter kyraPendingReqId" />
-                                    </HBox>
-                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? 'Revoke' : 'Addition' }" class="kyraCellTextCenter kyraTypeCell" />
+                                        <VBox alignItems="Center" justifyContent="Center" class="kyraReqIdTypeCell">
+                                            <Text text="{accessModel>requestId}" wrapping="false" class="kyraPendingReqIdText kyraCellTextCenter" />
+                                            <HBox visible="{= ${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation} }"
+                                                  alignItems="Center" justifyContent="Center" class="kyraTypePill kyraTypePillRevoke">
+                                                <core:Icon src="sap-icon://delete" size="10px" color="#BE123C" class="kyraTypePillIcon" />
+                                                <Text text="Revoke" wrapping="false" class="kyraTypePillText" />
+                                            </HBox>
+                                            <HBox visible="{= !(${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) }"
+                                                  alignItems="Center" justifyContent="Center" class="kyraTypePill kyraTypePillAddition">
+                                                <core:Icon src="sap-icon://add" size="10px" color="#047857" class="kyraTypePillIcon" />
+                                                <Text text="Addition" wrapping="false" class="kyraTypePillText" />
+                                            </HBox>
+                                        </VBox>
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{accessModel>system}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
@@ -486,61 +494,6 @@
                     </VBox>
                 </HBox>
 
-                <!-- IN-PAGE APPROVED SYSTEM ENTITLEMENTS CARDS (Toggled by Approved Card Click - Only on My Access Tab) -->
-                <VBox id="approvedSectionContainer"
-                    visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showApprovedSection} }"
-                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
-                    <!-- Section Header -->
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
-                            <Avatar src="sap-icon://sys-enter-2" class="kyraCardAvatarGreen fioriCardAvatar" displaySize="S" />
-                            <VBox class="kyraCardHeaderTextCol">
-                                <Title text="{= 'Approved System Entitlements (' + (${accessModel>/requestHistory} ? (${accessModel>/requestHistory}.filter(function(r){return r.status === 'Approved';}).length) : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
-                                <Text text="All approved access entitlements with assigned team and persona roles." class="fioriDescriptionText" />
-                            </VBox>
-                        </HBox>
-                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseApprovedSection" tooltip="Close Section" class="kyraCloseIconBtn" />
-                    </HBox>
-
-                    <!-- Approved Entitlement Cards List -->
-                    <List
-                        id="approvedEntitlementsCardList"
-                        items="{path: 'accessModel>/requestHistory', filters: [{path: 'status', operator: 'EQ', value1: 'Approved'}]}"
-                        noDataText="No approved entitlements found."
-                        showSeparators="None"
-                        class="sapUiNoMargin kyraApprovedEntitlementsList">
-                        <CustomListItem type="Inactive" class="kyraApprovedEntitlementCard sapUiSmallMarginBottom">
-                            <VBox class="kyraApprovedCardInner">
-                                <!-- Top Row: System chip + Request ID chip -->
-                                <HBox alignItems="Center" class="kyraApprovedCardChipRow sapUiTinyMarginBottom">
-                                    <HBox class="kyraApprovedSystemChip">
-                                        <Text text="{= ${accessModel>system} || 'SAP S/4HANA Enterprise' }" class="kyraApprovedSystemChipText" />
-                                    </HBox>
-                                    <HBox class="kyraApprovedReqIdChip sapUiTinyMarginBegin">
-                                        <Text text="{accessModel>requestId}" class="kyraApprovedReqIdChipText" />
-                                    </HBox>
-                                </HBox>
-                                <!-- Middle Row: Role title (bold) + Approved badge -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraApprovedCardMainRow">
-                                    <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || ${accessModel>services} || 'Access Role' }" class="kyraApprovedRoleTitle" />
-                                    <HBox class="kyraApprovedStatusPill" alignItems="Center">
-                                        <core:Icon src="sap-icon://sys-enter-2" class="kyraApprovedStatusIcon" />
-                                        <Text text="Approved" class="kyraApprovedStatusText" />
-                                    </HBox>
-                                </HBox>
-                                <!-- Bottom Row: Team: X • Persona: Y -->
-                                <HBox alignItems="Center" class="kyraApprovedCardSubRow sapUiTinyMarginTop">
-                                    <Text text="Team:" class="kyraApprovedSubLabel" />
-                                    <Text text="{= ${accessModel>teamRole} || ${accessModel>roleName} || ${accessModel>team} || '' }" class="kyraApprovedSubValue" />
-                                    <Text text=" • " class="kyraApprovedSubDot" />
-                                    <Text text="Persona:" class="kyraApprovedSubLabel" />
-                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || '' }" class="kyraApprovedSubValue" />
-                                </HBox>
-                            </VBox>
-                        </CustomListItem>
-                    </List>
-                </VBox>
-
                 <!-- IN-PAGE PENDING ACCESS REQUESTS TABLE (Toggled by Card 1 Click - Only on My Access Tab) -->
                 <VBox id="pendingSectionContainer"
                     visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showPendingSection} }"
@@ -563,24 +516,32 @@
                         noDataText="No pending access requests at this time."
                         class="sapUiNoMargin kyraHistoryTable kyraPendingRequestsTable">
                         <columns>
-                            <Column width="12%" hAlign="Center"><Text text="REQUEST ID" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="7%" hAlign="Center"><Text text="TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="14.5%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="13.5%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="13.5%" hAlign="Center"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="14.5%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="8.5%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
-                            <Column width="8.5%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="16%" hAlign="Center"><Text text="REQUEST / TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="13%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="13%" hAlign="Center"><Text text="TEAM / ROLE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="DURATION" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="SUBMITTED" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
+                            <Column width="10%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onOpenPendingRequestDetails" class="kyraClickableTableRow kyraPendingTableRow">
                                 <cells>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{accessModel>requestId}" wrapping="true" class="kyraReqIdCell kyraCellTextCenter kyraPendingReqId" />
-                                    </HBox>
-                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{= (${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) ? 'Revoke' : 'Addition' }" class="kyraCellTextCenter kyraTypeCell" />
+                                        <VBox alignItems="Center" justifyContent="Center" class="kyraReqIdTypeCell">
+                                            <Text text="{accessModel>requestId}" wrapping="false" class="kyraPendingReqIdText kyraCellTextCenter" />
+                                            <HBox visible="{= ${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation} }"
+                                                  alignItems="Center" justifyContent="Center" class="kyraTypePill kyraTypePillRevoke">
+                                                <core:Icon src="sap-icon://delete" size="10px" color="#BE123C" class="kyraTypePillIcon" />
+                                                <Text text="Revoke" wrapping="false" class="kyraTypePillText" />
+                                            </HBox>
+                                            <HBox visible="{= !(${accessModel>type} === 'REVOCATION' || ${accessModel>type} === 'Revocation' || ${accessModel>type} === 'Revoke' || ${accessModel>accessType} === 'REVOCATION' || ${accessModel>requestType} === 'Revoke' || ${accessModel>requestType} === 'Revocation' || ${accessModel>isRevocation}) }"
+                                                  alignItems="Center" justifyContent="Center" class="kyraTypePill kyraTypePillAddition">
+                                                <core:Icon src="sap-icon://add" size="10px" color="#047857" class="kyraTypePillIcon" />
+                                                <Text text="Addition" wrapping="false" class="kyraTypePillText" />
+                                            </HBox>
+                                        </VBox>
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{accessModel>system}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
@@ -928,7 +889,7 @@
                             </form:SimpleForm>
 
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                            <VBox visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                            <VBox id="targetSystemSlideCard" visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">
@@ -1037,16 +998,22 @@
                         <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
                             <form:SimpleForm
                                 editable="true"
-                                layout="ColumnLayout"
-                                columnsM="2"
-                                columnsL="2"
-                                singleContainerFullWidth="false"
-                                class="sapUiSmallMarginBottom">
+                                layout="ResponsiveGridLayout"
+                                labelSpanXL="12"
+                                labelSpanL="12"
+                                labelSpanM="12"
+                                labelSpanS="12"
+                                adjustLabelSpan="false"
+                                columnsXL="1"
+                                columnsL="1"
+                                columnsM="1"
+                                singleContainerFullWidth="true"
+                                class="sapUiSmallMarginBottom kyraJustificationForm">
                                 <form:content>
                                     <core:Title text="Access Duration &amp; Business Justification" />
                                     
                                     <!-- SUB-STEP 3.2 - FIELD 1: DURATION -->
-                                    <Label text="Access Duration" required="true" />
+                                    <Label text="Access Duration" required="true" labelFor="inPageDurationSelect" class="kyraFieldLabel" />
                                     <ComboBox
                                         id="inPageDurationSelect"
                                         selectionChange=".onInPageDurationChange"
@@ -1061,13 +1028,13 @@
                                     </ComboBox>
 
                                     <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
-                                    <Label text="Business Justification" required="true" class="kyraJustificationLabel" />
+                                    <Label text="Business Justification" required="true" labelFor="inPageJustificationArea" class="kyraJustificationLabel" />
                                     <TextArea
                                         id="inPageJustificationArea"
                                         value="{accessModel>/addAccessJustification}"
                                         valueLiveUpdate="true"
                                         placeholder="Provide detailed business justification for requesting these system permissions..."
-                                        rows="3"
+                                        rows="4"
                                         growing="false"
                                         width="100%"
                                         class="kyraJustificationTextArea" />

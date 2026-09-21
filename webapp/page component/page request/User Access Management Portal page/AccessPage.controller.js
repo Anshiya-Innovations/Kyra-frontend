@@ -871,6 +871,11 @@ sap.ui.define([
                 const isCompliancePersona = sRoleLower.includes("compliance");
                 const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
                 const isReviewerRole = bIsApprover || isCompliancePersona;
+
+                // ── Reset ALL page/section UI state to clean defaults ──────────────
+                const sPrevUser = oModel.getProperty("/activeUser") || "";
+                const bUserChanged = sPrevUser && sPrevUser !== sActiveUser;
+
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/userId", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
@@ -879,6 +884,52 @@ sap.ui.define([
                 oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
                 oModel.setProperty("/isCompliancePersona", isCompliancePersona);
                 oModel.setProperty("/isReviewerRole", isReviewerRole);
+
+                // Always reset ALL section visibility flags so previous user's open
+                // panels never show up for a newly logged-in user
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
+                oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showHelpPage", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/selectedTabKey", "myAccess");
+                oModel.setProperty("/selectedRequestDetail", {});
+                oModel.setProperty("/approverPendingTab", "accessRequests");
+
+                // Clear in-memory revocation state when user changes
+                if (bUserChanged) {
+                    this._localInFlightRevocations = {};
+                    this._aSelectedRegionIds = [];
+                    oModel.setProperty("/addAccessSummaryItems", []);
+                    oModel.setProperty("/addAccessSystemSlideConfigs", {});
+                    oModel.setProperty("/addAccessStep", 1);
+                    oModel.setProperty("/selectedSector", "");
+                    oModel.setProperty("/selectedFunction", "");
+                    oModel.setProperty("/addAccessRegion", "");
+                    oModel.setProperty("/mapSelectedRegions", []);
+                    oModel.setProperty("/addAccessSelectedSystems", []);
+                    oModel.setProperty("/addAccessSelectedPersonas", []);
+                    oModel.setProperty("/activeSodConflictsList", []);
+                    oModel.setProperty("/pendingOnlySodConflictsList", []);
+                    oModel.setProperty("/batchSodConflictsList", []);
+                    oModel.setProperty("/myPendingRequests", []);
+                    oModel.setProperty("/myApprovedRequests", []);
+                    oModel.setProperty("/myHistoryRequests", []);
+                    oModel.setProperty("/requestHistory", []);
+                    oModel.setProperty("/activeRoles", []);
+                    oModel.setProperty("/userAccessList", []);
+                    oModel.setProperty("/allSubmittedRequests", []);
+                    oModel.setProperty("/filteredNotificationsList", []);
+                    oModel.setProperty("/myNotificationsCount", 0);
+                    oModel.setProperty("/myUnreadNotificationsCount", 0);
+                    oModel.setProperty("/usersNotificationsCount", 0);
+                    oModel.setProperty("/currentScopeAllCount", 0);
+                    oModel.setProperty("/currentScopeUnreadCount", 0);
+                }
+
                 if (isCompliancePersona) {
                     oModel.setProperty("/approverPendingTab", "accessRequests");
                 }
@@ -916,6 +967,7 @@ sap.ui.define([
                 }
             }
         },
+
 
                 _deriveCleanTeamName(oItem) {
             if (!oItem) return "Enterprise Security";
@@ -3998,16 +4050,37 @@ sap.ui.define([
             const oArrowPending = this.byId("arrowPendingRequests");
             if (oArrowPending) {
                 oArrowPending.setSrc(bPending ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                const oDom = oArrowPending.getDomRef();
+                if (oDom) {
+                    const oParent = oDom.closest(".kyraCardCircleArrow");
+                    if (oParent) {
+                        oParent.setAttribute("data-expanded", bPending ? "true" : "false");
+                    }
+                }
             }
 
             const oArrowAdd = this.byId("arrowAddAccess");
             if (oArrowAdd) {
                 oArrowAdd.setSrc(bAdd ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                const oDom = oArrowAdd.getDomRef();
+                if (oDom) {
+                    const oParent = oDom.closest(".kyraCardCircleArrow");
+                    if (oParent) {
+                        oParent.setAttribute("data-expanded", bAdd ? "true" : "false");
+                    }
+                }
             }
 
             const oArrowRemove = this.byId("arrowRemoveAccess");
             if (oArrowRemove) {
                 oArrowRemove.setSrc(bRemove ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                const oDom = oArrowRemove.getDomRef();
+                if (oDom) {
+                    const oParent = oDom.closest(".kyraCardCircleArrow");
+                    if (oParent) {
+                        oParent.setAttribute("data-expanded", bRemove ? "true" : "false");
+                    }
+                }
             }
         },
 
@@ -6332,17 +6405,28 @@ sap.ui.define([
                 }
             }
 
-            // Note: Keep Add Access wizard box open and stable in the background
-            // so the submission notification modal shows cleanly without snapping the layout shut.
+            // After submit: close wizard and navigate to User Requests (pending) section
             const fnDismissSubmitDialog = () => {
                 this._resetAddAccessState();
+                // Navigate to User Requests (myRequests) tab with pending section visible
+                oModel.setProperty("/selectedTabKey", "myRequests");
+                oModel.setProperty("/showPendingSection", true);
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showAllNotificationsPage", false);
+                oModel.setProperty("/showHelpPage", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
                 this._updateActionCardArrows(oModel);
-                const oPage = this.byId("accessPortalPage");
-                if (oPage && typeof oPage.scrollTo === "function") {
-                    oPage.scrollTo(0, 400);
-                } else {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                }
+                // Scroll to top of page so user sees the pending requests table
+                setTimeout(() => {
+                    const oPage = this.byId("accessPortalPage");
+                    if (oPage && typeof oPage.scrollTo === "function") {
+                        oPage.scrollTo(0, 0);
+                    } else {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                }, 100);
             };
 
             let sPopupHtml = `
@@ -6638,9 +6722,10 @@ sap.ui.define([
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
-                    const bCurr = oModel.getProperty("/showPendingSection");
+                    const bCurr = !!oModel.getProperty("/showPendingSection");
                     if (bCurr) {
-                        this._smoothScrollTo("pendingSectionContainer", 64);
+                        oModel.setProperty("/showPendingSection", false);
+                        this._updateActionCardArrows(oModel);
                         return;
                     }
                     oModel.setProperty("/showPendingSection", true);
@@ -6650,9 +6735,19 @@ sap.ui.define([
                     oModel.setProperty("/showRequestDetailsPage", false);
                     this._updateActionCardArrows(oModel);
                     
-                    this._smoothScrollTo("pendingSectionContainer", 64);
+                    setTimeout(() => {
+                        this._smoothScrollTo("pendingSectionContainer", 64);
+                    }, 50);
                 }
             });
+        },
+
+        onClosePendingSection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/showPendingSection", false);
+                this._updateActionCardArrows(oModel);
+            }
         },
 
         onNavToApprovedRequests() {
@@ -8904,16 +8999,24 @@ sap.ui.define([
                 oAccessModel.setProperty("/activeUser", "");
                 oAccessModel.setProperty("/activeRole", "Requester");
                 oAccessModel.setProperty("/isApproverPersona", false);
+                oAccessModel.setProperty("/isAuthenticated", false);
                 oAccessModel.setProperty("/showAddAccessSector", false);
                 oAccessModel.setProperty("/showRemoveAccessSector", false);
                 oAccessModel.setProperty("/showMyAccessMasterSection", false);
                 oAccessModel.setProperty("/showPendingSection", false);
                 oAccessModel.setProperty("/showApprovedSection", false);
+                oAccessModel.setProperty("/showAllNotificationsPage", false);
+                oAccessModel.setProperty("/showHelpPage", false);
+                oAccessModel.setProperty("/showRequestDetailsPage", false);
                 oAccessModel.setProperty("/selectedTabKey", "myAccess");
+                oAccessModel.setProperty("/approverPendingTab", "accessRequests");
+                oAccessModel.setProperty("/showApprovalHistory", false);
+                oAccessModel.setProperty("/selectedRequestDetail", {});
                 oAccessModel.setProperty("/activeRoles", []);
                 oAccessModel.setProperty("/userAccessList", []);
                 oAccessModel.setProperty("/myApprovedRequests", []);
                 oAccessModel.setProperty("/myPendingRequests", []);
+                oAccessModel.setProperty("/myHistoryRequests", []);
                 oAccessModel.setProperty("/requestHistory", []);
                 oAccessModel.setProperty("/pendingRequests", []);
                 oAccessModel.setProperty("/pendingAccessRequests", []);
@@ -8926,9 +9029,29 @@ sap.ui.define([
                 oAccessModel.setProperty("/processedAccessCount", 0);
                 oAccessModel.setProperty("/processedRevokeCount", 0);
                 oAccessModel.setProperty("/processedCount", 0);
+                oAccessModel.setProperty("/allSubmittedRequests", []);
+                oAccessModel.setProperty("/filteredNotificationsList", []);
+                oAccessModel.setProperty("/myNotificationsCount", 0);
+                oAccessModel.setProperty("/myUnreadNotificationsCount", 0);
+                oAccessModel.setProperty("/usersNotificationsCount", 0);
+                oAccessModel.setProperty("/currentScopeAllCount", 0);
+                oAccessModel.setProperty("/currentScopeUnreadCount", 0);
                 oAccessModel.setProperty("/isCompliance", false);
                 oAccessModel.setProperty("/isComplianceReviewer", false);
                 oAccessModel.setProperty("/isCompliancePersona", false);
+                oAccessModel.setProperty("/addAccessSummaryItems", []);
+                oAccessModel.setProperty("/addAccessSystemSlideConfigs", {});
+                oAccessModel.setProperty("/addAccessStep", 1);
+                oAccessModel.setProperty("/selectedSector", "");
+                oAccessModel.setProperty("/selectedFunction", "");
+                oAccessModel.setProperty("/addAccessRegion", "");
+                oAccessModel.setProperty("/mapSelectedRegions", []);
+                oAccessModel.setProperty("/addAccessSelectedSystems", []);
+                oAccessModel.setProperty("/addAccessSelectedPersonas", []);
+                oAccessModel.setProperty("/activeSodConflictsList", []);
+                oAccessModel.setProperty("/pendingOnlySodConflictsList", []);
+                oAccessModel.setProperty("/batchSodConflictsList", []);
+                oAccessModel.setProperty("/restrictedRecords", []);
             }
 
             sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {

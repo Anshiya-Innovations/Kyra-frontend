@@ -79,6 +79,19 @@ sap.ui.define([
 
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
+
+            // Pre-load AccessPage during idle time so first login transition is instantaneous
+            setTimeout(() => {
+                try {
+                    sap.ui.require(["kyra001/pages/access/AccessPage.controller"]);
+                    if (oRouter && oRouter.getTargets && typeof oRouter.getTargets().getTarget === "function") {
+                        const oTarget = oRouter.getTargets().getTarget("TargetAccessPage");
+                        if (oTarget && typeof oTarget._load === "function") {
+                            oTarget._load();
+                        }
+                    }
+                } catch(e) {}
+            }, 500);
         },
 
         onAfterRendering() {
@@ -151,6 +164,9 @@ sap.ui.define([
                     } catch(e) {}
                 }
                 oRouter.navTo("AccessPage", {}, true);
+                if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                    oRouter.getTargets().display("TargetAccessPage");
+                }
                 return;
             }
 
@@ -323,10 +339,11 @@ sap.ui.define([
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records..."
+                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        duration: 15000
                     });
                 } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...");
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
                 }
                 oModel.setProperty("/isBusy", false);
 
@@ -348,9 +365,57 @@ sap.ui.define([
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
+                    // ── Full reset of ALL state properties from previous session ────────
+                    oAccessModel.setProperty("/pendingRequests", []);
+                    oAccessModel.setProperty("/processedRequests", []);
+                    oAccessModel.setProperty("/pendingAccessRequests", []);
+                    oAccessModel.setProperty("/pendingRevokeRequests", []);
+                    oAccessModel.setProperty("/activeRoles", []);
+                    oAccessModel.setProperty("/userAccessList", []);
+                    oAccessModel.setProperty("/myPendingRequests", []);
+                    oAccessModel.setProperty("/myApprovedRequests", []);
+                    oAccessModel.setProperty("/myHistoryRequests", []);
+                    oAccessModel.setProperty("/requestHistory", []);
+                    oAccessModel.setProperty("/allSubmittedRequests", []);
+                    oAccessModel.setProperty("/filteredNotificationsList", []);
+                    oAccessModel.setProperty("/activeSodConflictsList", []);
+                    oAccessModel.setProperty("/pendingOnlySodConflictsList", []);
+                    oAccessModel.setProperty("/batchSodConflictsList", []);
+                    oAccessModel.setProperty("/restrictedRecords", []);
+                    oAccessModel.setProperty("/addAccessSummaryItems", []);
+                    oAccessModel.setProperty("/addAccessSystemSlideConfigs", {});
+                    oAccessModel.setProperty("/addAccessStep", 1);
+                    oAccessModel.setProperty("/selectedSector", "");
+                    oAccessModel.setProperty("/selectedFunction", "");
+                    oAccessModel.setProperty("/addAccessRegion", "");
+                    oAccessModel.setProperty("/mapSelectedRegions", []);
+                    oAccessModel.setProperty("/addAccessSelectedSystems", []);
+                    oAccessModel.setProperty("/addAccessSelectedPersonas", []);
+                    oAccessModel.setProperty("/showAddAccessSector", false);
+                    oAccessModel.setProperty("/showRemoveAccessSector", false);
+                    oAccessModel.setProperty("/showMyAccessMasterSection", false);
+                    oAccessModel.setProperty("/showPendingSection", false);
+                    oAccessModel.setProperty("/showApprovedSection", false);
+                    oAccessModel.setProperty("/showAllNotificationsPage", false);
+                    oAccessModel.setProperty("/showHelpPage", false);
+                    oAccessModel.setProperty("/showRequestDetailsPage", false);
+                    oAccessModel.setProperty("/selectedTabKey", "myAccess");
+                    oAccessModel.setProperty("/selectedRequestDetail", {});
+                    oAccessModel.setProperty("/pendingAccessCount", 0);
+                    oAccessModel.setProperty("/pendingRevokeCount", 0);
+                    oAccessModel.setProperty("/processedAccessCount", 0);
+                    oAccessModel.setProperty("/processedRevokeCount", 0);
+                    oAccessModel.setProperty("/processedCount", 0);
+                    oAccessModel.setProperty("/myNotificationsCount", 0);
+                    oAccessModel.setProperty("/myUnreadNotificationsCount", 0);
+                    oAccessModel.setProperty("/usersNotificationsCount", 0);
+                    oAccessModel.setProperty("/currentScopeAllCount", 0);
+                    oAccessModel.setProperty("/currentScopeUnreadCount", 0);
+                    // ── Set new user identity ────────────────────────────────────────────
                     oAccessModel.setProperty("/activeUser", sCanonicalUser);
                     oAccessModel.setProperty("/userId", sCanonicalUser);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
+                    oAccessModel.setProperty("/isAuthenticated", true);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
@@ -359,6 +424,7 @@ sap.ui.define([
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }
 
+
                 MessageToast.show("Login successful! Welcome back, " + sCanonicalUser);
 
                 // 1. Router Navigation to AccessPage Dashboard
@@ -366,9 +432,27 @@ sap.ui.define([
                     const oRouter = this.getOwnerComponent().getRouter();
                     if (oRouter) {
                         oRouter.navTo("AccessPage");
+                        if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                            oRouter.getTargets().display("TargetAccessPage");
+                        }
                     }
                 } catch(e) {
                     console.warn("Router navigation to AccessPage warning:", e);
+                }
+
+                // 2. Direct Container View Switching Fallback
+                try {
+                    const oApp = this.byId("app") || 
+                                 (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                    if (oApp) {
+                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                        if (oInnerApp && typeof oInnerApp.to === "function") {
+                            oInnerApp.to("AccessPage");
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Direct container fallback navigation error:", e);
                 }
             };
 

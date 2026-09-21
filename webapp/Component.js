@@ -65,10 +65,11 @@ sap.ui.define([
             });
             this.setModel(oGlobalAccessModel, "accessModel");
 
-            // Setup modern Loading Screen, Dialogs & Dropdown positioning/multi-select enhancements
+            // Setup modern Loading Screen, Dialogs, Dropdown enhancements & Textarea full-box clickability
             this._setupModernBusyIndicator();
             this._setupModernDialogs();
             this._setupDropdownPlacementEnhancement();
+            this._setupJustificationFieldEnhancement();
 
             // Enable routing with Route Guards & Session Persistence
             const oRouter = this.getRouter();
@@ -123,6 +124,31 @@ sap.ui.define([
                     window.KyraLoader.hide();
                 }
             }, 5000);
+        },
+
+        _setupJustificationFieldEnhancement() {
+            // Ensures 100% full-box clickability for Business Justification textarea:
+            // Clicking anywhere on the box (top, center, bottom empty space, borders, padding, wrapper, or label)
+            // immediately focuses the inner native textarea and positions the caret.
+            const handleJustificationFocus = (e) => {
+                const target = e.target;
+                if (!target) return;
+                const oBox = target.closest("#inPageJustificationArea, .kyraJustificationTextArea, .kyraJustificationLabel");
+                if (oBox) {
+                    let oTa = oBox.querySelector("textarea");
+                    if (!oTa) {
+                        oTa = document.querySelector("#inPageJustificationArea textarea, .kyraJustificationTextArea textarea");
+                    }
+                    if (oTa) {
+                        if (document.activeElement !== oTa) {
+                            oTa.focus();
+                        }
+                    }
+                }
+            };
+
+            document.addEventListener("mousedown", handleJustificationFocus, true);
+            document.addEventListener("click", handleJustificationFocus, true);
         },
 
         _setupDropdownPlacementEnhancement() {

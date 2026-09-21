@@ -365,9 +365,57 @@ sap.ui.define([
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
+                    // ── Full reset of ALL state properties from previous session ────────
+                    oAccessModel.setProperty("/pendingRequests", []);
+                    oAccessModel.setProperty("/processedRequests", []);
+                    oAccessModel.setProperty("/pendingAccessRequests", []);
+                    oAccessModel.setProperty("/pendingRevokeRequests", []);
+                    oAccessModel.setProperty("/activeRoles", []);
+                    oAccessModel.setProperty("/userAccessList", []);
+                    oAccessModel.setProperty("/myPendingRequests", []);
+                    oAccessModel.setProperty("/myApprovedRequests", []);
+                    oAccessModel.setProperty("/myHistoryRequests", []);
+                    oAccessModel.setProperty("/requestHistory", []);
+                    oAccessModel.setProperty("/allSubmittedRequests", []);
+                    oAccessModel.setProperty("/filteredNotificationsList", []);
+                    oAccessModel.setProperty("/activeSodConflictsList", []);
+                    oAccessModel.setProperty("/pendingOnlySodConflictsList", []);
+                    oAccessModel.setProperty("/batchSodConflictsList", []);
+                    oAccessModel.setProperty("/restrictedRecords", []);
+                    oAccessModel.setProperty("/addAccessSummaryItems", []);
+                    oAccessModel.setProperty("/addAccessSystemSlideConfigs", {});
+                    oAccessModel.setProperty("/addAccessStep", 1);
+                    oAccessModel.setProperty("/selectedSector", "");
+                    oAccessModel.setProperty("/selectedFunction", "");
+                    oAccessModel.setProperty("/addAccessRegion", "");
+                    oAccessModel.setProperty("/mapSelectedRegions", []);
+                    oAccessModel.setProperty("/addAccessSelectedSystems", []);
+                    oAccessModel.setProperty("/addAccessSelectedPersonas", []);
+                    oAccessModel.setProperty("/showAddAccessSector", false);
+                    oAccessModel.setProperty("/showRemoveAccessSector", false);
+                    oAccessModel.setProperty("/showMyAccessMasterSection", false);
+                    oAccessModel.setProperty("/showPendingSection", false);
+                    oAccessModel.setProperty("/showApprovedSection", false);
+                    oAccessModel.setProperty("/showAllNotificationsPage", false);
+                    oAccessModel.setProperty("/showHelpPage", false);
+                    oAccessModel.setProperty("/showRequestDetailsPage", false);
+                    oAccessModel.setProperty("/selectedTabKey", "myAccess");
+                    oAccessModel.setProperty("/selectedRequestDetail", {});
+                    oAccessModel.setProperty("/pendingAccessCount", 0);
+                    oAccessModel.setProperty("/pendingRevokeCount", 0);
+                    oAccessModel.setProperty("/processedAccessCount", 0);
+                    oAccessModel.setProperty("/processedRevokeCount", 0);
+                    oAccessModel.setProperty("/processedCount", 0);
+                    oAccessModel.setProperty("/myNotificationsCount", 0);
+                    oAccessModel.setProperty("/myUnreadNotificationsCount", 0);
+                    oAccessModel.setProperty("/usersNotificationsCount", 0);
+                    oAccessModel.setProperty("/currentScopeAllCount", 0);
+                    oAccessModel.setProperty("/currentScopeUnreadCount", 0);
+                    // ── Set new user identity ────────────────────────────────────────────
                     oAccessModel.setProperty("/activeUser", sCanonicalUser);
                     oAccessModel.setProperty("/userId", sCanonicalUser);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
+                    oAccessModel.setProperty("/isAuthenticated", true);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
@@ -375,6 +423,7 @@ sap.ui.define([
                     oAccessModel.setProperty("/approverPendingTab", "accessRequests");
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }
+
 
                 MessageToast.show("Login successful! Welcome back, " + sCanonicalUser);
 
