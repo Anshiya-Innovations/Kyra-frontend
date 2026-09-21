@@ -221,11 +221,11 @@ sap.ui.define([
                 mapRegionList: [
                     { id: "na", name: "North America", left: "21.5%", top: "32%" },
                     { id: "latam", name: "Latin America", left: "33%", top: "60%" },
-                    { id: "eu", name: "Europe", left: "51.5%", top: "29%" },
-                    { id: "me", name: "Middle East", left: "59.5%", top: "41%" },
-                    { id: "af", name: "Africa", left: "53.5%", top: "52%" },
-                    { id: "as", name: "Asia", left: "71.5%", top: "35%" },
-                    { id: "apac", name: "Oceania / Australia", left: "82%", top: "64%" }
+                    { id: "eu", name: "Europe", left: "50%", top: "26%" },
+                    { id: "me", name: "Middle East", left: "63%", top: "39%" },
+                    { id: "af", name: "Africa", left: "52%", top: "57%" },
+                    { id: "as", name: "Asia", left: "74%", top: "34%" },
+                    { id: "apac", name: "Oceania / Australia", left: "83%", top: "65%" }
                 ],
                 mapSelectedRegions: [],
                 hasMapRegionSelection: false,
@@ -304,6 +304,19 @@ sap.ui.define([
             if (oRouter && oRouter.getRoute("AccessPage")) {
                 oRouter.getRoute("AccessPage").attachPatternMatched(this._onRouteMatched, this);
             }
+            if (oRouter && typeof oRouter.getTargets === "function" && oRouter.getTargets()) {
+                const oTarget = oRouter.getTargets().getTarget("TargetAccessPage");
+                if (oTarget && typeof oTarget.attachDisplay === "function") {
+                    oTarget.attachDisplay(() => {
+                        this._onRouteMatched();
+                    });
+                }
+            }
+            this.getView().addEventDelegate({
+                onBeforeShow: () => {
+                    this._onRouteMatched();
+                }
+            });
 
             // Expose global Request Tracking handler for child components (e.g. Decision Breakdown Summary)
             window.openKyraRequestTracking = async (sReqId, oExtra) => {
@@ -341,7 +354,7 @@ sap.ui.define([
                             const data = JSON.parse(evt.data);
                             if (data.type === "NEW_REQUEST" || data.type === "DECISION_SUBMITTED" || data.type === "MUTATION") {
                                 console.log("Cross-network SSE real-time sync event:", data);
-                                this._loadSubmittedRequests(oModel);
+                                this._loadSubmittedRequests(oModel, true);
                             }
                         } catch(e) {}
                     };
@@ -355,7 +368,7 @@ sap.ui.define([
                     this._syncChannel.onmessage = (evt) => {
                         if (evt && evt.data && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED")) {
                             console.log("Real-time DB sync event received:", evt.data);
-                            this._loadSubmittedRequests(oModel);
+                            this._loadSubmittedRequests(oModel, true);
                         }
                     };
                 } catch(e) { console.warn("BroadcastChannel init error:", e); }
@@ -365,7 +378,7 @@ sap.ui.define([
             if (!this._fnStorageHandler) {
                 this._fnStorageHandler = (e) => {
                     if (e.key === "kyra_last_db_mutation") {
-                        this._loadSubmittedRequests(oModel);
+                        this._loadSubmittedRequests(oModel, true);
                     }
                 };
                 window.addEventListener("storage", this._fnStorageHandler);
@@ -375,7 +388,7 @@ sap.ui.define([
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
                     if (!document.hidden) {
-                        this._loadSubmittedRequests(oModel);
+                        this._loadSubmittedRequests(oModel, true);
                     }
                 };
                 document.addEventListener("visibilitychange", this._fnVisibilityHandler);
@@ -390,7 +403,7 @@ sap.ui.define([
                     if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
                         const oM = this.getView().getModel("accessModel");
                         if (oM && !oM.getProperty("/showRequestDetailsPage")) {
-                            this._loadSubmittedRequests(oM);
+                            this._loadSubmittedRequests(oM, true);
                         }
                     }
                 }, 10000);
@@ -1108,7 +1121,7 @@ sap.ui.define([
                                               sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
 
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER")) {
+                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || (isRevocation && sDbStatus.includes("PENDING")))) {
                         isPendingForRole = true;
                     } else if (isApproverDecided) {
                         isProcessedForRole = true;
@@ -1172,6 +1185,9 @@ sap.ui.define([
                             serviceTopic: sService,
                             submissionDate: sDate,
                             decisionDate: sDate,
+                            createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
                             status: isRevocation ? "Revoke Pending" : "Pending Approval",
                             statusState: isRevocation ? "Error" : "Warning",
                             statusIcon: "sap-icon://pending",
@@ -1221,6 +1237,9 @@ sap.ui.define([
                             serviceTopic: sService,
                             decisionDate: sDate,
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
                             _isPendingForRole: false,
                             entitlements: []
@@ -1277,9 +1296,26 @@ sap.ui.define([
         },
 
 
-        async _loadSubmittedRequests(oModel) {
+        async _loadSubmittedRequests(oModel, bSilent = false) {
             if (!oModel) return;
             if (oModel.getProperty("/showRequestDetailsPage")) return;
+
+            if (this._bIsLoadingRequests) {
+                return;
+            }
+            this._bIsLoadingRequests = true;
+
+            if (!bSilent) {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading KYRA Governance Dashboard...",
+                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        duration: 15000
+                    });
+                } else if (window.showKyraLoading) {
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
+                }
+            }
 
             localStorage.removeItem("kyra_submitted_my_pending");
             localStorage.removeItem("kyra_submitted_approver_requests");
@@ -1344,11 +1380,14 @@ sap.ui.define([
                 this._setSmartProperty(oModel, "/allPendingCount", 0);
                 this._setSmartProperty(oModel, "/allProcessedCount", 0);
                 this._updateCountBadges(oModel);
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
-                }
+                this._bIsLoadingRequests = false;
+                setTimeout(() => {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                }, 200);
                 return;
             }
 
@@ -1525,6 +1564,7 @@ sap.ui.define([
 
                     if (isOverallPending) {
                         aMyPending.push(oReqObj);
+                        aMyHistory.push(oReqObj);
                     } else if (isOverallApproved) {
                         if (isRevocationReq) {
                             oReqObj.status = "Revoked";
@@ -2016,12 +2056,15 @@ sap.ui.define([
             this._cachedDbRequests = aRawDbRequests;
             this._loadNotifications(oModel, aRawDbRequests);
 
-            // Gracefully dismiss loading slide overlay now that all data is fully populated
-            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                window.KyraLoader.hide();
-            } else if (window.hideKyraLoading) {
-                window.hideKyraLoading();
-            }
+            this._bIsLoadingRequests = false;
+            // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+            }, 200);
         },
 
         onRemoveAccessClick(oEvent) {
@@ -2090,9 +2133,14 @@ sap.ui.define([
                     this._localInFlightRevocations[sCacheKey] = oRevokeRecord;
                     this._localInFlightRevocations[(oData.system || "") + ":::" + sCleanRole] = oRevokeRecord;
                     try {
-                        const aStoredRev = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                        aStoredRev.push(oRevokeRecord);
-                        sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredRev));
+                        const sLocal = localStorage.getItem("kyra_pending_revocations");
+                        const sSession = sessionStorage.getItem("kyra_pending_revocations");
+                        const aL = sLocal ? JSON.parse(sLocal) : [];
+                        const aS = sSession ? JSON.parse(sSession) : [];
+                        aL.push(oRevokeRecord);
+                        aS.push(oRevokeRecord);
+                        localStorage.setItem("kyra_pending_revocations", JSON.stringify(aL));
+                        sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aS));
                     } catch(e) {}
 
                     // Update status in My Access section immediately to "Revoke Pending"
@@ -2187,11 +2235,17 @@ sap.ui.define([
                     })
                     .then(res => res.json())
                     .then(() => {
+                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide();
+                        }
                         MessageToast.show("Revocation Request " + sReqId + " submitted successfully.");
                         this._notifyDatabaseMutation();
                         this._loadSubmittedRequests(oModel);
                     })
                     .catch(err => {
+                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide();
+                        }
                         console.error("Error submitting revocation request:", err);
                         MessageToast.show("Submitted revocation request " + sReqId);
                         this._notifyDatabaseMutation();
@@ -2331,18 +2385,42 @@ sap.ui.define([
                 aSourceRequests = aPend.concat(aHist);
             }
 
+            const parseRawTimestamp = (timeStr) => {
+                if (!timeStr) return Date.now();
+                if (typeof timeStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(timeStr.trim())) {
+                    const todayStr = new Date().toISOString().split("T")[0];
+                    if (timeStr.trim() === todayStr) {
+                        return Date.now() - 30000;
+                    }
+                    return new Date(timeStr.trim() + "T12:00:00").getTime();
+                }
+                const t = new Date(timeStr).getTime();
+                return isNaN(t) ? Date.now() : t;
+            };
+
             const formatTimeAgo = (isoStr) => {
                 if (!isoStr) return "Just now";
-                const d = new Date(isoStr);
-                if (isNaN(d.getTime())) return "Recently";
+                let d;
+                if (typeof isoStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(isoStr.trim())) {
+                    const todayStr = new Date().toISOString().split("T")[0];
+                    if (isoStr.trim() === todayStr) {
+                        return "Just now";
+                    }
+                    d = new Date(isoStr.trim() + "T12:00:00");
+                } else {
+                    d = new Date(isoStr);
+                }
+                if (isNaN(d.getTime())) return "Just now";
                 const now = Date.now();
                 const diffMs = now - d.getTime();
+                if (diffMs < 0) return "Just now";
                 const diffMins = Math.floor(diffMs / 60000);
                 if (diffMins < 1) return "Just now";
                 if (diffMins < 60) return diffMins + "m ago";
                 const diffHours = Math.floor(diffMins / 60);
                 if (diffHours < 24) return diffHours + "h ago";
                 const diffDays = Math.floor(diffHours / 24);
+                if (diffDays === 1) return "Yesterday";
                 if (diffDays < 7) return diffDays + "d ago";
                 return d.toISOString().split("T")[0];
             };
@@ -2435,7 +2513,7 @@ sap.ui.define([
                                     : `User ${sRequester} submitted an access request (${sReqId}) with ${iCount} ${iCount === 1 ? 'entitlement' : 'entitlements'} for your review.`),
                             approverComment: "",
                             timestamp: formatTimeAgo(sCreatedTime),
-                            rawTimestamp: new Date(sCreatedTime).getTime(),
+                            rawTimestamp: parseRawTimestamp(sCreatedTime),
                             icon: isRevoke ? "sap-icon://decline" : "sap-icon://customer-and-supplier",
                             state: isRevoke ? "Warning" : "Information",
                             unread: aSavedStatusMap[sNotifId] !== undefined ? aSavedStatusMap[sNotifId] : true
@@ -2481,7 +2559,7 @@ sap.ui.define([
                             description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) was submitted successfully and is awaiting review.`,
                             approverComment: "",
                             timestamp: formatTimeAgo(sCreatedTime),
-                            rawTimestamp: new Date(sCreatedTime).getTime(),
+                            rawTimestamp: parseRawTimestamp(sCreatedTime),
                             icon: "sap-icon://decline",
                             state: "Information",
                             unread: aSavedStatusMap[sSubId] !== undefined ? aSavedStatusMap[sSubId] : true
@@ -2508,7 +2586,7 @@ sap.ui.define([
                                 description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) has been approved and access is revoked.`,
                                 approverComment: r.approver_comment || r.approverComment || "",
                                 timestamp: formatTimeAgo(sUpdatedTime),
-                                rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                                rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
                                 icon: "sap-icon://sys-enter-2",
                                 state: "Success",
                                 unread: aSavedStatusMap[sRevApprId] !== undefined ? aSavedStatusMap[sRevApprId] : true
@@ -2532,7 +2610,7 @@ sap.ui.define([
                                 description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) was rejected.`,
                                 approverComment: r.approver_comment || r.approverComment || "",
                                 timestamp: formatTimeAgo(sUpdatedTime),
-                                rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                                rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
                                 icon: "sap-icon://error",
                                 state: "Error",
                                 unread: aSavedStatusMap[sRevRejId] !== undefined ? aSavedStatusMap[sRevRejId] : true
@@ -2559,7 +2637,7 @@ sap.ui.define([
                         description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was submitted successfully and is awaiting review.`,
                         approverComment: "",
                         timestamp: formatTimeAgo(sCreatedTime),
-                        rawTimestamp: new Date(sCreatedTime).getTime(),
+                        rawTimestamp: parseRawTimestamp(sCreatedTime),
                         icon: "sap-icon://pending",
                         state: "Information",
                         unread: aSavedStatusMap[sSubId] !== undefined ? aSavedStatusMap[sSubId] : true
@@ -2586,7 +2664,7 @@ sap.ui.define([
                             description: `Request ${sReqNum} has been approved by Line Manager / Approver and sent to ${nextStage}.`,
                             approverComment: r.approver_comment || r.approverComment || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sAppr1Id] !== undefined ? aSavedStatusMap[sAppr1Id] : true
@@ -2609,7 +2687,7 @@ sap.ui.define([
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by Line Manager / Approver.`,
                             approverComment: r.approver_comment || r.approverComment || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 1000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sAppr1RejId] !== undefined ? aSavedStatusMap[sAppr1RejId] : true
@@ -2636,7 +2714,7 @@ sap.ui.define([
                             description: `Request ${sReqNum} has been approved by Compliance Reviewer and sent to IAM Approver 1.`,
                             approverComment: r.reviewer_comment || r.reviewerComment || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 2000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 2000,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sCompId] !== undefined ? aSavedStatusMap[sCompId] : true
@@ -2659,7 +2737,7 @@ sap.ui.define([
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by Compliance Reviewer.`,
                             approverComment: r.reviewer_comment || r.reviewerComment || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 2000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 2000,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sCompRejId] !== undefined ? aSavedStatusMap[sCompRejId] : true
@@ -2686,7 +2764,7 @@ sap.ui.define([
                             description: `Request ${sReqNum} has been approved by IAM Approver 1 and sent to IAM Approver 2.`,
                             approverComment: r.iam_approver_1_comment || r.comments || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 3000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 3000,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sIam1Id] !== undefined ? aSavedStatusMap[sIam1Id] : true
@@ -2709,7 +2787,7 @@ sap.ui.define([
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by IAM Approver 1.`,
                             approverComment: r.iam_approver_1_comment || r.comments || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 3000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 3000,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sIam1RejId] !== undefined ? aSavedStatusMap[sIam1RejId] : true
@@ -2737,7 +2815,7 @@ sap.ui.define([
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) has received final approval from IAM Approver 2 and access is granted.`,
                             approverComment: r.iam_approver_2_comment || r.comments || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 4000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 4000,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sIam2Id] !== undefined ? aSavedStatusMap[sIam2Id] : true
@@ -2760,7 +2838,7 @@ sap.ui.define([
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by IAM Approver 2.`,
                             approverComment: r.iam_approver_2_comment || r.comments || "",
                             timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: new Date(sUpdatedTime).getTime() + 4000,
+                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 4000,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sIam2RejId] !== undefined ? aSavedStatusMap[sIam2RejId] : true
@@ -2785,7 +2863,11 @@ sap.ui.define([
             });
 
             // Sort notifications in REVERSE CHRONOLOGICAL ORDER (newest first)
-            aNotifications.sort((a, b) => (b.rawTimestamp || 0) - (a.rawTimestamp || 0));
+            aNotifications.sort((a, b) => {
+                const diff = (b.rawTimestamp || 0) - (a.rawTimestamp || 0);
+                if (diff !== 0) return diff;
+                return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
+            });
 
             sessionStorage.setItem(sUserStorageKey, JSON.stringify(aNotifications));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aNotifications));
@@ -2865,6 +2947,16 @@ sap.ui.define([
                 });
             }
 
+            aFiltered.sort((a, b) => {
+                const diff = (b.rawTimestamp || 0) - (a.rawTimestamp || 0);
+                if (diff !== 0) return diff;
+                return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
+            });
+            aFiltered.sort((a, b) => {
+                const diff = (b.rawTimestamp || 0) - (a.rawTimestamp || 0);
+                if (diff !== 0) return diff;
+                return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
+            });
             oModel.setProperty("/filteredNotificationsList", aFiltered);
         },
 
@@ -3922,45 +4014,17 @@ sap.ui.define([
         onNavToAddAccess() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                const bCurr = oModel.getProperty("/showAddAccessSector");
-                oModel.setProperty("/showAddAccessSector", !bCurr);
+                this._resetAddAccessState();
+
+                oModel.setProperty("/showAddAccessSector", true);
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
                 this._updateActionCardArrows(oModel);
 
-                if (!bCurr) {
-                    this._aSelectedRegionIds = [];
-                    this._updatePinSelectionStates();
-                    this._updateSelectedChips();
-                    this._updateSelectAllButtonState();
-
-                    oModel.setProperty("/selectedSector", "");
-                    oModel.setProperty("/selectedFunction", "");
-                    oModel.setProperty("/availableFunctions", []);
-                    oModel.setProperty("/addAccessRegion", "");
-                    oModel.setProperty("/mapSelectedRegions", []);
-                    oModel.setProperty("/hasMapRegionSelection", false);
-                    oModel.setProperty("/addAccessSelectedSystems", []);
-                    oModel.setProperty("/addAccessSelectedServices", []);
-                    oModel.setProperty("/addAccessSelectedRoles", []);
-                    oModel.setProperty("/addAccessSelectedPersonas", []);
-                    oModel.setProperty("/addAccessDuration", "");
-                    oModel.setProperty("/addAccessJustification", "");
-                    oModel.setProperty("/addAccessSystemSlideConfigs", {});
-                    oModel.setProperty("/addAccessCurrentSystemIndex", 0);
-                    oModel.setProperty("/addAccessStep", 1);
-                    oModel.setProperty("/addAccessConfigSubStep", 1);
-                    oModel.setProperty("/isEditingFromSummary", false);
-                    setTimeout(() => {
-                        const oPage = this.byId("accessPortalPage");
-                        const oTarget = this.byId("addAccessSectionContainer");
-                        if (oPage && oTarget) {
-                            oPage.scrollToElement(oTarget, 400);
-                        }
-                        this._setupStep1SelectFields();
-                    }, 100);
-                }
+                this._setupStep1SelectFields();
+                this._scrollToWizardContainer();
             }
         },
 
@@ -4127,8 +4191,34 @@ sap.ui.define([
             }, 100);
         },
 
+        _smoothScrollTo(sElementId, iOffset) {
+            const nOffset = (typeof iOffset === "number") ? iOffset : 64;
+            const fnDoScroll = () => {
+                const oTarget = this.byId(sElementId);
+                const oDom = oTarget ? oTarget.getDomRef() : document.getElementById(this.createId(sElementId));
+                if (oDom) {
+                    try {
+                        oDom.style.scrollMarginTop = nOffset + "px";
+                        oDom.scrollIntoView({ behavior: "smooth", block: "start" });
+                    } catch (e) {
+                        const oPage = this.byId("accessPortalPage");
+                        if (oPage && oTarget && typeof oPage.scrollToElement === "function") {
+                            oPage.scrollToElement(oTarget, 400);
+                        }
+                    }
+                } else {
+                    const oPage = this.byId("accessPortalPage");
+                    if (oPage && oTarget && typeof oPage.scrollToElement === "function") {
+                        oPage.scrollToElement(oTarget, 400);
+                    }
+                }
+            };
+            setTimeout(fnDoScroll, 100);
+            setTimeout(fnDoScroll, 250);
+        },
+
         _scrollToWizardContainer() {
-            // Keep page position stable - do not automatically scroll down
+            this._smoothScrollTo("addAccessSectionContainer", 64);
         },
 
         onGoToAddAccessStep3() {
@@ -4179,6 +4269,15 @@ sap.ui.define([
                 oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
             }
 
+            // Clean up slide configs for systems no longer selected
+            const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
+            Object.keys(oSlideConfigsMap).forEach(sSys => {
+                if (!aSystems.includes(sSys)) {
+                    delete oSlideConfigsMap[sSys];
+                }
+            });
+            oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
+
             this._loadCurrentSystemSlideConfig();
         },
 
@@ -4195,28 +4294,13 @@ sap.ui.define([
             let oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
             let oSysConfig = oSlideConfigsMap[sSys];
 
-            // Robust fallback: if slide config is not populated, extract from existing summary items
-            if (!oSysConfig || !oSysConfig.selectedServices || oSysConfig.selectedServices.length === 0) {
-                const aSummaryItems = oModel.getProperty("/addAccessSummaryItems") || [];
-                const aMatching = aSummaryItems.filter(item => (item.system || "").trim().toLowerCase() === sSys.trim().toLowerCase());
-                if (aMatching.length > 0) {
-                    const aExtractedServices = [...new Set(aMatching.map(i => i.topic).filter(Boolean))];
-                    const aExtractedRoles = [...new Set(aMatching.map(i => i.roleTitle || i.roleName).filter(Boolean))];
-                    const aExtractedPersonas = [...new Set(aMatching.map(i => i.persona).filter(Boolean))];
-                    oSysConfig = {
-                        selectedServices: aExtractedServices,
-                        selectedRoles: aExtractedRoles,
-                        selectedPersonas: aExtractedPersonas
-                    };
-                    oSlideConfigsMap[sSys] = oSysConfig;
-                    oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
-                } else {
-                    oSysConfig = {
-                        selectedServices: [],
-                        selectedRoles: [],
-                        selectedPersonas: []
-                    };
-                }
+            // If this system has not been configured yet, start fresh with completely empty selections
+            if (!oSysConfig) {
+                oSysConfig = {
+                    selectedServices: [],
+                    selectedRoles: [],
+                    selectedPersonas: []
+                };
             }
 
             const aServices = (oSysConfig.selectedServices || []).slice();
@@ -6222,6 +6306,10 @@ sap.ui.define([
                 // Broadcast real-time mutation event to all open tabs/views
                 this._notifyDatabaseMutation();
 
+                // Clear submitted access items from memory immediately so they cannot affect future requests
+                oModel.setProperty("/addAccessSummaryItems", []);
+                oModel.setProperty("/addAccessSystemSlideConfigs", {});
+
             } catch (err) {
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
@@ -6244,9 +6332,18 @@ sap.ui.define([
                 }
             }
 
-            // Reset wizard overlay state
-            oModel.setProperty("/addAccessStep", 1);
-            oModel.setProperty("/showAddAccessSector", false);
+            // Note: Keep Add Access wizard box open and stable in the background
+            // so the submission notification modal shows cleanly without snapping the layout shut.
+            const fnDismissSubmitDialog = () => {
+                this._resetAddAccessState();
+                this._updateActionCardArrows(oModel);
+                const oPage = this.byId("accessPortalPage");
+                if (oPage && typeof oPage.scrollTo === "function") {
+                    oPage.scrollTo(0, 400);
+                } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+            };
 
             let sPopupHtml = `
                 <div style="font-family: inherit; color: #0F172A;">
@@ -6356,11 +6453,14 @@ sap.ui.define([
                     messageHtml: sPopupHtml,
                     type: "success",
                     maxWidth: "520px",
-                    buttonText: "Done"
+                    buttonText: "Done",
+                    onConfirm: fnDismissSubmitDialog,
+                    onClose: fnDismissSubmitDialog
                 });
             } else {
                 MessageBox.information("Access Request processing complete!", {
-                    title: "Access Request Submitted"
+                    title: "Access Request Submitted",
+                    onClose: fnDismissSubmitDialog
                 });
             }
         },
@@ -6394,17 +6494,46 @@ sap.ui.define([
             oModel.setProperty("/selectedSector", "");
             oModel.setProperty("/selectedFunction", "");
             oModel.setProperty("/availableFunctions", []);
+            oModel.setProperty("/addAccessRegion", "");
+            oModel.setProperty("/mapSelectedRegions", []);
+            oModel.setProperty("/hasMapRegionSelection", false);
             oModel.setProperty("/addAccessSelectedSystems", []);
             oModel.setProperty("/addAccessSelectedServices", []);
             oModel.setProperty("/addAccessSelectedRoles", []);
             oModel.setProperty("/addAccessSelectedPersonas", []);
+            oModel.setProperty("/addAccessSubRolesList", []);
+            oModel.setProperty("/addAccessPersonasList", []);
             oModel.setProperty("/addAccessDuration", "");
             oModel.setProperty("/addAccessJustification", "");
             oModel.setProperty("/addAccessSystemSlideConfigs", {});
+            oModel.setProperty("/addAccessSummaryItems", []);
+            oModel.setProperty("/currentSystemSlideName", "");
             oModel.setProperty("/addAccessCurrentSystemIndex", 0);
             oModel.setProperty("/addAccessStep", 1);
             oModel.setProperty("/addAccessConfigSubStep", 1);
             oModel.setProperty("/isEditingFromSummary", false);
+            oModel.setProperty("/activeSodConflictsList", []);
+            oModel.setProperty("/pendingOnlySodConflictsList", []);
+            oModel.setProperty("/batchSodConflictsList", []);
+
+            try {
+                const oSystems = this.byId("inPageSystemsMultiSelect");
+                if (oSystems) oSystems.setSelectedKeys([]);
+                const oServices = this.byId("inPageServicesMultiSelect");
+                if (oServices) oServices.setSelectedKeys([]);
+                const oTeam = this.byId("inPageTeamMultiSelect");
+                if (oTeam) oTeam.setSelectedKeys([]);
+                const oPersona = this.byId("inPagePersonaMultiSelect");
+                if (oPersona) oPersona.setSelectedKeys([]);
+                const oSector = this.byId("inPageBusinessSectorSelect");
+                if (oSector) oSector.setSelectedKey("");
+                const oFunc = this.byId("inPageBusinessFunctionSelect");
+                if (oFunc) oFunc.setSelectedKey("");
+                const oDur = this.byId("inPageDurationSelect");
+                if (oDur) oDur.setSelectedKey("");
+                const oJust = this.byId("inPageJustificationArea");
+                if (oJust) oJust.setValue("");
+            } catch(e) {}
         },
 
         _confirmDiscardAddAccess(fnProceedCallback) {
@@ -6510,22 +6639,18 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     const bCurr = oModel.getProperty("/showPendingSection");
-                    oModel.setProperty("/showPendingSection", !bCurr);
+                    if (bCurr) {
+                        this._smoothScrollTo("pendingSectionContainer", 64);
+                        return;
+                    }
+                    oModel.setProperty("/showPendingSection", true);
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
                     this._updateActionCardArrows(oModel);
                     
-                    if (!bCurr) {
-                        setTimeout(() => {
-                            const oPage = this.byId("accessPortalPage");
-                            const oTarget = this.byId("pendingSectionContainer");
-                            if (oPage && oTarget) {
-                                oPage.scrollToElement(oTarget, 400);
-                            }
-                        }, 100);
-                    }
+                    this._smoothScrollTo("pendingSectionContainer", 64);
                 }
             });
         },
@@ -6535,22 +6660,18 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     const bCurr = oModel.getProperty("/showApprovedSection");
-                    oModel.setProperty("/showApprovedSection", !bCurr);
+                    if (bCurr) {
+                        this._smoothScrollTo("approvedSectionContainer", 64);
+                        return;
+                    }
+                    oModel.setProperty("/showApprovedSection", true);
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
                     this._updateActionCardArrows(oModel);
                     
-                    if (!bCurr) {
-                        setTimeout(() => {
-                            const oPage = this.byId("accessPortalPage");
-                            const oTarget = this.byId("approvedSectionContainer");
-                            if (oPage && oTarget) {
-                                oPage.scrollToElement(oTarget, 400);
-                            }
-                        }, 100);
-                    }
+                    this._smoothScrollTo("approvedSectionContainer", 64);
                 }
             });
         },
@@ -7136,17 +7257,20 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     const bCurr = oModel.getProperty("/showRemoveAccessSector");
-                    const bNewState = !bCurr;
-                    oModel.setProperty("/showRemoveAccessSector", bNewState);
+                    if (bCurr) {
+                        this._smoothScrollTo("removeAccessSection", 64);
+                        return;
+                    }
+
+                    oModel.setProperty("/showRemoveAccessSector", true);
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
+                    oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
 
-                    if (bNewState) {
-                        // Keep page stable
-                    }
+                    this._smoothScrollTo("removeAccessSection", 64);
                 }
             });
         },
@@ -7698,12 +7822,12 @@ sap.ui.define([
                 "sap/m/MessageToast"
             ], (Dialog, DatePicker, VBox, HBox, Label, Title, Text, Avatar, Button, Filter, FilterOperator, MessageToast) => {
 
-                const sActiveKpi = String(oModel.getProperty("/activeKpiFilter") || oModel.getProperty("/historyFilterTitle") || "ALL").toUpperCase();
+                const sActiveKpi = String(oModel.getProperty("/activeKpiFilter") || "ALL").toUpperCase();
                 const bIsAllHistory = !sActiveKpi || sActiveKpi === "ALL" || sActiveKpi.includes("ALL HIST") || sActiveKpi === "";
                 const bIsRejected = sActiveKpi.includes("REJECT");
                 const bIsApproved = sActiveKpi.includes("APPROV");
                 const bIsRevoked = sActiveKpi.includes("REVOK") || sActiveKpi.includes("REMOV");
-                const bShowRequestTypeFilter = bIsAllHistory || bIsRejected;
+                const bShowRequestTypeFilter = bIsAllHistory || bIsRejected || sActiveKpi.includes("PENDING");
 
                 let sTopTitle = "All History";
                 let sTopDesc = "Show all submitted & historical requests";
@@ -7811,22 +7935,25 @@ sap.ui.define([
                         oSelectionState.PERMANENT = false;
                         oSelectionState["30DAYS"] = false;
                         oSelectionState["90DAYS"] = false;
+                        oSelectionState.CUSTOM = false;
                     } else if (sKey === "CUSTOM") {
                         oSelectionState.CUSTOM = !oSelectionState.CUSTOM;
+                        oSelectionState.ALL = false;
                     } else {
                         oSelectionState[sKey] = !oSelectionState[sKey];
                         oSelectionState.ALL = false;
+                    }
 
-                        const bAnyChecked = !!(
-                            (bShowRequestTypeFilter && oSelectionState.ADDITION) ||
-                            (bShowRequestTypeFilter && oSelectionState.REVOKE) ||
-                            oSelectionState.PERMANENT ||
-                            oSelectionState["30DAYS"] ||
-                            oSelectionState["90DAYS"]
-                        );
-                        if (!bAnyChecked) {
-                            oSelectionState.ALL = true;
-                        }
+                    const bAnyChecked = !!(
+                        (bShowRequestTypeFilter && oSelectionState.ADDITION) ||
+                        (bShowRequestTypeFilter && oSelectionState.REVOKE) ||
+                        oSelectionState.PERMANENT ||
+                        oSelectionState["30DAYS"] ||
+                        oSelectionState["90DAYS"] ||
+                        oSelectionState.CUSTOM
+                    );
+                    if (!bAnyChecked) {
+                        oSelectionState.ALL = true;
                     }
                     updateUI();
                 };

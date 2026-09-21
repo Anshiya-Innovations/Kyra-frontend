@@ -144,7 +144,6 @@ sap.ui.define([
             }
         },
 
-
         onSelectPendingQueue() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
@@ -198,6 +197,14 @@ sap.ui.define([
                     oModel.setProperty("/approverPendingTab", "revokeRequests");
                 }
             }
+        },
+
+        onFilterAccessRequests() {
+            this.onSelectAccessRequestsTab();
+        },
+
+        onFilterRevokeRequests() {
+            this.onSelectRevokeRequestsTab();
         },
 
         _updateDisplayedHistoryRequests() {
@@ -898,7 +905,7 @@ sap.ui.define([
                                               sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
 
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER")) {
+                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || (isRevocation && sDbStatus.includes("PENDING")))) {
                         isPendingForRole = true;
                     } else if (isApproverDecided) {
                         isProcessedForRole = true;
@@ -962,6 +969,9 @@ sap.ui.define([
                             serviceTopic: sService,
                             submissionDate: sDate,
                             decisionDate: sDate,
+                            createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
                             status: isRevocation ? "Revoke Pending" : "Pending Approval",
                             statusState: isRevocation ? "Error" : "Warning",
                             statusIcon: "sap-icon://pending",
@@ -1013,6 +1023,9 @@ sap.ui.define([
                             serviceTopic: sService,
                             decisionDate: sDate,
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
                             _isPendingForRole: false,
                             entitlements: []
@@ -1100,7 +1113,19 @@ sap.ui.define([
             // Merge any in-flight pending revocations from sessionStorage if not yet reflected from OData
             if (!isCompliance) {
                 try {
-                    const aStoredRevs = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                    let aStoredRevs = [];
+                    try {
+                        const sLocal = localStorage.getItem("kyra_pending_revocations");
+                        const sSession = sessionStorage.getItem("kyra_pending_revocations");
+                        const aL = sLocal ? JSON.parse(sLocal) : [];
+                        const aS = sSession ? JSON.parse(sSession) : [];
+                        const mRevs = {};
+                        [...aS, ...aL].forEach(item => {
+                            const id = item.requestId || item.requestNumber;
+                            if (id) mRevs[id] = item;
+                        });
+                        aStoredRevs = Object.values(mRevs);
+                    } catch(e) {}
                     aStoredRevs.forEach(sr => {
                         const sSrId = sr.requestId || sr.requestNumber;
                         if (sSrId && !aPending.some(p => p.requestId === sSrId || (p.requestId && p.requestId.startsWith(sSrId)))) {

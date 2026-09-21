@@ -1259,7 +1259,7 @@ sap.ui.define([
                             const sPersonaVal = cleanPersonaName(i.selectedPersona || oData.selectedPersona || i.persona || oData.persona || 'People Operations Lead');
 
                             return `
-                            <div class="kyra-entitlement-summary-card kyra-card-approved kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
+                            <div class="kyra-entitlement-summary-card kyra-card-approved" data-req-id="${sReqId}" style="cursor: default;">
                                 <div class="kyra-card-body-content">
                                     <div class="kyra-card-top-row">
                                         <div class="kyra-card-badge-row">
@@ -1337,7 +1337,7 @@ sap.ui.define([
                             const sPersonaVal = cleanPersonaName(i.selectedPersona || oData.selectedPersona || i.persona || oData.persona || 'People Operations Lead');
 
                             return `
-                            <div class="kyra-entitlement-summary-card kyra-card-rejected kyra-clickable-card" data-req-id="${sReqId}" style="cursor: pointer;" title="Click to view live request tracking for ${sReqId}">
+                            <div class="kyra-entitlement-summary-card kyra-card-rejected" data-req-id="${sReqId}" style="cursor: default;">
                                 <div class="kyra-card-body-content">
                                     <div class="kyra-card-top-row">
                                         <div class="kyra-card-badge-row">
@@ -1394,31 +1394,6 @@ sap.ui.define([
                         }
                     }
                 });
-
-                setTimeout(() => {
-                    const cardList = document.querySelectorAll(".kyra-clickable-card");
-                    cardList.forEach(card => {
-                        card.onclick = (ev) => {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-                            const sClickedReqId = card.getAttribute("data-req-id");
-                            if (sClickedReqId) {
-                                if (typeof KyraDialog !== "undefined" && KyraDialog.hide) {
-                                    KyraDialog.hide();
-                                }
-                                const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
-                                if (oRouter) {
-                                    oRouter.navTo("AccessPage");
-                                }
-                                setTimeout(() => {
-                                    if (window.openKyraRequestTracking) {
-                                        window.openKyraRequestTracking(sClickedReqId, oData);
-                                    }
-                                }, 200);
-                            }
-                        };
-                    });
-                }, 100);
             }
         },
 
@@ -1755,7 +1730,7 @@ sap.ui.define([
                                               sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
 
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER")) {
+                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || (isRevocation && sDbStatus.includes("PENDING")))) {
                         isPendingForRole = true;
                     } else if (isApproverDecided) {
                         isProcessedForRole = true;
@@ -1819,6 +1794,9 @@ sap.ui.define([
                             serviceTopic: sService,
                             submissionDate: sDate,
                             decisionDate: sDate,
+                            createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
                             status: isRevocation ? "Revoke Pending" : "Pending Approval",
                             statusState: isRevocation ? "Error" : "Warning",
                             statusIcon: "sap-icon://pending",
@@ -1870,6 +1848,9 @@ sap.ui.define([
                             serviceTopic: sService,
                             decisionDate: sDate,
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
+                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
                             _isPendingForRole: false,
                             entitlements: []
