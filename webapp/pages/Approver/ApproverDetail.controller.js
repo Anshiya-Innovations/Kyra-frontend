@@ -269,6 +269,10 @@ sap.ui.define([
                         if (aMatching.length > 0) {
                             const first = aMatching[0];
                             const sSvc = deriveServiceTopicFromRole(first.role_name, first.service_topic || first.service);
+                            const bIsRev = (first.access_type || first.request_type || "").toUpperCase().includes("REV") ||
+                                           (first.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                           String(first.request_number || "").startsWith("REV-") ||
+                                           String(first.request_number || "").includes("-REV-");
                             oRequest = {
                                 requestId: first.request_number,
                                 requesterId: first.requester_username || "Requester",
@@ -277,6 +281,10 @@ sap.ui.define([
                                 system: first.target_system || "SAP System",
                                 serviceAndRole: (first.role_name || "Role") + " (" + sSvc + ")",
                                 serviceTopic: sSvc,
+                                isRevocation: bIsRev,
+                                type: bIsRev ? "Revocation" : "Addition",
+                                requestType: bIsRev ? "Revocation" : "Addition",
+                                accessType: bIsRev ? "REVOCATION" : "ADDITION",
                                 submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                                 duration: first.access_duration || "",
                                 sector: first.business_sector || "",
@@ -1426,6 +1434,8 @@ sap.ui.define([
                 const aBatchConflicts = oModel.getProperty("/selectedRequestSodBatchConflicts") || [];
                 const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0 || oData.hasConflict === true || oData.has_conflict === true);
 
+                const isReqRevocation = !!(oData.isRevocation || oData.type === "Revocation" || (oData.accessType && String(oData.accessType).toUpperCase().includes("REV")) || String(oData.requestId || "").startsWith("REV-"));
+
                 // Build decisions payload for backend persistence with approver comments
                 const aDecisionsPayload = (oData.entitlements || []).map(e => {
                     const isRejected = (e.status || "").toLowerCase().includes("reject");
@@ -1440,7 +1450,8 @@ sap.ui.define([
                         status: sStatus,
                         comments: sComment,
                         actorRole: sActiveRole,
-                        hasConflict: bHasConflict
+                        hasConflict: bHasConflict,
+                        accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition")
                     };
                 });
 
@@ -1475,7 +1486,7 @@ sap.ui.define([
                     status: sOverallStatus,
                     statusState: sOverallState,
                     statusIcon: sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert"),
-                    isRevocation: oData.isRevocation || false,
+                    isRevocation: isReqRevocation,
                     _isPendingForRole: false,
                     entitlements: (oData.entitlements || []).map(e => ({
                         requestId: e.requestId || oData.requestId,
@@ -1497,8 +1508,12 @@ sap.ui.define([
                 try {
                     sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
                     sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
-                    localStorage.removeItem("kyra_pending_revocations");
-                    sessionStorage.removeItem("kyra_pending_revocations");
+                    if (isReqRevocation || sOverallStatus === "Approved" || sOverallStatus === "Rejected") {
+                        const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                        sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => item.requestId !== oData.requestId)));
+                        const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
+                        localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== oData.requestId)));
+                    }
                 } catch(eStorage) {
                     console.warn("Storage warning:", eStorage);
                 }
@@ -1515,6 +1530,7 @@ sap.ui.define([
                             requestNumber: oData.requestId,
                             actorRole: sActiveRole,
                             hasConflict: bHasConflict,
+                            accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition"),
                             decisions: aDecisionsPayload
                         })
                     });

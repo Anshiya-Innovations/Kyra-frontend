@@ -1751,7 +1751,7 @@ sap.ui.define([
                         }
                     } else {
                         // roleStates[sKey] already established by a newer record in reverse-chronological order
-                        if (roleStates[sKey].status === 'REVOKE_PENDING' && !isRevocationReq && isOverallApproved) {
+                        if ((roleStates[sKey].status === 'REVOKE_PENDING' || roleStates[sKey].status === 'ACTIVE') && !isRevocationReq && isOverallApproved) {
                             if (!roleStates[sKey].approvedRequest) {
                                 roleStates[sKey].approvedRequest = r;
                             }
@@ -1861,6 +1861,23 @@ sap.ui.define([
                     const inflight = this._localInFlightRevocations[sCacheKey];
                     if (!inflight) return;
 
+                    // If already completed in DB (APPROVED or REJECTED), purge from cache
+                    const dbReq = (aRawDbRequests || []).find(r => {
+                        const sId = String(r.request_number || r.requestId || "").toUpperCase();
+                        return sId === inflight.requestId.toUpperCase();
+                    });
+                    if (dbReq) {
+                        const sDbStat = (dbReq.db_status || dbReq.status || "").toUpperCase();
+                        const sApprStat = (dbReq.approver_status || "").toUpperCase();
+                        const sIam1Stat = (dbReq.iam_approver_1_status || "").toUpperCase();
+                        const sIam2Stat = (dbReq.iam_approver_2_status || "").toUpperCase();
+                        const isDone = sDbStat === "APPROVED" || sDbStat === "REJECTED" || sApprStat === "REJECTED" || sIam1Stat === "REJECTED" || sIam2Stat === "REJECTED";
+                        if (isDone) {
+                            delete this._localInFlightRevocations[sCacheKey];
+                            return;
+                        }
+                    }
+
                     let bMatchedState = false;
                     Object.keys(roleStates).forEach(k => {
                         const state = roleStates[k];
@@ -1869,7 +1886,7 @@ sap.ui.define([
                         const matchSys = (r.target_system || "") === inflight.system;
                         const matchRole = cleanRoleStr(r.role_name) === inflight.roleName;
                         if (matchSys && matchRole) {
-                            if (state.status !== 'REVOKED') {
+                            if (state.status !== 'REVOKED' && state.status !== 'ACTIVE') {
                                 state.status = 'REVOKE_PENDING';
                             }
                             bMatchedState = true;
@@ -2015,7 +2032,7 @@ sap.ui.define([
             });
 
             // Revoke section has the EXACT same order as the Active Entitlements section
-            const aActiveRolesList = aUniqueUserAccessList.filter(item => item.status !== "Revoke Pending");
+            const aActiveRolesList = aUniqueUserAccessList.filter(item => (item.status || "").toLowerCase() === "active");
 
             // 3. REVERSE CHRONOLOGICAL ORDER (Newest First: tB - tA)
             // My History all four tables
@@ -2265,7 +2282,7 @@ sap.ui.define([
                     const aAccessList = oModel.getProperty("/userAccessList") || [];
                     aAccessList.forEach(item => {
                         const itemR = cleanRoleStr(item.roleName);
-                        if (item.system === oData.system && (itemR === sCleanRole || item.roleId === oData.roleId)) {
+                        if (item.system === oData.system && (itemR === sCleanRole || item.roleId === oData.roleId || item.roleTitle === oData.roleTitle)) {
                             item.status = "Revoke Pending";
                             item.statusState = "Warning";
                             item.statusIcon = "sap-icon://pending";
@@ -2273,7 +2290,7 @@ sap.ui.define([
                     });
                     
                     // Exclude the revoked item from the Remove Access section list immediately
-                    const aActiveRoles = aAccessList.filter(item => item.status !== "Revoke Pending");
+                    const aActiveRoles = aAccessList.filter(item => (item.status || "").toLowerCase() === "active");
                     
                     this._setSmartProperty(oModel, "/userAccessList", aAccessList);
                     this._setSmartProperty(oModel, "/displayedUserAccessList", aAccessList);
@@ -2310,7 +2327,7 @@ sap.ui.define([
                         businessFunction: oData.function || oData.businessFunction || "Corporate Governance"
                     };
 
-                    const aMyPending = oModel.getProperty("/myPendingRequests") || [];
+                    const aMyPending = (oModel.getProperty("/myPendingRequests") || []).filter(p => p.requestId !== sReqId);
                     aMyPending.unshift(oNewPendingReq);
                     this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
 
@@ -2367,6 +2384,30 @@ sap.ui.define([
                     // SECTION STAYS OPEN (No setProperty showRemoveAccessSector false, no tab navigation)
                 }
             });
+        },
+
+        _recalculateAllHistoryKpiCounters(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const aHistory = oModel.getProperty("/requestHistory") || oModel.getProperty("/myHistoryRequests") || [];
+            let iApproved = 0, iRejected = 0, iRevoked = 0;
+            aHistory.forEach(req => {
+                const sStat = (req.status || "").toLowerCase();
+                const sType = (req.type || "").toLowerCase();
+                const isRevoc = sType.includes("revok") || (req.function || "").toLowerCase().includes("revocation") || (req.requestId || "").toUpperCase().startsWith("REV-");
+                if (sStat.includes("reject") || sStat.includes("decline")) {
+                    iRejected++;
+                } else if (sStat.includes("revok") || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) {
+                    iRevoked++;
+                } else if (sStat.includes("approved") || sStat.includes("active")) {
+                    iApproved++;
+                }
+            });
+            this._setSmartProperty(oModel, "/allHistoryCount", aHistory.length);
+            this._setSmartProperty(oModel, "/approvedHistoryCount", iApproved);
+            this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejected);
+            this._setSmartProperty(oModel, "/revokedHistoryCount", iRevoked);
+            this._setSmartProperty(oModel, "/removedHistoryCount", iRevoked);
         },
 
         onSearchMyAccess(oEvent) {
@@ -7439,6 +7480,11 @@ sap.ui.define([
                         return;
                     }
 
+                    // Dynamically populate /activeRoles with all CURRENT ACTIVE entitlements from /userAccessList
+                    const aUserAccess = oModel.getProperty("/userAccessList") || [];
+                    const aActiveOnly = aUserAccess.filter(item => (item.status || "").toLowerCase() === "active");
+                    this._setSmartProperty(oModel, "/activeRoles", aActiveOnly);
+
                     oModel.setProperty("/showRemoveAccessSector", true);
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showApprovedSection", false);
@@ -7876,105 +7922,97 @@ sap.ui.define([
         },
 
         onFilterHistoryByRevoked() {
-            this._currentHistoryFilterMatchesItem = null;
+            const isMatch = (item) => {
+                if (!item) return false;
+                const sStat = (item.status || "").toLowerCase();
+                const sType = (item.type || "").toLowerCase();
+                const isRevoc = sType.includes("revok") || (item.function || "").toLowerCase().includes("revocation") || (item.requestId || "").toUpperCase().startsWith("REV-");
+                return (sStat === "revoked" || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) && !sStat.includes("pending") && !sStat.includes("reject");
+            };
+            this._currentHistoryFilterMatchesItem = isMatch;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
-                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
-                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
-                }
+                const aSource = this._masterMyHistoryRequests || oModel.getProperty("/requestHistory") || [];
+                const aFiltered = aSource.filter(isMatch);
+                oModel.setProperty("/requestHistory", aFiltered);
+                oModel.setProperty("/myHistoryRequests", aFiltered);
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "REVOKED");
                 oModel.setProperty("/historyFilterTitle", "Revoked Access History");
                 oModel.setProperty("/historyFilterSubtitle", "Historical log of all revoked access entitlements.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://delete");
                 oModel.setProperty("/historyFilterAvatarColor", "Accent2");
-                oModel.setProperty("/filteredHistoryCount", oModel.getProperty("/revokedHistoryCount") || 0);
+                oModel.setProperty("/filteredHistoryCount", aFiltered.length);
             }
             const oTable = this.byId("myRequestsUnifiedTable");
-            if (oTable) {
-                const oBinding = oTable.getBinding("items");
-                if (oBinding) {
-                    sap.ui.require(["sap/ui/model/Filter", "sap/ui/model/FilterOperator", "sap/m/MessageToast"], (Filter, FilterOperator, MessageToast) => {
-                        oBinding.filter([
-                            new Filter({
-                                filters: [
-                                    new Filter("status", FilterOperator.EQ, "Revoked"),
-                                    new Filter("type", FilterOperator.EQ, "Revoke")
-                                ],
-                                and: true
-                            })
-                        ]);
-                        MessageToast.show("Filtered by Revoked access requests.");
-                    });
-                }
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter([]);
             }
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("Filtered by Revoked access requests.");
+            });
         },
 
         onFilterHistoryByApproved() {
-            this._currentHistoryFilterMatchesItem = null;
+            const isMatch = (item) => {
+                if (!item) return false;
+                const sStat = (item.status || "").toLowerCase();
+                const sType = (item.type || "").toLowerCase();
+                const isRevoc = sType.includes("revok") || (item.function || "").toLowerCase().includes("revocation") || (item.requestId || "").toUpperCase().startsWith("REV-");
+                return (sStat.includes("approved") || sStat.includes("active")) && !isRevoc && !sStat.includes("pending") && !sStat.includes("reject");
+            };
+            this._currentHistoryFilterMatchesItem = isMatch;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
-                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
-                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
-                }
+                const aSource = this._masterMyHistoryRequests || oModel.getProperty("/requestHistory") || [];
+                const aFiltered = aSource.filter(isMatch);
+                oModel.setProperty("/requestHistory", aFiltered);
+                oModel.setProperty("/myHistoryRequests", aFiltered);
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "APPROVED");
                 oModel.setProperty("/historyFilterTitle", "Approved");
                 oModel.setProperty("/historyFilterSubtitle", "Showing approved addition requests.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://sys-enter-2");
                 oModel.setProperty("/historyFilterAvatarColor", "Accent8");
-                oModel.setProperty("/filteredHistoryCount", oModel.getProperty("/approvedHistoryCount") || 0);
+                oModel.setProperty("/filteredHistoryCount", aFiltered.length);
             }
             const oTable = this.byId("myRequestsUnifiedTable");
-            if (oTable) {
-                const oBinding = oTable.getBinding("items");
-                if (oBinding) {
-                    sap.ui.require(["sap/ui/model/Filter", "sap/ui/model/FilterOperator", "sap/m/MessageToast"], (Filter, FilterOperator, MessageToast) => {
-                        oBinding.filter([
-                            new Filter({
-                                filters: [
-                                    new Filter("status", FilterOperator.EQ, "Approved"),
-                                    new Filter("type", FilterOperator.EQ, "Addition")
-                                ],
-                                and: true
-                            })
-                        ]);
-                        MessageToast.show("Filtered by Approved addition requests.");
-                    });
-                }
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter([]);
             }
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("Filtered by Approved addition requests.");
+            });
         },
 
         onFilterHistoryByRejected() {
-            this._currentHistoryFilterMatchesItem = null;
+            const isMatch = (item) => {
+                if (!item) return false;
+                const sStat = (item.status || "").toLowerCase();
+                return sStat.includes("reject") || sStat.includes("decline");
+            };
+            this._currentHistoryFilterMatchesItem = isMatch;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
-                if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
-                    oModel.setProperty("/requestHistory", [].concat(this._masterMyHistoryRequests));
-                    oModel.setProperty("/myHistoryRequests", [].concat(this._masterMyHistoryRequests));
-                }
+                const aSource = this._masterMyHistoryRequests || oModel.getProperty("/requestHistory") || [];
+                const aFiltered = aSource.filter(isMatch);
+                oModel.setProperty("/requestHistory", aFiltered);
+                oModel.setProperty("/myHistoryRequests", aFiltered);
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/activeKpiFilter", "REJECTED");
                 oModel.setProperty("/historyFilterTitle", "Rejected");
                 oModel.setProperty("/historyFilterSubtitle", "Showing rejected access requests.");
                 oModel.setProperty("/historyFilterIcon", "sap-icon://error");
                 oModel.setProperty("/historyFilterAvatarColor", "Accent2");
-                oModel.setProperty("/filteredHistoryCount", oModel.getProperty("/rejectedHistoryCount") || 0);
+                oModel.setProperty("/filteredHistoryCount", aFiltered.length);
             }
             const oTable = this.byId("myRequestsUnifiedTable");
-            if (oTable) {
-                const oBinding = oTable.getBinding("items");
-                if (oBinding) {
-                    sap.ui.require(["sap/ui/model/Filter", "sap/ui/model/FilterOperator", "sap/m/MessageToast"], (Filter, FilterOperator, MessageToast) => {
-                        oBinding.filter([
-                            new Filter("status", FilterOperator.Contains, "Reject")
-                        ]);
-                        MessageToast.show("Filtered by Rejected access requests.");
-                    });
-                }
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter([]);
             }
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("Filtered by Rejected access requests.");
+            });
         },
 
         onCloseHistorySection() {
@@ -8364,8 +8402,8 @@ sap.ui.define([
                             if (!sStat.includes("reject") && !sStat.includes("decline")) return false;
                         } else if (bIsRevoked) {
                             const sStat = String(item.status || "").toLowerCase();
-                            if (sStat.includes("reject") || sStat.includes("decline")) return false;
-                            if (!sStat.includes("revok") && !sStat.includes("expired") && !isRevoc) return false;
+                            if (sStat.includes("reject") || sStat.includes("decline") || sStat.includes("pending")) return false;
+                            if (!sStat.includes("revok")) return false;
                         } else if (bIsApproved) {
                             const sStat = String(item.status || "").toLowerCase();
                             if ((!sStat.includes("approved") && !sStat.includes("active")) || isRevoc) return false;
