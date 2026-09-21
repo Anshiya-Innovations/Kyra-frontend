@@ -486,61 +486,6 @@
                     </VBox>
                 </HBox>
 
-                <!-- IN-PAGE APPROVED SYSTEM ENTITLEMENTS CARDS (Toggled by Approved Card Click - Only on My Access Tab) -->
-                <VBox id="approvedSectionContainer"
-                    visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showApprovedSection} }"
-                    class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
-                    <!-- Section Header -->
-                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                        <HBox alignItems="Center" class="kyraCardHeaderLeft">
-                            <Avatar src="sap-icon://sys-enter-2" class="kyraCardAvatarGreen fioriCardAvatar" displaySize="S" />
-                            <VBox class="kyraCardHeaderTextCol">
-                                <Title text="{= 'Approved System Entitlements (' + (${accessModel>/requestHistory} ? (${accessModel>/requestHistory}.filter(function(r){return r.status === 'Approved';}).length) : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
-                                <Text text="All approved access entitlements with assigned team and persona roles." class="fioriDescriptionText" />
-                            </VBox>
-                        </HBox>
-                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseApprovedSection" tooltip="Close Section" class="kyraCloseIconBtn" />
-                    </HBox>
-
-                    <!-- Approved Entitlement Cards List -->
-                    <List
-                        id="approvedEntitlementsCardList"
-                        items="{path: 'accessModel>/requestHistory', filters: [{path: 'status', operator: 'EQ', value1: 'Approved'}]}"
-                        noDataText="No approved entitlements found."
-                        showSeparators="None"
-                        class="sapUiNoMargin kyraApprovedEntitlementsList">
-                        <CustomListItem type="Inactive" class="kyraApprovedEntitlementCard sapUiSmallMarginBottom">
-                            <VBox class="kyraApprovedCardInner">
-                                <!-- Top Row: System chip + Request ID chip -->
-                                <HBox alignItems="Center" class="kyraApprovedCardChipRow sapUiTinyMarginBottom">
-                                    <HBox class="kyraApprovedSystemChip">
-                                        <Text text="{= ${accessModel>system} || 'SAP S/4HANA Enterprise' }" class="kyraApprovedSystemChipText" />
-                                    </HBox>
-                                    <HBox class="kyraApprovedReqIdChip sapUiTinyMarginBegin">
-                                        <Text text="{accessModel>requestId}" class="kyraApprovedReqIdChipText" />
-                                    </HBox>
-                                </HBox>
-                                <!-- Middle Row: Role title (bold) + Approved badge -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraApprovedCardMainRow">
-                                    <Text text="{= ${accessModel>roleTitle} || ${accessModel>roleName} || ${accessModel>services} || 'Access Role' }" class="kyraApprovedRoleTitle" />
-                                    <HBox class="kyraApprovedStatusPill" alignItems="Center">
-                                        <core:Icon src="sap-icon://sys-enter-2" class="kyraApprovedStatusIcon" />
-                                        <Text text="Approved" class="kyraApprovedStatusText" />
-                                    </HBox>
-                                </HBox>
-                                <!-- Bottom Row: Team: X • Persona: Y -->
-                                <HBox alignItems="Center" class="kyraApprovedCardSubRow sapUiTinyMarginTop">
-                                    <Text text="Team:" class="kyraApprovedSubLabel" />
-                                    <Text text="{= ${accessModel>teamRole} || ${accessModel>roleName} || ${accessModel>team} || '' }" class="kyraApprovedSubValue" />
-                                    <Text text=" • " class="kyraApprovedSubDot" />
-                                    <Text text="Persona:" class="kyraApprovedSubLabel" />
-                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} || '' }" class="kyraApprovedSubValue" />
-                                </HBox>
-                            </VBox>
-                        </CustomListItem>
-                    </List>
-                </VBox>
-
                 <!-- IN-PAGE PENDING ACCESS REQUESTS TABLE (Toggled by Card 1 Click - Only on My Access Tab) -->
                 <VBox id="pendingSectionContainer"
                     visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showPendingSection} }"
@@ -928,7 +873,7 @@
                             </form:SimpleForm>
 
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                            <VBox visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                            <VBox id="targetSystemSlideCard" visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">

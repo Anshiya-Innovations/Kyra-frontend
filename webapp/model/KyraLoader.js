@@ -22,14 +22,18 @@ sap.ui.define([], function() {
             const iDuration = options.duration;
             const fnComplete = options.onComplete || (() => {});
 
-            iActiveCount++;
+            if (!isVisible) {
+                iActiveCount = 1;
+                startTime = Date.now();
+            } else {
+                iActiveCount = 1;
+            }
 
             if (dismissTimer) {
                 clearTimeout(dismissTimer);
                 dismissTimer = null;
             }
 
-            startTime = Date.now();
             isVisible = true;
 
             let overlay = document.getElementById("kyra_loading_slide_overlay");
@@ -67,31 +71,21 @@ sap.ui.define([], function() {
             overlay.style.setProperty("opacity", "1", "important");
             overlay.style.setProperty("pointer-events", "all", "important");
 
-            // Safety timeout: auto-hide after duration or default 10s so application never hangs indefinitely
-            const iEffectiveDuration = (typeof iDuration === "number" && iDuration > 0) ? iDuration : 10000;
+            // Safety timeout: auto-hide after duration or default 5s so application never hangs indefinitely
+            const iEffectiveDuration = (typeof iDuration === "number" && iDuration > 0) ? iDuration : 5000;
             dismissTimer = setTimeout(() => {
                 this.forceHide(fnComplete);
             }, iEffectiveDuration);
         },
 
         /**
-         * Hides the global KYRA loading overlay.
-         * Decrements reference counter; overlay only fades out when all concurrent requests finish (or when bForce is true).
+         * Hides the global KYRA loading overlay immediately and safely.
          * @param {Function} [callback] Optional callback invoked after removal
          * @param {number} [minDisplayTime=0] Minimum milliseconds to keep loader displayed
          * @param {boolean} [bForce=false] If true, resets active counter and forces immediate dismissal
          */
         hide(callback, minDisplayTime = 0, bForce = false) {
-            if (bForce) {
-                iActiveCount = 0;
-            } else {
-                iActiveCount = Math.max(0, iActiveCount - 1);
-            }
-
-            // If concurrent operations are still in-flight, keep overlay visible
-            if (iActiveCount > 0) {
-                return;
-            }
+            iActiveCount = 0;
 
             if (dismissTimer) {
                 clearTimeout(dismissTimer);

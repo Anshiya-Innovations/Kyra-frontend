@@ -366,9 +366,27 @@ sap.ui.define([
                     const oRouter = this.getOwnerComponent().getRouter();
                     if (oRouter) {
                         oRouter.navTo("AccessPage");
+                        if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                            oRouter.getTargets().display("TargetAccessPage");
+                        }
                     }
                 } catch(e) {
                     console.warn("Router navigation to AccessPage warning:", e);
+                }
+
+                // 2. Direct Container View Switching Fallback
+                try {
+                    const oApp = this.byId("app") || 
+                                 (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                    if (oApp) {
+                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                        if (oInnerApp && typeof oInnerApp.to === "function") {
+                            oInnerApp.to("AccessPage", "show");
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Direct container fallback navigation error:", e);
                 }
             };
 

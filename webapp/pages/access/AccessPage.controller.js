@@ -221,11 +221,11 @@ sap.ui.define([
                 mapRegionList: [
                     { id: "na", name: "North America", left: "21.5%", top: "32%" },
                     { id: "latam", name: "Latin America", left: "33%", top: "60%" },
-                    { id: "eu", name: "Europe", left: "51.5%", top: "29%" },
-                    { id: "me", name: "Middle East", left: "59.5%", top: "41%" },
-                    { id: "af", name: "Africa", left: "53.5%", top: "52%" },
-                    { id: "as", name: "Asia", left: "71.5%", top: "35%" },
-                    { id: "apac", name: "Oceania / Australia", left: "82%", top: "64%" }
+                    { id: "eu", name: "Europe", left: "50%", top: "26%" },
+                    { id: "me", name: "Middle East", left: "63%", top: "39%" },
+                    { id: "af", name: "Africa", left: "52%", top: "57%" },
+                    { id: "as", name: "Asia", left: "74%", top: "34%" },
+                    { id: "apac", name: "Oceania / Australia", left: "83%", top: "65%" }
                 ],
                 mapSelectedRegions: [],
                 hasMapRegionSelection: false,
@@ -304,6 +304,19 @@ sap.ui.define([
             if (oRouter && oRouter.getRoute("AccessPage")) {
                 oRouter.getRoute("AccessPage").attachPatternMatched(this._onRouteMatched, this);
             }
+            if (oRouter && typeof oRouter.getTargets === "function" && oRouter.getTargets()) {
+                const oTarget = oRouter.getTargets().getTarget("TargetAccessPage");
+                if (oTarget && typeof oTarget.attachDisplay === "function") {
+                    oTarget.attachDisplay(() => {
+                        this._onRouteMatched();
+                    });
+                }
+            }
+            this.getView().addEventDelegate({
+                onBeforeShow: () => {
+                    this._onRouteMatched();
+                }
+            });
 
             // Expose global Request Tracking handler for child components (e.g. Decision Breakdown Summary)
             window.openKyraRequestTracking = async (sReqId, oExtra) => {
@@ -341,7 +354,7 @@ sap.ui.define([
                             const data = JSON.parse(evt.data);
                             if (data.type === "NEW_REQUEST" || data.type === "DECISION_SUBMITTED" || data.type === "MUTATION") {
                                 console.log("Cross-network SSE real-time sync event:", data);
-                                this._loadSubmittedRequests(oModel);
+                                this._loadSubmittedRequests(oModel, true);
                             }
                         } catch(e) {}
                     };
@@ -355,7 +368,7 @@ sap.ui.define([
                     this._syncChannel.onmessage = (evt) => {
                         if (evt && evt.data && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED")) {
                             console.log("Real-time DB sync event received:", evt.data);
-                            this._loadSubmittedRequests(oModel);
+                            this._loadSubmittedRequests(oModel, true);
                         }
                     };
                 } catch(e) { console.warn("BroadcastChannel init error:", e); }
@@ -365,7 +378,7 @@ sap.ui.define([
             if (!this._fnStorageHandler) {
                 this._fnStorageHandler = (e) => {
                     if (e.key === "kyra_last_db_mutation") {
-                        this._loadSubmittedRequests(oModel);
+                        this._loadSubmittedRequests(oModel, true);
                     }
                 };
                 window.addEventListener("storage", this._fnStorageHandler);
@@ -375,7 +388,7 @@ sap.ui.define([
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
                     if (!document.hidden) {
-                        this._loadSubmittedRequests(oModel);
+                        this._loadSubmittedRequests(oModel, true);
                     }
                 };
                 document.addEventListener("visibilitychange", this._fnVisibilityHandler);
@@ -390,7 +403,7 @@ sap.ui.define([
                     if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
                         const oM = this.getView().getModel("accessModel");
                         if (oM && !oM.getProperty("/showRequestDetailsPage")) {
-                            this._loadSubmittedRequests(oM);
+                            this._loadSubmittedRequests(oM, true);
                         }
                     }
                 }, 10000);
@@ -1277,9 +1290,26 @@ sap.ui.define([
         },
 
 
-        async _loadSubmittedRequests(oModel) {
+        async _loadSubmittedRequests(oModel, bSilent = false) {
             if (!oModel) return;
             if (oModel.getProperty("/showRequestDetailsPage")) return;
+
+            if (this._bIsLoadingRequests) {
+                return;
+            }
+            this._bIsLoadingRequests = true;
+
+            if (!bSilent) {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading KYRA Governance Dashboard...",
+                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        duration: 15000
+                    });
+                } else if (window.showKyraLoading) {
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
+                }
+            }
 
             localStorage.removeItem("kyra_submitted_my_pending");
             localStorage.removeItem("kyra_submitted_approver_requests");
@@ -1344,11 +1374,14 @@ sap.ui.define([
                 this._setSmartProperty(oModel, "/allPendingCount", 0);
                 this._setSmartProperty(oModel, "/allProcessedCount", 0);
                 this._updateCountBadges(oModel);
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
-                }
+                this._bIsLoadingRequests = false;
+                setTimeout(() => {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                }, 200);
                 return;
             }
 
@@ -2016,12 +2049,15 @@ sap.ui.define([
             this._cachedDbRequests = aRawDbRequests;
             this._loadNotifications(oModel, aRawDbRequests);
 
-            // Gracefully dismiss loading slide overlay now that all data is fully populated
-            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                window.KyraLoader.hide();
-            } else if (window.hideKyraLoading) {
-                window.hideKyraLoading();
-            }
+            this._bIsLoadingRequests = false;
+            // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+            }, 200);
         },
 
         onRemoveAccessClick(oEvent) {
@@ -3923,44 +3959,43 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 const bCurr = oModel.getProperty("/showAddAccessSector");
-                oModel.setProperty("/showAddAccessSector", !bCurr);
+                if (bCurr) {
+                    this._scrollToWizardContainer();
+                    return;
+                }
+
+                oModel.setProperty("/showAddAccessSector", true);
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
+                oModel.setProperty("/showRequestDetailsPage", false);
                 this._updateActionCardArrows(oModel);
 
-                if (!bCurr) {
-                    this._aSelectedRegionIds = [];
-                    this._updatePinSelectionStates();
-                    this._updateSelectedChips();
-                    this._updateSelectAllButtonState();
+                this._aSelectedRegionIds = [];
+                this._updatePinSelectionStates();
+                this._updateSelectedChips();
+                this._updateSelectAllButtonState();
 
-                    oModel.setProperty("/selectedSector", "");
-                    oModel.setProperty("/selectedFunction", "");
-                    oModel.setProperty("/availableFunctions", []);
-                    oModel.setProperty("/addAccessRegion", "");
-                    oModel.setProperty("/mapSelectedRegions", []);
-                    oModel.setProperty("/hasMapRegionSelection", false);
-                    oModel.setProperty("/addAccessSelectedSystems", []);
-                    oModel.setProperty("/addAccessSelectedServices", []);
-                    oModel.setProperty("/addAccessSelectedRoles", []);
-                    oModel.setProperty("/addAccessSelectedPersonas", []);
-                    oModel.setProperty("/addAccessDuration", "");
-                    oModel.setProperty("/addAccessJustification", "");
-                    oModel.setProperty("/addAccessSystemSlideConfigs", {});
-                    oModel.setProperty("/addAccessCurrentSystemIndex", 0);
-                    oModel.setProperty("/addAccessStep", 1);
-                    oModel.setProperty("/addAccessConfigSubStep", 1);
-                    oModel.setProperty("/isEditingFromSummary", false);
-                    setTimeout(() => {
-                        const oPage = this.byId("accessPortalPage");
-                        const oTarget = this.byId("addAccessSectionContainer");
-                        if (oPage && oTarget) {
-                            oPage.scrollToElement(oTarget, 400);
-                        }
-                        this._setupStep1SelectFields();
-                    }, 100);
-                }
+                oModel.setProperty("/selectedSector", "");
+                oModel.setProperty("/selectedFunction", "");
+                oModel.setProperty("/availableFunctions", []);
+                oModel.setProperty("/addAccessRegion", "");
+                oModel.setProperty("/mapSelectedRegions", []);
+                oModel.setProperty("/hasMapRegionSelection", false);
+                oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                oModel.setProperty("/addAccessDuration", "");
+                oModel.setProperty("/addAccessJustification", "");
+                oModel.setProperty("/addAccessSystemSlideConfigs", {});
+                oModel.setProperty("/addAccessCurrentSystemIndex", 0);
+                oModel.setProperty("/addAccessStep", 1);
+                oModel.setProperty("/addAccessConfigSubStep", 1);
+                oModel.setProperty("/isEditingFromSummary", false);
+
+                this._setupStep1SelectFields();
+                this._scrollToWizardContainer();
             }
         },
 
@@ -4127,8 +4162,34 @@ sap.ui.define([
             }, 100);
         },
 
+        _smoothScrollTo(sElementId, iOffset) {
+            const nOffset = (typeof iOffset === "number") ? iOffset : 64;
+            const fnDoScroll = () => {
+                const oTarget = this.byId(sElementId);
+                const oDom = oTarget ? oTarget.getDomRef() : document.getElementById(this.createId(sElementId));
+                if (oDom) {
+                    try {
+                        oDom.style.scrollMarginTop = nOffset + "px";
+                        oDom.scrollIntoView({ behavior: "smooth", block: "start" });
+                    } catch (e) {
+                        const oPage = this.byId("accessPortalPage");
+                        if (oPage && oTarget && typeof oPage.scrollToElement === "function") {
+                            oPage.scrollToElement(oTarget, 400);
+                        }
+                    }
+                } else {
+                    const oPage = this.byId("accessPortalPage");
+                    if (oPage && oTarget && typeof oPage.scrollToElement === "function") {
+                        oPage.scrollToElement(oTarget, 400);
+                    }
+                }
+            };
+            setTimeout(fnDoScroll, 100);
+            setTimeout(fnDoScroll, 250);
+        },
+
         _scrollToWizardContainer() {
-            // Keep page position stable - do not automatically scroll down
+            this._smoothScrollTo("addAccessSectionContainer", 64);
         },
 
         onGoToAddAccessStep3() {
@@ -6244,9 +6305,18 @@ sap.ui.define([
                 }
             }
 
-            // Reset wizard overlay state
-            oModel.setProperty("/addAccessStep", 1);
-            oModel.setProperty("/showAddAccessSector", false);
+            // Note: Keep Add Access wizard box open and stable in the background
+            // so the submission notification modal shows cleanly without snapping the layout shut.
+            const fnDismissSubmitDialog = () => {
+                this._resetAddAccessState();
+                this._updateActionCardArrows(oModel);
+                const oPage = this.byId("accessPortalPage");
+                if (oPage && typeof oPage.scrollTo === "function") {
+                    oPage.scrollTo(0, 400);
+                } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+            };
 
             let sPopupHtml = `
                 <div style="font-family: inherit; color: #0F172A;">
@@ -6356,11 +6426,14 @@ sap.ui.define([
                     messageHtml: sPopupHtml,
                     type: "success",
                     maxWidth: "520px",
-                    buttonText: "Done"
+                    buttonText: "Done",
+                    onConfirm: fnDismissSubmitDialog,
+                    onClose: fnDismissSubmitDialog
                 });
             } else {
                 MessageBox.information("Access Request processing complete!", {
-                    title: "Access Request Submitted"
+                    title: "Access Request Submitted",
+                    onClose: fnDismissSubmitDialog
                 });
             }
         },
@@ -6510,22 +6583,18 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     const bCurr = oModel.getProperty("/showPendingSection");
-                    oModel.setProperty("/showPendingSection", !bCurr);
+                    if (bCurr) {
+                        this._smoothScrollTo("pendingSectionContainer", 64);
+                        return;
+                    }
+                    oModel.setProperty("/showPendingSection", true);
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
                     this._updateActionCardArrows(oModel);
                     
-                    if (!bCurr) {
-                        setTimeout(() => {
-                            const oPage = this.byId("accessPortalPage");
-                            const oTarget = this.byId("pendingSectionContainer");
-                            if (oPage && oTarget) {
-                                oPage.scrollToElement(oTarget, 400);
-                            }
-                        }, 100);
-                    }
+                    this._smoothScrollTo("pendingSectionContainer", 64);
                 }
             });
         },
@@ -6535,22 +6604,18 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     const bCurr = oModel.getProperty("/showApprovedSection");
-                    oModel.setProperty("/showApprovedSection", !bCurr);
+                    if (bCurr) {
+                        this._smoothScrollTo("approvedSectionContainer", 64);
+                        return;
+                    }
+                    oModel.setProperty("/showApprovedSection", true);
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
                     this._updateActionCardArrows(oModel);
                     
-                    if (!bCurr) {
-                        setTimeout(() => {
-                            const oPage = this.byId("accessPortalPage");
-                            const oTarget = this.byId("approvedSectionContainer");
-                            if (oPage && oTarget) {
-                                oPage.scrollToElement(oTarget, 400);
-                            }
-                        }, 100);
-                    }
+                    this._smoothScrollTo("approvedSectionContainer", 64);
                 }
             });
         },
@@ -7136,17 +7201,20 @@ sap.ui.define([
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     const bCurr = oModel.getProperty("/showRemoveAccessSector");
-                    const bNewState = !bCurr;
-                    oModel.setProperty("/showRemoveAccessSector", bNewState);
+                    if (bCurr) {
+                        this._smoothScrollTo("removeAccessSection", 64);
+                        return;
+                    }
+
+                    oModel.setProperty("/showRemoveAccessSector", true);
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
+                    oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
 
-                    if (bNewState) {
-                        // Keep page stable
-                    }
+                    this._smoothScrollTo("removeAccessSection", 64);
                 }
             });
         },

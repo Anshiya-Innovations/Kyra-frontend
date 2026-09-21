@@ -79,6 +79,19 @@ sap.ui.define([
 
             const oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
+
+            // Pre-load AccessPage during idle time so first login transition is instantaneous
+            setTimeout(() => {
+                try {
+                    sap.ui.require(["kyra001/pages/access/AccessPage.controller"]);
+                    if (oRouter && oRouter.getTargets && typeof oRouter.getTargets().getTarget === "function") {
+                        const oTarget = oRouter.getTargets().getTarget("TargetAccessPage");
+                        if (oTarget && typeof oTarget._load === "function") {
+                            oTarget._load();
+                        }
+                    }
+                } catch(e) {}
+            }, 500);
         },
 
         onAfterRendering() {
@@ -151,6 +164,9 @@ sap.ui.define([
                     } catch(e) {}
                 }
                 oRouter.navTo("AccessPage", {}, true);
+                if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                    oRouter.getTargets().display("TargetAccessPage");
+                }
                 return;
             }
 
@@ -323,10 +339,11 @@ sap.ui.define([
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records..."
+                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        duration: 15000
                     });
                 } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...");
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
                 }
                 oModel.setProperty("/isBusy", false);
 
@@ -366,9 +383,27 @@ sap.ui.define([
                     const oRouter = this.getOwnerComponent().getRouter();
                     if (oRouter) {
                         oRouter.navTo("AccessPage");
+                        if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                            oRouter.getTargets().display("TargetAccessPage");
+                        }
                     }
                 } catch(e) {
                     console.warn("Router navigation to AccessPage warning:", e);
+                }
+
+                // 2. Direct Container View Switching Fallback
+                try {
+                    const oApp = this.byId("app") || 
+                                 (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                    if (oApp) {
+                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                        if (oInnerApp && typeof oInnerApp.to === "function") {
+                            oInnerApp.to("AccessPage");
+                        }
+                    }
+                } catch(e) {
+                    console.warn("Direct container fallback navigation error:", e);
                 }
             };
 

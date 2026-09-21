@@ -109,6 +109,9 @@ sap.ui.define([
 
                     // Otherwise direct to primary portal AccessPage
                     oRouter.navTo("AccessPage", {}, true);
+                    if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                        oRouter.getTargets().display("TargetAccessPage");
+                    }
                 }
             });
 
@@ -217,10 +220,11 @@ sap.ui.define([
                 // Patch MultiComboBox prototype to prevent unwanted auto-close during multi-select and update text display
                 if (typeof MultiComboBox !== "undefined" && MultiComboBox && MultiComboBox.prototype) {
                     const origMultiClose = MultiComboBox.prototype.close;
-                    MultiComboBox.prototype.close = function() {
-                        if (this._bPreventAutoClose) {
+                    MultiComboBox.prototype.close = function(bForce) {
+                        if (this._bPreventAutoClose && !bForce) {
                             return this;
                         }
+                        this._bPreventAutoClose = false;
                         return origMultiClose.apply(this, arguments);
                     };
 
@@ -482,31 +486,14 @@ sap.ui.define([
                             triggerReposition();
                             if (!stopLoop) stopLoop = startAlignmentLoop(oControl, oPicker);
 
+                            if (oControl && (typeof oControl.getSelectedKeys === "function" || (oControl.isA && oControl.isA("sap.m.MultiComboBox")))) {
+                                oControl._bPreventAutoClose = true;
+                                window._kyraActiveMultiComboBox = oControl;
+                            }
+
                             // Keep dropdown anchored if window is resized or scrolled while open
                             window.addEventListener("scroll", triggerReposition, { passive: true, capture: true });
                             window.addEventListener("resize", triggerReposition, { passive: true });
-
-                            const oPickerDom = getPickerDom(oPicker);
-                            if (oPickerDom && !oPickerDom._kyraMultiEventsAttached) {
-                                oPickerDom._kyraMultiEventsAttached = true;
-
-                                const markInteracting = () => {
-                                    oControl._bPreventAutoClose = true;
-                                };
-                                const clearInteracting = () => {
-                                    setTimeout(() => {
-                                        oControl._bPreventAutoClose = false;
-                                    }, 350);
-                                };
-
-                                oPickerDom.addEventListener("mousedown", markInteracting, true);
-                                oPickerDom.addEventListener("touchstart", markInteracting, true);
-                                oPickerDom.addEventListener("pointerdown", markInteracting, true);
-
-                                oPickerDom.addEventListener("mouseup", clearInteracting, true);
-                                oPickerDom.addEventListener("touchend", clearInteracting, true);
-                                oPickerDom.addEventListener("pointerup", clearInteracting, true);
-                            }
                         });
 
                         oPicker.attachAfterClose(() => {
@@ -516,6 +503,9 @@ sap.ui.define([
                             }
                             window.removeEventListener("scroll", triggerReposition, { capture: true });
                             window.removeEventListener("resize", triggerReposition);
+                            if (window._kyraActiveMultiComboBox === oControl) {
+                                window._kyraActiveMultiComboBox = null;
+                            }
                         });
                     }
                 };
@@ -570,7 +560,7 @@ sap.ui.define([
                                 }
                                 if (typeof this.isOpen === "function") {
                                     if (this.isOpen()) {
-                                        this.close();
+                                        this.close(true);
                                     } else {
                                         this.open();
                                     }
@@ -589,6 +579,20 @@ sap.ui.define([
                         if (!e.target || !e.target.closest) return;
                         if (e.target.closest(".sapMTokenIcon")) return;
                         if (e.target.closest(".sapMPopover, .sapMDialog, .sapMComboBoxBasePicker, .sapMSltPicker")) return;
+
+                        // Cleanly dismiss active MultiComboBox if clicking outside both the opener and picker
+                        if (window._kyraActiveMultiComboBox && typeof window._kyraActiveMultiComboBox.isOpen === "function" && window._kyraActiveMultiComboBox.isOpen()) {
+                            const oActiveDom = window._kyraActiveMultiComboBox.getDomRef();
+                            const oActivePicker = (typeof window._kyraActiveMultiComboBox.getPicker === "function" && window._kyraActiveMultiComboBox.getPicker()) ||
+                                                  (typeof window._kyraActiveMultiComboBox._getPicker === "function" && window._kyraActiveMultiComboBox._getPicker());
+                            const oPickerDom = getPickerDom(oActivePicker);
+                            if ((!oPickerDom || !oPickerDom.contains(e.target)) &&
+                                (!oActiveDom || !oActiveDom.contains(e.target)) &&
+                                !e.target.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect")) {
+                                window._kyraActiveMultiComboBox.close(true);
+                                window._kyraActiveMultiComboBox = null;
+                            }
+                        }
 
                         const oComboDom = e.target.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect, .sapMSelectArrow, .sapMComboBoxArrow, .sapMInputBaseIconContainer");
                         if (!oComboDom) return;
@@ -611,7 +615,7 @@ sap.ui.define([
 
                                 if (typeof oControl.isOpen === "function") {
                                     if (oControl.isOpen()) {
-                                        oControl.close();
+                                        oControl.close(true);
                                     } else {
                                         oControl.open();
                                     }
