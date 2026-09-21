@@ -166,6 +166,10 @@ sap.ui.define([
         onInit() {
             this._localInFlightRevocations = {};
             this._aSelectedRegionIds = [];
+            try {
+                localStorage.removeItem("kyra_pending_revocations");
+                sessionStorage.removeItem("kyra_pending_revocations");
+            } catch(e) {}
             const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "emp001";
             const sActiveUser = (sRawActiveUser || "").trim().toLowerCase();
             sessionStorage.setItem("kyra_active_user", sActiveUser);
@@ -1616,7 +1620,7 @@ sap.ui.define([
 
                     if (isOverallPending) {
                         aMyPending.push(oReqObj);
-                        aMyHistory.push(oReqObj);
+                        // Pending requests are strictly kept in Pending Requests queue and NOT displayed in History
                     } else if (isOverallApproved) {
                         if (isRevocationReq) {
                             oReqObj.status = "Revoked";
@@ -1638,7 +1642,7 @@ sap.ui.define([
                         aMyHistory.push(oReqObj);
                     }
 
-                                        const sRoleOnlyKey = (r.target_system || "") + ":::" + sCleanItemRole;
+                    const sRoleOnlyKey = (r.target_system || "") + ":::" + sCleanItemRole;
 
                     if (!roleStates[sKey]) {
                         if (isRevocationReq) {
@@ -1653,9 +1657,10 @@ sap.ui.define([
                                     }
                                 }
                                 try {
-                                    const aStored = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                                    const aFiltered = aStored.filter(item => item.requestId !== r.request_number);
-                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aFiltered));
+                                    const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => item.requestId !== r.request_number)));
+                                    const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
+                                    localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== r.request_number)));
                                 } catch(e) {}
                             } else if (isOverallRejected) {
                                 roleStates[sKey] = { request: r, status: 'ACTIVE' };
@@ -1668,9 +1673,10 @@ sap.ui.define([
                                     }
                                 }
                                 try {
-                                    const aStored = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                                    const aFiltered = aStored.filter(item => item.requestId !== r.request_number);
-                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aFiltered));
+                                    const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => item.requestId !== r.request_number)));
+                                    const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
+                                    localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== r.request_number)));
                                 } catch(e) {}
                             } else if (isOverallPending) {
                                 roleStates[sKey] = { request: r, status: 'REVOKE_PENDING' };
@@ -1990,61 +1996,49 @@ sap.ui.define([
 
             this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
             this._setSmartProperty(oModel, "/myApprovedRequests", aMyApproved);
+                        try {
+                const sS = sessionStorage.getItem("kyra_pending_revocations");
+                const sL = localStorage.getItem("kyra_pending_revocations");
+                const aS = sS ? JSON.parse(sS) : [];
+                const aL = sL ? JSON.parse(sL) : [];
+                const aStoredRev = aS.concat(aL);
+                aStoredRev.forEach(rev => {
+                    if (!rev || !rev.requestId) return;
+                    const sRevId = String(rev.requestId).trim().toUpperCase();
+                    const bAlreadyExists = aRawDbRequests.some(r => {
+                        const sNum = String(r.request_number || r.requestId || r.id || "").trim().toUpperCase();
+                        return sNum === sRevId || sNum.startsWith(sRevId + "-") || sRevId.startsWith(sNum + "-");
+                    });
+                    if (!bAlreadyExists) {
+                        aRawDbRequests.unshift({
+                            id: rev.requestId,
+                            request_number: rev.requestId,
+                            requester_username: rev.requesterUsername || rev.requesterId || "emp018",
+                            requester_persona: rev.persona || "Requester",
+                            business_sector: rev.sector || "Information Technology & Security",
+                            business_function: rev.function || "Corporate Governance",
+                            operating_region: rev.region || "Global Enterprise (ALL)",
+                            target_system: rev.system,
+                            role_name: rev.roleName,
+                            service_topic: rev.category || "System Administrator",
+                            selected_persona: rev.persona,
+                            access_type: "Revocation",
+                            access_duration: rev.duration || rev.accessDuration || "30 Days (Temporary)",
+                            justification: rev.justification || "Revocation of access",
+                            db_status: "PENDING",
+                            status: "PENDING",
+                            approver_status: "",
+                            created_at: rev.createdAt || new Date().toISOString()
+                        });
+                    }
+                });
+            } catch(eR) {}
+
             const oApproverData = this._buildApproverHistoryAndPending(aRawDbRequests);
             const aApprPending = oApproverData.pending;
             const isRevReqHelper = (p) => !!(p.isRevocation || String(p.type || '').toUpperCase().includes('REV') || String(p.accessType || '').toUpperCase().includes('REV') || String(p.requestId || p.requestNumber || '').toUpperCase().startsWith('REV-'));
             const aApprPendingAccess = aApprPending.filter(p => !isRevReqHelper(p));
             const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => isRevReqHelper(p));
-
-            if (!isCompliancePersona) {
-                try {
-                    const aStoredRevs = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                    aStoredRevs.forEach(sr => {
-                        const sSrId = sr.requestId || sr.requestNumber;
-                        if (sSrId && !aApprPendingRevoke.some(p => p.requestId === sSrId || (p.requestId && p.requestId.startsWith(sSrId)))) {
-                            const oInflightApproverRev = {
-                                requestId: sSrId,
-                                requesterId: sr.requesterUsername || sr.requesterId || "emp018",
-                                requesterUsername: sr.requesterUsername || sr.requesterId || "emp018",
-                                selectedPersona: sr.persona || sr.selectedPersona || "Requester",
-                                persona: sr.persona || sr.selectedPersona || "Requester",
-                                sector: sr.sector || "Information Technology & Security",
-                                businessSector: sr.sector || "Information Technology & Security",
-                                function: sr.function || sr.businessFunction || "Corporate Governance",
-                                businessFunction: sr.function || sr.businessFunction || "Corporate Governance",
-                                duration: sr.accessDuration || sr.duration || "30/30 days left",
-                                accessDuration: sr.accessDuration || sr.duration || "30/30 days left",
-                                region: sr.region || "Global Enterprise (ALL)",
-                                operatingRegion: sr.region || "Global Enterprise (ALL)",
-                                justification: sr.justification || ("Revocation of access for role " + (sr.roleName || "")),
-                                type: "Revocation",
-                                serviceTopic: sr.category || "Revocation Request",
-                                submissionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
-                                decisionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
-                                status: "Revoke Pending",
-                                statusState: "Error",
-                                statusIcon: "sap-icon://pending",
-                                isRevocation: true,
-                                _isPendingForRole: true,
-                                entitlements: [{
-                                    requestId: sSrId,
-                                    system: sr.system,
-                                    roleName: sr.roleName,
-                                    team: sr.team || "System Administrator",
-                                    serviceTopic: sr.category || "Revocation Request",
-                                    selectedPersona: sr.persona || "Requester",
-                                    persona: sr.persona || "Requester",
-                                    status: "Pending",
-                                    statusState: "Warning",
-                                    statusIcon: "sap-icon://pending"
-                                }]
-                            };
-                            aApprPendingRevoke.push(oInflightApproverRev);
-                            aApprPending.push(oInflightApproverRev);
-                        }
-                    });
-                } catch(e) {}
-            }
 
             const sortChronologicallyDesc = (a, b) => {
                 const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || a.decisionDate || 0).getTime();
@@ -2069,9 +2063,18 @@ sap.ui.define([
             const aFinalProcessed = oApproverData.processed || [];
             // Stale session storage injection removed to prevent data flicker
             this._setSmartProperty(oModel, "/processedRequests", aFinalProcessed);
-            this._setSmartProperty(oModel, "/requestHistory", aMyHistory);
-            this._setSmartProperty(oModel, "/myHistoryRequests", aMyHistory);
             this._masterMyHistoryRequests = [].concat(aMyHistory || []);
+
+            if (this._currentHistoryFilterMatchesItem && typeof this._currentHistoryFilterMatchesItem === "function") {
+                const aFilteredHist = (this._masterMyHistoryRequests || []).filter(this._currentHistoryFilterMatchesItem);
+                this._setSmartProperty(oModel, "/requestHistory", aFilteredHist);
+                this._setSmartProperty(oModel, "/myHistoryRequests", aFilteredHist);
+                this._setSmartProperty(oModel, "/filteredHistoryCount", aFilteredHist.length);
+            } else {
+                this._setSmartProperty(oModel, "/requestHistory", aMyHistory);
+                this._setSmartProperty(oModel, "/myHistoryRequests", aMyHistory);
+                this._setSmartProperty(oModel, "/filteredHistoryCount", aMyHistory.length);
+            }
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
             this._setSmartProperty(oModel, "/displayedUserAccessList", aUniqueUserAccessList);
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
@@ -2248,13 +2251,7 @@ sap.ui.define([
                     aMyPending.unshift(oNewPendingReq);
                     this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
 
-                    // Also prepend to requestHistory list
-                    const aHistory = oModel.getProperty("/requestHistory") || [];
-                    aHistory.unshift(oNewPendingReq);
-                    this._setSmartProperty(oModel, "/requestHistory", aHistory);
-                    this._setSmartProperty(oModel, "/filteredHistoryRequests", aHistory);
-
-                    // Re-calculate KPI badge counters
+                    // Pending revocation requests belong strictly in myPendingRequests queue
                     this._recalculateAllHistoryKpiCounters(oModel);
 
                     // Persist Revocation Request to PostgreSQL database
@@ -2352,16 +2349,23 @@ sap.ui.define([
                     new Filter("requestId", FilterOperator.Contains, sQuery),
                     new Filter("system", FilterOperator.Contains, sQuery),
                     new Filter("roleName", FilterOperator.Contains, sQuery),
+                    new Filter("roleTitle", FilterOperator.Contains, sQuery),
                     new Filter("serviceTopic", FilterOperator.Contains, sQuery),
                     new Filter("selectedPersona", FilterOperator.Contains, sQuery),
+                    new Filter("persona", FilterOperator.Contains, sQuery),
                     new Filter("accessDuration", FilterOperator.Contains, sQuery),
+                    new Filter("duration", FilterOperator.Contains, sQuery),
                     new Filter("status", FilterOperator.Contains, sQuery)
                 ], false));
             }
 
-            const oTable = this.byId("myRequestsTable");
-            const oBinding = oTable.getBinding("items");
-            oBinding.filter(aFilters);
+            const oTable = this.byId("myRequestsUnifiedTable") || this.byId("myRequestsTable");
+            if (oTable) {
+                const oBinding = oTable.getBinding("items");
+                if (oBinding) {
+                    oBinding.filter(aFilters);
+                }
+            }
         },
 
         onExportAccess() {
@@ -3617,11 +3621,22 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel || !oNotif) return { isDecided: false, processedItem: null };
 
-            const sActualId = String(oNotif.actualRequestId || oNotif.targetRequestId || "").trim().toLowerCase();
+            const sActualId = String(oNotif.actualRequestId || oNotif.targetRequestId || oNotif.requestId || "").trim().toLowerCase();
             const sBadgeId = String(oNotif.requestId || "").trim().toLowerCase();
             const sTargetId = sActualId || sBadgeId;
 
+            const getBase = (str) => {
+                if (!str) return "";
+                const s = String(str).trim().toLowerCase();
+                const lastDash = s.lastIndexOf('-');
+                if (lastDash > 0 && lastDash >= s.length - 4) {
+                    return s.slice(0, lastDash);
+                }
+                return s;
+            };
+
             const aProcessed = oModel.getProperty("/processedRequests") || [];
+            const aHistory = oModel.getProperty("/requestHistory") || [];
             const aPending = oModel.getProperty("/pendingRequests") || [];
             const aPendingAccess = oModel.getProperty("/pendingAccessRequests") || [];
             const aPendingRevoke = oModel.getProperty("/pendingRevokeRequests") || [];
@@ -3630,10 +3645,15 @@ sap.ui.define([
             const matchesItem = (p) => {
                 if (!p) return false;
                 const pId = String(p.requestId || p.requestNumber || "").trim().toLowerCase();
-                if (pId && (pId === sTargetId || (sActualId && pId === sActualId))) return true;
+                const pBase = getBase(pId);
+                const tBase = getBase(sTargetId);
+                const aBase = getBase(sActualId);
+
+                if (pId && (pId === sTargetId || pId === sActualId || pBase === tBase || pBase === aBase || (sActualId && pId.startsWith(sActualId)) || (sTargetId && pId.startsWith(sTargetId)))) return true;
                 if (p.entitlements && p.entitlements.some(e => {
                     const eId = String(e.requestId || e.requestNumber || "").trim().toLowerCase();
-                    return eId && (eId === sTargetId || (sActualId && eId === sActualId));
+                    const eBase = getBase(eId);
+                    return eId && (eId === sTargetId || eId === sActualId || eBase === tBase || eBase === aBase || (sActualId && eId.startsWith(sActualId)) || (sTargetId && eId.startsWith(sTargetId)));
                 })) return true;
                 return false;
             };
@@ -3644,19 +3664,30 @@ sap.ui.define([
                 return { isDecided: true, processedItem: oFoundProcessed };
             }
 
-            // 2. Check if still waiting in pending queue (decision NOT yet submitted)
+            // 2. Check in History requests (decided additions or revocations)
+            const oFoundHistory = aHistory.find(matchesItem);
+            if (oFoundHistory) {
+                const sStat = String(oFoundHistory.status || "").toLowerCase();
+                if (sStat.includes("approv") || sStat.includes("reject") || sStat.includes("revok")) {
+                    return { isDecided: true, processedItem: oFoundHistory };
+                }
+            }
+
+            // 3. Check if still waiting in pending queue (decision NOT yet submitted)
             const bStillPending = aAllPending.some(matchesItem);
             if (bStillPending) {
                 return { isDecided: false, processedItem: null };
             }
 
-            // 3. Fallback: check cached database records for decision status
+            // 4. Fallback: check cached database records for decision status
             const aDb = this._cachedDbRequests || [];
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
             const isComp = sActiveRole.includes("compliance");
             const oDbMatch = aDb.find(r => {
                 const rNum = String(r.request_number || r.requestId || "").trim().toLowerCase();
-                return rNum && (rNum === sTargetId || (sActualId && rNum === sActualId));
+                const rBase = getBase(rNum);
+                const tBase = getBase(sTargetId);
+                return rNum && (rNum === sTargetId || (sActualId && rNum === sActualId) || rBase === tBase || (sActualId && rNum.startsWith(sActualId)));
             });
             if (oDbMatch) {
                 if (isComp) {
@@ -4011,27 +4042,7 @@ sap.ui.define([
                                 this._loadNotifications(oModel);
                                 oPopover.close();
 
-                                const sCurRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "").toLowerCase();
-                                const bIsReviewer = sCurRole.includes("approver") || sCurRole.includes("compliance") || sCurRole.includes("manager") || !!oModel.getProperty("/isApproverPersona");
-
-                                if (n.targetPage === "ApproverDetail" || bIsReviewer) {
-                                    if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                                        window.KyraLoader.show({
-                                            title: "Loading Governance Review...",
-                                            subtitle: "Evaluating live Segregation of Duties (SoD) conflict matrix..."
-                                        });
-                                    } else if (window.showKyraLoading) {
-                                        window.showKyraLoading("Loading Governance Review...", "Evaluating live Segregation of Duties (SoD) conflict matrix...");
-                                    }
-                                    this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
-                                        requestId: n.requestId
-                                    });
-                                } else {
-                                    this.onOpenPendingRequestDetails({
-                                        requestId: n.requestId,
-                                        requestNumber: n.requestId
-                                    });
-                                }
+                                this._handleNotificationNavigation(n);
                             };
                         }
                     });
@@ -7694,6 +7705,7 @@ sap.ui.define([
         },
 
         onFilterHistoryByAll() {
+            this._currentHistoryFilterMatchesItem = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
@@ -7721,6 +7733,7 @@ sap.ui.define([
         },
 
         onFilterHistoryByPending() {
+            this._currentHistoryFilterMatchesItem = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
@@ -7750,6 +7763,7 @@ sap.ui.define([
         },
 
         onFilterHistoryByExpired() {
+            this._currentHistoryFilterMatchesItem = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
@@ -7789,6 +7803,7 @@ sap.ui.define([
         },
 
         onFilterHistoryByRevoked() {
+            this._currentHistoryFilterMatchesItem = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
@@ -7824,6 +7839,7 @@ sap.ui.define([
         },
 
         onFilterHistoryByApproved() {
+            this._currentHistoryFilterMatchesItem = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
@@ -7859,6 +7875,7 @@ sap.ui.define([
         },
 
         onFilterHistoryByRejected() {
+            this._currentHistoryFilterMatchesItem = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 if (this._masterMyHistoryRequests && this._masterMyHistoryRequests.length > 0) {
@@ -7881,7 +7898,7 @@ sap.ui.define([
                         oBinding.filter([
                             new Filter("status", FilterOperator.Contains, "Reject")
                         ]);
-                        MessageToast.show("Filtered by Rejected requests.");
+                        MessageToast.show("Filtered by Rejected access requests.");
                     });
                 }
             }
@@ -8296,18 +8313,19 @@ sap.ui.define([
                             }
                         }
 
-                        // Check duration
+                        // Check duration & timeline
                         const sDur = String(item.accessDuration || item.duration || item.access_duration || "").toLowerCase();
                         if (!oSelectionState.ALL && aDurationLabels.length > 0) {
                             let bDurMatch = false;
+
                             if (oSelectionState.PERMANENT && (sDur.includes("permanent") || sDur.includes("default") || sDur.includes("continuous"))) {
                                 bDurMatch = true;
                             }
-                            if (oSelectionState["30DAYS"]) {
-                                if (sDur.includes("30")) bDurMatch = true;
+                            if (oSelectionState["30DAYS"] && sDur.includes("30") && !sDur.includes("90")) {
+                                bDurMatch = true;
                             }
-                            if (oSelectionState["90DAYS"]) {
-                                if (sDur.includes("90")) bDurMatch = true;
+                            if (oSelectionState["90DAYS"] && sDur.includes("90")) {
+                                bDurMatch = true;
                             }
                             if (!bDurMatch) return false;
                         }
@@ -8340,6 +8358,7 @@ sap.ui.define([
                     }
 
                     if (oSelectionState.ALL && !oSelectionState.CUSTOM) {
+                        this._currentHistoryFilterMatchesItem = null;
                         const aFiltered = this._masterMyHistoryRequests ? this._masterMyHistoryRequests.filter(matchesItem) : (oModel.getProperty("/requestHistory") || []);
                         oModel.setProperty("/myHistoryRequests", aFiltered);
                         oModel.setProperty("/requestHistory", aFiltered);
@@ -8383,6 +8402,7 @@ sap.ui.define([
                         return;
                     }
 
+                    this._currentHistoryFilterMatchesItem = matchesItem;
                     if (this._masterMyHistoryRequests) {
                         const aFiltered = this._masterMyHistoryRequests.filter(matchesItem);
                         oModel.setProperty("/myHistoryRequests", aFiltered);

@@ -862,10 +862,10 @@ sap.ui.define([
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
 
-                const isRevocation = (r.access_type || r.request_type || "").toUpperCase().includes("REV") ||
-                             (r.business_function || "").toUpperCase().includes("REVOCATION") ||
-                             (r.request_number || "").toUpperCase().startsWith("REV-") ||
-                             (r.request_number || "").toUpperCase().includes("-REV-");
+                const isRevocation = (r.access_type || r.request_type || r.accessType || r.type || "").toUpperCase().includes("REV") ||
+                             (r.business_function || r.businessFunction || "").toUpperCase().includes("REVOCATION") ||
+                             (r.request_number || r.requestId || "").toUpperCase().startsWith("REV-") ||
+                             (r.request_number || r.requestId || "").toUpperCase().includes("-REV-");
 
                 let isPendingForRole = false;
                 let bRoleApproved = false;
@@ -905,7 +905,7 @@ sap.ui.define([
                                               sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
 
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || (isRevocation && sDbStatus.includes("PENDING")))) {
+                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || sDbStatus === "SUBMITTED" || (isRevocation && (sDbStatus.includes("PENDING") || sDbStatus === "ACTIVE" || sDbStatus === "SUBMITTED" || sDbStatus === "IN_PROGRESS" || !sDbStatus || sDbStatus === "")))) {
                         isPendingForRole = true;
                     } else if (isApproverDecided) {
                         isProcessedForRole = true;
@@ -915,7 +915,7 @@ sap.ui.define([
 
                 const sService = deriveCleanService(r);
                 const sDate = r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : "2026-09-04");
-                const sUser = r.requester_username || "User";
+                const sUser = r.requester_username || r.requesterId || r.requesterUsername || "User";
 
                 // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
                 let matchingApproved = null;
@@ -937,25 +937,25 @@ sap.ui.define([
                     });
                 }
 
-                const sSector = (matchingApproved && matchingApproved.business_sector) || r.business_sector || "Information Technology & Security";
+                const sSector = (matchingApproved && matchingApproved.business_sector) || r.business_sector || r.sector || "Information Technology & Security";
                 const sFunction = (isRevocation && matchingApproved && matchingApproved.business_function)
                     ? matchingApproved.business_function
-                    : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : "Corporate Governance");
+                    : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : (r.function || "Corporate Governance"));
                 const sDuration = isRevocation ? formatArDuration(r, matchingApproved) : (r.access_duration || r.duration || "Permanent");
                 const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
                 const sJustification = r.justification || "";
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
 
                 if (isPendingForRole) {
-                    const sBaseId = getBaseReqId(r.request_number);
-                    const sPendKey = sBaseId || r.request_number || (sUser + "_" + sSector + "_" + sFunction + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
+                    const sBaseId = getBaseReqId(r.request_number || r.requestId);
+                    const sPendKey = sBaseId || r.request_number || r.requestId || (sUser + "_" + sSector + "_" + sFunction + "_" + (isRevocation ? "REVOCATION" : "ADDITION"));
                     if (!oPendingGrouped[sPendKey]) {
                         oPendingGrouped[sPendKey] = {
-                            requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
+                            requestId: sBaseId || r.request_number || r.requestId || ("REQ-" + (r.ID || "GEN")),
                             requesterId: sUser,
                             requesterUsername: sUser,
-                            selectedPersona: r.selected_persona || r.role_name || "Frontend & UI Developer",
-                            persona: r.selected_persona || r.role_name || "Frontend & UI Developer",
+                            selectedPersona: r.selected_persona || r.selectedPersona || r.role_name || "Frontend & UI Developer",
+                            persona: r.selected_persona || r.selectedPersona || r.role_name || "Frontend & UI Developer",
                             sector: sSector,
                             businessSector: sSector,
                             function: sFunction,
@@ -982,9 +982,9 @@ sap.ui.define([
                         };
                     }
                     oPendingGrouped[sPendKey].entitlements.push({
-                        requestId: r.request_number,
-                        system: r.target_system,
-                        roleName: r.role_name,
+                        requestId: r.request_number || r.requestId,
+                        system: r.target_system || r.system,
+                        roleName: r.role_name || r.roleName,
                         team: sService,
                         serviceTopic: sService,
                         selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
@@ -999,14 +999,14 @@ sap.ui.define([
                 }
 
                 if (isProcessedForRole) {
-                    const sBaseId = getBaseReqId(r.request_number);
-                    const sGroupKey = sBaseId || r.request_number || (sUser + "_" + sDate + "_" + (r.selected_persona || r.role_name));
+                    const sBaseId = getBaseReqId(r.request_number || r.requestId);
+                    const sGroupKey = sBaseId || r.request_number || r.requestId || (sUser + "_" + sDate + "_" + (r.selected_persona || r.role_name));
 
                     if (!oGrouped[sGroupKey]) {
-                        const sPersona = r.selected_persona || r.role_name || "";
+                        const sPersona = r.selected_persona || r.selectedPersona || r.role_name || "";
 
                         oGrouped[sGroupKey] = {
-                            requestId: sBaseId || r.request_number || ("REQ-" + (r.ID || "GEN")),
+                            requestId: sBaseId || r.request_number || r.requestId || ("REQ-" + (r.ID || "GEN")),
                             requesterId: sUser,
                             selectedPersona: sPersona,
                             persona: sPersona,
@@ -1033,9 +1033,9 @@ sap.ui.define([
                     }
 
                     oGrouped[sGroupKey].entitlements.push({
-                        requestId: r.request_number,
-                        system: r.target_system,
-                        roleName: r.role_name,
+                        requestId: r.request_number || r.requestId,
+                        system: r.target_system || r.system,
+                        roleName: r.role_name || r.roleName,
                         team: sService,
                         serviceTopic: sService,
                         selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
@@ -1084,8 +1084,6 @@ sap.ui.define([
         async _reloadAllRequests(oModel) {
             if (!oModel) return;
 
-            const aDefaultPending = []; const aDefaultProcessed = [];
-
             let aPending = [];
             let aProcessed = [];
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
@@ -1097,85 +1095,91 @@ sap.ui.define([
                 oModel.setProperty("/approverPendingTab", "accessRequests");
             }
 
+            let aRawData = [];
             try {
-
                 const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
                 const data = await response.json();
                 if (data && data.value && data.value.length > 0) {
-                    const oApproverData = this._buildApproverHistoryAndPending(data.value);
-                    aPending = oApproverData.pending;
-                    aProcessed = oApproverData.processed;
+                    aRawData = data.value.slice();
                 }
             } catch (err) {
                 console.error("Error fetching OData requests:", err);
             }
 
-            // Merge any in-flight pending revocations from sessionStorage if not yet reflected from OData
-            if (!isCompliance) {
-                try {
-                    let aStoredRevs = [];
-                    try {
-                        const sLocal = localStorage.getItem("kyra_pending_revocations");
-                        const sSession = sessionStorage.getItem("kyra_pending_revocations");
-                        const aL = sLocal ? JSON.parse(sLocal) : [];
-                        const aS = sSession ? JSON.parse(sSession) : [];
-                        const mRevs = {};
-                        [...aS, ...aL].forEach(item => {
-                            const id = item.requestId || item.requestNumber;
-                            if (id) mRevs[id] = item;
-                        });
-                        aStoredRevs = Object.values(mRevs);
-                    } catch(e) {}
-                    aStoredRevs.forEach(sr => {
-                        const sSrId = sr.requestId || sr.requestNumber;
-                        if (sSrId && !aPending.some(p => p.requestId === sSrId || (p.requestId && p.requestId.startsWith(sSrId)))) {
-                            aPending.push({
-                                requestId: sSrId,
-                                requesterId: sr.requesterUsername || sr.requesterId || "emp001",
-                                requesterUsername: sr.requesterUsername || sr.requesterId || "emp001",
-                                selectedPersona: sr.persona || sr.selectedPersona || "Requester",
-                                persona: sr.persona || sr.selectedPersona || "Requester",
-                                sector: sr.sector || "Information Technology & Security",
-                                businessSector: sr.sector || "Information Technology & Security",
-                                function: sr.function || sr.businessFunction || "Corporate Governance",
-                                businessFunction: sr.function || sr.businessFunction || "Corporate Governance",
-                                duration: sr.accessDuration || sr.duration || "30/30 days left",
-                                accessDuration: sr.accessDuration || sr.duration || "30/30 days left",
-                                region: sr.region || "Global Enterprise (ALL)",
-                                operatingRegion: sr.region || "Global Enterprise (ALL)",
-                                justification: sr.justification || ("Revocation of access for role " + (sr.roleName || "")),
-                                type: "Revocation",
-                                serviceTopic: sr.category || "Revocation Request",
-                                submissionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
-                                decisionDate: sr.createdAt ? sr.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
-                                status: "Revoke Pending",
-                                statusState: "Error",
-                                statusIcon: "sap-icon://pending",
-                                isRevocation: true,
-                                _isPendingForRole: true,
-                                entitlements: [{
-                                    requestId: sSrId,
-                                    system: sr.system,
-                                    roleName: sr.roleName,
-                                    team: sr.team || "System Administrator",
-                                    serviceTopic: sr.category || "Revocation Request",
-                                    selectedPersona: sr.persona || "Requester",
-                                    persona: sr.persona || "Requester",
-                                    status: "Pending",
-                                    statusState: "Warning",
-                                    statusIcon: "sap-icon://pending"
-                                }]
-                            });
-                        }
+            try {
+                const sS = sessionStorage.getItem("kyra_pending_revocations");
+                const sL = localStorage.getItem("kyra_pending_revocations");
+                const aS = sS ? JSON.parse(sS) : [];
+                const aL = sL ? JSON.parse(sL) : [];
+                const aStoredRev = aS.concat(aL);
+
+                aStoredRev.forEach(rev => {
+                    if (!rev || !rev.requestId) return;
+                    const sRevId = String(rev.requestId).trim().toUpperCase();
+                    const bAlreadyExists = aRawData.some(r => {
+                        const sNum = String(r.request_number || r.requestId || r.id || "").trim().toUpperCase();
+                        return sNum === sRevId || sNum.startsWith(sRevId + "-") || sRevId.startsWith(sNum + "-");
                     });
-                } catch(e) {
-                    console.warn("Error merging stored pending revocations:", e);
-                }
+
+                    if (!bAlreadyExists) {
+                        aRawData.unshift({
+                            id: rev.requestId,
+                            request_number: rev.requestId,
+                            requester_username: rev.requesterUsername || rev.requesterId || "emp018",
+                            requester_persona: rev.persona || "Requester",
+                            business_sector: rev.sector || "Information Technology & Security",
+                            business_function: rev.function || "Corporate Governance",
+                            operating_region: rev.region || "Global Enterprise (ALL)",
+                            target_system: rev.system,
+                            role_name: rev.roleName,
+                            service_topic: rev.category || "System Administrator",
+                            selected_persona: rev.persona,
+                            access_type: "Revocation",
+                            access_duration: rev.duration || rev.accessDuration || "30 Days (Temporary)",
+                            justification: rev.justification || "Revocation of access",
+                            db_status: "PENDING",
+                            status: "PENDING",
+                            approver_status: "",
+                            created_at: rev.createdAt || new Date().toISOString()
+                        });
+                    }
+                });
+            } catch(eRev) {
+                console.warn("Error merging stored pending revocations in Approver:", eRev);
             }
 
-            const isRevCheck = (p) => !!(p.isRevocation || String(p.type || '').toUpperCase().includes('REV') || String(p.accessType || '').toUpperCase().includes('REV') || String(p.requestId || p.requestNumber || '').toUpperCase().startsWith('REV-'));
+            if (aRawData.length > 0) {
+                const oApproverData = this._buildApproverHistoryAndPending(aRawData);
+                aPending = oApproverData.pending;
+                aProcessed = oApproverData.processed;
+            }
+
+            const isRevCheck = (req) => {
+                const sType = (req.type || req.access_type || "").toUpperCase();
+                const sFunc = (req.function || req.businessFunction || req.business_function || "").toUpperCase();
+                const sId = (req.requestId || req.request_number || "").toUpperCase();
+                return req.isRevocation === true ||
+                       sType.includes("REV") ||
+                       sFunc.includes("REVOCATION") ||
+                       sId.startsWith("REV-") ||
+                       sId.includes("-REV-");
+            };
+
+            const sortChronologicallyDesc = (a, b) => {
+                const getTime = (r) => {
+                    const raw = r.createdAtRaw || r.created_at || r.updated_at || r.submissionDate || r.decisionDate || "";
+                    if (!raw) return 0;
+                    const parsed = new Date(raw).getTime();
+                    return isNaN(parsed) ? 0 : parsed;
+                };
+                const tA = getTime(a);
+                const tB = getTime(b);
+                if (tA !== tB) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            };
+
             const aAccessPending = aPending.filter(p => !isRevCheck(p));
-            const aRevokePending = isCompliance ? [] : aPending.filter(p => isRevCheck(p));
+            const aRevokePending = aPending.filter(p => isRevCheck(p));
             const aAccessProcessed = aProcessed.filter(p => !isRevCheck(p));
             const aRevokeProcessed = aProcessed.filter(p => isRevCheck(p));
 

@@ -1497,6 +1497,8 @@ sap.ui.define([
                 try {
                     sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
                     sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
+                    localStorage.removeItem("kyra_pending_revocations");
+                    sessionStorage.removeItem("kyra_pending_revocations");
                 } catch(eStorage) {
                     console.warn("Storage warning:", eStorage);
                 }
@@ -1730,7 +1732,7 @@ sap.ui.define([
                                               sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
 
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || (isRevocation && sDbStatus.includes("PENDING")))) {
+                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || sDbStatus === "SUBMITTED" || (isRevocation && (sDbStatus.includes("PENDING") || sDbStatus === "ACTIVE" || sDbStatus === "SUBMITTED" || sDbStatus === "IN_PROGRESS" || !sDbStatus || sDbStatus === "")))) {
                         isPendingForRole = true;
                     } else if (isApproverDecided) {
                         isProcessedForRole = true;
