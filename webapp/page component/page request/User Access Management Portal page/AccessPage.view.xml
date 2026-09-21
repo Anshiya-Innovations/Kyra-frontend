@@ -998,22 +998,16 @@
                         <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
                             <form:SimpleForm
                                 editable="true"
-                                layout="ResponsiveGridLayout"
-                                labelSpanXL="12"
-                                labelSpanL="12"
-                                labelSpanM="12"
-                                labelSpanS="12"
-                                adjustLabelSpan="false"
-                                columnsXL="1"
-                                columnsL="1"
-                                columnsM="1"
-                                singleContainerFullWidth="true"
-                                class="sapUiSmallMarginBottom kyraJustificationForm">
+                                layout="ColumnLayout"
+                                columnsM="2"
+                                columnsL="2"
+                                singleContainerFullWidth="false"
+                                class="sapUiSmallMarginBottom">
                                 <form:content>
                                     <core:Title text="Access Duration &amp; Business Justification" />
                                     
                                     <!-- SUB-STEP 3.2 - FIELD 1: DURATION -->
-                                    <Label text="Access Duration" required="true" labelFor="inPageDurationSelect" class="kyraFieldLabel" />
+                                    <Label text="Access Duration" required="true" />
                                     <ComboBox
                                         id="inPageDurationSelect"
                                         selectionChange=".onInPageDurationChange"
@@ -1028,13 +1022,13 @@
                                     </ComboBox>
 
                                     <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
-                                    <Label text="Business Justification" required="true" labelFor="inPageJustificationArea" class="kyraJustificationLabel" />
+                                    <Label text="Business Justification" required="true" class="kyraJustificationLabel" />
                                     <TextArea
                                         id="inPageJustificationArea"
                                         value="{accessModel>/addAccessJustification}"
                                         valueLiveUpdate="true"
                                         placeholder="Provide detailed business justification for requesting these system permissions..."
-                                        rows="4"
+                                        rows="3"
                                         growing="false"
                                         width="100%"
                                         class="kyraJustificationTextArea" />

@@ -3114,12 +3114,6 @@ html body #inPageJustificationArea {
     display: block !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    cursor: text !important;
-}
-
-#inPageJustificationArea *,
-.kyraJustificationTextArea * {
-    cursor: text !important;
 }
 
 .kyraJustificationTextArea:hover,
@@ -3133,7 +3127,6 @@ html body #inPageJustificationArea {
     border-color: transparent !important;
     box-shadow: none !important;
     outline: none !important;
-    cursor: text !important;
 }
 
 /* Ensure NO inner nested box inside textareas: strip inner wrapper borders, background and height */
@@ -3160,10 +3153,7 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMInputBaseContent
     outline: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    cursor: text !important;
-    box-sizing: border-box !important;
+    display: block !important;
 }
 
 .sapMTextArea .sapMInputBaseContentWrapper:hover,
@@ -3190,7 +3180,6 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMInputBaseContent
     outline: none !important;
     background: transparent !important;
     background-color: transparent !important;
-    cursor: text !important;
 }
 
 /* Pseudo-elements cleanup in Horizon theme */
@@ -3242,8 +3231,6 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMTextAreaInner {
     -ms-overflow-style: none !important;
     box-sizing: border-box !important;
     overflow-y: auto !important;
-    cursor: text !important;
-    display: block !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 
@@ -12470,11 +12457,12 @@ textarea.sapMInputBaseInner,
 .kyraJustificationTextArea textarea,
 #inPageJustificationArea textarea {
     height: 100% !important;
-    min-height: 84px !important;
+    min-height: 100px !important;
     line-height: 1.5 !important;
-    padding: 10px 14px !important;
+    padding: 12px 14px !important;
     font-weight: 400 !important;
     box-sizing: border-box !important;
+    cursor: text !important;
 }
 
 /* =========================================================================
@@ -12539,11 +12527,8 @@ textarea.sapMInputBaseInner,
     border-radius: 10px !important;
     border: 1.5px solid #CBD5E1 !important;
     background: #ffffff !important;
-    z-index: 2000000 !important;
+    z-index: 100000 !important;
     box-sizing: border-box !important;
-    min-width: 220px !important;
-    display: block !important;
-    visibility: visible !important;
 }
 
 /* Remove arrow indicator completely for clean downward-attached dropdown appearance */
@@ -12566,10 +12551,6 @@ textarea.sapMInputBaseInner,
     overflow-x: hidden !important;
     box-sizing: border-box !important;
     border-radius: 9px !important;
-    height: auto !important;
-    max-height: 320px !important;
-    display: block !important;
-    visibility: visible !important;
 }
 
 .kyraDropdownBottomOnly .sapMPopoverScroll,
@@ -12579,12 +12560,9 @@ textarea.sapMInputBaseInner,
 .sapMSltPicker .sapMPopoverScroll {
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    max-height: 300px !important;
-    height: auto !important;
+    max-height: 320px !important;
     scrollbar-width: thin !important;
     box-sizing: border-box !important;
-    display: block !important;
-    visibility: visible !important;
 }
 
 /* Inner list items: clean padding, full-width, no text wrapping or horizontal overflow */
@@ -29057,5 +29035,140 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnIcon {
+    color: #BE123C !important;
+}
+
+/* ==========================================================================
+   REQUEST ID & TYPE MERGED CELL ENHANCEMENT (Addition & Revoke Pills)
+   ========================================================================== */
+.kyraReqIdTypeCell,
+html body .sapUiTheme-sap_horizon .kyraReqIdTypeCell {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    width: 100% !important;
+    padding: 3px 0 !important;
+}
+
+.kyraPendingReqIdText,
+.kyraHistoryTable .kyraReqIdTypeCell .kyraPendingReqIdText,
+.kyraHistoryTable .sapMListTblCell .kyraPendingReqIdText,
+html body .sapUiTheme-sap_horizon .kyraPendingReqIdText {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.1px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+}
+
+.kyraTypePill,
+html body .sapUiTheme-sap_horizon .kyraTypePill {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2px 9px 2px 7px !important;
+    border-radius: 9999px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    gap: 4px !important;
+    box-sizing: border-box !important;
+    min-height: 20px !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    margin: 0 auto !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+.kyraTypePillAddition,
+html body .sapUiTheme-sap_horizon .kyraTypePillAddition {
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    color: #047857 !important;
+    border: 1px solid #A7F3D0 !important;
+}
+
+.kyraTypePillAddition:hover {
+    background: #D1FAE5 !important;
+    background-color: #D1FAE5 !important;
+    border-color: #6EE7B7 !important;
+}
+
+.kyraTypePillRevoke,
+html body .sapUiTheme-sap_horizon .kyraTypePillRevoke {
+    background: #FFF1F2 !important;
+    background-color: #FFF1F2 !important;
+    color: #BE123C !important;
+    border: 1px solid #FECDD3 !important;
+}
+
+.kyraTypePillRevoke:hover {
+    background: #FFE4E6 !important;
+    background-color: #FFE4E6 !important;
+    border-color: #FDA4AF !important;
+}
+
+.kyraTypePillIcon,
+.kyraTypePill .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraTypePill .sapUiIcon {
+    font-size: 10px !important;
+    width: 12px !important;
+    height: 12px !important;
+    line-height: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraTypePillAddition .kyraTypePillIcon,
+.kyraTypePillAddition .sapUiIcon,
+.kyraHistoryTable .kyraTypePillAddition .kyraTypePillIcon,
+.kyraHistoryTable .kyraTypePillAddition .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraTypePillAddition .sapUiIcon {
+    color: #047857 !important;
+    font-size: 10px !important;
+}
+
+.kyraTypePillRevoke .kyraTypePillIcon,
+.kyraTypePillRevoke .sapUiIcon,
+.kyraHistoryTable .kyraTypePillRevoke .kyraTypePillIcon,
+.kyraHistoryTable .kyraTypePillRevoke .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraTypePillRevoke .sapUiIcon {
+    color: #BE123C !important;
+    font-size: 10px !important;
+}
+
+.kyraTypePillText,
+.kyraTypePill .sapMText,
+.kyraHistoryTable .kyraTypePill .kyraTypePillText,
+.kyraHistoryTable .kyraTypePill .sapMText,
+html body .sapUiTheme-sap_horizon .kyraTypePill .sapMText {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    letter-spacing: 0.2px !important;
+}
+
+.kyraTypePillAddition .kyraTypePillText,
+.kyraTypePillAddition .sapMText,
+.kyraHistoryTable .kyraTypePillAddition .kyraTypePillText,
+.kyraHistoryTable .kyraTypePillAddition .sapMText,
+html body .sapUiTheme-sap_horizon .kyraTypePillAddition .sapMText {
+    color: #047857 !important;
+}
+
+.kyraTypePillRevoke .kyraTypePillText,
+.kyraTypePillRevoke .sapMText,
+.kyraHistoryTable .kyraTypePillRevoke .kyraTypePillText,
+.kyraHistoryTable .kyraTypePillRevoke .sapMText,
+html body .sapUiTheme-sap_horizon .kyraTypePillRevoke .sapMText {
     color: #BE123C !important;
 }

@@ -490,6 +490,9 @@ sap.ui.define([
             // Setup Step 1 Business Sector and Function pure-selection fields (no selection fill, downwards only)
             this._setupStep1SelectFields();
 
+            // Setup Step 3.2 Duration ComboBox pure-selection field (downwards only, full box clickable)
+            this._setupDurationSelectField();
+
             // Clear unwanted initial focus on header buttons when entering the page
             setTimeout(() => {
                 const oBell = this.byId("kyraHeaderBellBtn");
@@ -711,6 +714,66 @@ sap.ui.define([
                 };
                 oControl.addEventDelegate(oControl._step1Delegate);
             });
+        },
+
+        _setupDurationSelectField() {
+            const oControl = this.byId("inPageDurationSelect");
+            if (!oControl) return;
+
+            if (oControl._durDelegate) {
+                oControl.removeEventDelegate(oControl._durDelegate);
+                oControl._durDelegate = null;
+            }
+
+            const fnApply = () => {
+                try {
+                    const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                    (typeof oControl._getPicker === "function" && oControl._getPicker());
+                    if (oPicker && typeof oPicker.setPlacement === "function") {
+                        oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                    }
+                } catch(e) {}
+
+                const oInputDom = oControl.getDomRef("inner");
+                if (oInputDom) {
+                    oInputDom.setAttribute("readonly", "readonly");
+                    oInputDom.style.caretColor = "transparent";
+                    oInputDom.style.userSelect = "none";
+                    oInputDom.style.webkitUserSelect = "none";
+                    oInputDom.style.cursor = "pointer";
+                }
+                const oDom = oControl.getDomRef();
+                if (oDom) {
+                    oDom.style.cursor = "pointer";
+                    const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
+                    if (oWrapper) {
+                        oWrapper.style.cursor = "pointer";
+                    }
+                }
+            };
+
+            fnApply();
+            oControl._durDelegate = {
+                onAfterRendering: fnApply,
+                ontap: (oEvent) => {
+                    if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
+                        return;
+                    }
+                    if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer"))) {
+                        return;
+                    }
+                    if (typeof oControl.isOpen === "function") {
+                        if (oControl.isOpen()) {
+                            oControl.close();
+                        } else {
+                            oControl.open();
+                        }
+                    } else if (typeof oControl.open === "function") {
+                        oControl.open();
+                    }
+                }
+            };
+            oControl.addEventDelegate(oControl._durDelegate);
         },
 
         // =========================================================================
@@ -4282,8 +4345,15 @@ sap.ui.define([
                 const oDom = oTarget ? oTarget.getDomRef() : document.getElementById(this.createId(sElementId));
                 if (oDom) {
                     try {
-                        oDom.style.scrollMarginTop = nOffset + "px";
-                        oDom.scrollIntoView({ behavior: "smooth", block: "start" });
+                        const oPage = this.byId("accessPortalPage");
+                        const oPageDom = oPage ? (oPage.getDomRef("cont") || oPage.getDomRef("scroll") || oPage.getDomRef()) : null;
+                        if (oPageDom && typeof oPageDom.scrollTo === "function" && oPageDom.scrollHeight > oPageDom.clientHeight) {
+                            const nTargetTop = oDom.offsetTop - nOffset;
+                            oPageDom.scrollTo({ top: Math.max(0, nTargetTop), behavior: "smooth" });
+                        } else {
+                            oDom.style.scrollMarginTop = nOffset + "px";
+                            oDom.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
                     } catch (e) {
                         const oPage = this.byId("accessPortalPage");
                         if (oPage && oTarget && typeof oPage.scrollToElement === "function") {
@@ -4297,8 +4367,8 @@ sap.ui.define([
                     }
                 }
             };
-            setTimeout(fnDoScroll, 100);
-            setTimeout(fnDoScroll, 250);
+            setTimeout(fnDoScroll, 50);
+            setTimeout(fnDoScroll, 200);
         },
 
         _scrollToWizardContainer() {
@@ -7362,9 +7432,10 @@ sap.ui.define([
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
-                    const bCurr = oModel.getProperty("/showRemoveAccessSector");
+                    const bCurr = !!oModel.getProperty("/showRemoveAccessSector");
                     if (bCurr) {
-                        this._smoothScrollTo("removeAccessSection", 64);
+                        oModel.setProperty("/showRemoveAccessSector", false);
+                        this._updateActionCardArrows(oModel);
                         return;
                     }
 
@@ -7376,7 +7447,9 @@ sap.ui.define([
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
 
-                    this._smoothScrollTo("removeAccessSection", 64);
+                    setTimeout(() => {
+                        this._smoothScrollTo("removeAccessSection", 64);
+                    }, 50);
                 }
             });
         },
