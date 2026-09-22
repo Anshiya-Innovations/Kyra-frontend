@@ -888,7 +888,14 @@ sap.ui.define([
             const oGrouped = {};
             const oPendingGrouped = {};
 
-            (aRawRecords || []).forEach(r => {
+            const aRecords = (aRawRecords || []).slice().sort((a, b) => {
+                const tA = (a.updated_at || a.created_at) ? new Date(a.updated_at || a.created_at).getTime() : 0;
+                const tB = (b.updated_at || b.created_at) ? new Date(b.updated_at || b.created_at).getTime() : 0;
+                if (tA !== tB) return tB - tA;
+                return (b.request_number || b.requestId || "").localeCompare(a.request_number || a.requestId || "");
+            });
+
+            aRecords.forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
                 const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                 const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();

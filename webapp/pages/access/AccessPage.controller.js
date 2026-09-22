@@ -1262,7 +1262,14 @@ sap.ui.define([
                 return num;
             };
 
-            (aRawRecords || []).forEach(r => {
+            const aRecords = (aRawRecords || []).slice().sort((a, b) => {
+                const tA = (a.updated_at || a.created_at) ? new Date(a.updated_at || a.created_at).getTime() : 0;
+                const tB = (b.updated_at || b.created_at) ? new Date(b.updated_at || b.created_at).getTime() : 0;
+                if (tA !== tB) return tB - tA;
+                return (b.request_number || b.requestId || "").localeCompare(a.request_number || a.requestId || "");
+            });
+
+            aRecords.forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
                 const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                 const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
@@ -1782,19 +1789,39 @@ sap.ui.define([
                             oReqObj.status = "Revoked";
                             oReqObj.statusState = "Success";
                             oReqObj.statusIcon = "sap-icon://sys-enter-2";
+                            oReqObj.isExpired = false;
                             oReqObj.duration = calculateRevokeRemainingDays(r);
                             oReqObj.accessDuration = calculateRevokeRemainingDays(r);
+                            aMyHistory.push(oReqObj);
                         } else {
-                            oReqObj.status = "Approved";
-                            oReqObj.statusState = "Success";
-                            oReqObj.statusIcon = "sap-icon://sys-enter-2";
-                            aMyApproved.push(oReqObj);
+                            const sGrant = r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "";
+                            const expInfo = calculateExpiryDays(r.access_duration, sGrant);
+                            const bIsExplicitExpired = (r.status || "").toUpperCase() === "EXPIRED" || (r.db_status || "").toUpperCase() === "EXPIRED";
+                            const bIsExpired = expInfo.isExpired || bIsExplicitExpired;
+
+                            if (bIsExpired) {
+                                oReqObj.status = "Expired";
+                                oReqObj.statusState = "Warning";
+                                oReqObj.statusIcon = "sap-icon://history";
+                                oReqObj.isExpired = true;
+                                oReqObj.expiryDate = "Expired";
+                                oReqObj.daysLeft = 0;
+                                // In the My History page, expired access should ONLY display on the All History section
+                                aMyHistory.push(oReqObj);
+                            } else {
+                                oReqObj.status = "Approved";
+                                oReqObj.statusState = "Success";
+                                oReqObj.statusIcon = "sap-icon://sys-enter-2";
+                                oReqObj.isExpired = false;
+                                aMyApproved.push(oReqObj);
+                                aMyHistory.push(oReqObj);
+                            }
                         }
-                        aMyHistory.push(oReqObj);
                     } else if (isOverallRejected) {
                         oReqObj.status = "Rejected";
                         oReqObj.statusState = "Error";
                         oReqObj.statusIcon = "sap-icon://error";
+                        oReqObj.isExpired = false;
                         aMyHistory.push(oReqObj);
                     }
 
@@ -1839,7 +1866,14 @@ sap.ui.define([
                             }
                         } else {
                             if (isOverallApproved) {
-                                roleStates[sKey] = { request: r, status: 'ACTIVE' };
+                                const sGrant = r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "";
+                                const expInfo = calculateExpiryDays(r.access_duration, sGrant);
+                                const bIsExplicitExpired = (r.status || "").toUpperCase() === "EXPIRED" || (r.db_status || "").toUpperCase() === "EXPIRED";
+                                if (expInfo.isExpired || bIsExplicitExpired) {
+                                    roleStates[sKey] = { request: r, status: 'EXPIRED' };
+                                } else {
+                                    roleStates[sKey] = { request: r, status: 'ACTIVE' };
+                                }
                             }
                         }
                     } else {
@@ -2179,14 +2213,18 @@ sap.ui.define([
             let iRevokedHistory = 0;
             let iApprovedHistory = 0;
             let iRejectedHistory = 0;
+            let iExpiredHistory = 0;
 
             const aAllCombinedHistory = aMyHistory || [];
             aAllCombinedHistory.forEach(req => {
                 const sStat = (req.status || "").toLowerCase();
                 const sType = (req.type || "").toLowerCase();
                 const isRevoc = sType.includes("revok") || (req.function || "").toLowerCase().includes("revocation") || (req.requestId || "").toUpperCase().startsWith("REV-");
+                const isExp = req.isExpired === true || sStat.includes("expir") || sType.includes("expir");
                 
-                if (sStat.includes("reject") || sStat.includes("decline")) {
+                if (isExp) {
+                    iExpiredHistory++;
+                } else if (sStat.includes("reject") || sStat.includes("decline")) {
                     iRejectedHistory++;
                 } else if (sStat.includes("revok") || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) {
                     iRevokedHistory++;
@@ -2204,6 +2242,8 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/historyRevokedCount", iRevokedHistory);
             this._setSmartProperty(oModel, "/revokedHistoryCount", iRevokedHistory);
             this._setSmartProperty(oModel, "/historyRemovedCount", iRevokedHistory);
+            this._setSmartProperty(oModel, "/expiredHistoryCount", iExpiredHistory);
+            this._setSmartProperty(oModel, "/historyExpiredCount", iExpiredHistory);
             this._setSmartProperty(oModel, "/filteredHistoryCount", aAllCombinedHistory.length);
 
             try {
