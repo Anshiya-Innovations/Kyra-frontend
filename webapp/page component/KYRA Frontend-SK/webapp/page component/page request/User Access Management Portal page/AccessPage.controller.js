@@ -689,43 +689,12 @@ sap.ui.define([
                     oControl._step1Delegate = null;
                 }
 
-                const fnAutoScrollDown = () => {
-                    setTimeout(() => {
-                        const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
-                                        (typeof oControl._getPicker === "function" && oControl._getPicker());
-                        if (oPicker) {
-                            const oPickerDom = (typeof oPicker.getDomRef === "function" && oPicker.getDomRef()) ||
-                                               (oPicker._getPopover && oPicker._getPopover().getDomRef && oPicker._getPopover().getDomRef());
-                            if (oPickerDom) {
-                                const rect = oPickerDom.getBoundingClientRect();
-                                const nBottomThreshold = window.innerHeight - 20;
-                                if (rect.bottom > nBottomThreshold) {
-                                    const nNeeded = Math.ceil(rect.bottom - nBottomThreshold + 40);
-                                    const oPage = this.byId("accessPortalPage");
-                                    const oPageDom = oPage ? (oPage.getDomRef("cont") || oPage.getDomRef("scroll") || oPage.getDomRef()) : null;
-                                    if (oPageDom && typeof oPageDom.scrollBy === "function") {
-                                        oPageDom.scrollBy({ top: nNeeded, behavior: "smooth" });
-                                    } else {
-                                        window.scrollBy({ top: nNeeded, behavior: "smooth" });
-                                    }
-                                }
-                            }
-                        }
-                    }, 80);
-                };
-
                 const fnApply = () => {
                     try {
                         const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
                                         (typeof oControl._getPicker === "function" && oControl._getPicker());
-                        if (oPicker) {
-                            if (typeof oPicker.setPlacement === "function") {
-                                oPicker.setPlacement(sap.m.PlacementType.Bottom);
-                            }
-                            if (!oPicker._kyraAutoScrollHooked) {
-                                oPicker._kyraAutoScrollHooked = true;
-                                oPicker.attachAfterOpen(fnAutoScrollDown);
-                            }
+                        if (oPicker && typeof oPicker.setPlacement === "function") {
+                            oPicker.setPlacement(sap.m.PlacementType.Bottom);
                         }
                     } catch(e) {}
 
@@ -754,8 +723,7 @@ sap.ui.define([
                         if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
                             return;
                         }
-                        if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer"))) {
-                            fnAutoScrollDown();
+                        if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer") || oEvent.target.closest(".sapMSelectArrow") || oEvent.target.closest(".sapMComboBoxArrow"))) {
                             return;
                         }
                         if (typeof oControl.isOpen === "function") {
@@ -763,11 +731,9 @@ sap.ui.define([
                                 oControl.close();
                             } else {
                                 oControl.open();
-                                fnAutoScrollDown();
                             }
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
-                            fnAutoScrollDown();
                         }
                     }
                 };
@@ -7512,6 +7478,129 @@ sap.ui.define([
 
                 this.getView().addDependent(oActionSheet);
                 oActionSheet.openBy(oSource);
+            });
+        },
+
+        async onRemoveAccessClick(oEvent) {
+            const oSource = oEvent.getSource();
+            let oContext = oSource.getBindingContext("accessModel");
+            if (!oContext && oSource.getParent()) {
+                oContext = oSource.getParent().getBindingContext("accessModel");
+            }
+            const oItem = oContext ? oContext.getObject() : null;
+            if (!oItem) return;
+
+            const oModel = this.getView().getModel("accessModel");
+            const sRoleName = oItem.teamRole || oItem.roleName || oItem.roleTitle || oItem.team || "Selected Role";
+            const sSystem = oItem.system || "Target System";
+            const sCurrentStatus = (oItem.status || "").toLowerCase();
+
+            if (sCurrentStatus === "revoke pending" || sCurrentStatus === "pending") {
+                sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    MessageToast.show("A revocation request is already pending approval for " + sRoleName);
+                });
+                return;
+            }
+
+            sap.ui.require(["sap/m/MessageBox", "sap/m/MessageToast"], (MessageBox, MessageToast) => {
+                MessageBox.confirm(
+                    "Are you sure you want to request revocation for \"" + sRoleName + "\" on " + sSystem + "?",
+                    {
+                        title: "Confirm Access Revocation",
+                        icon: MessageBox.Icon.WARNING,
+                        actions: ["Revoke Access", MessageBox.Action.CANCEL],
+                        emphasizedAction: "Revoke Access",
+                        onClose: async (sAction) => {
+                            if (sAction !== "Revoke Access") {
+                                return;
+                            }
+
+                            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                                sap.ui.core.BusyIndicator.show(0);
+                            }
+
+                            try {
+                                const sActiveUser = (oModel ? oModel.getProperty("/activeUser") : null) || sessionStorage.getItem("kyra_active_user") || "Dev001";
+                                const sActiveRole = (oModel ? oModel.getProperty("/activeRole") : null) || sessionStorage.getItem("kyra_active_role") || "Requester";
+                                const sReqNum = "REV-2026-" + Math.floor(100000 + Math.random() * 900000);
+                                const sService = oItem.services || oItem.serviceTopic || oItem.category || "Revocation Request";
+                                const sPersona = oItem.persona || oItem.selectedPersona || sActiveRole || "User";
+                                const sSector = oItem.sector || oItem.businessSector || "Finance & Enterprise Performance";
+                                const sRegion = oItem.region || oItem.operatingRegion || "Global Enterprise (ALL)";
+
+                                const oRevocationPayload = {
+                                    requests: [{
+                                        requestNumber: sReqNum,
+                                        requesterUsername: sActiveUser,
+                                        requesterPersona: sActiveRole,
+                                        businessSector: sSector,
+                                        businessFunction: "Access Revocation",
+                                        operatingRegion: sRegion,
+                                        targetSystem: sSystem,
+                                        serviceTopic: sService,
+                                        roleName: sRoleName,
+                                        selectedPersona: sPersona,
+                                        accessType: "REVOCATION",
+                                        accessDuration: oItem.expiryDate || oItem.duration || "Permanent",
+                                        justification: "User requested entitlement revocation.",
+                                        status: "PENDING",
+                                        hasConflict: false
+                                    }]
+                                };
+
+                                const res = await fetch("/odata/v4/auth/submitAccessRequest", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(oRevocationPayload)
+                                });
+
+                                if (!res.ok) {
+                                    throw new Error("HTTP error " + res.status);
+                                }
+
+                                MessageToast.show("Revocation request submitted for " + sRoleName + " on " + sSystem);
+
+                                // Update local /activeRoles so row immediately reflects Revoke Pending state
+                                if (oModel) {
+                                    const aActiveRoles = oModel.getProperty("/activeRoles") || [];
+                                    aActiveRoles.forEach(r => {
+                                        if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
+                                            r.status = "Revoke Pending";
+                                            r.statusState = "Warning";
+                                            r.statusIcon = "sap-icon://pending";
+                                        }
+                                    });
+                                    oModel.setProperty("/activeRoles", aActiveRoles);
+
+                                    const aUserAccess = oModel.getProperty("/userAccessList") || [];
+                                    aUserAccess.forEach(r => {
+                                        if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
+                                            r.status = "Revoke Pending";
+                                            r.statusState = "Warning";
+                                            r.statusIcon = "sap-icon://pending";
+                                        }
+                                    });
+                                    oModel.setProperty("/userAccessList", aUserAccess);
+
+                                    if (typeof this._loadSubmittedRequests === "function") {
+                                        await this._loadSubmittedRequests(oModel);
+                                    }
+                                }
+
+                                if (typeof this._notifyDatabaseMutation === "function") {
+                                    this._notifyDatabaseMutation();
+                                }
+                            } catch (err) {
+                                console.error("Revocation error:", err);
+                                MessageToast.show("Failed to submit revocation request: " + (err.message || err));
+                            } finally {
+                                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                                    sap.ui.core.BusyIndicator.hide();
+                                }
+                            }
+                        }
+                    }
+                );
             });
         },
 

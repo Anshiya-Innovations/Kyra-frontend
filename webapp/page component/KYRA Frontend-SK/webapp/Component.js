@@ -644,14 +644,19 @@ sap.ui.define([
                             }
                         }
 
-                        const oComboDom = e.target.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect, .sapMSelectArrow, .sapMComboBoxArrow, .sapMInputBaseIconContainer");
+                        // If click is on arrow icon, let UI5 built-in toggle handle it naturally
+                        if (e.target.closest(".sapMSelectArrow, .sapMComboBoxArrow, .sapMInputBaseIconContainer")) {
+                            return;
+                        }
+
+                        const oComboDom = e.target.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect");
                         if (!oComboDom) return;
 
-                        const oMainDom = oComboDom.closest(".sapMComboBox, .sapMMultiComboBox, .sapMSlt, .kyraModernSelectField, .fioriSelectGlow, .fioriFormSelect") || oComboDom;
+                        const oMainDom = oComboDom;
 
                         if (typeof sap !== "undefined" && sap.ui) {
-                            const oControl = (typeof sap.ui.getCore === "function" && (sap.ui.getCore().byId(oMainDom.id) || sap.ui.getCore().byId(oComboDom.id))) ||
-                                             (sap.ui.core && sap.ui.core.Element && typeof sap.ui.core.Element.getElementById === "function" && (sap.ui.core.Element.getElementById(oMainDom.id) || sap.ui.core.Element.getElementById(oComboDom.id))) ||
+                            const oControl = (typeof sap.ui.getCore === "function" && sap.ui.getCore().byId(oMainDom.id)) ||
+                                             (sap.ui.core && sap.ui.core.Element && typeof sap.ui.core.Element.getElementById === "function" && sap.ui.core.Element.getElementById(oMainDom.id)) ||
                                              (typeof jQuery !== "undefined" && jQuery(oMainDom).control && jQuery(oMainDom).control(0)) ||
                                              null;
                             if (oControl && typeof oControl.getEnabled === "function" && oControl.getEnabled()) {

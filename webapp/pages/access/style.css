@@ -10174,11 +10174,19 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
-    max-height: 360px !important;
-    overflow-y: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
     border-radius: 10px !important;
     border: 1px solid #E2E8F0 !important;
     background: #FFFFFF !important;
+    scrollbar-width: none !important;
+}
+
+.kyraSysFilterList::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .kyraSysFilterRow {
@@ -20929,14 +20937,13 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
     -webkit-overflow-scrolling: touch !important;
 }
 
-/* Table grid: fixedLayout, 100% width with min-width 1080px across all tables */
+/* Table grid: fixedLayout, 100% width with min-width 1080px across multi-column tables */
 .kyraPendingRequestsTable,
 .kyraPendingRequestsTable.sapMListTbl,
 .kyraPendingRequestsTable.sapMTable,
 .kyraHistoryTable,
 .kyraHistoryTable.sapMListTbl,
 .kyraHistoryTable.sapMTable,
-.kyraActiveEntitlementsTable,
 .kyraApproverTable,
 .kyraValTable,
 .fioriConflictTable {
@@ -20951,6 +20958,47 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
     overflow: hidden !important;
     box-sizing: border-box !important;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraActiveEntitlementsTable,
+.kyraActiveEntitlementsTable.sapMListTbl,
+.kyraActiveEntitlementsTable.sapMTable {
+    table-layout: fixed !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListTblCnt,
+.kyraActiveEntitlementsTable .sapMListTblCntWrp,
+.kyraActiveEntitlementsTable .sapMTableCnt,
+#myAccessTable .sapMListTblCnt,
+#myAccessTable .sapMListTblCntWrp,
+#removeAccessTable .sapMListTblCnt,
+#removeAccessTable .sapMListTblCntWrp {
+    overflow-x: hidden !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    scrollbar-width: none !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListTblCnt::-webkit-scrollbar,
+.kyraActiveEntitlementsTable .sapMListTblCntWrp::-webkit-scrollbar,
+#myAccessTable::-webkit-scrollbar,
+#removeAccessTable::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Completely Hide Dummy SAPUI5 Highlight & Navigated Columns */
@@ -23477,11 +23525,20 @@ html body .kyraSysFilterList {
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
-    max-height: 370px !important;
-    overflow-y: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
     border-radius: 10px !important;
     border: 1px solid #E2E8F0 !important;
     background: #FFFFFF !important;
+    scrollbar-width: none !important;
+}
+
+.kyraSysFilterList::-webkit-scrollbar,
+html body .kyraSysFilterList::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* 5. Filter Row Item */
@@ -28327,17 +28384,37 @@ th .sapMText,
 }
 
 /* 11. No Data Row */
-.kyraActiveEntitlementsTable .sapMListNoData {
+.kyraActiveEntitlementsTable .sapMListNoData,
+.kyraActiveEntitlementsTable tr.sapMListNoData,
+tr.sapMListNoData {
     border: none !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    width: 100% !important;
+    height: 110px !important;
 }
 
-.kyraActiveEntitlementsTable .sapMListNoDataText {
+.kyraActiveEntitlementsTable .sapMListNoDataCell,
+.kyraActiveEntitlementsTable td.sapMListNoDataCell,
+td.sapMListNoDataCell {
+    border: none !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    width: 100% !important;
+    padding: 36px 16px !important;
+}
+
+.kyraActiveEntitlementsTable .sapMListNoDataText,
+.sapMListNoDataText {
     color: #64748B !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
-    padding: 32px 0 !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    padding: 0 !important;
     text-align: center !important;
     border: none !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
 }
 
 
