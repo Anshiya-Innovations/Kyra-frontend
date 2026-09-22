@@ -1103,7 +1103,7 @@ sap.ui.define([
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
-                    sessionStorage.removeItem("kyra_show_approval_history");
+                    // Preserve kyra_show_approval_history across route navigation
                     this._loadSubmittedRequests(oModel, true);
                 } else {
                     this._loadSubmittedRequests(oModel);
@@ -1505,6 +1505,18 @@ sap.ui.define([
             });
 
             const aApproverPending = Object.values(oPendingGrouped);
+            const getPendingTimeAccess = (r) => {
+                const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
+                if (!raw) return 0;
+                const parsed = new Date(raw).getTime();
+                return isNaN(parsed) ? 0 : parsed;
+            };
+            aApproverPending.sort((a, b) => {
+                const tA = getPendingTimeAccess(a);
+                const tB = getPendingTimeAccess(b);
+                if (tA !== tB && tA > 0 && tB > 0) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
             return {
                 pending: aApproverPending,
                 processed: aProcessed
@@ -2229,421 +2241,43 @@ sap.ui.define([
             } catch(eR) {}
 
             const oApproverData = this._buildApproverHistoryAndPending(aRawDbRequests);
-            const aApprPending = oApproverData.pending;
-            const isRevReqHelper = (p) => !!(p.isRevocation || String(p.type || '').toUpperCase().includes('REV') || String(p.accessType || '').toUpperCase().includes('REV') || String(p.requestId || p.requestNumber || '').toUpperCase().startsWith('REV-'));
-            const aApprPendingAccess = aApprPending.filter(p => !isRevReqHelper(p));
-            const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => isRevReqHelper(p));
+            let aApprPending = oApproverData.pending || [];
+            let aFinalProcessed = oApproverData.processed || [];
 
-            const sortChronologicallyDesc = (a, b) => {
-                const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || a.decisionDate || 0).getTime();
-                const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || b.decisionDate || 0).getTime();
-                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
-                return (a.requestId || "").localeCompare(b.requestId || "");
-            };
-            aApprPending.sort(sortChronologicallyDesc);
-            aApprPendingAccess.sort(sortChronologicallyDesc);
-            aApprPendingRevoke.sort(sortChronologicallyDesc);
-            aMyHistory.sort(sortChronologicallyDesc);
-
-            this._setSmartProperty(oModel, "/pendingRequests", isCompliancePersona ? aApprPendingAccess : aApprPending);
-            this._setSmartProperty(oModel, "/pendingAccessRequests", aApprPendingAccess);
-            this._setSmartProperty(oModel, "/pendingRevokeRequests", aApprPendingRevoke);
-            this._setSmartProperty(oModel, "/pendingAccessCount", aApprPendingAccess.length);
-            this._setSmartProperty(oModel, "/pendingRevokeCount", aApprPendingRevoke.length);
-            this._setSmartProperty(oModel, "/isCompliance", isCompliancePersona);
-            this._setSmartProperty(oModel, "/isComplianceReviewer", isCompliancePersona);
-            this._setSmartProperty(oModel, "/isCompliancePersona", isCompliancePersona);
-
-            const aFinalProcessed = oApproverData.processed || [];
-            // Stale session storage injection removed to prevent data flicker
-            this._setSmartProperty(oModel, "/processedRequests", aFinalProcessed);
-            this._masterMyHistoryRequests = [].concat(aMyHistory || []);
-
-            if (this._currentHistoryFilterMatchesItem && typeof this._currentHistoryFilterMatchesItem === "function") {
-                const aFilteredHist = (this._masterMyHistoryRequests || []).filter(this._currentHistoryFilterMatchesItem);
-                this._setSmartProperty(oModel, "/requestHistory", aFilteredHist);
-                this._setSmartProperty(oModel, "/myHistoryRequests", aFilteredHist);
-                this._setSmartProperty(oModel, "/filteredHistoryCount", aFilteredHist.length);
-            } else {
-                this._setSmartProperty(oModel, "/requestHistory", aMyHistory);
-                this._setSmartProperty(oModel, "/myHistoryRequests", aMyHistory);
-                this._setSmartProperty(oModel, "/filteredHistoryCount", aMyHistory.length);
-            }
-            this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
-            this._setSmartProperty(oModel, "/displayedUserAccessList", aUniqueUserAccessList);
-            this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
-
-            let iRevokedHistory = 0;
-            let iApprovedHistory = 0;
-            let iRejectedHistory = 0;
-
-            const aAllCombinedHistory = aMyHistory || [];
-            aAllCombinedHistory.forEach(req => {
-                const sStat = (req.status || "").toLowerCase();
-                const sType = (req.type || "").toLowerCase();
-                const isRevoc = sType.includes("revok") || (req.function || "").toLowerCase().includes("revocation") || (req.requestId || "").toUpperCase().startsWith("REV-");
-                
-                if (sStat.includes("reject") || sStat.includes("decline")) {
-                    iRejectedHistory++;
-                } else if (sStat.includes("revok") || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) {
-                    iRevokedHistory++;
-                } else if (sStat.includes("approved") || sStat.includes("active")) {
-                    iApprovedHistory++;
-                }
-            });
-
-            this._setSmartProperty(oModel, "/historyTotalCount", aAllCombinedHistory.length);
-            this._setSmartProperty(oModel, "/allHistoryCount", aAllCombinedHistory.length);
-            this._setSmartProperty(oModel, "/historyApprovedCount", iApprovedHistory);
-            this._setSmartProperty(oModel, "/approvedHistoryCount", iApprovedHistory);
-            this._setSmartProperty(oModel, "/historyRejectedCount", iRejectedHistory);
-            this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejectedHistory);
-            this._setSmartProperty(oModel, "/historyRevokedCount", iRevokedHistory);
-            this._setSmartProperty(oModel, "/revokedHistoryCount", iRevokedHistory);
-            this._setSmartProperty(oModel, "/historyRemovedCount", iRevokedHistory);
-            this._setSmartProperty(oModel, "/removedHistoryCount", iRevokedHistory);
-            this._cachedDbRequests = aRawDbRequests;
-            this._loadNotifications(oModel, aRawDbRequests);
-
-            this._bIsLoadingRequests = false;
-            // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
-            setTimeout(() => {
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
-                }
-            }, 200);
-        },
-
-        onRemoveAccessClick(oEvent) {
-            const oItem = oEvent.getSource().getParent().getParent();
-            const oData = oItem.getBindingContext("accessModel").getObject();
-            const oModel = this.getView().getModel("accessModel");
-
-            const sRoleName = oData.roleName || oData.roleTitle || "Entitlement Role";
-            const sSystem = oData.system || "Target System";
-            const sPersona = cleanPersonaStr(oData.persona || oData.selectedPersona) || "Standard User";
-            const sCleanRole = cleanRoleStr(sRoleName);
-            const sReqId = "REV-2026-" + Math.floor(100000 + Math.random() * 900000);
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-
-            const sMessageHtml = `
-                <div style="display: flex; flex-direction: column; gap: 14px;">
-                    <p style="margin: 0; color: #334155; font-size: 14.5px; line-height: 1.55;">
-                        Are you sure you want to request revocation for role <strong style="color: #0F172A;">'${sRoleName}'</strong> on <strong style="color: #0F172A;">${sSystem}</strong>?
-                    </p>
-                    
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Target System</span>
-                            <span style="font-size: 13px; font-weight: 700; color: #0F172A; background: #FFFFFF; padding: 4px 10px; border-radius: 6px; border: 1px solid #E2E8F0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);">${sSystem}</span>
-                        </div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                            <span style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748B;">Persona</span>
-                            <span style="font-size: 12.5px; font-weight: 600; color: #475569;">${sPersona}</span>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; align-items: flex-start; gap: 10px; background: #FFF1F2; border: 1px solid #FFE4E6; border-radius: 8px; padding: 10px 12px;">
-                        <svg style="width: 18px; height: 18px; min-width: 18px; color: #E11D48; margin-top: 1px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        <span style="font-size: 12.5px; color: #9F1239; line-height: 1.45;">This action will initiate a revocation workflow (ID: <strong>${sReqId}</strong>). Active access will remain until approved by governance.</span>
-                    </div>
-                </div>
-            `;
-
-            KyraDialog.show({
-                type: "danger",
-                title: "Confirm Access Removal",
-                messageHtml: sMessageHtml,
-                buttonText: "Revoke Access",
-                secondaryButtonText: "Cancel",
-                btnColor: "#E11D48",
-                maxWidth: "520px",
-                onConfirm: () => {
-                    // Store in local in-flight cache to prevent background sync race conditions
-                    const sCleanPersona = cleanPersonaStr(oData.persona || oData.selectedPersona);
-                    const sCleanRole = cleanRoleStr(oData.roleName);
-                    const sCacheKey = (oData.system || "") + "_" + sCleanRole + "_" + sCleanPersona;
-                    const oRevokeRecord = {
-                        requestId: sReqId,
-                        requesterId: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
-                        requesterUsername: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
-                        system: oData.system,
-                        roleName: sCleanRole,
-                        category: oData.category || "Revocation Request",
-                        persona: sCleanPersona,
-                        region: oData.region || "Global Enterprise (ALL)",
-                        sector: oData.sector || "Information Technology & Security",
-                        justification: "Revocation of access for role " + sCleanRole,
-                        createdAt: new Date().toISOString()
-                    };
-                    this._localInFlightRevocations[sCacheKey] = oRevokeRecord;
-                    this._localInFlightRevocations[(oData.system || "") + ":::" + sCleanRole] = oRevokeRecord;
-                    try {
-                        const sLocal = localStorage.getItem("kyra_pending_revocations");
-                        const sSession = sessionStorage.getItem("kyra_pending_revocations");
-                        const aL = sLocal ? JSON.parse(sLocal) : [];
-                        const aS = sSession ? JSON.parse(sSession) : [];
-                        aL.push(oRevokeRecord);
-                        aS.push(oRevokeRecord);
-                        localStorage.setItem("kyra_pending_revocations", JSON.stringify(aL));
-                        sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aS));
-                    } catch(e) {}
-
-                    // Update status in My Access section immediately to "Revoke Pending"
-                    const aAccessList = oModel.getProperty("/userAccessList") || [];
-                    aAccessList.forEach(item => {
-                        const itemR = cleanRoleStr(item.roleName);
-                        if (item.system === oData.system && (itemR === sCleanRole || item.roleId === oData.roleId || item.roleTitle === oData.roleTitle)) {
-                            item.status = "Revoke Pending";
-                            item.statusState = "Warning";
-                            item.statusIcon = "sap-icon://pending";
-                        }
-                    });
-                    
-                    // Exclude the revoked item from the Remove Access section list immediately
-                    const aActiveRoles = aAccessList.filter(item => (item.status || "").toLowerCase() === "active");
-                    
-                    this._setSmartProperty(oModel, "/userAccessList", aAccessList);
-                    this._setSmartProperty(oModel, "/displayedUserAccessList", aAccessList);
-                    this._setSmartProperty(oModel, "/activeRoles", aActiveRoles);
-
-                    // Construct pending request object and prepend to myPendingRequests immediately
-                    const oNewPendingReq = {
-                        requestId: sReqId,
-                        requesterId: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
-                        requesterUsername: (sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018").trim().toLowerCase(),
-                        type: "Revocation",
-                        requestType: "Revocation",
-                        accessType: "REVOCATION",
-                        isRevocation: true,
-                        system: oData.system,
-                        roleName: sCleanRole,
-                        roleTitle: sCleanRole,
-                        team: this._deriveCleanTeamName ? this._deriveCleanTeamName(oData) : (oData.teamRole || oData.roleName || oData.team || "IT Developers"),
-                        serviceTopic: oData.category || "Revocation Request",
-                        selectedPersona: sCleanPersona,
-                        persona: sCleanPersona,
-                        accessDuration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
-                        duration: oData.expiryDate || (oData.daysLeft !== undefined && oData.daysLeft !== 99999 ? (oData.daysLeft + " Days Left") : calculateRevokeRemainingDays(oData)),
-                        submissionDate: new Date().toISOString().split("T")[0],
-                        createdAtRaw: new Date().toISOString(),
-                        approver: "Line Manager / ISRM Team",
-                        status: "Pending Approval",
-                        statusState: "Warning",
-                        statusIcon: "sap-icon://pending",
-                        region: oData.region || "Global Enterprise (ALL)",
-                        justification: "Revocation of access for role " + sCleanRole,
-                        sector: oData.sector || "Information Technology & Security",
-                        function: oData.function || oData.businessFunction || "Corporate Governance",
-                        businessFunction: oData.function || oData.businessFunction || "Corporate Governance"
-                    };
-
-                    const aMyPending = (oModel.getProperty("/myPendingRequests") || []).filter(p => p.requestId !== sReqId);
-                    aMyPending.unshift(oNewPendingReq);
-                    this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
-
-                    // Pending revocation requests belong strictly in myPendingRequests queue
-                    this._recalculateAllHistoryKpiCounters(oModel);
-
-                    // Persist Revocation Request to PostgreSQL database
-                    if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                        window.KyraLoader.show({
-                            title: "Submitting Revocation Request...",
-                            subtitle: "Processing entitlement revocation and updating governance records..."
-                        });
+            // Merge freshly processed decisions from sessionStorage so instant UI response is preserved
+            try {
+                const aSessionProc = JSON.parse(sessionStorage.getItem("kyra_processed_requests") || "[]");
+                const processedBaseIds = new Set();
+                aProcessed.forEach(p => {
+                    if (p.requestId) {
+                        processedBaseIds.add(String(p.requestId).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(p.requestId).trim()).toUpperCase());
                     }
-                    fetch("/odata/v4/auth/submitAccessRequest", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            requests: [{
-                                requestNumber: sReqId,
-                                requesterUsername: sActiveUser || sessionStorage.getItem("kyra_active_user") || "emp018",
-                                requesterPersona: sActiveRole || "Requester",
-                                businessSector: oData.sector || oData.businessSector || "Global Supply Chain & Logistics",
-                                businessFunction: oData.function || oData.businessFunction || "Inventory Governance",
-                                operatingRegion: oData.region || oData.operatingRegion || "Asia",
-                                targetSystem: oData.system,
-                                serviceTopic: oData.services || oData.serviceTopic || (oData.category && oData.category !== "Revocation Request" ? oData.category : "System Administrator"),
-                                roleName: oData.roleName || "IT Developers",
-                                selectedPersona: oData.persona || oData.selectedPersona || "Frontend & UI Developer",
-                                accessType: "REVOCATION",
-                                accessDuration: oData.accessDuration || oData.duration || "30 Days (Temporary)",
-                                justification: "Revocation of access for role " + (oData.roleName || "IT Developers")
-                            }]
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(() => {
-                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                            window.KyraLoader.hide();
-                        }
-                        MessageToast.show("Revocation Request " + sReqId + " submitted successfully.");
-                        this._notifyDatabaseMutation();
-                        this._loadSubmittedRequests(oModel);
-                    })
-                    .catch(err => {
-                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                            window.KyraLoader.hide();
-                        }
-                        console.error("Error submitting revocation request:", err);
-                        MessageToast.show("Submitted revocation request " + sReqId);
-                        this._notifyDatabaseMutation();
-                        this._loadSubmittedRequests(oModel);
-                    });
-
-                    // SECTION STAYS OPEN (No setProperty showRemoveAccessSector false, no tab navigation)
-                }
-            });
-        },
-
-        _recalculateAllHistoryKpiCounters(oModel) {
-            if (!oModel) oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-            const aHistory = oModel.getProperty("/requestHistory") || oModel.getProperty("/myHistoryRequests") || [];
-            let iApproved = 0, iRejected = 0, iRevoked = 0;
-            aHistory.forEach(req => {
-                const sStat = (req.status || "").toLowerCase();
-                const sType = (req.type || "").toLowerCase();
-                const isRevoc = sType.includes("revok") || (req.function || "").toLowerCase().includes("revocation") || (req.requestId || "").toUpperCase().startsWith("REV-");
-                if (sStat.includes("reject") || sStat.includes("decline")) {
-                    iRejected++;
-                } else if (sStat.includes("revok") || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) {
-                    iRevoked++;
-                } else if (sStat.includes("approved") || sStat.includes("active")) {
-                    iApproved++;
-                }
-            });
-            this._setSmartProperty(oModel, "/allHistoryCount", aHistory.length);
-            this._setSmartProperty(oModel, "/approvedHistoryCount", iApproved);
-            this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejected);
-            this._setSmartProperty(oModel, "/revokedHistoryCount", iRevoked);
-            this._setSmartProperty(oModel, "/removedHistoryCount", iRevoked);
-        },
-
-        onSearchMyAccess(oEvent) {
-            const sQuery = oEvent.getParameter("newValue");
-            const aFilters = [];
-
-            if (sQuery && sQuery.trim().length > 0) {
-                aFilters.push(new Filter([
-                    new Filter("system", FilterOperator.Contains, sQuery),
-                    new Filter("roleName", FilterOperator.Contains, sQuery),
-                    new Filter("roleId", FilterOperator.Contains, sQuery),
-                    new Filter("category", FilterOperator.Contains, sQuery)
-                ], false));
-            }
-
-            const oTable = this.byId("myAccessTable");
-            const oBinding = oTable.getBinding("items");
-            oBinding.filter(aFilters);
-        },
-
-        onViewRoleDetails(oEvent) {
-            const oItem = oEvent.getSource().getParent().getParent();
-            const oData = oItem.getBindingContext("accessModel").getObject();
-
-            MessageBox.information(
-                "Role Name: " + oData.roleName + "\n" +
-                "Role ID: " + oData.roleId + "\n" +
-                "Target System: " + oData.system + "\n" +
-                "Category: " + oData.category + "\n" +
-                "Granted Date: " + oData.grantedDate + "\n" +
-                "Expiration: " + oData.expiryDate + "\n" +
-                "Status: " + oData.status,
-                { title: "Entitlement Details" }
-            );
-        },
-
-        onSearchRequests(oEvent) {
-            const sQuery = oEvent.getParameter("newValue");
-            const aFilters = [];
-
-            if (sQuery && sQuery.trim().length > 0) {
-                aFilters.push(new Filter([
-                    new Filter("requestId", FilterOperator.Contains, sQuery),
-                    new Filter("system", FilterOperator.Contains, sQuery),
-                    new Filter("roleName", FilterOperator.Contains, sQuery),
-                    new Filter("roleTitle", FilterOperator.Contains, sQuery),
-                    new Filter("serviceTopic", FilterOperator.Contains, sQuery),
-                    new Filter("selectedPersona", FilterOperator.Contains, sQuery),
-                    new Filter("persona", FilterOperator.Contains, sQuery),
-                    new Filter("accessDuration", FilterOperator.Contains, sQuery),
-                    new Filter("duration", FilterOperator.Contains, sQuery),
-                    new Filter("status", FilterOperator.Contains, sQuery)
-                ], false));
-            }
-
-            const oTable = this.byId("myRequestsUnifiedTable") || this.byId("myRequestsTable");
-            if (oTable) {
-                const oBinding = oTable.getBinding("items");
-                if (oBinding) {
-                    oBinding.filter(aFilters);
-                }
-            }
-        },
-
-        onExportAccess() {
-            MessageToast.show("Exporting My Access entitlements to CSV...");
-        },
-
-        onExportRequests() {
-            MessageToast.show("Exporting My Requests audit trail to CSV...");
-        },
-
-        async onRefreshAccess() {
-            const oBtn = this.byId("fioriHeaderRefreshBtn");
-            if (oBtn) {
-                oBtn.addStyleClass("kyraBtnSpinning");
-            }
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Refreshing Governance Data...",
-                    subtitle: "Synchronizing entitlements, request queues, and compliance status..."
+                    if (p.request_number) {
+                        processedBaseIds.add(String(p.request_number).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
+                    }
                 });
-            }
-            try {
-                await this._loadSubmittedRequests(this.getView().getModel("accessModel"));
-                await new Promise(resolve => setTimeout(resolve, 600));
-            } catch (err) {
-                console.error("Error refreshing access data:", err);
-            } finally {
-                if (oBtn) {
-                    oBtn.removeStyleClass("kyraBtnSpinning");
-                }
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                }
-                MessageToast.show("Access page data refreshed successfully.");
-            }
-        },
-
-        
-        _loadNotifications(oModel, aExplicitDbRequests) {
-            if (!oModel) oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-
-            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "").trim();
-            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
-            const sRoleLower = sActiveRole.toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
-            const isApproverPersona = sRoleLower.includes("approver") || sRoleLower.includes("manager") || sRoleLower.includes("admin") || !!oModel.getProperty("/isApproverPersona");
-            const isAnyReviewerPersona = isCompliancePersona || isApproverPersona;
-
-            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
-            const sDeletedStorageKey = sActiveUser ? ("kyra_deleted_notification_ids_" + sActiveUser.toLowerCase()) : "kyra_deleted_notification_ids";
-
-            let aSavedStatusMap = {};
-            let aSavedNotifications = [];
-            try {
-                aSavedNotifications = JSON.parse(sessionStorage.getItem(sUserStorageKey) || "[]");
-                (aSavedNotifications || []).forEach(n => {
-                    if (n && n.id) aSavedStatusMap[n.id] = n.unread;
+                aSessionProc.forEach(sp => {
+                    if (sp && sp.requestId) {
+                        const sReq = String(sp.requestId).trim().toUpperCase();
+                        const bReq = getBaseReqId(sReq).toUpperCase();
+                        processedBaseIds.add(sReq);
+                        processedBaseIds.add(bReq);
+                        if (!aProcessed.some(p => {
+                            const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                            return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
+                        })) {
+                            aProcessed.unshift(sp);
+                        }
+                    }
                 });
-            } catch (e) {}
+                aPending = aPending.filter(p => {
+                    const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                    const pBase = getBaseReqId(pId).toUpperCase();
+                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+                });
+            } catch(e) {}
 
             let aDeletedIds = [];
             try {
@@ -2788,6 +2422,7 @@ sap.ui.define([
                             approverComment: "",
                             timestamp: formatTimeAgo(sCreatedTime),
                             rawTimestamp: parseRawTimestamp(sCreatedTime),
+                            stagePriority: 1,
                             icon: isRevoke ? "sap-icon://decline" : "sap-icon://customer-and-supplier",
                             state: isRevoke ? "Warning" : "Information",
                             unread: aSavedStatusMap[sNotifId] !== undefined ? aSavedStatusMap[sNotifId] : true
@@ -2859,8 +2494,9 @@ sap.ui.define([
                                 title: "Access Revocation Approved",
                                 description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) has been approved and access is revoked.`,
                                 approverComment: r.approver_comment || r.approverComment || "",
-                                timestamp: formatTimeAgo(sUpdatedTime),
-                                rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
+                                timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
+                                rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
+                                stagePriority: 5,
                                 icon: "sap-icon://sys-enter-2",
                                 state: "Success",
                                 unread: aSavedStatusMap[sRevApprId] !== undefined ? aSavedStatusMap[sRevApprId] : true
@@ -2883,8 +2519,9 @@ sap.ui.define([
                                 title: "Access Revocation Rejected",
                                 description: `Your revoke request ${sReqNum} for ${sSys} (${sPersona}) was rejected.`,
                                 approverComment: r.approver_comment || r.approverComment || "",
-                                timestamp: formatTimeAgo(sUpdatedTime),
-                                rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
+                                timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
+                                rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
+                                stagePriority: 5,
                                 icon: "sap-icon://error",
                                 state: "Error",
                                 unread: aSavedStatusMap[sRevRejId] !== undefined ? aSavedStatusMap[sRevRejId] : true
@@ -2912,6 +2549,7 @@ sap.ui.define([
                         approverComment: "",
                         timestamp: formatTimeAgo(sCreatedTime),
                         rawTimestamp: parseRawTimestamp(sCreatedTime),
+                        stagePriority: 1,
                         icon: "sap-icon://pending",
                         state: "Information",
                         unread: aSavedStatusMap[sSubId] !== undefined ? aSavedStatusMap[sSubId] : true
@@ -2937,9 +2575,10 @@ sap.ui.define([
                             title: "Approver Stage Approved",
                             description: `Request ${sReqNum} has been approved by Line Manager / Approver and sent to ${nextStage}.`,
                             approverComment: r.approver_comment || r.approverComment || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
-                            icon: "sap-icon://sys-enter-2",
+                            timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
+                                rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
+                                stagePriority: 5,
+                                icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sAppr1Id] !== undefined ? aSavedStatusMap[sAppr1Id] : true
                         });
@@ -2960,8 +2599,9 @@ sap.ui.define([
                             title: "Access Request Rejected",
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by Line Manager / Approver.`,
                             approverComment: r.approver_comment || r.approverComment || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 1000,
+                            timestamp: formatTimeAgo(r.approver_decision_created_at || r.approver_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.approver_decision_created_at || r.approver_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 2,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sAppr1RejId] !== undefined ? aSavedStatusMap[sAppr1RejId] : true
@@ -2987,8 +2627,9 @@ sap.ui.define([
                             title: "Compliance Review Approved",
                             description: `Request ${sReqNum} has been approved by Compliance Reviewer and sent to IAM Approver 1.`,
                             approverComment: r.reviewer_comment || r.reviewerComment || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 2000,
+                            timestamp: formatTimeAgo(r.compliance_decision_created_at || r.compliance_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.compliance_decision_created_at || r.compliance_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 3,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sCompId] !== undefined ? aSavedStatusMap[sCompId] : true
@@ -3010,8 +2651,9 @@ sap.ui.define([
                             title: "Access Request Rejected",
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by Compliance Reviewer.`,
                             approverComment: r.reviewer_comment || r.reviewerComment || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 2000,
+                            timestamp: formatTimeAgo(r.compliance_decision_created_at || r.compliance_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.compliance_decision_created_at || r.compliance_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 3,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sCompRejId] !== undefined ? aSavedStatusMap[sCompRejId] : true
@@ -3037,8 +2679,9 @@ sap.ui.define([
                             title: "IAM Approver 1 Stage Approved",
                             description: `Request ${sReqNum} has been approved by IAM Approver 1 and sent to IAM Approver 2.`,
                             approverComment: r.iam_approver_1_comment || r.comments || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 3000,
+                            timestamp: formatTimeAgo(r.iam_approver_1_decision_created_at || r.iam_approver_1_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.iam_approver_1_decision_created_at || r.iam_approver_1_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 4,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sIam1Id] !== undefined ? aSavedStatusMap[sIam1Id] : true
@@ -3060,8 +2703,9 @@ sap.ui.define([
                             title: "Access Request Rejected",
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by IAM Approver 1.`,
                             approverComment: r.iam_approver_1_comment || r.comments || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 3000,
+                            timestamp: formatTimeAgo(r.iam_approver_1_decision_created_at || r.iam_approver_1_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.iam_approver_1_decision_created_at || r.iam_approver_1_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 4,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sIam1RejId] !== undefined ? aSavedStatusMap[sIam1RejId] : true
@@ -3088,8 +2732,9 @@ sap.ui.define([
                             title: "Access Request Fully Approved",
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) has received final approval from IAM Approver 2 and access is granted.`,
                             approverComment: r.iam_approver_2_comment || r.comments || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 4000,
+                            timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_2_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_2_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 5,
                             icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sIam2Id] !== undefined ? aSavedStatusMap[sIam2Id] : true
@@ -3111,8 +2756,9 @@ sap.ui.define([
                             title: "Access Request Rejected",
                             description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) was rejected by IAM Approver 2.`,
                             approverComment: r.iam_approver_2_comment || r.comments || "",
-                            timestamp: formatTimeAgo(sUpdatedTime),
-                            rawTimestamp: parseRawTimestamp(sUpdatedTime) + 4000,
+                            timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_2_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_2_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 5,
                             icon: "sap-icon://error",
                             state: "Error",
                             unread: aSavedStatusMap[sIam2RejId] !== undefined ? aSavedStatusMap[sIam2RejId] : true
@@ -3136,12 +2782,26 @@ sap.ui.define([
                 }
             });
 
-            // Sort notifications in REVERSE CHRONOLOGICAL ORDER (newest first)
-            aNotifications.sort((a, b) => {
-                const diff = (b.rawTimestamp || 0) - (a.rawTimestamp || 0);
-                if (diff !== 0) return diff;
+            // Sort notifications strictly in REVERSE CHRONOLOGICAL ORDER (newest first)
+            const sortNotificationsDesc = (a, b) => {
+                const tA = Number(a.rawTimestamp || 0);
+                const tB = Number(b.rawTimestamp || 0);
+                // If timestamps differ by more than 2 seconds, strictly sort newest first
+                if (Math.abs(tB - tA) > 2000) {
+                    return tB - tA;
+                }
+                // When decisions occur at virtually the same time, later stage always appears above earlier stage
+                const pA = Number(a.stagePriority || 1);
+                const pB = Number(b.stagePriority || 1);
+                if (pB !== pA) {
+                    return pB - pA;
+                }
+                if (tB !== tA) {
+                    return tB - tA;
+                }
                 return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
-            });
+            };
+            aNotifications.sort(sortNotificationsDesc);
 
             sessionStorage.setItem(sUserStorageKey, JSON.stringify(aNotifications));
             sessionStorage.setItem("kyra_user_notifications", JSON.stringify(aNotifications));
@@ -3221,16 +2881,7 @@ sap.ui.define([
                 });
             }
 
-            aFiltered.sort((a, b) => {
-                const diff = (b.rawTimestamp || 0) - (a.rawTimestamp || 0);
-                if (diff !== 0) return diff;
-                return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
-            });
-            aFiltered.sort((a, b) => {
-                const diff = (b.rawTimestamp || 0) - (a.rawTimestamp || 0);
-                if (diff !== 0) return diff;
-                return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
-            });
+            aFiltered.sort(sortNotificationsDesc);
             oModel.setProperty("/filteredNotificationsList", aFiltered);
         },
 

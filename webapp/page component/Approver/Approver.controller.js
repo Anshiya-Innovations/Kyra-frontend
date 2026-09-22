@@ -140,6 +140,10 @@ sap.ui.define([
                 if (!oModel.getProperty("/approverHistoryTab")) {
                     oModel.setProperty("/approverHistoryTab", "accessRequests");
                 }
+                const bShowHistory = sessionStorage.getItem("kyra_show_approval_history") === "true";
+                if (bShowHistory) {
+                    oModel.setProperty("/showApprovalHistory", true);
+                }
                 this._reloadAllRequests(oModel);
             }
         },
@@ -153,6 +157,7 @@ sap.ui.define([
                 oModel.setProperty("/isComplianceReviewer", isCompliance);
                 oModel.setProperty("/isCompliancePersona", isCompliance);
                 oModel.setProperty("/showApprovalHistory", false);
+                sessionStorage.removeItem("kyra_show_approval_history");
                 if (isCompliance) {
                     oModel.setProperty("/approverPendingTab", "accessRequests");
                 }
@@ -168,6 +173,7 @@ sap.ui.define([
                 oModel.setProperty("/isComplianceReviewer", isCompliance);
                 oModel.setProperty("/isCompliancePersona", isCompliance);
                 oModel.setProperty("/showApprovalHistory", true);
+                sessionStorage.setItem("kyra_show_approval_history", "true");
                 if (!oModel.getProperty("/approverHistoryTab")) {
                     oModel.setProperty("/approverHistoryTab", "accessRequests");
                 }
@@ -237,9 +243,15 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 const bCurrentState = oModel.getProperty("/showApprovalHistory");
-                oModel.setProperty("/showApprovalHistory", !bCurrentState);
+                const bNextState = !bCurrentState;
+                oModel.setProperty("/showApprovalHistory", bNextState);
+                if (bNextState) {
+                    sessionStorage.setItem("kyra_show_approval_history", "true");
+                } else {
+                    sessionStorage.removeItem("kyra_show_approval_history");
+                }
 
-                if (!bCurrentState) {
+                if (bNextState) {
                     MessageToast.show("Displaying Processed Approval History Log.");
                 } else {
                     MessageToast.show("Displaying Pending Access Requests Queue.");
@@ -727,41 +739,60 @@ sap.ui.define([
             });
 
             let aPending = oModel.getProperty("/pendingRequests") || [];
-            const oFoundPending = aPending.find(req => req.requestId === oData.requestId);
-            if (oFoundPending) {
-                oFoundPending.status = sOverallStatus;
-                oFoundPending.statusState = sOverallState;
-                oFoundPending.statusIcon = sStatusIcon;
-                oFoundPending.entitlements = oProcessedItem.entitlements;
-            }
+            aPending = aPending.filter(req => req.requestId !== oData.requestId && (req.request_number || req.requestId) !== oData.requestId);
+            
+            const isRevCheckInner = (req) => {
+                const sType = (req.type || req.access_type || "").toUpperCase();
+                const sFunc = (req.function || req.businessFunction || req.business_function || "").toUpperCase();
+                const sId = (req.requestId || req.request_number || "").toUpperCase();
+                return req.isRevocation === true || sType.includes("REV") || sFunc.includes("REVOCATION") || sId.startsWith("REV-") || sId.includes("-REV-");
+            };
+            const sortAscInner = (a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            };
+            const sortDescInner = (a, b) => {
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            };
+
+            const aAccessPending = aPending.filter(p => !isRevCheckInner(p));
+            const aRevokePending = aPending.filter(p => isRevCheckInner(p));
+            aPending.sort(sortAscInner);
+            aAccessPending.sort(sortAscInner);
+            aRevokePending.sort(sortAscInner);
+
             oModel.setProperty("/pendingRequests", aPending);
+            oModel.setProperty("/pendingAccessRequests", aAccessPending);
+            oModel.setProperty("/pendingRevokeRequests", aRevokePending);
+            oModel.setProperty("/pendingAccessCount", aAccessPending.length);
+            oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
 
             let aProcessed = oModel.getProperty("/processedRequests") || [];
+            aProcessed = aProcessed.filter(p => p.requestId !== oData.requestId && (p.request_number || p.requestId) !== oData.requestId);
             aProcessed.unshift(oProcessedItem);
+            aProcessed.sort(sortDescInner);
+
+            const aAccessProcessed = aProcessed.filter(p => !isRevCheckInner(p));
+            const aRevokeProcessed = aProcessed.filter(p => isRevCheckInner(p));
+            aAccessProcessed.sort(sortDescInner);
+            aRevokeProcessed.sort(sortDescInner);
+
             oModel.setProperty("/processedRequests", aProcessed);
+            oModel.setProperty("/historyAccessRequests", aAccessProcessed);
+            oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
+            oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
+            oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
 
-            // Also update Requester-side tracking models end-to-end
-            let aMyPending = oModel.getProperty("/myPendingRequests") || [];
-            let aMyHistory = oModel.getProperty("/requestHistory") || [];
-            let aMyApproved = oModel.getProperty("/myApprovedRequests") || [];
-
-            aMyPending = aMyPending.filter(req => req.requestId !== oData.requestId);
-            oModel.setProperty("/myPendingRequests", aMyPending);
-
-            aMyHistory.forEach(req => {
-                if (req.requestId === oData.requestId) {
-                    req.status = sOverallStatus;
-                    req.statusState = sOverallState;
-                    req.statusIcon = sStatusIcon;
-                }
-            });
-            oModel.setProperty("/requestHistory", aMyHistory);
-
-            if (sOverallStatus === "Approved" || sOverallStatus === "Partially Approved") {
-                aMyApproved.unshift(oProcessedItem);
-                oModel.setProperty("/myApprovedRequests", aMyApproved);
-            }
-
+            const isReqRevoc = isRevCheckInner(oData);
+            const sHistTab = oModel.getProperty("/approverHistoryTab") || (isReqRevoc ? "revokeRequests" : "accessRequests");
+            oModel.setProperty("/displayedHistoryRequests", sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed);
+            oModel.setProperty("/showApprovalHistory", true);
+            sessionStorage.setItem("kyra_show_approval_history", "true");
             sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aPending));
             sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aProcessed));
 
@@ -1074,7 +1105,26 @@ sap.ui.define([
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
-            const aPending = Object.values(oPendingGrouped);
+            const processedBaseIds = new Set(Object.keys(oGrouped).map(k => getBaseReqId(k).toUpperCase()).filter(Boolean));
+            Object.keys(oPendingGrouped).forEach(k => {
+                const bId = getBaseReqId(k).toUpperCase();
+                if (processedBaseIds.has(bId)) {
+                    delete oPendingGrouped[k];
+                }
+            });
+            const aPending = Object.values(oPendingGrouped).filter(p => !processedBaseIds.has(getBaseReqId(p.requestId || p.request_number || "").toUpperCase()));
+            const getPendingTime = (r) => {
+                const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
+                if (!raw) return 0;
+                const parsed = new Date(raw).getTime();
+                return isNaN(parsed) ? 0 : parsed;
+            };
+            aPending.sort((a, b) => {
+                const tA = getPendingTime(a);
+                const tB = getPendingTime(b);
+                if (tA !== tB && tA > 0 && tB > 0) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
             return {
                 processed: aProcessed,
                 pending: aPending
@@ -1093,6 +1143,9 @@ sap.ui.define([
             oModel.setProperty("/isCompliancePersona", isCompliance);
             if (isCompliance) {
                 oModel.setProperty("/approverPendingTab", "accessRequests");
+            }
+            if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
+                oModel.setProperty("/showApprovalHistory", true);
             }
 
             let aRawData = [];
@@ -1154,6 +1207,40 @@ sap.ui.define([
                 aProcessed = oApproverData.processed;
             }
 
+            try {
+                const aStoredProc = JSON.parse(sessionStorage.getItem("kyra_processed_requests") || "[]");
+                const processedBaseIds = new Set();
+                aProcessed.forEach(p => {
+                    if (p.requestId) {
+                        processedBaseIds.add(String(p.requestId).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(p.requestId).trim()).toUpperCase());
+                    }
+                    if (p.request_number) {
+                        processedBaseIds.add(String(p.request_number).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
+                    }
+                });
+                aStoredProc.forEach(sp => {
+                    if (sp && sp.requestId) {
+                        const sReq = String(sp.requestId).trim().toUpperCase();
+                        const bReq = getBaseReqId(sReq).toUpperCase();
+                        processedBaseIds.add(sReq);
+                        processedBaseIds.add(bReq);
+                        if (!aProcessed.some(p => {
+                            const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                            return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
+                        })) {
+                            aProcessed.unshift(sp);
+                        }
+                    }
+                });
+                aPending = aPending.filter(p => {
+                    const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                    const pBase = getBaseReqId(pId).toUpperCase();
+                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+                });
+            } catch(eProc) {}
+
             const isRevCheck = (req) => {
                 const sType = (req.type || req.access_type || "").toUpperCase();
                 const sFunc = (req.function || req.businessFunction || req.business_function || "").toUpperCase();
@@ -1165,16 +1252,29 @@ sap.ui.define([
                        sId.includes("-REV-");
             };
 
-            const sortChronologicallyDesc = (a, b) => {
+            const sortChronologicallyAsc = (a, b) => {
                 const getTime = (r) => {
-                    const raw = r.createdAtRaw || r.created_at || r.updated_at || r.submissionDate || r.decisionDate || "";
+                    const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
                     if (!raw) return 0;
                     const parsed = new Date(raw).getTime();
                     return isNaN(parsed) ? 0 : parsed;
                 };
                 const tA = getTime(a);
                 const tB = getTime(b);
-                if (tA !== tB) return tB - tA;
+                if (tA !== tB && tA > 0 && tB > 0) return tA - tB; // Chronological (oldest first)
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            };
+
+            const sortChronologicallyDesc = (a, b) => {
+                const getTime = (r) => {
+                    const raw = r.updatedAtRaw || r.updated_at || r.decisionDate || r.createdAtRaw || r.created_at || r.submissionDate || "";
+                    if (!raw) return 0;
+                    const parsed = new Date(raw).getTime();
+                    return isNaN(parsed) ? 0 : parsed;
+                };
+                const tA = getTime(a);
+                const tB = getTime(b);
+                if (tA !== tB && tA > 0 && tB > 0) return tB - tA; // Reverse chronological (newest first)
                 return (b.requestId || "").localeCompare(a.requestId || "");
             };
 
@@ -1183,10 +1283,11 @@ sap.ui.define([
             const aAccessProcessed = aProcessed.filter(p => !isRevCheck(p));
             const aRevokeProcessed = aProcessed.filter(p => isRevCheck(p));
 
-            aPending.sort(sortChronologicallyDesc);
+            aPending.sort(sortChronologicallyAsc);
+            aAccessPending.sort(sortChronologicallyAsc);
+            aRevokePending.sort(sortChronologicallyAsc);
+
             aProcessed.sort(sortChronologicallyDesc);
-            aAccessPending.sort(sortChronologicallyDesc);
-            aRevokePending.sort(sortChronologicallyDesc);
             aAccessProcessed.sort(sortChronologicallyDesc);
             aRevokeProcessed.sort(sortChronologicallyDesc);
 

@@ -1455,21 +1455,42 @@ sap.ui.define([
                     };
                 });
 
-                // Immediately update pending and processed lists in model & sessionStorage
+                // 1. Immediately update pending queue and counts in model
                 let aCurrentPending = oModel.getProperty("/pendingRequests") || [];
                 let aCurrentProcessed = oModel.getProperty("/processedRequests") || [];
 
-                aCurrentPending = aCurrentPending.filter(req => req.requestId !== oData.requestId);
+                const sSubTargetBase = getBaseReqId(oData.requestId).toUpperCase();
+                const isSubTargetReq = (id) => {
+                    if (!id) return false;
+                    const s = String(id).trim().toUpperCase();
+                    return s === sSubTargetBase || getBaseReqId(s).toUpperCase() === sSubTargetBase;
+                };
+                aCurrentPending = aCurrentPending.filter(req => !isSubTargetReq(req.requestId) && !isSubTargetReq(req.request_number));
+                const isRevH = (p) => !!(p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-") || String(p.accessType || '').toUpperCase().includes("REV"));
+                const aAccessPending = aCurrentPending.filter(p => !isRevH(p));
+                const aRevokePending = aCurrentPending.filter(p => isRevH(p));
+
+                const sortAscSub = (a, b) => {
+                    const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || 0).getTime();
+                    const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || 0).getTime();
+                    if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tA - tB;
+                    return (a.requestId || "").localeCompare(b.requestId || "");
+                };
+                aCurrentPending.sort(sortAscSub);
+                aAccessPending.sort(sortAscSub);
+                aRevokePending.sort(sortAscSub);
+
                 oModel.setProperty("/pendingRequests", aCurrentPending);
-                oModel.setProperty("/pendingAccessRequests", aCurrentPending.filter(p => !p.isRevocation && p.type !== "Revocation"));
-                oModel.setProperty("/pendingRevokeRequests", aCurrentPending.filter(p => p.isRevocation || p.type === "Revocation"));
-                oModel.setProperty("/pendingAccessCount", aCurrentPending.filter(p => !p.isRevocation && p.type !== "Revocation").length);
-                oModel.setProperty("/pendingRevokeCount", aCurrentPending.filter(p => p.isRevocation || p.type === "Revocation").length);
+                oModel.setProperty("/pendingAccessRequests", aAccessPending);
+                oModel.setProperty("/pendingRevokeRequests", aRevokePending);
+                oModel.setProperty("/pendingAccessCount", aAccessPending.length);
+                oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
 
                 const sSec = oData.businessSector || oData.sector || "Information Technology & Security";
                 const sFunc = oData.businessFunction || oData.function || "Corporate Governance";
                 const sDur = oData.duration || "Permanent (Default)";
 
+                // 2. Build newly processed history item
                 const oNewProcessedItem = {
                     requestId: oData.requestId,
                     requesterId: oData.requesterId || oData.requesterUsername || "User",
@@ -1501,11 +1522,36 @@ sap.ui.define([
                     }))
                 };
 
-                aCurrentProcessed = aCurrentProcessed.filter(p => p.requestId !== oData.requestId);
+                // 3. Immediately prepend to processed list and partitioned history arrays
+                aCurrentProcessed = aCurrentProcessed.filter(p => !isSubTargetReq(p.requestId) && !isSubTargetReq(p.request_number));
                 aCurrentProcessed.unshift(oNewProcessedItem);
+                const sortDescSub = (a, b) => {
+                    const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                    const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                    if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
+                    return (b.requestId || "").localeCompare(a.requestId || "");
+                };
+                aCurrentProcessed.sort(sortDescSub);
+
+                const bIsCompliance = !!oModel.getProperty("/isCompliance") || (sActiveRole || "").toLowerCase().includes("compliance");
+                const aAccessProcessed = aCurrentProcessed.filter(p => !p.isRevocation && p.type !== "Revocation" && !String(p.requestId || '').startsWith("REV-"));
+                const aRevokeProcessed = aCurrentProcessed.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
+
                 oModel.setProperty("/processedRequests", aCurrentProcessed);
+                oModel.setProperty("/historyAccessRequests", aAccessProcessed);
+                oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
+                oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
+                oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
+
+                const sHistTab = oModel.getProperty("/approverHistoryTab") || (isReqRevocation ? "revokeRequests" : "accessRequests");
+                if (isReqRevocation) {
+                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
+                }
+                oModel.setProperty("/displayedHistoryRequests", bIsCompliance ? aAccessProcessed : (sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+                oModel.setProperty("/showApprovalHistory", true);
 
                 try {
+                    sessionStorage.setItem("kyra_show_approval_history", "true");
                     sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
                     sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
                     if (isReqRevocation || sOverallStatus === "Approved" || sOverallStatus === "Rejected") {
@@ -1518,14 +1564,11 @@ sap.ui.define([
                     console.warn("Storage warning:", eStorage);
                 }
 
-                // Post decision to backend service with timeout protection
+                // 4. Post decision to backend asynchronously in background (non-blocking for instant UI return)
                 try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000);
-                    const response = await fetch("/odata/v4/auth/submitAccessDecision", {
+                    fetch("/odata/v4/auth/submitAccessDecision", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        signal: controller.signal,
                         body: JSON.stringify({
                             requestNumber: oData.requestId,
                             actorRole: sActiveRole,
@@ -1533,26 +1576,22 @@ sap.ui.define([
                             accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition"),
                             decisions: aDecisionsPayload
                         })
+                    }).then(r => r.json()).then(data => {
+                        console.log("Decision persisted into database successfully:", data);
+                        this._notifyDatabaseMutation();
+                    }).catch(netErr => {
+                        console.warn("Network / DB persistence note:", netErr.message);
                     });
-                    clearTimeout(timeoutId);
-                    const data = await response.json();
-                    console.log("Decision persisted into database successfully:", data);
-
-                    // Reload all request data directly from database
-                    await this._reloadAllRequests(oModel);
-
-                    // Broadcast decision mutation event so user dashboards update live instantly
-                    this._notifyDatabaseMutation();
                 } catch (netErr) {
-                    console.warn("Network / DB persistence note:", netErr.message);
+                    console.warn("Network dispatch note:", netErr.message);
                 }
 
-                // Create user notification for requester
+                // 5. Create user notification for requester
                 const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert");
                 const sOverallComment = (oData.entitlements || []).map(e => e.comment || e.comments).filter(Boolean).join("; ") || (sOverallStatus === "Approved" ? "Access approved for this requester." : (sOverallStatus === "Rejected" ? "Access rejected." : "Decision updated."));
                 let sNotifDesc = "Your access request (" + oData.requestId + ") for " + sSec + " has been " + sOverallStatus.toLowerCase() + " by the " + sActiveRole + ".";
                 if (sOverallComment) {
-                    sNotifDesc += " Approver Remark: \"" + sOverallComment + "\"";
+                    sNotifDesc += ' Approver Remark: \"' + sOverallComment + '\"';
                 }
 
                 try {
@@ -1612,9 +1651,7 @@ sap.ui.define([
                 }
 
                 // Guaranteed Navigation back to dashboard
-                setTimeout(() => {
-                    this.onCloseRequestSummaryView();
-                }, 100);
+                this.onCloseRequestSummaryView();
             }
         },
 
@@ -1650,22 +1687,79 @@ sap.ui.define([
 
             try {
                 const aSessionProc = JSON.parse(sessionStorage.getItem("kyra_processed_requests") || "[]");
-                aSessionProc.forEach(sp => {
-                    if (!aProcessed.some(p => p.requestId === sp.requestId)) {
-                        aProcessed.unshift(sp);
+                const processedBaseIds = new Set();
+                aProcessed.forEach(p => {
+                    if (p.requestId) {
+                        processedBaseIds.add(String(p.requestId).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(p.requestId).trim()).toUpperCase());
                     }
+                    if (p.request_number) {
+                        processedBaseIds.add(String(p.request_number).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
+                    }
+                });
+                aSessionProc.forEach(sp => {
+                    if (sp && sp.requestId) {
+                        const sReq = String(sp.requestId).trim().toUpperCase();
+                        const bReq = getBaseReqId(sReq).toUpperCase();
+                        processedBaseIds.add(sReq);
+                        processedBaseIds.add(bReq);
+                        if (!aProcessed.some(p => {
+                            const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                            return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
+                        })) {
+                            aProcessed.unshift(sp);
+                        }
+                    }
+                });
+                aPending = aPending.filter(p => {
+                    const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                    const pBase = getBaseReqId(pId).toUpperCase();
+                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
                 });
             } catch(e) {}
 
-            const aAccessPending = aPending.filter(p => !p.isRevocation && p.type !== "Revocation");
-            const aRevokePending = isCompliance ? [] : aPending.filter(p => p.isRevocation || p.type === "Revocation");
+            const isRevCheckDetail = (p) => !!(p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-") || String(p.accessType || '').toUpperCase().includes("REV"));
+            const aAccessPending = aPending.filter(p => !isRevCheckDetail(p));
+            const aRevokePending = isCompliance ? [] : aPending.filter(p => isRevCheckDetail(p));
+
+            const sortAscD = (a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            };
+            const sortDescD = (a, b) => {
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            };
+
+            aPending.sort(sortAscD);
+            aAccessPending.sort(sortAscD);
+            aRevokePending.sort(sortAscD);
+
+            const aAccessProcessed = aProcessed.filter(p => !isRevCheckDetail(p));
+            const aRevokeProcessed = aProcessed.filter(p => isRevCheckDetail(p));
+            aProcessed.sort(sortDescD);
+            aAccessProcessed.sort(sortDescD);
+            aRevokeProcessed.sort(sortDescD);
 
             this._setSmartProperty(oModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
             this._setSmartProperty(oModel, "/pendingAccessRequests", aAccessPending);
             this._setSmartProperty(oModel, "/pendingRevokeRequests", aRevokePending);
             this._setSmartProperty(oModel, "/pendingAccessCount", aAccessPending.length);
             this._setSmartProperty(oModel, "/pendingRevokeCount", aRevokePending.length);
+
             this._setSmartProperty(oModel, "/processedRequests", aProcessed);
+            this._setSmartProperty(oModel, "/historyAccessRequests", aAccessProcessed);
+            this._setSmartProperty(oModel, "/historyRevokeRequests", aRevokeProcessed);
+            this._setSmartProperty(oModel, "/historyAccessCount", aAccessProcessed.length);
+            this._setSmartProperty(oModel, "/historyRevokeCount", aRevokeProcessed.length);
+
+            const sHistTabD = oModel.getProperty("/approverHistoryTab") || "accessRequests";
+            this._setSmartProperty(oModel, "/displayedHistoryRequests", isCompliance ? aProcessed : (sHistTabD === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
         },
 
         _buildApproverHistoryAndPending(aRawRecords) {
@@ -1917,7 +2011,26 @@ sap.ui.define([
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
-            const aPending = Object.values(oPendingGrouped);
+            const processedBaseIds = new Set(Object.keys(oGrouped).map(k => getBaseReqId(k).toUpperCase()).filter(Boolean));
+            Object.keys(oPendingGrouped).forEach(k => {
+                const bId = getBaseReqId(k).toUpperCase();
+                if (processedBaseIds.has(bId)) {
+                    delete oPendingGrouped[k];
+                }
+            });
+            const aPending = Object.values(oPendingGrouped).filter(p => !processedBaseIds.has(getBaseReqId(p.requestId || p.request_number || "").toUpperCase()));
+            const getPendingTime = (r) => {
+                const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
+                if (!raw) return 0;
+                const parsed = new Date(raw).getTime();
+                return isNaN(parsed) ? 0 : parsed;
+            };
+            aPending.sort((a, b) => {
+                const tA = getPendingTime(a);
+                const tB = getPendingTime(b);
+                if (tA !== tB && tA > 0 && tB > 0) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            });
             return {
                 processed: aProcessed,
                 pending: aPending
