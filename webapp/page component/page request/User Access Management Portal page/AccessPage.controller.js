@@ -1023,8 +1023,8 @@ sap.ui.define([
 
         _onRouteMatched() {
             const oModel = this.getView().getModel("accessModel");
-            const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "";
-            const sActiveUser = (sRawActiveUser || "").trim().toLowerCase();
+            const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || (oModel ? oModel.getProperty("/activeUser") : null) || "emp001";
+            const sActiveUser = (sRawActiveUser || "emp001").trim().toLowerCase();
             sessionStorage.setItem("kyra_active_user", sActiveUser);
             sessionStorage.setItem("kyra_user_id", sActiveUser);
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
@@ -2203,7 +2203,44 @@ sap.ui.define([
 
             this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
             this._setSmartProperty(oModel, "/myApprovedRequests", aMyApproved);
-                        try {
+            this._setSmartProperty(oModel, "/requestHistory", aMyHistory);
+            this._setSmartProperty(oModel, "/myHistoryRequests", aMyHistory);
+            this._masterMyHistoryRequests = [].concat(aMyHistory || []);
+            this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
+            this._setSmartProperty(oModel, "/displayedUserAccessList", aUniqueUserAccessList);
+            this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
+
+            let iRevokedHistory = 0;
+            let iApprovedHistory = 0;
+            let iRejectedHistory = 0;
+
+            const aAllCombinedHistory = aMyHistory || [];
+            aAllCombinedHistory.forEach(req => {
+                const sStat = (req.status || "").toLowerCase();
+                const sType = (req.type || "").toLowerCase();
+                const isRevoc = sType.includes("revok") || (req.function || "").toLowerCase().includes("revocation") || (req.requestId || "").toUpperCase().startsWith("REV-");
+                
+                if (sStat.includes("reject") || sStat.includes("decline")) {
+                    iRejectedHistory++;
+                } else if (sStat.includes("revok") || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) {
+                    iRevokedHistory++;
+                } else if (sStat.includes("approved") || sStat.includes("active")) {
+                    iApprovedHistory++;
+                }
+            });
+
+            this._setSmartProperty(oModel, "/historyTotalCount", aAllCombinedHistory.length);
+            this._setSmartProperty(oModel, "/allHistoryCount", aAllCombinedHistory.length);
+            this._setSmartProperty(oModel, "/historyApprovedCount", iApprovedHistory);
+            this._setSmartProperty(oModel, "/approvedHistoryCount", iApprovedHistory);
+            this._setSmartProperty(oModel, "/historyRejectedCount", iRejectedHistory);
+            this._setSmartProperty(oModel, "/rejectedHistoryCount", iRejectedHistory);
+            this._setSmartProperty(oModel, "/historyRevokedCount", iRevokedHistory);
+            this._setSmartProperty(oModel, "/revokedHistoryCount", iRevokedHistory);
+            this._setSmartProperty(oModel, "/historyRemovedCount", iRevokedHistory);
+            this._setSmartProperty(oModel, "/filteredHistoryCount", aAllCombinedHistory.length);
+
+            try {
                 const sS = sessionStorage.getItem("kyra_pending_revocations");
                 const sL = localStorage.getItem("kyra_pending_revocations");
                 const aS = sS ? JSON.parse(sS) : [];
@@ -2241,6 +2278,15 @@ sap.ui.define([
                 });
             } catch(eR) {}
 
+            const getBaseReqId = (num) => {
+                if (!num) return "";
+                const lastDash = num.lastIndexOf('-');
+                if (lastDash > 0 && lastDash >= num.length - 4) {
+                    return num.slice(0, lastDash);
+                }
+                return num;
+            };
+
             const oApproverData = this._buildApproverHistoryAndPending(aRawDbRequests);
             let aApprPending = oApproverData.pending || [];
             let aFinalProcessed = oApproverData.processed || [];
@@ -2249,7 +2295,7 @@ sap.ui.define([
             try {
                 const aSessionProc = JSON.parse(sessionStorage.getItem("kyra_processed_requests") || "[]");
                 const processedBaseIds = new Set();
-                aProcessed.forEach(p => {
+                aFinalProcessed.forEach(p => {
                     if (p.requestId) {
                         processedBaseIds.add(String(p.requestId).trim().toUpperCase());
                         processedBaseIds.add(getBaseReqId(String(p.requestId).trim()).toUpperCase());
@@ -2265,20 +2311,83 @@ sap.ui.define([
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        if (!aProcessed.some(p => {
+                        if (!aFinalProcessed.some(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
                         })) {
-                            aProcessed.unshift(sp);
+                            aFinalProcessed.unshift(sp);
                         }
                     }
                 });
-                aPending = aPending.filter(p => {
+                aApprPending = aApprPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
                     return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
                 });
             } catch(e) {}
+
+            const aApprPendingAccess = aApprPending.filter(p => !p.isRevocation && p.type !== "Revocation");
+            const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => p.isRevocation || p.type === "Revocation");
+            const aAccessProcessed = aFinalProcessed.filter(p => !p.isRevocation && p.type !== "Revocation");
+            const aRevokeProcessed = aFinalProcessed.filter(p => p.isRevocation || p.type === "Revocation");
+
+            this._setSmartProperty(oModel, "/pendingRequests", isCompliancePersona ? aApprPendingAccess : aApprPending);
+            this._setSmartProperty(oModel, "/pendingAccessRequests", aApprPendingAccess);
+            this._setSmartProperty(oModel, "/pendingRevokeRequests", aApprPendingRevoke);
+            this._setSmartProperty(oModel, "/pendingAccessCount", aApprPendingAccess.length);
+            this._setSmartProperty(oModel, "/pendingRevokeCount", aApprPendingRevoke.length);
+            this._setSmartProperty(oModel, "/isCompliance", isCompliancePersona);
+            this._setSmartProperty(oModel, "/isComplianceReviewer", isCompliancePersona);
+            this._setSmartProperty(oModel, "/isCompliancePersona", isCompliancePersona);
+
+            this._setSmartProperty(oModel, "/processedRequests", aFinalProcessed);
+            this._setSmartProperty(oModel, "/processedAccessRequests", aAccessProcessed);
+            this._setSmartProperty(oModel, "/processedRevokeRequests", aRevokeProcessed);
+            this._setSmartProperty(oModel, "/historyAccessRequests", aAccessProcessed);
+            this._setSmartProperty(oModel, "/historyRevokeRequests", aRevokeProcessed);
+            this._setSmartProperty(oModel, "/historyAccessCount", aAccessProcessed.length);
+            this._setSmartProperty(oModel, "/historyRevokeCount", aRevokeProcessed.length);
+            this._setSmartProperty(oModel, "/processedCount", aFinalProcessed.length);
+
+            const sCurrentHistTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
+            this._setSmartProperty(oModel, "/displayedHistoryRequests", isCompliancePersona ? aFinalProcessed : (sCurrentHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+
+            this._cachedDbRequests = aRawDbRequests;
+            this._loadNotifications(oModel, aRawDbRequests);
+
+            this._bIsLoadingRequests = false;
+            // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+            }, 200);
+        },
+
+        _loadNotifications(oModel, aExplicitDbRequests) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "").trim();
+            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
+            const sRoleLower = sActiveRole.toLowerCase();
+            const isCompliancePersona = sRoleLower.includes("compliance");
+            const isApproverPersona = sRoleLower.includes("approver") || sRoleLower.includes("manager") || sRoleLower.includes("admin") || !!oModel.getProperty("/isApproverPersona");
+            const isAnyReviewerPersona = isCompliancePersona || isApproverPersona;
+
+            const sUserStorageKey = sActiveUser ? ("kyra_user_notifications_" + sActiveUser.toLowerCase()) : "kyra_user_notifications";
+            const sDeletedStorageKey = sActiveUser ? ("kyra_deleted_notification_ids_" + sActiveUser.toLowerCase()) : "kyra_deleted_notification_ids";
+
+            let aSavedStatusMap = {};
+            let aSavedNotifications = [];
+            try {
+                aSavedNotifications = JSON.parse(sessionStorage.getItem(sUserStorageKey) || "[]");
+                (aSavedNotifications || []).forEach(n => {
+                    if (n && n.id) aSavedStatusMap[n.id] = n.unread;
+                });
+            } catch (e) {}
 
             let aDeletedIds = [];
             try {
@@ -2882,7 +2991,22 @@ sap.ui.define([
                 });
             }
 
-            aFiltered.sort(sortNotificationsDesc);
+            aFiltered.sort((a, b) => {
+                const tA = Number(a.rawTimestamp || 0);
+                const tB = Number(b.rawTimestamp || 0);
+                if (Math.abs(tB - tA) > 2000) {
+                    return tB - tA;
+                }
+                const pA = Number(a.stagePriority || 1);
+                const pB = Number(b.stagePriority || 1);
+                if (pB !== pA) {
+                    return pB - pA;
+                }
+                if (tB !== tA) {
+                    return tB - tA;
+                }
+                return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
+            });
             oModel.setProperty("/filteredNotificationsList", aFiltered);
         },
 
