@@ -583,9 +583,8 @@
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriFloatingHeader">
                         <HBox alignItems="Center">
                             <Avatar src="{= ${accessModel>/addAccessStep} === 5 ? 'sap-icon://summary-detail' : (${accessModel>/addAccessStep} === 4 ? 'sap-icon://shield' : (${accessModel>/addAccessStep} === 3 ? 'sap-icon://user-settings' : (${accessModel>/addAccessStep} === 2 ? 'sap-icon://globe' : 'sap-icon://building'))) }"
-                                backgroundColor="{= ${accessModel>/addAccessStep} === 5 ? 'Accent6' : (${accessModel>/addAccessStep} === 4 ? 'Accent8' : (${accessModel>/addAccessStep} === 3 ? 'Accent3' : (${accessModel>/addAccessStep} === 2 ? 'Accent2' : 'Accent1'))) }"
                                 displaySize="S"
-                                class="sapUiTinyMarginEnd fioriCardAvatar" />
+                                class="sapUiTinyMarginEnd fioriCardAvatar kyraWizardHeaderAvatar" />
                             <VBox>
                                 <Title text="{= ${accessModel>/addAccessStep} === 5 ? 'Step 5: Review &amp; Summary' : (${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 ? 'Step 4: SoD Conflict Review' : (${accessModel>/addAccessStep} === 4 ? 'Step 4: Access Validation' : (${accessModel>/addAccessStep} === 3 ? 'Step 3: Access Configuration' : (${accessModel>/addAccessStep} === 2 ? 'Step 2: Region Selection' : 'Step 1: Business Sector')))) }" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="{= ${accessModel>/addAccessStep} === 5 ? 'Review configured target entitlements and submit request.' : (${accessModel>/addAccessStep} === 4 &amp;&amp; ${accessModel>/addAccessStep4SubStep} === 2 ? 'Review and resolve Segregation of Duties (SoD) conflicts before proceeding.' : (${accessModel>/addAccessStep} === 4 ? 'Validate access threshold limits, restricted records, and duplicate roles.' : (${accessModel>/addAccessStep} === 3 ? 'Configure target systems, services, team roles, personas, duration, and justification.' : (${accessModel>/addAccessStep} === 2 ? 'Select target operating region.' : 'Select enterprise sector and operational function.')))) }" class="fioriDescriptionText" />
@@ -810,8 +809,11 @@
                                     
                                     &lt;div id="selectAllBtn" class="select-all-btn-wrapper"&gt;
                                       &lt;div class="select-all-icon"&gt;
-                                        &lt;svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"&gt;
+                                        &lt;svg class="select-all-pin-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"&gt;
                                           &lt;path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5-2.5z"/&gt;
+                                        &lt;/svg&gt;
+                                        &lt;svg class="select-all-check-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"&gt;
+                                          &lt;path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/&gt;
                                         &lt;/svg&gt;
                                       &lt;/div&gt;
                                       &lt;span class="select-all-text"&gt;Select All Regions&lt;/span&gt;
@@ -875,6 +877,7 @@
                                         id="inPageSystemsMultiSelect"
                                         selectedKeys="{accessModel>/addAccessSelectedSystems}"
                                         selectionChange=".onInPageTargetSystemsSelectionChange"
+                                        selectionFinish=".onInPageTargetSystemsSelectionChange"
                                         placeholder="Select target system processes..."
                                         width="100%"
                                         class="fioriFormSelect">
@@ -889,18 +892,18 @@
                             </form:SimpleForm>
 
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                            <VBox id="targetSystemSlideCard" visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                            <VBox id="targetSystemSlideCard" visible="{accessModel>/hasSelectedTargetSystems}" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">
                                         <Avatar src="sap-icon://action-settings" class="kyraMasterViewAvatar fioriCardAvatar" displaySize="S" />
                                         <VBox class="kyraCardHeaderTextCol">
-                                            <Title text="{= 'Target System Slide (' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' of ' + ${accessModel>/addAccessSelectedSystems}.length + '): ' + ${accessModel>/currentSystemSlideName} }" level="H4" class="fioriCardHeaderTitle" />
+                                            <Title text="{accessModel>/targetSystemSlideTitle}" level="H4" class="fioriCardHeaderTitle" />
                                             <Text text="Configure specific services, team roles, and personas for this target system." class="fioriDescriptionText" />
                                         </VBox>
                                     </HBox>
                                     <ObjectStatus
-                                        text="{= 'Slide ' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' / ' + ${accessModel>/addAccessSelectedSystems}.length }"
+                                        text="{accessModel>/targetSystemSlideBadge}"
                                         state="Information" />
                                 </HBox>
 
@@ -911,7 +914,7 @@
                                     columnsL="2"
                                     singleContainerFullWidth="false">
                                     <form:content>
-                                        <core:Title text="{= 'Entitlements &amp; Personas for ' + ${accessModel>/currentSystemSlideName} }" />
+                                        <core:Title text="{= 'Entitlements &amp; Personas for ' + (${accessModel>/currentSystemSlideName} || '') }" />
                                         
                                         <!-- FIELD 1: SERVICE / TOPIC -->
                                         <Label text="Service / Topic" required="true" />
@@ -1022,7 +1025,7 @@
                                     </ComboBox>
 
                                     <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
-                                    <Label text="Business Justification" required="true" class="kyraJustificationLabel" />
+                                    <Label text="Business Justification" required="true" labelFor="inPageJustificationArea" class="kyraJustificationLabel" />
                                     <TextArea
                                         id="inPageJustificationArea"
                                         value="{accessModel>/addAccessJustification}"

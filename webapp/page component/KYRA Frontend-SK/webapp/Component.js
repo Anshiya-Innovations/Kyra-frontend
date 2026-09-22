@@ -61,6 +61,9 @@ sap.ui.define([
                 filteredNotificationsList: [],
                 restrictedRecords: [],
                 addAccessSelectedSystems: [],
+                hasSelectedTargetSystems: false,
+                targetSystemSlideTitle: "",
+                targetSystemSlideBadge: "",
                 addAccessSelectedPersonas: []
             });
             this.setModel(oGlobalAccessModel, "accessModel");
@@ -133,7 +136,7 @@ sap.ui.define([
             const handleJustificationFocus = (e) => {
                 const target = e.target;
                 if (!target) return;
-                const oBox = target.closest("#inPageJustificationArea, .kyraJustificationTextArea, .kyraJustificationLabel");
+                const oBox = target.closest("#inPageJustificationArea, .kyraJustificationTextArea, .kyraJustificationLabel, [id*='inPageJustificationArea']");
                 if (oBox) {
                     let oTa = oBox.querySelector("textarea");
                     if (!oTa) {
@@ -147,6 +150,7 @@ sap.ui.define([
                 }
             };
 
+            document.addEventListener("pointerdown", handleJustificationFocus, true);
             document.addEventListener("mousedown", handleJustificationFocus, true);
             document.addEventListener("click", handleJustificationFocus, true);
         },

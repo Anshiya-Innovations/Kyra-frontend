@@ -23,44 +23,36 @@
                 tooltip="Close Add Access Section" />
         </HBox>
 
-        <!-- ANIMATED 5-STEP PROGRESS TRACKER BAR -->
+        <!-- ANIMATED 4-STEP PROGRESS TRACKER BAR -->
         <HBox justifyContent="Center" alignItems="Center" class="sapUiSmallMarginBottom fioriWizardProgressTrack">
-            <!-- Step 1: Business Sector -->
+            <!-- Step 1 Pill -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 1 || !${accessModel>/addAccessStep} ? 'fioriStepPill fioriStepPillActive' : 'fioriStepPill fioriStepPillDone' }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 1 ? 'sap-icon://sys-enter-2' : 'sap-icon://building' }" displaySize="XS" class="kyraStepAvatar" />
-                <Text text="1. Business Sector" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 1 ? 'sap-icon://sys-enter-2' : 'sap-icon://building' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                <Text text="1. Scope" class="fioriStepPillText" />
             </HBox>
             
             <HBox class="{= ${accessModel>/addAccessStep} > 1 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
             
-            <!-- Step 2: Region Selection -->
+            <!-- Step 2 Pill -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 2 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 2 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 2 ? 'sap-icon://sys-enter-2' : 'sap-icon://globe' }" displaySize="XS" class="kyraStepAvatar" />
-                <Text text="2. Region Selection" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 2 ? 'sap-icon://sys-enter-2' : 'sap-icon://globe' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                <Text text="2. Region" class="fioriStepPillText" />
             </HBox>
 
             <HBox class="{= ${accessModel>/addAccessStep} > 2 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
 
-            <!-- Step 3: Access Configuration -->
+            <!-- Step 3 Pill -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 3 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 3 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 3 ? 'sap-icon://sys-enter-2' : 'sap-icon://user-settings' }" displaySize="XS" class="kyraStepAvatar" />
-                <Text text="3. Access Configuration" class="fioriStepPillText" />
+                <Avatar src="{= ${accessModel>/addAccessStep} > 3 ? 'sap-icon://sys-enter-2' : 'sap-icon://user-settings' }" displaySize="XS" class="sapUiTinyMarginEnd" />
+                <Text text="3. Config" class="fioriStepPillText" />
             </HBox>
 
             <HBox class="{= ${accessModel>/addAccessStep} > 3 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
 
-            <!-- Step 4: Access Validation -->
-            <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 4 ? 'fioriStepPill fioriStepPillActive' : (${accessModel>/addAccessStep} > 4 ? 'fioriStepPill fioriStepPillDone' : 'fioriStepPill') }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 4 ? 'sap-icon://sys-enter-2' : 'sap-icon://shield' }" displaySize="XS" class="kyraStepAvatar" />
-                <Text text="4. Access Validation" class="fioriStepPillText" />
-            </HBox>
-
-            <HBox class="{= ${accessModel>/addAccessStep} > 4 ? 'fioriStepConnectorLine fioriStepConnectorActive' : 'fioriStepConnectorLine' }" />
-
-            <!-- Step 5: Review &amp; Summary -->
+            <!-- Step 4 Pill (Summary) -->
             <HBox alignItems="Center" class="{= ${accessModel>/addAccessStep} === 5 ? 'fioriStepPill fioriStepPillActive' : 'fioriStepPill' }">
-                <Avatar src="{= ${accessModel>/addAccessStep} > 5 ? 'sap-icon://sys-enter-2' : 'sap-icon://summary-detail' }" displaySize="XS" class="kyraStepAvatar" />
-                <Text text="5. Review &amp; Summary" class="fioriStepPillText" />
+                <Avatar src="sap-icon://summary-detail" displaySize="XS" class="sapUiTinyMarginEnd" />
+                <Text text="4. Summary" class="fioriStepPillText" />
             </HBox>
         </HBox>
 
@@ -217,6 +209,7 @@
                             id="inPageSystemsMultiSelect"
                             selectedKeys="{accessModel>/addAccessSelectedSystems}"
                             selectionChange=".onInPageTargetSystemsSelectionChange"
+                            selectionFinish=".onInPageTargetSystemsSelectionChange"
                             placeholder="Select target system processes..."
                             width="100%"
                             class="fioriFormSelect">
@@ -231,18 +224,18 @@
                 </form:SimpleForm>
 
                 <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                <VBox visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                <VBox visible="{accessModel>/hasSelectedTargetSystems}" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                     <!-- Target System Slide Header Banner -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                         <HBox alignItems="Center">
                             <Avatar src="sap-icon://action-settings" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
                             <VBox>
-                                <Title text="{= 'Target System Slide (' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' of ' + ${accessModel>/addAccessSelectedSystems}.length + '): ' + ${accessModel>/currentSystemSlideName} }" level="H4" class="fioriCardHeaderTitle" />
+                                <Title text="{accessModel>/targetSystemSlideTitle}" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="Configure specific services, team roles, and personas for this target system." class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
                         <ObjectStatus
-                            text="{= 'Slide ' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' / ' + ${accessModel>/addAccessSelectedSystems}.length }"
+                            text="{accessModel>/targetSystemSlideBadge}"
                             state="Information" />
                     </HBox>
 
@@ -253,7 +246,7 @@
                         columnsL="2"
                         singleContainerFullWidth="false">
                         <form:content>
-                            <core:Title text="{= 'Entitlements &amp; Personas for ' + ${accessModel>/currentSystemSlideName} }" />
+                            <core:Title text="{= 'Entitlements &amp; Personas for ' + (${accessModel>/currentSystemSlideName} || '') }" />
                             
                             <!-- FIELD 1: SERVICE / TOPIC -->
                             <Label text="Service / Topic" required="true" />

@@ -278,6 +278,9 @@ sap.ui.define([
             if (!oModel) return;
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            const bHasSystems = Array.isArray(aSystems) && aSystems.length > 0;
+            oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);
+
             let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
             if (iIndex >= aSystems.length) {
                 iIndex = Math.max(0, aSystems.length - 1);
@@ -292,10 +295,25 @@ sap.ui.define([
             if (!oModel) return;
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            const bHasSystems = Array.isArray(aSystems) && aSystems.length > 0;
+            oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);
+
+            if (!bHasSystems) {
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/targetSystemSlideTitle", "");
+                oModel.setProperty("/targetSystemSlideBadge", "");
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                return;
+            }
+
             const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
             const sCurrentSys = aSystems[iIndex] || "";
 
             oModel.setProperty("/currentSystemSlideName", sCurrentSys);
+            oModel.setProperty("/targetSystemSlideTitle", "Target System Slide (" + (iIndex + 1) + " of " + aSystems.length + "): " + sCurrentSys);
+            oModel.setProperty("/targetSystemSlideBadge", "Slide " + (iIndex + 1) + " / " + aSystems.length);
 
             const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
             const oSavedConfig = oSlideConfigsMap[sCurrentSys] || {

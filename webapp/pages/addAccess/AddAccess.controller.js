@@ -256,8 +256,12 @@ sap.ui.define([
         _updateSelectAllButtonState() {
             const oSelectAll = document.getElementById("selectAllBtnAddAccess") || document.getElementById("selectAllBtn");
             if (oSelectAll) {
-                const bAllSelected = this._aSelectedRegionIds.length === this._regionList.length;
+                const bAllSelected = this._aSelectedRegionIds.length === this._regionList.length && this._regionList.length > 0;
                 oSelectAll.classList.toggle("active", bAllSelected);
+                const oText = oSelectAll.querySelector(".select-all-text");
+                if (oText) {
+                    oText.textContent = bAllSelected ? "All Regions Selected" : "Select All Regions";
+                }
             }
         },
 

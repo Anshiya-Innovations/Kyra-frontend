@@ -835,15 +835,48 @@ sap.ui.define([
             oControl.addEventDelegate(oControl._durDelegate);
         },
 
+        _setupJustificationAreaClick() {
+            setTimeout(() => {
+                const oArea = this.byId("inPageJustificationArea");
+                if (oArea && !oArea._justificationClickAttached) {
+                    oArea._justificationClickAttached = true;
+                    const fnFocus = () => {
+                        const oDom = oArea.getDomRef();
+                        if (oDom) {
+                            const oTextarea = oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef());
+                            if (oTextarea) {
+                                oTextarea.focus();
+                            }
+                        }
+                    };
+                    oArea.addEventDelegate({
+                        onAfterRendering: () => {
+                            const oDom = oArea.getDomRef();
+                            if (oDom) {
+                                oDom.style.cursor = "text";
+                                const oInner = oDom.querySelector("textarea");
+                                if (oInner) {
+                                    oInner.style.cursor = "text";
+                                }
+                            }
+                        },
+                        ontap: fnFocus
+                    });
+                }
+            }, 100);
+        },
+
         // =========================================================================
         // REGION MAP COMPONENT LOGIC (EXACT IMPLEMENTATION FROM REGION FOLDER)
         // =========================================================================
         _attachSelectAllListener() {
-            const oSelectAll = document.getElementById("selectAllBtn");
+            const oSelectAll = document.getElementById("selectAllBtn") || document.getElementById("selectAllBtnAddAccess");
             if (!oSelectAll) {
                 setTimeout(this._attachSelectAllListener.bind(this), 100);
                 return;
             }
+
+            this._updateSelectAllButtonState();
 
             if (oSelectAll._listenerAttached) return;
             oSelectAll._listenerAttached = true;
@@ -857,14 +890,13 @@ sap.ui.define([
                     this._aSelectedRegionIds = [];
                 }
 
-                if (this._aSelectedRegionIds.length === aRegions.length) {
+                if (this._aSelectedRegionIds.length === aRegions.length && aRegions.length > 0) {
                     this._aSelectedRegionIds = [];
-                    oSelectAll.classList.remove("active");
                 } else {
                     this._aSelectedRegionIds = aRegions.map(r => r.id);
-                    oSelectAll.classList.add("active");
                 }
 
+                this._updateSelectAllButtonState();
                 this._updatePinSelectionStates();
                 this._updateSelectedChips();
             });
@@ -949,12 +981,17 @@ sap.ui.define([
         },
 
         _updateSelectAllButtonState() {
-            const oSelectAll = document.getElementById("selectAllBtn");
+            const oSelectAll = document.getElementById("selectAllBtn") || document.getElementById("selectAllBtnAddAccess");
             if (oSelectAll) {
                 const oModel = this.getView().getModel("accessModel");
                 const aRegions = oModel ? oModel.getProperty("/mapRegionList") || [] : [];
                 const bAllSelected = (this._aSelectedRegionIds || []).length === aRegions.length && aRegions.length > 0;
                 oSelectAll.classList.toggle("active", bAllSelected);
+
+                const oText = oSelectAll.querySelector(".select-all-text");
+                if (oText) {
+                    oText.textContent = bAllSelected ? "All Regions Selected" : "Select All Regions";
+                }
             }
         },
 
@@ -1067,9 +1104,10 @@ sap.ui.define([
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
                     sessionStorage.removeItem("kyra_show_approval_history");
+                    this._loadSubmittedRequests(oModel, true);
+                } else {
+                    this._loadSubmittedRequests(oModel);
                 }
-                
-                this._loadSubmittedRequests(oModel);
             }
 
             const sScrollTo = sessionStorage.getItem("kyra_scroll_to");
@@ -1477,6 +1515,23 @@ sap.ui.define([
         async _loadSubmittedRequests(oModel, bSilent = false) {
             if (!oModel) return;
             if (oModel.getProperty("/showRequestDetailsPage")) return;
+
+            const sCurrentTab = oModel.getProperty("/selectedTabKey");
+            const bIsHistory = sCurrentTab === "myRequests" || 
+                               oModel.getProperty("/showHistorySection") === true || 
+                               oModel.getProperty("/showApprovalHistory") === true ||
+                               sessionStorage.getItem("kyra_show_approval_history") === "true";
+            if (bIsHistory) {
+                bSilent = true;
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
+                }
+            }
 
             if (this._bIsLoadingRequests) {
                 return;
@@ -4450,6 +4505,7 @@ sap.ui.define([
                 this._renderPins();
                 this._attachSelectAllListener();
                 this._updateSelectedChips();
+                this._updateSelectAllButtonState();
             }, 100);
         },
 
@@ -4511,6 +4567,9 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSystemSlideConfigs", {});
             }
 
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            oModel.setProperty("/hasSelectedTargetSystems", Array.isArray(aSystems) && aSystems.length > 0);
+
             this._loadCurrentSystemSlideConfig();
             this._scrollToWizardContainer();
         },
@@ -4521,27 +4580,32 @@ sap.ui.define([
 
             const oSource = (oEvent && oEvent.getSource) ? oEvent.getSource() : this.byId("inPageSystemsMultiSelect");
 
+            let aSelectedKeys = [];
             if (oSource && oSource.getSelectedKeys) {
-                const aSelectedKeys = oSource.getSelectedKeys();
+                aSelectedKeys = oSource.getSelectedKeys() || [];
                 oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
+            } else {
+                aSelectedKeys = oModel.getProperty("/addAccessSelectedSystems") || [];
             }
+
+            const bHasSystems = Array.isArray(aSelectedKeys) && aSelectedKeys.length > 0;
+            oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);
 
             if (window._kyraSyncMultiDisplay && oSource) {
                 window._kyraSyncMultiDisplay(oSource);
             }
 
-            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
             let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
 
-            if (iIndex >= aSystems.length) {
-                iIndex = Math.max(0, aSystems.length - 1);
+            if (iIndex >= aSelectedKeys.length) {
+                iIndex = Math.max(0, aSelectedKeys.length - 1);
                 oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
             }
 
             // Clean up slide configs for systems no longer selected
             const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
             Object.keys(oSlideConfigsMap).forEach(sSys => {
-                if (!aSystems.includes(sSys)) {
+                if (!aSelectedKeys.includes(sSys)) {
                     delete oSlideConfigsMap[sSys];
                 }
             });
@@ -4555,10 +4619,31 @@ sap.ui.define([
             if (!oModel) return;
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-            const sSys = sSysNameOverride || (aSystems.length > 0 ? aSystems[iIndex] : "Select Target System");
+            const bHasSystems = Array.isArray(aSystems) && aSystems.length > 0;
+            oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);
+            oModel.setProperty("/targetSystemSlideCount", aSystems.length);
 
+            if (!bHasSystems) {
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/targetSystemSlideTitle", "");
+                oModel.setProperty("/targetSystemSlideBadge", "");
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                oModel.setProperty("/addAccessCurrentSystemIndex", 0);
+                return;
+            }
+
+            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
+            if (iIndex >= aSystems.length) {
+                iIndex = Math.max(0, aSystems.length - 1);
+                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
+            }
+
+            const sSys = sSysNameOverride || aSystems[iIndex];
             oModel.setProperty("/currentSystemSlideName", sSys);
+            oModel.setProperty("/targetSystemSlideTitle", "Target System Slide (" + (iIndex + 1) + " of " + aSystems.length + "): " + sSys);
+            oModel.setProperty("/targetSystemSlideBadge", "Slide " + (iIndex + 1) + " / " + aSystems.length);
 
             let oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
             let oSysConfig = oSlideConfigsMap[sSys];
@@ -4800,6 +4885,7 @@ sap.ui.define([
                 this._scrollToWizardContainer();
             } else {
                 oModel.setProperty("/addAccessConfigSubStep", 2);
+                this._setupJustificationAreaClick();
                 this._scrollToWizardContainer();
             }
         },
@@ -6778,6 +6864,10 @@ sap.ui.define([
             oModel.setProperty("/mapSelectedRegions", []);
             oModel.setProperty("/hasMapRegionSelection", false);
             oModel.setProperty("/addAccessSelectedSystems", []);
+            oModel.setProperty("/hasSelectedTargetSystems", false);
+            oModel.setProperty("/targetSystemSlideTitle", "");
+            oModel.setProperty("/targetSystemSlideBadge", "");
+            oModel.setProperty("/currentSystemSlideName", "");
             oModel.setProperty("/addAccessSelectedServices", []);
             oModel.setProperty("/addAccessSelectedRoles", []);
             oModel.setProperty("/addAccessSelectedPersonas", []);
@@ -6864,6 +6954,14 @@ sap.ui.define([
         },
 
         onSelectMyHistoryTab() {
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            } else if (window.hideKyraLoading) {
+                window.hideKyraLoading();
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.hide();
+            }
             this._confirmDiscardAddAccess(async () => {
                 const oModel = this.getView().getModel("accessModel");
                 if (!oModel) return;
@@ -6875,6 +6973,12 @@ sap.ui.define([
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
+
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
 
                 const oContainer = this.byId("historySectionContainer");
                 if (oContainer) {
@@ -6894,7 +6998,7 @@ sap.ui.define([
                 oModel.setProperty("/historyFilterAvatarColor", "Accent6");
                 oModel.setProperty("/filteredHistoryCount", (oModel.getProperty("/requestHistory") || []).length);
 
-                await this._loadSubmittedRequests(oModel);
+                await this._loadSubmittedRequests(oModel, true);
             });
         },
 
@@ -7379,6 +7483,14 @@ sap.ui.define([
         },
 
         onBackFromRequestDetails() {
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            } else if (window.hideKyraLoading) {
+                window.hideKyraLoading();
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.hide();
+            }
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -7387,6 +7499,14 @@ sap.ui.define([
         },
 
         onNavHomeFromRequestDetails() {
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            } else if (window.hideKyraLoading) {
+                window.hideKyraLoading();
+            }
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.hide();
+            }
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -8942,15 +9062,7 @@ sap.ui.define([
                     });
 
                     attachClick("kyra_menu_history", () => {
-                        this._confirmDiscardAddAccess(() => {
-                            oModel.setProperty("/selectedTabKey", "myRequests");
-                            oModel.setProperty("/showAllNotificationsPage", false);
-                            oModel.setProperty("/showHelpPage", false);
-                            oModel.setProperty("/showRequestDetailsPage", false);
-                            oModel.setProperty("/showAddAccessSector", false);
-                            oModel.setProperty("/showRemoveAccessSector", false);
-                            oModel.setProperty("/showMyAccessMasterSection", false);
-                        });
+                        this.onSelectMyHistoryTab();
                     });
 
                     attachClick("kyra_menu_lang", () => {

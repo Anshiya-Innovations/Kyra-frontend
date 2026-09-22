@@ -133,16 +133,22 @@ sap.ui.define([], function() {
 
     const KyraLoading = {
         show(options) {
-            console.log("KyraLoading show", options);
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                return window.KyraLoader.show(options);
+            }
         },
-        hide() {
-            console.log("KyraLoading hide");
+        hide(callback, minDisplayTime, force) {
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                return window.KyraLoader.hide(callback, minDisplayTime, force);
+            }
         }
     };
 
     if (typeof window !== "undefined") {
         window.KyraDialog = KyraDialog;
-        window.KyraLoading = KyraLoading;
+        if (!window.KyraLoading || !window.KyraLoading.wrap) {
+            window.KyraLoading = KyraLoading;
+        }
     }
 
     return KyraDialog;

@@ -34,6 +34,7 @@ sap.ui.define([], function() {
                 dismissTimer = null;
             }
 
+            this._ensureStyles();
             isVisible = true;
 
             let overlay = document.getElementById("kyra_loading_slide_overlay");
@@ -148,6 +149,113 @@ sap.ui.define([], function() {
 
         getActiveCount() {
             return iActiveCount;
+        },
+
+        _ensureStyles() {
+            if (typeof document === "undefined") return;
+            if (!document.getElementById("kyra_loading_placement_styles")) {
+                const style = document.createElement("style");
+                style.id = "kyra_loading_placement_styles";
+                style.textContent = `
+                    .kyraLoadingSlideOverlay {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        background: rgba(15, 23, 42, 0.45) !important;
+                        backdrop-filter: blur(6px) !important;
+                        -webkit-backdrop-filter: blur(6px) !important;
+                        display: none !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        box-sizing: border-box !important;
+                        z-index: 999999 !important;
+                        opacity: 0 !important;
+                        pointer-events: none !important;
+                        user-select: none !important;
+                        -webkit-user-select: none !important;
+                        transition: opacity 0.22s ease !important;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+                    }
+                    .kyraLoadingSlideOverlay.kyra-active {
+                        display: flex !important;
+                        opacity: 1 !important;
+                        pointer-events: all !important;
+                    }
+                    .kyraLoadingSlideCard {
+                        background: #FFFFFF !important;
+                        width: 380px !important;
+                        max-width: calc(100vw - 48px) !important;
+                        border-radius: 22px !important;
+                        box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.85) !important;
+                        padding: 32px 28px 32px 28px !important;
+                        margin: 0 auto !important;
+                        text-align: center !important;
+                        position: relative !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        box-sizing: border-box !important;
+                        transform: translateY(14px) scale(0.97) !important;
+                        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                    }
+                    .kyraLoadingSlideOverlay.kyra-active .kyraLoadingSlideCard {
+                        transform: translateY(0) scale(1) !important;
+                    }
+                    .kyraSimpleCircleSpinner {
+                        width: 52px !important;
+                        height: 52px !important;
+                        display: block !important;
+                        flex-shrink: 0 !important;
+                        margin: 0 auto 18px auto !important;
+                        border-radius: 50% !important;
+                        border: 4px solid #E2E8F0 !important;
+                        border-top-color: #008C9C !important;
+                        border-right-color: #008C9C !important;
+                        transform-origin: center center !important;
+                        animation: kyraSimpleSpin 0.85s linear infinite !important;
+                        box-sizing: border-box !important;
+                    }
+                    @keyframes kyraSimpleSpin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                    .kyraLoadingTitle {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                        text-align: center !important;
+                        font-size: 17px !important;
+                        font-weight: 700 !important;
+                        color: #0F172A !important;
+                        margin: 0 0 8px 0 !important;
+                        padding: 0 !important;
+                        line-height: 1.35 !important;
+                        letter-spacing: -0.01em !important;
+                        box-sizing: border-box !important;
+                        word-break: break-word !important;
+                    }
+                    .kyraLoadingSubtitle {
+                        width: 100% !important;
+                        max-width: 324px !important;
+                        text-align: center !important;
+                        font-size: 13.5px !important;
+                        font-weight: 400 !important;
+                        color: #64748B !important;
+                        line-height: 1.45 !important;
+                        margin: 0 auto !important;
+                        padding: 0 !important;
+                        box-sizing: border-box !important;
+                        word-break: break-word !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
         },
 
         /**

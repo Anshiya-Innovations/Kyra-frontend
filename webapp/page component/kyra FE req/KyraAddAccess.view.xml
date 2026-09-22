@@ -209,6 +209,7 @@
                             id="inPageSystemsMultiSelect"
                             selectedKeys="{accessModel>/addAccessSelectedSystems}"
                             selectionChange=".onInPageTargetSystemsSelectionChange"
+                            selectionFinish=".onInPageTargetSystemsSelectionChange"
                             placeholder="Select target system processes..."
                             width="100%"
                             class="fioriFormSelect">
@@ -223,18 +224,18 @@
                 </form:SimpleForm>
 
                 <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                <VBox visible="{= ${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                <VBox visible="{accessModel>/hasSelectedTargetSystems}" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                     <!-- Target System Slide Header Banner -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                         <HBox alignItems="Center">
                             <Avatar src="sap-icon://action-settings" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
                             <VBox>
-                                <Title text="{= 'Target System Slide (' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' of ' + ${accessModel>/addAccessSelectedSystems}.length + '): ' + ${accessModel>/currentSystemSlideName} }" level="H4" class="fioriCardHeaderTitle" />
+                                <Title text="{accessModel>/targetSystemSlideTitle}" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="Configure specific services, team roles, and personas for this target system." class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
                         <ObjectStatus
-                            text="{= 'Slide ' + (${accessModel>/addAccessCurrentSystemIndex} + 1) + ' / ' + ${accessModel>/addAccessSelectedSystems}.length }"
+                            text="{accessModel>/targetSystemSlideBadge}"
                             state="Information" />
                     </HBox>
 
@@ -245,7 +246,7 @@
                         columnsL="2"
                         singleContainerFullWidth="false">
                         <form:content>
-                            <core:Title text="{= 'Entitlements &amp; Personas for ' + ${accessModel>/currentSystemSlideName} }" />
+                            <core:Title text="{= 'Entitlements &amp; Personas for ' + (${accessModel>/currentSystemSlideName} || '') }" />
                             
                             <!-- FIELD 1: SERVICE / TOPIC -->
                             <Label text="Service / Topic" required="true" />
