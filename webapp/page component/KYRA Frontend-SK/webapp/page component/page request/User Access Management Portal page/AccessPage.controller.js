@@ -689,7 +689,46 @@ sap.ui.define([
                     oControl._step1Delegate = null;
                 }
 
+                const fnAutoScrollDown = () => {
+                    setTimeout(() => {
+                        const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                        (typeof oControl._getPicker === "function" && oControl._getPicker());
+                        if (oPicker) {
+                            const oPickerDom = (typeof oPicker.getDomRef === "function" && oPicker.getDomRef()) ||
+                                               (oPicker._getPopover && oPicker._getPopover().getDomRef && oPicker._getPopover().getDomRef());
+                            if (oPickerDom) {
+                                const rect = oPickerDom.getBoundingClientRect();
+                                const nBottomThreshold = window.innerHeight - 20;
+                                if (rect.bottom > nBottomThreshold) {
+                                    const nNeeded = Math.ceil(rect.bottom - nBottomThreshold + 40);
+                                    const oPage = this.byId("accessPortalPage");
+                                    const oPageDom = oPage ? (oPage.getDomRef("cont") || oPage.getDomRef("scroll") || oPage.getDomRef()) : null;
+                                    if (oPageDom && typeof oPageDom.scrollBy === "function") {
+                                        oPageDom.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                    } else {
+                                        window.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                    }
+                                }
+                            }
+                        }
+                    }, 80);
+                };
+
                 const fnApply = () => {
+                    try {
+                        const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                        (typeof oControl._getPicker === "function" && oControl._getPicker());
+                        if (oPicker) {
+                            if (typeof oPicker.setPlacement === "function") {
+                                oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                            }
+                            if (!oPicker._kyraAutoScrollHooked) {
+                                oPicker._kyraAutoScrollHooked = true;
+                                oPicker.attachAfterOpen(fnAutoScrollDown);
+                            }
+                        }
+                    } catch(e) {}
+
                     const oInputDom = oControl.getDomRef("inner");
                     if (oInputDom) {
                         oInputDom.setAttribute("readonly", "readonly");
@@ -710,7 +749,27 @@ sap.ui.define([
 
                 fnApply();
                 oControl._step1Delegate = {
-                    onAfterRendering: fnApply
+                    onAfterRendering: fnApply,
+                    ontap: (oEvent) => {
+                        if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
+                            return;
+                        }
+                        if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer"))) {
+                            fnAutoScrollDown();
+                            return;
+                        }
+                        if (typeof oControl.isOpen === "function") {
+                            if (oControl.isOpen()) {
+                                oControl.close();
+                            } else {
+                                oControl.open();
+                                fnAutoScrollDown();
+                            }
+                        } else if (typeof oControl.open === "function") {
+                            oControl.open();
+                            fnAutoScrollDown();
+                        }
+                    }
                 };
                 oControl.addEventDelegate(oControl._step1Delegate);
             });
@@ -4201,19 +4260,34 @@ sap.ui.define([
 
         onNavToAddAccess() {
             const oModel = this.getView().getModel("accessModel");
-            if (oModel) {
-                this._resetAddAccessState();
+            if (!oModel) return;
 
-                oModel.setProperty("/showAddAccessSector", true);
-                oModel.setProperty("/showPendingSection", false);
-                oModel.setProperty("/showApprovedSection", false);
-                oModel.setProperty("/showRemoveAccessSector", false);
-                oModel.setProperty("/showRequestDetailsPage", false);
-                this._updateActionCardArrows(oModel);
-
-                this._setupStep1SelectFields();
-                this._scrollToWizardContainer();
+            const bCurr = !!oModel.getProperty("/showAddAccessSector");
+            if (bCurr) {
+                if (this._hasAddAccessInProgress()) {
+                    this._confirmDiscardAddAccess(() => {
+                        this._resetAddAccessState();
+                        oModel.setProperty("/showAddAccessSector", false);
+                        this._updateActionCardArrows(oModel);
+                    });
+                    return;
+                } else {
+                    this._resetAddAccessState();
+                    oModel.setProperty("/showAddAccessSector", false);
+                    this._updateActionCardArrows(oModel);
+                    return;
+                }
             }
+
+            oModel.setProperty("/showAddAccessSector", true);
+            oModel.setProperty("/showPendingSection", false);
+            oModel.setProperty("/showApprovedSection", false);
+            oModel.setProperty("/showRemoveAccessSector", false);
+            oModel.setProperty("/showRequestDetailsPage", false);
+            this._updateActionCardArrows(oModel);
+
+            this._setupStep1SelectFields();
+            this._scrollToWizardContainer();
         },
 
         onInPageSectorChange(oEvent) {

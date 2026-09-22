@@ -517,6 +517,26 @@ sap.ui.define([
                                 window._kyraActiveMultiComboBox = oControl;
                             }
 
+                            // Auto-scroll screen down smoothly if dropdown list extends towards or beyond viewport bottom
+                            setTimeout(() => {
+                                try {
+                                    const oPickerDom = getPickerDom(oPicker);
+                                    if (oPickerDom) {
+                                        const rect = oPickerDom.getBoundingClientRect();
+                                        const nBottomThreshold = window.innerHeight - 20;
+                                        if (rect.bottom > nBottomThreshold) {
+                                            const nNeeded = Math.ceil(rect.bottom - nBottomThreshold + 40);
+                                            const oScrollTarget = document.querySelector("#accessPortalPage-cont, .sapMPageEnableScrolling, .sapMPage");
+                                            if (oScrollTarget && typeof oScrollTarget.scrollBy === "function") {
+                                                oScrollTarget.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                            } else {
+                                                window.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                            }
+                                        }
+                                    }
+                                } catch(e) {}
+                            }, 80);
+
                             // Keep dropdown anchored if window is resized or scrolled while open
                             window.addEventListener("scroll", triggerReposition, { passive: true, capture: true });
                             window.addEventListener("resize", triggerReposition, { passive: true });

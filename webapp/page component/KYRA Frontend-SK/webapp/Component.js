@@ -65,10 +65,11 @@ sap.ui.define([
             });
             this.setModel(oGlobalAccessModel, "accessModel");
 
-            // Setup modern Loading Screen, Dialogs & Dropdown positioning/multi-select enhancements
+            // Setup modern Loading Screen, Dialogs, Dropdown enhancements & Textarea full-box clickability
             this._setupModernBusyIndicator();
             this._setupModernDialogs();
             this._setupDropdownPlacementEnhancement();
+            this._setupJustificationFieldEnhancement();
 
             // Enable routing with Route Guards & Session Persistence
             const oRouter = this.getRouter();
@@ -123,6 +124,31 @@ sap.ui.define([
                     window.KyraLoader.hide();
                 }
             }, 5000);
+        },
+
+        _setupJustificationFieldEnhancement() {
+            // Ensures 100% full-box clickability for Business Justification textarea:
+            // Clicking anywhere on the box (top, center, bottom empty space, borders, padding, wrapper, or label)
+            // immediately focuses the inner native textarea and positions the caret.
+            const handleJustificationFocus = (e) => {
+                const target = e.target;
+                if (!target) return;
+                const oBox = target.closest("#inPageJustificationArea, .kyraJustificationTextArea, .kyraJustificationLabel");
+                if (oBox) {
+                    let oTa = oBox.querySelector("textarea");
+                    if (!oTa) {
+                        oTa = document.querySelector("#inPageJustificationArea textarea, .kyraJustificationTextArea textarea");
+                    }
+                    if (oTa) {
+                        if (document.activeElement !== oTa) {
+                            oTa.focus();
+                        }
+                    }
+                }
+            };
+
+            document.addEventListener("mousedown", handleJustificationFocus, true);
+            document.addEventListener("click", handleJustificationFocus, true);
         },
 
         _setupDropdownPlacementEnhancement() {
@@ -490,6 +516,26 @@ sap.ui.define([
                                 oControl._bPreventAutoClose = true;
                                 window._kyraActiveMultiComboBox = oControl;
                             }
+
+                            // Auto-scroll screen down smoothly if dropdown list extends towards or beyond viewport bottom
+                            setTimeout(() => {
+                                try {
+                                    const oPickerDom = getPickerDom(oPicker);
+                                    if (oPickerDom) {
+                                        const rect = oPickerDom.getBoundingClientRect();
+                                        const nBottomThreshold = window.innerHeight - 20;
+                                        if (rect.bottom > nBottomThreshold) {
+                                            const nNeeded = Math.ceil(rect.bottom - nBottomThreshold + 40);
+                                            const oScrollTarget = document.querySelector("#accessPortalPage-cont, .sapMPageEnableScrolling, .sapMPage");
+                                            if (oScrollTarget && typeof oScrollTarget.scrollBy === "function") {
+                                                oScrollTarget.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                            } else {
+                                                window.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                            }
+                                        }
+                                    }
+                                } catch(e) {}
+                            }, 80);
 
                             // Keep dropdown anchored if window is resized or scrolled while open
                             window.addEventListener("scroll", triggerReposition, { passive: true, capture: true });
