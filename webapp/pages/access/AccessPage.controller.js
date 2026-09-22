@@ -1106,7 +1106,8 @@ sap.ui.define([
                     // Preserve kyra_show_approval_history across route navigation
                     this._loadSubmittedRequests(oModel, true);
                 } else {
-                    this._loadSubmittedRequests(oModel);
+                    oModel.setProperty("/showApprovalHistory", false);
+                    this._loadSubmittedRequests(oModel, true);
                 }
             }
 
@@ -6796,6 +6797,7 @@ sap.ui.define([
                 oModel.setProperty("/selectedRequestDetail", oLiveDetails);
 
                 // 4. Transition to Request Details / Tracking Page
+                document.body.classList.add("kyra-request-tracking-view");
                 oModel.setProperty("/showRequestDetailsPage", true);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showAddAccessSector", false);
@@ -6809,6 +6811,7 @@ sap.ui.define([
                 console.warn("Live fetch error on opening tracking details:", e);
                 const oFallbackDetails = this._buildRequestDetailFromItem(oItem, null);
                 oModel.setProperty("/selectedRequestDetail", oFallbackDetails);
+                document.body.classList.add("kyra-request-tracking-view");
                 oModel.setProperty("/showRequestDetailsPage", true);
                 this._scrollToTop();
             } finally {
@@ -7142,6 +7145,7 @@ sap.ui.define([
             if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                 sap.ui.core.BusyIndicator.hide();
             }
+            document.body.classList.remove("kyra-request-tracking-view");
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -7158,6 +7162,7 @@ sap.ui.define([
             if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                 sap.ui.core.BusyIndicator.hide();
             }
+            document.body.classList.remove("kyra-request-tracking-view");
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -7915,6 +7920,7 @@ sap.ui.define([
                     ALL: true,
                     ADDITION: false,
                     REVOKE: false,
+                    EXPIRED: false,
                     PERMANENT: false,
                     "30DAYS": false,
                     "90DAYS": false,
@@ -7928,7 +7934,8 @@ sap.ui.define([
                 if (bShowRequestTypeFilter) {
                     aOptions.push(
                         { key: "ADDITION", title: "Addition", desc: "New access & role addition requests", icon: "sap-icon://add", colorClass: "kyraHistIcon_addition", section: "REQUEST TYPE" },
-                        { key: "REVOKE", title: "Revoke", desc: "Access removal & revocation requests", icon: "sap-icon://delete", colorClass: "kyraHistIcon_revoke", section: "REQUEST TYPE" }
+                        { key: "REVOKE", title: "Revoke", desc: "Access removal & revocation requests", icon: "sap-icon://delete", colorClass: "kyraHistIcon_revoke", section: "REQUEST TYPE" },
+                        { key: "EXPIRED", title: "Expired", desc: "Expired access & validity requests", icon: "sap-icon://history", colorClass: "kyraHistIcon_amber", section: "REQUEST TYPE" }
                     );
                 }
 
@@ -8000,6 +8007,7 @@ sap.ui.define([
                         oSelectionState.ALL = true;
                         oSelectionState.ADDITION = false;
                         oSelectionState.REVOKE = false;
+                        oSelectionState.EXPIRED = false;
                         oSelectionState.PERMANENT = false;
                         oSelectionState["30DAYS"] = false;
                         oSelectionState["90DAYS"] = false;
@@ -8015,6 +8023,7 @@ sap.ui.define([
                     const bAnyChecked = !!(
                         (bShowRequestTypeFilter && oSelectionState.ADDITION) ||
                         (bShowRequestTypeFilter && oSelectionState.REVOKE) ||
+                        (bShowRequestTypeFilter && oSelectionState.EXPIRED) ||
                         oSelectionState.PERMANENT ||
                         oSelectionState["30DAYS"] ||
                         oSelectionState["90DAYS"] ||
@@ -8089,9 +8098,9 @@ sap.ui.define([
                 const applySelectedFilter = () => {
                     const aTypeLabels = [];
                     if (bShowRequestTypeFilter && !oSelectionState.ALL) {
-                        if (oSelectionState.ADDITION && !oSelectionState.REVOKE) aTypeLabels.push("Addition");
-                        if (oSelectionState.REVOKE && !oSelectionState.ADDITION) aTypeLabels.push("Revoke");
-                        if (oSelectionState.ADDITION && oSelectionState.REVOKE) aTypeLabels.push("Addition & Revoke");
+                        if (oSelectionState.ADDITION) aTypeLabels.push("Addition");
+                        if (oSelectionState.REVOKE) aTypeLabels.push("Revoke");
+                        if (oSelectionState.EXPIRED) aTypeLabels.push("Expired");
                     }
 
                     const aDurationLabels = [];
@@ -8152,24 +8161,43 @@ sap.ui.define([
                         });
                     }
 
-                    // 2. Type Filter (Addition / Revoke)
+                    // 2. Type Filter (Addition / Revoke / Expired)
                     let oTypeUI5Filter = null;
                     if (bShowRequestTypeFilter && !oSelectionState.ALL) {
-                        if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
-                            oTypeUI5Filter = new Filter({
+                        const aSelectedTypeFilters = [];
+                        if (oSelectionState.ADDITION) {
+                            aSelectedTypeFilters.push(new Filter({
                                 path: "type",
                                 test: (sVal) => {
                                     const s = String(sVal || "").toLowerCase();
-                                    return !s.includes("revok");
+                                    return !s.includes("revok") && !s.includes("expir");
                                 }
-                            });
-                        } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
-                            oTypeUI5Filter = new Filter({
+                            }));
+                        }
+                        if (oSelectionState.REVOKE) {
+                            aSelectedTypeFilters.push(new Filter({
                                 filters: [
                                     new Filter("type", FilterOperator.Contains, "Revok"),
                                     new Filter("requestId", FilterOperator.StartsWith, "REV-"),
                                     new Filter("isRevocation", FilterOperator.EQ, true)
                                 ],
+                                and: false
+                            }));
+                        }
+                        if (oSelectionState.EXPIRED) {
+                            aSelectedTypeFilters.push(new Filter({
+                                filters: [
+                                    new Filter("status", FilterOperator.Contains, "Expired"),
+                                    new Filter("status", FilterOperator.Contains, "Expire"),
+                                    new Filter("type", FilterOperator.Contains, "Expired"),
+                                    new Filter("isExpired", FilterOperator.EQ, true)
+                                ],
+                                and: false
+                            }));
+                        }
+                        if (aSelectedTypeFilters.length > 0) {
+                            oTypeUI5Filter = new Filter({
+                                filters: aSelectedTypeFilters,
                                 and: false
                             });
                         }
@@ -8260,12 +8288,21 @@ sap.ui.define([
                             if (!sStat.includes("expired") && !sStat.includes("revoke")) return false;
                         }
 
-                        // Check Request Type (Addition / Revoke) - ONLY if Request Type filter is shown
+                        // Check Request Type (Addition / Revoke / Expired) - ONLY if Request Type filter is shown
                         if (bShowRequestTypeFilter && !oSelectionState.ALL) {
-                            if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
-                                if (isRevoc) return false;
-                            } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
-                                if (!isRevoc) return false;
+                            const bHasTypeFilter = oSelectionState.ADDITION || oSelectionState.REVOKE || oSelectionState.EXPIRED;
+                            if (bHasTypeFilter) {
+                                const sStat = String(item.status || "").toLowerCase();
+                                const sType = String(item.type || "").toLowerCase();
+                                const isExp = item.isExpired === true || sStat.includes("expir") || sType.includes("expir");
+
+                                const bMatchAddition = oSelectionState.ADDITION && !isRevoc && !isExp;
+                                const bMatchRevoke = oSelectionState.REVOKE && isRevoc;
+                                const bMatchExpired = oSelectionState.EXPIRED && isExp;
+
+                                if (!bMatchAddition && !bMatchRevoke && !bMatchExpired) {
+                                    return false;
+                                }
                             }
                         }
 
@@ -8396,28 +8433,21 @@ sap.ui.define([
                     const sFinalMsg = sSectionLabel ? (sSectionLabel + " filtered by: " + sFilterSummary) : ("Filtered by: " + sFilterSummary);
 
                     let sTitleText = "Filtered History";
+                    const sTypeLabelsSummary = aTypeLabels.join(" & ");
                     if (bIsApproved) {
                         sTitleText = aLabels.length > 0 ? ("Approved (" + sFilterSummary + ")") : "Approved History";
                     } else if (bIsRevoked) {
                         sTitleText = aLabels.length > 0 ? ("Revoked (" + sFilterSummary + ")") : "Revoked History";
                     } else if (bIsRejected) {
-                        if (bShowRequestTypeFilter && oSelectionState.ADDITION && !oSelectionState.REVOKE) {
-                            sTitleText = aDurationLabels.length > 0 ? ("Rejected Addition (" + aDurationLabels.join(", ") + ")") : "Rejected Addition History";
-                        } else if (bShowRequestTypeFilter && oSelectionState.REVOKE && !oSelectionState.ADDITION) {
-                            sTitleText = aDurationLabels.length > 0 ? ("Rejected Revoke (" + aDurationLabels.join(", ") + ")") : "Rejected Revoke History";
-                        } else if (bShowRequestTypeFilter && oSelectionState.ADDITION && oSelectionState.REVOKE) {
-                            sTitleText = aDurationLabels.length > 0 ? ("Rejected Addition & Revoke (" + aDurationLabels.join(", ") + ")") : "Rejected Addition & Revoke History";
+                        if (sTypeLabelsSummary) {
+                            sTitleText = aDurationLabels.length > 0 ? ("Rejected " + sTypeLabelsSummary + " (" + aDurationLabels.join(", ") + ")") : ("Rejected " + sTypeLabelsSummary + " History");
                         } else {
                             sTitleText = aLabels.length > 0 ? ("Rejected (" + sFilterSummary + ")") : "Rejected History";
                         }
                     } else {
                         // All History section
-                        if (oSelectionState.ADDITION && !oSelectionState.REVOKE) {
-                            sTitleText = aDurationLabels.length > 0 ? ("Addition (" + aDurationLabels.join(", ") + ")") : "Addition History";
-                        } else if (oSelectionState.REVOKE && !oSelectionState.ADDITION) {
-                            sTitleText = aDurationLabels.length > 0 ? ("Revoke (" + aDurationLabels.join(", ") + ")") : "Revoke History";
-                        } else if (oSelectionState.ADDITION && oSelectionState.REVOKE) {
-                            sTitleText = aDurationLabels.length > 0 ? ("Addition & Revoke (" + aDurationLabels.join(", ") + ")") : "Addition & Revoke History";
+                        if (sTypeLabelsSummary) {
+                            sTitleText = aDurationLabels.length > 0 ? (sTypeLabelsSummary + " (" + aDurationLabels.join(", ") + ")") : (sTypeLabelsSummary + " History");
                         } else if (aLabels.length > 0) {
                             sTitleText = "Filtered History (" + aLabels.join(", ") + ")";
                         } else {
@@ -8747,72 +8777,176 @@ sap.ui.define([
                         <!-- Top Header -->
                         <div class="kyra-profile-modal-head">
                             <div class="kyra-profile-modal-title-box">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                                <span class="kyra-profile-modal-head-title">User Profile & Identity Overview</span>
+                                <div class="kyra-profile-modal-title-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-modal-title-text-group">
+                                    <span class="kyra-profile-modal-head-title">User Profile &amp; Identity Overview</span>
+                                    <span class="kyra-profile-modal-head-subtitle">KYRA Enterprise Identity &amp; Access Governance</span>
+                                </div>
                             </div>
-                            <button type="button" class="kyra-profile-modal-close" id="kyra_modal_profile_close_x">✕</button>
+                            <button type="button" class="kyra-profile-modal-close" id="kyra_modal_profile_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
                         </div>
 
                         <!-- User Hero Summary -->
                         <div class="kyra-profile-modal-hero">
                             <div class="kyra-profile-modal-avatar">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                             </div>
                             <div class="kyra-profile-modal-info">
                                 <div class="kyra-profile-modal-name-row">
-                                    <span class="kyra-profile-modal-name">${sUser}</span>
+                                    <span class="kyra-profile-modal-name">${sUser || "Enterprise User"}</span>
                                     <span class="kyra-profile-modal-status-badge"><span class="kyra-modal-status-dot"></span> Active Employee</span>
                                 </div>
-                                <div class="kyra-profile-modal-role">${sRole}</div>
-                                <div class="kyra-profile-modal-email">${sUser ? (sUser.toLowerCase() + "@enterprise.local") : ""}</div>
+                                <div class="kyra-profile-modal-role">${sRole || "Approver"}</div>
+                                <div class="kyra-profile-modal-email">${sUser ? (sUser.toLowerCase() + "@enterprise.local") : "user@enterprise.local"}</div>
                             </div>
                         </div>
 
-                        <!-- 2-Column Info Grid -->
+                        <!-- 2-Column Info Grid with Project Icons & Theme Colors -->
                         <div class="kyra-profile-modal-grid">
+                            <!-- Department -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Department</span>
-                                <span class="kyra-profile-val">Digital Enterprise Engineering</span>
+                                <div class="kyra-profile-item-icon-box">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                        <line x1="9" y1="22" x2="9" y2="22.01"></line>
+                                        <line x1="15" y1="22" x2="15" y2="22.01"></line>
+                                        <line x1="9" y1="6" x2="9" y2="6.01"></line>
+                                        <line x1="15" y1="6" x2="15" y2="6.01"></line>
+                                        <line x1="9" y1="10" x2="9" y2="10.01"></line>
+                                        <line x1="15" y1="10" x2="15" y2="10.01"></line>
+                                        <line x1="9" y1="14" x2="9" y2="14.01"></line>
+                                        <line x1="15" y1="14" x2="15" y2="14.01"></line>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Department</span>
+                                    <span class="kyra-profile-val">Digital Enterprise Engineering</span>
+                                </div>
                             </div>
+
+                            <!-- Organization Unit -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Organization Unit</span>
-                                <span class="kyra-profile-val">KYRA Foods &amp; Beverages IT Global</span>
+                                <div class="kyra-profile-item-icon-box">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Organization Unit</span>
+                                    <span class="kyra-profile-val">KYRA Foods &amp; Beverages IT Global</span>
+                                </div>
                             </div>
+
+                            <!-- Cost Center -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Cost Center</span>
-                                <span class="kyra-profile-val">CC-88201-GLOBAL</span>
+                                <div class="kyra-profile-item-icon-box">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                        <line x1="2" y1="10" x2="22" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Cost Center</span>
+                                    <span class="kyra-profile-val">CC-88201-GLOBAL</span>
+                                </div>
                             </div>
+
+                            <!-- Direct Manager -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Direct Manager</span>
-                                <span class="kyra-profile-val">Sarah Jenkins (Lead Architect)</span>
+                                <div class="kyra-profile-item-icon-box">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Direct Manager</span>
+                                    <span class="kyra-profile-val">Sarah Jenkins (Lead Architect)</span>
+                                </div>
                             </div>
+
+                            <!-- Security Clearance -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Security Clearance</span>
-                                <span class="kyra-profile-val">Level 3 Enterprise (Audited)</span>
+                                <div class="kyra-profile-item-icon-box">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Security Clearance</span>
+                                    <span class="kyra-profile-val">Level 3 Enterprise (Audited)</span>
+                                </div>
                             </div>
+
+                            <!-- MFA Authentication -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">MFA Authentication</span>
-                                <span class="kyra-profile-val" style="color:#16A34A;font-weight:700;">✓ Enabled (FIDO2 Token)</span>
+                                <div class="kyra-profile-item-icon-box kyra-profile-icon-green">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">MFA Authentication</span>
+                                    <span class="kyra-profile-val kyra-profile-val-verified">✓ Enabled (FIDO2 Token)</span>
+                                </div>
                             </div>
+
+                            <!-- Active Entitlements -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Active Entitlements</span>
-                                <span class="kyra-profile-val">${iAccessCount} Active System Roles</span>
+                                <div class="kyra-profile-item-icon-box">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Active Entitlements</span>
+                                    <span class="kyra-profile-val">${iAccessCount} Active System Roles</span>
+                                </div>
                             </div>
+
+                            <!-- Audit Compliance -->
                             <div class="kyra-profile-grid-item">
-                                <span class="kyra-profile-label">Audit Compliance</span>
-                                <span class="kyra-profile-val" style="color:#16A34A;font-weight:700;">✓ 100% Audit Verified</span>
+                                <div class="kyra-profile-item-icon-box kyra-profile-icon-green">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="kyra-profile-item-content">
+                                    <span class="kyra-profile-label">Audit Compliance</span>
+                                    <span class="kyra-profile-val kyra-profile-val-verified">✓ 100% Audit Verified</span>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Bottom Actions -->
                         <div class="kyra-profile-modal-footer">
-                            <button type="button" class="kyra-profile-btn-outline" id="kyra_modal_profile_export_btn">Export Profile Summary</button>
+                            <button type="button" class="kyra-profile-btn-outline" id="kyra_modal_profile_export_btn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                <span>Export Profile Summary</span>
+                            </button>
                             <button type="button" class="kyra-profile-btn-primary" id="kyra_modal_profile_close_btn">Close</button>
                         </div>
                     </div>
@@ -8820,14 +8954,16 @@ sap.ui.define([
 
                 const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "520px",
-                    class: "kyraProfileDetailsModalDialog",
+                    contentWidth: "560px",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
                     content: [
                         new HTML({ content: sHtmlModal, preferDOM: false })
                     ],
                     afterClose: () => oDialog.destroy()
                 });
 
+                oDialog.addStyleClass("kyraProfileDetailsModalDialog");
                 this.getView().addDependent(oDialog);
                 oDialog.open();
 

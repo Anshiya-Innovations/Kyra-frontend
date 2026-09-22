@@ -6425,8 +6425,17 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 }
 
 /* =========================================================================
-   MY PROFILE COMPREHENSIVE MODAL
+   MY PROFILE COMPREHENSIVE MODAL (KYRA THEME & SCROLLBAR ELIMINATED)
    ========================================================================= */
+.kyraProfileDetailsModalDialog.sapMDialog,
+.kyraProfileDetailsModalDialog {
+    border-radius: 16px !important;
+    box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.22), 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+    border: 1px solid #E2E8F0 !important;
+    overflow: hidden !important;
+    background: #FFFFFF !important;
+}
+
 .kyraProfileDetailsModalDialog .sapMDialogSection {
     background: #FFFFFF !important;
     padding: 0 !important;
@@ -6434,55 +6443,98 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     overflow: hidden !important;
 }
 
-.kyraProfileDetailsModalDialog {
-    border-radius: 16px !important;
-    box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.2), 0 8px 24px rgba(15, 23, 42, 0.08) !important;
-    border: 1px solid #E2E8F0 !important;
+.kyraProfileDetailsModalDialog .sapMDialogScroll,
+.kyraProfileDetailsModalDialog .sapMDialogScrollCont {
+    padding: 0 !important;
+    margin: 0 !important;
     overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    scrollbar-width: none !important;
+}
+
+.kyraProfileDetailsModalDialog .sapMDialogScrollCont::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .kyra-profile-modal-card {
-    width: 520px;
-    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 560px !important;
+    box-sizing: border-box !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #0F172A;
     background: #FFFFFF;
+    overflow: hidden !important;
+    margin: 0 !important;
 }
 
 .kyra-profile-modal-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 22px 14px 22px;
-    border-bottom: 1px solid #F1F5F9;
+    padding: 16px 20px 14px 20px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #EBF1F5;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .kyra-profile-modal-title-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+}
+
+.kyra-profile-modal-title-icon-wrap {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 8px;
+    background: #E6F7F9;
+    border: 1px solid #B8EBE5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.kyra-profile-modal-title-text-group {
+    display: flex;
+    flex-direction: column;
 }
 
 .kyra-profile-modal-head-title {
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 700;
     color: #0F172A;
+    line-height: 1.25;
+}
+
+.kyra-profile-modal-head-subtitle {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748B;
+    line-height: 1.2;
 }
 
 .kyra-profile-modal-close {
     background: transparent;
     border: none;
-    font-size: 16px;
-    color: #94A3B8;
     cursor: pointer;
-    padding: 4px;
+    padding: 6px;
     line-height: 1;
-    border-radius: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.15s ease;
 }
 
 .kyra-profile-modal-close:hover {
-    color: #0F172A;
     background: #F1F5F9;
 }
 
@@ -6490,40 +6542,49 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 20px 22px;
-    background: #F8FAFC;
-    border-bottom: 1px solid #F1F5F9;
+    padding: 16px 20px;
+    background: linear-gradient(180deg, #F0FDFA 0%, #F8FAFC 100%);
+    border-bottom: 1px solid #EBF1F5;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .kyra-profile-modal-avatar {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
     border-radius: 50%;
-    background-color: #F8FAFC;
-    border: 2px solid #CBD5E1;
+    background-color: #E6F7F9;
+    border: 2px solid #008C9C;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.15);
+    flex-shrink: 0;
 }
 
 .kyra-profile-modal-info {
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-width: 0;
 }
 
 .kyra-profile-modal-name-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 8px;
     margin-bottom: 2px;
 }
 
 .kyra-profile-modal-name {
-    font-size: 18px;
-    font-weight: 800;
+    font-size: 17px;
+    font-weight: 700;
     color: #0F172A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .kyra-profile-modal-status-badge {
@@ -6533,10 +6594,12 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     background: #ECFDF5;
     border: 1px solid #A7F3D0;
     border-radius: 9999px;
-    padding: 2px 9px;
+    padding: 2.5px 9px;
     font-size: 11px;
     font-weight: 700;
     color: #16A34A;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .kyra-modal-status-dot {
@@ -6561,224 +6624,82 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 
 .kyra-profile-modal-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 20px;
-    padding: 20px 22px;
-    border-bottom: 1px solid #F1F5F9;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 16px 20px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #EBF1F5;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .kyra-profile-grid-item {
     display: flex;
-    flex-direction: column;
-}
-
-.kyra-profile-label {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #64748B;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin-bottom: 3px;
-}
-
-.kyra-profile-val {
-    font-size: 13px;
-    font-weight: 600;
-    color: #0F172A;
-}
-
-.kyra-profile-modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 16px 22px;
-    background: #FFFFFF;
-}
-
-.kyra-profile-btn-outline {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #FFFFFF;
-    border: 1px solid #CBD5E1;
-    color: #334155;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    padding: 8px 18px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    outline: none;
-}
-
-.kyra-profile-btn-outline:hover {
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
     background: #F8FAFC;
-    border-color: #94A3B8;
-    color: #0F172A;
-}
-
-.kyra-profile-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #008C9C;
-    border: 1px solid #008C9C;
-    color: #FFFFFF;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 8px;
-    padding: 8px 24px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25);
-    transition: all 0.15s ease;
-    outline: none;
-}
-
-.kyra-profile-btn-primary:hover {
-    background: #007684;
-    border-color: #007684;
-}
-
-/* =========================================================================
-   PROFESSIONAL NOTIFICATION BAR & POPOVER PANEL
-   ========================================================================= */
-.kyra-profile-modal-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 22px 14px 22px;
-    border-bottom: 1px solid #F1F5F9;
-}
-
-.kyra-profile-modal-title-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.kyra-profile-modal-head-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #0F172A;
-}
-
-.kyra-profile-modal-close {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    color: #94A3B8;
-    cursor: pointer;
-    padding: 4px;
-    line-height: 1;
-    border-radius: 6px;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    box-sizing: border-box;
+    min-width: 0;
     transition: all 0.15s ease;
 }
 
-.kyra-profile-modal-close:hover {
-    color: #0F172A;
-    background: #F1F5F9;
+.kyra-profile-grid-item:hover {
+    background: #F0FDFA;
+    border-color: #A7E5DD;
 }
 
-.kyra-profile-modal-hero {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px 22px;
-    background: #F8FAFC;
-    border-bottom: 1px solid #F1F5F9;
-}
-
-.kyra-profile-modal-avatar {
-    width: 60px;
-    height: 60px;
-    min-width: 60px;
-    border-radius: 50%;
-    background-color: #F8FAFC;
-    border: 2px solid #CBD5E1;
+.kyra-profile-item-icon-box {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 7px;
+    background: #E6F7F9;
+    border: 1px solid #B8EBE5;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
 }
 
-.kyra-profile-modal-info {
+.kyra-profile-item-icon-box.kyra-profile-icon-green {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+}
+
+.kyra-profile-item-content {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     flex: 1;
 }
 
-.kyra-profile-modal-name-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2px;
-}
-
-.kyra-profile-modal-name {
-    font-size: 18px;
-    font-weight: 800;
-    color: #0F172A;
-}
-
-.kyra-profile-modal-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: #ECFDF5;
-    border: 1px solid #A7F3D0;
-    border-radius: 9999px;
-    padding: 2px 9px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #16A34A;
-}
-
-.kyra-modal-status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: #16A34A;
-    display: inline-block;
-}
-
-.kyra-profile-modal-role {
-    font-size: 13px;
-    color: #008C9C;
-    font-weight: 600;
-    margin-bottom: 2px;
-}
-
-.kyra-profile-modal-email {
-    font-size: 12px;
-    color: #64748B;
-}
-
-.kyra-profile-modal-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px 20px;
-    padding: 20px 22px;
-    border-bottom: 1px solid #F1F5F9;
-}
-
-.kyra-profile-grid-item {
-    display: flex;
-    flex-direction: column;
-}
-
 .kyra-profile-label {
-    font-size: 11.5px;
-    font-weight: 600;
+    font-size: 10.5px;
+    font-weight: 700;
     color: #64748B;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin-bottom: 3px;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .kyra-profile-val {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     color: #0F172A;
+    word-break: break-word;
+    line-height: 1.35;
+}
+
+.kyra-profile-val.kyra-profile-val-verified {
+    color: #16A34A;
+    font-weight: 700;
 }
 
 .kyra-profile-modal-footer {
@@ -6786,8 +6707,10 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
-    padding: 16px 22px;
+    padding: 14px 20px;
     background: #FFFFFF;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .kyra-profile-btn-outline {
@@ -6800,16 +6723,16 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     font-size: 13px;
     font-weight: 600;
     border-radius: 8px;
-    padding: 8px 18px;
+    padding: 8px 16px;
     cursor: pointer;
     transition: all 0.15s ease;
     outline: none;
 }
 
 .kyra-profile-btn-outline:hover {
-    background: #F8FAFC;
-    border-color: #94A3B8;
-    color: #0F172A;
+    background: #F0FDFA;
+    border-color: #008C9C;
+    color: #008C9C;
 }
 
 .kyra-profile-btn-primary {
@@ -21381,8 +21304,25 @@ tr:last-child td {
 /* REQUEST TRACKING REDESIGN: TOP NAV BUTTON, 6-TILE SUMMARY, STEPPER, COMMENTS */
 
 /* =========================================================================
-   REQUEST TRACKING REDESIGN: TOP NAV BUTTON, 6-TILE SUMMARY, STEPPER, COMMENTS
+   REQUEST TRACKING VIEW: REMOVE TOP THREE BUTTONS (IN THIS PLACE ONLY)
+   Remove Notification Bell, Sign Out, and Profile Avatar buttons
+   specifically when viewing Request Tracking / Details.
    ========================================================================= */
+body.kyra-request-tracking-view .kyraNotificationBellWrapper,
+body.kyra-request-tracking-view .kyraSignOutHeaderBtn,
+body.kyra-request-tracking-view #kyraHeaderProfileAvatar,
+body.kyra-request-tracking-view .kyraHeaderProfileAvatar,
+body.kyra-request-tracking-view .sapFShellBarProfile,
+body.kyra-request-tracking-view .sapFShellBarAdditionalContent {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
 .kyraRequestDetailsPageContainer {
     width: 100% !important;
@@ -27047,7 +26987,7 @@ html body .sapMBtn.kyraGovBtnApprove:hover .sapMBtnInner {
 
 /* Dialog Body & Remark Input Area: Crisp borders, proper gaps and typography */
 .kyraBatchDialogBody {
-    padding: 22px 24px 24px 24px !important;
+    padding: 20px 24px 20px 24px !important;
     width: 100% !important;
     box-sizing: border-box !important;
 }
@@ -27068,11 +27008,13 @@ html body .sapMBtn.kyraGovBtnApprove:hover .sapMBtnInner {
 .kyraBatchRemarkTextArea.sapMTextArea {
     width: 100% !important;
     min-height: 110px !important;
+    height: 110px !important;
     padding: 0 !important;
     margin: 0 !important;
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
+    overflow: visible !important;
 }
 
 .kyraBatchRemarkTextArea .sapMInputBaseContentWrapper {
@@ -27082,6 +27024,10 @@ html body .sapMBtn.kyraGovBtnApprove:hover .sapMBtnInner {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    height: 110px !important;
+    min-height: 110px !important;
+    max-height: 110px !important;
+    overflow: visible !important;
 }
 
 .kyraBatchRemarkTextArea textarea.sapMTextAreaInner,
@@ -27101,6 +27047,7 @@ html body .sapMBtn.kyraGovBtnApprove:hover .sapMBtnInner {
     width: 100% !important;
     height: 110px !important;
     min-height: 110px !important;
+    max-height: 110px !important;
     outline: none !important;
     display: block !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease !important;

@@ -143,6 +143,8 @@ sap.ui.define([
                 const bShowHistory = sessionStorage.getItem("kyra_show_approval_history") === "true";
                 if (bShowHistory) {
                     oModel.setProperty("/showApprovalHistory", true);
+                } else {
+                    oModel.setProperty("/showApprovalHistory", false);
                 }
                 this._reloadAllRequests(oModel);
             }
@@ -789,10 +791,10 @@ sap.ui.define([
             oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
 
             const isReqRevoc = isRevCheckInner(oData);
-            const sHistTab = oModel.getProperty("/approverHistoryTab") || (isReqRevoc ? "revokeRequests" : "accessRequests");
-            oModel.setProperty("/displayedHistoryRequests", sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed);
-            oModel.setProperty("/showApprovalHistory", true);
-            sessionStorage.setItem("kyra_show_approval_history", "true");
+            oModel.setProperty("/showApprovalHistory", false);
+            sessionStorage.removeItem("kyra_show_approval_history");
+            sessionStorage.setItem("kyra_show_approval_history", "false");
+            oModel.setProperty("/approverPendingTab", isReqRevoc ? "revokeRequests" : "accessRequests");
             sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aPending));
             sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aProcessed));
 
@@ -1146,6 +1148,8 @@ sap.ui.define([
             }
             if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
                 oModel.setProperty("/showApprovalHistory", true);
+            } else {
+                oModel.setProperty("/showApprovalHistory", false);
             }
 
             let aRawData = [];

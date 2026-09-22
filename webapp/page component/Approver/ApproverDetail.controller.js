@@ -1543,15 +1543,13 @@ sap.ui.define([
                 oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
                 oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
 
-                const sHistTab = oModel.getProperty("/approverHistoryTab") || (isReqRevocation ? "revokeRequests" : "accessRequests");
-                if (isReqRevocation) {
-                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
-                }
-                oModel.setProperty("/displayedHistoryRequests", bIsCompliance ? aAccessProcessed : (sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
-                oModel.setProperty("/showApprovalHistory", true);
+                // Target second screen (User Requests Pending) as requested by user
+                oModel.setProperty("/showApprovalHistory", false);
+                oModel.setProperty("/approverPendingTab", isReqRevocation ? "revokeRequests" : "accessRequests");
 
                 try {
-                    sessionStorage.setItem("kyra_show_approval_history", "true");
+                    sessionStorage.removeItem("kyra_show_approval_history");
+                    sessionStorage.setItem("kyra_show_approval_history", "false");
                     sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
                     sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
                     if (isReqRevocation || sOverallStatus === "Approved" || sOverallStatus === "Rejected") {
@@ -1618,10 +1616,12 @@ sap.ui.define([
                     }
                 } catch(eNotif) {}
 
-                sessionStorage.setItem("kyra_show_approval_history", "true");
+                sessionStorage.removeItem("kyra_show_approval_history");
+                sessionStorage.setItem("kyra_show_approval_history", "false");
                 sessionStorage.setItem("kyra_select_tab", "myAccess");
                 sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
-                oModel.setProperty("/showApprovalHistory", true);
+                oModel.setProperty("/showApprovalHistory", false);
+                oModel.setProperty("/approverPendingTab", isReqRevocation ? "revokeRequests" : "accessRequests");
                 oModel.setProperty("/selectedTabKey", "myAccess");
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showAddAccessSector", false);
@@ -2163,6 +2163,7 @@ sap.ui.define([
 
                 const oTextArea = new TextArea({
                     width: "100%",
+                    height: "110px",
                     rows: 4,
                     showValueStateMessage: false,
                     placeholder: bIsApprove

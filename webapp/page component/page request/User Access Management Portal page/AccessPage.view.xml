@@ -20,11 +20,11 @@
                 showNotifications="false"
                 profilePress=".onProfilePress">
                 <f:profile>
-                    <Avatar id="kyraHeaderProfileAvatar" press=".onProfilePress" src="sap-icon://person-placeholder" class="kyraHeaderProfileAvatar" tooltip="{= 'User Profile: ' + (${accessModel>/activeUser} || '') }" />
+                    <Avatar id="kyraHeaderProfileAvatar" visible="{= !${accessModel>/showRequestDetailsPage} }" press=".onProfilePress" src="sap-icon://person-placeholder" class="kyraHeaderProfileAvatar" tooltip="{= 'User Profile: ' + (${accessModel>/activeUser} || '') }" />
                 </f:profile>
                 <f:additionalContent>
                     <!-- Dedicated Notification Bell Button with Blue Badge -->
-                    <HBox alignItems="Center" class="kyraNotificationBellWrapper">
+                    <HBox alignItems="Center" class="kyraNotificationBellWrapper" visible="{= !${accessModel>/showRequestDetailsPage} }">
                         <Button
                             id="kyraHeaderBellBtn"
                             icon="sap-icon://bell"
@@ -41,6 +41,7 @@
                         text="Sign Out"
                         type="Transparent"
                         press=".onLogout"
+                        visible="{= !${accessModel>/showRequestDetailsPage} }"
                         class="kyraSignOutHeaderBtn"
                         tooltip="Sign Out from KYRA Portal" />
                 </f:additionalContent>
