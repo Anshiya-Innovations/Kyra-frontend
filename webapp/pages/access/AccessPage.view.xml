@@ -139,12 +139,10 @@
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
-                                <HBox class="kyraTableEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
                                 </HBox>
-                                <Title text="No active access found" level="H4" class="kyraTableEmptyTitle sapUiTinyMarginBottom" />
-                                <Text text="You currently have no active entitlements or assigned roles." class="kyraTableEmptySubtitle sapUiSmallMarginBottom" />
-                                <Button text="Refresh" icon="sap-icon://refresh" press=".onRefreshPendingRequests" class="kyraTableEmptyRefreshBtn" />
+                                <Title text="No active access found" level="H4" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
                         <columns>
@@ -288,12 +286,10 @@
                         class="sapUiNoMargin kyraHistoryTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
-                                <HBox class="kyraTableEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://document-text" class="kyraTableEmptyIcon" />
                                 </HBox>
-                                <Title text="No access requests found" level="H4" class="kyraTableEmptyTitle sapUiTinyMarginBottom" />
-                                <Text text="No access requests match the selected filter or criteria." class="kyraTableEmptySubtitle sapUiSmallMarginBottom" />
-                                <Button text="Refresh" icon="sap-icon://refresh" press=".onRefreshPendingRequests" class="kyraTableEmptyRefreshBtn" />
+                                <Title text="No access requests found" level="H4" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
                         <columns>
@@ -380,8 +376,15 @@
                         id="myAccessMasterSectionTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
-                        noDataText="No active entitlements found."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No active entitlements found" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="18%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                             <Column width="17%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -535,12 +538,10 @@
                         class="sapUiNoMargin kyraHistoryTable kyraPendingRequestsTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
-                                <HBox class="kyraTableEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
                                     <core:Icon src="sap-icon://document-text" class="kyraTableEmptyIcon" />
                                 </HBox>
-                                <Title text="No pending access requests at this time." level="H4" class="kyraTableEmptyTitle sapUiTinyMarginBottom" />
-                                <Text text="You're all caught up! There are no access requests to display right now." class="kyraTableEmptySubtitle sapUiSmallMarginBottom" />
-                                <Button text="Refresh" icon="sap-icon://refresh" press=".onRefreshPendingRequests" class="kyraTableEmptyRefreshBtn" />
+                                <Title text="No pending access requests at this time" level="H4" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
                         <columns>
@@ -1249,19 +1250,19 @@
                 <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length &gt; 0 }">
         <columns>
             <!-- 1. System Name -->
-            <Column width="16%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
+            <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
             <!-- 2. Services -->
-            <Column width="14%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
+            <Column width="12%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
             <!-- 3. Team -->
-            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
             <!-- 4. Persona -->
-            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
+            <Column width="14%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
             <!-- 5. Security Group -->
-            <Column width="14%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
+            <Column width="16%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
             <!-- 6. AD Group -->
-            <Column width="13%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
+            <Column width="16%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
             <!-- 7. Existing Role -->
-            <Column width="13%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
+            <Column width="14%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
         </columns>
         <items>
             <ColumnListItem vAlign="Middle" class="kyraValTableRow">
@@ -1272,7 +1273,7 @@
                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
                     <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                     <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
-                    <HBox justifyContent="Center" alignItems="Center">
+                    <HBox justifyContent="Center" alignItems="Center" width="100%">
                         <ObjectStatus
                             text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'revoke in pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'already active' : 'already requested') }"
                             state="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Warning' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Information' : 'Warning') }"
@@ -1717,8 +1718,15 @@
                         id="removeAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/activeRoles}"
-                        noDataText="No active entitlements available for removal."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://delete" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No active entitlements available for removal" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
@@ -1750,7 +1758,7 @@
                                             icon="sap-icon://delete"
                                             type="Transparent"
                                             press=".onRemoveAccessClick"
-                                            class="kyraTableActionBtn" />
+                                            class="kyraTableActionBtn kyraDestructiveBtn" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>

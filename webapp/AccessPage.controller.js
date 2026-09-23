@@ -657,16 +657,50 @@ sap.ui.define([
                             }
                         }
 
-                        // 4. Mark event so UI5's ComboBoxBase.prototype.ontap does not run and conflict
+                        // 4. Mark event and stop immediate propagation so UI5 internal handlers do not double-toggle
+                        if (typeof oEvent.stopImmediatePropagation === "function") {
+                            oEvent.stopImmediatePropagation();
+                        }
                         if (typeof oEvent.setMarked === "function") {
                             oEvent.setMarked();
                         }
 
-                        // 5. Toggle dropdown open / close cleanly
+                        // 5. Toggle dropdown open / close cleanly with smooth screen alignment
                         if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
                             oControl.close();
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
+                            setTimeout(() => {
+                                const oDom = oControl.getDomRef();
+                                if (oDom) {
+                                    const rect = oDom.getBoundingClientRect();
+                                    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                                    if (rect.bottom > windowHeight - 340 || rect.top < 80) {
+                                        oDom.scrollIntoView({ behavior: "smooth", block: "center" });
+                                    }
+                                }
+                                try {
+                                    const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                                    (typeof oControl._getPicker === "function" && oControl._getPicker());
+                                    if (oPicker) {
+                                        const oPickerDom = oPicker.getDomRef();
+                                        if (oPickerDom) {
+                                            oPickerDom.style.minWidth = "min(600px, 95vw)";
+                                            oPickerDom.style.width = "max-content";
+                                            const oCont = oPickerDom.querySelector(".sapMPopoverCont");
+                                            if (oCont) {
+                                                oCont.style.overflow = "hidden";
+                                                oCont.style.overflowY = "hidden";
+                                            }
+                                        }
+                                    }
+                                } catch(e) {}
+                            }, 80);
+                        }
+                    },
+                    onclick: (oEvent) => {
+                        if (typeof oEvent.stopImmediatePropagation === "function") {
+                            oEvent.stopImmediatePropagation();
                         }
                     }
                 };
@@ -730,6 +764,9 @@ sap.ui.define([
                             if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                             return;
                         }
+                        if (typeof oEvent.stopImmediatePropagation === "function") {
+                            oEvent.stopImmediatePropagation();
+                        }
                         if (typeof oEvent.setMarked === "function") {
                             oEvent.setMarked();
                         }
@@ -737,6 +774,21 @@ sap.ui.define([
                             oControl.close();
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
+                            setTimeout(() => {
+                                const oDom = oControl.getDomRef();
+                                if (oDom) {
+                                    const rect = oDom.getBoundingClientRect();
+                                    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                                    if (rect.bottom > windowHeight - 340 || rect.top < 80) {
+                                        oDom.scrollIntoView({ behavior: "smooth", block: "center" });
+                                    }
+                                }
+                            }, 80);
+                        }
+                    },
+                    onclick: (oEvent) => {
+                        if (typeof oEvent.stopImmediatePropagation === "function") {
+                            oEvent.stopImmediatePropagation();
                         }
                     }
                 };
@@ -793,6 +845,9 @@ sap.ui.define([
                         if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                         return;
                     }
+                    if (typeof oEvent.stopImmediatePropagation === "function") {
+                        oEvent.stopImmediatePropagation();
+                    }
                     if (typeof oEvent.setMarked === "function") {
                         oEvent.setMarked();
                     }
@@ -800,6 +855,21 @@ sap.ui.define([
                         oControl.close();
                     } else if (typeof oControl.open === "function") {
                         oControl.open();
+                        setTimeout(() => {
+                            const oDom = oControl.getDomRef();
+                            if (oDom) {
+                                const rect = oDom.getBoundingClientRect();
+                                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                                if (rect.bottom > windowHeight - 340 || rect.top < 80) {
+                                    oDom.scrollIntoView({ behavior: "smooth", block: "center" });
+                                }
+                            }
+                        }, 80);
+                    }
+                },
+                onclick: (oEvent) => {
+                    if (typeof oEvent.stopImmediatePropagation === "function") {
+                        oEvent.stopImmediatePropagation();
                     }
                 }
             };
@@ -834,17 +904,11 @@ sap.ui.define([
                 if (!oDom._hasSingleClickSetup) {
                     oDom._hasSingleClickSetup = true;
 
-                    const fnHandleActivation = (e) => {
+                    oDom.addEventListener("click", (e) => {
                         if (e.target !== oTextarea) {
-                            if (e.type === "mousedown") {
-                                e.preventDefault(); // Prevents div from stealing focus
-                            }
                             oTextarea.focus();
                         }
-                    };
-
-                    oDom.addEventListener("mousedown", fnHandleActivation);
-                    oDom.addEventListener("click", fnHandleActivation);
+                    });
                 }
 
                 // Also ensure clicking the label focuses the textarea
@@ -6692,12 +6756,12 @@ sap.ui.define([
                 }
             }
 
-            // After submit: close wizard and navigate to User Requests (pending) section
+            // After submit: close wizard and navigate to Main Dashboard (myAccess) page
             const fnDismissSubmitDialog = () => {
                 this._resetAddAccessState();
-                // Navigate to User Requests (myRequests) tab with pending section visible
-                oModel.setProperty("/selectedTabKey", "myRequests");
-                oModel.setProperty("/showPendingSection", true);
+                // Navigate to Main Dashboard (myAccess) page
+                oModel.setProperty("/selectedTabKey", "myAccess");
+                oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
@@ -6705,7 +6769,7 @@ sap.ui.define([
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showMyAccessMasterSection", false);
                 this._updateActionCardArrows(oModel);
-                // Scroll to top of page so user sees the pending requests table
+                // Scroll to top of page so user sees the main dashboard page
                 setTimeout(() => {
                     const oPage = this.byId("accessPortalPage");
                     if (oPage && typeof oPage.scrollTo === "function") {

@@ -130,29 +130,19 @@ sap.ui.define([
         },
 
         _setupJustificationFieldEnhancement() {
-            // Ensures 100% full-box clickability for Business Justification textarea:
-            // Clicking anywhere on the box (top, center, bottom empty space, borders, padding, wrapper, or label)
-            // immediately focuses the inner native textarea and positions the caret.
-            const handleJustificationFocus = (e) => {
+            // Ensures 1-click focus for Business Justification textarea:
+            // When user clicks anywhere on the box wrapper or label, immediately focus the textarea
+            document.addEventListener("click", (e) => {
                 const target = e.target;
                 if (!target) return;
                 const oBox = target.closest("#inPageJustificationArea, .kyraJustificationTextArea, .kyraJustificationLabel, [id*='inPageJustificationArea']");
                 if (oBox) {
-                    let oTa = oBox.querySelector("textarea");
-                    if (!oTa) {
-                        oTa = document.querySelector("#inPageJustificationArea textarea, .kyraJustificationTextArea textarea");
-                    }
-                    if (oTa) {
-                        if (document.activeElement !== oTa) {
-                            oTa.focus();
-                        }
+                    const oTa = oBox.querySelector("textarea") || document.querySelector("#inPageJustificationArea textarea, .kyraJustificationTextArea textarea");
+                    if (oTa && document.activeElement !== oTa) {
+                        oTa.focus();
                     }
                 }
-            };
-
-            document.addEventListener("pointerdown", handleJustificationFocus, true);
-            document.addEventListener("mousedown", handleJustificationFocus, true);
-            document.addEventListener("click", handleJustificationFocus, true);
+            });
         },
 
         _setupDropdownPlacementEnhancement() {
