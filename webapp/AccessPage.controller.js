@@ -493,6 +493,9 @@ sap.ui.define([
             // Setup Step 3.2 Duration ComboBox pure-selection field (downwards only, full box clickable)
             this._setupDurationSelectField();
 
+            // Setup Step 3.2 Business Justification instant single-click text entry
+            this._setupJustificationAreaClick();
+
             // Clear unwanted initial focus on header buttons when entering the page
             setTimeout(() => {
                 const oBell = this.byId("kyraHeaderBellBtn");
@@ -595,10 +598,16 @@ sap.ui.define([
                     try {
                         const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
                                         (typeof oControl._getPicker === "function" && oControl._getPicker());
-                        if (oPicker && typeof oPicker.setPlacement === "function") {
-                            oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                        if (oPicker) {
+                            if (typeof oPicker.setPlacement === "function") {
+                                oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                            }
+                            if (typeof oPicker.addStyleClass === "function") {
+                                oPicker.addStyleClass("kyraDropdownBottomOnly");
+                            }
                         }
                     } catch(err) {}
+
                     const oInputDom = oControl.getDomRef("inner");
                     if (oInputDom) {
                         oInputDom.setAttribute("readonly", "readonly");
@@ -621,57 +630,49 @@ sap.ui.define([
 
                 if (oControl._rowClickDelegate) {
                     oControl.removeEventDelegate(oControl._rowClickDelegate);
+                    oControl._rowClickDelegate = null;
                 }
 
                 oControl._rowClickDelegate = {
                     onAfterRendering: fnSetupControl,
                     ontap: (oEvent) => {
-                        // If control is disabled, block any touch/click completely
+                        // 1. If control is disabled, block any touch/click completely
                         if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
-                            oEvent.preventDefault();
-                            oEvent.stopPropagation();
+                            if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                             return;
                         }
 
-                        // If clicked on token delete icon (X), allow token removal
+                        // 2. If clicked on token delete icon (X), allow token removal without toggling
                         if (oEvent.target && oEvent.target.closest && oEvent.target.closest(".sapMTokenIcon")) {
                             return;
                         }
 
-                        // Check sequential prerequisite
+                        // 3. Check sequential prerequisite
                         if (item.prereqProp && oModel) {
                             const aPrereqVal = oModel.getProperty(item.prereqProp) || [];
                             if (!Array.isArray(aPrereqVal) || aPrereqVal.length === 0) {
-                                oEvent.preventDefault();
-                                oEvent.stopPropagation();
+                                if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                                 MessageToast.show("Please select " + item.prereqName + " first.");
-                                if (item.prereqId) {
-                                    const oPrereqCtrl = this.byId(item.prereqId);
-                                    /* manual open only */
-                                }
                                 return;
                             }
                         }
 
-                        // If clicked on dropdown arrow, UI5 handles toggling natively
-                        if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer"))) {
-                            return;
+                        // 4. Mark event so UI5's ComboBoxBase.prototype.ontap does not run and conflict
+                        if (typeof oEvent.setMarked === "function") {
+                            oEvent.setMarked();
                         }
 
-                        // Touching / clicking anywhere on the box opens the dropdown
-                        if (typeof oControl.isOpen === "function") {
-                            if (oControl.isOpen()) {
-                                oControl.close();
-                            } else {
-                                oControl.open();
-                            }
+                        // 5. Toggle dropdown open / close cleanly
+                        if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
+                            oControl.close();
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
                         }
                     }
                 };
 
-                oControl.addEventDelegate(oControl._rowClickDelegate);
+                // Add as pre-delegate so it executes before ComboBoxBase.prototype.ontap
+                oControl.addDelegate(oControl._rowClickDelegate, true, oControl);
             });
         },
 
@@ -693,8 +694,13 @@ sap.ui.define([
                     try {
                         const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
                                         (typeof oControl._getPicker === "function" && oControl._getPicker());
-                        if (oPicker && typeof oPicker.setPlacement === "function") {
-                            oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                        if (oPicker) {
+                            if (typeof oPicker.setPlacement === "function") {
+                                oPicker.setPlacement(sap.m.PlacementType.Vertical);
+                            }
+                            if (typeof oPicker.addStyleClass === "function") {
+                                oPicker.addStyleClass("kyraDropdownBottomOnly");
+                            }
                         }
                     } catch(e) {}
 
@@ -721,23 +727,20 @@ sap.ui.define([
                     onAfterRendering: fnApply,
                     ontap: (oEvent) => {
                         if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
+                            if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                             return;
                         }
-                        if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer") || oEvent.target.closest(".sapMSelectArrow") || oEvent.target.closest(".sapMComboBoxArrow"))) {
-                            return;
+                        if (typeof oEvent.setMarked === "function") {
+                            oEvent.setMarked();
                         }
-                        if (typeof oControl.isOpen === "function") {
-                            if (oControl.isOpen()) {
-                                oControl.close();
-                            } else {
-                                oControl.open();
-                            }
+                        if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
+                            oControl.close();
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
                         }
                     }
                 };
-                oControl.addEventDelegate(oControl._step1Delegate);
+                oControl.addDelegate(oControl._step1Delegate, true, oControl);
             });
         },
 
@@ -754,8 +757,13 @@ sap.ui.define([
                 try {
                     const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
                                     (typeof oControl._getPicker === "function" && oControl._getPicker());
-                    if (oPicker && typeof oPicker.setPlacement === "function") {
-                        oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                    if (oPicker) {
+                        if (typeof oPicker.setPlacement === "function") {
+                            oPicker.setPlacement(sap.m.PlacementType.Vertical);
+                        }
+                        if (typeof oPicker.addStyleClass === "function") {
+                            oPicker.addStyleClass("kyraDropdownBottomOnly");
+                        }
                     }
                 } catch(e) {}
 
@@ -782,54 +790,94 @@ sap.ui.define([
                 onAfterRendering: fnApply,
                 ontap: (oEvent) => {
                     if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
+                        if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                         return;
                     }
-                    if (oEvent.target && oEvent.target.closest && (oEvent.target.closest(".sapMComboBoxIcon") || oEvent.target.closest(".sapMInputBaseIconContainer"))) {
-                        return;
+                    if (typeof oEvent.setMarked === "function") {
+                        oEvent.setMarked();
                     }
-                    if (typeof oControl.isOpen === "function") {
-                        if (oControl.isOpen()) {
-                            oControl.close();
-                        } else {
-                            oControl.open();
-                        }
+                    if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
+                        oControl.close();
                     } else if (typeof oControl.open === "function") {
                         oControl.open();
                     }
                 }
             };
-            oControl.addEventDelegate(oControl._durDelegate);
+            oControl.addDelegate(oControl._durDelegate, true, oControl);
         },
 
         _setupJustificationAreaClick() {
-            setTimeout(() => {
-                const oArea = this.byId("inPageJustificationArea");
-                if (oArea && !oArea._justificationClickAttached) {
-                    oArea._justificationClickAttached = true;
-                    const fnFocus = () => {
-                        const oDom = oArea.getDomRef();
-                        if (oDom) {
-                            const oTextarea = oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef());
-                            if (oTextarea) {
-                                oTextarea.focus();
+            const oArea = this.byId("inPageJustificationArea");
+            if (!oArea) return;
+
+            const fnApplyDirectFocus = () => {
+                const oDom = oArea.getDomRef();
+                if (!oDom) return;
+                const oTextarea = oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef());
+                if (!oTextarea) return;
+
+                oDom.style.cursor = "text";
+                oTextarea.style.cursor = "text";
+                oTextarea.style.position = "relative";
+                oTextarea.style.zIndex = "10";
+                oTextarea.style.pointerEvents = "auto";
+
+                const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
+                if (oWrapper) {
+                    oWrapper.style.cursor = "text";
+                    oWrapper.style.position = "relative";
+                    oWrapper.style.zIndex = "1";
+                    oWrapper.style.pointerEvents = "auto";
+                }
+
+                // If user clicks on the outer box or wrapper (e.g. padding/border), focus textarea immediately
+                if (!oDom._hasSingleClickSetup) {
+                    oDom._hasSingleClickSetup = true;
+
+                    const fnHandleActivation = (e) => {
+                        if (e.target !== oTextarea) {
+                            if (e.type === "mousedown") {
+                                e.preventDefault(); // Prevents div from stealing focus
                             }
+                            oTextarea.focus();
                         }
                     };
-                    oArea.addEventDelegate({
-                        onAfterRendering: () => {
-                            const oDom = oArea.getDomRef();
-                            if (oDom) {
-                                oDom.style.cursor = "text";
-                                const oInner = oDom.querySelector("textarea");
-                                if (oInner) {
-                                    oInner.style.cursor = "text";
-                                }
-                            }
-                        },
-                        ontap: fnFocus
+
+                    oDom.addEventListener("mousedown", fnHandleActivation);
+                    oDom.addEventListener("click", fnHandleActivation);
+                }
+
+                // Also ensure clicking the label focuses the textarea
+                const oLabel = document.querySelector(".kyraJustificationLabel");
+                if (oLabel && !oLabel._hasSingleClickSetup) {
+                    oLabel._hasSingleClickSetup = true;
+                    oLabel.addEventListener("click", () => {
+                        oTextarea.focus();
                     });
                 }
-            }, 100);
+            };
+
+            if (oArea._justificationDelegate) {
+                oArea.removeEventDelegate(oArea._justificationDelegate);
+                oArea._justificationDelegate = null;
+            }
+            oArea._justificationDelegate = {
+                onAfterRendering: fnApplyDirectFocus,
+                ontap: (oEvent) => {
+                    const oDom = oArea.getDomRef();
+                    const oTextarea = oDom ? (oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef())) : null;
+                    if (oTextarea && (!oEvent || oEvent.target !== oTextarea)) {
+                        oTextarea.focus();
+                    }
+                }
+            };
+            oArea.addEventDelegate(oArea._justificationDelegate);
+
+            fnApplyDirectFocus();
+            setTimeout(fnApplyDirectFocus, 50);
+            setTimeout(fnApplyDirectFocus, 150);
+            setTimeout(fnApplyDirectFocus, 300);
+            setTimeout(fnApplyDirectFocus, 600);
         },
 
         // =========================================================================
@@ -4221,6 +4269,23 @@ sap.ui.define([
             if (oModel && sKey) {
                 oModel.setProperty("/addAccessDuration", sKey);
             }
+
+            // Auto-focus Business Justification textarea after duration is selected
+            if (sKey) {
+                setTimeout(() => {
+                    const oArea = this.byId("inPageJustificationArea");
+                    if (oArea) {
+                        const oDom = oArea.getDomRef();
+                        const oTextarea = oDom
+                            ? (oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef()))
+                            : null;
+                        if (oTextarea) {
+                            oTextarea.focus();
+                            oTextarea.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                        }
+                    }
+                }, 200);
+            }
         },
 
         onCloseAddAccessSector() {
@@ -4599,6 +4664,10 @@ sap.ui.define([
 
             this._saveCurrentSystemSlideConfig();
             oModel.setProperty("/addAccessConfigSubStep", 2);
+            this._setupJustificationAreaClick();
+            setTimeout(() => this._setupJustificationAreaClick(), 120);
+            this._setupDurationSelectField();
+            setTimeout(() => this._setupDurationSelectField(), 120);
             this._scrollToWizardContainer();
         },
 
@@ -4663,6 +4732,9 @@ sap.ui.define([
             } else {
                 oModel.setProperty("/addAccessConfigSubStep", 2);
                 this._setupJustificationAreaClick();
+                setTimeout(() => this._setupJustificationAreaClick(), 120);
+                this._setupDurationSelectField();
+                setTimeout(() => this._setupDurationSelectField(), 120);
                 this._scrollToWizardContainer();
             }
         },
@@ -6121,6 +6193,8 @@ sap.ui.define([
             if (oModel) {
                 oModel.setProperty("/addAccessStep", 3);
                 oModel.setProperty("/addAccessConfigSubStep", 2);
+                this._setupJustificationAreaClick();
+                setTimeout(() => this._setupJustificationAreaClick(), 120);
                 this._scrollToWizardContainer();
             }
         },
@@ -6886,12 +6960,10 @@ sap.ui.define([
             });
         },
 
-        onClosePendingSection() {
+        async onRefreshPendingRequests() {
             const oModel = this.getView().getModel("accessModel");
-            if (oModel) {
-                oModel.setProperty("/showPendingSection", false);
-                this._updateActionCardArrows(oModel);
-            }
+            sap.m.MessageToast.show("Refreshing access requests...");
+            await this._loadSubmittedRequests(oModel, true);
         },
 
         onCloseApprovedSection() {
@@ -7575,105 +7647,100 @@ sap.ui.define([
                 return;
             }
 
-            sap.ui.require(["sap/m/MessageBox", "sap/m/MessageToast"], (MessageBox, MessageToast) => {
-                MessageBox.confirm(
-                    "Are you sure you want to request revocation for \"" + sRoleName + "\" on " + sSystem + "?",
-                    {
-                        title: "Confirm Access Revocation",
-                        icon: MessageBox.Icon.WARNING,
-                        actions: ["Revoke Access", MessageBox.Action.CANCEL],
-                        emphasizedAction: "Revoke Access",
-                        onClose: async (sAction) => {
-                            if (sAction !== "Revoke Access") {
-                                return;
-                            }
+            KyraDialog.show({
+                type: "warning",
+                title: "Confirm Access Revocation",
+                messageHtml: `<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 18px 20px; font-size: 14px; color: #1E293B; font-weight: 500; line-height: 1.55;">
+                    Are you sure you want to request revocation for <strong>"${sRoleName}"</strong> on <strong>${sSystem}</strong>?
+                </div>`,
+                buttonText: "Revoke Access",
+                btnColor: "#008C9C",
+                secondaryButtonText: "Cancel",
+                onConfirm: async () => {
+                    if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                        sap.ui.core.BusyIndicator.show(0);
+                    }
 
-                            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                                sap.ui.core.BusyIndicator.show(0);
-                            }
+                    try {
+                        const sActiveUser = (oModel ? oModel.getProperty("/activeUser") : null) || sessionStorage.getItem("kyra_active_user") || "Dev001";
+                        const sActiveRole = (oModel ? oModel.getProperty("/activeRole") : null) || sessionStorage.getItem("kyra_active_role") || "Requester";
+                        const sReqNum = "REV-2026-" + Math.floor(100000 + Math.random() * 900000);
+                        const sService = oItem.services || oItem.serviceTopic || oItem.category || "Revocation Request";
+                        const sPersona = oItem.persona || oItem.selectedPersona || sActiveRole || "User";
+                        const sSector = oItem.sector || oItem.businessSector || "Finance & Enterprise Performance";
+                        const sRegion = oItem.region || oItem.operatingRegion || "Global Enterprise (ALL)";
 
-                            try {
-                                const sActiveUser = (oModel ? oModel.getProperty("/activeUser") : null) || sessionStorage.getItem("kyra_active_user") || "Dev001";
-                                const sActiveRole = (oModel ? oModel.getProperty("/activeRole") : null) || sessionStorage.getItem("kyra_active_role") || "Requester";
-                                const sReqNum = "REV-2026-" + Math.floor(100000 + Math.random() * 900000);
-                                const sService = oItem.services || oItem.serviceTopic || oItem.category || "Revocation Request";
-                                const sPersona = oItem.persona || oItem.selectedPersona || sActiveRole || "User";
-                                const sSector = oItem.sector || oItem.businessSector || "Finance & Enterprise Performance";
-                                const sRegion = oItem.region || oItem.operatingRegion || "Global Enterprise (ALL)";
+                        const oRevocationPayload = {
+                            requests: [{
+                                requestNumber: sReqNum,
+                                requesterUsername: sActiveUser,
+                                requesterPersona: sActiveRole,
+                                businessSector: sSector,
+                                businessFunction: "Access Revocation",
+                                operatingRegion: sRegion,
+                                targetSystem: sSystem,
+                                serviceTopic: sService,
+                                roleName: sRoleName,
+                                selectedPersona: sPersona,
+                                accessType: "REVOCATION",
+                                accessDuration: oItem.expiryDate || oItem.duration || "Permanent",
+                                justification: "User requested entitlement revocation.",
+                                status: "PENDING",
+                                hasConflict: false
+                            }]
+                        };
 
-                                const oRevocationPayload = {
-                                    requests: [{
-                                        requestNumber: sReqNum,
-                                        requesterUsername: sActiveUser,
-                                        requesterPersona: sActiveRole,
-                                        businessSector: sSector,
-                                        businessFunction: "Access Revocation",
-                                        operatingRegion: sRegion,
-                                        targetSystem: sSystem,
-                                        serviceTopic: sService,
-                                        roleName: sRoleName,
-                                        selectedPersona: sPersona,
-                                        accessType: "REVOCATION",
-                                        accessDuration: oItem.expiryDate || oItem.duration || "Permanent",
-                                        justification: "User requested entitlement revocation.",
-                                        status: "PENDING",
-                                        hasConflict: false
-                                    }]
-                                };
+                        const res = await fetch("/odata/v4/auth/submitAccessRequest", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(oRevocationPayload)
+                        });
 
-                                const res = await fetch("/odata/v4/auth/submitAccessRequest", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify(oRevocationPayload)
-                                });
+                        if (!res.ok) {
+                            throw new Error("HTTP error " + res.status);
+                        }
 
-                                if (!res.ok) {
-                                    throw new Error("HTTP error " + res.status);
+                        MessageToast.show("Revocation request submitted for " + sRoleName + " on " + sSystem);
+
+                        // Update local /activeRoles so row immediately reflects Revoke Pending state
+                        if (oModel) {
+                            const aActiveRoles = oModel.getProperty("/activeRoles") || [];
+                            aActiveRoles.forEach(r => {
+                                if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
+                                    r.status = "Revoke Pending";
+                                    r.statusState = "Warning";
+                                    r.statusIcon = "sap-icon://pending";
                                 }
+                            });
+                            oModel.setProperty("/activeRoles", aActiveRoles);
 
-                                MessageToast.show("Revocation request submitted for " + sRoleName + " on " + sSystem);
-
-                                // Update local /activeRoles so row immediately reflects Revoke Pending state
-                                if (oModel) {
-                                    const aActiveRoles = oModel.getProperty("/activeRoles") || [];
-                                    aActiveRoles.forEach(r => {
-                                        if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
-                                            r.status = "Revoke Pending";
-                                            r.statusState = "Warning";
-                                            r.statusIcon = "sap-icon://pending";
-                                        }
-                                    });
-                                    oModel.setProperty("/activeRoles", aActiveRoles);
-
-                                    const aUserAccess = oModel.getProperty("/userAccessList") || [];
-                                    aUserAccess.forEach(r => {
-                                        if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
-                                            r.status = "Revoke Pending";
-                                            r.statusState = "Warning";
-                                            r.statusIcon = "sap-icon://pending";
-                                        }
-                                    });
-                                    oModel.setProperty("/userAccessList", aUserAccess);
-
-                                    if (typeof this._loadSubmittedRequests === "function") {
-                                        await this._loadSubmittedRequests(oModel);
-                                    }
+                            const aUserAccess = oModel.getProperty("/userAccessList") || [];
+                            aUserAccess.forEach(r => {
+                                if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
+                                    r.status = "Revoke Pending";
+                                    r.statusState = "Warning";
+                                    r.statusIcon = "sap-icon://pending";
                                 }
+                            });
+                            oModel.setProperty("/userAccessList", aUserAccess);
 
-                                if (typeof this._notifyDatabaseMutation === "function") {
-                                    this._notifyDatabaseMutation();
-                                }
-                            } catch (err) {
-                                console.error("Revocation error:", err);
-                                MessageToast.show("Failed to submit revocation request: " + (err.message || err));
-                            } finally {
-                                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                                    sap.ui.core.BusyIndicator.hide();
-                                }
+                            if (typeof this._loadSubmittedRequests === "function") {
+                                await this._loadSubmittedRequests(oModel);
                             }
                         }
+
+                        if (typeof this._notifyDatabaseMutation === "function") {
+                            this._notifyDatabaseMutation();
+                        }
+                    } catch (err) {
+                        console.error("Revocation error:", err);
+                        MessageToast.show("Failed to submit revocation request: " + (err.message || err));
+                    } finally {
+                        if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                            sap.ui.core.BusyIndicator.hide();
+                        }
                     }
-                );
+                }
             });
         },
 

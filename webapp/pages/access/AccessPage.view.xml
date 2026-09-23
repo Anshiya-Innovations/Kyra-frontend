@@ -136,8 +136,17 @@
                         id="myAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
-                        noDataText="No active permissions found."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No active access found" level="H4" class="kyraTableEmptyTitle sapUiTinyMarginBottom" />
+                                <Text text="You currently have no active entitlements or assigned roles." class="kyraTableEmptySubtitle sapUiSmallMarginBottom" />
+                                <Button text="Refresh" icon="sap-icon://refresh" press=".onRefreshPendingRequests" class="kyraTableEmptyRefreshBtn" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="18%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                             <Column width="17%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -275,9 +284,18 @@
                         items="{
                             path: 'accessModel>/requestHistory'
                         }"
-                        noDataText="No access requests match the selected filter."
                         fixedLayout="true"
                         class="sapUiNoMargin kyraHistoryTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://document-text" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No access requests found" level="H4" class="kyraTableEmptyTitle sapUiTinyMarginBottom" />
+                                <Text text="No access requests match the selected filter or criteria." class="kyraTableEmptySubtitle sapUiSmallMarginBottom" />
+                                <Button text="Refresh" icon="sap-icon://refresh" press=".onRefreshPendingRequests" class="kyraTableEmptyRefreshBtn" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="16%" hAlign="Center"><Text text="REQUEST / TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                             <Column width="14%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
@@ -514,8 +532,17 @@
                         id="pendingRequestsInPageTable"
                         fixedLayout="true"
                         items="{accessModel>/myPendingRequests}"
-                        noDataText="No pending access requests at this time."
                         class="sapUiNoMargin kyraHistoryTable kyraPendingRequestsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle sapUiSmallMarginBottom" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://document-text" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No pending access requests at this time." level="H4" class="kyraTableEmptyTitle sapUiTinyMarginBottom" />
+                                <Text text="You're all caught up! There are no access requests to display right now." class="kyraTableEmptySubtitle sapUiSmallMarginBottom" />
+                                <Button text="Refresh" icon="sap-icon://refresh" press=".onRefreshPendingRequests" class="kyraTableEmptyRefreshBtn" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="16%" hAlign="Center"><Text text="REQUEST / TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                             <Column width="14%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
@@ -754,14 +781,15 @@
                                         id="inPageBusinessSectorSelect"
                                         selectedKey="{accessModel>/selectedSector}"
                                         selectionChange=".onInPageSectorChange"
+                                        change=".onInPageSectorChange"
                                         placeholder="Select Business Sector..."
                                         width="100%"
                                         class="kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" />
-                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" />
-                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" />
-                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" />
-                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" />
+                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" tooltip="Finance &amp; Enterprise Performance" />
+                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" tooltip="Global Supply Chain &amp; Logistics" />
+                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" tooltip="Human Capital Management (HCM)" />
+                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" tooltip="Information Technology &amp; Security" />
+                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" tooltip="Customer Operations &amp; Sales" />
                                     </ComboBox>
                                 </VBox>
 
@@ -780,7 +808,7 @@
                                         placeholder="Select Business Function..."
                                         width="100%"
                                         class="kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                        <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                     </ComboBox>
                                 </VBox>
                             </HBox>
@@ -882,12 +910,12 @@
                                         placeholder="Select target system processes..."
                                         width="100%"
                                         class="fioriFormSelect">
-                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" />
-                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" />
-                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" />
-                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" />
-                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" />
-                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" />
+                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" tooltip="SAP BTP Cloud Platform" />
+                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" tooltip="SAP S/4HANA Enterprise" />
+                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" tooltip="KYRA Central Governance" />
+                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" tooltip="Active Directory / IAM" />
+                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" tooltip="SAP SuccessFactors" />
+                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" tooltip="SAP Ariba Supply Network" />
                                     </MultiComboBox>
                                 </form:content>
                             </form:SimpleForm>
@@ -927,9 +955,9 @@
                                             placeholder="Select service topics for this system..."
                                             width="100%"
                                             class="fioriFormSelect">
-                                            <core:Item key="System Administrator" text="System Administrator" />
-                                            <core:Item key="System Owners" text="System Owners" />
-                                            <core:Item key="Stakeholders" text="Stakeholders" />
+                                            <core:Item key="System Administrator" text="System Administrator" tooltip="System Administrator" />
+                                            <core:Item key="System Owners" text="System Owners" tooltip="System Owners" />
+                                            <core:Item key="Stakeholders" text="Stakeholders" tooltip="Stakeholders" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 2: TEAM ROLE -->
@@ -944,7 +972,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 3: ASSIGNED PERSONA -->
@@ -958,7 +986,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedRoles} &amp;&amp; ${accessModel>/addAccessSelectedRoles}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                         </MultiComboBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -1020,9 +1048,9 @@
                                         placeholder="Select Access Duration..."
                                         width="100%"
                                         class="fioriFormSelect">
-                                        <core:Item key="Permanent (Default)" text="Permanent (Default)" />
-                                        <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" />
-                                        <core:Item key="90 Days (Project)" text="90 Days (Project)" />
+                                        <core:Item key="Permanent (Default)" text="Permanent (Default)" tooltip="Permanent (Default)" />
+                                        <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" tooltip="30 Days (Temporary)" />
+                                        <core:Item key="90 Days (Project)" text="90 Days (Project)" tooltip="90 Days (Project)" />
                                     </ComboBox>
 
                                     <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
