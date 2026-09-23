@@ -588,7 +588,13 @@ sap.ui.define([
                         summaryTables: aSummaryTables
                     });
 
-                    await this._evaluateSodConflictsForRequest(oRequest, aEntList, oModel);
+                    if (isRevocation) {
+                        oModel.setProperty("/selectedRequestSodActiveConflicts", []);
+                        oModel.setProperty("/selectedRequestSodPendingConflicts", []);
+                        oModel.setProperty("/selectedRequestSodBatchConflicts", []);
+                    } else {
+                        await this._evaluateSodConflictsForRequest(oRequest, aEntList, oModel);
+                    }
                     oModel.setProperty("/approverSodTab", 1);
 
                     // Wait for UI5 binding updates and DOM rendering to finish before dismissing loader
@@ -609,6 +615,12 @@ sap.ui.define([
 
         async _evaluateSodConflictsForRequest(oRequest, aEntList, oModel) {
             if (!oModel || !oRequest) return;
+            if (oRequest.isRevocation || String(oRequest.type || oRequest.access_type || oRequest.status || "").toLowerCase().includes("rev")) {
+                oModel.setProperty("/selectedRequestSodActiveConflicts", []);
+                oModel.setProperty("/selectedRequestSodPendingConflicts", []);
+                oModel.setProperty("/selectedRequestSodBatchConflicts", []);
+                return;
+            }
 
             const sRequesterUsername = (oRequest.requesterId || oRequest.requesterUsername || oRequest.requester_username || "").trim();
             
@@ -1792,15 +1804,16 @@ sap.ui.define([
             const oGrouped = {};
             const oPendingGrouped = {};
 
-            const aRecords = (aRawRecords || []).slice().sort((a, b) => {
-                const tA = (a.updated_at || a.created_at) ? new Date(a.updated_at || a.created_at).getTime() : 0;
-                const tB = (b.updated_at || b.created_at) ? new Date(b.updated_at || b.created_at).getTime() : 0;
-                if (tA !== tB) return tB - tA;
-                return (b.request_number || b.requestId || "").localeCompare(a.request_number || a.requestId || "");
+            const aSortedRecords = [...(aRawRecords || [])].sort((a, b) => {
+                const tA = new Date(a.updated_at || a.created_at || 0).getTime() || 0;
+                const tB = new Date(b.updated_at || b.created_at || 0).getTime() || 0;
+                if (tB !== tA) return tB - tA;
+                return String(b.request_number || "").localeCompare(String(a.request_number || ""));
             });
 
-            aRecords.forEach(r => {
+            aSortedRecords.forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
+                if (sDbStatus === "EXPIRED") return;
                 const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                 const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();

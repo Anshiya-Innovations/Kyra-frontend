@@ -118,8 +118,8 @@
 
 
 
-                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (Always visible, displays 0 count when no conflicts detected) -->
-                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom" visible="true">
+                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (Hidden for Revoke requests, visible otherwise) -->
+                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom" visible="{= !${accessModel>/selectedRequest/isRevocation} &amp;&amp; (String(${accessModel>/selectedRequest/status} || '').toLowerCase().indexOf('revoke') === -1) &amp;&amp; (String(${accessModel>/selectedRequest/type} || '').toLowerCase().indexOf('rev') === -1) }">
                     <!-- Top Action Bar -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSodActionBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center">

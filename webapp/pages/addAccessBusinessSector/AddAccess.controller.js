@@ -419,7 +419,17 @@ sap.ui.define([
                         }
                     }
 
-                    const isRestricted = sRole.includes("Owner") || sRole.includes("Lead") || sRole.includes("Security") || sRole.includes("Admin");
+                    const aAllowedRestrictedPersonas = [
+                        "cloud infrastructure administrator",
+                        "database & iam administrator",
+                        "devops & platform lead",
+                        "cybersecurity operations",
+                        "identity management specialist",
+                        "solution architecture owner",
+                        "integration engineering lead"
+                    ];
+                    const sCleanPersonaKey = String(sPersonaKey || "").replace(/\s*\([^)]*\)\s*$/g, "").replace(/\s+persona\b/gi, "").trim().toLowerCase();
+                    const isRestricted = aAllowedRestrictedPersonas.includes(sCleanPersonaKey);
                     const sAccessType = isRestricted ? "RESTRICTED" : "DEFAULT";
 
                     let sExistingStatus = "Pending";
