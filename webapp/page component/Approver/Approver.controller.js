@@ -102,7 +102,7 @@ sap.ui.define([
                     this._syncChannel.onmessage = (event) => {
                         const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                         if (oM) {
-                            this._reloadAllRequests(oM);
+                            this._reloadAllRequests(oM, true);
                         }
                     };
                 } catch(e) {}
@@ -112,7 +112,7 @@ sap.ui.define([
                     if (e.key === "kyra_last_db_mutation" || e.key === "kyra_pending_revocations") {
                         const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                         if (oM) {
-                            this._reloadAllRequests(oM);
+                            this._reloadAllRequests(oM, true);
                         }
                     }
                 };
@@ -215,18 +215,28 @@ sap.ui.define([
             this.onSelectRevokeRequestsTab();
         },
 
+        _setSmartProperty(oModel, sPath, vNewVal) {
+            if (!oModel) return;
+            const vOldVal = oModel.getProperty(sPath);
+            const sOldJson = JSON.stringify(vOldVal === undefined ? null : vOldVal);
+            const sNewJson = JSON.stringify(vNewVal === undefined ? null : vNewVal);
+            if (sOldJson !== sNewJson) {
+                oModel.setProperty(sPath, vNewVal);
+            }
+        },
+
         _updateDisplayedHistoryRequests() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const bIsCompliance = !!oModel.getProperty("/isCompliance");
             if (bIsCompliance) {
                 const aProcessed = oModel.getProperty("/processedRequests") || [];
-                oModel.setProperty("/displayedHistoryRequests", aProcessed);
+                this._setSmartProperty(oModel, "/displayedHistoryRequests", aProcessed);
             } else {
                 const sTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
-                const aAccess = oModel.getProperty("/historyAccessRequests") || [];
-                const aRevoke = oModel.getProperty("/historyRevokeRequests") || [];
-                oModel.setProperty("/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
+                const aAccess = oModel.getProperty("/historyAccessRequests") || oModel.getProperty("/processedAccessRequests") || [];
+                const aRevoke = oModel.getProperty("/historyRevokeRequests") || oModel.getProperty("/processedRevokeRequests") || [];
+                this._setSmartProperty(oModel, "/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
             }
             if (this._sCurrentSearchQuery) {
                 this._applySearchFilter(this._sCurrentSearchQuery);
@@ -1058,13 +1068,28 @@ sap.ui.define([
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
-                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
+                            updatedAtRaw: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
+                            updated_at: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
                             _isPendingForRole: false,
                             entitlements: []
                         };
                     }
 
+                    const sCandidateUpd = r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || "";
+                    if (sCandidateUpd && new Date(sCandidateUpd).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].updated_at || 0).getTime()) {
+                        oGrouped[sGroupKey].updatedAtRaw = sCandidateUpd;
+                        oGrouped[sGroupKey].updated_at = sCandidateUpd;
+                        oGrouped[sGroupKey].decisionDate = sCandidateUpd.split("T")[0];
+                    }
+                    if (window._kyraLastDecidedReqId && getBaseReqId(oGrouped[sGroupKey].requestId).toUpperCase() === String(window._kyraLastDecidedReqId).toUpperCase() && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                        const sForcedIso = new Date(window._kyraLastDecisionSubmitTime).toISOString();
+                        if (new Date(sForcedIso).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || 0).getTime()) {
+                            oGrouped[sGroupKey].updatedAtRaw = sForcedIso;
+                            oGrouped[sGroupKey].updated_at = sForcedIso;
+                            oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
+                        }
+                    }
                     oGrouped[sGroupKey].entitlements.push({
                         requestId: r.request_number || r.requestId,
                         system: r.target_system || r.system,
@@ -1101,9 +1126,9 @@ sap.ui.define([
             });
 
             aProcessed.sort((a, b) => {
-                const dA = new Date(a.decisionDate || a.submissionDate || "1970-01-01").getTime();
-                const dB = new Date(b.decisionDate || b.submissionDate || "1970-01-01").getTime();
-                if (dA !== dB) return dB - dA;
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
@@ -1152,10 +1177,15 @@ sap.ui.define([
                 oModel.setProperty("/showApprovalHistory", false);
             }
 
-            let aRawData = [];
-            try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
+            const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
+                if (window._kyraDecisionInFlight) return;
+                let aRawData = [];
+                try {
+                    const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                    const data = await response.json();
+                    if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
+                        return;
+                    }
                 if (data && data.value && data.value.length > 0) {
                     aRawData = data.value.slice();
                 }
@@ -1224,21 +1254,33 @@ sap.ui.define([
                         processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
                     }
                 });
-                aStoredProc.forEach(sp => {
-                    if (sp && sp.requestId) {
-                        const sReq = String(sp.requestId).trim().toUpperCase();
-                        const bReq = getBaseReqId(sReq).toUpperCase();
-                        processedBaseIds.add(sReq);
-                        processedBaseIds.add(bReq);
-                        if (!aProcessed.some(p => {
-                            const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
-                            return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
-                        })) {
-                            aProcessed.unshift(sp);
+                const aRemainingStoredProc = [];
+                    aStoredProc.forEach(sp => {
+                        if (sp && sp.requestId) {
+                            const sReq = String(sp.requestId).trim().toUpperCase();
+                            const bReq = getBaseReqId(sReq).toUpperCase();
+                            processedBaseIds.add(sReq);
+                            processedBaseIds.add(bReq);
+                            const bExistsInDb = aProcessed.some(p => {
+                                const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                                return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
+                            });
+                            if (!bExistsInDb) {
+                                if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
+                                if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
+                                aProcessed.unshift(sp);
+                                aRemainingStoredProc.push(sp);
+                            }
                         }
+                    });
+                    if (aRemainingStoredProc.length !== aStoredProc.length) {
+                        sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aRemainingStoredProc));
                     }
-                });
-                aPending = aPending.filter(p => {
+                    if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                        processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
+                    }
+                    aPending = aPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
                     return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
@@ -1295,18 +1337,24 @@ sap.ui.define([
             aAccessProcessed.sort(sortChronologicallyDesc);
             aRevokeProcessed.sort(sortChronologicallyDesc);
 
-            oModel.setProperty("/pendingAccessRequests", aAccessPending);
-            oModel.setProperty("/pendingRevokeRequests", aRevokePending);
-            oModel.setProperty("/pendingAccessCount", aAccessPending.length);
-            oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
+            this._setSmartProperty(oModel, "/pendingAccessRequests", aAccessPending);
+                this._setSmartProperty(oModel, "/pendingRevokeRequests", aRevokePending);
+                this._setSmartProperty(oModel, "/pendingAccessCount", aAccessPending.length);
+                this._setSmartProperty(oModel, "/pendingRevokeCount", aRevokePending.length);
 
-            oModel.setProperty("/historyAccessRequests", aAccessProcessed);
-            oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
-            oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
-            oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oModel, "/processedAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oModel, "/processedRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oModel, "/processedAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oModel, "/processedRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oModel, "/processedCount", aProcessed.length);
 
-            oModel.setProperty("/pendingRequests", isCompliance ? aAccessPending : aPending);
-            oModel.setProperty("/processedRequests", aProcessed);
+                this._setSmartProperty(oModel, "/historyAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oModel, "/historyRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oModel, "/historyAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oModel, "/historyRevokeCount", aRevokeProcessed.length);
+
+                this._setSmartProperty(oModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
+                this._setSmartProperty(oModel, "/processedRequests", aProcessed);
             this._updateDisplayedHistoryRequests();
         },
 

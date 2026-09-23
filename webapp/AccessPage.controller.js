@@ -1317,13 +1317,18 @@ sap.ui.define([
                 return (b.request_number || b.requestId || "").localeCompare(a.request_number || a.requestId || "");
             });
 
+            const sActiveUser = (sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim().toLowerCase();
+
             aSortedRecords.forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
                 if (sDbStatus === "EXPIRED") return;
+                const sUser = r.requester_username || "User";
+                if (sActiveUser && sUser.trim().toLowerCase() === sActiveUser) return;
                 const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                 const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
+                const hasConflict = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
 
                 const isRevocation = (r.access_type || r.request_type || "").toUpperCase().includes("REV") || 
                                      (r.business_function || "").toUpperCase().includes("REVOCATION") ||
@@ -1337,7 +1342,7 @@ sap.ui.define([
                 if (isCompliance) {
                     if (!isRevocation && sDbStatus === "PENDING_COMPLIANCE" && sCompStatus !== "APPROVED" && sCompStatus !== "REJECTED") {
                         isPendingForRole = true;
-                    } else if (!isRevocation && (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED")) {
+                    } else if (!isRevocation && (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" || (hasConflict && (sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED")))) {
                         isProcessedForRole = true;
                         bRoleApproved = (sCompStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sCompStatus !== "REJECTED";
                     }
@@ -1370,7 +1375,6 @@ sap.ui.define([
 
                 const sService = deriveCleanService(r);
                 const sDate = r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : "2026-09-04");
-                const sUser = r.requester_username || "User";
 
                 // Accurately preserve Business Sector, Business Function, and Duration from Add Access submission data:
                 let matchingApproved = null;
@@ -1478,13 +1482,28 @@ sap.ui.define([
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
-                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
+                            updatedAtRaw: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
+                            updated_at: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
                             _isPendingForRole: false,
                             entitlements: []
                         };
                     }
 
+                    const sCandidateUpd = r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || "";
+                    if (sCandidateUpd && new Date(sCandidateUpd).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].updated_at || 0).getTime()) {
+                        oGrouped[sGroupKey].updatedAtRaw = sCandidateUpd;
+                        oGrouped[sGroupKey].updated_at = sCandidateUpd;
+                        oGrouped[sGroupKey].decisionDate = sCandidateUpd.split("T")[0];
+                    }
+                    if (window._kyraLastDecidedReqId && getBaseReqId(oGrouped[sGroupKey].requestId).toUpperCase() === String(window._kyraLastDecidedReqId).toUpperCase() && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                        const sForcedIso = new Date(window._kyraLastDecisionSubmitTime).toISOString();
+                        if (new Date(sForcedIso).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || 0).getTime()) {
+                            oGrouped[sGroupKey].updatedAtRaw = sForcedIso;
+                            oGrouped[sGroupKey].updated_at = sForcedIso;
+                            oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
+                        }
+                    }
                     oGrouped[sGroupKey].entitlements.push({
                         requestId: r.request_number,
                         system: r.target_system,
@@ -1521,10 +1540,17 @@ sap.ui.define([
             });
 
             aProcessed.sort((a, b) => {
-                const dA = new Date(a.decisionDate || a.submissionDate || "1970-01-01").getTime();
-                const dB = new Date(b.decisionDate || b.submissionDate || "1970-01-01").getTime();
-                if (dA !== dB) return dB - dA;
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
+            });
+            const processedBaseIdsInner = new Set(Object.keys(oGrouped).map(k => getBaseReqId(k).toUpperCase()).filter(Boolean));
+            Object.keys(oPendingGrouped).forEach(k => {
+                const bId = getBaseReqId(k).toUpperCase();
+                if (processedBaseIdsInner.has(bId)) {
+                    delete oPendingGrouped[k];
+                }
             });
 
             const aApproverPending = Object.values(oPendingGrouped);
@@ -1546,10 +1572,9 @@ sap.ui.define([
             };
         },
 
-
-        async _loadSubmittedRequests(oModel, bSilent = false) {
+        async _loadSubmittedRequests(oModel, bSilent = false, bForce = false) {
             if (!oModel) return;
-            if (oModel.getProperty("/showRequestDetailsPage")) return;
+            if (!bForce && oModel.getProperty("/showRequestDetailsPage")) return;
 
             const sCurrentTab = oModel.getProperty("/selectedTabKey");
             const bIsHistory = sCurrentTab === "myRequests" || 
@@ -1568,10 +1593,17 @@ sap.ui.define([
                 }
             }
 
-            if (this._bIsLoadingRequests) {
+            if (window._kyraDecisionInFlight) {
+                this._bNeedsFollowUpReload = true;
+                return;
+            }
+            if (this._bIsLoadingRequests && !bForce) {
+                this._bNeedsFollowUpReload = true;
                 return;
             }
             this._bIsLoadingRequests = true;
+            this._bNeedsFollowUpReload = false;
+            const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
 
             if (!bSilent) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
@@ -1596,6 +1628,14 @@ sap.ui.define([
             try {
                 const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
                 const data = await response.json();
+                if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
+                    this._bIsLoadingRequests = false;
+                    if (this._bNeedsFollowUpReload && !window._kyraDecisionInFlight) {
+                        this._bNeedsFollowUpReload = false;
+                        this._loadSubmittedRequests(oModel, true);
+                    }
+                    return;
+                }
                 if (data && data.value) {
                     aRawDbRequests = data.value;
 
@@ -1799,21 +1839,45 @@ sap.ui.define([
 
                 const oReqObj = {
                     requestId: r.request_number || ("REQ-" + r.ID),
+                    request_number: r.request_number || ("REQ-" + r.ID),
                     requesterId: r.requester_username,
                     requesterUsername: r.requester_username,
+                    requester_username: r.requester_username,
+                    requester_persona: r.requester_persona,
                     type: isRevocationReq ? "Revoke" : "Addition",
                     requestType: isRevocationReq ? "Revoke" : "Addition",
                     accessType: isRevocationReq ? "REVOCATION" : "ADDITION",
+                    access_type: r.access_type || (isRevocationReq ? "REVOCATION" : "Addition"),
                     isRevocation: isRevocationReq,
                     system: r.target_system || "SAP System",
+                    target_system: r.target_system || "SAP System",
                     roleName: sCleanItemRole,
+                    role_name: r.role_name || sCleanItemRole,
                     roleTitle: sCleanItemRole,
                     serviceTopic: sCleanItemService,
                     selectedPersona: sCleanItemPersona,
+                    selected_persona: r.selected_persona || sCleanItemPersona,
                     accessDuration: sCleanDuration,
                     duration: sCleanDuration,
                     submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
                     createdAtRaw: r.created_at || new Date().toISOString(),
+                    created_at: r.created_at || new Date().toISOString(),
+                    updated_at: r.updated_at || r.created_at || new Date().toISOString(),
+                    db_status: r.db_status || r.status || "PENDING",
+                    approver_status: r.approver_status || r.approver_decision_status || "",
+                    compliance_status: r.compliance_status || r.compliance_decision_status || "",
+                    iam_approver_1_status: r.iam_approver_1_status || r.iam_approver_1_decision_status || "",
+                    iam_approver_2_status: r.iam_approver_2_status || r.iam_approver_2_decision_status || "",
+                    approver_comment: r.approver_comment || "",
+                    reviewer_comment: r.reviewer_comment || "",
+                    iam_approver_1_comment: r.iam_approver_1_comment || "",
+                    iam_approver_2_comment: r.iam_approver_2_comment || "",
+                    approver_decision_created_at: r.approver_decision_created_at || null,
+                    compliance_decision_created_at: r.compliance_decision_created_at || null,
+                    iam_approver_1_decision_created_at: r.iam_approver_1_decision_created_at || null,
+                    iam_approver_2_decision_created_at: r.iam_approver_2_decision_created_at || null,
+                    has_conflict: isConflictRequest,
+                    conflicting_role: r.conflicting_role || "",
                     approver: "Line Manager / ISRM Team",
                     persona: sCleanItemPersona,
                     status: sStatusText,
@@ -2354,26 +2418,53 @@ sap.ui.define([
                         processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
                     }
                 });
+                const aRemainingSessionProc = [];
                 aSessionProc.forEach(sp => {
                     if (sp && sp.requestId) {
                         const sReq = String(sp.requestId).trim().toUpperCase();
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        if (!aFinalProcessed.some(p => {
+                        const bExistsInDb = aFinalProcessed.some(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
-                        })) {
+                        });
+                        if (!bExistsInDb) {
+                            if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
+                            if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
                             aFinalProcessed.unshift(sp);
+                            aRemainingSessionProc.push(sp);
                         }
                     }
                 });
+                if (aRemainingSessionProc.length !== aSessionProc.length) {
+                    sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aRemainingSessionProc));
+                }
+                if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                    processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
+                    processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
+                }
                 aApprPending = aApprPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
                     return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
                 });
             } catch(e) {}
+
+            const sortDescAccess = (a, b) => {
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
+                return (b.requestId || "").localeCompare(a.requestId || "");
+            };
+            const sortAscAccess = (a, b) => {
+                const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || 0).getTime();
+                const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tA - tB;
+                return (a.requestId || "").localeCompare(b.requestId || "");
+            };
+            aFinalProcessed.sort(sortDescAccess);
+            aApprPending.sort(sortAscAccess);
 
             const aApprPendingAccess = aApprPending.filter(p => !p.isRevocation && p.type !== "Revocation");
             const aApprPendingRevoke = isCompliancePersona ? [] : aApprPending.filter(p => p.isRevocation || p.type === "Revocation");
@@ -2405,6 +2496,10 @@ sap.ui.define([
             this._loadNotifications(oModel, aRawDbRequests);
 
             this._bIsLoadingRequests = false;
+            if (this._bNeedsFollowUpReload && !window._kyraDecisionInFlight) {
+                this._bNeedsFollowUpReload = false;
+                setTimeout(() => this._loadSubmittedRequests(oModel, true), 50);
+            }
             // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
             setTimeout(() => {
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
@@ -2444,22 +2539,23 @@ sap.ui.define([
             } catch (e) {}
             const oDeletedSet = new Set(aDeletedIds);
 
-            let aSourceRequests = aExplicitDbRequests || this._cachedDbRequests || [];
-            if (!aSourceRequests || aSourceRequests.length === 0) {
-                // Also check requests in model
-                const aPend = oModel.getProperty("/myPendingRequests") || [];
-                const aHist = oModel.getProperty("/requestHistory") || [];
-                aSourceRequests = aPend.concat(aHist);
-            }
+            const aRawDb = aExplicitDbRequests || this._cachedDbRequests || [];
+            const aPendModel = oModel.getProperty("/myPendingRequests") || [];
+            const aHistModel = oModel.getProperty("/requestHistory") || [];
+            const oSourceMap = new Map();
+            aRawDb.concat(aPendModel, aHistModel).forEach(item => {
+                if (!item) return;
+                const sKey = String(item.request_number || item.requestId || item.requestNumber || item.id || item.ID || "").trim();
+                if (sKey && !oSourceMap.has(sKey)) {
+                    oSourceMap.set(sKey, item);
+                }
+            });
+            let aSourceRequests = Array.from(oSourceMap.values());
 
             const parseRawTimestamp = (timeStr) => {
                 if (!timeStr) return Date.now();
                 if (typeof timeStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(timeStr.trim())) {
-                    const todayStr = new Date().toISOString().split("T")[0];
-                    if (timeStr.trim() === todayStr) {
-                        return Date.now() - 30000;
-                    }
-                    return new Date(timeStr.trim() + "T12:00:00").getTime();
+                    return new Date(timeStr.trim() + "T00:00:00").getTime();
                 }
                 const t = new Date(timeStr).getTime();
                 return isNaN(t) ? Date.now() : t;
@@ -2471,7 +2567,7 @@ sap.ui.define([
                 if (typeof isoStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(isoStr.trim())) {
                     const todayStr = new Date().toISOString().split("T")[0];
                     if (isoStr.trim() === todayStr) {
-                        return "Just now";
+                        return "Today";
                     }
                     d = new Date(isoStr.trim() + "T12:00:00");
                 } else {
@@ -2501,6 +2597,7 @@ sap.ui.define([
             };
 
             let aNotifications = [];
+            const oAddedNotifIds = new Set();
 
             // -------------------------------------------------------------------------
             // 1. Reviewer Notifications (Approver & Compliance Reviewer) - "Users Notification"
@@ -2555,7 +2652,8 @@ sap.ui.define([
                     // If access request with multiple requests (iCount > 1): display that user id (sRequester)
                     const sDisplayBadge = isRevoke ? sReqId : (iCount > 1 ? sRequester : sReqId);
 
-                    if (!oDeletedSet.has(sNotifId)) {
+                    if (!oDeletedSet.has(sNotifId) && !oAddedNotifIds.has(sNotifId)) {
+                        oAddedNotifIds.add(sNotifId);
                         aNotifications.push({
                             id: sNotifId,
                             scope: "users",
@@ -2595,9 +2693,19 @@ sap.ui.define([
             // ONLY displays requests submitted by the logged-in user itself from Add/Remove Access.
             // Receives stage progression updates (Approver -> Compliance -> IAM 1 -> IAM 2).
             // -------------------------------------------------------------------------
+            const oProcessedUserReqSet = new Set();
             const aUserRequests = (!sActiveUser) ? [] : aSourceRequests.filter(r => {
                 const u = (r.requester_username || r.requesterId || r.requesterUsername || "").trim();
-                return u && u.toLowerCase() === sActiveUser.toLowerCase();
+                const sReqPersona = (r.requester_persona || r.requesterPersona || "").toLowerCase();
+                const bMatchUser = (u && u.toLowerCase() === sActiveUser.toLowerCase()) ||
+                    (isCompliancePersona && sReqPersona.includes("compliance"));
+                if (!bMatchUser) return false;
+                const sKey = String(r.request_number || r.requestId || r.requestNumber || r.id || r.ID || "").trim();
+                if (sKey) {
+                    if (oProcessedUserReqSet.has(sKey)) return false;
+                    oProcessedUserReqSet.add(sKey);
+                }
+                return true;
             });
 
             aUserRequests.forEach(r => {
@@ -2611,7 +2719,8 @@ sap.ui.define([
 
                 if (isRevocationReq) {
                     const sSubId = "notif-sub-" + sReqNum;
-                    if (!oDeletedSet.has(sSubId)) {
+                    if (!oDeletedSet.has(sSubId) && !oAddedNotifIds.has(sSubId)) {
+                        oAddedNotifIds.add(sSubId);
                         aNotifications.push({
                             id: sSubId,
                             scope: "my",
@@ -2628,6 +2737,7 @@ sap.ui.define([
                             approverComment: "",
                             timestamp: formatTimeAgo(sCreatedTime),
                             rawTimestamp: parseRawTimestamp(sCreatedTime),
+                            stagePriority: 1,
                             icon: "sap-icon://decline",
                             state: "Information",
                             unread: aSavedStatusMap[sSubId] !== undefined ? aSavedStatusMap[sSubId] : true
@@ -2638,7 +2748,8 @@ sap.ui.define([
                     const sRevApprStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                     if (sRevDbStatus === "APPROVED" || sRevApprStatus === "APPROVED") {
                         const sRevApprId = "notif-rev-appr-" + sReqNum;
-                        if (!oDeletedSet.has(sRevApprId)) {
+                        if (!oDeletedSet.has(sRevApprId) && !oAddedNotifIds.has(sRevApprId)) {
+                            oAddedNotifIds.add(sRevApprId);
                             aNotifications.push({
                                 id: sRevApprId,
                                 scope: "my",
@@ -2663,7 +2774,8 @@ sap.ui.define([
                         }
                     } else if (sRevDbStatus === "REJECTED" || sRevApprStatus === "REJECTED") {
                         const sRevRejId = "notif-rev-rej-" + sReqNum;
-                        if (!oDeletedSet.has(sRevRejId)) {
+                        if (!oDeletedSet.has(sRevRejId) && !oAddedNotifIds.has(sRevRejId)) {
+                            oAddedNotifIds.add(sRevRejId);
                             aNotifications.push({
                                 id: sRevRejId,
                                 scope: "my",
@@ -2692,7 +2804,8 @@ sap.ui.define([
 
                 // 1. Notification: Request Submitted
                 const sSubId = "notif-sub-" + sReqNum;
-                if (!oDeletedSet.has(sSubId)) {
+                if (!oDeletedSet.has(sSubId) && !oAddedNotifIds.has(sSubId)) {
+                    oAddedNotifIds.add(sSubId);
                     aNotifications.push({
                         id: sSubId,
                         scope: "my",
@@ -2719,7 +2832,8 @@ sap.ui.define([
                 const sApprStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                 if (sApprStatus === "APPROVED") {
                     const sAppr1Id = "notif-stage1-appr-" + sReqNum;
-                    if (!oDeletedSet.has(sAppr1Id)) {
+                    if (!oDeletedSet.has(sAppr1Id) && !oAddedNotifIds.has(sAppr1Id)) {
+                        oAddedNotifIds.add(sAppr1Id);
                         const nextStage = hasConflict ? "Compliance Reviewer" : "IAM Approver 1";
                         aNotifications.push({
                             id: sAppr1Id,
@@ -2734,17 +2848,18 @@ sap.ui.define([
                             title: "Approver Stage Approved",
                             description: `Request ${sReqNum} has been approved by Line Manager / Approver and sent to ${nextStage}.`,
                             approverComment: r.approver_comment || r.approverComment || "",
-                            timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
-                                rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.approver_decision_created_at || r.updated_at || sCreatedTime),
-                                stagePriority: 5,
-                                icon: "sap-icon://sys-enter-2",
+                            timestamp: formatTimeAgo(r.approver_decision_created_at || r.approver_created_at || r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.approver_decision_created_at || r.approver_created_at || r.updated_at || sCreatedTime),
+                            stagePriority: 2,
+                            icon: "sap-icon://sys-enter-2",
                             state: "Success",
                             unread: aSavedStatusMap[sAppr1Id] !== undefined ? aSavedStatusMap[sAppr1Id] : true
                         });
                     }
                 } else if (sApprStatus === "REJECTED") {
                     const sAppr1RejId = "notif-stage1-rej-" + sReqNum;
-                    if (!oDeletedSet.has(sAppr1RejId)) {
+                    if (!oDeletedSet.has(sAppr1RejId) && !oAddedNotifIds.has(sAppr1RejId)) {
+                        oAddedNotifIds.add(sAppr1RejId);
                         aNotifications.push({
                             id: sAppr1RejId,
                             scope: "my",
@@ -2772,7 +2887,8 @@ sap.ui.define([
                 const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
                 if (sCompStatus === "APPROVED") {
                     const sCompId = "notif-stage2-appr-" + sReqNum;
-                    if (!oDeletedSet.has(sCompId)) {
+                    if (!oDeletedSet.has(sCompId) && !oAddedNotifIds.has(sCompId)) {
+                        oAddedNotifIds.add(sCompId);
                         aNotifications.push({
                             id: sCompId,
                             scope: "my",
@@ -2796,7 +2912,8 @@ sap.ui.define([
                     }
                 } else if (sCompStatus === "REJECTED") {
                     const sCompRejId = "notif-stage2-rej-" + sReqNum;
-                    if (!oDeletedSet.has(sCompRejId)) {
+                    if (!oDeletedSet.has(sCompRejId) && !oAddedNotifIds.has(sCompRejId)) {
+                        oAddedNotifIds.add(sCompRejId);
                         aNotifications.push({
                             id: sCompRejId,
                             scope: "my",
@@ -2824,7 +2941,8 @@ sap.ui.define([
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 if (sIam1Status === "APPROVED") {
                     const sIam1Id = "notif-stage3-appr-" + sReqNum;
-                    if (!oDeletedSet.has(sIam1Id)) {
+                    if (!oDeletedSet.has(sIam1Id) && !oAddedNotifIds.has(sIam1Id)) {
+                        oAddedNotifIds.add(sIam1Id);
                         aNotifications.push({
                             id: sIam1Id,
                             scope: "my",
@@ -2848,7 +2966,8 @@ sap.ui.define([
                     }
                 } else if (sIam1Status === "REJECTED") {
                     const sIam1RejId = "notif-stage3-rej-" + sReqNum;
-                    if (!oDeletedSet.has(sIam1RejId)) {
+                    if (!oDeletedSet.has(sIam1RejId) && !oAddedNotifIds.has(sIam1RejId)) {
+                        oAddedNotifIds.add(sIam1RejId);
                         aNotifications.push({
                             id: sIam1RejId,
                             scope: "my",
@@ -2877,7 +2996,8 @@ sap.ui.define([
                 const sDbStatus = (r.db_status || r.status || "").toUpperCase();
                 if (sIam2Status === "APPROVED" || sDbStatus === "APPROVED") {
                     const sIam2Id = "notif-stage4-appr-" + sReqNum;
-                    if (!oDeletedSet.has(sIam2Id)) {
+                    if (!oDeletedSet.has(sIam2Id) && !oAddedNotifIds.has(sIam2Id)) {
+                        oAddedNotifIds.add(sIam2Id);
                         aNotifications.push({
                             id: sIam2Id,
                             scope: "my",
@@ -2901,7 +3021,8 @@ sap.ui.define([
                     }
                 } else if (sIam2Status === "REJECTED") {
                     const sIam2RejId = "notif-stage4-rej-" + sReqNum;
-                    if (!oDeletedSet.has(sIam2RejId)) {
+                    if (!oDeletedSet.has(sIam2RejId) && !oAddedNotifIds.has(sIam2RejId)) {
+                        oAddedNotifIds.add(sIam2RejId);
                         aNotifications.push({
                             id: sIam2RejId,
                             scope: "my",
@@ -2928,13 +3049,15 @@ sap.ui.define([
 
             // Include any saved custom notifications strictly matching current user context
             (aSavedNotifications || []).forEach(sn => {
-                if (sn && sn.id && !aNotifications.some(n => n.id === sn.id)) {
+                if (sn && sn.id && !oDeletedSet.has(sn.id) && !oAddedNotifIds.has(sn.id)) {
                     if (sn.scope === "users") {
                         if (isAnyReviewerPersona && (!sActiveUser || (sn.requesterId || "").toLowerCase() !== sActiveUser.toLowerCase())) {
+                            oAddedNotifIds.add(sn.id);
                             aNotifications.push(sn);
                         }
                     } else {
                         if (sActiveUser && (sn.requesterId || "").toLowerCase() === sActiveUser.toLowerCase()) {
+                            oAddedNotifIds.add(sn.id);
                             aNotifications.push(sn);
                         }
                     }
@@ -2977,12 +3100,12 @@ sap.ui.define([
             const iScopeAll = sScope === "users" ? iUsersAll : iMyAll;
             const iScopeUnread = sScope === "users" ? iUsersUnread : iMyUnread;
 
-            const iBadgeCount = isAnyReviewerPersona ? iUsersUnread : iMyUnread;
+            const iBadgeCount = isAnyReviewerPersona ? (iMyUnread + iUsersUnread) : iMyUnread;
 
             this._setSmartProperty(oModel, "/notificationsList", aNotifications);
             this._setSmartProperty(oModel, "/notificationsCount", iBadgeCount);
             this._setSmartProperty(oModel, "/allNotificationsCount", aNotifications.length);
-            this._setSmartProperty(oModel, "/unreadNotificationsCount", isAnyReviewerPersona ? iUsersUnread : iMyUnread);
+            this._setSmartProperty(oModel, "/unreadNotificationsCount", iBadgeCount);
 
             this._setSmartProperty(oModel, "/myNotificationsCount", iMyAll);
             this._setSmartProperty(oModel, "/myUnreadNotificationsCount", iMyUnread);
@@ -3077,6 +3200,7 @@ sap.ui.define([
                 oModel.setProperty("/notifFilterKey", "all");
                 oModel.setProperty("/notifSearchQuery", "");
                 this._loadNotifications(oModel);
+                this._loadSubmittedRequests(oModel, true, true);
                 this._scrollToTop();
             });
         },
@@ -3509,17 +3633,8 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/notifScope", sScope);
-
-                const iScopeAll = sScope === "users"
-                    ? (oModel.getProperty("/usersNotificationsCount") || 0)
-                    : (oModel.getProperty("/myNotificationsCount") || 0);
-                const iScopeUnread = sScope === "users"
-                    ? (oModel.getProperty("/usersUnreadNotificationsCount") || 0)
-                    : (oModel.getProperty("/myUnreadNotificationsCount") || 0);
-                oModel.setProperty("/currentScopeAllCount", iScopeAll);
-                oModel.setProperty("/currentScopeUnreadCount", iScopeUnread);
-
-                this._applyNotificationFilter(oModel);
+                this._loadNotifications(oModel);
+                this._loadSubmittedRequests(oModel, true, true);
             }
         },
 
@@ -6544,8 +6659,9 @@ sap.ui.define([
 
                 console.log("Successfully persisted request into PostgreSQL database:", data);
                 
-                // Immediately reload all request tables from PostgreSQL database
-                await this._loadSubmittedRequests(oModel);
+                // Immediately reload all request tables from PostgreSQL database (forced fresh fetch)
+                await this._loadSubmittedRequests(oModel, false, true);
+                this._loadNotifications(oModel);
 
                 // Broadcast real-time mutation event to all open tabs/views
                 this._notifyDatabaseMutation();

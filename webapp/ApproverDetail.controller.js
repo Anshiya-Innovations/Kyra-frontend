@@ -130,7 +130,7 @@ sap.ui.define([
                     this._eventSource.onmessage = (evt) => {
                         try {
                             const data = JSON.parse(evt.data);
-                            if (data.type === "NEW_REQUEST" || data.type === "DECISION_SUBMITTED" || data.type === "MUTATION") {
+                            if ((data.type === "NEW_REQUEST" || data.type === "DECISION_SUBMITTED" || data.type === "MUTATION") && this._bIsDetailViewActive) {
                                 console.log("Cross-network SSE real-time sync event in ApproverDetail:", data);
                                 this._reloadAllRequests(oModel);
                             }
@@ -144,7 +144,7 @@ sap.ui.define([
                 try {
                     this._syncChannel = new BroadcastChannel("kyra_db_sync_channel");
                     this._syncChannel.onmessage = (evt) => {
-                        if (evt && evt.data && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED")) {
+                        if (evt && evt.data && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED") && this._bIsDetailViewActive) {
                             console.log("Real-time DB sync event in ApproverDetail:", evt.data);
                             this._reloadAllRequests(oModel);
                         }
@@ -155,7 +155,7 @@ sap.ui.define([
             // 3. Local Storage Sync
             if (!this._fnStorageHandler) {
                 this._fnStorageHandler = (e) => {
-                    if (e.key === "kyra_last_db_mutation") {
+                    if (e.key === "kyra_last_db_mutation" && this._bIsDetailViewActive) {
                         this._reloadAllRequests(oModel);
                     }
                 };
@@ -165,7 +165,7 @@ sap.ui.define([
             // 4. Tab Focus Visibility Change Sync
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
-                    if (!document.hidden) {
+                    if (!document.hidden && this._bIsDetailViewActive) {
                         this._reloadAllRequests(oModel);
                     }
                 };
@@ -175,7 +175,7 @@ sap.ui.define([
             // 5. Adaptive Low-Frequency Backup Sync (every 10s only if tab is focused)
             if (!this._pollInterval) {
                 this._pollInterval = setInterval(() => {
-                    if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
+                    if (!document.hidden && this._bIsDetailViewActive && this.getView() && this.getView().getModel("accessModel")) {
                         this._reloadAllRequests(oModel);
                     }
                 }, 10000);
@@ -206,6 +206,7 @@ sap.ui.define([
         },
 
         async _onRouteMatched(oEvent) {
+            this._bIsDetailViewActive = true;
             const oPage = this.byId("approverDetailPage");
             if (oPage) {
                 oPage.scrollTo(0, 0);
@@ -431,8 +432,32 @@ sap.ui.define([
                                         dbMap[dbItem.request_number] = dbItem;
                                     }
                                 });
+                                const firstMatchingDbRec = liveData.value.find(dbItem => dbItem.request_number && (dbItem.request_number === sReqId || getBaseReqId(dbItem.request_number) === sBaseReqId));
+                                if (firstMatchingDbRec && oRequest) {
+                                    if (firstMatchingDbRec.business_sector) {
+                                        oRequest.sector = firstMatchingDbRec.business_sector;
+                                        oRequest.businessSector = firstMatchingDbRec.business_sector;
+                                    }
+                                    if (firstMatchingDbRec.business_function && firstMatchingDbRec.business_function !== "Access Revocation") {
+                                        oRequest.function = firstMatchingDbRec.business_function;
+                                        oRequest.businessFunction = firstMatchingDbRec.business_function;
+                                    }
+                                    if (firstMatchingDbRec.access_duration) {
+                                        oRequest.duration = firstMatchingDbRec.access_duration;
+                                        oRequest.accessDuration = firstMatchingDbRec.access_duration;
+                                    }
+                                    if (firstMatchingDbRec.requester_username) {
+                                        oRequest.requesterId = firstMatchingDbRec.requester_username;
+                                        oRequest.requesterUsername = firstMatchingDbRec.requester_username;
+                                    }
+                                    if (firstMatchingDbRec.created_at) {
+                                        oRequest.created_at = firstMatchingDbRec.created_at;
+                                        oRequest.createdAtRaw = firstMatchingDbRec.created_at;
+                                        oRequest.submissionDate = firstMatchingDbRec.created_at.split("T")[0];
+                                    }
+                                }
                                 aEntList.forEach(item => {
-                                    const dbRec = dbMap[item.requestId];
+                                    const dbRec = dbMap[item.requestId] || firstMatchingDbRec;
                                     if (dbRec) {
                                         if (dbRec.approver_comment || dbRec.approverRemark) {
                                             const sRem = dbRec.approver_comment || dbRec.approverRemark;
@@ -578,6 +603,9 @@ sap.ui.define([
                         businessFunction: sFinalFunction,
                         duration: sFinalDuration,
                         accessDuration: sFinalDuration,
+                        submissionDate: oRequest.submissionDate || (oRequest.created_at ? oRequest.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        created_at: oRequest.created_at || oRequest.createdAtRaw || new Date().toISOString(),
+                        createdAtRaw: oRequest.createdAtRaw || oRequest.created_at || new Date().toISOString(),
                         justification: oRequest.justification || "Business Access Entitlement",
                         type: isRevocation ? "Revocation" : (oRequest.type || "Addition"),
                         status: oRequest.status,
@@ -1044,6 +1072,7 @@ sap.ui.define([
         },
 
         onCloseRequestSummaryView() {
+            this._bIsDetailViewActive = false;
             try {
                 const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
                 if (oRouter) {
@@ -1418,6 +1447,8 @@ sap.ui.define([
         },
 
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
+            window._kyraDecisionInFlight = true;
+            window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) {
                 return;
@@ -1502,10 +1533,13 @@ sap.ui.define([
                 const sFunc = oData.businessFunction || oData.function || "Corporate Governance";
                 const sDur = oData.duration || "Permanent (Default)";
 
-                // 2. Build newly processed history item
+                // 2. Build newly processed history item with authoritative timestamps so it never flickers or mis-sorts
+                const sNowIso = new Date().toISOString();
+                const sTodayStr = sNowIso.split("T")[0];
                 const oNewProcessedItem = {
-                    requestId: oData.requestId,
+                    requestId: sSubTargetBase || oData.requestId,
                     requesterId: oData.requesterId || oData.requesterUsername || "User",
+                    requesterUsername: oData.requesterId || oData.requesterUsername || "User",
                     selectedPersona: oData.selectedPersona || oData.persona || "User",
                     persona: oData.persona || oData.selectedPersona || "User",
                     sector: sSec,
@@ -1513,9 +1547,18 @@ sap.ui.define([
                     function: sFunc,
                     businessFunction: sFunc,
                     duration: sDur,
+                    accessDuration: sDur,
+                    region: oData.region || oData.operatingRegion || "Global Enterprise (ALL)",
+                    operatingRegion: oData.operatingRegion || oData.region || "Global Enterprise (ALL)",
+                    justification: oData.justification || "",
+                    type: isReqRevocation ? "Revocation" : (oData.type || "Addition"),
                     serviceTopic: oData.serviceTopic || "",
-                    decisionDate: new Date().toISOString().split("T")[0],
-                    submissionDate: oData.submissionDate || new Date().toISOString().split("T")[0],
+                    decisionDate: sTodayStr,
+                    submissionDate: oData.submissionDate || (oData.created_at ? String(oData.created_at).split("T")[0] : sTodayStr),
+                    createdAtRaw: oData.createdAtRaw || oData.created_at || sNowIso,
+                    created_at: oData.created_at || oData.createdAtRaw || sNowIso,
+                    updatedAtRaw: sNowIso,
+                    updated_at: sNowIso,
                     status: sOverallStatus,
                     statusState: sOverallState,
                     statusIcon: sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert"),
@@ -1527,6 +1570,8 @@ sap.ui.define([
                         roleName: e.roleName,
                         team: oData.team || oData.roleName || oData.serviceTopic || "",
                         serviceTopic: oData.serviceTopic || "",
+                        selectedPersona: cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || ""),
+                        persona: cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || ""),
                         status: (e.status || "").toLowerCase().includes("reject") ? "Rejected" : "Approved",
                         statusState: (e.status || "").toLowerCase().includes("reject") ? "Error" : "Success",
                         statusIcon: (e.status || "").toLowerCase().includes("reject") ? "sap-icon://error" : "sap-icon://sys-enter-2",
@@ -1550,18 +1595,28 @@ sap.ui.define([
                 const aRevokeProcessed = aCurrentProcessed.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
 
                 oModel.setProperty("/processedRequests", aCurrentProcessed);
+                oModel.setProperty("/processedAccessRequests", aAccessProcessed);
+                oModel.setProperty("/processedRevokeRequests", aRevokeProcessed);
+                oModel.setProperty("/processedAccessCount", aAccessProcessed.length);
+                oModel.setProperty("/processedRevokeCount", aRevokeProcessed.length);
+                oModel.setProperty("/processedCount", aCurrentProcessed.length);
                 oModel.setProperty("/historyAccessRequests", aAccessProcessed);
                 oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
                 oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
                 oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
 
-                // Target second screen (User Requests Pending) as requested by user
-                oModel.setProperty("/showApprovalHistory", false);
-                oModel.setProperty("/approverPendingTab", isReqRevocation ? "revokeRequests" : "accessRequests");
+                const sHistTab = oModel.getProperty("/approverHistoryTab") || (isReqRevocation ? "revokeRequests" : "accessRequests");
+                if (isReqRevocation) {
+                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
+                }
+                oModel.setProperty("/displayedHistoryRequests", bIsCompliance ? aAccessProcessed : (sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+                oModel.setProperty("/showApprovalHistory", true);
+
+                window._kyraLastDecisionSubmitTime = Date.now();
+                window._kyraLastDecidedReqId = sSubTargetBase;
 
                 try {
-                    sessionStorage.removeItem("kyra_show_approval_history");
-                    sessionStorage.setItem("kyra_show_approval_history", "false");
+                    sessionStorage.setItem("kyra_show_approval_history", "true");
                     sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
                     sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
                     if (isReqRevocation || sOverallStatus === "Approved" || sOverallStatus === "Rejected") {
@@ -1574,9 +1629,9 @@ sap.ui.define([
                     console.warn("Storage warning:", eStorage);
                 }
 
-                // 4. Post decision to backend asynchronously in background (non-blocking for instant UI return)
+                // 4. AWAIT backend persistence so DB is 100% updated BEFORE any dashboard reload runs
                 try {
-                    fetch("/odata/v4/auth/submitAccessDecision", {
+                    const oResp = await fetch("/odata/v4/auth/submitAccessDecision", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -1586,14 +1641,20 @@ sap.ui.define([
                             accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition"),
                             decisions: aDecisionsPayload
                         })
-                    }).then(r => r.json()).then(data => {
-                        console.log("Decision persisted into database successfully:", data);
-                        this._notifyDatabaseMutation();
-                    }).catch(netErr => {
-                        console.warn("Network / DB persistence note:", netErr.message);
                     });
+                    if (oResp.ok) {
+                        const data = await oResp.json().catch(() => ({}));
+                        console.log("Decision persisted into database successfully:", data);
+                    }
+                    window._kyraDecisionInFlight = false;
+                    window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
+                    window._kyraLastDecisionSubmitTime = Date.now();
+                    await this._reloadAllRequests(oModel);
+                    this._notifyDatabaseMutation();
                 } catch (netErr) {
-                    console.warn("Network dispatch note:", netErr.message);
+                    window._kyraDecisionInFlight = false;
+                    window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
+                    console.warn("Network / DB persistence note:", netErr.message);
                 }
 
                 // 5. Create user notification for requester
@@ -1601,7 +1662,7 @@ sap.ui.define([
                 const sOverallComment = (oData.entitlements || []).map(e => e.comment || e.comments).filter(Boolean).join("; ") || (sOverallStatus === "Approved" ? "Access approved for this requester." : (sOverallStatus === "Rejected" ? "Access rejected." : "Decision updated."));
                 let sNotifDesc = "Your access request (" + oData.requestId + ") for " + sSec + " has been " + sOverallStatus.toLowerCase() + " by the " + sActiveRole + ".";
                 if (sOverallComment) {
-                    sNotifDesc += ' Approver Remark: \"' + sOverallComment + '\"';
+                    sNotifDesc += ' Approver Remark: "' + sOverallComment + '"';
                 }
 
                 try {
@@ -1628,12 +1689,10 @@ sap.ui.define([
                     }
                 } catch(eNotif) {}
 
-                sessionStorage.removeItem("kyra_show_approval_history");
-                sessionStorage.setItem("kyra_show_approval_history", "false");
+                sessionStorage.setItem("kyra_show_approval_history", "true");
                 sessionStorage.setItem("kyra_select_tab", "myAccess");
                 sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
-                oModel.setProperty("/showApprovalHistory", false);
-                oModel.setProperty("/approverPendingTab", isReqRevocation ? "revokeRequests" : "accessRequests");
+                oModel.setProperty("/showApprovalHistory", true);
                 oModel.setProperty("/selectedTabKey", "myAccess");
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showAddAccessSector", false);
@@ -1685,9 +1744,14 @@ sap.ui.define([
             let aPending = [];
             let aProcessed = [];
 
+            const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
+            if (window._kyraDecisionInFlight) return;
             try {
                 const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
                 const data = await response.json();
+                if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
+                    return;
+                }
                 if (data && data.value && data.value.length > 0) {
                     const oApproverData = this._buildApproverHistoryAndPending(data.value);
                     aPending = oApproverData.pending;
@@ -1710,20 +1774,32 @@ sap.ui.define([
                         processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
                     }
                 });
+                const aRemainingSessionProc = [];
                 aSessionProc.forEach(sp => {
                     if (sp && sp.requestId) {
                         const sReq = String(sp.requestId).trim().toUpperCase();
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        if (!aProcessed.some(p => {
+                        const bExistsInDb = aProcessed.some(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
-                        })) {
+                        });
+                        if (!bExistsInDb) {
+                            if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
+                            if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
                             aProcessed.unshift(sp);
+                            aRemainingSessionProc.push(sp);
                         }
                     }
                 });
+                if (aRemainingSessionProc.length !== aSessionProc.length) {
+                    sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aRemainingSessionProc));
+                }
+                if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                    processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
+                    processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
+                }
                 aPending = aPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
@@ -1765,6 +1841,11 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/pendingRevokeCount", aRevokePending.length);
 
             this._setSmartProperty(oModel, "/processedRequests", aProcessed);
+            this._setSmartProperty(oModel, "/processedAccessRequests", aAccessProcessed);
+            this._setSmartProperty(oModel, "/processedRevokeRequests", aRevokeProcessed);
+            this._setSmartProperty(oModel, "/processedAccessCount", aAccessProcessed.length);
+            this._setSmartProperty(oModel, "/processedRevokeCount", aRevokeProcessed.length);
+            this._setSmartProperty(oModel, "/processedCount", aProcessed.length);
             this._setSmartProperty(oModel, "/historyAccessRequests", aAccessProcessed);
             this._setSmartProperty(oModel, "/historyRevokeRequests", aRevokeProcessed);
             this._setSmartProperty(oModel, "/historyAccessCount", aAccessProcessed.length);
@@ -1898,7 +1979,7 @@ sap.ui.define([
                 const sFunction = (isRevocation && matchingApproved && matchingApproved.business_function)
                     ? matchingApproved.business_function
                     : (r.business_function && r.business_function !== "Access Revocation" ? r.business_function : "Corporate Governance");
-                const sDuration = isRevocation ? formatArDuration(r, matchingApproved) : (r.access_duration || r.duration || "Permanent (Default)");
+                const sDuration = isRevocation ? formatArDuration(r, matchingApproved) : (r.access_duration || r.duration || "Permanent");
                 const sRegion = r.operating_region || r.region || "Global Enterprise (ALL)";
                 const sJustification = r.justification || "";
                 const sType = isRevocation ? "Revocation" : (r.access_type === "RESTRICTED" ? "Addition (Restricted)" : (r.access_type || "Addition"));
@@ -2025,9 +2106,9 @@ sap.ui.define([
             });
 
             aProcessed.sort((a, b) => {
-                const dA = new Date(a.decisionDate || a.submissionDate || "1970-01-01").getTime();
-                const dB = new Date(b.decisionDate || b.submissionDate || "1970-01-01").getTime();
-                if (dA !== dB) return dB - dA;
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
@@ -2324,6 +2405,7 @@ sap.ui.define([
         },
 
         onCancelRequestSummaryView() {
+            this._bIsDetailViewActive = false;
             sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
             this.getOwnerComponent().getRouter().navTo("AccessPage");
         }
