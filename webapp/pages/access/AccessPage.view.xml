@@ -785,7 +785,7 @@
                                         change=".onInPageSectorChange"
                                         placeholder="Select Business Sector..."
                                         width="100%"
-                                        class="kyraModernSelectField fioriSelectGlow">
+                                        class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
                                         <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" tooltip="Finance &amp; Enterprise Performance" />
                                         <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" tooltip="Global Supply Chain &amp; Logistics" />
                                         <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" tooltip="Human Capital Management (HCM)" />
@@ -808,7 +808,7 @@
                                         items="{accessModel>/availableFunctions}"
                                         placeholder="Select Business Function..."
                                         width="100%"
-                                        class="kyraModernSelectField fioriSelectGlow">
+                                        class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
                                         <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                     </ComboBox>
                                 </VBox>
@@ -1027,46 +1027,47 @@
                             </HBox>
                         </VBox>
 
-                        <!-- SUB-STEP 3.2: DURATION &amp; BUSINESS JUSTIFICATION -->
-                        <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
-                            <form:SimpleForm
-                                editable="true"
-                                layout="ColumnLayout"
-                                columnsM="2"
-                                columnsL="2"
-                                singleContainerFullWidth="false"
-                                class="sapUiSmallMarginBottom">
-                                <form:content>
-                                    <core:Title text="Access Duration &amp; Business Justification" />
-                                    
-                                    <!-- SUB-STEP 3.2 - FIELD 1: DURATION -->
-                                    <Label text="Access Duration" required="true" />
-                                    <ComboBox
-                                        id="inPageDurationSelect"
-                                        selectionChange=".onInPageDurationChange"
-                                        change=".onInPageDurationChange"
-                                        selectedKey="{accessModel>/addAccessDuration}"
-                                        placeholder="Select Access Duration..."
-                                        width="100%"
-                                        class="fioriFormSelect">
-                                        <core:Item key="Permanent (Default)" text="Permanent (Default)" tooltip="Permanent (Default)" />
-                                        <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" tooltip="30 Days (Temporary)" />
-                                        <core:Item key="90 Days (Project)" text="90 Days (Project)" tooltip="90 Days (Project)" />
-                                    </ComboBox>
+                        <!-- SUB-STEP 3.2: DURATION & BUSINESS JUSTIFICATION (SIDE-BY-SIDE DESIGN MATCHING IMAGE 3) -->
+                        <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }" class="fioriStepSlideAnim">
+                            <VBox class="fioriTableCard kyraSideBySideConfigCard sapUiSmallMarginBottom">
+                                <HBox width="100%" class="kyraSideBySideRow" alignItems="Start" justifyContent="SpaceBetween">
+                                    <!-- Left Column: Access Duration -->
+                                    <VBox width="48%" class="kyraSideBySideCol">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Access Duration:" required="true" class="kyraSideLabel" labelFor="inPageDurationSelect" />
+                                        </HBox>
+                                        <ComboBox
+                                            id="inPageDurationSelect"
+                                            selectionChange=".onInPageDurationChange"
+                                            change=".onInPageDurationChange"
+                                            selectedKey="{accessModel>/addAccessDuration}"
+                                            placeholder="Select Access Duration..."
+                                            width="100%"
+                                            class="fioriFormSelect kyraSideDurationSelect">
+                                            <core:Item key="Permanent (Default)" text="Permanent (Default)" tooltip="Permanent (Default)" />
+                                            <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" tooltip="30 Days (Temporary)" />
+                                            <core:Item key="90 Days (Project)" text="90 Days (Project)" tooltip="90 Days (Project)" />
+                                        </ComboBox>
+                                    </VBox>
 
-                                    <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
-                                    <Label text="Business Justification" required="true" labelFor="inPageJustificationArea" class="kyraJustificationLabel" />
-                                    <TextArea
-                                        id="inPageJustificationArea"
-                                        value="{accessModel>/addAccessJustification}"
-                                        valueLiveUpdate="true"
-                                        placeholder="Provide detailed business justification for requesting these system permissions..."
-                                        rows="3"
-                                        growing="false"
-                                        width="100%"
-                                        class="kyraJustificationTextArea" />
-                                 </form:content>
-                            </form:SimpleForm>
+                                    <!-- Right Column: Business Justification -->
+                                    <VBox width="50%" class="kyraSideBySideCol">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Business Justification:" required="true" labelFor="inPageJustificationArea" class="kyraSideLabel kyraSideJustLabel" />
+                                        </HBox>
+                                        <TextArea
+                                            id="inPageJustificationArea"
+                                            value="{accessModel>/addAccessJustification}"
+                                            valueLiveUpdate="true"
+                                            placeholder="Provide detailed business justification for requesting these system permissions..."
+                                            rows="3"
+                                            growing="true"
+                                            growingMaxLines="6"
+                                            width="100%"
+                                            class="kyraSideJustificationTextArea" />
+                                    </VBox>
+                                </HBox>
+                            </VBox>
 
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                                 <Button

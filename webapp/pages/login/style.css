@@ -10979,6 +10979,15 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     text-indent: -9999px !important;
 }
 
+.sapUiBlockLayer,
+.sapUiBlockLayerAnimation,
+.sapUiBLFix,
+html body .sapUiBlockLayer {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+}
+
 /* =========================================================================
    KYRA ENTERPRISE ACCESS 2026 - CYBERSECURITY AUTHENTICATION EXPERIENCE
    Cutting-Edge Zero-Trust Aesthetics with High-End Animations & Glassmorphism
@@ -15438,9 +15447,10 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
     bottom: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    background: rgba(15, 23, 42, 0.45) !important;
-    backdrop-filter: blur(6px) !important;
-    -webkit-backdrop-filter: blur(6px) !important;
+    background: rgba(15, 23, 42, 0.40) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
     display: none !important;
     align-items: center !important;
     justify-content: center !important;
@@ -18624,29 +18634,17 @@ html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnInner {
    CHECKBOX ENGINE: SMALL WHITE BOX WITH GREEN BORDER & GREEN TICK SYMBOL
    ========================================================================= */
 
-/* All Checkboxes (Selected & Unselected): Small White Box with Emerald Green Border */
-.sapMCb .sapMCbBg,
-.sapMCbBg,
-.kyraModernCheckBox .sapMCbBg,
+/* Unselected Checkboxes: Small White Box with KYRA Teal Border */
 .sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg,
-.sapMLIB:not(.sapMLIBSelected) .sapMCbBg,
-.sapMMultiComboBoxPopup .sapMCbBg,
-.sapMMultiComboBoxPopup .sapMLIB .sapMCbBg,
-.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
-.sapMCbMarkChecked .sapMCbBg,
-.sapMLIBSelected .sapMCbBg,
-.sapMCbChecked .sapMCbBg,
-html body .sapUiTheme-sap_horizon .sapMCbBg,
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMCbBg,
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
-html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg,
-html body .sapUiTheme-sap_horizon .sapMCbMarkChecked .sapMCbBg,
-html body .sapUiTheme-sap_horizon .sapMCbChecked .sapMCbBg {
+.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+.kyraDropdownBottomOnly li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: 1.5px solid #059669 !important;
+    border: 1.5px solid #008C9C !important;
     border-color: #008C9C !important;
-    border-radius: 6px !important;
+    border-radius: 5px !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
     display: inline-flex !important;
@@ -18670,7 +18668,25 @@ html body .sapUiTheme-sap_horizon .sapMCbChecked .sapMCbBg {
     visibility: hidden !important;
 }
 
-/* SELECTED ITEM: GREEN TICK SYMBOL INSIDE THAT SMALL WHITE BOX */
+/* SELECTED ITEM: DARK GREEN #087F5B BACKGROUND WITH BOLD WHITE CHECKMARK */
+.sapMCbBg.sapMCbMarkChecked,
+.sapMCbMarkChecked .sapMCbBg,
+.sapMLIBSelected .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
+.sapMCbChecked .sapMCbBg,
+.kyraModernCheckBox.sapMCbMarkChecked .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMCbMarkChecked .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMCbChecked .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg {
+    background: #087F5B !important;
+    background-color: #087F5B !important;
+    border: 1.5px solid #087F5B !important;
+    border-color: #087F5B !important;
+    border-radius: 5px !important;
+    box-shadow: 0 1px 3px rgba(8, 127, 91, 0.25) !important;
+}
+
 .sapMCbBg.sapMCbMarkChecked::before,
 .sapMCbMarkChecked .sapMCbMark::before,
 .sapMCbMarkChecked .sapMCbBg::before,
@@ -18695,10 +18711,10 @@ html body .sapUiTheme-sap_horizon .sapMCbChecked .sapMCbMark::before,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg::before {
     content: '\e05b' !important;
     font-family: 'SAP-icons' !important;
-    color: #059669 !important;
-    fill: #059669 !important;
-    stroke: #059669 !important;
-    -webkit-text-fill-color: #059669 !important;
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
     font-size: 13px !important;
     font-weight: 900 !important;
     line-height: 1 !important;
@@ -18720,20 +18736,21 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected .sapM
 .sapMMultiComboBoxPopup .sapMLIBSelected svg,
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg svg path,
 .sapMLIBSelected .sapMCb svg path {
-    fill: #059669 !important;
-    stroke: #059669 !important;
-    color: #059669 !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    color: #FFFFFF !important;
     display: inline-block !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
 
-/* MultiComboBox Dropdown Selected Row Background: Soft Green Shade */
+/* MultiComboBox Dropdown Selected Row Background: Very Light Mint #F0FDFA */
 .sapMMultiComboBoxPopup .sapMLIBSelected,
 .sapMMultiComboBoxPopup .sapMLIB.sapMLIBSelected,
+.kyraDropdownBottomOnly .sapMLIBSelected,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected {
-    background: #F0FDF4 !important;
-    background-color: #F8FAFC !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
     color: #0F172A !important;
 }
 
@@ -19063,10 +19080,15 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
 .sapMCbChecked .sapMCbBg,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected="true"] .sapMCbBg {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 1.5px solid #047857 !important;
-    border-color: #007684 !important;
+    background: #087F5B !important;
+    background-color: #087F5B !important;
+    border: 1.5px solid #087F5B !important;
+    border-color: #087F5B !important;
+    border-radius: 5px !important;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
 }
 
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg::before,
@@ -19120,6 +19142,12 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
 }
 
 /* Option Text Container: Guaranteed 42px left padding to keep text and checkbox separated */
+.sapMMultiComboBoxPicker .sapMLIBContent,
+.sapMMultiComboBoxPicker .sapMSLIContent,
+.sapMComboBoxBasePicker .sapMLIBContent,
+.sapMComboBoxPicker .sapMLIBContent,
+.kyraDropdownBottomOnly .sapMLIBContent,
+.sapMPopover .sapMLIBContent,
 .sapMMultiComboBoxPopup .sapMLIBContent,
 .sapMMultiComboBoxPopup .sapMSLIContent,
 .sapMMultiComboBoxItems .sapMLIBContent,
@@ -19136,6 +19164,18 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
 }
 
 /* Option Titles: Show Full Text Without Truncation */
+.sapMMultiComboBoxPicker .sapMSLITitle,
+.sapMMultiComboBoxPicker .sapMSLITitleOnly,
+.sapMComboBoxBasePicker .sapMSLITitle,
+.sapMComboBoxBasePicker .sapMSLITitleOnly,
+.sapMComboBoxPicker .sapMSLITitle,
+.sapMComboBoxPicker .sapMSLITitleOnly,
+.kyraDropdownBottomOnly .sapMSLITitle,
+.kyraDropdownBottomOnly .sapMSLITitleOnly,
+.sapMPopover .sapMSLITitle,
+.sapMPopover .sapMSLITitleOnly,
+.sapMSltPicker .sapMSLITitle,
+.sapMSelectDropdown .sapMSLITitle,
 .sapMMultiComboBoxPopup .sapMSLITitle,
 .sapMMultiComboBoxItems .sapMSLITitle,
 .sapMMultiComboBoxPopup .sapMSLITitleOnly {
@@ -19272,22 +19312,29 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBox.sapMInputBaseFocused .sapMI
 .sapMSltPicker,
 .sapMSelectDropdown,
 .sapMPickerPopup,
+.sapMSuggestionsPopover,
+.sapMSuggestionPopoverDefaultWidth,
+.sapMSuggestionPopoverInputWidth,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker,
 html body .sapUiTheme-sap_horizon .sapMComboBoxBasePicker,
-html body .sapUiTheme-sap_horizon .sapMSltPicker {
-    min-width: min(320px, 95vw) !important;
-    width: max-content !important;
-    max-width: min(600px, 95vw) !important;
-    max-height: 320px !important;
+html body .sapUiTheme-sap_horizon .sapMSltPicker,
+html body .sapUiTheme-sap_horizon .sapMSuggestionsPopover,
+html body .sapUiTheme-sap_horizon .sapMSuggestionPopoverDefaultWidth,
+html body .sapUiTheme-sap_horizon .sapMSuggestionPopoverInputWidth {
+    min-width: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 380px !important;
     border-radius: 12px !important;
     border: 1.5px solid #E2E8F0 !important;
     box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.14), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    margin-top: 4px !important;
-    padding: 4px 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
+    z-index: 200000 !important;
 }
 
 /* Remove triangle arrows so it cleanly connects downward */
@@ -19299,56 +19346,181 @@ html body .sapUiTheme-sap_horizon .sapMSltPicker {
     display: none !important;
 }
 
+/* Outer popover container & wrapper: NEVER scroll (no duplicate scrollbars) */
+.sapMPopoverCont,
+.sapMPopoverWrapper,
 .sapMMultiComboBoxPicker .sapMPopoverCont,
-.sapMMultiComboBoxPicker .sapMPopoverScroll,
-.sapMMultiComboBoxPicker .sapMMultiComboBoxList,
-.sapMMultiComboBoxPicker .sapMListUl,
-.sapMComboBoxBasePicker .sapMPopoverScroll,
-.sapMSltPicker .sapMPopoverScroll,
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll {
-    max-height: 400px !important;
-    overflow-y: auto !important;
+.sapMMultiComboBoxPicker .sapMPopoverWrapper,
+.sapMComboBoxBasePicker .sapMPopoverCont,
+.sapMComboBoxPicker .sapMPopoverCont,
+.sapMSltPicker .sapMPopoverCont,
+.kyraDropdownBottomOnly .sapMPopoverCont,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
+    overflow: hidden !important;
+    overflow-y: hidden !important;
     overflow-x: hidden !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #CBD5E1 transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    height: auto !important;
+    max-height: none !important;
 }
 
+.sapMPopoverCont::-webkit-scrollbar,
+.sapMPopoverWrapper::-webkit-scrollbar,
+.sapMMultiComboBoxPicker .sapMPopoverCont::-webkit-scrollbar,
+.sapMComboBoxBasePicker .sapMPopoverCont::-webkit-scrollbar,
+.sapMSltPicker .sapMPopoverCont::-webkit-scrollbar,
+.kyraDropdownBottomOnly .sapMPopoverCont::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Inner list containers: NEVER scroll (overflow visible) */
+.sapMMultiComboBoxPicker .sapMMultiComboBoxList,
+.sapMMultiComboBoxPicker .sapMListUl,
+.sapMMultiComboBoxPicker .sapMList,
+.sapMComboBoxBasePicker .sapMList,
+.sapMComboBoxBasePicker .sapMListUl,
+.sapMSltPicker .sapMList,
+.sapMSltPicker .sapMListUl,
+.kyraDropdownBottomOnly .sapMList,
+.kyraDropdownBottomOnly .sapMListUl {
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    scrollbar-width: none !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+.sapMMultiComboBoxPicker .sapMList::-webkit-scrollbar,
+.sapMMultiComboBoxPicker .sapMListUl::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* SINGLE DEFINITIVE SCROLLER: .sapMPopoverScroll & .sapMPopoverCont */
+.sapMPopoverScroll,
+.sapMPopoverCont,
+.sapMMultiComboBoxPicker .sapMPopoverScroll,
+.sapMMultiComboBoxPicker .sapMPopoverCont,
+.sapMComboBoxBasePicker .sapMPopoverScroll,
+.sapMComboBoxBasePicker .sapMPopoverCont,
+.sapMComboBoxPicker .sapMPopoverScroll,
+.sapMComboBoxPicker .sapMPopoverCont,
+.sapMSltPicker .sapMPopoverScroll,
+.sapMSltPicker .sapMPopoverCont,
+.kyraDropdownBottomOnly .sapMPopoverScroll,
+.kyraDropdownBottomOnly .sapMPopoverCont,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
+    max-height: 320px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 4px 2px 6px 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure inner list containers provide breathing room so the first and last options are never cut or hidden */
+.sapMMultiComboBoxPicker .sapMListUl,
+.sapMMultiComboBoxPopup .sapMListUl,
+.kyraDropdownBottomOnly .sapMListUl,
+.sapMComboBoxBasePicker .sapMListUl,
+.sapMSltPicker .sapMListUl,
+.sapMSelectList,
+.sapMSltPicker .sapMSelectList,
+.sapMSelectPicker .sapMSelectList {
+    padding: 4px 0 6px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+    list-style: none !important;
+    box-sizing: border-box !important;
+}
+
+/* Clean, clearly visible 6px draggable scrollbar on all dropdown scrollers */
+.sapMPopoverScroll::-webkit-scrollbar,
+.sapMPopoverCont::-webkit-scrollbar,
 .sapMMultiComboBoxPicker .sapMPopoverScroll::-webkit-scrollbar,
 .sapMMultiComboBoxPicker .sapMPopoverCont::-webkit-scrollbar,
-.sapMMultiComboBoxPicker .sapMListUl::-webkit-scrollbar,
 .sapMComboBoxBasePicker .sapMPopoverScroll::-webkit-scrollbar,
-.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar {
-    width: 4px !important;
+.sapMComboBoxBasePicker .sapMPopoverCont::-webkit-scrollbar,
+.sapMComboBoxPicker .sapMPopoverScroll::-webkit-scrollbar,
+.sapMComboBoxPicker .sapMPopoverCont::-webkit-scrollbar,
+.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar,
+.sapMSltPicker .sapMPopoverCont::-webkit-scrollbar,
+.kyraDropdownBottomOnly .sapMPopoverScroll::-webkit-scrollbar,
+.kyraDropdownBottomOnly .sapMPopoverCont::-webkit-scrollbar {
+    width: 6px !important;
+    height: 0 !important;
     display: block !important;
 }
 
+.sapMPopoverScroll::-webkit-scrollbar-track,
+.sapMPopoverCont::-webkit-scrollbar-track,
 .sapMMultiComboBoxPicker .sapMPopoverScroll::-webkit-scrollbar-track,
 .sapMMultiComboBoxPicker .sapMPopoverCont::-webkit-scrollbar-track,
-.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-track {
+.sapMComboBoxBasePicker .sapMPopoverScroll::-webkit-scrollbar-track,
+.sapMComboBoxBasePicker .sapMPopoverCont::-webkit-scrollbar-track,
+.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-track,
+.sapMSltPicker .sapMPopoverCont::-webkit-scrollbar-track,
+.kyraDropdownBottomOnly .sapMPopoverScroll::-webkit-scrollbar-track,
+.kyraDropdownBottomOnly .sapMPopoverCont::-webkit-scrollbar-track {
     background: transparent !important;
     border-radius: 9999px !important;
+    margin: 6px 2px 6px 0 !important;
 }
 
+.sapMPopoverScroll::-webkit-scrollbar-thumb,
+.sapMPopoverCont::-webkit-scrollbar-thumb,
 .sapMMultiComboBoxPicker .sapMPopoverScroll::-webkit-scrollbar-thumb,
 .sapMMultiComboBoxPicker .sapMPopoverCont::-webkit-scrollbar-thumb,
-.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-thumb {
-    background: #CBD5E1 !important;
-    background-color: #CBD5E1 !important;
+.sapMComboBoxBasePicker .sapMPopoverScroll::-webkit-scrollbar-thumb,
+.sapMComboBoxBasePicker .sapMPopoverCont::-webkit-scrollbar-thumb,
+.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-thumb,
+.sapMSltPicker .sapMPopoverCont::-webkit-scrollbar-thumb,
+.kyraDropdownBottomOnly .sapMPopoverScroll::-webkit-scrollbar-thumb,
+.kyraDropdownBottomOnly .sapMPopoverCont::-webkit-scrollbar-thumb {
+    background: #94A3B8 !important;
+    background-color: #94A3B8 !important;
     border-radius: 9999px !important;
 }
 
+.sapMPopoverScroll::-webkit-scrollbar-thumb:hover,
+.sapMPopoverCont::-webkit-scrollbar-thumb:hover,
 .sapMMultiComboBoxPicker .sapMPopoverScroll::-webkit-scrollbar-thumb:hover,
 .sapMMultiComboBoxPicker .sapMPopoverCont::-webkit-scrollbar-thumb:hover,
-.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-thumb:hover {
-    background: #94A3B8 !important;
-    background-color: #94A3B8 !important;
+.sapMComboBoxBasePicker .sapMPopoverScroll::-webkit-scrollbar-thumb:hover,
+.sapMComboBoxBasePicker .sapMPopoverCont::-webkit-scrollbar-thumb:hover,
+.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-thumb:hover,
+.sapMSltPicker .sapMPopoverCont::-webkit-scrollbar-thumb:hover,
+.kyraDropdownBottomOnly .sapMPopoverScroll::-webkit-scrollbar-thumb:hover,
+.kyraDropdownBottomOnly .sapMPopoverCont::-webkit-scrollbar-thumb:hover {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
 }
 
+.sapMPopoverScroll::-webkit-scrollbar-button,
+.sapMPopoverCont::-webkit-scrollbar-button,
+.sapMMultiComboBoxPicker .sapMPopoverScroll::-webkit-scrollbar-button,
+.sapMMultiComboBoxPicker .sapMPopoverCont::-webkit-scrollbar-button,
+.sapMComboBoxBasePicker .sapMPopoverScroll::-webkit-scrollbar-button,
+.sapMComboBoxBasePicker .sapMPopoverCont::-webkit-scrollbar-button,
+.sapMSltPicker .sapMPopoverScroll::-webkit-scrollbar-button,
+.sapMSltPicker .sapMPopoverCont::-webkit-scrollbar-button,
+.kyraDropdownBottomOnly .sapMPopoverScroll::-webkit-scrollbar-button,
+.kyraDropdownBottomOnly .sapMPopoverCont::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
 
-
-/* 3. Option Row (Comfortable 48px Height, Profile-Box Style Left Indicator) */
+/* 3. Option Row (Clean Rounded Floating Card) */
 li.sapMMultiComboBoxItem,
 .sapMMultiComboBoxPicker li.sapMLIB,
 .sapMMultiComboBoxPicker .sapMSLI,
@@ -19362,21 +19534,52 @@ li.sapMMultiComboBoxItem,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker li.sapMLIB,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem {
     position: relative !important;
-    min-height: 48px !important;
-    height: 48px !important;
-    padding: 0 18px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 0 16px !important;
     display: flex !important;
     align-items: center !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
+    background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
-    border-bottom: 1px solid #F1F5F9 !important;
-    border-left: 3.5px solid transparent !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    margin: 2px 8px !important;
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    border-radius: 8px !important;
     box-sizing: border-box !important;
     cursor: pointer !important;
     transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ABSOLUTELY ELIMINATE ANY HORIZONTAL SCROLLBAR FROM ALL DROPDOWNS & SELECTS */
+.sapMPopover,
+.sapMPopoverCont,
+.sapMPopoverScroll,
+.sapMPopoverWrapper,
+.sapMSltPicker,
+.sapMSltPicker .sapMPopoverCont,
+.sapMSltPicker .sapMPopoverScroll,
+.sapMSltPicker .sapMSelectList,
+.sapMSelectList,
+.sapMComboBoxBasePicker,
+.sapMMultiComboBoxPicker,
+.kyraDropdownBottomOnly {
+    overflow-x: hidden !important;
+}
+
+.sapMPopover::-webkit-scrollbar:horizontal,
+.sapMPopoverCont::-webkit-scrollbar:horizontal,
+.sapMPopoverScroll::-webkit-scrollbar:horizontal,
+.sapMSltPicker::-webkit-scrollbar:horizontal,
+.sapMSltPicker *::-webkit-scrollbar:horizontal,
+.sapMSelectList::-webkit-scrollbar:horizontal,
+.kyraDropdownBottomOnly::-webkit-scrollbar:horizontal,
+.kyraDropdownBottomOnly *::-webkit-scrollbar:horizontal {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 li.sapMMultiComboBoxItem:last-child,
@@ -19385,7 +19588,27 @@ li.sapMMultiComboBoxItem:last-child,
     border-bottom: none !important;
 }
 
-/* Hover State on Unselected Option: Matches User Profile Box (Soft Mint Background + Teal Left Indicator Bar) */
+/* Sleek vertical pill indicator on hover/select without curved border artifacts */
+li.sapMMultiComboBoxItem::before,
+.sapMMultiComboBoxPicker li.sapMLIB::before,
+.sapMSltPicker li.sapMLIB::before,
+.sapMSelectListItem::before,
+.sapMComboBoxPopup li.sapMLIB::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 4px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 3.5px !important;
+    height: 24px !important;
+    border-radius: 9999px !important;
+    background: transparent !important;
+    transition: background-color 0.16s ease !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+}
+
+/* Hover State on Unselected Option */
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
 .sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
 .sapMMultiComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
@@ -19397,8 +19620,18 @@ li.sapMMultiComboBoxItem:not(.sapMLIBSelected):not([aria-selected="true"]):hover
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover {
     background: #F0FDFA !important;
     background-color: #F0FDFA !important;
-    border-left: 3.5px solid #008C9C !important;
+    border: none !important;
+    border-left: none !important;
     transform: none !important;
+}
+
+li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover::before,
+.sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):hover::before,
+.sapMSltPicker li.sapMLIB:hover::before,
+.sapMSelectListItem:not(.sapMSelectListItemBaseSelected):hover::before,
+.sapMComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):hover::before {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
 }
 
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitle,
@@ -19406,12 +19639,13 @@ li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitleOnly,
 .sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
 .sapMSltPicker li.sapMLIB:hover .sapMSLITitle,
 .sapMSelectListItem:hover,
+.sapMSelectListItem:hover .sapMSLITitle,
 .sapMComboBoxPopup li.sapMLIB:hover .sapMSLITitle {
-    color: #007684 !important;
+    color: #008C9C !important;
     font-weight: 700 !important;
 }
 
-/* Hover on Unselected Checkbox: Add Preview Tick Mark! */
+/* Hover on Unselected Checkbox: Add Preview Tick Mark */
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMCbBg,
 .sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg,
 .sapMMultiComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg {
@@ -19424,7 +19658,7 @@ li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMCbBg,
     background-size: 12px 12px !important;
 }
 
-/* Selected Row (Selection Time): Profile Side Box Indicator + Soft Mint */
+/* Selected Row: Soft Mint #F0FDFA + Vertical Teal Pill + Bold Teal Text */
 li.sapMMultiComboBoxItem.sapMLIBSelected,
 li.sapMMultiComboBoxItem[aria-selected="true"],
 .sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected,
@@ -19435,41 +19669,73 @@ li.sapMMultiComboBoxItem[aria-selected="true"],
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem.sapMLIBSelected {
     background: #F0FDFA !important;
     background-color: #F0FDFA !important;
-    border-left: 3.5px solid #008C9C !important;
+    border: none !important;
+    border-left: none !important;
+}
+
+li.sapMMultiComboBoxItem.sapMLIBSelected::before,
+li.sapMMultiComboBoxItem[aria-selected="true"]::before,
+.sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected::before,
+.sapMMultiComboBoxPicker li.sapMLIB[aria-selected="true"]::before,
+.sapMSltPicker li.sapMLIBSelected::before,
+.sapMSelectListItem.sapMSelectListItemBaseSelected::before,
+.sapMComboBoxPopup li.sapMLIBSelected::before {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
 }
 
 li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
 li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitleOnly,
 .sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected .sapMSLITitle,
 .sapMSelectListItem.sapMSelectListItemBaseSelected,
+.sapMSelectListItem.sapMSelectListItemBaseSelected .sapMSLITitle,
 .sapMComboBoxPopup li.sapMLIBSelected .sapMSLITitle {
     color: #0F172A !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
 }
 
-/* Hover Over Selected Row: Richer Mint + Electric Cyan Accent */
+/* Hover Over Selected Row */
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover,
 li.sapMMultiComboBoxItem[aria-selected="true"]:hover,
 .sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected:hover,
 .sapMMultiComboBoxPicker li.sapMLIB[aria-selected="true"]:hover,
+.sapMSltPicker li.sapMLIBSelected:hover,
+.sapMSelectListItem.sapMSelectListItemBaseSelected:hover,
+.sapMComboBoxPopup li.sapMLIBSelected:hover,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem.sapMLIBSelected:hover {
     background: #E6FFFA !important;
     background-color: #E6FFFA !important;
-    border-left: 3.5px solid #01C3D0 !important;
+    border: none !important;
+    border-left: none !important;
     transform: none !important;
 }
 
+li.sapMMultiComboBoxItem.sapMLIBSelected:hover::before,
+li.sapMMultiComboBoxItem[aria-selected="true"]:hover::before,
+.sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected:hover::before,
+.sapMMultiComboBoxPicker li.sapMLIB[aria-selected="true"]:hover::before,
+.sapMSltPicker li.sapMLIBSelected:hover::before,
+.sapMSelectListItem.sapMSelectListItemBaseSelected:hover::before,
+.sapMComboBoxPopup li.sapMLIBSelected:hover::before {
+    background: #007684 !important;
+    background-color: #007684 !important;
+}
+
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMSLITitle,
-li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMSLITitleOnly {
-    color: #005F6B !important;
-    font-weight: 800 !important;
+li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMSLITitleOnly,
+.sapMSltPicker li.sapMLIBSelected:hover .sapMSLITitle,
+.sapMSelectListItem.sapMSelectListItemBaseSelected:hover,
+.sapMSelectListItem.sapMSelectListItemBaseSelected:hover .sapMSLITitle,
+.sapMComboBoxPopup li.sapMLIBSelected:hover .sapMSLITitle {
+    color: #007684 !important;
+    font-weight: 700 !important;
 }
 
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMCbBg,
 .sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected:hover .sapMCbBg {
-    background-color: #01C3D0 !important;
-    border-color: #008C9C !important;
-    box-shadow: 0 0 0 4px rgba(1, 195, 208, 0.35) !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.25) !important;
 }
 
 /* 4. Checkbox Container: Pinned at left: 20px */
@@ -19501,19 +19767,25 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMCb {
     box-sizing: border-box !important;
 }
 
-/* 5. Unselected Checkbox (Normal Time): Better Visible, Crisp Kyra Brand Teal Border */
-li.sapMMultiComboBoxItem:not(.sapMLIBSelected) .sapMCbBg,
+/* 5. Unselected Checkbox (Normal Time): Clean White Box, Crisp Kyra Brand Teal Border */
+li.sapMMultiComboBoxItem:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
 li.sapMMultiComboBoxItem .sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg,
+.kyraDropdownBottomOnly li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+.kyraDropdownBottomOnly .sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+.sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
 .sapMMultiComboBoxPicker .sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg,
+.sapMMultiComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg,
+.sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem:not(.sapMLIBSelected) .sapMCbBg,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    max-width: 20px !important;
-    max-height: 20px !important;
-    border-radius: 6px !important;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    max-width: 22px !important;
+    max-height: 22px !important;
+    border-radius: 5px !important;
     border: 1.5px solid #008C9C !important;
     border-color: #008C9C !important;
     background: #FFFFFF !important;
@@ -19524,31 +19796,90 @@ html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMCb:not(.sapMCbMa
     transition: all 0.15s ease !important;
 }
 
-/* 6. Selected Checkbox (Selection Time): Solid Kyra Teal with Crisp White Checkmark */
+li.sapMMultiComboBoxItem:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg::after,
+.kyraDropdownBottomOnly li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg::after,
+.sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg::after,
+.sapMMultiComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg::after,
+.sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]) .sapMCbBg::after,
+.sapMCb:not(.sapMCbMarkChecked):not(.sapMCbChecked) .sapMCbBg::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* 6. Selected Checkbox (Selection Time): Dark Green #087F5B, 22x22px, Radius 5px, Crisp White Checkmark */
 li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg,
+li.sapMMultiComboBoxItem[aria-selected="true"] .sapMCbBg,
 li.sapMMultiComboBoxItem .sapMCb.sapMCbMarkChecked .sapMCbBg,
 li.sapMMultiComboBoxItem .sapMCb.sapMCbChecked .sapMCbBg,
+.kyraDropdownBottomOnly li.sapMLIB.sapMLIBSelected .sapMCbBg,
+.kyraDropdownBottomOnly li.sapMLIB[aria-selected="true"] .sapMCbBg,
+.kyraDropdownBottomOnly .sapMLIBSelected .sapMCbBg,
+.kyraDropdownBottomOnly [aria-selected="true"] .sapMCbBg,
+.kyraDropdownBottomOnly .sapMCb.sapMCbMarkChecked .sapMCbBg,
 .sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected .sapMCbBg,
+.sapMMultiComboBoxPicker li.sapMLIB[aria-selected="true"] .sapMCbBg,
 .sapMMultiComboBoxPicker .sapMCb.sapMCbMarkChecked .sapMCbBg,
+.sapMMultiComboBoxPopup li.sapMLIB.sapMLIBSelected .sapMCbBg,
+.sapMMultiComboBoxPopup li.sapMLIB[aria-selected="true"] .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
+.sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbBg,
+.sapMLIB.sapMLIBSelected .sapMCbBg,
+.sapMLIB[aria-selected="true"] .sapMCbBg,
+.sapMCbMarkChecked .sapMCbBg,
+.sapMCbChecked .sapMCbBg,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg,
-html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMCb.sapMCbMarkChecked .sapMCbBg {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    max-width: 20px !important;
-    max-height: 20px !important;
-    border-radius: 6px !important;
-    border: 1.5px solid #007684 !important;
-    border-color: #007684 !important;
-    background: #008C9C !important;
-    background-color: #008C9C !important;
+html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMCb.sapMCbMarkChecked .sapMCbBg,
+html body .sapUiTheme-sap_horizon .kyraDropdownBottomOnly .sapMLIBSelected .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
+html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg {
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    max-width: 22px !important;
+    max-height: 22px !important;
+    border-radius: 5px !important;
+    border: 1.5px solid #087F5B !important;
+    border-color: #087F5B !important;
+    background: #087F5B !important;
+    background-color: #087F5B !important;
     box-sizing: border-box !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.35) !important;
+    box-shadow: 0 1px 3px rgba(8, 127, 91, 0.25) !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
-    background-size: 13px 13px !important;
+    background-size: 14px 14px !important;
+}
+
+li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg::after,
+li.sapMMultiComboBoxItem[aria-selected="true"] .sapMCbBg::after,
+.kyraDropdownBottomOnly li.sapMLIB.sapMLIBSelected .sapMCbBg::after,
+.kyraDropdownBottomOnly .sapMLIBSelected .sapMCbBg::after,
+.kyraDropdownBottomOnly [aria-selected="true"] .sapMCbBg::after,
+.sapMMultiComboBoxPicker li.sapMLIB.sapMLIBSelected .sapMCbBg::after,
+.sapMMultiComboBoxPopup li.sapMLIB.sapMLIBSelected .sapMCbBg::after,
+.sapMLIB.sapMLIBSelected .sapMCbBg::after,
+.sapMLIB[aria-selected="true"] .sapMCbBg::after,
+.sapMCbMarkChecked .sapMCbBg::after,
+.sapMCbChecked .sapMCbBg::after,
+html body .sapUiTheme-sap_horizon .kyraDropdownBottomOnly .sapMLIBSelected .sapMCbBg::after,
+html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 14px !important;
+    height: 14px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-size: 14px 14px !important;
+    z-index: 10 !important;
+    pointer-events: none !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* 7. Text Container & Alignment: Exactly 56px Left Padding on Parent Only */
@@ -19573,9 +19904,12 @@ li.sapMMultiComboBoxItem .sapMSLITitle,
 .sapMMultiComboBoxPicker .sapMSLIDiv,
 .sapMMultiComboBoxPicker .sapMSLITitleOnly,
 .sapMMultiComboBoxPicker .sapMSLITitle,
+.sapMComboBoxBasePicker .sapMSLITitle,
+.kyraDropdownBottomOnly .sapMSLITitle,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMSLIDiv,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMSLITitleOnly,
-html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMSLITitle {
+html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMSLITitle,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMSLITitle {
     position: relative !important;
     padding: 0 !important;
     padding-left: 0 !important;
@@ -19588,16 +19922,36 @@ html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem .sapMSLITitle {
     font-weight: 500 !important;
     line-height: 1.4 !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+    width: auto !important;
+    flex-shrink: 0 !important;
 }
 
-/* Selected Text: Crisp 600 Weight */
+/* Selected Text: Crisp 600 Weight & Full Word */
 li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitleOnly,
-li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
+li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
+html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
     color: #0F172A !important;
     font-weight: 600 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+    width: auto !important;
+}
+
+/* Hover State on MultiComboBox Items: Full Word Without Truncation */
+li.sapMMultiComboBoxItem:hover .sapMSLITitle,
+li.sapMMultiComboBoxItem:hover .sapMSLITitleOnly,
+.sapMMultiComboBoxPicker li.sapMLIB:hover .sapMSLITitle,
+html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem:hover .sapMSLITitle {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+    width: auto !important;
 }
 
 /* =========================================================================
@@ -24718,90 +25072,58 @@ html body .sapUiTheme-sap_horizon .kyraHistApplyBtn * {
 /* =========================================================================
    UNIVERSAL DROPDOWN SCROLLBARS: SIDE-ONLY SMALL SLEEK SCROLLBARS
    ========================================================================= */
-.sapMPopover, 
-.sapMPopoverCont, 
 .sapMPopoverScroll, 
-.sapMComboBoxBasePicker, 
-.sapMMultiComboBoxPicker, 
-.sapMMultiComboBoxPicker-CTX, 
-.sapMMultiComboBoxPopup, 
-.sapMComboBoxPopup, 
-.sapMSltPicker, 
-.sapMSelectDropdown, 
-.sapMPickerPopup, 
-.sapMMultiComboBoxList, 
-.sapMList:not(.kyraNotifList), 
-.sapMListUl:not(.kyraNotifListUl), 
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker, 
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll, 
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
+.sapMComboBoxBasePicker .sapMPopoverScroll, 
+.sapMMultiComboBoxPicker .sapMPopoverScroll, 
+.sapMMultiComboBoxPicker-CTX .sapMPopoverScroll, 
+.sapMMultiComboBoxPopup .sapMPopoverScroll, 
+.sapMComboBoxPopup .sapMPopoverScroll, 
+.sapMSltPicker .sapMPopoverScroll, 
+.sapMSelectDropdown .sapMPopoverScroll, 
+.kyraDropdownBottomOnly .sapMPopoverScroll, 
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll {
+    overflow-y: auto !important;
     overflow-x: hidden !important;
     scrollbar-width: thin !important;
-    scrollbar-color: #CBD5E1 transparent !important;
+    scrollbar-color: #94A3B8 #F1F5F9 !important;
 }
 
-.sapMPopover ::-webkit-scrollbar,
-.sapMPopoverCont::-webkit-scrollbar,
-.sapMPopoverScroll::-webkit-scrollbar,
-.sapMMultiComboBoxPicker ::-webkit-scrollbar,
-.sapMMultiComboBoxPicker-CTX ::-webkit-scrollbar,
-.sapMComboBoxBasePicker ::-webkit-scrollbar,
-.sapMMultiComboBoxPopup ::-webkit-scrollbar,
-.sapMComboBoxPopup ::-webkit-scrollbar,
-.sapMSltPicker ::-webkit-scrollbar,
-.sapMSelectDropdown ::-webkit-scrollbar,
-.sapMListUl::-webkit-scrollbar,
-.sapMList::-webkit-scrollbar,
-.sapMLIB::-webkit-scrollbar {
-    width: 5px !important;
+.sapMPopoverCont,
+.sapMPopover,
+.sapMPopoverWrapper,
+.sapMMultiComboBoxList,
+.sapMList:not(.kyraNotifList),
+.sapMListUl:not(.kyraNotifListUl) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.sapMPopoverScroll::-webkit-scrollbar {
+    width: 7px !important;
     height: 0px !important;
     display: block !important;
 }
 
-.sapMPopover ::-webkit-scrollbar-button,
-.sapMPopoverCont::-webkit-scrollbar-button,
-.sapMPopoverScroll::-webkit-scrollbar-button,
-.sapMMultiComboBoxPicker ::-webkit-scrollbar-button,
-.sapMMultiComboBoxPicker-CTX ::-webkit-scrollbar-button,
-.sapMComboBoxBasePicker ::-webkit-scrollbar-button,
-.sapMMultiComboBoxPopup ::-webkit-scrollbar-button,
-.sapMComboBoxPopup ::-webkit-scrollbar-button,
-.sapMSltPicker ::-webkit-scrollbar-button,
-.sapMSelectDropdown ::-webkit-scrollbar-button,
-.sapMListUl::-webkit-scrollbar-button,
-.sapMList::-webkit-scrollbar-button {
-    display: none !important;
-    width: 0px !important;
-    height: 0px !important;
-}
-
-.sapMPopover ::-webkit-scrollbar:horizontal,
-.sapMPopoverCont::-webkit-scrollbar:horizontal,
-.sapMPopoverScroll::-webkit-scrollbar:horizontal,
-.sapMMultiComboBoxPicker ::-webkit-scrollbar:horizontal,
-.sapMMultiComboBoxPicker-CTX ::-webkit-scrollbar:horizontal,
-.sapMComboBoxBasePicker ::-webkit-scrollbar:horizontal,
-.sapMMultiComboBoxPopup ::-webkit-scrollbar:horizontal,
-.sapMComboBoxPopup ::-webkit-scrollbar:horizontal,
-.sapMSltPicker ::-webkit-scrollbar:horizontal,
-.sapMSelectDropdown ::-webkit-scrollbar:horizontal,
-.sapMListUl::-webkit-scrollbar:horizontal,
-.sapMList::-webkit-scrollbar:horizontal,
-.sapMLIB::-webkit-scrollbar:horizontal {
-    display: none !important;
-    width: 0px !important;
-    height: 0px !important;
-    background: transparent !important;
-}
-
-.sapMPopover ::-webkit-scrollbar-thumb,
-.sapMPopoverCont::-webkit-scrollbar-thumb,
-.sapMPopoverScroll::-webkit-scrollbar-thumb,
-.sapMMultiComboBoxPicker ::-webkit-scrollbar-thumb,
-.sapMComboBoxBasePicker ::-webkit-scrollbar-thumb,
-.sapMSelectDropdown ::-webkit-scrollbar-thumb {
-    background: #10B981 !important;
+.sapMPopoverScroll::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
     border-radius: 9999px !important;
+}
+
+.sapMPopoverScroll::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0px !important;
+    height: 0px !important;
+}
+
+.sapMPopoverScroll::-webkit-scrollbar-thumb {
+    background: #94A3B8 !important;
+    background-color: #94A3B8 !important;
+    border-radius: 9999px !important;
+}
+
+.sapMPopoverScroll::-webkit-scrollbar-thumb:hover {
+    background: #64748B !important;
+    background-color: #64748B !important;
 }
 
 /* =========================================================================
@@ -24828,35 +25150,54 @@ html body .sapUiTheme-sap_horizon .sapMCbBg {
 
 .sapMCb:hover .sapMCbBg,
 .sapMLIB:hover .sapMCbBg {
-    border-color: #10B981 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+    border-color: #008C9C !important;
+    background-color: #E6FFFA !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.2) !important;
 }
 
-/* Checked state: Crisp white/mint background, bright emerald border */
+/* Checked state: Dark Green #087F5B with Crisp White Checkmark (22x22px, Radius 5px) */
 .sapMCbMarkChecked .sapMCbBg,
 .sapMCbChecked .sapMCbBg,
 .sapMLIBSelected .sapMCbBg,
 .sapMLIB.sapMLIBSelected .sapMCbBg,
+.sapMLIB[aria-selected="true"] .sapMCbBg,
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
 .sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbBg,
+.kyraDropdownBottomOnly .sapMLIBSelected .sapMCbBg,
+.kyraDropdownBottomOnly [aria-selected="true"] .sapMCbBg,
 .kyraModernCheckBox.sapMCbMarkChecked .sapMCbBg,
 html body .sapUiTheme-sap_horizon .sapMCbMarkChecked .sapMCbBg,
 html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg,
 html body .sapUiTheme-sap_horizon .sapMLIB.sapMLIBSelected .sapMCbBg {
-    background: #F0FDF4 !important;
-    background-color: #F0FDF4 !important;
-    border: 2px solid #10B981 !important;
-    border-color: #10B981 !important;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15) !important;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    min-height: 22px !important;
+    max-width: 22px !important;
+    max-height: 22px !important;
+    border-radius: 5px !important;
+    border: 1.5px solid #087F5B !important;
+    border-color: #087F5B !important;
+    background: #087F5B !important;
+    background-color: #087F5B !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 3px rgba(8, 127, 91, 0.25) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-size: 14px 14px !important;
 }
 
-/* Crisp green tick symbol inside checkbox */
+/* Crisp white tick symbol inside checkbox */
 .sapMCbMarkChecked .sapMCbBg::after,
 .sapMCbChecked .sapMCbBg::after,
 .sapMLIBSelected .sapMCbBg::after,
 .sapMLIB.sapMLIBSelected .sapMCbBg::after,
+.sapMLIB[aria-selected="true"] .sapMCbBg::after,
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg::after,
 .sapMMultiComboBoxPopup .sapMCbMarkChecked .sapMCbBg::after,
+.kyraDropdownBottomOnly .sapMLIBSelected .sapMCbBg::after,
+.kyraDropdownBottomOnly [aria-selected="true"] .sapMCbBg::after,
 .kyraModernCheckBox.sapMCbMarkChecked .sapMCbBg::after,
 html body .sapUiTheme-sap_horizon .sapMCbMarkChecked .sapMCbBg::after,
 html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg::after,
@@ -24866,14 +25207,17 @@ html body .sapUiTheme-sap_horizon .sapMLIB.sapMLIBSelected .sapMCbBg::after {
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    width: 13px !important;
-    height: 13px !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310B981' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    width: 14px !important;
+    height: 14px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
-    background-size: 13px 13px !important;
+    background-size: 14px 14px !important;
     z-index: 10 !important;
     pointer-events: none !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* Suppress default font tick so it doesn't double render */
@@ -24890,10 +25234,10 @@ html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg::before {
 .sapMCbMark,
 .sapMCbMarkChecked .sapMCbMark,
 .sapMLIBSelected .sapMCbMark {
-    color: #10B981 !important;
-    fill: #10B981 !important;
-    stroke: #10B981 !important;
-    -webkit-text-fill-color: #10B981 !important;
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
 }
 
 /* =========================================================================
@@ -24920,7 +25264,7 @@ html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg::before {
     transition: color 0.15s ease !important;
 }
 
-/* Dropdown List Items (Rows) - Hover States Across ALL Dropdown Pickers */
+/* Dropdown List Items (Rows) - Hover & Selected States Across ALL Dropdown Pickers */
 .sapMMultiComboBoxPicker .sapMLIB,
 .sapMMultiComboBoxPopup .sapMLIB,
 .sapMComboBoxList .sapMLIB,
@@ -24931,12 +25275,13 @@ html body .sapUiTheme-sap_horizon .sapMLIBSelected .sapMCbBg::before {
 li.sapMMultiComboBoxItem,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) {
     cursor: pointer !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
-    border-left: 4px solid transparent !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+    border: none !important;
+    border-left: none !important;
     transform: none !important;
 }
 
-/* Hover on UNSELECTED row: clear soft mint background + vibrant emerald left indicator */
+/* Hover on UNSELECTED row: soft mint background */
 .sapMMultiComboBoxPicker .sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
 .sapMMultiComboBoxPopup .sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
 .sapMComboBoxList .sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
@@ -24946,9 +25291,10 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) {
 .sapMPopover .sapMLIB:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):not([aria-selected="true"]):hover,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):not([aria-selected="true"]):hover {
-    background-color: #F0FDF4 !important;
-    background: #F0FDF4 !important;
-    border-left: 4px solid #10B981 !important;
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border: none !important;
+    border-left: none !important;
     cursor: pointer !important;
     transform: none !important;
 }
@@ -24960,15 +25306,15 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):not([aria
 .sapMSelectListItem:not(.sapMSelectListItemBaseSelected):hover,
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover .sapMSLITitle {
-    color: #0F172A !important;
-    font-weight: 600 !important;
+    color: #008C9C !important;
+    font-weight: 700 !important;
 }
 
 .sapMMultiComboBoxPicker .sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg,
 .sapMMultiComboBoxPopup .sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg,
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMCbBg {
-    border-color: #10B981 !important;
-    background-color: #ECFDF5 !important;
+    border-color: #008C9C !important;
+    background-color: #E6FFFA !important;
 }
 
 /* SELECTED row in list */
@@ -24981,9 +25327,10 @@ li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMCbBg {
 .sapMSelectListItem.sapMSelectListItemBaseSelected,
 li.sapMMultiComboBoxItem.sapMLIBSelected,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected {
-    background-color: #ECFDF5 !important;
-    background: #ECFDF5 !important;
-    border-left: 4px solid #059669 !important;
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border: none !important;
+    border-left: none !important;
     transform: none !important;
 }
 
@@ -24993,7 +25340,7 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected {
 .sapMSltPicker .sapMLIBSelected .sapMSLITitle,
 li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected .sapMSLITitle {
-    color: #065F46 !important;
+    color: #008C9C !important;
     font-weight: 700 !important;
 }
 
@@ -25007,9 +25354,10 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected .sapMSLITitle {
 .sapMSelectListItem.sapMSelectListItemBaseSelected:hover,
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover {
-    background-color: #DCFCE7 !important;
-    background: #DCFCE7 !important;
-    border-left: 4px solid #047857 !important;
+    background-color: #E6FFFA !important;
+    background: #E6FFFA !important;
+    border: none !important;
+    border-left: none !important;
     cursor: pointer !important;
     transform: none !important;
 }
@@ -25019,7 +25367,7 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover {
 .sapMSltPicker .sapMLIBSelected:hover .sapMSLITitle,
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLITitle {
-    color: #047857 !important;
+    color: #007684 !important;
     font-weight: 700 !important;
 }
 
@@ -25768,7 +26116,7 @@ html body .kyraHelpTopicDialog .sapMDialogFooter .sapMBtn .sapMBtnContent bdi,
 .kyraValTable,
 .sapMListTbl.kyraValTable {
     width: 100% !important;
-    table-layout: auto !important;
+    table-layout: fixed !important;
     border-collapse: separate !important;
     border-spacing: 0 !important;
 }
@@ -25780,7 +26128,7 @@ html body .kyraHelpTopicDialog .sapMDialogFooter .sapMBtn .sapMBtnContent bdi,
     text-overflow: clip !important;
     white-space: normal !important;
     vertical-align: middle !important;
-    padding: 12px 14px !important;
+    padding: 12px 10px !important;
     background: #F8FAFC !important;
     border-bottom: 1.5px solid #E2E8F0 !important;
 }
@@ -25801,10 +26149,16 @@ html body .kyraHelpTopicDialog .sapMDialogFooter .sapMBtn .sapMBtnContent bdi,
 
 .kyraValTable .sapMListTblCell,
 .kyraValTable td {
-    padding: 12px 14px !important;
+    padding: 12px 10px !important;
     vertical-align: middle !important;
     box-sizing: border-box !important;
     border-bottom: 1px solid #F1F5F9 !important;
+}
+
+.kyraValTable th:last-child,
+.kyraValTable td:last-child {
+    text-align: center !important;
+    padding-right: 14px !important;
 }
 
 .kyraValCellWrap {
@@ -25830,19 +26184,74 @@ html body .kyraHelpTopicDialog .sapMDialogFooter .sapMBtn .sapMBtnContent bdi,
 }
 
 .kyraValMonospaceBadge {
-    font-size: 11.5px !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
     color: #0F172A !important;
     background: #F1F5F9 !important;
     border: 1px solid #CBD5E1 !important;
     border-radius: 6px !important;
-    padding: 4px 8px !important;
+    padding: 3px 6px !important;
     display: inline-block !important;
     white-space: normal !important;
-    word-break: break-word !important;
-    line-height: 1.35 !important;
+    word-break: break-all !important;
+    line-height: 1.3 !important;
     max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Duplicate Roles Status Badges (Matching media_1790232670543.png) */
+.kyraBadgeAlreadyRequested,
+.kyraBadgeAlreadyRequested .sapMObjStatusText,
+html body .sapMObjStatus.kyraBadgeAlreadyRequested .sapMObjStatusText {
+    background: #FEF3C7 !important;
+    background-color: #FEF3C7 !important;
+    color: #D97706 !important;
+    border: 1px solid #FCD34D !important;
+    border-radius: 9999px !important;
+    padding: 4px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    text-transform: lowercase !important;
+    line-height: 1.4 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraBadgeAlreadyActive,
+.kyraBadgeAlreadyActive .sapMObjStatusText,
+html body .sapMObjStatus.kyraBadgeAlreadyActive .sapMObjStatusText {
+    background: #E6FFFA !important;
+    background-color: #E6FFFA !important;
+    color: #008C9C !important;
+    border: 1px solid #99F6E4 !important;
+    border-radius: 9999px !important;
+    padding: 4px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    text-transform: lowercase !important;
+    line-height: 1.4 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraBadgeRevokePending,
+.kyraBadgeRevokePending .sapMObjStatusText,
+html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText {
+    background: #FEF2F2 !important;
+    background-color: #FEF2F2 !important;
+    color: #DC2626 !important;
+    border: 1px solid #FECACA !important;
+    border-radius: 9999px !important;
+    padding: 3px 10px !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    text-transform: lowercase !important;
+    line-height: 1.4 !important;
     box-sizing: border-box !important;
 }
 
@@ -28534,8 +28943,7 @@ th .sapMText,
 }
 
 /* 10. Three-Dot Action Button (...): Centered, clean hover */
-.kyraActiveEntitlementsTable .fioriThreeDotBtn,
-.kyraActiveEntitlementsTable .kyraTableActionBtn {
+.kyraActiveEntitlementsTable .fioriThreeDotBtn {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -28554,13 +28962,11 @@ th .sapMText,
     transition: background-color 0.15s ease !important;
 }
 
-.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover,
-.kyraActiveEntitlementsTable .kyraTableActionBtn:hover {
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover {
     background-color: rgba(0, 140, 156, 0.08) !important;
 }
 
-.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner,
-.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnInner {
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner {
     border: none !important;
     background: transparent !important;
     padding: 0 !important;
@@ -28572,10 +28978,8 @@ th .sapMText,
 }
 
 .kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnIcon,
-.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn .sapUiIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnIcon {
-    color: #008C9C !important;
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon {
+    color: #64748B !important;
     font-size: 16px !important;
     line-height: 32px !important;
     display: inline-flex !important;
@@ -28586,10 +28990,8 @@ th .sapMText,
 }
 
 .kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapUiIcon,
-.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapUiIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnIcon {
-    color: #00778B !important;
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnIcon {
+    color: #008C9C !important;
 }
 
 /* 11. No Data Row */
@@ -29170,9 +29572,10 @@ textarea::selection {
 .sapMSltPicker .sapMLIBSelected,
 html body .sapUiTheme-sap_horizon .sapMComboBoxPopup .sapMLIBSelected,
 html body .sapUiTheme-sap_horizon .sapMSltPicker .sapMLIBSelected {
-    background: rgba(0, 140, 156, 0.09) !important;
-    background-color: rgba(0, 140, 156, 0.09) !important;
-    border-left: 3px solid #008C9C !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: none !important;
+    border-left: none !important;
     color: #008C9C !important;
 }
 
@@ -29188,10 +29591,12 @@ html body .sapUiTheme-sap_horizon .sapMComboBoxPopup .sapMLIBSelected .sapMSLITi
 .sapMSelectListItem.sapMSelectListItemBaseSelected,
 .sapMSelectListItem[aria-selected="true"],
 html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSelected {
-    background: rgba(0, 140, 156, 0.09) !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
     color: #008C9C !important;
-    font-weight: 600 !important;
-    border-left: 3px solid #008C9C !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-left: none !important;
 }
 
 /* =========================================================================
@@ -29213,11 +29618,20 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
        those override SAPUI5's JS top/left calculation and cause the glitch */
 }
 
-/* 8. Popover scroll container: clean overflow, no layout thrash */
+/* 8. Popover scroll container: clean overflow, no duplicate scrollbars */
 .sapMPopoverCont {
+    overflow: hidden !important;
     overflow-x: hidden !important;
-    overflow-y: auto !important;
+    overflow-y: hidden !important;
     overscroll-behavior: contain !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.sapMPopoverCont::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* 9. Hide popover arrow/caret — prevents the 1px position jump on open */
@@ -29315,16 +29729,23 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
 .kyraSummaryDeleteBtn,
 .kyraSummaryDeleteBtn.sapMBtn,
 .kyraNotifRowDeleteBtn,
-.kyraNotifRowDeleteBtn.sapMBtn {
-    width: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    max-height: 34px !important;
+.kyraNotifRowDeleteBtn.sapMBtn,
+.kyraActiveEntitlementsTable .kyraTableActionBtn,
+.kyraActiveEntitlementsTable .kyraDestructiveBtn,
+.kyraTableActionBtn.kyraDestructiveBtn,
+.sapMListTblCell .kyraDestructiveBtn,
+.sapMListTblCell .kyraTableActionBtn[id*="delete"],
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="e03d"]),
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="delete"]) {
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
     padding: 0 !important;
     margin: 0 auto !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -29338,16 +29759,24 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
 .kyraDestructiveBtn .sapMBtnInner,
 .kyraSummaryDeleteBtn .sapMBtnInner,
 .kyraNotifRowDeleteBtn .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraDestructiveBtn .sapMBtnInner,
+.kyraTableActionBtn.kyraDestructiveBtn .sapMBtnInner,
+.sapMListTblCell .kyraDestructiveBtn .sapMBtnInner,
+.sapMListTblCell .kyraTableActionBtn[id*="delete"] .sapMBtnInner,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="e03d"]) .sapMBtnInner,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="delete"]) .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner {
-    width: 34px !important;
-    min-width: 34px !important;
-    max-width: 34px !important;
-    height: 34px !important;
-    min-height: 34px !important;
-    max-height: 34px !important;
-    border-radius: 10px !important;
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnInner {
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    border-radius: 8px !important;
     background: #FFF1F2 !important;
     background-color: #FFF1F2 !important;
     border: 1px solid #FFE4E6 !important;
@@ -29368,9 +29797,21 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner {
 .kyraSummaryDeleteBtn .sapUiIcon,
 .kyraNotifRowDeleteBtn .sapMBtnIcon,
 .kyraNotifRowDeleteBtn .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraDestructiveBtn .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraDestructiveBtn .sapUiIcon,
+.kyraTableActionBtn.kyraDestructiveBtn .sapMBtnIcon,
+.kyraTableActionBtn.kyraDestructiveBtn .sapUiIcon,
+.sapMListTblCell .kyraDestructiveBtn .sapMBtnIcon,
+.sapMListTblCell .kyraDestructiveBtn .sapUiIcon,
+.sapMListTblCell .kyraTableActionBtn[id*="delete"] .sapMBtnIcon,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="e03d"]) .sapMBtnIcon,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="delete"]) .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon {
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnIcon {
     color: #E11D48 !important;
     font-size: 15px !important;
     line-height: 1 !important;
@@ -29386,9 +29827,17 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon {
 .kyraDestructiveBtn:hover .sapMBtnInner,
 .kyraSummaryDeleteBtn:hover .sapMBtnInner,
 .kyraNotifRowDeleteBtn:hover .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraDestructiveBtn:hover .sapMBtnInner,
+.kyraTableActionBtn.kyraDestructiveBtn:hover .sapMBtnInner,
+.sapMListTblCell .kyraDestructiveBtn:hover .sapMBtnInner,
+.sapMListTblCell .kyraTableActionBtn[id*="delete"]:hover .sapMBtnInner,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="e03d"]):hover .sapMBtnInner,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="delete"]):hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnInner {
     background: #FEE2E2 !important;
     background-color: #FEE2E2 !important;
     border-color: #FECDD3 !important;
@@ -29399,9 +29848,18 @@ html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner {
 .kyraDestructiveBtn:hover .sapMBtnIcon,
 .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
 .kyraNotifRowDeleteBtn:hover .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraDestructiveBtn:hover .sapMBtnIcon,
+.kyraTableActionBtn.kyraDestructiveBtn:hover .sapMBtnIcon,
+.sapMListTblCell .kyraDestructiveBtn:hover .sapMBtnIcon,
+.sapMListTblCell .kyraTableActionBtn[id*="delete"]:hover .sapMBtnIcon,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="e03d"]):hover .sapMBtnIcon,
+.sapMListTblCell .kyraTableActionBtn:has([data-sap-ui-icon-content*="delete"]):hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnIcon {
+html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnIcon {
     color: #BE123C !important;
 }
 
@@ -29599,15 +30057,15 @@ html body .sapUiTheme-sap_horizon .sapMListNoDataText,
    DROPDOWN HOVER FULL WORD EXPANSION & ARROW CLICK SYSTEM
    ========================================================================= */
 
-/* Ensure dropdown popovers have flexible width to display full persona & role names without clipping */
+/* Ensure dropdown popovers are cleanly styled and strictly anchored */
 .kyraDropdownBottomOnly,
 .sapMComboBoxBasePicker,
 .sapMComboBoxPicker,
-.sapMMultiComboBoxPicker {
-    min-width: 100% !important;
-    width: max-content !important;
-    max-width: min(92vw, 680px) !important;
+.sapMMultiComboBoxPicker,
+.sapMSltPicker {
     box-sizing: border-box !important;
+    z-index: 200000 !important;
+    overflow-x: hidden !important;
 }
 
 /* Ensure all dropdown arrow icons and icon containers are instantly clickable across all dropdowns */
@@ -29645,16 +30103,17 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) {
 .sapMMultiComboBoxPopup .sapMLIB .sapMSLITitle,
 .sapMComboBoxList .sapMLIB .sapMSLITitle,
 .sapMComboBoxBasePicker .sapMLIB .sapMSLITitle,
+.sapMComboBoxPicker .sapMLIB .sapMSLITitle,
 .kyraDropdownBottomOnly .sapMLIB .sapMSLITitle,
 .sapMSltPicker .sapMLIB .sapMSLITitle,
 li.sapMMultiComboBoxItem .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) .sapMSLITitle {
     white-space: nowrap !important;
-    text-overflow: ellipsis !important;
-    overflow: hidden !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
 }
 
-/* Normal hover state: soft mint background, clean highlighted text, zero layout shift / zero flicker (Exact match to Image 2) */
+/* Normal hover state: soft mint background, clean highlighted text, zero layout shift / zero flicker */
 .sapMMultiComboBoxPicker .sapMLIB:not(.sapMLIBSelected):hover,
 .sapMMultiComboBoxPopup .sapMLIB:not(.sapMLIBSelected):hover,
 .sapMComboBoxList .sapMLIB:not(.sapMLIBSelected):hover,
@@ -29663,9 +30122,10 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) .sapMSLITitle {
 .sapMSltPicker .sapMLIB:not(.sapMLIBSelected):hover,
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover {
-    background-color: #F0FDF4 !important;
-    background: #F0FDF4 !important;
-    border-left: 4px solid #10B981 !important;
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border: none !important;
+    border-left: none !important;
     cursor: pointer !important;
 }
 
@@ -29678,7 +30138,39 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover {
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover .sapMSLITitle {
     color: #008C9C !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+}
+
+/* Selected item state: soft mint background with brand teal font */
+.sapMMultiComboBoxPicker .sapMLIB.sapMLIBSelected,
+.sapMMultiComboBoxPopup .sapMLIB.sapMLIBSelected,
+.sapMComboBoxList .sapMLIB.sapMLIBSelected,
+.sapMComboBoxBasePicker .sapMLIB.sapMLIBSelected,
+.kyraDropdownBottomOnly .sapMLIB.sapMLIBSelected,
+.sapMSltPicker .sapMLIB.sapMLIBSelected,
+li.sapMMultiComboBoxItem.sapMLIBSelected,
+li.sapMLIB.sapMLIBSelected:not(.kyraNotifListItem):not(.sapMCLI),
+li.sapMSelectListItem.sapMSelectListItemBaseSelected,
+li.sapMSelectListItem[aria-selected="true"] {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border: none !important;
+    border-left: none !important;
+    color: #008C9C !important;
+}
+
+.sapMMultiComboBoxPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMMultiComboBoxPopup .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMComboBoxList .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMComboBoxBasePicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.kyraDropdownBottomOnly .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMSltPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
+li.sapMLIB.sapMLIBSelected:not(.kyraNotifListItem):not(.sapMCLI) .sapMSLITitle,
+li.sapMSelectListItem.sapMSelectListItemBaseSelected .sapMSLITitle,
+li.sapMSelectListItem[aria-selected="true"] .sapMSLITitle {
+    color: #008C9C !important;
+    font-weight: 700 !important;
 }
 
 /* =========================================================================
@@ -29724,81 +30216,67 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
    EMPTY TABLE STATE DESIGN (EXACT MATCH FOR USER IMAGE 1 & NOTIFICATION NO-DATA)
    ========================================================================= */
 .kyraTableEmptyBox {
-    padding: 36px 20px 40px 20px !important;
-    text-align: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 36px 20px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 100% !important;
-    margin: 0 auto !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
     box-sizing: border-box !important;
+    text-align: center !important;
 }
 
 .kyraTableEmptyIconCircle {
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    background: #E6F7F9 !important;
-    border: 1.5px solid #CCEFF3 !important;
-    margin: 0 auto 14px auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: none !important;
+    border-radius: 0 !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.08) !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
 }
 
 .kyraTableEmptyIcon {
-    font-size: 26px !important;
+    font-size: 34px !important;
     color: #008C9C !important;
+    display: inline-block !important;
+    line-height: 1 !important;
 }
 
 .kyraTableEmptyTitle {
-    font-size: 16px !important;
+    font-size: 15.5px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    margin: 0 0 6px 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     text-align: center !important;
-}
-
-.kyraTableEmptySubtitle {
-    font-size: 13.5px !important;
-    color: #64748B !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    margin: 0 0 18px 0 !important;
-    text-align: center !important;
-}
-
-.kyraTableEmptyRefreshBtn,
-.kyraTableEmptyRefreshBtn.sapMBtn {
-    background-color: #008C9C !important;
-    border-color: #008C9C !important;
-    border-radius: 8px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    padding: 0 20px !important;
-}
-
-.kyraTableEmptyRefreshBtn .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border-color: #008C9C !important;
-    color: #FFFFFF !important;
-    font-weight: 600 !important;
-    border-radius: 8px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    width: auto !important;
+    box-sizing: border-box !important;
     letter-spacing: -0.01em !important;
 }
 
-.kyraTableEmptyRefreshBtn:hover .sapMBtnInner {
-    background: #007A87 !important;
-    background-color: #007A87 !important;
-    border-color: #007A87 !important;
-    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.25) !important;
-}
-
-.kyraTableEmptyRefreshBtn .sapMBtnIcon {
-    color: #FFFFFF !important;
+.kyraTableEmptySubtitle,
+.kyraTableEmptyRefreshBtn {
+    display: none !important;
 }
 
 html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td.sapMListNoDataCell,
@@ -29808,10 +30286,785 @@ html body .sapUiTheme-sap_horizon .kyraApproverTable td.sapMListNoDataCell,
 html body .sapUiTheme-sap_horizon td.sapMListNoDataCell,
 html body .sapUiTheme-sap_horizon .sapMListNoDataCell {
     height: auto !important;
-    min-height: 220px !important;
+    min-height: 180px !important;
     padding: 0 !important;
-    background-color: #FFFFFF !important;
+    background: transparent !important;
+    background-color: transparent !important;
     border: none !important;
     text-align: center !important;
     vertical-align: middle !important;
 }
+
+/* =========================================================================
+   KYRA ENTERPRISE - CALENDAR & DATEPICKER BRAND THEME (TEAL / MINT)
+   ========================================================================= */
+
+/* 1. DatePicker Popup Container & Card */
+.sapMDatePicker-CTX.sapMPopover,
+.sapMDatePickerDialog,
+.sapMDatePickerPopup,
+html body .sapUiTheme-sap_horizon .sapMDatePicker-CTX.sapMPopover,
+html body .sapUiTheme-sap_horizon .sapMDatePickerDialog {
+    border-radius: 16px !important;
+    border: 1.5px solid #E2E8F0 !important;
+    box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 6px 16px -2px rgba(0, 140, 156, 0.08) !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+}
+
+.sapMDatePicker-CTX .sapMPopoverCont,
+.sapMDatePickerDialog .sapMDialogSection {
+    background: #FFFFFF !important;
+    padding: 12px 14px !important;
+    border-radius: 16px !important;
+}
+
+/* 2. Calendar Component Root */
+.sapUiCal,
+html body .sapUiTheme-sap_horizon .sapUiCal {
+    background: transparent !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+/* 3. Calendar Header (Month/Year Title & Chevrons) */
+.sapUiCalHead,
+html body .sapUiTheme-sap_horizon .sapUiCalHead {
+    background: transparent !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+/* Navigation Chevrons (< and >) */
+.sapUiCalHeadPrev,
+.sapUiCalHeadNext,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadPrev,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadNext,
+.sapUiCalHead .sapMBtn,
+.sapUiCalHead .sapUiIcon {
+    color: #008C9C !important;
+    border-radius: 8px !important;
+    transition: all 0.15s ease !important;
+}
+
+.sapUiCalHeadPrev:hover,
+.sapUiCalHeadNext:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadPrev:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadNext:hover {
+    background: #F0FDFA !important;
+    color: #007583 !important;
+}
+
+.sapUiCalHeadPrev .sapUiIcon,
+.sapUiCalHeadNext .sapUiIcon {
+    font-size: 14px !important;
+    color: #008C9C !important;
+}
+
+/* Month and Year Header Buttons ("September", "2026") */
+.sapUiCalHeadB1,
+.sapUiCalHeadB2,
+.sapUiCalHeadB,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB1,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB2,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    letter-spacing: -0.01em !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    border: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.sapUiCalHeadB1:hover,
+.sapUiCalHeadB2:hover,
+.sapUiCalHeadB:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB1:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB2:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB:hover {
+    background: #F0FDFA !important;
+    color: #007583 !important;
+}
+
+/* 4. Days of the Week Row (Sun, Mon, Tue, Wed, Thu, Fri, Sat) */
+.sapUiCalWH,
+.sapUiCalDayName,
+.sapUiCalDayWeek,
+html body .sapUiTheme-sap_horizon .sapUiCalWH,
+html body .sapUiTheme-sap_horizon .sapUiCalDayName {
+    color: #64748B !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    padding-bottom: 8px !important;
+}
+
+/* Week Numbers (Left Column: 36, 37, 38...) */
+.sapUiCalWeekNum,
+.sapUiCalRowWeekNum,
+html body .sapUiTheme-sap_horizon .sapUiCalWeekNum,
+html body .sapUiTheme-sap_horizon .sapUiCalRowWeekNum {
+    color: #94A3B8 !important;
+    font-size: 11.5px !important;
+    font-weight: 500 !important;
+    background: transparent !important;
+}
+
+/* 5. Calendar Day Items */
+.sapUiCalItem,
+html body .sapUiTheme-sap_horizon .sapUiCalItem {
+    border-radius: 8px !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #1E293B !important;
+    margin: 2px !important;
+    border: 1.5px solid transparent !important;
+    transition: all 0.15s ease !important;
+    box-sizing: border-box !important;
+}
+
+/* Other Month Days (Subdued) */
+.sapUiCalItemOtherMonth,
+html body .sapUiTheme-sap_horizon .sapUiCalItemOtherMonth {
+    color: #94A3B8 !important;
+    opacity: 0.6 !important;
+}
+
+/* Hover Action on Calendar Days (Brand Soft Mint + Teal Text) */
+.sapUiCalItem:hover,
+.sapUiCalItem:focus,
+html body .sapUiTheme-sap_horizon .sapUiCalItem:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalItem:focus {
+    background: #F0FDFA !important;
+    color: #008C9C !important;
+    border: 1.5px solid #CCEFF3 !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+}
+
+/* TODAY DATE (Completely replace ugly Horizon purple border with Kyra Teal) */
+.sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon .sapUiCalItemNow,
+html body .sapUiCalItemNow {
+    border: 2px solid #008C9C !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    background: rgba(0, 140, 156, 0.06) !important;
+}
+
+/* Today Date on Hover */
+.sapUiCalItemNow:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalItemNow:hover {
+    background: #F0FDFA !important;
+    border: 2px solid #008C9C !important;
+    color: #008C9C !important;
+}
+
+/* SELECTED DATE (Kyra Solid Teal Background with White Text) */
+.sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel,
+.sapUiCalItem.sapUiCalItemSel {
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    border: 2px solid #008C9C !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
+}
+
+.sapUiCalItemSel:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel:hover {
+    background: #007583 !important;
+    color: #FFFFFF !important;
+    border-color: #007583 !important;
+}
+
+/* Today Date When Also Selected */
+.sapUiCalItemNow.sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalItemNow.sapUiCalItemSel {
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    border: 2px solid #008C9C !important;
+}
+
+/* 6. Month & Year Picker Overlays */
+.sapUiCalMonthPicker,
+.sapUiCalYearPicker,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPicker,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker {
+    background: #FFFFFF !important;
+}
+
+.sapUiCalMonth,
+.sapUiCalYear,
+html body .sapUiTheme-sap_horizon .sapUiCalMonth,
+html body .sapUiTheme-sap_horizon .sapUiCalYear {
+    border-radius: 8px !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #1E293B !important;
+    border: 1.5px solid transparent !important;
+    transition: all 0.15s ease !important;
+}
+
+.sapUiCalMonth:hover,
+.sapUiCalYear:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalMonth:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalYear:hover {
+    background: #F0FDFA !important;
+    color: #008C9C !important;
+    border: 1.5px solid #CCEFF3 !important;
+    font-weight: 600 !important;
+}
+
+.sapUiCalMonthNow,
+.sapUiCalYearNow,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthNow,
+html body .sapUiTheme-sap_horizon .sapUiCalYearNow {
+    border: 2px solid #008C9C !important;
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    background: rgba(0, 140, 156, 0.06) !important;
+    outline: none !important;
+}
+
+.sapUiCalMonthSel,
+.sapUiCalYearSel,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthSel,
+html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    border: 2px solid #008C9C !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
+}
+
+/* 7. Input Value Help Icon on DatePicker (Ensure always teal) */
+.sapMDatePicker .sapMInputValHelp .sapUiIcon,
+.sapMDatePicker .sapMBtnIcon,
+.kyraHistDatePicker .sapMInputValHelp .sapUiIcon {
+    color: #008C9C !important;
+}
+
+.sapMDatePicker.sapMFocus .sapMInputValHelp .sapUiIcon,
+.kyraHistDatePicker.sapMFocus .sapMInputValHelp .sapUiIcon {
+    color: #007583 !important;
+}
+
+/* ==========================================================================
+   NEW BUSINESS JUSTIFICATION & DURATION ENHANCEMENT
+   ========================================================================== */
+
+/* Smooth Reveal Animation for Business Justification Card */
+@keyframes kyraJustificationSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kyraFadeSlideAnim {
+    animation: kyraJustificationSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.kyraNewJustificationCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    padding: 22px 24px !important;
+    transition: all 0.25s ease !important;
+    margin-top: 16px !important;
+}
+
+.kyraNewJustificationCard:hover {
+    border-color: #CBD5E1 !important;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraJustAvatar {
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    border-radius: 10px !important;
+}
+
+.kyraNewJustificationLabel {
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.01em !important;
+}
+
+.kyraJustificationHelperSubtext {
+    font-size: 12.5px !important;
+    color: #64748B !important;
+    margin-top: 2px !important;
+    line-height: 1.4 !important;
+}
+
+.kyraJustificationBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 4px 10px !important;
+    border-radius: 20px !important;
+    background: #F0FDF4 !important;
+    border: 1px solid #BBF7D0 !important;
+    color: #166534 !important;
+}
+
+.kyraBadgeIcon {
+    font-size: 13px !important;
+    color: #16a34a !important;
+}
+
+.kyraBadgeText {
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #166534 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* Prompt message when duration is not yet chosen */
+.kyraHelperNoticeText {
+    font-size: 12.5px !important;
+    color: #D97706 !important;
+    font-weight: 500 !important;
+    background: #FFFBEB !important;
+    border: 1px dashed #FDE68A !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    display: inline-block !important;
+    margin-top: 8px !important;
+}
+
+/* New Justification Text Area */
+.kyraNewJustificationTextArea,
+.kyraNewJustificationTextArea.sapMTextArea {
+    border-radius: 10px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #F8FAFC !important;
+    transition: all 0.2s ease !important;
+    font-family: inherit !important;
+    overflow: hidden !important;
+}
+
+.kyraNewJustificationTextArea:hover,
+.kyraNewJustificationTextArea.sapMTextArea:hover {
+    border-color: #94A3B8 !important;
+    background: #FFFFFF !important;
+}
+
+.kyraNewJustificationTextArea:focus-within,
+.kyraNewJustificationTextArea.sapMFocus,
+.kyraNewJustificationTextArea.sapMTextArea.sapMFocus {
+    border-color: #008C9C !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraNewJustificationTextArea .sapMInputBaseContentWrapper {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.kyraNewJustificationTextArea textarea,
+.kyraNewJustificationTextArea .sapMTextAreaInner {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 12px 14px !important;
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    color: #0F172A !important;
+    font-weight: 400 !important;
+    cursor: text !important;
+    resize: vertical !important;
+    box-sizing: border-box !important;
+}
+
+.kyraNewJustificationTextArea textarea::placeholder,
+.kyraNewJustificationTextArea .sapMTextAreaInner::placeholder {
+    color: #94A3B8 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+.kyraHelperSubNotice {
+    font-size: 12px !important;
+    color: #64748B !important;
+}
+
+.kyraCharCountText {
+    font-size: 12px !important;
+    color: #008C9C !important;
+    font-weight: 600 !important;
+}
+
+/* =========================================================================
+   YESTERDAY DESIGN: ACCESS DURATION & BUSINESS JUSTIFICATION SINGLE CARD
+   ========================================================================= */
+.kyraYesterdayConfigCard,
+.kyraYesterdayConfigCard.fioriTableCard,
+.kyraCombinedConfigCard,
+.kyraCombinedConfigCard.fioriTableCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+    padding: 24px 28px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 16px !important;
+    transition: none !important;
+}
+
+.kyraYesterdayConfigCard:hover,
+.kyraYesterdayConfigCard.fioriTableCard:hover {
+    border-color: #E2E8F0 !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraYesterdaySectionBlock {
+    width: 100% !important;
+}
+
+.kyraJustificationSpacingBlock {
+    margin-top: 24px !important;
+}
+
+.kyraYesterdayHeaderRow {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+}
+
+/* Access Duration Avatar (Light cyan circle with teal icon) */
+.kyraDurationAvatar,
+.kyraDurationAvatar.sapFAvatar {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 50% !important;
+    background: #E0F7FA !important;
+    background-color: #E0F7FA !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraDurationAvatar .sapUiIcon,
+.kyraDurationAvatar .sapFAvatarCustomImage {
+    color: #008C9C !important;
+    fill: #008C9C !important;
+    font-size: 17px !important;
+    line-height: 36px !important;
+}
+
+/* Business Justification Avatar (Solid teal circle with white icon) */
+.kyraJustificationAvatar,
+.kyraJustificationAvatar.sapFAvatar {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 50% !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraJustificationAvatar .sapUiIcon,
+.kyraJustificationAvatar .sapFAvatarCustomImage {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    font-size: 17px !important;
+    line-height: 36px !important;
+}
+
+/* Headers Typography */
+.kyraYesterdayTitle {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+}
+
+.kyraYesterdaySubText {
+    font-size: 13px !important;
+    color: #64748B !important;
+    line-height: 1.35 !important;
+    margin-top: 3px !important;
+}
+
+/* Badges on Right: Exact Yesterday Design */
+.kyraYesterdayBadgeWarning {
+    background: #FFFBEB !important;
+    background-color: #FFFBEB !important;
+    border: 1px solid #FDE68A !important;
+    border-radius: 4px !important;
+    padding: 3px 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.kyraYesterdayBadgeWarningText {
+    color: #D97706 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+.kyraYesterdayBadgeSuccess {
+    background: #F0FDF4 !important;
+    background-color: #F0FDF4 !important;
+    border: 1px solid #BBF7D0 !important;
+    border-radius: 4px !important;
+    padding: 3px 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.kyraYesterdayBadgeSuccessText {
+    color: #16A34A !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+.kyraYesterdayBadgeInfo {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1px solid #99F6E4 !important;
+    border-radius: 4px !important;
+    padding: 3px 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.kyraYesterdayBadgeInfoText {
+    color: #0D9488 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+/* Form Icons (Green) */
+.kyraYesterdayFieldIcon {
+    color: #059669 !important;
+    font-size: 14px !important;
+    margin-right: 6px !important;
+}
+
+.kyraYesterdayFieldBox {
+    margin-top: 6px !important;
+    width: 100% !important;
+}
+
+/* Clean TextArea: Normal resting appearance without excessive hover glow */
+.kyraYesterdayTextArea,
+.kyraYesterdayTextArea.sapMTextArea {
+    border-radius: 8px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-shadow: none !important;
+    transition: border-color 0.15s ease !important;
+    font-family: inherit !important;
+    overflow: hidden !important;
+}
+
+.kyraYesterdayTextArea:hover,
+.kyraYesterdayTextArea.sapMTextArea:hover {
+    border-color: #94A3B8 !important;
+    box-shadow: none !important;
+    background: #FFFFFF !important;
+}
+
+.kyraYesterdayTextArea:focus-within,
+.kyraYesterdayTextArea.sapMFocus,
+.kyraYesterdayTextArea.sapMTextArea.sapMFocus {
+    border-color: #008C9C !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraYesterdayTextArea .sapMInputBaseContentWrapper {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.kyraYesterdayTextArea textarea,
+.kyraYesterdayTextArea .sapMTextAreaInner {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 12px 14px !important;
+    font-size: 13.5px !important;
+    line-height: 1.6 !important;
+    color: #0F172A !important;
+    font-weight: 400 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraYesterdayTextArea textarea::placeholder,
+.kyraYesterdayTextArea .sapMTextAreaInner::placeholder {
+    color: #94A3B8 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+/* =========================================================================
+   SIDE-BY-SIDE DURATION & BUSINESS JUSTIFICATION LAYOUT (IMAGE 3 DESIGN)
+   ========================================================================= */
+.kyraSideBySideConfigCard,
+.kyraSideBySideConfigCard.fioriTableCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04) !important;
+    padding: 24px 28px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 16px !important;
+}
+
+.kyraSideBySideRow {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 32px !important;
+    align-items: flex-start !important;
+}
+
+.kyraSideBySideCol {
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
+
+.kyraSideLabelRow {
+    margin-bottom: 8px !important;
+}
+
+.kyraSideLabel,
+.kyraSideLabel.sapMLabel {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    letter-spacing: -0.01em !important;
+}
+
+.kyraSideJustLabel,
+.kyraSideJustLabel.sapMLabel {
+    font-weight: 700 !important;
+    color: #0F172A !important;
+}
+
+.kyraSideLabel .sapMLabelRequiredSign {
+    color: #E11D48 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    margin-left: 3px !important;
+}
+
+/* Duration ComboBox matching image 3 */
+.kyraSideDurationSelect,
+.kyraSideDurationSelect .sapMInputBaseContentWrapper {
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+}
+
+.kyraSideDurationSelect input,
+.kyraSideDurationSelect .sapMInputBaseInner {
+    font-size: 13.5px !important;
+    color: #0F172A !important;
+    line-height: 42px !important;
+    padding-left: 12px !important;
+}
+
+/* Justification TextArea matching image 3 */
+.kyraSideJustificationTextArea,
+.kyraSideJustificationTextArea.sapMTextArea {
+    border-radius: 8px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-shadow: none !important;
+    transition: border-color 0.15s ease !important;
+    font-family: inherit !important;
+    overflow: hidden !important;
+}
+
+.kyraSideJustificationTextArea:hover,
+.kyraSideJustificationTextArea.sapMTextArea:hover {
+    border-color: #94A3B8 !important;
+    box-shadow: none !important;
+}
+
+.kyraSideJustificationTextArea:focus-within,
+.kyraSideJustificationTextArea.sapMFocus,
+.kyraSideJustificationTextArea.sapMTextArea.sapMFocus {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.12) !important;
+}
+
+.kyraSideJustificationTextArea .sapMInputBaseContentWrapper {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.kyraSideJustificationTextArea textarea,
+.kyraSideJustificationTextArea .sapMTextAreaInner {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    color: #0F172A !important;
+    box-sizing: border-box !important;
+    min-height: 76px !important;
+}
+
+.kyraSideJustificationTextArea textarea::placeholder,
+.kyraSideJustificationTextArea .sapMTextAreaInner::placeholder {
+    color: #94A3B8 !important;
+    font-size: 12.5px !important;
+    font-weight: 400 !important;
+}

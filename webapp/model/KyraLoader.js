@@ -165,9 +165,10 @@ sap.ui.define([], function() {
                         bottom: 0 !important;
                         width: 100% !important;
                         height: 100% !important;
-                        background: rgba(15, 23, 42, 0.45) !important;
-                        backdrop-filter: blur(6px) !important;
-                        -webkit-backdrop-filter: blur(6px) !important;
+                        background: rgba(15, 23, 42, 0.40) !important;
+                        backdrop-filter: none !important;
+                        -webkit-backdrop-filter: none !important;
+                        filter: none !important;
                         display: none !important;
                         align-items: center !important;
                         justify-content: center !important;

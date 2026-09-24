@@ -353,8 +353,9 @@ sap.ui.define([
                             offsetParentTop = pRect.top + scrollY;
                         }
 
+                        // Strictly open downward directly beneath the field (Matching yesterday 3 PM)
                         const iLeft = Math.round(rect.left + scrollX - offsetParentLeft);
-                        const iTop = Math.round(rect.bottom + scrollY - offsetParentTop + 2);
+                        const iTop = Math.round(rect.bottom + scrollY - offsetParentTop + 3);
                         const iWidth = Math.round(rect.width || oOpenerDom.offsetWidth);
 
                         oPickerDom.style.setProperty("position", "absolute", "important");
@@ -370,39 +371,42 @@ sap.ui.define([
                             oPickerDom.style.setProperty("min-width", iWidth + "px", "important");
                             oPickerDom.style.setProperty("max-width", iWidth + "px", "important");
                         }
-                        oPickerDom.style.setProperty("z-index", "100000", "important");
+                        oPickerDom.style.setProperty("z-index", "200000", "important");
 
                         oPickerDom.classList.remove("sapMPopoverTop");
                         oPickerDom.classList.add("sapMPopoverBottom");
 
-                        // Single sleek scrollbar setup
+                        // Ensure arrow indicator is hidden
+                        const oArr = oPickerDom.querySelector(".sapMPopoverArr");
+                        if (oArr) oArr.style.setProperty("display", "none", "important");
+
+                        // Single sleek vertical scrollbar setup (max-height 320px, no horizontal scrollbar)
                         const oScrollDom = oPickerDom.querySelector(".sapMPopoverScroll");
                         const oContDom = oPickerDom.querySelector(".sapMPopoverCont");
 
                         if (oScrollDom) {
-                            oScrollDom.style.overflowX = "hidden";
-                            oScrollDom.style.overflowY = "auto";
-                            oScrollDom.style.maxHeight = "320px";
-                            oScrollDom.style.scrollbarWidth = "thin";
+                            oScrollDom.style.setProperty("overflow-x", "hidden", "important");
+                            oScrollDom.style.setProperty("overflow-y", "auto", "important");
+                            oScrollDom.style.setProperty("max-height", "320px", "important");
+                            oScrollDom.style.setProperty("scrollbar-width", "thin", "important");
                             if (oContDom) {
-                                oContDom.style.overflow = "hidden";
-                                oContDom.style.scrollbarWidth = "none";
+                                oContDom.style.setProperty("overflow", "hidden", "important");
+                                oContDom.style.setProperty("scrollbar-width", "none", "important");
                             }
                         } else if (oContDom) {
-                            oContDom.style.overflowX = "hidden";
-                            oContDom.style.overflowY = "auto";
-                            oContDom.style.maxHeight = "320px";
-                            oContDom.style.scrollbarWidth = "thin";
+                            oContDom.style.setProperty("overflow-x", "hidden", "important");
+                            oContDom.style.setProperty("overflow-y", "auto", "important");
+                            oContDom.style.setProperty("max-height", "320px", "important");
+                            oContDom.style.setProperty("scrollbar-width", "thin", "important");
                         }
 
-                        const aInnerLists = oPickerDom.querySelectorAll(".sapMListUl, .sapMList");
+                        const aInnerLists = oPickerDom.querySelectorAll(".sapMListUl, .sapMList, .sapMSelectList, .sapMSelectDropdown");
                         aInnerLists.forEach(el => {
-                            el.style.overflow = "visible";
-                            el.style.overflowY = "visible";
-                            el.style.overflowX = "visible";
-                            el.style.scrollbarWidth = "none";
-                            el.style.width = "100%";
-                            el.style.boxSizing = "border-box";
+                            el.style.setProperty("overflow", "visible", "important");
+                            el.style.setProperty("overflow-x", "hidden", "important");
+                            el.style.setProperty("scrollbar-width", "none", "important");
+                            el.style.setProperty("width", "100%", "important");
+                            el.style.setProperty("box-sizing", "border-box", "important");
                         });
                     } catch(e) {}
                 };
@@ -450,7 +454,7 @@ sap.ui.define([
                             oPicker.setShowArrow(false);
                         }
                         if (typeof oPicker.setOffsetX === "function") oPicker.setOffsetX(0);
-                        if (typeof oPicker.setOffsetY === "function") oPicker.setOffsetY(2);
+                        if (typeof oPicker.setOffsetY === "function") oPicker.setOffsetY(6);
                         if (typeof oPicker.addStyleClass === "function") oPicker.addStyleClass("kyraDropdownBottomOnly");
 
                         const pop = (typeof oPicker._getPopover === "function" && oPicker._getPopover()) ||
@@ -463,7 +467,7 @@ sap.ui.define([
                                 pop.setShowArrow(false);
                             }
                             if (typeof pop.setOffsetX === "function") pop.setOffsetX(0);
-                            if (typeof pop.setOffsetY === "function") pop.setOffsetY(2);
+                            if (typeof pop.setOffsetY === "function") pop.setOffsetY(6);
                             if (typeof pop.addStyleClass === "function") pop.addStyleClass("kyraDropdownBottomOnly");
                         }
                     } catch(e) {}
@@ -511,25 +515,58 @@ sap.ui.define([
                                 window._kyraActiveMultiComboBox = oControl;
                             }
 
-                            // Auto-scroll screen down smoothly if dropdown list extends towards or beyond viewport bottom
-                            setTimeout(() => {
+                            // Auto-scroll screen/container down smoothly if dropdown list extends towards or beyond viewport bottom
+                            const scrollContainerDownIfNeeded = () => {
                                 try {
+                                    const nViewportBottom = window.innerHeight || (document.documentElement && document.documentElement.clientHeight) || 800;
+                                    const nBottomThreshold = nViewportBottom - 16;
+                                    let nNeeded = 0;
+
                                     const oPickerDom = getPickerDom(oPicker);
                                     if (oPickerDom) {
                                         const rect = oPickerDom.getBoundingClientRect();
-                                        const nBottomThreshold = window.innerHeight - 20;
                                         if (rect.bottom > nBottomThreshold) {
-                                            const nNeeded = Math.ceil(rect.bottom - nBottomThreshold + 40);
-                                            const oScrollTarget = document.querySelector("#accessPortalPage-cont, .sapMPageEnableScrolling, .sapMPage");
-                                            if (oScrollTarget && typeof oScrollTarget.scrollBy === "function") {
-                                                oScrollTarget.scrollBy({ top: nNeeded, behavior: "smooth" });
-                                            } else {
-                                                window.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                            nNeeded = Math.ceil(rect.bottom - nBottomThreshold + 32);
+                                        }
+                                    }
+
+                                    const oOpenerDom = typeof oControl.getDomRef === "function" ? oControl.getDomRef() : null;
+                                    if (oOpenerDom) {
+                                        const openerRect = oOpenerDom.getBoundingClientRect();
+                                        if (openerRect.bottom > nViewportBottom - 260) {
+                                            const nOpenerNeeded = Math.ceil(openerRect.bottom - (nViewportBottom - 280));
+                                            if (nOpenerNeeded > nNeeded) {
+                                                nNeeded = nOpenerNeeded;
                                             }
                                         }
                                     }
+
+                                    if (nNeeded > 0) {
+                                        const aTargets = [
+                                            document.querySelector("#accessPortalPage-cont"),
+                                            document.querySelector(".sapMPageEnableScrolling"),
+                                            document.querySelector(".sapMPageScroll"),
+                                            document.querySelector(".sapMPageSection"),
+                                            document.querySelector(".sapMPage")
+                                        ];
+                                        let bScrolled = false;
+                                        for (const target of aTargets) {
+                                            if (target && typeof target.scrollBy === "function" && target.scrollHeight > target.clientHeight) {
+                                                target.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                                bScrolled = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!bScrolled) {
+                                            window.scrollBy({ top: nNeeded, behavior: "smooth" });
+                                        }
+                                    }
                                 } catch(e) {}
-                            }, 80);
+                            };
+
+                            setTimeout(scrollContainerDownIfNeeded, 60);
+                            setTimeout(scrollContainerDownIfNeeded, 150);
+                            setTimeout(scrollContainerDownIfNeeded, 280);
 
                             // Keep dropdown anchored if window is resized or scrolled while open
                             window.addEventListener("scroll", triggerReposition, { passive: true, capture: true });

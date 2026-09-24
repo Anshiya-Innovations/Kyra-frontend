@@ -712,11 +712,14 @@ sap.ui.define([
 
         _setupStep1SelectFields() {
             const aControls = [
-                this.byId("inPageBusinessSectorSelect"),
-                this.byId("inPageBusinessFunctionSelect")
+                { id: "inPageBusinessSectorSelect", prereqName: null, prereqProp: null },
+                { id: "inPageBusinessFunctionSelect", prereqName: "Business Sector", prereqProp: "/selectedSector" }
             ];
 
-            aControls.forEach(oControl => {
+            const oModel = this.getView().getModel("accessModel");
+
+            aControls.forEach(item => {
+                const oControl = this.byId(item.id);
                 if (!oControl) return;
 
                 if (oControl._step1Delegate) {
@@ -730,7 +733,10 @@ sap.ui.define([
                                         (typeof oControl._getPicker === "function" && oControl._getPicker());
                         if (oPicker) {
                             if (typeof oPicker.setPlacement === "function") {
-                                oPicker.setPlacement(sap.m.PlacementType.Vertical);
+                                oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                            }
+                            if (typeof oPicker.setShowArrow === "function") {
+                                oPicker.setShowArrow(false);
                             }
                             if (typeof oPicker.addStyleClass === "function") {
                                 oPicker.addStyleClass("kyraDropdownBottomOnly");
@@ -764,12 +770,24 @@ sap.ui.define([
                             if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                             return;
                         }
+
+                        // Check sequential prerequisite for Business Function
+                        if (item.prereqProp && oModel) {
+                            const sPrereqVal = oModel.getProperty(item.prereqProp);
+                            if (!sPrereqVal || (typeof sPrereqVal === "string" && sPrereqVal.trim() === "")) {
+                                if (typeof oEvent.setMarked === "function") oEvent.setMarked();
+                                MessageToast.show("Please select " + item.prereqName + " first.");
+                                return;
+                            }
+                        }
+
                         if (typeof oEvent.stopImmediatePropagation === "function") {
                             oEvent.stopImmediatePropagation();
                         }
                         if (typeof oEvent.setMarked === "function") {
                             oEvent.setMarked();
                         }
+
                         if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
                             oControl.close();
                         } else if (typeof oControl.open === "function") {
@@ -779,7 +797,7 @@ sap.ui.define([
                                 if (oDom) {
                                     const rect = oDom.getBoundingClientRect();
                                     const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                    if (rect.bottom > windowHeight - 340 || rect.top < 80) {
+                                    if (rect.bottom > windowHeight - 260 || rect.top < 80) {
                                         oDom.scrollIntoView({ behavior: "smooth", block: "center" });
                                     }
                                 }
@@ -811,7 +829,10 @@ sap.ui.define([
                                     (typeof oControl._getPicker === "function" && oControl._getPicker());
                     if (oPicker) {
                         if (typeof oPicker.setPlacement === "function") {
-                            oPicker.setPlacement(sap.m.PlacementType.Vertical);
+                            oPicker.setPlacement(sap.m.PlacementType.Bottom);
+                        }
+                        if (typeof oPicker.setShowArrow === "function") {
+                            oPicker.setShowArrow(false);
                         }
                         if (typeof oPicker.addStyleClass === "function") {
                             oPicker.addStyleClass("kyraDropdownBottomOnly");
@@ -860,7 +881,7 @@ sap.ui.define([
                             if (oDom) {
                                 const rect = oDom.getBoundingClientRect();
                                 const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                if (rect.bottom > windowHeight - 340 || rect.top < 80) {
+                                if (rect.bottom > windowHeight - 260 || rect.top < 80) {
                                     oDom.scrollIntoView({ behavior: "smooth", block: "center" });
                                 }
                             }
@@ -911,14 +932,16 @@ sap.ui.define([
                     });
                 }
 
-                // Also ensure clicking the label focuses the textarea
-                const oLabel = document.querySelector(".kyraJustificationLabel");
-                if (oLabel && !oLabel._hasSingleClickSetup) {
-                    oLabel._hasSingleClickSetup = true;
-                    oLabel.addEventListener("click", () => {
-                        oTextarea.focus();
-                    });
-                }
+                // Also ensure clicking the label or card focuses the textarea
+                const aLabels = document.querySelectorAll(".kyraJustificationLabel, .kyraNewJustificationLabel, .kyraJustificationContentBox");
+                aLabels.forEach(oLabel => {
+                    if (oLabel && !oLabel._hasSingleClickSetup) {
+                        oLabel._hasSingleClickSetup = true;
+                        oLabel.addEventListener("click", () => {
+                            oTextarea.focus();
+                        });
+                    }
+                });
             };
 
             if (oArea._justificationDelegate) {
@@ -935,8 +958,7 @@ sap.ui.define([
                     }
                 }
             };
-            oArea.addEventDelegate(oArea._justificationDelegate);
-
+            oArea.addDelegate(oArea._justificationDelegate, true, oArea);
             fnApplyDirectFocus();
             setTimeout(fnApplyDirectFocus, 50);
             setTimeout(fnApplyDirectFocus, 150);
@@ -4442,28 +4464,12 @@ sap.ui.define([
         },
 
         onInPageDurationChange(oEvent) {
-            const oSource = oEvent.getSource();
-            const sKey = oSource.getSelectedKey() || oSource.getValue();
+            const oSource = (oEvent && oEvent.getSource) ? oEvent.getSource() : this.byId("inPageDurationSelect");
+            const sKey = (oSource && typeof oSource.getSelectedKey === "function" && oSource.getSelectedKey()) ||
+                         (oSource && typeof oSource.getValue === "function" && oSource.getValue()) || "";
             const oModel = this.getView().getModel("accessModel");
-            if (oModel && sKey) {
+            if (oModel) {
                 oModel.setProperty("/addAccessDuration", sKey);
-            }
-
-            // Auto-focus Business Justification textarea after duration is selected
-            if (sKey) {
-                setTimeout(() => {
-                    const oArea = this.byId("inPageJustificationArea");
-                    if (oArea) {
-                        const oDom = oArea.getDomRef();
-                        const oTextarea = oDom
-                            ? (oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef()))
-                            : null;
-                        if (oTextarea) {
-                            oTextarea.focus();
-                            oTextarea.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                        }
-                    }
-                }, 200);
             }
         },
 
@@ -6647,9 +6653,6 @@ sap.ui.define([
             } else if (window.showKyraLoading) {
                 window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
             }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
-            }
 
             const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
@@ -7182,9 +7185,6 @@ sap.ui.define([
                 });
             } else if (window.showKyraLoading) {
                 window.showKyraLoading("Loading Request Tracking...", "Retrieving live governance status from database...");
-            }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
             }
 
             try {
@@ -7837,8 +7837,11 @@ sap.ui.define([
                 btnColor: "#008C9C",
                 secondaryButtonText: "Cancel",
                 onConfirm: async () => {
-                    if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                        sap.ui.core.BusyIndicator.show(0);
+                    if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                        window.KyraLoader.show({
+                            title: "Processing Revocation...",
+                            subtitle: "Updating governance records..."
+                        });
                     }
 
                     try {
