@@ -136,8 +136,15 @@
                         id="myAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
-                        noDataText="No active permissions found."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No active access found" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="18%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                             <Column width="17%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -275,9 +282,16 @@
                         items="{
                             path: 'accessModel>/requestHistory'
                         }"
-                        noDataText="No access requests match the selected filter."
                         fixedLayout="true"
                         class="sapUiNoMargin kyraHistoryTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://document-text" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No access requests found" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="16%" hAlign="Center"><Text text="REQUEST / TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                             <Column width="14%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
@@ -362,8 +376,15 @@
                         id="myAccessMasterSectionTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
-                        noDataText="No active entitlements found."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No active entitlements found" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="18%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                             <Column width="17%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -514,8 +535,15 @@
                         id="pendingRequestsInPageTable"
                         fixedLayout="true"
                         items="{accessModel>/myPendingRequests}"
-                        noDataText="No pending access requests at this time."
                         class="sapUiNoMargin kyraHistoryTable kyraPendingRequestsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://document-text" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No pending access requests at this time" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="16%" hAlign="Center"><Text text="REQUEST / TYPE" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
                             <Column width="14%" hAlign="Center"><Text text="SYSTEM" wrapping="false" class="kyraHistHeader kyraColHeadCenter" /></Column>
@@ -754,14 +782,15 @@
                                         id="inPageBusinessSectorSelect"
                                         selectedKey="{accessModel>/selectedSector}"
                                         selectionChange=".onInPageSectorChange"
+                                        change=".onInPageSectorChange"
                                         placeholder="Select Business Sector..."
                                         width="100%"
-                                        class="kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" />
-                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" />
-                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" />
-                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" />
-                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" />
+                                        class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
+                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" tooltip="Finance &amp; Enterprise Performance" />
+                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" tooltip="Global Supply Chain &amp; Logistics" />
+                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" tooltip="Human Capital Management (HCM)" />
+                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" tooltip="Information Technology &amp; Security" />
+                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" tooltip="Customer Operations &amp; Sales" />
                                     </ComboBox>
                                 </VBox>
 
@@ -779,8 +808,8 @@
                                         items="{accessModel>/availableFunctions}"
                                         placeholder="Select Business Function..."
                                         width="100%"
-                                        class="kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                        class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
+                                        <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                     </ComboBox>
                                 </VBox>
                             </HBox>
@@ -882,12 +911,12 @@
                                         placeholder="Select target system processes..."
                                         width="100%"
                                         class="fioriFormSelect">
-                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" />
-                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" />
-                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" />
-                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" />
-                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" />
-                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" />
+                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" tooltip="SAP BTP Cloud Platform" />
+                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" tooltip="SAP S/4HANA Enterprise" />
+                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" tooltip="KYRA Central Governance" />
+                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" tooltip="Active Directory / IAM" />
+                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" tooltip="SAP SuccessFactors" />
+                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" tooltip="SAP Ariba Supply Network" />
                                     </MultiComboBox>
                                 </form:content>
                             </form:SimpleForm>
@@ -927,9 +956,9 @@
                                             placeholder="Select service topics for this system..."
                                             width="100%"
                                             class="fioriFormSelect">
-                                            <core:Item key="System Administrator" text="System Administrator" />
-                                            <core:Item key="System Owners" text="System Owners" />
-                                            <core:Item key="Stakeholders" text="Stakeholders" />
+                                            <core:Item key="System Administrator" text="System Administrator" tooltip="System Administrator" />
+                                            <core:Item key="System Owners" text="System Owners" tooltip="System Owners" />
+                                            <core:Item key="Stakeholders" text="Stakeholders" tooltip="Stakeholders" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 2: TEAM ROLE -->
@@ -944,7 +973,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 3: ASSIGNED PERSONA -->
@@ -958,7 +987,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedRoles} &amp;&amp; ${accessModel>/addAccessSelectedRoles}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
                                         </MultiComboBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -998,46 +1027,56 @@
                             </HBox>
                         </VBox>
 
-                        <!-- SUB-STEP 3.2: DURATION &amp; BUSINESS JUSTIFICATION -->
-                        <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }">
-                            <form:SimpleForm
-                                editable="true"
-                                layout="ColumnLayout"
-                                columnsM="2"
-                                columnsL="2"
-                                singleContainerFullWidth="false"
-                                class="sapUiSmallMarginBottom">
-                                <form:content>
-                                    <core:Title text="Access Duration &amp; Business Justification" />
-                                    
-                                    <!-- SUB-STEP 3.2 - FIELD 1: DURATION -->
-                                    <Label text="Access Duration" required="true" />
-                                    <ComboBox
-                                        id="inPageDurationSelect"
-                                        selectionChange=".onInPageDurationChange"
-                                        change=".onInPageDurationChange"
-                                        selectedKey="{accessModel>/addAccessDuration}"
-                                        placeholder="Select Access Duration..."
-                                        width="100%"
-                                        class="fioriFormSelect">
-                                        <core:Item key="Permanent (Default)" text="Permanent (Default)" />
-                                        <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" />
-                                        <core:Item key="90 Days (Project)" text="90 Days (Project)" />
-                                    </ComboBox>
+                        <!-- SUB-STEP 3.2: DURATION & BUSINESS JUSTIFICATION (SIDE-BY-SIDE DESIGN MATCHING IMAGE 3) -->
+                        <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 2 }" class="fioriStepSlideAnim">
+                            <VBox class="fioriTableCard kyraSideBySideConfigCard sapUiSmallMarginBottom">
+                                <HBox width="100%" class="kyraSideBySideRow" alignItems="Start" justifyContent="SpaceBetween">
+                                    <!-- Left Column: Access Duration -->
+                                    <VBox width="48%" class="kyraSideBySideCol">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Access Duration:" required="true" class="kyraSideLabel" labelFor="inPageDurationSelect" />
+                                        </HBox>
+                                        <ComboBox
+                                            id="inPageDurationSelect"
+                                            selectionChange=".onInPageDurationChange"
+                                            change=".onInPageDurationChange"
+                                            selectedKey="{accessModel>/addAccessDuration}"
+                                            placeholder="Select Access Duration..."
+                                            width="100%"
+                                            class="fioriFormSelect kyraSideDurationSelect">
+                                            <core:Item key="Permanent (Default)" text="Permanent (Default)" tooltip="Permanent (Default)" />
+                                            <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" tooltip="30 Days (Temporary)" />
+                                            <core:Item key="90 Days (Project)" text="90 Days (Project)" tooltip="90 Days (Project)" />
+                                        </ComboBox>
+                                    </VBox>
 
-                                    <!-- SUB-STEP 3.2 - FIELD 2: JUSTIFICATION -->
-                                    <Label text="Business Justification" required="true" labelFor="inPageJustificationArea" class="kyraJustificationLabel" />
-                                    <TextArea
-                                        id="inPageJustificationArea"
-                                        value="{accessModel>/addAccessJustification}"
-                                        valueLiveUpdate="true"
-                                        placeholder="Provide detailed business justification for requesting these system permissions..."
-                                        rows="3"
-                                        growing="false"
-                                        width="100%"
-                                        class="kyraJustificationTextArea" />
-                                 </form:content>
-                            </form:SimpleForm>
+                                    <!-- Right Column: Business Justification (Automatically opened ONLY once Duration is filled) -->
+                                    <VBox width="50%" class="kyraSideBySideCol kyraFadeSlideAnim" visible="{= !!${accessModel>/addAccessDuration} }">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Business Justification:" required="true" labelFor="inPageJustificationArea" class="kyraSideLabel kyraSideJustLabel" />
+                                        </HBox>
+                                        <TextArea
+                                            id="inPageJustificationArea"
+                                            value="{accessModel>/addAccessJustification}"
+                                            valueLiveUpdate="true"
+                                            placeholder="Provide detailed business justification for requesting these system permissions..."
+                                            height="140px"
+                                            width="100%"
+                                            class="kyraSideJustificationTextArea" />
+                                    </VBox>
+
+                                    <!-- Placeholder when duration is not yet filled -->
+                                    <VBox width="50%" class="kyraSideBySideCol" visible="{= !${accessModel>/addAccessDuration} }">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Business Justification:" class="kyraSideLabel kyraSideDisabledLabel" />
+                                        </HBox>
+                                        <HBox class="kyraSideLockedPlaceholder" alignItems="Center">
+                                            <core:Icon src="sap-icon://hint" class="kyraSideLockedIcon" />
+                                            <Text text="Please select an Access Duration to open Business Justification." class="kyraSideLockedNotice" />
+                                        </HBox>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
 
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                                 <Button
@@ -1221,19 +1260,19 @@
                 <Table id="duplicateRolesTable" items="{accessModel>/duplicateRoles}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/duplicateRoles} &amp;&amp; ${accessModel>/duplicateRoles}.length &gt; 0 }">
         <columns>
             <!-- 1. System Name -->
-            <Column width="16%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
+            <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
             <!-- 2. Services -->
-            <Column width="14%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
             <!-- 3. Team -->
             <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
             <!-- 4. Persona -->
             <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
             <!-- 5. Security Group -->
-            <Column width="14%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
             <!-- 6. AD Group -->
             <Column width="13%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
             <!-- 7. Existing Role -->
-            <Column width="13%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
+            <Column width="16%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
         </columns>
         <items>
             <ColumnListItem vAlign="Middle" class="kyraValTableRow">
@@ -1244,11 +1283,19 @@
                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
                     <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                     <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
-                    <HBox justifyContent="Center" alignItems="Center">
-                        <ObjectStatus
-                            text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'revoke in pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'already active' : 'already requested') }"
-                            state="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Warning' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Information' : 'Warning') }"
-                            class="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'kyraBadgeRevokePending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'kyraBadgeAlreadyActive' : 'kyraBadgeAlreadyRequested') }" />
+                    <HBox justifyContent="Center" alignItems="Center" width="100%" class="kyraBadgeCenterCell">
+                        <HBox
+                            alignItems="Center"
+                            justifyContent="Center"
+                            class="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'kyraRoleStatusPill kyraRoleStatusRevoke' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'kyraRoleStatusPill kyraRoleStatusActive' : 'kyraRoleStatusPill kyraRoleStatusRequested') }">
+                            <core:Icon
+                                src="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'sap-icon://alert' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'sap-icon://sys-enter-2' : 'sap-icon://alert') }"
+                                class="kyraRoleStatusIcon" />
+                            <Text
+                                text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Revoke In Pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Already Active' : 'Already Requested') }"
+                                class="kyraRoleStatusText"
+                                wrapping="false" />
+                        </HBox>
                     </HBox>
                 </cells>
             </ColumnListItem>
@@ -1689,8 +1736,15 @@
                         id="removeAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/activeRoles}"
-                        noDataText="No active entitlements available for removal."
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
+                        <noData>
+                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                    <core:Icon src="sap-icon://delete" class="kyraTableEmptyIcon" />
+                                </HBox>
+                                <Title text="No active entitlements available for removal" level="H4" class="kyraTableEmptyTitle" />
+                            </VBox>
+                        </noData>
                         <columns>
                             <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraEntitlementColHeader" /></Column>
                             <Column width="16%" hAlign="Begin"><Text text="SERVICES" class="kyraEntitlementColHeader" /></Column>
@@ -1722,7 +1776,7 @@
                                             icon="sap-icon://delete"
                                             type="Transparent"
                                             press=".onRemoveAccessClick"
-                                            class="kyraTableActionBtn" />
+                                            class="kyraTableActionBtn kyraDestructiveBtn" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>

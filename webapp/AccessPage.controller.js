@@ -908,10 +908,13 @@ sap.ui.define([
                 if (!oTextarea) return;
 
                 oDom.style.cursor = "text";
-                oTextarea.style.cursor = "text";
-                oTextarea.style.position = "relative";
-                oTextarea.style.zIndex = "10";
-                oTextarea.style.pointerEvents = "auto";
+                oDom.style.height = "140px";
+                oDom.style.minHeight = "140px";
+                oDom.style.maxHeight = "140px";
+                oDom.style.boxShadow = "none";
+                oDom.style.outline = "none";
+                oDom.style.pointerEvents = "auto";
+                oDom.style.touchAction = "manipulation";
 
                 const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
                 if (oWrapper) {
@@ -919,27 +922,78 @@ sap.ui.define([
                     oWrapper.style.position = "relative";
                     oWrapper.style.zIndex = "1";
                     oWrapper.style.pointerEvents = "auto";
+                    oWrapper.style.height = "140px";
+                    oWrapper.style.minHeight = "140px";
+                    oWrapper.style.maxHeight = "140px";
+                    oWrapper.style.display = "block";
+                    oWrapper.style.boxShadow = "none";
+                    oWrapper.style.outline = "none";
+                    oWrapper.style.touchAction = "manipulation";
                 }
 
-                // If user clicks on the outer box or wrapper (e.g. padding/border), focus textarea immediately
-                if (!oDom._hasSingleClickSetup) {
-                    oDom._hasSingleClickSetup = true;
+                oTextarea.style.cursor = "text";
+                oTextarea.style.position = "relative";
+                oTextarea.style.display = "block";
+                oTextarea.style.width = "100%";
+                oTextarea.style.height = "140px";
+                oTextarea.style.minHeight = "140px";
+                oTextarea.style.maxHeight = "140px";
+                oTextarea.style.boxSizing = "border-box";
+                oTextarea.style.zIndex = "5";
+                oTextarea.style.pointerEvents = "auto";
+                oTextarea.style.touchAction = "manipulation";
+                oTextarea.style.padding = "16px";
+                oTextarea.style.textAlign = "left";
+                oTextarea.style.verticalAlign = "top";
+                oTextarea.style.outline = "none";
+                oTextarea.style.boxShadow = "none";
+                oTextarea.disabled = false;
+                oTextarea.readOnly = false;
 
-                    oDom.addEventListener("click", (e) => {
-                        if (e.target !== oTextarea) {
-                            oTextarea.focus();
-                        }
-                    });
+                // Ensure any artificial placeholder overlay or growing clone created by UI5 is hidden via CSS (without removing nodes)
+                const aOverlays = oDom.querySelectorAll(".sapMInputBasePlaceholder, [id$='-placeholder'], .sapMTextAreaPlaceholder, .sapMTextAreaGrowing, [id$='-growing']");
+                aOverlays.forEach(el => {
+                    if (el) {
+                        el.style.display = "none";
+                        el.style.visibility = "hidden";
+                        el.style.pointerEvents = "none";
+                        el.style.height = "0px";
+                        el.style.width = "0px";
+                        el.style.position = "absolute";
+                    }
+                });
+
+                // Attach direct click and touch handlers so tapping or clicking anywhere activates the textarea immediately
+                const fnActivateField = () => {
+                    if (typeof oArea.focus === "function") {
+                        try { oArea.focus(); } catch (err) {}
+                    }
+                    if (oTextarea && typeof oTextarea.focus === "function") {
+                        try { oTextarea.focus(); } catch (err) {}
+                    }
+                };
+
+                if (!oDom._hasTouchClickSetup) {
+                    oDom._hasTouchClickSetup = true;
+
+                    oDom.addEventListener("click", fnActivateField);
+                    oDom.addEventListener("touchstart", fnActivateField, { passive: true });
+                    oDom.addEventListener("touchend", fnActivateField, { passive: true });
+                    oDom.addEventListener("pointerdown", fnActivateField);
+                    oDom.addEventListener("mousedown", fnActivateField);
+
+                    oTextarea.addEventListener("click", fnActivateField);
+                    oTextarea.addEventListener("touchstart", fnActivateField, { passive: true });
+                    oTextarea.addEventListener("pointerdown", fnActivateField);
                 }
 
                 // Also ensure clicking the label or card focuses the textarea
-                const aLabels = document.querySelectorAll(".kyraJustificationLabel, .kyraNewJustificationLabel, .kyraJustificationContentBox");
+                const aLabels = document.querySelectorAll(".kyraSideJustLabel, .kyraJustificationLabel, .kyraNewJustificationLabel, .kyraJustificationContentBox");
                 aLabels.forEach(oLabel => {
-                    if (oLabel && !oLabel._hasSingleClickSetup) {
-                        oLabel._hasSingleClickSetup = true;
-                        oLabel.addEventListener("click", () => {
-                            oTextarea.focus();
-                        });
+                    if (oLabel && !oLabel._hasTouchClickSetup) {
+                        oLabel._hasTouchClickSetup = true;
+                        oLabel.addEventListener("click", fnActivateField);
+                        oLabel.addEventListener("touchstart", fnActivateField, { passive: true });
                     }
                 });
             };
@@ -950,11 +1004,14 @@ sap.ui.define([
             }
             oArea._justificationDelegate = {
                 onAfterRendering: fnApplyDirectFocus,
-                ontap: (oEvent) => {
+                ontap: () => {
+                    if (typeof oArea.focus === "function") {
+                        try { oArea.focus(); } catch (err) {}
+                    }
                     const oDom = oArea.getDomRef();
                     const oTextarea = oDom ? (oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef())) : null;
-                    if (oTextarea && (!oEvent || oEvent.target !== oTextarea)) {
-                        oTextarea.focus();
+                    if (oTextarea && typeof oTextarea.focus === "function") {
+                        try { oTextarea.focus(); } catch (err) {}
                     }
                 }
             };
@@ -963,7 +1020,6 @@ sap.ui.define([
             setTimeout(fnApplyDirectFocus, 50);
             setTimeout(fnApplyDirectFocus, 150);
             setTimeout(fnApplyDirectFocus, 300);
-            setTimeout(fnApplyDirectFocus, 600);
         },
 
         // =========================================================================
@@ -4470,6 +4526,23 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/addAccessDuration", sKey);
+            }
+
+            // Once duration is selected, automatically open Business Justification and focus the text box
+            if (sKey && sKey.trim() !== "") {
+                setTimeout(() => {
+                    this._setupJustificationAreaClick();
+                    const oArea = this.byId("inPageJustificationArea");
+                    if (oArea) {
+                        const oDom = oArea.getDomRef();
+                        const oTextarea = oDom
+                            ? (oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef()))
+                            : null;
+                        if (oTextarea) {
+                            oTextarea.focus();
+                        }
+                    }
+                }, 100);
             }
         },
 
@@ -9720,4 +9793,3 @@ sap.ui.define([
         }
     });
 });
-

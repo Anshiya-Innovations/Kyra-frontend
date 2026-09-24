@@ -1050,8 +1050,8 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- Right Column: Business Justification -->
-                                    <VBox width="50%" class="kyraSideBySideCol">
+                                    <!-- Right Column: Business Justification (Automatically opened ONLY once Duration is filled) -->
+                                    <VBox width="50%" class="kyraSideBySideCol kyraFadeSlideAnim" visible="{= !!${accessModel>/addAccessDuration} }">
                                         <HBox alignItems="Center" class="kyraSideLabelRow">
                                             <Label text="Business Justification:" required="true" labelFor="inPageJustificationArea" class="kyraSideLabel kyraSideJustLabel" />
                                         </HBox>
@@ -1060,11 +1060,20 @@
                                             value="{accessModel>/addAccessJustification}"
                                             valueLiveUpdate="true"
                                             placeholder="Provide detailed business justification for requesting these system permissions..."
-                                            rows="3"
-                                            growing="true"
-                                            growingMaxLines="6"
+                                            height="140px"
                                             width="100%"
                                             class="kyraSideJustificationTextArea" />
+                                    </VBox>
+
+                                    <!-- Placeholder when duration is not yet filled -->
+                                    <VBox width="50%" class="kyraSideBySideCol" visible="{= !${accessModel>/addAccessDuration} }">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Business Justification:" class="kyraSideLabel kyraSideDisabledLabel" />
+                                        </HBox>
+                                        <HBox class="kyraSideLockedPlaceholder" alignItems="Center">
+                                            <core:Icon src="sap-icon://hint" class="kyraSideLockedIcon" />
+                                            <Text text="Please select an Access Duration to open Business Justification." class="kyraSideLockedNotice" />
+                                        </HBox>
                                     </VBox>
                                 </HBox>
                             </VBox>
@@ -1253,17 +1262,17 @@
             <!-- 1. System Name -->
             <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
             <!-- 2. Services -->
-            <Column width="12%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
             <!-- 3. Team -->
-            <Column width="13%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
+            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
             <!-- 4. Persona -->
-            <Column width="14%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
+            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
             <!-- 5. Security Group -->
-            <Column width="16%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
             <!-- 6. AD Group -->
-            <Column width="16%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
             <!-- 7. Existing Role -->
-            <Column width="14%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
+            <Column width="16%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
         </columns>
         <items>
             <ColumnListItem vAlign="Middle" class="kyraValTableRow">
@@ -1274,11 +1283,19 @@
                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
                     <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                     <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
-                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                        <ObjectStatus
-                            text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'revoke in pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'already active' : 'already requested') }"
-                            state="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Warning' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Information' : 'Warning') }"
-                            class="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'kyraBadgeRevokePending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'kyraBadgeAlreadyActive' : 'kyraBadgeAlreadyRequested') }" />
+                    <HBox justifyContent="Center" alignItems="Center" width="100%" class="kyraBadgeCenterCell">
+                        <HBox
+                            alignItems="Center"
+                            justifyContent="Center"
+                            class="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'kyraRoleStatusPill kyraRoleStatusRevoke' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'kyraRoleStatusPill kyraRoleStatusActive' : 'kyraRoleStatusPill kyraRoleStatusRequested') }">
+                            <core:Icon
+                                src="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'sap-icon://alert' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'sap-icon://sys-enter-2' : 'sap-icon://alert') }"
+                                class="kyraRoleStatusIcon" />
+                            <Text
+                                text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Revoke In Pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Already Active' : 'Already Requested') }"
+                                class="kyraRoleStatusText"
+                                wrapping="false" />
+                        </HBox>
                     </HBox>
                 </cells>
             </ColumnListItem>
