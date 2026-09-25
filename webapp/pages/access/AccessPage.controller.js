@@ -1506,6 +1506,7 @@ sap.ui.define([
                 oModel.setProperty("/isCompliancePersona", isCompliancePersona);
                 oModel.setProperty("/isReviewerRole", isReviewerRole);
                 oModel.setProperty("/adminSelectedSection", "");
+                this._loadCustomAccessAndConflictConfig(oModel);
 
                 // Always reset ALL section visibility flags so previous user's open
                 // panels never show up for a newly logged-in user
@@ -4975,6 +4976,8 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
+            this._loadCustomAccessAndConflictConfig(oModel);
+
             const aMapSelected = oModel.getProperty("/mapSelectedRegions") || [];
             const sRegion = oModel.getProperty("/addAccessRegion");
 
@@ -5372,32 +5375,30 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const oServicesRolesMap = {
-                "System Administrator": [
-                    { key: "IT Developers (System Administrator)", text: "IT Developers (System Administrator)", icon: "sap-icon://developer-settings" },
-                    { key: "IT Administrators (System Administrator)", text: "IT Administrators (System Administrator)", icon: "sap-icon://user-settings" },
-                    { key: "Lead Engineer (System Administrator)", text: "Lead Engineer (System Administrator)", icon: "sap-icon://header" },
-                    { key: "IT Security (System Administrator)", text: "IT Security (System Administrator)", icon: "sap-icon://shield-check" }
-                ],
-                "System Owners": [
-                    { key: "Technical Product Owner (System Owner)", text: "Technical Product Owner (System Owner)", icon: "sap-icon://manager" },
-                    { key: "Product Group Engineer (System Owner)", text: "Product Group Engineer (System Owner)", icon: "sap-icon://header" }
-                ],
-                "Stakeholders": [
-                    { key: "Business Product Owner (Stakeholders)", text: "Business Product Owner (Stakeholders)", icon: "sap-icon://customer-briefing" },
-                    { key: "Line Manager (Stakeholders)", text: "Line Manager (Stakeholders)", icon: "sap-icon://group" },
-                    { key: "Compliance Manager (Stakeholders)", text: "Compliance Manager (Stakeholders)", icon: "sap-icon://activity-assigned-to-goal" },
-                    { key: "Role Owner (Stakeholders)", text: "Role Owner (Stakeholders)", icon: "sap-icon://user-settings" },
-                    { key: "ISRM (Stakeholders)", text: "ISRM (Stakeholders)", icon: "sap-icon://shield-check" },
-                    { key: "IAM / GRC Team (Stakeholders)", text: "IAM / GRC Team (Stakeholders)", icon: "sap-icon://shield" }
-                ]
-            };
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const aActiveServices = (oModel.getProperty("/adminServicesAll") || [])
+                .filter(s => s && s.status !== "Inactive")
+                .map(s => s.serviceName);
 
-            const aAllSubRoles = [
-                ...oServicesRolesMap["System Administrator"],
-                ...oServicesRolesMap["System Owners"],
-                ...oServicesRolesMap["Stakeholders"]
-            ];
+            const oServicesRolesMap = {};
+            Object.keys(oDetailsMap).forEach(sServiceKey => {
+                if (aActiveServices.length > 0 && !aActiveServices.includes(sServiceKey)) {
+                    return;
+                }
+                const aTeams = oDetailsMap[sServiceKey] || [];
+                oServicesRolesMap[sServiceKey] = aTeams
+                    .filter(t => t && t.name && t.status !== "Inactive")
+                    .map(t => ({
+                        key: t.name.trim(),
+                        text: t.name.trim(),
+                        icon: "sap-icon://user-settings"
+                    }));
+            });
+
+            let aAllSubRoles = [];
+            Object.keys(oServicesRolesMap).forEach(sServiceKey => {
+                aAllSubRoles = aAllSubRoles.concat(oServicesRolesMap[sServiceKey] || []);
+            });
 
             const aSelectedServices = oModel.getProperty("/addAccessSelectedServices") || [];
 
@@ -5457,56 +5458,31 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSelectedPersonas", []);
             }
 
-            const oTeamPersonasMap = {
-                "IT Developers (System Administrator)": [
-                    { key: "Frontend & UI Developer Persona (IT Developers)", text: "Frontend & UI Developer Persona (IT Developers)", icon: "sap-icon://developer-settings" },
-                    { key: "Backend & Systems Developer Persona (IT Developers)", text: "Backend & Systems Developer Persona (IT Developers)", icon: "sap-icon://developer-settings" }
-                ],
-                "IT Administrators (System Administrator)": [
-                    { key: "Cloud Infrastructure Administrator Persona (IT Administrators)", text: "Cloud Infrastructure Administrator Persona (IT Administrators)", icon: "sap-icon://user-settings" },
-                    { key: "Database & IAM Administrator Persona (IT Administrators)", text: "Database & IAM Administrator Persona (IT Administrators)", icon: "sap-icon://user-settings" }
-                ],
-                "Lead Engineer (System Administrator)": [
-                    { key: "Principal Systems Engineer Persona (Lead Engineer)", text: "Principal Systems Engineer Persona (Lead Engineer)", icon: "sap-icon://header" },
-                    { key: "DevOps & Platform Lead Persona (Lead Engineer)", text: "DevOps & Platform Lead Persona (Lead Engineer)", icon: "sap-icon://header" }
-                ],
-                "IT Security (System Administrator)": [
-                    { key: "Security Audit & GRC Persona (IT Security)", text: "Security Audit & GRC Persona (IT Security)", icon: "sap-icon://shield-check" },
-                    { key: "Cybersecurity Operations Persona (IT Security)", text: "Cybersecurity Operations Persona (IT Security)", icon: "sap-icon://shield-check" }
-                ],
-                "Technical Product Owner (System Owner)": [
-                    { key: "Technical Product Manager Persona (Technical Product Owner)", text: "Technical Product Manager Persona (Technical Product Owner)", icon: "sap-icon://manager" },
-                    { key: "Solution Architecture Owner Persona (Technical Product Owner)", text: "Solution Architecture Owner Persona (Technical Product Owner)", icon: "sap-icon://manager" }
-                ],
-                "Product Group Engineer (System Owner)": [
-                    { key: "Product Suite Engineer Persona (Product Group Engineer)", text: "Product Suite Engineer Persona (Product Group Engineer)", icon: "sap-icon://header" },
-                    { key: "Integration Engineering Lead Persona (Product Group Engineer)", text: "Integration Engineering Lead Persona (Product Group Engineer)", icon: "sap-icon://header" }
-                ],
-                "Business Product Owner (Stakeholders)": [
-                    { key: "Business Strategy Lead Persona (Business Product Owner)", text: "Business Strategy Lead Persona (Business Product Owner)", icon: "sap-icon://customer-briefing" },
-                    { key: "Enterprise Process Owner Persona (Business Product Owner)", text: "Enterprise Process Owner Persona (Business Product Owner)", icon: "sap-icon://customer-briefing" }
-                ],
-                "Line Manager (Stakeholders)": [
-                    { key: "Department Resource Manager Persona (Line Manager)", text: "Department Resource Manager Persona (Line Manager)", icon: "sap-icon://group" },
-                    { key: "People Operations Lead Persona (Line Manager)", text: "People Operations Lead Persona (Line Manager)", icon: "sap-icon://group" }
-                ],
-                "Compliance Manager (Stakeholders)": [
-                    { key: "Regulatory Compliance Officer Persona (Compliance Manager)", text: "Regulatory Compliance Officer Persona (Compliance Manager)", icon: "sap-icon://activity-assigned-to-goal" },
-                    { key: "Data Privacy Auditor Persona (Compliance Manager)", text: "Data Privacy Auditor Persona (Compliance Manager)", icon: "sap-icon://activity-assigned-to-goal" }
-                ],
-                "Role Owner (Stakeholders)": [
-                    { key: "Entitlement & Role Custodian Persona (Role Owner)", text: "Entitlement & Role Custodian Persona (Role Owner)", icon: "sap-icon://user-settings" },
-                    { key: "Access Governance Approver Persona (Role Owner)", text: "Access Governance Approver Persona (Role Owner)", icon: "sap-icon://user-settings" }
-                ],
-                "ISRM (Stakeholders)": [
-                    { key: "Information Security Risk Manager Persona (ISRM)", text: "Information Security Risk Manager Persona (ISRM)", icon: "sap-icon://shield-check" },
-                    { key: "Risk & Assessment Analyst Persona (ISRM)", text: "Risk & Assessment Analyst Persona (ISRM)", icon: "sap-icon://shield-check" }
-                ],
-                "IAM / GRC Team (Stakeholders)": [
-                    { key: "Identity Management Specialist Persona (IAM / GRC Team)", text: "Identity Management Specialist Persona (IAM / GRC Team)", icon: "sap-icon://shield" },
-                    { key: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", text: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", icon: "sap-icon://shield" }
-                ]
-            };
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const oTeamPersonasMap = {};
+
+            Object.keys(oDetailsMap).forEach(sServiceKey => {
+                const aTeams = oDetailsMap[sServiceKey] || [];
+                aTeams.forEach(oTeam => {
+                    if (!oTeam || !oTeam.name || oTeam.status === "Inactive") return;
+                    const sTeamName = oTeam.name.trim();
+                    const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    const aActivePersonas = (oTeam.subClassifications || [])
+                        .filter(p => p && p.name && p.status !== "Inactive")
+                        .map(p => {
+                            let sPersName = p.name.trim();
+                            if (!sPersName.includes("(") && sCleanTeamShort) {
+                                sPersName = sPersName + " (" + sCleanTeamShort + ")";
+                            }
+                            return {
+                                key: sPersName,
+                                text: sPersName,
+                                icon: "sap-icon://person-placeholder"
+                            };
+                        });
+                    oTeamPersonasMap[sTeamName] = aActivePersonas;
+                });
+            });
 
             let aAllPersonas = [];
             Object.values(oTeamPersonasMap).forEach(arr => {
@@ -5524,6 +5500,14 @@ sap.ui.define([
             aSelectedRoles.forEach(sRoleKey => {
                 if (oTeamPersonasMap[sRoleKey]) {
                     aCombinedPersonas = aCombinedPersonas.concat(oTeamPersonasMap[sRoleKey]);
+                } else {
+                    const sRoleShort = sRoleKey.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                    const sMatchedKey = Object.keys(oTeamPersonasMap).find(k =>
+                        k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sRoleShort
+                    );
+                    if (sMatchedKey && oTeamPersonasMap[sMatchedKey]) {
+                        aCombinedPersonas = aCombinedPersonas.concat(oTeamPersonasMap[sMatchedKey]);
+                    }
                 }
             });
 
@@ -5624,56 +5608,25 @@ sap.ui.define([
                 }
             });
 
-            const oRoleToPersonas = {
-                "IT Developers (System Administrator)": [
-                    "Frontend & UI Developer Persona (IT Developers)",
-                    "Backend & Systems Developer Persona (IT Developers)"
-                ],
-                "IT Administrators (System Administrator)": [
-                    "Cloud Infrastructure Administrator Persona (IT Administrators)",
-                    "Database & IAM Administrator Persona (IT Administrators)"
-                ],
-                "Lead Engineer (System Administrator)": [
-                    "Principal Systems Engineer Persona (Lead Engineer)",
-                    "DevOps & Platform Lead Persona (Lead Engineer)"
-                ],
-                "IT Security (System Administrator)": [
-                    "Security Audit & GRC Persona (IT Security)",
-                    "Cybersecurity Operations Persona (IT Security)"
-                ],
-                "Technical Product Owner (System Owner)": [
-                    "Technical Product Manager Persona (Technical Product Owner)",
-                    "Solution Architecture Owner Persona (Technical Product Owner)"
-                ],
-                "Product Group Engineer (System Owner)": [
-                    "Product Suite Engineer Persona (Product Group Engineer)",
-                    "Integration Engineering Lead Persona (Product Group Engineer)"
-                ],
-                "Business Product Owner (Stakeholders)": [
-                    "Business Strategy Lead Persona (Business Product Owner)",
-                    "Enterprise Process Owner Persona (Business Product Owner)"
-                ],
-                "Line Manager (Stakeholders)": [
-                    "Department Resource Manager Persona (Line Manager)",
-                    "People Operations Lead Persona (Line Manager)"
-                ],
-                "Compliance Manager (Stakeholders)": [
-                    "Regulatory Compliance Officer Persona (Compliance Manager)",
-                    "Data Privacy Auditor Persona (Compliance Manager)"
-                ],
-                "Role Owner (Stakeholders)": [
-                    "Entitlement & Role Custodian Persona (Role Owner)",
-                    "Access Governance Approver Persona (Role Owner)"
-                ],
-                "ISRM (Stakeholders)": [
-                    "Information Security Risk Manager Persona (ISRM)",
-                    "Risk & Assessment Analyst Persona (ISRM)"
-                ],
-                "IAM / GRC Team (Stakeholders)": [
-                    "Identity Management Specialist Persona (IAM / GRC Team)",
-                    "Governance Risk Compliance Lead Persona (IAM / GRC Team)"
-                ]
-            };
+            const oRoleToPersonas = {};
+            const oLiveDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            Object.keys(oLiveDetailsMap).forEach(sServiceKey => {
+                const aTeams = oLiveDetailsMap[sServiceKey] || [];
+                aTeams.forEach(oTeam => {
+                    if (!oTeam || !oTeam.name || oTeam.status === "Inactive") return;
+                    const sTeamName = oTeam.name.trim();
+                    const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    oRoleToPersonas[sTeamName] = (oTeam.subClassifications || [])
+                        .filter(p => p && p.name && p.status !== "Inactive")
+                        .map(p => {
+                            let sPersName = p.name.trim();
+                            if (!sPersName.includes("(") && sCleanTeamShort) {
+                                sPersName = sPersName + " (" + sCleanTeamShort + ")";
+                            }
+                            return sPersName;
+                        });
+                });
+            });
 
             const findParentRoleForPersona = (sPersonaKey, aAvailableRoles) => {
                 for (const [sRole, aPersonas] of Object.entries(oRoleToPersonas)) {
@@ -6363,16 +6316,25 @@ sap.ui.define([
 
         _loadBackendSoDMatrix() {
             const oModel = this.getView().getModel("accessModel");
+            if (localStorage.getItem("kyra_custom_sod_matrix")) {
+                return;
+            }
             fetch("/odata/v4/admin-portal/SoDMatrix")
                 .then(res => res.json())
                 .then(data => {
-                    if (data && data.value && oModel) {
-                        const aRules = data.value.map(r => ({
-                            role1: r.roleA || r.role_a || r.role1,
-                            role2: r.roleB || r.role_b || r.role2,
-                            description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
-                        }));
-                        oModel.setProperty("/sodMatrix", aRules);
+                    if (data && data.value && oModel && !localStorage.getItem("kyra_custom_sod_matrix")) {
+                        const aExistingCustom = oModel.getProperty("/adminCustomConflictsAll") || [];
+                        if (aExistingCustom.length === 0) {
+                            const aRules = data.value.map(r => ({
+                                system: r.system || "All Systems (Global)",
+                                service: r.service || "System Administrator",
+                                role1: r.roleA || r.role_a || r.role1,
+                                role2: r.roleB || r.role_b || r.role2,
+                                status: "Active",
+                                description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
+                            }));
+                            oModel.setProperty("/sodMatrix", aRules);
+                        }
                     }
                 })
                 .catch(err => {
@@ -6387,17 +6349,21 @@ sap.ui.define([
             const aUserActiveRoles = oModel.getProperty("/activeRoles") || oModel.getProperty("/userAccessList") || [];
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
-            const aModelSod = oModel.getProperty("/sodMatrix");
-            const aSodRules = (aModelSod && aModelSod.length > 0) ? aModelSod : [
-                { role1: "IT Admin", role2: "IT Developer", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                { role1: "IT Admin", role2: "IT Security", description: "System Administrator conflicts with Security Governance." },
-                { role1: "IT Admin", role2: "Compliance Manager", description: "System Administrator conflicts with Compliance Manager oversight." },
-                { role1: "IT Security", role2: "IT Developer", description: "Developer access conflicts with IT Security audit authority." },
-                { role1: "Lead Engineer", role2: "IT Admin", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                { role1: "Security", role2: "Compliance Manager", description: "Compliance Manager conflicts with Security Operational access." },
-                { role1: "Security Audit", role2: "IT Developer", description: "Security Audit oversight conflicts with Developer operational access." },
-                { role1: "System Administrator", role2: "Security Audit", description: "System Administrator conflicts with Security Audit role." }
+            const aCustomAll = oModel.getProperty("/adminCustomConflictsAll");
+            const aModelSod = (Array.isArray(aCustomAll) && aCustomAll.length > 0)
+                ? aCustomAll
+                : oModel.getProperty("/sodMatrix");
+            const aRawSodRules = (aModelSod && aModelSod.length > 0) ? aModelSod : [
+                { role1: "IT Admin", role2: "IT Developer", status: "Active", description: "Segregation of Duties conflict between Developer and Admin privileges." },
+                { role1: "IT Admin", role2: "IT Security", status: "Active", description: "System Administrator conflicts with Security Governance." },
+                { role1: "IT Admin", role2: "Compliance Manager", status: "Active", description: "System Administrator conflicts with Compliance Manager oversight." },
+                { role1: "IT Security", role2: "IT Developer", status: "Active", description: "Developer access conflicts with IT Security audit authority." },
+                { role1: "Lead Engineer", role2: "IT Admin", status: "Active", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
+                { role1: "Security", role2: "Compliance Manager", status: "Active", description: "Compliance Manager conflicts with Security Operational access." },
+                { role1: "Security Audit", role2: "IT Developer", status: "Active", description: "Security Audit oversight conflicts with Developer operational access." },
+                { role1: "System Administrator", role2: "Security Audit", status: "Active", description: "System Administrator conflicts with Security Audit role." }
             ];
+            const aSodRules = aRawSodRules.filter(r => r && r.status !== "Inactive");
 
             const normalizeSystemName = (sys) => {
                 if (!sys) return "";
@@ -10120,30 +10086,51 @@ sap.ui.define([
         // =========================================================================
         // ADMIN PERSONA: 3 ACTION CARDS, ACCESS CUSTOMIZATION & CUSTOM CONFLICTS
         // =========================================================================
+        _applyParsedAdminConfigToModel(oModel, oParsed) {
+            if (!oModel || !oParsed || typeof oParsed !== "object") return;
+            if (Array.isArray(oParsed.adminSystemsAll) && oParsed.adminSystemsAll.length > 0) {
+                const aSys = oParsed.adminSystemsAll.map(s => Object.assign({ status: "Active" }, s));
+                oModel.setProperty("/adminSystemsAll", aSys);
+                oModel.setProperty("/adminSystems", aSys.slice());
+            }
+            if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length > 0) {
+                const aSrv = oParsed.adminServicesAll.map(s => Object.assign({ status: "Active" }, s));
+                oModel.setProperty("/adminServicesAll", aSrv);
+                oModel.setProperty("/adminServices", aSrv.slice());
+            }
+            if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object") {
+                oModel.setProperty("/adminServiceDetailsMap", oParsed.adminServiceDetailsMap);
+                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+                const aTeams = oParsed.adminServiceDetailsMap[sSelectedSrv] || [];
+                if (aTeams.length > 0) {
+                    oModel.setProperty("/adminClassifications", JSON.parse(JSON.stringify(aTeams)));
+                    const oActiveTeam = aTeams.find(t => t.selected) || aTeams[0];
+                    oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oActiveTeam)));
+                }
+            }
+            if (Array.isArray(oParsed.adminCustomConflictsAll) && oParsed.adminCustomConflictsAll.length > 0) {
+                const aConf = oParsed.adminCustomConflictsAll.map(c => Object.assign({ status: "Active" }, c));
+                oModel.setProperty("/adminCustomConflictsAll", aConf);
+                oModel.setProperty("/adminCustomConflicts", aConf.slice());
+                oModel.setProperty("/sodMatrix", aConf.filter(c => c.status !== "Inactive"));
+            }
+            if (Array.isArray(oParsed.adminDatabaseSchemas) && oParsed.adminDatabaseSchemas.length > 0) {
+                oModel.setProperty("/adminDatabaseSchemas", oParsed.adminDatabaseSchemas);
+            }
+            if (Array.isArray(oParsed.adminPersonaUsers) && oParsed.adminPersonaUsers.length > 0) {
+                oModel.setProperty("/adminPersonaUsers", oParsed.adminPersonaUsers);
+            }
+        },
+
         _loadCustomAccessAndConflictConfig(oModel) {
+            if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
+
             try {
                 const sSavedConfig = localStorage.getItem("kyra_custom_access_config");
                 if (sSavedConfig) {
                     const oParsed = JSON.parse(sSavedConfig);
-                    if (Array.isArray(oParsed.adminSystemsAll) && oParsed.adminSystemsAll.length > 0) {
-                        oModel.setProperty("/adminSystemsAll", oParsed.adminSystemsAll);
-                        oModel.setProperty("/adminSystems", oParsed.adminSystemsAll.slice());
-                    }
-                    if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length > 0) {
-                        oModel.setProperty("/adminServicesAll", oParsed.adminServicesAll);
-                        oModel.setProperty("/adminServices", oParsed.adminServicesAll.slice());
-                    }
-                    if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object") {
-                        oModel.setProperty("/adminServiceDetailsMap", oParsed.adminServiceDetailsMap);
-                        const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
-                        const aTeams = oParsed.adminServiceDetailsMap[sSelectedSrv] || [];
-                        if (aTeams.length > 0) {
-                            oModel.setProperty("/adminClassifications", JSON.parse(JSON.stringify(aTeams)));
-                            const oActiveTeam = aTeams.find(t => t.selected) || aTeams[0];
-                            oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oActiveTeam)));
-                        }
-                    }
+                    this._applyParsedAdminConfigToModel(oModel, oParsed);
                 }
             } catch (e) {
                 console.warn("Load custom access config error:", e);
@@ -10154,32 +10141,61 @@ sap.ui.define([
                 if (sSavedConflicts) {
                     const aParsedConflicts = JSON.parse(sSavedConflicts);
                     if (Array.isArray(aParsedConflicts) && aParsedConflicts.length > 0) {
-                        oModel.setProperty("/adminCustomConflictsAll", aParsedConflicts);
-                        oModel.setProperty("/adminCustomConflicts", aParsedConflicts.slice());
-                        oModel.setProperty("/sodMatrix", aParsedConflicts.slice());
+                        const aNormalized = aParsedConflicts.map(c => Object.assign({ status: "Active" }, c));
+                        oModel.setProperty("/adminCustomConflictsAll", aNormalized);
+                        oModel.setProperty("/adminCustomConflicts", aNormalized.slice());
+                        oModel.setProperty("/sodMatrix", aNormalized.filter(c => c.status !== "Inactive"));
                     }
                 } else {
-                    const aDefaultConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
-                    oModel.setProperty("/sodMatrix", aDefaultConflicts.slice());
+                    const aDefaultConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => Object.assign({ status: "Active" }, c));
+                    oModel.setProperty("/adminCustomConflictsAll", aDefaultConflicts);
+                    oModel.setProperty("/adminCustomConflicts", aDefaultConflicts.slice());
+                    oModel.setProperty("/sodMatrix", aDefaultConflicts.filter(c => c.status !== "Inactive"));
                 }
             } catch (e) {
                 console.warn("Load custom conflicts error:", e);
             }
 
-            this._syncAdminConfigToLiveAddAccess(oModel);
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+
+            // Fetch from backend server so any Admin changes saved by admin01 are reflected for all users across sessions
+            fetch("/api/admin/customization")
+                .then(res => res.ok ? res.json() : null)
+                .then(oRes => {
+                    if (oRes && oRes.config && typeof oRes.config === "object") {
+                        this._applyParsedAdminConfigToModel(oModel, oRes.config);
+                        try {
+                            localStorage.setItem("kyra_custom_access_config", JSON.stringify(oRes.config));
+                            if (Array.isArray(oRes.config.adminCustomConflictsAll)) {
+                                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oRes.config.adminCustomConflictsAll));
+                            }
+                        } catch (err) {}
+                        this._syncAdminConfigToLiveAddAccess(oModel, true);
+                    }
+                })
+                .catch(() => {});
         },
 
-        _syncAdminConfigToLiveAddAccess(oModel) {
-            if (!oModel) oModel = this.getView().getModel("accessModel");
+        _syncAdminConfigToLiveAddAccess(oModel, bSkipBackendSave) {
+            if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
             const aSystems = oModel.getProperty("/adminSystemsAll") || [];
             const aServices = oModel.getProperty("/adminServicesAll") || [];
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const aConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const aDbSchemas = oModel.getProperty("/adminDatabaseSchemas") || [];
+            const aPersonaUsers = oModel.getProperty("/adminPersonaUsers") || [];
+
+            // Filter only Active Systems and Services for Add Access Step 3
+            const aActiveSystems = aSystems.filter(s => s && s.status !== "Inactive");
+            const aActiveServices = aServices.filter(s => s && s.status !== "Inactive");
+            oModel.setProperty("/activeAdminSystems", aActiveSystems);
+            oModel.setProperty("/activeAdminServices", aActiveServices);
 
             // 1. Rebuild System Options for Custom Conflict Builder
             const aSystemOpts = [{ key: "All Systems (Global)", text: "All Systems (Global)" }];
-            aSystems.forEach(s => {
+            aActiveSystems.forEach(s => {
                 if (s && s.systemName) {
                     aSystemOpts.push({ key: s.systemName, text: s.systemName });
                 }
@@ -10190,18 +10206,24 @@ sap.ui.define([
             const aSubRolesList = [];
             const aPersonasList = [];
             const aCombinedOptions = [];
+            const aActiveServiceNames = aActiveServices.map(s => s.serviceName);
 
             Object.keys(oDetailsMap).forEach(sService => {
+                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService);
                 const aTeams = oDetailsMap[sService] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name) return;
                     const sTeamName = oTeam.name.trim();
-                    aSubRolesList.push({
-                        key: sTeamName,
-                        text: sTeamName,
-                        service: sService,
-                        icon: "sap-icon://user-settings"
-                    });
+                    const bTeamActive = bServiceActive && oTeam.status !== "Inactive";
+
+                    if (bTeamActive) {
+                        aSubRolesList.push({
+                            key: sTeamName,
+                            text: sTeamName,
+                            service: sService,
+                            icon: "sap-icon://user-settings"
+                        });
+                    }
                     aCombinedOptions.push({
                         key: sTeamName,
                         text: "[Team] " + sTeamName
@@ -10215,12 +10237,14 @@ sap.ui.define([
                         if (!sPersName.includes("(") && sCleanTeamShort) {
                             sPersName = sPersName + " (" + sCleanTeamShort + ")";
                         }
-                        aPersonasList.push({
-                            key: sPersName,
-                            text: sPersName,
-                            parentTeam: sTeamName,
-                            icon: "sap-icon://person-placeholder"
-                        });
+                        if (bTeamActive && oPers.status !== "Inactive") {
+                            aPersonasList.push({
+                                key: sPersName,
+                                text: sPersName,
+                                parentTeam: sTeamName,
+                                icon: "sap-icon://person-placeholder"
+                            });
+                        }
                         aCombinedOptions.push({
                             key: sPersName,
                             text: "[Persona] " + sPersName
@@ -10239,13 +10263,34 @@ sap.ui.define([
                 oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aCombinedOptions);
             }
 
+            // Refresh Step 3 dependent lists if user has services/roles selected
+            this._updateSubRolesList(true);
+            this._updatePersonasList(true);
+
+            // Sync active SoD conflicts
+            oModel.setProperty("/sodMatrix", aConflicts.filter(c => c && c.status !== "Inactive"));
+
+            const oPayload = {
+                adminSystemsAll: aSystems,
+                adminServicesAll: aServices,
+                adminServiceDetailsMap: oDetailsMap,
+                adminCustomConflictsAll: aConflicts,
+                adminDatabaseSchemas: aDbSchemas,
+                adminPersonaUsers: aPersonaUsers
+            };
+
             try {
-                localStorage.setItem("kyra_custom_access_config", JSON.stringify({
-                    adminSystemsAll: aSystems,
-                    adminServicesAll: aServices,
-                    adminServiceDetailsMap: oDetailsMap
-                }));
+                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
+                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
             } catch (e) {}
+
+            if (!bSkipBackendSave) {
+                fetch("/api/admin/customization", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(oPayload)
+                }).catch(() => {});
+            }
         },
 
         onSelectAdminDatabaseConfig() {
@@ -10311,7 +10356,7 @@ sap.ui.define([
             oModel.setProperty("/adminSystemsAll", aAll);
             oModel.setProperty("/adminSystems", aAll.slice());
             this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("System '" + oNew.systemName + "' added to live configuration.");
+            MessageToast.show("System '" + oNew.systemName + "' added and activated in Add Access.");
         },
 
         onEditAdminSystem(oEvent) {
@@ -10324,13 +10369,35 @@ sap.ui.define([
             if (sNewName && sNewName.trim()) {
                 const sTrimmed = sNewName.trim();
                 const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
-                    item.systemName === sOldName ? Object.assign({}, item, { systemName: sTrimmed }) : item
+                    item.systemName === sOldName ? Object.assign({}, item, { systemName: sTrimmed, status: "Active" }) : item
                 );
                 oModel.setProperty("/adminSystemsAll", aAll);
                 oModel.setProperty("/adminSystems", aAll.slice());
                 this._syncAdminConfigToLiveAddAccess(oModel);
-                MessageToast.show("System updated.");
+                MessageToast.show("System '" + sTrimmed + "' saved and activated.");
             }
+        },
+
+        onToggleAdminSystemStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            const sNextStatus = oObj.status === "Inactive" ? "Active" : "Inactive";
+            const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
+                item.systemName === oObj.systemName ? Object.assign({}, item, { status: sNextStatus }) : item
+            );
+            oModel.setProperty("/adminSystemsAll", aAll);
+            oModel.setProperty("/adminSystems", aAll.slice());
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("System '" + oObj.systemName + "' is now " + sNextStatus + ".");
+        },
+
+        onSaveAdminSystemsSection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("System configuration saved and activated for all users.");
         },
 
         onDeleteAdminSystem(oEvent) {
@@ -10387,16 +10454,17 @@ sap.ui.define([
                 aTeams = [
                     {
                         name: sServiceName + " Team (" + sServiceName + ")",
+                        status: "Active",
                         selected: true,
                         subClassifications: [
-                            { name: sServiceName + " Lead Persona (" + sServiceName + " Team)" }
+                            { name: sServiceName + " Lead Persona (" + sServiceName + " Team)", status: "Active" }
                         ]
                     }
                 ];
                 oDetailsMap[sServiceName] = aTeams;
                 oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             }
-            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({}, t, {
+            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: "Active" }, t, {
                 selected: idx === 0
             }));
             oModel.setProperty("/adminClassifications", aTeamsCopy);
@@ -10424,16 +10492,17 @@ sap.ui.define([
                 oDetailsMap[sTrimmed] = [
                     {
                         name: sTrimmed + " Engineer (" + sTrimmed + ")",
+                        status: "Active",
                         selected: true,
                         subClassifications: [
-                            { name: sTrimmed + " Specialist Persona (" + sTrimmed + " Engineer)" }
+                            { name: sTrimmed + " Specialist Persona (" + sTrimmed + " Engineer)", status: "Active" }
                         ]
                     }
                 ];
                 oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             }
             this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Service '" + oNew.serviceName + "' added to live configuration.");
+            MessageToast.show("Service '" + oNew.serviceName + "' added and activated in Add Access.");
         },
 
         onEditAdminService(oEvent) {
@@ -10446,7 +10515,7 @@ sap.ui.define([
             if (sNewName && sNewName.trim()) {
                 const sTrimmed = sNewName.trim();
                 const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
-                    item.serviceName === sOldName ? Object.assign({}, item, { serviceName: sTrimmed }) : item
+                    item.serviceName === sOldName ? Object.assign({}, item, { serviceName: sTrimmed, status: "Active" }) : item
                 );
                 oModel.setProperty("/adminServicesAll", aAll);
                 oModel.setProperty("/adminServices", aAll.slice());
@@ -10460,8 +10529,30 @@ sap.ui.define([
                     oModel.setProperty("/selectedAdminServiceName", sTrimmed);
                 }
                 this._syncAdminConfigToLiveAddAccess(oModel);
-                MessageToast.show("Service updated.");
+                MessageToast.show("Service '" + sTrimmed + "' saved and activated.");
             }
+        },
+
+        onToggleAdminServiceStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            const sNextStatus = oObj.status === "Inactive" ? "Active" : "Inactive";
+            const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
+                item.serviceName === oObj.serviceName ? Object.assign({}, item, { status: sNextStatus }) : item
+            );
+            oModel.setProperty("/adminServicesAll", aAll);
+            oModel.setProperty("/adminServices", aAll.slice());
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Service '" + oObj.serviceName + "' is now " + sNextStatus + ".");
+        },
+
+        onSaveAdminServicesSection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Service configuration saved and activated for all users.");
         },
 
         onDeleteAdminService(oEvent) {
@@ -10493,6 +10584,64 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oClicked)));
         },
 
+        onLiveChangeSelectedTeamName(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sVal = oEvent.getParameter("value") || "";
+            oModel.setProperty("/selectedAdminClassification/name", sVal);
+            oModel.setProperty("/selectedAdminClassification/status", "Active");
+        },
+
+        onLiveChangeSelectedPersonaName(oEvent) {
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (oCtx && oCtx.getModel()) {
+                oCtx.getModel().setProperty(oCtx.getPath() + "/status", "Active");
+            }
+        },
+
+        onToggleAdminTeamStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            const sNextStatus = oObj.status === "Inactive" ? "Active" : "Inactive";
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+
+            const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                item.name === oObj.name ? Object.assign({}, item, { status: sNextStatus }) : item
+            );
+            oModel.setProperty("/adminClassifications", aList);
+            if (oModel.getProperty("/selectedAdminClassification/name") === oObj.name) {
+                oModel.setProperty("/selectedAdminClassification/status", sNextStatus);
+            }
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Team '" + oObj.name + "' is now " + sNextStatus + ".");
+        },
+
+        onToggleAdminPersonaStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            const sNextStatus = oObj.status === "Inactive" ? "Active" : "Inactive";
+            oModel.setProperty(oCtx.getPath() + "/status", sNextStatus);
+
+            const oSelected = oModel.getProperty("/selectedAdminClassification");
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+            const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                item.selected ? Object.assign({}, oSelected, { selected: true }) : item
+            );
+            oModel.setProperty("/adminClassifications", aList);
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Persona '" + oObj.name + "' is now " + sNextStatus + ".");
+        },
+
         onAddAdminClassification() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -10506,9 +10655,10 @@ sap.ui.define([
             }));
             const oNewTeam = {
                 name: sFinalName,
+                status: "Active",
                 selected: true,
                 subClassifications: [
-                    { name: sShortTeam + " Lead Persona (" + sShortTeam + ")" }
+                    { name: sShortTeam + " Lead Persona (" + sShortTeam + ")", status: "Active" }
                 ]
             };
             aList.push(oNewTeam);
@@ -10519,7 +10669,7 @@ sap.ui.define([
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Team '" + oNewTeam.name + "' added.");
+            MessageToast.show("Team '" + oNewTeam.name + "' added and activated.");
         },
 
         onDeleteAdminClassification(oEvent) {
@@ -10549,7 +10699,7 @@ sap.ui.define([
             const sSubName = window.prompt("Enter new Persona Name:", "Enterprise Cloud Architect Persona (" + sShortTeam + ")");
             if (!sSubName || !sSubName.trim()) return;
             const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
-            aSubs.push({ name: sSubName.trim() });
+            aSubs.push({ name: sSubName.trim(), status: "Active" });
             oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
         },
 
@@ -10568,9 +10718,31 @@ sap.ui.define([
             const oSelected = oModel.getProperty("/selectedAdminClassification");
             if (!oSelected) return;
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+
+            // Ensure saved Team and Personas are automatically Active on Save
+            const sTeamNameTrimmed = (oSelected.name || "").trim();
+            const sTeamShort = sTeamNameTrimmed.replace(/\s*\([^)]*\)/g, "").trim();
+            const aUpdatedSubs = (oSelected.subClassifications || []).map(p => {
+                let sPName = (p.name || "").trim();
+                if (sTeamShort && sPName.includes("(")) {
+                    sPName = sPName.replace(/\([^)]*\)\s*$/, "(" + sTeamShort + ")");
+                }
+                return Object.assign({}, p, {
+                    name: sPName,
+                    status: p.status === "Inactive" ? "Active" : (p.status || "Active")
+                });
+            });
+            const oActivatedSelected = Object.assign({}, oSelected, {
+                name: sTeamNameTrimmed,
+                status: "Active",
+                selected: true,
+                subClassifications: aUpdatedSubs
+            });
+            oModel.setProperty("/selectedAdminClassification", oActivatedSelected);
+
             const aList = (oModel.getProperty("/adminClassifications") || []).map(item => {
                 if (item.selected) {
-                    return Object.assign({}, oSelected, { selected: true });
+                    return JSON.parse(JSON.stringify(oActivatedSelected));
                 }
                 return item;
             });
@@ -10580,7 +10752,7 @@ sap.ui.define([
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Service Details (Teams & Personas) saved and synced with Add Access Configuration.");
+            MessageToast.show("Service Details (Team & Persona) saved, activated, and reflected in Add Access for all users.");
         },
 
         onCancelAdminServiceDetails() {
@@ -10609,9 +10781,38 @@ sap.ui.define([
                 (item.service || "").toLowerCase().includes(sQuery) ||
                 (item.role1 || "").toLowerCase().includes(sQuery) ||
                 (item.role2 || "").toLowerCase().includes(sQuery) ||
-                (item.description || "").toLowerCase().includes(sQuery)
+                (item.description || "").toLowerCase().includes(sQuery) ||
+                (item.status || "").toLowerCase().includes(sQuery)
             );
             oModel.setProperty("/adminCustomConflicts", aFiltered);
+        },
+
+        onAddNewConflictDraft() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/newConflictDraft", {
+                system: "SAP BTP Cloud Platform",
+                service: "System Administrator",
+                role1: "",
+                role2: "",
+                description: "",
+                _editingIndex: -1
+            });
+            MessageToast.show("Enter conflict details below and click Save to activate.");
+        },
+
+        onCancelCustomConflictDraft() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/newConflictDraft", {
+                system: "SAP BTP Cloud Platform",
+                service: "System Administrator",
+                role1: "IT Developers (System Administrator)",
+                role2: "IT Administrators (System Administrator)",
+                description: "Segregation of Duties conflict between selected Team / Persona entitlements.",
+                _editingIndex: -1
+            });
+            MessageToast.show("Conflict edit changes cleared.");
         },
 
         onSaveCustomConflictDraft() {
@@ -10623,6 +10824,7 @@ sap.ui.define([
             const sRole1 = (oDraft.role1 || "").trim();
             const sRole2 = (oDraft.role2 || "").trim();
             const sDesc = (oDraft.description || "").trim() || ("Custom SoD Conflict between " + sRole1 + " and " + sRole2 + ".");
+            const iEditIdx = typeof oDraft._editingIndex === "number" ? oDraft._editingIndex : -1;
 
             if (!sRole1 || !sRole2) {
                 MessageToast.show("Please select both Primary Team/Persona and Conflicting Team/Persona.");
@@ -10633,25 +10835,35 @@ sap.ui.define([
                 return;
             }
 
-            const oNewConflict = {
+            const oSavedConflict = {
                 system: sSystem,
                 service: sService,
                 role1: sRole1,
                 role2: sRole2,
-                description: sDesc
+                description: sDesc,
+                status: "Active"
             };
 
             const aAll = (oModel.getProperty("/adminCustomConflictsAll") || []).slice();
-            aAll.unshift(oNewConflict);
+            if (iEditIdx >= 0 && iEditIdx < aAll.length) {
+                aAll[iEditIdx] = oSavedConflict;
+            } else {
+                const iExistingIdx = aAll.findIndex(c =>
+                    c.system === sSystem && c.role1 === sRole1 && c.role2 === sRole2
+                );
+                if (iExistingIdx >= 0) {
+                    aAll[iExistingIdx] = oSavedConflict;
+                } else {
+                    aAll.unshift(oSavedConflict);
+                }
+            }
+
             oModel.setProperty("/adminCustomConflictsAll", aAll);
             oModel.setProperty("/adminCustomConflicts", aAll.slice());
-            oModel.setProperty("/sodMatrix", aAll.slice());
+            oModel.setProperty("/newConflictDraft/_editingIndex", -1);
+            this._syncAdminConfigToLiveAddAccess(oModel);
 
-            try {
-                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aAll));
-            } catch (e) {}
-
-            MessageToast.show("Custom Conflict added and synced with Add Access SoD Validation.");
+            MessageToast.show("Custom Conflict saved and activated for Add Access SoD Validation.");
         },
 
         onEditAdminConflictRule(oEvent) {
@@ -10659,21 +10871,40 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oRule = oCtx.getObject();
-            const sNewRole1 = window.prompt("Edit Primary Team / Persona:", oRule.role1) || oRule.role1;
-            const sNewRole2 = window.prompt("Edit Conflicting Team / Persona:", oRule.role2) || oRule.role2;
-            const sNewDesc = window.prompt("Edit Conflict Reason:", oRule.description) || oRule.description;
+            const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const iIdx = aAll.findIndex(c =>
+                c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
+            );
 
-            oModel.setProperty(oCtx.getPath() + "/role1", sNewRole1.trim());
-            oModel.setProperty(oCtx.getPath() + "/role2", sNewRole2.trim());
-            oModel.setProperty(oCtx.getPath() + "/description", sNewDesc.trim());
+            // Load into the Conflict Edit section above the table so user can edit and click Save
+            oModel.setProperty("/newConflictDraft", {
+                system: oRule.system || "SAP BTP Cloud Platform",
+                service: oRule.service || "System Administrator",
+                role1: oRule.role1 || "",
+                role2: oRule.role2 || "",
+                description: oRule.description || "",
+                _editingIndex: iIdx
+            });
+            MessageToast.show("Loaded conflict rule into Conflict Edit section above. Make changes and click Save to activate.");
+        },
 
-            const aUpdated = (oModel.getProperty("/adminCustomConflicts") || []).slice();
-            oModel.setProperty("/adminCustomConflictsAll", aUpdated);
-            oModel.setProperty("/sodMatrix", aUpdated);
-            try {
-                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aUpdated));
-            } catch (e) {}
-            MessageToast.show("Conflict Rule updated.");
+        onToggleAdminConflictStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oRule = oCtx.getObject();
+            const sNextStatus = oRule.status === "Inactive" ? "Active" : "Inactive";
+
+            const aAll = (oModel.getProperty("/adminCustomConflictsAll") || []).map(item => {
+                if (item.role1 === oRule.role1 && item.role2 === oRule.role2 && item.system === oRule.system) {
+                    return Object.assign({}, item, { status: sNextStatus });
+                }
+                return item;
+            });
+            oModel.setProperty("/adminCustomConflictsAll", aAll);
+            oModel.setProperty("/adminCustomConflicts", aAll.slice());
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Conflict Rule is now " + sNextStatus + ".");
         },
 
         onDeleteAdminConflictRule(oEvent) {
@@ -10686,17 +10917,62 @@ sap.ui.define([
             );
             oModel.setProperty("/adminCustomConflictsAll", aRemaining);
             oModel.setProperty("/adminCustomConflicts", aRemaining.slice());
-            oModel.setProperty("/sodMatrix", aRemaining.slice());
-            try {
-                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aRemaining));
-            } catch (e) {}
+            this._syncAdminConfigToLiveAddAccess(oModel);
             MessageToast.show("Conflict Rule removed.");
         },
 
-        onSyncAdminDatabaseSchema(oEvent) {
+        onToggleAdminDbSchemaStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            const sNextStatus = oObj.status === "Inactive" ? "Active" : "Inactive";
+            oModel.setProperty(oCtx.getPath() + "/status", sNextStatus);
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Database schema '" + oObj.schemaName + "' is now " + sNextStatus + ".");
+        },
+
+        onSaveAdminDatabaseConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("Database Configuration saved and activated.");
+        },
+
+        onSyncAdminDatabaseSchema(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (oCtx && oModel) {
+                const oSchema = oCtx.getObject();
+                const sNewHost = window.prompt("Edit Database Host for schema '" + oSchema.schemaName + "':", oSchema.host || "localhost:5432");
+                if (sNewHost && sNewHost.trim()) {
+                    oModel.setProperty(oCtx.getPath() + "/host", sNewHost.trim());
+                    oModel.setProperty(oCtx.getPath() + "/status", "Active");
+                    this._syncAdminConfigToLiveAddAccess(oModel);
+                    MessageToast.show("Schema '" + oSchema.schemaName + "' saved and activated.");
+                    return;
+                }
+            }
             const sSchema = oCtx ? oCtx.getProperty("schemaName") : "Schema";
             MessageToast.show("Database schema '" + sSchema + "' synchronized with PostgreSQL.");
+        },
+
+        onToggleAdminPersonaUserStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            const sNextStatus = oObj.status === "Inactive" ? "Active" : "Inactive";
+            oModel.setProperty(oCtx.getPath() + "/status", sNextStatus);
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("User '" + oObj.userId + "' persona status is now " + sNextStatus + ".");
+        },
+
+        onSaveAdminPersonaConversion() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            MessageToast.show("User Persona Conversion saved and activated.");
         },
 
         onConvertUserPersona(oEvent) {
@@ -10707,7 +10983,9 @@ sap.ui.define([
             const sNextPersona = window.prompt("Convert User '" + oUser.userId + "' to Persona (Admin / Requester / Approver / Compliance Review):", oUser.targetPersona || "Approver");
             if (sNextPersona && sNextPersona.trim()) {
                 oModel.setProperty(oCtx.getPath() + "/currentPersona", sNextPersona.trim());
-                MessageToast.show("User '" + oUser.userId + "' converted to " + sNextPersona.trim() + ".");
+                oModel.setProperty(oCtx.getPath() + "/status", "Active");
+                this._syncAdminConfigToLiveAddAccess(oModel);
+                MessageToast.show("User '" + oUser.userId + "' converted to " + sNextPersona.trim() + " and activated.");
             }
         }
     });

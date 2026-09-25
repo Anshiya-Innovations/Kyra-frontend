@@ -32582,12 +32582,26 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     padding: 0 16px !important;
 }
 
-.kyraAdminConflictBuilderBox {
+.kyraAdminConflictEditContainer {
     background: #F8FAFC !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 8px !important;
     padding: 14px 16px !important;
     box-sizing: border-box !important;
+}
+
+.kyraAdminConflictBuilderBox {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    gap: 10px !important;
+}
+
+.kyraAdminConflictEditFooterBar {
+    margin-top: 12px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid #E2E8F0 !important;
     gap: 10px !important;
 }
 
@@ -32601,4 +32615,44 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 
 .kyraAdminBuilderInput {
     margin-bottom: 0 !important;
-}
+}
+
+.kyraAdminTeamNameBox {
+    gap: 6px !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+.kyraAdminToggleActivateBtn .sapMBtnInner {
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    border: 1px solid #10B981 !important;
+    border-radius: 6px !important;
+    color: #047857 !important;
+    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    height: 26px !important;
+    line-height: 24px !important;
+    padding: 0 10px !important;
+}
+
+.kyraAdminToggleDeactivateBtn .sapMBtnInner {
+    background: #FEF2F2 !important;
+    background-color: #FEF2F2 !important;
+    border: 1px solid #F87171 !important;
+    border-radius: 6px !important;
+    color: #B91C1C !important;
+    font-weight: 600 !important;
+    font-size: 11.5px !important;
+    height: 26px !important;
+    line-height: 24px !important;
+    padding: 0 10px !important;
+}
+
+.kyraAdminMiniToggleBtn .sapMBtnInner {
+    height: 24px !important;
+    line-height: 22px !important;
+    padding: 0 8px !important;
+    font-size: 11px !important;
+}
+
