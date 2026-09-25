@@ -170,6 +170,7 @@
                                     class="kyraModernSelect kyraSelectPlaceholderState">
                                     <items>
                                         <core:Item key="" text="Select persona" />
+                                        <core:Item key="Admin" text="Admin" icon="sap-icon://key-user-settings" />
                                         <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
                                         <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
                                         <core:Item key="Compliance Review" text="Compliance Review" icon="sap-icon://user-settings" />

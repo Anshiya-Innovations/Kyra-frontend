@@ -32043,4 +32043,327 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     color: #64748B !important;
     font-size: 12.5px !important;
     font-weight: 500 !important;
+}
+
+/* =========================================================================
+   ADMIN PERSONA: ACCESS CUSTOMIZATION SECTION (EXACT IMAGE 2 REPLICA)
+   ========================================================================= */
+.kyraAdminAccessCustomizationWrapper {
+    margin-top: 4px !important;
+    margin-bottom: 24px !important;
+}
+
+.kyraAdminWhiteCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 18px 22px !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminCardHeaderRow {
+    margin-bottom: 14px !important;
+    padding-bottom: 4px !important;
+}
+
+.kyraAdminCardTitle,
+.kyraAdminCardTitle.sapMTitle {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.01em !important;
+}
+
+.kyraAdminHeaderActions {
+    gap: 10px !important;
+}
+
+.kyraAdminSearchField .sapMSFF {
+    border-radius: 6px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    height: 34px !important;
+    line-height: 32px !important;
+}
+
+.kyraAdminAddBlueBtn .sapMBtnInner,
+.kyraAdminSaveBtn .sapMBtnInner {
+    background: #2563EB !important;
+    background-color: #2563EB !important;
+    border: 1px solid #2563EB !important;
+    border-radius: 6px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+    padding: 0 14px !important;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25) !important;
+}
+
+.kyraAdminAddBlueBtn:hover .sapMBtnInner,
+.kyraAdminSaveBtn:hover .sapMBtnInner {
+    background: #1D4ED8 !important;
+    background-color: #1D4ED8 !important;
+    border-color: #1D4ED8 !important;
+}
+
+.kyraAdminAddBlueBtn .sapMBtnIcon,
+.kyraAdminAddBlueBtn .sapMBtnContent,
+.kyraAdminAddBlueBtn bdi,
+.kyraAdminSaveBtn .sapMBtnContent,
+.kyraAdminSaveBtn bdi {
+    color: #FFFFFF !important;
+}
+
+.kyraAdminCleanTable .sapMListTblHeader {
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.kyraAdminColHeader {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #64748B !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+}
+
+.kyraAdminTableRow {
+    border-bottom: 1px solid #F1F5F9 !important;
+    height: 44px !important;
+}
+
+/* Highlight selected Service row (e.g. Fiori Launchpad) in light blue */
+.kyraAdminServiceTable tr[data-selectedservice="true"],
+.kyraAdminServiceTable tr[data-selectedservice="true"] > td {
+    background-color: #E0F2FE !important;
+    background: #E0F2FE !important;
+}
+
+.kyraAdminServiceTable tr[data-selectedservice="true"] .kyraAdminCellBold {
+    color: #1D4ED8 !important;
+    font-weight: 700 !important;
+}
+
+.kyraAdminCellBold {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #0F172A !important;
+}
+
+.kyraAdminCellText {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+}
+
+.kyraAdminStatusCell {
+    gap: 6px !important;
+}
+
+.kyraAdminDotActive {
+    color: #16A34A !important;
+    font-size: 9px !important;
+}
+
+.kyraAdminDotInactive {
+    color: #94A3B8 !important;
+    font-size: 9px !important;
+}
+
+.kyraAdminStatusActiveText {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #15803D !important;
+}
+
+.kyraAdminStatusInactiveText {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748B !important;
+}
+
+.kyraAdminRowActionGroup {
+    gap: 4px !important;
+}
+
+.kyraAdminActionEditBtn .sapMBtnInner,
+.kyraAdminActionDeleteBtn .sapMBtnInner {
+    background: transparent !important;
+    border: none !important;
+    min-width: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+}
+
+.kyraAdminActionEditBtn .sapMBtnIcon {
+    color: #2563EB !important;
+    font-size: 14px !important;
+}
+
+.kyraAdminActionDeleteBtn .sapMBtnIcon {
+    color: #EF4444 !important;
+    font-size: 14px !important;
+}
+
+/* Service Details - Fiori Launchpad Right Card & Sub-Panels */
+.kyraAdminServiceDetailsSplitBox {
+    gap: 14px !important;
+}
+
+.kyraAdminClassificationsSubPanel,
+.kyraAdminClassDetailSubPanel {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 14px 16px !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminSubPanelTitle {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #1E293B !important;
+    margin-bottom: 10px !important;
+    display: block !important;
+}
+
+.kyraAdminClassListContainer {
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+}
+
+.kyraAdminClassItemCard {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 6px !important;
+    padding: 6px 10px !important;
+    background: #FFFFFF !important;
+    min-height: 38px !important;
+    box-sizing: border-box !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraAdminClassItemCard[data-selectedclass="true"] {
+    background: #E0F2FE !important;
+    border-color: #7DD3FC !important;
+}
+
+.kyraAdminClassItemLink,
+.kyraAdminClassItemLink.sapMLnk {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1E293B !important;
+    text-decoration: none !important;
+}
+
+.kyraAdminClassItemCard[data-selectedclass="true"] .kyraAdminClassItemLink {
+    color: #1D4ED8 !important;
+    font-weight: 700 !important;
+}
+
+.kyraAdminSubAddBtn .sapMBtnInner {
+    background: #F1F5F9 !important;
+    background-color: #F1F5F9 !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 6px !important;
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    font-size: 12.5px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+}
+
+.kyraAdminSubAddBtn:hover .sapMBtnInner {
+    background: #E2E8F0 !important;
+}
+
+.kyraAdminFieldLabelRow {
+    gap: 3px !important;
+    margin-bottom: 4px !important;
+}
+
+.kyraAdminFormLabel {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+}
+
+.kyraAdminRequiredStar {
+    color: #EF4444 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+.kyraAdminFormInput {
+    margin-bottom: 12px !important;
+}
+
+.kyraAdminFormInput .sapMInputBaseContentWrapper,
+.kyraAdminSubClassInput .sapMInputBaseContentWrapper {
+    border-radius: 6px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    height: 34px !important;
+}
+
+.kyraAdminSubClassHeader {
+    margin-top: 6px !important;
+    margin-bottom: 8px !important;
+}
+
+.kyraAdminSubClassListContainer {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+}
+
+.kyraAdminSubClassRow {
+    gap: 6px !important;
+}
+
+.kyraAdminAddSubClassBtn {
+    margin-top: 4px !important;
+}
+
+.kyraAdminServiceDetailsFooter {
+    margin-top: 16px !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #F1F5F9 !important;
+    gap: 10px !important;
+}
+
+.kyraAdminCancelBtn .sapMBtnInner {
+    background: #E2E8F0 !important;
+    background-color: #E2E8F0 !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 6px !important;
+    color: #334155 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+    padding: 0 16px !important;
+}
+
+.kyraAdminConflictBuilderBox {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 14px 16px !important;
+    box-sizing: border-box !important;
+    gap: 10px !important;
+}
+
+.kyraAdminBuilderSelect.sapMSlt {
+    border-radius: 6px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    height: 34px !important;
+    line-height: 32px !important;
+}
+
+.kyraAdminBuilderInput {
+    margin-bottom: 0 !important;
 }

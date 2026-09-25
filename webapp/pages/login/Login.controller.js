@@ -201,15 +201,15 @@ sap.ui.define([
             let sLabel = "Requester ID";
             let sPlaceholder = "Enter your Requester ID";
 
-            if (sSelectedRole === "Approver") {
+            if (sSelectedRole === "Admin" || sSelectedRole === "Administrator") {
+                sLabel = "Admin ID";
+                sPlaceholder = "Enter your Admin ID";
+            } else if (sSelectedRole === "Approver") {
                 sLabel = "Approver ID";
                 sPlaceholder = "Enter your Approver ID";
             } else if (sSelectedRole === "Compliance Review" || sSelectedRole === "Compliance Approver") {
                 sLabel = "Compliance Review ID";
                 sPlaceholder = "Enter your Compliance Review ID";
-            } else if (sSelectedRole === "Administrator") {
-                sLabel = "Administrator ID";
-                sPlaceholder = "Enter your Administrator ID";
             } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
                 sLabel = "Requester ID";
                 sPlaceholder = "Enter your Requester ID";
@@ -360,7 +360,8 @@ sap.ui.define([
                     localStorage.setItem("kyra_remember_id", sCanonicalUser);
                 }
 
-                const bIsApprover = (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance") || sEffectiveTitle.toLowerCase().includes("admin"))));
+                const bIsAdmin = (sEffectiveTitle === "Admin" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "admin"));
+                const bIsApprover = !bIsAdmin && (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance"))));
                 const isCompliance = typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance");
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
@@ -416,6 +417,9 @@ sap.ui.define([
                     oAccessModel.setProperty("/userId", sCanonicalUser);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isAuthenticated", true);
+                    oAccessModel.setProperty("/isAdmin", bIsAdmin);
+                    oAccessModel.setProperty("/isAdminPersona", bIsAdmin);
+                    oAccessModel.setProperty("/adminSelectedSection", "");
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);

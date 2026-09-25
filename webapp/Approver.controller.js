@@ -724,8 +724,11 @@ sap.ui.define([
         },
 
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
+            window._kyraDecisionInFlight = true;
+            window._kyraDecisionMutationEpoch = Date.now();
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) {
+                window._kyraDecisionInFlight = false;
                 return;
             }
             const sDate = new Date().toISOString().split("T")[0];
@@ -866,6 +869,10 @@ sap.ui.define([
 
             MessageToast.show("Decision submitted for User Id " + oData.requestId);
             oModel.setProperty("/showRequestDetailView", false);
+            
+            setTimeout(() => {
+                window._kyraDecisionInFlight = false;
+            }, 1000);
         },
 
         _buildApproverHistoryAndPending(aRawRecords) {
