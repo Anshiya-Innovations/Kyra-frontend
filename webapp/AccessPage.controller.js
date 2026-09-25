@@ -4961,7 +4961,14 @@ sap.ui.define([
         },
 
         _scrollToWizardContainer() {
-            this._smoothScrollTo("addAccessSectionContainer", 64);
+            // Keep top header visible so notification, sign out, and user profile buttons remain in view
+            const oPage = this.byId("accessPortalPage");
+            const oPageDom = oPage ? (oPage.getDomRef("cont") || oPage.getDomRef("scroll") || oPage.getDomRef()) : null;
+            if (oPageDom && typeof oPageDom.scrollTo === "function") {
+                oPageDom.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
         },
 
         onGoToAddAccessStep3() {

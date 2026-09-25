@@ -5,7 +5,7 @@
     xmlns:core="sap.ui.core"
     displayBlock="true">
     
-    <Page showHeader="false" enableScrolling="false" class="kyraDesktopLoginPage">
+    <Page showHeader="false" enableScrolling="true" class="kyraDesktopLoginPage">
         <content>
             <!-- Ambient Background Effects (Cyber Mesh Grid, Glow Orbs, Subtle Watermark) -->
             <VBox class="kyraAmbientCanvasContainer" width="100%" height="100%">
@@ -50,6 +50,11 @@
                         
                         <!-- Main 3D Interactive Stage Canvas -->
                         <HBox class="kyra3dStageCanvas" justifyContent="Center" alignItems="Center">
+                            
+                            <!-- Dynamic Holographic Radar Sweep & Energy Pulse Waves -->
+                            <HBox class="kyraRadarScanBeam" />
+                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave1" />
+                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave2" />
                             
                             <!-- Central Core 3D Shield -->
                             <VBox class="kyraCenterShieldNode" alignItems="Center" justifyContent="Center">
@@ -115,7 +120,7 @@
                         <VBox alignItems="Center" class="kyraCardHeaderBox">
                             
                             <!-- Clean Brand Logo Direct -->
-                            <Image src="{login>/logoUrl}" height="48px" densityAware="false" class="kyraCardLogoImgDirect" tooltip="KYRA Secure Access" />
+                            <Image src="{login>/logoUrl}" height="50px" densityAware="false" class="kyraCardLogoImgDirect" tooltip="KYRA Secure Access" />
 
                             <Text text="KYRA" class="kyraCardBrandTitle" />
                             <Text text="ENTERPRISE ACCESS" class="kyraCardBrandSub" />
@@ -165,6 +170,7 @@
                                     class="kyraModernSelect kyraSelectPlaceholderState">
                                     <items>
                                         <core:Item key="" text="Select persona" />
+                                        <core:Item key="Admin" text="Admin" icon="sap-icon://key-user-settings" />
                                         <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
                                         <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
                                         <core:Item key="Compliance Review" text="Compliance Review" icon="sap-icon://user-settings" />

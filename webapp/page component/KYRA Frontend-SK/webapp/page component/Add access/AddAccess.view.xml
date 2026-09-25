@@ -12,39 +12,62 @@
             <!-- Enterprise ShellBar Header -->
             <f:ShellBar
                 title="KYRA Enterprise"
-                secondTitle="New Access Request Wizard"
+                secondTitle="User Access Management Portal"
                 homeIcon="sap-icon://shield"
                 showCopilot="false"
                 showSearch="true"
                 showNotifications="true"
                 notificationsNumber="3">
                 <f:profile>
-                    <Avatar initials="ADM" backgroundColor="Accent1" />
+                    <Avatar initials="DU" backgroundColor="Accent1" />
                 </f:profile>
                 <f:additionalContent>
                     <Button
                         text="Back to User Portal"
-                        type="Emphasized"
+                        type="Transparent"
                         press=".onNavBackToPortal"
-                        class="kyraBackTealBtn"
+                        class="kyraSignOutHeaderBtn"
                         tooltip="Back to Access Portal" />
                 </f:additionalContent>
             </f:ShellBar>
 
             <!-- Main Content Container -->
-            <VBox class="sapUiResponsiveMargin">
-                <!-- Page Title Header Card -->
-                <VBox class="fioriWelcomeCard sapUiSmallMarginBottom sapUiResponsivePadding">
-                    <HBox justifyContent="SpaceBetween" alignItems="Center">
-                        <VBox>
-                            <Title text="Add Access Request - Business Governance" level="H2" class="fioriWelcomeTitle" />
-                            <Text text="Step-by-step role entitlement wizard for enterprise systems and business sectors." class="fioriWelcomeSubtitle" />
-                        </VBox>
-                        <ObjectStatus
-                            title="Wizard Progress"
-                            text="{= ${addAccessModel>/step3Visible} ? 'Step 3 of 3 (Summary)' : (${addAccessModel>/step2Visible} ? 'Step 2 of 3' : 'Step 1 of 3') }"
-                            state="Information"
-                            icon="sap-icon://process" />
+            <VBox class="fioriMainContentBox fioriBottomPaddingBox">
+                <!-- Enterprise Top Header Banner (Matching Dashboard Top) -->
+                <VBox class="fioriWelcomeCard sapUiSmallMarginBottom">
+                    <!-- Security Shield Focus Background Emblem (Center Pulse Effect) -->
+                    <HBox class="kyraBannerShieldFocus" alignItems="Center" justifyContent="Center">
+                        <Image src="{= ${addAccessModel>/shieldFocusUrl} || 'images/kyra_shield_focus.svg' }" class="kyraShieldFocusImg" densityAware="false" alt="Security Shield" />
+                    </HBox>
+
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraBannerRow">
+                        <HBox alignItems="Center" class="kyraBannerLeftGroup">
+                            <!-- KYRA Project Logo Badge (K Logo) -->
+                            <HBox alignItems="Center" justifyContent="Center" class="kyraBannerShieldAvatar" tooltip="KYRA Governance Portal">
+                                <Image src="{= ${addAccessModel>/brandLogoUrl} || 'images/kyra_k_logo.png' }" width="30px" height="36px" densityAware="false" class="kyraBannerLogoImg" alt="KYRA Logo" />
+                            </HBox>
+                            <VBox class="kyraBannerTextGroup">
+                                <Title text="Enterprise Identity &amp; Access Governance" level="H2" class="fioriWelcomeTitle" />
+                                <HBox alignItems="Center" class="kyraBannerPersonaRow">
+                                    <Text text="Active Persona:" class="fioriWelcomeSubtitle" />
+                                    <Text text="{= ${addAccessModel>/activeRole} || 'Approver' }" class="kyraHeaderRolePill" />
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                        <HBox alignItems="Center" class="kyraBannerRightControls">
+                            <!-- User ID Pill Badge -->
+                            <HBox alignItems="Center" class="kyraHeaderUserIdPill">
+                                <core:Icon src="sap-icon://customer" class="kyraUserIdIcon" />
+                                <Text text="User ID:" class="kyraUserIdLabel" />
+                                <Text text="{= ${addAccessModel>/activeUser} || 'emp081' }" class="kyraUserIdValue" />
+                            </HBox>
+                            <Button
+                                id="fioriHeaderRefreshBtn"
+                                icon="sap-icon://refresh"
+                                text="Refresh"
+                                type="Transparent"
+                                class="fioriHeaderRefreshBtn kyraBannerRefreshBtn" />
+                        </HBox>
                     </HBox>
                 </VBox>
 

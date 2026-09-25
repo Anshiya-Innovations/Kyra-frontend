@@ -5,7 +5,7 @@
     xmlns:core="sap.ui.core"
     displayBlock="true">
     
-    <Page showHeader="false" enableScrolling="false" class="kyraDesktopLoginPage">
+    <Page showHeader="false" enableScrolling="true" class="kyraDesktopLoginPage">
         <content>
             <!-- Ambient Background Effects (Cyber Mesh Grid, Glow Orbs, Subtle Watermark) -->
             <VBox class="kyraAmbientCanvasContainer" width="100%" height="100%">
@@ -19,54 +19,108 @@
             <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="Wrap" height="100%" width="100%">
                 
                 <!-- ================= LEFT SECTION (58% COLUMN - ZERO-TRUST CYBERSECURITY HUB) ================= -->
-                <VBox class="kyraLoginLeftPanel" justifyContent="Center" alignItems="Stretch">
+                <VBox class="kyraLoginLeftPanel" justifyContent="Start" alignItems="Stretch">
                     
-                    <!-- Top Brand Logo Only (Clean & Proper) -->
+                    <!-- Top Brand Logo (Clean & Proper) -->
                     <HBox alignItems="Center" class="kyraHeroBrandLogoContainer">
-                        <Image src="{login>/logoUrl}" height="48px" densityAware="false" class="kyraHeroBrandLogoOnly" />
+                        <Image src="{login>/logoUrl}" height="44px" densityAware="false" class="kyraHeroBrandLogoOnly" tooltip="KYRA Secure Access" />
                     </HBox>
 
                     <!-- Hero Typography & Core Value Proposition -->
                     <VBox class="kyraHeroMainContentBox">
-                        <Text text="Secure Access." class="kyraHeroTitleDark" />
-                        <Text text="Total Control." class="kyraHeroTitleTeal" />
+                        <!-- Headline in One Single Line -->
+                        <HBox alignItems="Baseline" class="kyraHeroHeadlineRow">
+                            <Text text="Secure Access." class="kyraHeroTitleDark" />
+                            <Text text="Total Control." class="kyraHeroTitleTeal" />
+                        </HBox>
                         <HBox class="kyraHeroTealDashBar" />
-                        <FormattedText 
-                            htmlText="Centralized enterprise identity governance, dynamic role entitlement provisioning, and continuous automated compliance across your &lt;strong class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/strong&gt;" 
-                            class="kyraHeroSubtitleText" />
+                        <!-- Subtitle in Exactly Two Lines with 'provisioning, and' on first line -->
+                        <VBox class="kyraHeroSubtitleContainer">
+                            <Text 
+                                text="Centralized enterprise identity governance, dynamic role entitlement provisioning, and" 
+                                class="kyraHeroSubtitleLine kyraHeroSubtitleLine1" />
+                            <FormattedText 
+                                htmlText="continuous automated compliance across your &lt;strong class='kyraTealHighlight'&gt;hybrid cloud ecosystem.&lt;/strong&gt;" 
+                                class="kyraHeroSubtitleLine kyraHeroSubtitleLine2" />
+                        </VBox>
                     </VBox>
 
-                    <!-- 3D Security Shield Architecture (User Uploaded Design Matching) -->
-                    <VBox class="kyraHero3dShowcaseWrapper" alignItems="Center" justifyContent="Center" width="100%">
-                        <Image 
-                            id="kyraSecurity3dGraphic"
-                            src="{login>/shieldArchitectureUrl}"
-                            densityAware="false" 
-                            class="kyraHero3dArchitectureImg" 
-                            tooltip="KYRA Secure Access Platform - Identity Governance, Role Management, Entitlement Provisioning, Continuous Compliance" />
-                    </VBox>
+                    <!-- 3D Cyber Constellation Hub (All 5 Separate Icons Interactive Stage) -->
+                    <VBox class="kyraCyberStageWrapper" alignItems="Center" justifyContent="Center" width="100%">
+                        
+                        <!-- Main 3D Interactive Stage Canvas -->
+                        <HBox class="kyra3dStageCanvas" justifyContent="Center" alignItems="Center">
+                            
+                            <!-- Dynamic Holographic Radar Sweep & Energy Pulse Waves -->
+                            <HBox class="kyraRadarScanBeam" />
+                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave1" />
+                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave2" />
+                            
+                            <!-- Central Core 3D Shield -->
+                            <VBox class="kyraCenterShieldNode" alignItems="Center" justifyContent="Center">
+                                <Image 
+                                    id="kyra3dShieldCenter"
+                                    src="{login>/iconShieldUrl}"
+                                    densityAware="false"
+                                    class="kyra3dCenterShieldImg"
+                                    tooltip="KYRA Zero-Trust Security Core" />
+                                <HBox class="kyraCenterGlowAura" />
+                            </VBox>
 
-                    <!-- Left Live Status Footer -->
-                    <HBox alignItems="Center" class="kyraLeftLiveStatusRow">
-                        <HBox class="kyraLivePulseDot" />
-                        <Text text="Enterprise Gateway Active" class="kyraLiveStatusHighlight" />
-                        <Text text="•" class="kyraLiveStatusSep" />
-                        <Text text="256-Bit TLS" class="kyraLiveStatusText" />
-                        <Text text="•" class="kyraLiveStatusSep" />
-                        <Text text="Multi-Tenant Isolated" class="kyraLiveStatusText" />
-                    </HBox>
+                            <!-- Node Top-Left: User Identity -->
+                            <VBox class="kyraOrbitNode kyraNodeTopLeft" alignItems="Center">
+                                <Image 
+                                    src="{login>/iconUserUrl}"
+                                    densityAware="false"
+                                    class="kyra3dSatelliteImg"
+                                    tooltip="Identity Governance" />
+                                <Text text="Identity" class="kyraNodeBadgeLabel" />
+                            </VBox>
+
+                            <!-- Node Bottom-Left: Verified Compliance -->
+                            <VBox class="kyraOrbitNode kyraNodeBottomLeft" alignItems="Center">
+                                <Image 
+                                    src="{login>/iconVerifiedUrl}"
+                                    densityAware="false"
+                                    class="kyra3dSatelliteImg"
+                                    tooltip="Zero-Trust Compliance" />
+                                <Text text="Zero-Trust" class="kyraNodeBadgeLabel" />
+                            </VBox>
+
+                            <!-- Node Top-Right: Cloud Infrastructure -->
+                            <VBox class="kyraOrbitNode kyraNodeTopRight" alignItems="Center">
+                                <Image 
+                                    src="{login>/iconServerUrl}"
+                                    densityAware="false"
+                                    class="kyra3dSatelliteImg"
+                                    tooltip="Cloud Gateway &amp; Servers" />
+                                <Text text="Cloud Gateway" class="kyraNodeBadgeLabel" />
+                            </VBox>
+
+                            <!-- Node Bottom-Right: Continuous Analytics -->
+                            <VBox class="kyraOrbitNode kyraNodeBottomRight" alignItems="Center">
+                                <Image 
+                                    src="{login>/iconAnalyticsUrl}"
+                                    densityAware="false"
+                                    class="kyra3dSatelliteImg"
+                                    tooltip="Continuous Audit &amp; Risk" />
+                                <Text text="Continuous Audit" class="kyraNodeBadgeLabel" />
+                            </VBox>
+
+                        </HBox>
+                    </VBox>
 
                 </VBox>
 
                 <!-- ================= RIGHT SECTION (42% COLUMN - MODERN GLASSMORPHIC LOGIN CARD) ================= -->
                 <VBox class="kyraLoginRightPanel" justifyContent="Center" alignItems="Center">
-                    <VBox class="kyraLoginCardContainer">
+                    <VBox id="kyraLoginCardContainer" class="kyraLoginCardContainer">
                         
                         <!-- Top Card Header: Clean Logo Only + Wordmark -->
                         <VBox alignItems="Center" class="kyraCardHeaderBox">
                             
                             <!-- Clean Brand Logo Direct -->
-                            <Image src="{login>/logoUrl}" height="48px" densityAware="false" class="kyraCardLogoImgDirect" tooltip="KYRA Secure Access" />
+                            <Image src="{login>/logoUrl}" height="50px" densityAware="false" class="kyraCardLogoImgDirect" tooltip="KYRA Secure Access" />
 
                             <Text text="KYRA" class="kyraCardBrandTitle" />
                             <Text text="ENTERPRISE ACCESS" class="kyraCardBrandSub" />
@@ -74,32 +128,49 @@
                             <Text text="Welcome back! Please sign in to continue." class="kyraCardWelcomeText" />
                         </VBox>
 
-                        <!-- Error Notification MessageStrip -->
-                        <MessageStrip
+                        <!-- Sleek Modern Error Notification Banner -->
+                        <HBox
+                            id="kyraLoginErrorBanner"
                             visible="{login>/hasError}"
-                            text="{login>/errorMessage}"
-                            type="Error"
-                            showIcon="true"
-                            showCloseButton="true"
-                            close=".onDismissError"
-                            class="sapUiTinyMarginBottom kyraLoginErrorStrip" />
+                            alignItems="Center"
+                            justifyContent="SpaceBetween"
+                            class="kyraCustomErrorBanner sapUiTinyMarginBottom">
+                            <HBox alignItems="Center" class="kyraErrorLeftGroup">
+                                <HBox class="kyraErrorIconBadge" alignItems="Center" justifyContent="Center">
+                                    <core:Icon src="sap-icon://alert" class="kyraErrorBadgeIcon" />
+                                </HBox>
+                                <VBox class="kyraErrorTextGroup sapUiTinyMarginBegin">
+                                    <Text text="Authentication Failed" class="kyraErrorTitle" />
+                                    <Text text="{login>/errorMessage}" class="kyraErrorMessage" />
+                                </VBox>
+                            </HBox>
+                            <Button
+                                icon="sap-icon://decline"
+                                type="Transparent"
+                                press=".onDismissError"
+                                class="kyraErrorCloseBtn"
+                                tooltip="Dismiss error" />
+                        </HBox>
 
                         <!-- Form Controls Container -->
                         <VBox width="100%" class="kyraLoginFormBody">
                             
-                            <!-- Login As Dropdown -->
+                            <!-- Persona Dropdown -->
                             <VBox class="kyraFormGroup" width="100%">
                                 <HBox alignItems="Center" class="kyraLabelRow">
-                                    <core:Icon src="sap-icon://customer" class="kyraLabelIcon" />
-                                    <Label text="Login As" labelFor="roleSelect" class="kyraFormLabel" />
+                                    <core:Icon src="sap-icon://role" class="kyraLabelIcon" />
+                                    <Label text="Persona" labelFor="roleSelect" class="kyraFormLabel" />
                                 </HBox>
                                 <Select
                                     id="roleSelect"
                                     selectedKey="{login>/selectedRole}"
                                     change=".onRoleChange"
+                                    forceSelection="true"
                                     width="100%"
-                                    class="kyraModernSelect">
+                                    class="kyraModernSelect kyraSelectPlaceholderState">
                                     <items>
+                                        <core:Item key="" text="Select persona" />
+                                        <core:Item key="Admin" text="Admin" icon="sap-icon://key-user-settings" />
                                         <core:Item key="Requester" text="Requester" icon="sap-icon://customer" />
                                         <core:Item key="Approver" text="Approver" icon="sap-icon://shield" />
                                         <core:Item key="Compliance Review" text="Compliance Review" icon="sap-icon://user-settings" />
@@ -110,7 +181,7 @@
                             <!-- Dynamic ID Input Field -->
                             <VBox class="kyraFormGroup" width="100%">
                                 <HBox alignItems="Center" class="kyraLabelRow">
-                                    <core:Icon src="sap-icon://customer" class="kyraLabelIcon" />
+                                    <core:Icon src="sap-icon://employee" class="kyraLabelIcon" />
                                     <Label text="{login>/idLabel}" labelFor="idInput" class="kyraFormLabel" />
                                 </HBox>
                                 <Input
@@ -118,7 +189,7 @@
                                     value="{login>/userId}"
                                     placeholder="{login>/idPlaceholder}"
                                     valueState="{login>/idState}"
-                                    valueStateText="{login>/idStateText}"
+                                    showValueStateMessage="false"
                                     liveChange=".onInputChange"
                                     change=".onInputChange"
                                     submit=".onLogin"
@@ -127,12 +198,10 @@
                                     width="100%" />
                             </VBox>
 
-                            <!-- Full Width Solid Vibrant Teal Sign In Button with Arrow & Shine -->
+                            <!-- Full Width Solid Vibrant Teal Sign In Button without Arrow -->
                             <Button
                                 id="signInButton"
                                 text="Sign In"
-                                icon="sap-icon://navigation-right-arrow"
-                                iconFirst="false"
                                 type="Emphasized"
                                 width="100%"
                                 press=".onLogin"

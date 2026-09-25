@@ -155,6 +155,9 @@ body::-webkit-scrollbar {
 /* Prominent ShellBar Header Overrides - Light Theme */
 .sapFShellBar,
 .fioriMainShellBar {
+    position: relative !important;
+    top: auto !important;
+    z-index: 10 !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important;
     border-bottom: 1px solid #E2E8F0 !important;
@@ -11239,17 +11242,46 @@ html body .sapUiBlockLayer {
 
 /* 2-Column Responsive Layout Wrapper */
 .kyraLoginLayoutWrapper {
-    width: 100vw !important;
-    height: 100vh !important;
+    width: 100% !important;
+    min-width: 100% !important;
     min-height: 100vh !important;
+    height: auto !important;
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     position: relative !important;
     z-index: 2 !important;
+}
+
+.kyraDesktopLoginPage .sapMPageScroll {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Custom Sleek Side Scrollbar for Login Screen */
+.kyraDesktopLoginPage .sapMPageScroll::-webkit-scrollbar,
+.kyraLoginLayoutWrapper::-webkit-scrollbar {
+    width: 7px !important;
+}
+
+.kyraDesktopLoginPage .sapMPageScroll::-webkit-scrollbar-track,
+.kyraLoginLayoutWrapper::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
+}
+
+.kyraDesktopLoginPage .sapMPageScroll::-webkit-scrollbar-thumb,
+.kyraLoginLayoutWrapper::-webkit-scrollbar-thumb {
+    background: #CBD5E1 !important;
+    border-radius: 9999px !important;
+}
+
+.kyraDesktopLoginPage .sapMPageScroll::-webkit-scrollbar-thumb:hover,
+.kyraLoginLayoutWrapper::-webkit-scrollbar-thumb:hover {
+    background: #007684 !important;
 }
 
 /* =========================================================================
@@ -29961,9 +29993,7 @@ td.sapMListNoDataCell {
 .kyraApproverTable th,
 .kyraApproverTable .sapMListTblHeaderCell,
 .kyraActiveEntitlementsTable th,
-.kyraActiveEntitlementsTable .sapMListTblHeaderCell,
-.kyraSummaryTable th,
-.kyraSummaryTable .sapMListTblHeaderCell {
+.kyraActiveEntitlementsTable .sapMListTblHeaderCell {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
     height: 48px !important;
@@ -30012,8 +30042,7 @@ td.sapMListNoDataCell {
 .kyraActiveEntitlementsTable th .kyraEntitlementColHeader,
 .kyraEntitlementColHeader,
 .kyraHistHeader,
-.kyraColHeader,
-.kyraSummaryTable th .sapMText {
+.kyraColHeader {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     font-weight: 700 !important;
     font-size: 11.5px !important;
@@ -30071,9 +30100,7 @@ td.sapMListNoDataCell {
 .kyraApproverTable td,
 .kyraApproverTable tbody .sapMListTblCell,
 .kyraActiveEntitlementsTable td,
-.kyraActiveEntitlementsTable tbody .sapMListTblCell,
-.kyraSummaryTable td,
-.kyraSummaryTable tbody .sapMListTblCell {
+.kyraActiveEntitlementsTable tbody .sapMListTblCell {
     height: 52px !important;
     min-height: 52px !important;
     padding: 8px 8px !important;
@@ -30100,10 +30127,85 @@ td.sapMListNoDataCell {
 .kyraApproverTable td:last-child,
 .kyraApproverTable tbody .sapMListTblCell:last-child,
 .kyraActiveEntitlementsTable td:last-child,
-.kyraActiveEntitlementsTable tbody .sapMListTblCell:last-child,
-.kyraSummaryTable td:last-child,
-.kyraSummaryTable tbody .sapMListTblCell:last-child {
+.kyraActiveEntitlementsTable tbody .sapMListTblCell:last-child {
     border-right: none !important;
+}
+
+/* =========================================================================
+   KYRA SUMMARY TABLE - STRAIGHT VERTICAL ALIGNMENT FOR STATUS & COLUMNS
+   ========================================================================= */
+.kyraSummaryTable th,
+.kyraSummaryTable .sapMListTblHeaderCell {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+    vertical-align: middle !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.kyraSummaryTable th:not(:last-child),
+.kyraSummaryTable .sapMListTblHeaderCell:not(:last-child),
+.kyraSummaryTable th:not(:last-child) .sapMText,
+.kyraSummaryTable th:not(:last-child) .sapMColumnHeader,
+.kyraSummaryTable th:not(:last-child) .sapMColumnHeaderContent,
+.kyraSummaryTable th:not(:last-child) .sapMFlexBox,
+.kyraSummaryTable th:not(:last-child) .kyraSummaryColHeader {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+}
+
+.kyraSummaryTable th .sapMText,
+.kyraSummaryTable th .kyraSummaryColHeader {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 11.5px !important;
+    letter-spacing: 0.03em !important;
+    color: #0F172A !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+.kyraSummaryTable td,
+.kyraSummaryTable tbody .sapMListTblCell {
+    height: 52px !important;
+    min-height: 52px !important;
+    padding: 10px 14px !important;
+    vertical-align: middle !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraSummaryTable td:not(:last-child),
+.kyraSummaryTable tbody .sapMListTblCell:not(:last-child),
+.kyraSummaryTable td:not(:last-child) .sapMFlexBox {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+}
+
+.kyraSummaryTable th:last-child,
+.kyraSummaryTable td:last-child,
+.kyraSummaryTable td:last-child .sapMFlexBox {
+    text-align: center !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus,
+.kyraSummaryStatusText {
+    margin: 0 !important;
+    align-self: flex-start !important;
 }
 
 /* 7. Last Row Bottom Border Reset */
@@ -30895,6 +30997,16 @@ html body .sapUiTheme-sap_horizon .sapMListNoDataText,
 .kyraDropdownBottomOnly .sapMLIB,
 .sapMSltPicker .sapMLIB,
 li.sapMMultiComboBoxItem,
+/* Base Item Layout */
+li.sapMMultiComboBoxItem,
+.sapMSltPicker li,
+.sapMSltPicker .sapMSelectListItem,
+.sapMSltPicker .sapMSelectListItemBase,
+.sapMSelectList li,
+.sapMSelectList .sapMSelectListItem,
+.sapMSelectList .sapMSelectListItemBase,
+li.sapMSelectListItem,
+li.sapMSelectListItemBase,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) {
     min-height: 44px !important;
     height: auto !important;
@@ -30905,18 +31017,35 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) {
     display: flex !important;
     align-items: center !important;
     overflow: visible !important;
+    position: relative !important;
     transition: background-color 0.15s ease !important;
 }
 
+/* Specific item padding for Select (no checkbox) */
+.sapMSltPicker li,
+.sapMSltPicker .sapMSelectListItem,
+.sapMSltPicker .sapMSelectListItemBase,
+.sapMSelectList li,
+.sapMSelectList .sapMSelectListItem,
+li.sapMSelectListItem,
+li.sapMSelectListItemBase {
+    padding: 8px 16px 8px 22px !important;
+}
+
+/* Title text inside items */
 .sapMMultiComboBoxPicker .sapMLIB .sapMSLITitle,
 .sapMMultiComboBoxPopup .sapMLIB .sapMSLITitle,
 .sapMComboBoxList .sapMLIB .sapMSLITitle,
 .sapMComboBoxBasePicker .sapMLIB .sapMSLITitle,
 .sapMComboBoxPicker .sapMLIB .sapMSLITitle,
 .kyraDropdownBottomOnly .sapMLIB .sapMSLITitle,
+.sapMSltPicker li .sapMSLITitle,
 .sapMSltPicker .sapMLIB .sapMSLITitle,
+.sapMSltPicker .sapMSelectListItem .sapMSLITitle,
+.sapMSelectList li .sapMSLITitle,
 li.sapMMultiComboBoxItem .sapMSLITitle,
 li.sapMMultiComboBoxItem .sapMSLITitleOnly,
+li.sapMSelectListItem .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) .sapMSLITitle {
     white-space: nowrap !important;
     word-break: normal !important;
@@ -30926,17 +31055,49 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) .sapMSLITitle {
     display: block !important;
     width: auto !important;
     flex: 1 1 auto !important;
+    cursor: pointer !important;
     pointer-events: none !important;
 }
 
-/* Clean hover state: soft mint background, zero layout jump, zero popout */
+/* Indicator bar ::before for Select & MultiSelect */
+.sapMSltPicker li::before,
+.sapMSltPicker .sapMSelectListItem::before,
+.sapMSltPicker .sapMSelectListItemBase::before,
+.sapMSelectList li::before,
+.sapMSelectList .sapMSelectListItem::before,
+li.sapMSelectListItem::before,
+li.sapMSelectListItemBase::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 3.5px !important;
+    height: 20px !important;
+    border-radius: 3px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    transition: background-color 0.15s ease, opacity 0.15s ease !important;
+    pointer-events: none !important;
+    z-index: 5 !important;
+}
+
+/* Clean hover state: soft mint background #F0FDFA, pointer cursor, zero layout jump */
 .sapMMultiComboBoxPicker .sapMLIB:hover,
 .sapMMultiComboBoxPopup .sapMLIB:hover,
 .sapMComboBoxList .sapMLIB:hover,
 .sapMComboBoxBasePicker .sapMLIB:hover,
 .kyraDropdownBottomOnly .sapMLIB:hover,
+.sapMSltPicker li:hover,
 .sapMSltPicker .sapMLIB:hover,
+.sapMSltPicker .sapMSelectListItem:hover,
+.sapMSltPicker .sapMSelectListItemBase:hover,
+.sapMSelectList li:hover,
+.sapMSelectList .sapMSelectListItem:hover,
+.sapMSelectList .sapMSelectListItemBase:hover,
 li.sapMMultiComboBoxItem:hover,
+li.sapMSelectListItem:hover,
+li.sapMSelectListItemBase:hover,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):hover {
     background-color: #F0FDFA !important;
     background: #F0FDFA !important;
@@ -30945,15 +31106,32 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):hover {
     cursor: pointer !important;
 }
 
-/* Zero hover action on listwords: preserve existing design without any text hover change, action, or tooltip */
+/* Indicator becomes brand teal #007684 on hover */
+.sapMSltPicker li:hover::before,
+.sapMSltPicker .sapMSelectListItem:hover::before,
+.sapMSltPicker .sapMSelectListItemBase:hover::before,
+.sapMSelectList li:hover::before,
+.sapMSelectList .sapMSelectListItem:hover::before,
+li.sapMSelectListItem:hover::before,
+li.sapMSelectListItemBase:hover::before {
+    background: #007684 !important;
+    background-color: #007684 !important;
+}
+
+/* Zero hover action on unselected listwords: preserve existing design without text jump */
 .sapMMultiComboBoxPicker .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
 .sapMMultiComboBoxPopup .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
 .sapMComboBoxList .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
 .sapMComboBoxBasePicker .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
 .kyraDropdownBottomOnly .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
+.sapMSltPicker li:not(.sapMSelectListItemBaseSelected):not([aria-selected="true"]):hover .sapMSLITitle,
 .sapMSltPicker .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
+.sapMSltPicker .sapMSelectListItem:not(.sapMSelectListItemBaseSelected):not([aria-selected="true"]):hover .sapMSLITitle,
+.sapMSelectList li:not(.sapMSelectListItemBaseSelected):not([aria-selected="true"]):hover .sapMSLITitle,
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitle,
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitleOnly,
+li.sapMSelectListItem:not(.sapMSelectListItemBaseSelected):not([aria-selected="true"]):hover .sapMSLITitle,
+li.sapMSelectListItem:not(.sapMSelectListItemBaseSelected):not([aria-selected="true"]):hover,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover .sapMSLITitle {
     color: #0F172A !important;
     font-weight: 500 !important;
@@ -30965,14 +31143,20 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover .sa
     pointer-events: none !important;
 }
 
+/* Hover on SELECTED item: stays teal #007684, weight 700 */
 .sapMMultiComboBoxPicker .sapMLIB.sapMLIBSelected:hover .sapMSLITitle,
 .sapMMultiComboBoxPopup .sapMLIB.sapMLIBSelected:hover .sapMSLITitle,
 .sapMComboBoxList .sapMLIB.sapMLIBSelected:hover .sapMSLITitle,
 .sapMComboBoxBasePicker .sapMLIB.sapMLIBSelected:hover .sapMSLITitle,
 .kyraDropdownBottomOnly .sapMLIB.sapMLIBSelected:hover .sapMSLITitle,
+.sapMSltPicker li.sapMSelectListItemBaseSelected:hover .sapMSLITitle,
 .sapMSltPicker .sapMLIB.sapMLIBSelected:hover .sapMSLITitle,
+.sapMSltPicker .sapMSelectListItem.sapMSelectListItemBaseSelected:hover .sapMSLITitle,
+.sapMSelectList li.sapMSelectListItemBaseSelected:hover .sapMSLITitle,
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMSLITitle,
 li.sapMMultiComboBoxItem.sapMLIBSelected:hover .sapMSLITitleOnly,
+li.sapMSelectListItem.sapMSelectListItemBaseSelected:hover .sapMSLITitle,
+li.sapMSelectListItem.sapMSelectListItemBaseSelected:hover,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLITitle {
     color: #007684 !important;
     font-weight: 700 !important;
@@ -30984,13 +31168,19 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     pointer-events: none !important;
 }
 
-/* Selected item state: soft mint background with brand teal font, showing full word in single line, zero action at selected time */
+/* Selected item state: soft mint background #F0FDFA with brand teal font #007684, zero action at selected time */
 .sapMMultiComboBoxPicker .sapMLIB.sapMLIBSelected,
 .sapMMultiComboBoxPopup .sapMLIB.sapMLIBSelected,
 .sapMComboBoxList .sapMLIB.sapMLIBSelected,
 .sapMComboBoxBasePicker .sapMLIB.sapMLIBSelected,
 .kyraDropdownBottomOnly .sapMLIB.sapMLIBSelected,
+.sapMSltPicker li.sapMSelectListItemBaseSelected,
+.sapMSltPicker li[aria-selected="true"],
 .sapMSltPicker .sapMLIB.sapMLIBSelected,
+.sapMSltPicker .sapMSelectListItem.sapMSelectListItemBaseSelected,
+.sapMSltPicker .sapMSelectListItem[aria-selected="true"],
+.sapMSelectList li.sapMSelectListItemBaseSelected,
+.sapMSelectList li[aria-selected="true"],
 li.sapMMultiComboBoxItem.sapMLIBSelected,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected,
 li.sapMSelectListItem.sapMSelectListItemBaseSelected,
@@ -31002,6 +31192,19 @@ li.sapMSelectListItem[aria-selected="true"] {
     color: #007684 !important;
     height: auto !important;
     min-height: 44px !important;
+    cursor: pointer !important;
+}
+
+/* Indicator stays active teal on selected item */
+.sapMSltPicker li.sapMSelectListItemBaseSelected::before,
+.sapMSltPicker li[aria-selected="true"]::before,
+.sapMSltPicker .sapMSelectListItem.sapMSelectListItemBaseSelected::before,
+.sapMSltPicker .sapMSelectListItem[aria-selected="true"]::before,
+.sapMSelectList li.sapMSelectListItemBaseSelected::before,
+li.sapMSelectListItem.sapMSelectListItemBaseSelected::before,
+li.sapMSelectListItem[aria-selected="true"]::before {
+    background: #007684 !important;
+    background-color: #007684 !important;
 }
 
 .sapMMultiComboBoxPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
@@ -31009,7 +31212,10 @@ li.sapMSelectListItem[aria-selected="true"] {
 .sapMComboBoxList .sapMLIB.sapMLIBSelected .sapMSLITitle,
 .sapMComboBoxBasePicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
 .kyraDropdownBottomOnly .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMSltPicker li.sapMSelectListItemBaseSelected .sapMSLITitle,
 .sapMSltPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMSltPicker .sapMSelectListItem.sapMSelectListItemBaseSelected .sapMSLITitle,
+.sapMSelectList li.sapMSelectListItemBaseSelected .sapMSLITitle,
 li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected .sapMSLITitle,
 li.sapMSelectListItem.sapMSelectListItemBaseSelected .sapMSLITitle,
@@ -31025,6 +31231,35 @@ li.sapMSelectListItem[aria-selected="true"] .sapMSLITitle {
     line-height: 1.35 !important;
     display: block !important;
     pointer-events: none !important;
+}
+
+/* Login screen Select Box & Dropdown cursor & frame */
+.sapMSlt,
+.sapMSltInner,
+.sapMSltLabel,
+.sapMSltArrow,
+.kyraModernSelect,
+.kyraModernSelect *,
+#roleSelect,
+#roleSelect * {
+    cursor: pointer !important;
+}
+
+.sapMSltPicker,
+.sapMSltPicker-CTX,
+html body .sapUiTheme-sap_horizon .sapMSltPicker {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+    overflow: hidden !important;
+}
+
+.sapMSltPicker .sapMPopoverCont {
+    padding: 6px 0 !important;
+    background: #FFFFFF !important;
+    border-radius: 12px !important;
 }
 
 /* =========================================================================
