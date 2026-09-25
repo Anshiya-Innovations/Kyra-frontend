@@ -579,6 +579,21 @@ sap.ui.define([
 
                 let iLastToggleTime = 0;
                 const fnToggleDropdown = (oEvent) => {
+                    // Only open/toggle when clicking specifically on the dropdown box or the dropdown icon
+                    if (oEvent) {
+                        const target = oEvent.target || oEvent.srcElement;
+                        if (target && target.closest) {
+                            const isDropdownTarget = target.closest(".sapMInputBaseContentWrapper") ||
+                                                     target.closest(".sapMSelectArrow") ||
+                                                     target.closest(".sapMComboBoxArrow") ||
+                                                     target.closest(".sapMInputBaseIconContainer") ||
+                                                     target.closest(".sapMInputBaseIcon");
+                            if (!isDropdownTarget) {
+                                return;
+                            }
+                        }
+                    }
+
                     const now = Date.now();
                     if (now - iLastToggleTime < 250) {
                         return;
@@ -636,12 +651,20 @@ sap.ui.define([
                                 if (oPicker) {
                                     const oPickerDom = oPicker.getDomRef();
                                     if (oPickerDom) {
-                                        oPickerDom.style.minWidth = "min(600px, 95vw)";
-                                        oPickerDom.style.width = "max-content";
+                                        oPickerDom.style.minWidth = "100%";
+                                        oPickerDom.style.width = "100%";
                                         const oCont = oPickerDom.querySelector(".sapMPopoverCont");
                                         if (oCont) {
                                             oCont.style.overflow = "hidden";
                                             oCont.style.overflowY = "hidden";
+                                        }
+                                        const fnStripTitles = () => {
+                                            oPickerDom.querySelectorAll("[title]").forEach((el) => el.removeAttribute("title"));
+                                        };
+                                        fnStripTitles();
+                                        if (!oPickerDom._hasKyraTitleStripper) {
+                                            oPickerDom._hasKyraTitleStripper = true;
+                                            oPickerDom.addEventListener("mouseover", fnStripTitles, true);
                                         }
                                     }
                                 }

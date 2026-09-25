@@ -786,11 +786,11 @@
                                         placeholder="Select Business Sector..."
                                         width="100%"
                                         class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" tooltip="Finance &amp; Enterprise Performance" />
-                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" tooltip="Global Supply Chain &amp; Logistics" />
-                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" tooltip="Human Capital Management (HCM)" />
-                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" tooltip="Information Technology &amp; Security" />
-                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" tooltip="Customer Operations &amp; Sales" />
+                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" />
+                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" />
+                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" />
+                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" />
+                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" />
                                     </ComboBox>
                                 </VBox>
 
@@ -809,7 +809,7 @@
                                         placeholder="Select Business Function..."
                                         width="100%"
                                         class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
+                                        <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                     </ComboBox>
                                 </VBox>
                             </HBox>
@@ -898,11 +898,11 @@
                                 columnsM="2"
                                 columnsL="2"
                                 singleContainerFullWidth="false"
-                                class="sapUiSmallMarginBottom kyraTargetSelectionForm">
+                                class="sapUiSmallMarginBottom">
                                 <form:content>
                                     <core:Title text="Target Systems &amp; Process Selection" />
                                     
-                                    <Label text="Select Target Systems &amp; Processes" required="true" class="kyraTargetSystemsLabel" />
+                                    <Label text="Select Target Systems &amp; Processes" required="true" />
                                     <MultiComboBox
                                         id="inPageSystemsMultiSelect"
                                         selectedKeys="{accessModel>/addAccessSelectedSystems}"
@@ -910,13 +910,13 @@
                                         selectionFinish=".onInPageTargetSystemsSelectionChange"
                                         placeholder="Select target system processes..."
                                         width="100%"
-                                        class="fioriFormSelect kyraTargetSystemsMultiSelect">
-                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" tooltip="SAP BTP Cloud Platform" />
-                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" tooltip="SAP S/4HANA Enterprise" />
-                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" tooltip="KYRA Central Governance" />
-                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" tooltip="Active Directory / IAM" />
-                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" tooltip="SAP SuccessFactors" />
-                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" tooltip="SAP Ariba Supply Network" />
+                                        class="fioriFormSelect">
+                                        <core:Item key="SAP BTP Cloud Platform" text="SAP BTP Cloud Platform" />
+                                        <core:Item key="SAP S/4HANA Enterprise" text="SAP S/4HANA Enterprise" />
+                                        <core:Item key="KYRA Central Governance" text="KYRA Central Governance" />
+                                        <core:Item key="Active Directory / IAM" text="Active Directory / IAM" />
+                                        <core:Item key="SAP SuccessFactors" text="SAP SuccessFactors" />
+                                        <core:Item key="SAP Ariba Supply Network" text="SAP Ariba Supply Network" />
                                     </MultiComboBox>
                                 </form:content>
                             </form:SimpleForm>
@@ -956,9 +956,9 @@
                                             placeholder="Select service topics for this system..."
                                             width="100%"
                                             class="fioriFormSelect">
-                                            <core:Item key="System Administrator" text="System Administrator" tooltip="System Administrator" />
-                                            <core:Item key="System Owners" text="System Owners" tooltip="System Owners" />
-                                            <core:Item key="Stakeholders" text="Stakeholders" tooltip="Stakeholders" />
+                                            <core:Item key="System Administrator" text="System Administrator" />
+                                            <core:Item key="System Owners" text="System Owners" />
+                                            <core:Item key="Stakeholders" text="Stakeholders" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 2: TEAM ROLE -->
@@ -973,7 +973,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 3: ASSIGNED PERSONA -->
@@ -987,7 +987,7 @@
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedRoles} &amp;&amp; ${accessModel>/addAccessSelectedRoles}.length &gt; 0 }"
                                             class="fioriFormSelect">
-                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" tooltip="{accessModel>text}" />
+                                            <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </MultiComboBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -1044,9 +1044,9 @@
                                             placeholder="Select Access Duration..."
                                             width="100%"
                                             class="fioriFormSelect kyraSideDurationSelect">
-                                            <core:Item key="Permanent (Default)" text="Permanent (Default)" tooltip="Permanent (Default)" />
-                                            <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" tooltip="30 Days (Temporary)" />
-                                            <core:Item key="90 Days (Project)" text="90 Days (Project)" tooltip="90 Days (Project)" />
+                                            <core:Item key="Permanent (Default)" text="Permanent (Default)" />
+                                            <core:Item key="30 Days (Temporary)" text="30 Days (Temporary)" />
+                                            <core:Item key="90 Days (Project)" text="90 Days (Project)" />
                                         </ComboBox>
                                     </VBox>
 
