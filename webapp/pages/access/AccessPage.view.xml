@@ -1622,6 +1622,7 @@
                                 columnsM="2"
                                 columnsL="2"
                                 singleContainerFullWidth="false"
+                                visible="{= !${accessModel>/isEditingFromSummary} }"
                                 class="sapUiSmallMarginBottom">
                                 <form:content>
                                     <core:Title text="Target Systems &amp; Process Selection" />
@@ -2350,8 +2351,8 @@
                                         class="kyraSummaryTable"
                                         fixedLayout="true">
                                         <columns>
-                                            <!-- 1. REQUEST ID (13%) -->
-                                            <Column width="13%" hAlign="Begin">
+                                            <!-- 1. REQUEST ID (14%) -->
+                                            <Column width="14%" hAlign="Begin">
                                                 <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://document" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="REQUEST ID" wrapping="false" class="kyraSummaryColHeader" />
@@ -2364,8 +2365,8 @@
                                                     <Text text="TOPIC" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
-                                            <!-- 3. ROLE TITLE (18%) -->
-                                            <Column width="18%" hAlign="Begin">
+                                            <!-- 3. ROLE TITLE (16%) -->
+                                            <Column width="16%" hAlign="Begin">
                                                 <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://shield" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="ROLE TITLE" wrapping="false" class="kyraSummaryColHeader" />
@@ -2378,22 +2379,22 @@
                                                     <Text text="ASSIGNED PERSONA" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
-                                            <!-- 5. DURATION (16%) -->
-                                            <Column width="16%" hAlign="Begin">
+                                            <!-- 5. DURATION (15%) -->
+                                            <Column width="15%" hAlign="Begin">
                                                 <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://calendar" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="DURATION" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
-                                            <!-- 6. STATUS (16%) -->
-                                            <Column width="16%" hAlign="Begin">
+                                            <!-- 6. STATUS (15%) -->
+                                            <Column width="15%" hAlign="Begin">
                                                 <HBox alignItems="Center" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://message-information" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="STATUS" wrapping="false" class="kyraSummaryColHeader" />
                                                 </HBox>
                                             </Column>
-                                            <!-- 7. ACTION (7%) -->
-                                            <Column width="7%" hAlign="Center">
+                                            <!-- 7. ACTION (10%) -->
+                                            <Column width="10%" hAlign="Center">
                                                 <HBox alignItems="Center" justifyContent="Center" width="100%" wrap="NoWrap">
                                                     <core:Icon src="sap-icon://action-settings" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
                                                     <Text text="ACTION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />

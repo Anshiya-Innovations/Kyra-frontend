@@ -4942,7 +4942,7 @@ sap.ui.define([
         },
 
         _smoothScrollTo(sElementId, iOffset) {
-            const nOffset = (typeof iOffset === "number") ? iOffset : 64;
+            const nOffset = (typeof iOffset === "number") ? iOffset : 0;
             const fnDoScroll = () => {
                 const oTarget = this.byId(sElementId);
                 const oDom = oTarget ? oTarget.getDomRef() : document.getElementById(this.createId(sElementId));
@@ -4951,9 +4951,11 @@ sap.ui.define([
                         const oPage = this.byId("accessPortalPage");
                         const oPageDom = oPage ? (oPage.getDomRef("cont") || oPage.getDomRef("scroll") || oPage.getDomRef()) : null;
                         if (oPageDom && typeof oPageDom.scrollTo === "function" && oPageDom.scrollHeight > oPageDom.clientHeight) {
-                            const nTargetTop = oDom.offsetTop - nOffset;
+                            const oPageRect = oPageDom.getBoundingClientRect();
+                            const oDomRect = oDom.getBoundingClientRect();
+                            const nTargetTop = (oDomRect.top - oPageRect.top) + oPageDom.scrollTop - nOffset;
                             oPageDom.scrollTo({ top: Math.max(0, nTargetTop), behavior: "smooth" });
-                        } else {
+                        } else if (typeof oDom.scrollIntoView === "function") {
                             oDom.style.scrollMarginTop = nOffset + "px";
                             oDom.scrollIntoView({ behavior: "smooth", block: "start" });
                         }
@@ -4975,14 +4977,8 @@ sap.ui.define([
         },
 
         _scrollToWizardContainer() {
-            // Keep top header visible so notification, sign out, and user profile buttons remain in view
-            const oPage = this.byId("accessPortalPage");
-            const oPageDom = oPage ? (oPage.getDomRef("cont") || oPage.getDomRef("scroll") || oPage.getDomRef()) : null;
-            if (oPageDom && typeof oPageDom.scrollTo === "function") {
-                oPageDom.scrollTo({ top: 0, behavior: "smooth" });
-            } else {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            }
+            // Smoothly scroll to the top of the Add Access container matching image position
+            this._smoothScrollTo("addAccessSectionContainer", 0);
         },
 
         onGoToAddAccessStep3() {
