@@ -184,10 +184,14 @@ sap.ui.define([
                         if (!oDisplay) {
                             oDisplay = document.createElement("span");
                             oDisplay.className = "kyraMultiSelectDisplayText";
+                            oDisplay.style.cursor = "default";
                             oWrapper.appendChild(oDisplay);
                         }
 
                         const oInput = oWrapper.querySelector(".sapMInputBaseInner");
+                        if (oWrapper) {
+                            oWrapper.style.cursor = "default";
+                        }
 
                         if (aTexts.length === 0) {
                             oDisplay.textContent = "";
@@ -199,6 +203,8 @@ sap.ui.define([
                                 oInput.style.visibility = "visible";
                                 oInput.style.color = "";
                                 oInput.style.webkitTextFillColor = "";
+                                oInput.style.cursor = "default";
+                                oInput.setAttribute("readonly", "readonly");
                             }
                             return;
                         }
@@ -222,6 +228,7 @@ sap.ui.define([
                         oDisplay.textContent = sDisplayText;
                         oDisplay.title = sFullText;
                         oDisplay.style.display = "flex";
+                        oDisplay.style.cursor = "default";
                         oWrapper.classList.add("kyraHasSelectedItems");
 
                         if (oInput) {
@@ -232,6 +239,8 @@ sap.ui.define([
                             oInput.style.color = "transparent";
                             oInput.style.webkitTextFillColor = "transparent";
                             oInput.style.caretColor = "transparent";
+                            oInput.style.cursor = "default";
+                            oInput.setAttribute("readonly", "readonly");
                         }
                     } catch(e) {}
                 };

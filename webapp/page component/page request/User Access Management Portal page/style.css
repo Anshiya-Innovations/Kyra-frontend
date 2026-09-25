@@ -25831,10 +25831,13 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     z-index: 3 !important;
     user-select: none !important;
     letter-spacing: -0.01em !important;
+    cursor: pointer !important;
 }
 
-/* Ensure MultiComboBox content wrapper has proper relative positioning and clean text box styling */
-.sapMMultiComboBox .sapMInputBaseContentWrapper {
+/* Ensure MultiComboBox & dropdown content wrapper has proper relative positioning and clean text box styling with hand pointer cursor */
+.sapMMultiComboBox .sapMInputBaseContentWrapper,
+.fioriFormSelect .sapMInputBaseContentWrapper,
+.sapMComboBox .sapMInputBaseContentWrapper {
     position: relative !important;
     min-height: 42px !important;
     height: 42px !important;
@@ -25848,12 +25851,19 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.sapMMultiComboBox:hover .sapMInputBaseContentWrapper {
+.sapMMultiComboBox:hover .sapMInputBaseContentWrapper,
+.fioriFormSelect:hover .sapMInputBaseContentWrapper,
+.sapMComboBox:hover .sapMInputBaseContentWrapper {
     border-color: #008C9C !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.12) !important;
 }
 
-.sapMMultiComboBox .sapMInputBaseInner {
+.sapMMultiComboBox .sapMInputBaseInner,
+.fioriFormSelect .sapMInputBaseInner,
+.sapMComboBox .sapMInputBaseInner,
+.sapMMultiComboBox input,
+.fioriFormSelect input,
+.sapMComboBox input {
     height: 100% !important;
     line-height: 42px !important;
     font-size: 13.5px !important;
@@ -25861,6 +25871,44 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     font-family: inherit !important;
     padding-left: 14px !important;
     padding-right: 40px !important;
+    cursor: pointer !important;
+    caret-color: transparent !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    pointer-events: none !important;
+}
+
+/* Show hand cursor when hovering anywhere over the dropdown, remove text cursor */
+.sapMMultiComboBox,
+.sapMMultiComboBox *,
+.fioriFormSelect,
+.fioriFormSelect *,
+.sapMComboBox,
+.sapMComboBox *,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBox,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBox *,
+html body .sapUiTheme-sap_horizon .fioriFormSelect,
+html body .sapUiTheme-sap_horizon .fioriFormSelect *,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBox .sapMInputBaseInner,
+html body .sapUiTheme-sap_horizon .fioriFormSelect .sapMInputBaseInner,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBox input,
+html body .sapUiTheme-sap_horizon .fioriFormSelect input,
+html body .sapUiTheme-sap_horizon .sapMComboBox .sapMInputBaseInner,
+html body .sapUiTheme-sap_horizon .sapMComboBox input,
+html body .sapMMultiComboBox .sapMSelectArrow,
+html body .fioriFormSelect .sapMSelectArrow,
+html body .sapMComboBox .sapMSelectArrow {
+    cursor: pointer !important;
+}
+
+/* Disabled dropdown state: not-allowed cursor */
+html body .sapMMultiComboBox.sapMComboBoxDisabled,
+html body .sapMMultiComboBox.sapMComboBoxDisabled *,
+html body .fioriFormSelect.sapMComboBoxDisabled,
+html body .fioriFormSelect.sapMComboBoxDisabled *,
+html body .sapMMultiComboBox[aria-disabled="true"],
+html body .sapMMultiComboBox[aria-disabled="true"] * {
+    cursor: not-allowed !important;
 }
 
 /* Hide native Tokenizer chips on MultiComboBox so clean text display is shown */
@@ -26835,7 +26883,9 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     text-align: center !important;
 }
 
-/* Better, Simple, Proper Design for "Already Requested" and role status badges */
+/* Better, Simple, Proper Design for "Already Requested" and role status badges (Matching Image 2) */
+html body .kyraRoleStatusPill,
+html body .kyraValTable .kyraRoleStatusPill,
 .kyraRoleStatusPill {
     display: inline-flex !important;
     align-items: center !important;
@@ -26851,21 +26901,31 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     vertical-align: middle !important;
     width: auto !important;
     min-width: 0 !important;
-    max-width: none !important;
+    max-width: fit-content !important;
+    margin: 0 auto !important;
     gap: 6px !important;
 }
 
+html body .kyraRoleStatusPill .kyraRoleStatusIcon,
+html body .kyraRoleStatusPill .sapUiIcon,
+html body .kyraValTable .kyraRoleStatusPill .kyraRoleStatusIcon,
+html body .kyraValTable .kyraRoleStatusPill .sapUiIcon,
 .kyraRoleStatusPill .kyraRoleStatusIcon,
 .kyraRoleStatusPill .sapUiIcon {
     font-size: 13px !important;
     line-height: 1 !important;
     margin: 0 !important;
+    margin-right: 6px !important;
     padding: 0 !important;
     flex-shrink: 0 !important;
     display: inline-block !important;
     vertical-align: middle !important;
 }
 
+html body .kyraRoleStatusPill .kyraRoleStatusText,
+html body .kyraRoleStatusPill .sapMText,
+html body .kyraValTable .kyraRoleStatusPill .kyraRoleStatusText,
+html body .kyraValTable .kyraRoleStatusPill .sapMText,
 .kyraRoleStatusPill .kyraRoleStatusText,
 .kyraRoleStatusPill .sapMText {
     font-size: 12px !important;
@@ -26876,9 +26936,12 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     vertical-align: middle !important;
     margin: 0 !important;
     padding: 0 !important;
+    letter-spacing: 0.1px !important;
 }
 
-/* Already Requested: Warm, clean, distinct amber pill with enclosed warning icon */
+/* 1. Already Requested: Warm, clean, distinct amber pill with enclosed warning icon */
+html body .kyraRoleStatusRequested,
+html body .kyraValTable .kyraRoleStatusRequested,
 .kyraRoleStatusRequested {
     background-color: #FEF3C7 !important;
     background: #FEF3C7 !important;
@@ -26886,6 +26949,14 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     border: 1px solid #FCD34D !important;
     box-shadow: 0 1px 2px rgba(180, 83, 9, 0.08) !important;
 }
+html body .kyraRoleStatusRequested .kyraRoleStatusIcon,
+html body .kyraRoleStatusRequested .kyraRoleStatusText,
+html body .kyraRoleStatusRequested .sapUiIcon,
+html body .kyraRoleStatusRequested .sapMText,
+html body .kyraValTable .kyraRoleStatusRequested .kyraRoleStatusIcon,
+html body .kyraValTable .kyraRoleStatusRequested .kyraRoleStatusText,
+html body .kyraValTable .kyraRoleStatusRequested .sapUiIcon,
+html body .kyraValTable .kyraRoleStatusRequested .sapMText,
 .kyraRoleStatusRequested .kyraRoleStatusIcon,
 .kyraRoleStatusRequested .kyraRoleStatusText,
 .kyraRoleStatusRequested .sapUiIcon,
@@ -26893,7 +26964,9 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     color: #B45309 !important;
 }
 
-/* Already Active: Fresh, clean emerald green pill */
+/* 2. Already Active: Fresh, clean emerald green pill */
+html body .kyraRoleStatusActive,
+html body .kyraValTable .kyraRoleStatusActive,
 .kyraRoleStatusActive {
     background-color: #ECFDF5 !important;
     background: #ECFDF5 !important;
@@ -26901,6 +26974,14 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     border: 1px solid #6EE7B7 !important;
     box-shadow: 0 1px 2px rgba(4, 120, 87, 0.08) !important;
 }
+html body .kyraRoleStatusActive .kyraRoleStatusIcon,
+html body .kyraRoleStatusActive .kyraRoleStatusText,
+html body .kyraRoleStatusActive .sapUiIcon,
+html body .kyraRoleStatusActive .sapMText,
+html body .kyraValTable .kyraRoleStatusActive .kyraRoleStatusIcon,
+html body .kyraValTable .kyraRoleStatusActive .kyraRoleStatusText,
+html body .kyraValTable .kyraRoleStatusActive .sapUiIcon,
+html body .kyraValTable .kyraRoleStatusActive .sapMText,
 .kyraRoleStatusActive .kyraRoleStatusIcon,
 .kyraRoleStatusActive .kyraRoleStatusText,
 .kyraRoleStatusActive .sapUiIcon,
@@ -26908,7 +26989,9 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     color: #065F46 !important;
 }
 
-/* Revoke In Pending: Clean soft rose red pill */
+/* 3. Revoke In Pending: Clean soft rose red pill */
+html body .kyraRoleStatusRevoke,
+html body .kyraValTable .kyraRoleStatusRevoke,
 .kyraRoleStatusRevoke {
     background-color: #FEF2F2 !important;
     background: #FEF2F2 !important;
@@ -26916,6 +26999,14 @@ html body .sapMObjStatus.kyraBadgeRevokePending .sapMObjStatusText > bdi {
     border: 1px solid #FCA5A5 !important;
     box-shadow: 0 1px 2px rgba(220, 38, 38, 0.08) !important;
 }
+html body .kyraRoleStatusRevoke .kyraRoleStatusIcon,
+html body .kyraRoleStatusRevoke .kyraRoleStatusText,
+html body .kyraRoleStatusRevoke .sapUiIcon,
+html body .kyraRoleStatusRevoke .sapMText,
+html body .kyraValTable .kyraRoleStatusRevoke .kyraRoleStatusIcon,
+html body .kyraValTable .kyraRoleStatusRevoke .kyraRoleStatusText,
+html body .kyraValTable .kyraRoleStatusRevoke .sapUiIcon,
+html body .kyraValTable .kyraRoleStatusRevoke .sapMText,
 .kyraRoleStatusRevoke .kyraRoleStatusIcon,
 .kyraRoleStatusRevoke .kyraRoleStatusText,
 .kyraRoleStatusRevoke .sapUiIcon,

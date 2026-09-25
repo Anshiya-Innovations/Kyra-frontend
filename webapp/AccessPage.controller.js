@@ -577,6 +577,79 @@ sap.ui.define([
                 const oControl = this.byId(item.id);
                 if (!oControl) return;
 
+                let iLastToggleTime = 0;
+                const fnToggleDropdown = (oEvent) => {
+                    const now = Date.now();
+                    if (now - iLastToggleTime < 250) {
+                        return;
+                    }
+                    iLastToggleTime = now;
+
+                    // 1. If control is disabled, block any touch/click completely
+                    if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
+                        if (oEvent && typeof oEvent.setMarked === "function") oEvent.setMarked();
+                        return;
+                    }
+
+                    // 2. If clicked on token delete icon (X), allow token removal without toggling
+                    if (oEvent && oEvent.target && oEvent.target.closest && oEvent.target.closest(".sapMTokenIcon")) {
+                        return;
+                    }
+
+                    // 3. Check sequential prerequisite
+                    if (item.prereqProp && oModel) {
+                        const aPrereqVal = oModel.getProperty(item.prereqProp) || [];
+                        if (!Array.isArray(aPrereqVal) || aPrereqVal.length === 0) {
+                            if (oEvent && typeof oEvent.setMarked === "function") oEvent.setMarked();
+                            MessageToast.show("Please select " + item.prereqName + " first.");
+                            return;
+                        }
+                    }
+
+                    if (oEvent) {
+                        if (typeof oEvent.stopImmediatePropagation === "function") oEvent.stopImmediatePropagation();
+                        if (typeof oEvent.stopPropagation === "function") oEvent.stopPropagation();
+                        if (typeof oEvent.setMarked === "function") oEvent.setMarked();
+                    }
+
+                    // 4. Toggle dropdown open / close cleanly with smooth screen alignment
+                    if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
+                        oControl.close();
+                    } else {
+                        if (typeof oControl.open === "function") {
+                            oControl.open();
+                        } else if (typeof oControl.toggleOpen === "function") {
+                            oControl.toggleOpen();
+                        }
+                        setTimeout(() => {
+                            const oDom = oControl.getDomRef();
+                            if (oDom) {
+                                const rect = oDom.getBoundingClientRect();
+                                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+                                if (rect.bottom > windowHeight - 340 || rect.top < 80) {
+                                    oDom.scrollIntoView({ behavior: "smooth", block: "center" });
+                                }
+                            }
+                            try {
+                                const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                                (typeof oControl._getPicker === "function" && oControl._getPicker());
+                                if (oPicker) {
+                                    const oPickerDom = oPicker.getDomRef();
+                                    if (oPickerDom) {
+                                        oPickerDom.style.minWidth = "min(600px, 95vw)";
+                                        oPickerDom.style.width = "max-content";
+                                        const oCont = oPickerDom.querySelector(".sapMPopoverCont");
+                                        if (oCont) {
+                                            oCont.style.overflow = "hidden";
+                                            oCont.style.overflowY = "hidden";
+                                        }
+                                    }
+                                }
+                            } catch(e) {}
+                        }, 80);
+                    }
+                };
+
                 const fnSetupControl = () => {
                     const oTokenizer = (typeof oControl._getTokenizer === "function" && oControl._getTokenizer()) || 
                                        oControl._oTokenizer || 
@@ -612,16 +685,29 @@ sap.ui.define([
                     if (oInputDom) {
                         oInputDom.setAttribute("readonly", "readonly");
                         oInputDom.style.cursor = "pointer";
+                        oInputDom.style.pointerEvents = "none";
+                        oInputDom.style.caretColor = "transparent";
+                        oInputDom.style.userSelect = "none";
+                        oInputDom.style.webkitUserSelect = "none";
                     }
                     const oDom = oControl.getDomRef();
                     if (oDom) {
                         oDom.style.cursor = "pointer";
                         const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
-                        if (oWrapper) oWrapper.style.cursor = "pointer";
+                        if (oWrapper) {
+                            oWrapper.style.cursor = "pointer";
+                            if (!oWrapper._hasKyraClickHandler) {
+                                oWrapper._hasKyraClickHandler = true;
+                                oWrapper.addEventListener("click", (e) => {
+                                    fnToggleDropdown(e);
+                                });
+                            }
+                        }
                         const oTokDom = oDom.querySelector(".sapMTokenizer");
                         if (oTokDom) {
                             oTokDom.scrollLeft = 0;
                             oTokDom.style.cursor = "pointer";
+                            oTokDom.style.pointerEvents = "none";
                         }
                     }
                 };
@@ -635,74 +721,8 @@ sap.ui.define([
 
                 oControl._rowClickDelegate = {
                     onAfterRendering: fnSetupControl,
-                    ontap: (oEvent) => {
-                        // 1. If control is disabled, block any touch/click completely
-                        if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
-                            if (typeof oEvent.setMarked === "function") oEvent.setMarked();
-                            return;
-                        }
-
-                        // 2. If clicked on token delete icon (X), allow token removal without toggling
-                        if (oEvent.target && oEvent.target.closest && oEvent.target.closest(".sapMTokenIcon")) {
-                            return;
-                        }
-
-                        // 3. Check sequential prerequisite
-                        if (item.prereqProp && oModel) {
-                            const aPrereqVal = oModel.getProperty(item.prereqProp) || [];
-                            if (!Array.isArray(aPrereqVal) || aPrereqVal.length === 0) {
-                                if (typeof oEvent.setMarked === "function") oEvent.setMarked();
-                                MessageToast.show("Please select " + item.prereqName + " first.");
-                                return;
-                            }
-                        }
-
-                        // 4. Mark event and stop immediate propagation so UI5 internal handlers do not double-toggle
-                        if (typeof oEvent.stopImmediatePropagation === "function") {
-                            oEvent.stopImmediatePropagation();
-                        }
-                        if (typeof oEvent.setMarked === "function") {
-                            oEvent.setMarked();
-                        }
-
-                        // 5. Toggle dropdown open / close cleanly with smooth screen alignment
-                        if (typeof oControl.isOpen === "function" && oControl.isOpen()) {
-                            oControl.close();
-                        } else if (typeof oControl.open === "function") {
-                            oControl.open();
-                            setTimeout(() => {
-                                const oDom = oControl.getDomRef();
-                                if (oDom) {
-                                    const rect = oDom.getBoundingClientRect();
-                                    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                    if (rect.bottom > windowHeight - 340 || rect.top < 80) {
-                                        oDom.scrollIntoView({ behavior: "smooth", block: "center" });
-                                    }
-                                }
-                                try {
-                                    const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
-                                                    (typeof oControl._getPicker === "function" && oControl._getPicker());
-                                    if (oPicker) {
-                                        const oPickerDom = oPicker.getDomRef();
-                                        if (oPickerDom) {
-                                            oPickerDom.style.minWidth = "min(600px, 95vw)";
-                                            oPickerDom.style.width = "max-content";
-                                            const oCont = oPickerDom.querySelector(".sapMPopoverCont");
-                                            if (oCont) {
-                                                oCont.style.overflow = "hidden";
-                                                oCont.style.overflowY = "hidden";
-                                            }
-                                        }
-                                    }
-                                } catch(e) {}
-                            }, 80);
-                        }
-                    },
-                    onclick: (oEvent) => {
-                        if (typeof oEvent.stopImmediatePropagation === "function") {
-                            oEvent.stopImmediatePropagation();
-                        }
-                    }
+                    ontap: fnToggleDropdown,
+                    onclick: fnToggleDropdown
                 };
 
                 // Add as pre-delegate so it executes before ComboBoxBase.prototype.ontap
@@ -4521,28 +4541,43 @@ sap.ui.define([
 
         onInPageDurationChange(oEvent) {
             const oSource = (oEvent && oEvent.getSource) ? oEvent.getSource() : this.byId("inPageDurationSelect");
-            const sKey = (oSource && typeof oSource.getSelectedKey === "function" && oSource.getSelectedKey()) ||
-                         (oSource && typeof oSource.getValue === "function" && oSource.getValue()) || "";
+            let sKey = "";
+            if (oEvent && typeof oEvent.getParameter === "function") {
+                const oItem = oEvent.getParameter("selectedItem");
+                if (oItem && typeof oItem.getKey === "function") {
+                    sKey = oItem.getKey() || oItem.getText();
+                }
+            }
+            if (!sKey && oSource) {
+                sKey = (typeof oSource.getSelectedKey === "function" && oSource.getSelectedKey()) ||
+                       (typeof oSource.getValue === "function" && oSource.getValue()) || "";
+            }
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/addAccessDuration", sKey);
             }
 
-            // Once duration is selected, automatically open Business Justification and focus the text box
+            // Once duration is selected, automatically open Business Justification and focus the typing field cleanly
             if (sKey && sKey.trim() !== "") {
-                setTimeout(() => {
+                const fnFocusJustification = () => {
                     this._setupJustificationAreaClick();
                     const oArea = this.byId("inPageJustificationArea");
                     if (oArea) {
                         const oDom = oArea.getDomRef();
                         const oTextarea = oDom
                             ? (oDom.querySelector("textarea") || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef()))
-                            : null;
+                            : (typeof oArea.getFocusDomRef === "function" ? oArea.getFocusDomRef() : null);
                         if (oTextarea) {
                             oTextarea.focus();
+                            if (typeof oTextarea.scrollIntoView === "function") {
+                                oTextarea.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                            }
                         }
                     }
-                }, 100);
+                };
+                [50, 150, 300, 500].forEach(nDelay => {
+                    setTimeout(fnFocusJustification, nDelay);
+                });
             }
         },
 

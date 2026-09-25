@@ -1284,17 +1284,34 @@
                     <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                     <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                     <HBox justifyContent="Center" alignItems="Center" width="100%" class="kyraBadgeCenterCell">
+                        <!-- 1. Revoke In Pending (Soft Red / Rose Pill) -->
                         <HBox
                             alignItems="Center"
                             justifyContent="Center"
-                            class="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'kyraRoleStatusPill kyraRoleStatusRevoke' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'kyraRoleStatusPill kyraRoleStatusActive' : 'kyraRoleStatusPill kyraRoleStatusRequested') }">
-                            <core:Icon
-                                src="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'sap-icon://alert' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'sap-icon://sys-enter-2' : 'sap-icon://alert') }"
-                                class="kyraRoleStatusIcon" />
-                            <Text
-                                text="{= (${accessModel>statusType} === 'revoke_pending' || (${accessModel>existingStatus} || '').toLowerCase().includes('revoke') || (${accessModel>existingRoles} || '').toLowerCase().includes('revoke')) ? 'Revoke In Pending' : (((${accessModel>existingStatus} || '').toLowerCase().includes('active') || (${accessModel>existingRoles} || '').toLowerCase().includes('active')) ? 'Already Active' : 'Already Requested') }"
-                                class="kyraRoleStatusText"
-                                wrapping="false" />
+                            class="kyraRoleStatusPill kyraRoleStatusRevoke"
+                            visible="{= ${accessModel>statusType} === 'revoke_pending' || ${accessModel>existingRoles} === 'revoke in pending' }">
+                            <core:Icon src="sap-icon://alert" class="kyraRoleStatusIcon" />
+                            <Text text="Revoke In Pending" class="kyraRoleStatusText" wrapping="false" />
+                        </HBox>
+
+                        <!-- 2. Already Active (Clean Emerald Green Pill) -->
+                        <HBox
+                            alignItems="Center"
+                            justifyContent="Center"
+                            class="kyraRoleStatusPill kyraRoleStatusActive"
+                            visible="{= (${accessModel>statusType} === 'existing' || ${accessModel>existingRoles} === 'already active') &amp;&amp; ${accessModel>statusType} !== 'revoke_pending' }">
+                            <core:Icon src="sap-icon://sys-enter-2" class="kyraRoleStatusIcon" />
+                            <Text text="Already Active" class="kyraRoleStatusText" wrapping="false" />
+                        </HBox>
+
+                        <!-- 3. Already Requested (Warm Amber Pill - Default / Pending) -->
+                        <HBox
+                            alignItems="Center"
+                            justifyContent="Center"
+                            class="kyraRoleStatusPill kyraRoleStatusRequested"
+                            visible="{= ${accessModel>statusType} !== 'revoke_pending' &amp;&amp; ${accessModel>statusType} !== 'existing' &amp;&amp; ${accessModel>existingRoles} !== 'revoke in pending' &amp;&amp; ${accessModel>existingRoles} !== 'already active' }">
+                            <core:Icon src="sap-icon://alert" class="kyraRoleStatusIcon" />
+                            <Text text="Already Requested" class="kyraRoleStatusText" wrapping="false" />
                         </HBox>
                     </HBox>
                 </cells>

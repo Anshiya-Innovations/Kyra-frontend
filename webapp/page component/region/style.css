@@ -25831,10 +25831,12 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     z-index: 3 !important;
     user-select: none !important;
     letter-spacing: -0.01em !important;
+    cursor: default !important;
 }
 
-/* Ensure MultiComboBox content wrapper has proper relative positioning and clean text box styling */
-.sapMMultiComboBox .sapMInputBaseContentWrapper {
+/* Ensure MultiComboBox content wrapper has proper relative positioning and clean text box styling with normal mouse */
+.sapMMultiComboBox .sapMInputBaseContentWrapper,
+.fioriFormSelect .sapMInputBaseContentWrapper {
     position: relative !important;
     min-height: 42px !important;
     height: 42px !important;
@@ -25844,16 +25846,20 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
-    cursor: pointer !important;
+    cursor: default !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.sapMMultiComboBox:hover .sapMInputBaseContentWrapper {
+.sapMMultiComboBox:hover .sapMInputBaseContentWrapper,
+.fioriFormSelect:hover .sapMInputBaseContentWrapper {
     border-color: #008C9C !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.12) !important;
 }
 
-.sapMMultiComboBox .sapMInputBaseInner {
+.sapMMultiComboBox .sapMInputBaseInner,
+.fioriFormSelect .sapMInputBaseInner,
+.sapMMultiComboBox input,
+.fioriFormSelect input {
     height: 100% !important;
     line-height: 42px !important;
     font-size: 13.5px !important;
@@ -25861,6 +25867,22 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     font-family: inherit !important;
     padding-left: 14px !important;
     padding-right: 40px !important;
+    cursor: default !important;
+    caret-color: transparent !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+/* Normal mouse action on all dropdown inputs (never text I-beam icon) */
+.sapMMultiComboBox,
+.sapMMultiComboBox *,
+.fioriFormSelect,
+.fioriFormSelect *,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBox .sapMInputBaseInner,
+html body .sapUiTheme-sap_horizon .fioriFormSelect .sapMInputBaseInner,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBox input,
+html body .sapUiTheme-sap_horizon .fioriFormSelect input {
+    cursor: default !important;
 }
 
 /* Hide native Tokenizer chips on MultiComboBox so clean text display is shown */
