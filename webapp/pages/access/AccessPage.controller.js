@@ -479,60 +479,57 @@ sap.ui.define([
                     { key: "SAP Ariba Supply Network", text: "SAP Ariba Supply Network" }
                 ],
                 adminAllConfiguredRolesAndPersonas: [
-                    { key: "IT Developers (System Administrator)", text: "[Team] IT Developers (System Administrator)" },
-                    { key: "IT Administrators (System Administrator)", text: "[Team] IT Administrators (System Administrator)" },
-                    { key: "Lead Engineer (System Administrator)", text: "[Team] Lead Engineer (System Administrator)" },
-                    { key: "IT Security (System Administrator)", text: "[Team] IT Security (System Administrator)" },
-                    { key: "Technical Product Owner (System Owner)", text: "[Team] Technical Product Owner (System Owner)" },
-                    { key: "Product Group Engineer (System Owner)", text: "[Team] Product Group Engineer (System Owner)" },
-                    { key: "Business Product Owner (Stakeholders)", text: "[Team] Business Product Owner (Stakeholders)" },
-                    { key: "Line Manager (Stakeholders)", text: "[Team] Line Manager (Stakeholders)" },
-                    { key: "Compliance Manager (Stakeholders)", text: "[Team] Compliance Manager (Stakeholders)" },
-                    { key: "Role Owner (Stakeholders)", text: "[Team] Role Owner (Stakeholders)" },
-                    { key: "ISRM (Stakeholders)", text: "[Team] ISRM (Stakeholders)" },
-                    { key: "IAM / GRC Team (Stakeholders)", text: "[Team] IAM / GRC Team (Stakeholders)" },
-                    { key: "Frontend & UI Developer Persona (IT Developers)", text: "[Persona] Frontend & UI Developer Persona" },
-                    { key: "Backend & Systems Developer Persona (IT Developers)", text: "[Persona] Backend & Systems Developer Persona" },
-                    { key: "Cloud Infrastructure Administrator Persona (IT Administrators)", text: "[Persona] Cloud Infrastructure Administrator Persona" },
-                    { key: "Database & IAM Administrator Persona (IT Administrators)", text: "[Persona] Database & IAM Administrator Persona" },
-                    { key: "Principal Systems Engineer Persona (Lead Engineer)", text: "[Persona] Principal Systems Engineer Persona" },
-                    { key: "DevOps & Platform Lead Persona (Lead Engineer)", text: "[Persona] DevOps & Platform Lead Persona" },
-                    { key: "Security Audit & GRC Persona (IT Security)", text: "[Persona] Security Audit & GRC Persona" },
-                    { key: "Cybersecurity Operations Persona (IT Security)", text: "[Persona] Cybersecurity Operations Persona" },
-                    { key: "Technical Product Manager Persona (Technical Product Owner)", text: "[Persona] Technical Product Manager Persona" },
-                    { key: "Solution Architecture Owner Persona (Technical Product Owner)", text: "[Persona] Solution Architecture Owner Persona" },
-                    { key: "Product Suite Engineer Persona (Product Group Engineer)", text: "[Persona] Product Suite Engineer Persona" },
-                    { key: "Integration Engineering Lead Persona (Product Group Engineer)", text: "[Persona] Integration Engineering Lead Persona" },
-                    { key: "Regulatory Compliance Officer Persona (Compliance Manager)", text: "[Persona] Regulatory Compliance Officer Persona" },
-                    { key: "Data Privacy Auditor Persona (Compliance Manager)", text: "[Persona] Data Privacy Auditor Persona" },
-                    { key: "Identity Management Specialist Persona (IAM / GRC Team)", text: "[Persona] Identity Management Specialist Persona" }
+                    { key: "Frontend & UI Developer Persona (IT Developers)", text: "Frontend & UI Developer Persona (IT Developers)" },
+                    { key: "Backend & Systems Developer Persona (IT Developers)", text: "Backend & Systems Developer Persona (IT Developers)" },
+                    { key: "Cloud Infrastructure Administrator Persona (IT Administrators)", text: "Cloud Infrastructure Administrator Persona (IT Administrators)" },
+                    { key: "Database & IAM Administrator Persona (IT Administrators)", text: "Database & IAM Administrator Persona (IT Administrators)" },
+                    { key: "Principal Systems Engineer Persona (Lead Engineer)", text: "Principal Systems Engineer Persona (Lead Engineer)" },
+                    { key: "DevOps & Platform Lead Persona (Lead Engineer)", text: "DevOps & Platform Lead Persona (Lead Engineer)" },
+                    { key: "Security Audit & GRC Persona (IT Security)", text: "Security Audit & GRC Persona (IT Security)" },
+                    { key: "Cybersecurity Operations Persona (IT Security)", text: "Cybersecurity Operations Persona (IT Security)" },
+                    { key: "Technical Product Manager Persona (Technical Product Owner)", text: "Technical Product Manager Persona (Technical Product Owner)" },
+                    { key: "Solution Architecture Owner Persona (Technical Product Owner)", text: "Solution Architecture Owner Persona (Technical Product Owner)" },
+                    { key: "Product Suite Engineer Persona (Product Group Engineer)", text: "Product Suite Engineer Persona (Product Group Engineer)" },
+                    { key: "Integration Engineering Lead Persona (Product Group Engineer)", text: "Integration Engineering Lead Persona (Product Group Engineer)" },
+                    { key: "Business Strategy Lead Persona (Business Product Owner)", text: "Business Strategy Lead Persona (Business Product Owner)" },
+                    { key: "Enterprise Process Owner Persona (Business Product Owner)", text: "Enterprise Process Owner Persona (Business Product Owner)" },
+                    { key: "Department Resource Manager Persona (Line Manager)", text: "Department Resource Manager Persona (Line Manager)" },
+                    { key: "People Operations Lead Persona (Line Manager)", text: "People Operations Lead Persona (Line Manager)" },
+                    { key: "Regulatory Compliance Officer Persona (Compliance Manager)", text: "Regulatory Compliance Officer Persona (Compliance Manager)" },
+                    { key: "Data Privacy Auditor Persona (Compliance Manager)", text: "Data Privacy Auditor Persona (Compliance Manager)" },
+                    { key: "Entitlement & Role Custodian Persona (Role Owner)", text: "Entitlement & Role Custodian Persona (Role Owner)" },
+                    { key: "Access Governance Approver Persona (Role Owner)", text: "Access Governance Approver Persona (Role Owner)" },
+                    { key: "Information Security Risk Manager Persona (ISRM)", text: "Information Security Risk Manager Persona (ISRM)" },
+                    { key: "Risk & Assessment Analyst Persona (ISRM)", text: "Risk & Assessment Analyst Persona (ISRM)" },
+                    { key: "Identity Management Specialist Persona (IAM / GRC Team)", text: "Identity Management Specialist Persona (IAM / GRC Team)" },
+                    { key: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", text: "Governance Risk Compliance Lead Persona (IAM / GRC Team)" }
                 ],
                 newConflictDraft: {
                     system: "SAP BTP Cloud Platform",
                     service: "System Administrator",
-                    role1: "IT Administrators (System Administrator)",
-                    role2: "IT Developers (System Administrator)",
+                    role1: "Cloud Infrastructure Administrator Persona (IT Administrators)",
+                    role2: "Frontend & UI Developer Persona (IT Developers)",
                     description: "Segregation of Duties conflict between Developer and Admin privileges."
                 },
                 adminCustomConflictsAll: [
-                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "IT Administrators (System Administrator)", role2: "IT Developers (System Administrator)", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "IT Administrators (System Administrator)", role2: "IT Security (System Administrator)", description: "System Administrator conflicts with Security Governance." },
-                    { system: "SAP S/4HANA Enterprise", service: "Stakeholders", role1: "IT Administrators (System Administrator)", role2: "Compliance Manager (Stakeholders)", description: "System Administrator conflicts with Compliance Manager oversight." },
-                    { system: "KYRA Central Governance", service: "System Administrator", role1: "IT Security (System Administrator)", role2: "IT Developers (System Administrator)", description: "Developer access conflicts with IT Security audit authority." },
-                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Lead Engineer (System Administrator)", role2: "IT Administrators (System Administrator)", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                    { system: "Active Directory / IAM", service: "Stakeholders", role1: "IT Security (System Administrator)", role2: "Compliance Manager (Stakeholders)", description: "Compliance Manager conflicts with Security Operational access." },
-                    { system: "SAP SuccessFactors", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "IT Developers (System Administrator)", description: "Security Audit oversight conflicts with Developer operational access." },
-                    { system: "SAP Ariba Supply Network", service: "System Administrator", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Security Audit & GRC Persona (IT Security)", description: "System Administrator conflicts with Security Audit role." }
+                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Segregation of Duties conflict between Developer and Admin privileges.", status: "Active" },
+                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Database & IAM Administrator Persona (IT Administrators)", role2: "Security Audit & GRC Persona (IT Security)", description: "System Administrator conflicts with Security Governance.", status: "Active" },
+                    { system: "SAP S/4HANA Enterprise", service: "Stakeholders", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Regulatory Compliance Officer Persona (Compliance Manager)", description: "System Administrator conflicts with Compliance Manager oversight.", status: "Active" },
+                    { system: "KYRA Central Governance", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "Backend & Systems Developer Persona (IT Developers)", description: "Developer access conflicts with IT Security audit authority.", status: "Active" },
+                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Principal Systems Engineer Persona (Lead Engineer)", role2: "Cloud Infrastructure Administrator Persona (IT Administrators)", description: "Lead Engineer conflicts with IT Administrators elevated system access.", status: "Active" },
+                    { system: "Active Directory / IAM", service: "Stakeholders", role1: "Cybersecurity Operations Persona (IT Security)", role2: "Data Privacy Auditor Persona (Compliance Manager)", description: "Compliance Manager conflicts with Security Operational access.", status: "Active" },
+                    { system: "SAP SuccessFactors", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Security Audit oversight conflicts with Developer operational access.", status: "Active" },
+                    { system: "SAP Ariba Supply Network", service: "Stakeholders", role1: "Identity Management Specialist Persona (IAM / GRC Team)", role2: "Access Governance Approver Persona (Role Owner)", description: "IAM Specialist conflicts with Role Owner approval authority.", status: "Active" }
                 ],
                 adminCustomConflicts: [
-                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "IT Administrators (System Administrator)", role2: "IT Developers (System Administrator)", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "IT Administrators (System Administrator)", role2: "IT Security (System Administrator)", description: "System Administrator conflicts with Security Governance." },
-                    { system: "SAP S/4HANA Enterprise", service: "Stakeholders", role1: "IT Administrators (System Administrator)", role2: "Compliance Manager (Stakeholders)", description: "System Administrator conflicts with Compliance Manager oversight." },
-                    { system: "KYRA Central Governance", service: "System Administrator", role1: "IT Security (System Administrator)", role2: "IT Developers (System Administrator)", description: "Developer access conflicts with IT Security audit authority." },
-                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Lead Engineer (System Administrator)", role2: "IT Administrators (System Administrator)", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                    { system: "Active Directory / IAM", service: "Stakeholders", role1: "IT Security (System Administrator)", role2: "Compliance Manager (Stakeholders)", description: "Compliance Manager conflicts with Security Operational access." },
-                    { system: "SAP SuccessFactors", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "IT Developers (System Administrator)", description: "Security Audit oversight conflicts with Developer operational access." },
-                    { system: "SAP Ariba Supply Network", service: "System Administrator", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Security Audit & GRC Persona (IT Security)", description: "System Administrator conflicts with Security Audit role." }
+                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Segregation of Duties conflict between Developer and Admin privileges.", status: "Active" },
+                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Database & IAM Administrator Persona (IT Administrators)", role2: "Security Audit & GRC Persona (IT Security)", description: "System Administrator conflicts with Security Governance.", status: "Active" },
+                    { system: "SAP S/4HANA Enterprise", service: "Stakeholders", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Regulatory Compliance Officer Persona (Compliance Manager)", description: "System Administrator conflicts with Compliance Manager oversight.", status: "Active" },
+                    { system: "KYRA Central Governance", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "Backend & Systems Developer Persona (IT Developers)", description: "Developer access conflicts with IT Security audit authority.", status: "Active" },
+                    { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Principal Systems Engineer Persona (Lead Engineer)", role2: "Cloud Infrastructure Administrator Persona (IT Administrators)", description: "Lead Engineer conflicts with IT Administrators elevated system access.", status: "Active" },
+                    { system: "Active Directory / IAM", service: "Stakeholders", role1: "Cybersecurity Operations Persona (IT Security)", role2: "Data Privacy Auditor Persona (Compliance Manager)", description: "Compliance Manager conflicts with Security Operational access.", status: "Active" },
+                    { system: "SAP SuccessFactors", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Security Audit oversight conflicts with Developer operational access.", status: "Active" },
+                    { system: "SAP Ariba Supply Network", service: "Stakeholders", role1: "Identity Management Specialist Persona (IAM / GRC Team)", role2: "Access Governance Approver Persona (Role Owner)", description: "IAM Specialist conflicts with Role Owner approval authority.", status: "Active" }
                 ],
                 adminDatabaseSchemas: [
                     { schemaName: "access_management", host: "database-1.cwpka6uuuujw.us-east-1.rds.amazonaws.com", tablesCount: "11 Tables (incl. admin_id)", status: "Active" },
@@ -542,9 +539,25 @@ sap.ui.define([
                 adminPersonaUsers: [
                     { userId: "admin01", currentPersona: "Admin", targetPersona: "Admin", status: "Active" },
                     { userId: "emp001", currentPersona: "Requester", targetPersona: "Approver", status: "Active" },
-                    { userId: "app01", currentPersona: "Approver", targetPersona: "Compliance Review", status: "Active" },
-                    { userId: "comp01", currentPersona: "Compliance Review", targetPersona: "Approver", status: "Active" }
-                ]
+                    { userId: "app01", currentPersona: "Approver", targetPersona: "Compliance Reviewer", status: "Active" },
+                    { userId: "comp01", currentPersona: "Compliance Reviewer", targetPersona: "Approver", status: "Active" }
+                ],
+                personaLookupInput: "",
+                personaLookupUserFound: false,
+                personaLookupUser: {
+                    userId: "",
+                    username: "",
+                    fullName: "",
+                    email: "",
+                    department: "",
+                    currentPersona: "Requester",
+                    selectedPersona: "Requester",
+                    targetPersona: "Requester",
+                    sourceTable: "access_management.requester_id",
+                    status: "Active",
+                    entitlementsCount: 0,
+                    entitlements: []
+                }
             });
 
             this.getView().setModel(oModel, "accessModel");
@@ -10086,6 +10099,159 @@ sap.ui.define([
         // =========================================================================
         // ADMIN PERSONA: 3 ACTION CARDS, ACCESS CUSTOMIZATION & CUSTOM CONFLICTS
         // =========================================================================
+        _getDefaultAdminConflictRules() {
+            return [
+                { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Segregation of Duties conflict between Developer and Admin privileges.", status: "Active" },
+                { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Database & IAM Administrator Persona (IT Administrators)", role2: "Security Audit & GRC Persona (IT Security)", description: "System Administrator conflicts with Security Governance.", status: "Active" },
+                { system: "SAP S/4HANA Enterprise", service: "Stakeholders", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Regulatory Compliance Officer Persona (Compliance Manager)", description: "System Administrator conflicts with Compliance Manager oversight.", status: "Active" },
+                { system: "KYRA Central Governance", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "Backend & Systems Developer Persona (IT Developers)", description: "Developer access conflicts with IT Security audit authority.", status: "Active" },
+                { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Principal Systems Engineer Persona (Lead Engineer)", role2: "Cloud Infrastructure Administrator Persona (IT Administrators)", description: "Lead Engineer conflicts with IT Administrators elevated system access.", status: "Active" },
+                { system: "Active Directory / IAM", service: "Stakeholders", role1: "Cybersecurity Operations Persona (IT Security)", role2: "Data Privacy Auditor Persona (Compliance Manager)", description: "Compliance Manager conflicts with Security Operational access.", status: "Active" },
+                { system: "SAP SuccessFactors", service: "System Administrator", role1: "Security Audit & GRC Persona (IT Security)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Security Audit oversight conflicts with Developer operational access.", status: "Active" },
+                { system: "SAP Ariba Supply Network", service: "Stakeholders", role1: "Identity Management Specialist Persona (IAM / GRC Team)", role2: "Access Governance Approver Persona (Role Owner)", description: "IAM Specialist conflicts with Role Owner approval authority.", status: "Active" }
+            ];
+        },
+
+        _normalizeRoleToPersonaName(sRole) {
+            if (!sRole) return "";
+            const sTrim = String(sRole).trim();
+            if (/persona/i.test(sTrim)) return sTrim;
+            const oTeamToPersonaMap = {
+                "IT Developers (System Administrator)": "Frontend & UI Developer Persona (IT Developers)",
+                "IT Administrators (System Administrator)": "Cloud Infrastructure Administrator Persona (IT Administrators)",
+                "Lead Engineer (System Administrator)": "Principal Systems Engineer Persona (Lead Engineer)",
+                "IT Security (System Administrator)": "Security Audit & GRC Persona (IT Security)",
+                "Technical Product Owner (System Owner)": "Technical Product Manager Persona (Technical Product Owner)",
+                "Product Group Engineer (System Owner)": "Product Suite Engineer Persona (Product Group Engineer)",
+                "Business Product Owner (Stakeholders)": "Business Strategy Lead Persona (Business Product Owner)",
+                "Line Manager (Stakeholders)": "Department Resource Manager Persona (Line Manager)",
+                "Compliance Manager (Stakeholders)": "Regulatory Compliance Officer Persona (Compliance Manager)",
+                "Role Owner (Stakeholders)": "Access Governance Approver Persona (Role Owner)",
+                "ISRM (Stakeholders)": "Information Security Risk Manager Persona (ISRM)",
+                "IAM / GRC Team (Stakeholders)": "Identity Management Specialist Persona (IAM / GRC Team)"
+            };
+            return oTeamToPersonaMap[sTrim] || sTrim;
+        },
+
+        _getDefaultAdminServiceDetailsMap() {
+            return {
+                "System Administrator": [
+                    {
+                        name: "IT Developers (System Administrator)",
+                        status: "Active",
+                        selected: true,
+                        subClassifications: [
+                            { name: "Frontend & UI Developer Persona (IT Developers)", status: "Active" },
+                            { name: "Backend & Systems Developer Persona (IT Developers)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "IT Administrators (System Administrator)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Cloud Infrastructure Administrator Persona (IT Administrators)", status: "Active" },
+                            { name: "Database & IAM Administrator Persona (IT Administrators)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "Lead Engineer (System Administrator)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Principal Systems Engineer Persona (Lead Engineer)", status: "Active" },
+                            { name: "DevOps & Platform Lead Persona (Lead Engineer)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "IT Security (System Administrator)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Security Audit & GRC Persona (IT Security)", status: "Active" },
+                            { name: "Cybersecurity Operations Persona (IT Security)", status: "Active" }
+                        ]
+                    }
+                ],
+                "System Owners": [
+                    {
+                        name: "Technical Product Owner (System Owner)",
+                        status: "Active",
+                        selected: true,
+                        subClassifications: [
+                            { name: "Technical Product Manager Persona (Technical Product Owner)", status: "Active" },
+                            { name: "Solution Architecture Owner Persona (Technical Product Owner)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "Product Group Engineer (System Owner)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Product Suite Engineer Persona (Product Group Engineer)", status: "Active" },
+                            { name: "Integration Engineering Lead Persona (Product Group Engineer)", status: "Active" }
+                        ]
+                    }
+                ],
+                "Stakeholders": [
+                    {
+                        name: "Business Product Owner (Stakeholders)",
+                        status: "Active",
+                        selected: true,
+                        subClassifications: [
+                            { name: "Business Strategy Lead Persona (Business Product Owner)", status: "Active" },
+                            { name: "Enterprise Process Owner Persona (Business Product Owner)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "Line Manager (Stakeholders)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Department Resource Manager Persona (Line Manager)", status: "Active" },
+                            { name: "People Operations Lead Persona (Line Manager)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "Compliance Manager (Stakeholders)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Regulatory Compliance Officer Persona (Compliance Manager)", status: "Active" },
+                            { name: "Data Privacy Auditor Persona (Compliance Manager)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "Role Owner (Stakeholders)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Entitlement & Role Custodian Persona (Role Owner)", status: "Active" },
+                            { name: "Access Governance Approver Persona (Role Owner)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "ISRM (Stakeholders)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Information Security Risk Manager Persona (ISRM)", status: "Active" },
+                            { name: "Risk & Assessment Analyst Persona (ISRM)", status: "Active" }
+                        ]
+                    },
+                    {
+                        name: "IAM / GRC Team (Stakeholders)",
+                        status: "Active",
+                        selected: false,
+                        subClassifications: [
+                            { name: "Identity Management Specialist Persona (IAM / GRC Team)", status: "Active" },
+                            { name: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", status: "Active" }
+                        ]
+                    }
+                ]
+            };
+        },
+
         _applyParsedAdminConfigToModel(oModel, oParsed) {
             if (!oModel || !oParsed || typeof oParsed !== "object") return;
             if (Array.isArray(oParsed.adminSystemsAll) && oParsed.adminSystemsAll.length > 0) {
@@ -10099,9 +10265,10 @@ sap.ui.define([
                 oModel.setProperty("/adminServices", aSrv.slice());
             }
             if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object") {
-                oModel.setProperty("/adminServiceDetailsMap", oParsed.adminServiceDetailsMap);
+                const oMergedMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oParsed.adminServiceDetailsMap);
+                oModel.setProperty("/adminServiceDetailsMap", oMergedMap);
                 const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
-                const aTeams = oParsed.adminServiceDetailsMap[sSelectedSrv] || [];
+                const aTeams = oMergedMap[sSelectedSrv] || [];
                 if (aTeams.length > 0) {
                     oModel.setProperty("/adminClassifications", JSON.parse(JSON.stringify(aTeams)));
                     const oActiveTeam = aTeams.find(t => t.selected) || aTeams[0];
@@ -10109,7 +10276,10 @@ sap.ui.define([
                 }
             }
             if (Array.isArray(oParsed.adminCustomConflictsAll) && oParsed.adminCustomConflictsAll.length > 0) {
-                const aConf = oParsed.adminCustomConflictsAll.map(c => Object.assign({ status: "Active" }, c));
+                const aConf = oParsed.adminCustomConflictsAll.map(c => Object.assign({ status: "Active" }, c, {
+                    role1: this._normalizeRoleToPersonaName(c.role1),
+                    role2: this._normalizeRoleToPersonaName(c.role2)
+                }));
                 oModel.setProperty("/adminCustomConflictsAll", aConf);
                 oModel.setProperty("/adminCustomConflicts", aConf.slice());
                 oModel.setProperty("/sodMatrix", aConf.filter(c => c.status !== "Inactive"));
@@ -10141,34 +10311,53 @@ sap.ui.define([
                 if (sSavedConflicts) {
                     const aParsedConflicts = JSON.parse(sSavedConflicts);
                     if (Array.isArray(aParsedConflicts) && aParsedConflicts.length > 0) {
-                        const aNormalized = aParsedConflicts.map(c => Object.assign({ status: "Active" }, c));
+                        const aNormalized = aParsedConflicts.map(c => Object.assign({ status: "Active" }, c, {
+                            role1: this._normalizeRoleToPersonaName(c.role1),
+                            role2: this._normalizeRoleToPersonaName(c.role2)
+                        }));
                         oModel.setProperty("/adminCustomConflictsAll", aNormalized);
                         oModel.setProperty("/adminCustomConflicts", aNormalized.slice());
                         oModel.setProperty("/sodMatrix", aNormalized.filter(c => c.status !== "Inactive"));
                     }
-                } else {
-                    const aDefaultConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => Object.assign({ status: "Active" }, c));
-                    oModel.setProperty("/adminCustomConflictsAll", aDefaultConflicts);
-                    oModel.setProperty("/adminCustomConflicts", aDefaultConflicts.slice());
-                    oModel.setProperty("/sodMatrix", aDefaultConflicts.filter(c => c.status !== "Inactive"));
                 }
             } catch (e) {
                 console.warn("Load custom conflicts error:", e);
             }
 
+            // Guarantee all 8 default SoD conflict rules are present if empty
+            let aCurrentConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+            if (!Array.isArray(aCurrentConflicts) || aCurrentConflicts.length === 0) {
+                aCurrentConflicts = this._getDefaultAdminConflictRules();
+                oModel.setProperty("/adminCustomConflictsAll", aCurrentConflicts);
+                oModel.setProperty("/adminCustomConflicts", aCurrentConflicts.slice());
+                oModel.setProperty("/sodMatrix", aCurrentConflicts.filter(c => c.status !== "Inactive"));
+            } else {
+                const aNorm = aCurrentConflicts.map(c => Object.assign({ status: "Active" }, c, {
+                    role1: this._normalizeRoleToPersonaName(c.role1),
+                    role2: this._normalizeRoleToPersonaName(c.role2)
+                }));
+                oModel.setProperty("/adminCustomConflictsAll", aNorm);
+                oModel.setProperty("/adminCustomConflicts", aNorm.slice());
+                oModel.setProperty("/sodMatrix", aNorm.filter(c => c.status !== "Inactive"));
+            }
+
             this._syncAdminConfigToLiveAddAccess(oModel, true);
 
-            // Fetch from backend server so any Admin changes saved by admin01 are reflected for all users across sessions
-            fetch("/api/admin/customization")
+            // Fetch from backend server via /odata/admin/customization (proxied by UI5 server)
+            fetch("/odata/admin/customization")
                 .then(res => res.ok ? res.json() : null)
                 .then(oRes => {
                     if (oRes && oRes.config && typeof oRes.config === "object") {
                         this._applyParsedAdminConfigToModel(oModel, oRes.config);
+                        const aLoadedConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+                        if (!Array.isArray(aLoadedConflicts) || aLoadedConflicts.length === 0) {
+                            const aDefault = this._getDefaultAdminConflictRules();
+                            oModel.setProperty("/adminCustomConflictsAll", aDefault);
+                            oModel.setProperty("/adminCustomConflicts", aDefault.slice());
+                        }
                         try {
                             localStorage.setItem("kyra_custom_access_config", JSON.stringify(oRes.config));
-                            if (Array.isArray(oRes.config.adminCustomConflictsAll)) {
-                                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oRes.config.adminCustomConflictsAll));
-                            }
+                            localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oModel.getProperty("/adminCustomConflictsAll")));
                         } catch (err) {}
                         this._syncAdminConfigToLiveAddAccess(oModel, true);
                     }
@@ -10182,8 +10371,19 @@ sap.ui.define([
 
             const aSystems = oModel.getProperty("/adminSystemsAll") || [];
             const aServices = oModel.getProperty("/adminServicesAll") || [];
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            const aConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const oDetailsMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oModel.getProperty("/adminServiceDetailsMap") || {});
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+
+            let aConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => Object.assign({ status: "Active" }, c, {
+                role1: this._normalizeRoleToPersonaName(c.role1),
+                role2: this._normalizeRoleToPersonaName(c.role2)
+            }));
+            if (!Array.isArray(aConflicts) || aConflicts.length === 0) {
+                aConflicts = this._getDefaultAdminConflictRules();
+            }
+            oModel.setProperty("/adminCustomConflictsAll", aConflicts);
+            oModel.setProperty("/adminCustomConflicts", aConflicts.slice());
+
             const aDbSchemas = oModel.getProperty("/adminDatabaseSchemas") || [];
             const aPersonaUsers = oModel.getProperty("/adminPersonaUsers") || [];
 
@@ -10193,19 +10393,29 @@ sap.ui.define([
             oModel.setProperty("/activeAdminSystems", aActiveSystems);
             oModel.setProperty("/activeAdminServices", aActiveServices);
 
-            // 1. Rebuild System Options for Custom Conflict Builder
+            // 1. Rebuild System Options for Custom Conflict Builder (includes all existing systems)
             const aSystemOpts = [{ key: "All Systems (Global)", text: "All Systems (Global)" }];
-            aActiveSystems.forEach(s => {
-                if (s && s.systemName) {
+            const oSeenSys = new Set(["All Systems (Global)"]);
+            aSystems.forEach(s => {
+                if (s && s.systemName && !oSeenSys.has(s.systemName)) {
+                    oSeenSys.add(s.systemName);
                     aSystemOpts.push({ key: s.systemName, text: s.systemName });
                 }
             });
             oModel.setProperty("/adminConflictSystemOptions", aSystemOpts);
 
-            // 2. Rebuild Live Team Roles (addAccessSubRolesList), Personas (addAccessPersonasList), and Conflict Builder Dropdown Options
+            // 2. Rebuild Live Team Roles (addAccessSubRolesList), Personas (addAccessPersonasList),
+            //    and 2nd & 3rd Conflict Builder Dropdown Options (ONLY Personas from the Add Access section!)
             const aSubRolesList = [];
             const aPersonasList = [];
-            const aCombinedOptions = [];
+            const aPersonaDropdownOptions = [];
+            const oSeenPersonaOpt = new Set();
+            const addPersonaOption = (sVal) => {
+                if (sVal && !oSeenPersonaOpt.has(sVal)) {
+                    oSeenPersonaOpt.add(sVal);
+                    aPersonaDropdownOptions.push({ key: sVal, text: sVal });
+                }
+            };
             const aActiveServiceNames = aActiveServices.map(s => s.serviceName);
 
             Object.keys(oDetailsMap).forEach(sService => {
@@ -10224,10 +10434,6 @@ sap.ui.define([
                             icon: "sap-icon://user-settings"
                         });
                     }
-                    aCombinedOptions.push({
-                        key: sTeamName,
-                        text: "[Team] " + sTeamName
-                    });
 
                     const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
                     const aPersonas = oTeam.subClassifications || [];
@@ -10245,10 +10451,8 @@ sap.ui.define([
                                 icon: "sap-icon://person-placeholder"
                             });
                         }
-                        aCombinedOptions.push({
-                            key: sPersName,
-                            text: "[Persona] " + sPersName
-                        });
+                        // Only add Personas to the 2nd & 3rd Custom Conflict dropdowns!
+                        addPersonaOption(sPersName);
                     });
                 });
             });
@@ -10259,8 +10463,8 @@ sap.ui.define([
             if (aPersonasList.length > 0) {
                 oModel.setProperty("/addAccessPersonasList", aPersonasList);
             }
-            if (aCombinedOptions.length > 0) {
-                oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aCombinedOptions);
+            if (aPersonaDropdownOptions.length > 0) {
+                oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
             }
 
             // Refresh Step 3 dependent lists if user has services/roles selected
@@ -10285,7 +10489,7 @@ sap.ui.define([
             } catch (e) {}
 
             if (!bSkipBackendSave) {
-                fetch("/api/admin/customization", {
+                fetch("/odata/admin/customization", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(oPayload)
@@ -10807,9 +11011,9 @@ sap.ui.define([
             oModel.setProperty("/newConflictDraft", {
                 system: "SAP BTP Cloud Platform",
                 service: "System Administrator",
-                role1: "IT Developers (System Administrator)",
-                role2: "IT Administrators (System Administrator)",
-                description: "Segregation of Duties conflict between selected Team / Persona entitlements.",
+                role1: "Cloud Infrastructure Administrator Persona (IT Administrators)",
+                role2: "Frontend & UI Developer Persona (IT Developers)",
+                description: "Segregation of Duties conflict between selected Persona entitlements.",
                 _editingIndex: -1
             });
             MessageToast.show("Conflict edit changes cleared.");
@@ -10827,11 +11031,11 @@ sap.ui.define([
             const iEditIdx = typeof oDraft._editingIndex === "number" ? oDraft._editingIndex : -1;
 
             if (!sRole1 || !sRole2) {
-                MessageToast.show("Please select both Primary Team/Persona and Conflicting Team/Persona.");
+                MessageToast.show("Please select both Primary Persona and Conflicting Persona.");
                 return;
             }
             if (sRole1 === sRole2) {
-                MessageToast.show("Primary and Conflicting Team/Persona must be different.");
+                MessageToast.show("Primary and Conflicting Persona must be different.");
                 return;
             }
 
@@ -10980,12 +11184,185 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oUser = oCtx.getObject();
-            const sNextPersona = window.prompt("Convert User '" + oUser.userId + "' to Persona (Admin / Requester / Approver / Compliance Review):", oUser.targetPersona || "Approver");
+            const sNextPersona = window.prompt("Convert User '" + oUser.userId + "' to Persona (Requester / Approver / Compliance Reviewer):", oUser.targetPersona || "Approver");
             if (sNextPersona && sNextPersona.trim()) {
                 oModel.setProperty(oCtx.getPath() + "/currentPersona", sNextPersona.trim());
                 oModel.setProperty(oCtx.getPath() + "/status", "Active");
                 this._syncAdminConfigToLiveAddAccess(oModel);
                 MessageToast.show("User '" + oUser.userId + "' converted to " + sNextPersona.trim() + " and activated.");
+            }
+        },
+
+        // ── Button 2: Employee Login ID Lookup & Persona Conversion ───────────────
+        async onLookupEmployeePersona() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oInputCtrl = this.byId("adminPersonaLookupInput");
+            const sRawInput = (oInputCtrl && typeof oInputCtrl.getValue === "function" ? oInputCtrl.getValue() : oModel.getProperty("/personaLookupInput")) || "";
+            const sUsername = sRawInput.trim();
+            if (!sUsername) {
+                MessageToast.show("Please enter an Employee Login ID (e.g., emp001, app01, comp01).");
+                return;
+            }
+            oModel.setProperty("/personaLookupInput", sUsername);
+
+            try {
+                const res = await fetch("/odata/v4/admin-portal/lookupUserPersona", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: sUsername })
+                });
+                const oData = res.ok ? await res.json() : null;
+                if (oData && (oData.ok || oData.found)) {
+                    const oUser = oData.user || oData;
+                    let aEntitlements = [];
+                    if (Array.isArray(oUser.entitlements)) {
+                        aEntitlements = oUser.entitlements;
+                    } else if (typeof oUser.entitlementsJson === "string" && oUser.entitlementsJson) {
+                        try { aEntitlements = JSON.parse(oUser.entitlementsJson); } catch (e) {}
+                    }
+                    const sCanonicalId = oUser.userId || oUser.username || sUsername;
+                    const sNormalizedPersona = oUser.currentPersona === "Compliance Review" ? "Compliance Reviewer" : (oUser.currentPersona || "Requester");
+                    oModel.setProperty("/personaLookupUser", {
+                        userId: sCanonicalId,
+                        username: sCanonicalId,
+                        fullName: oUser.fullName || sCanonicalId,
+                        email: oUser.email || (sCanonicalId.toLowerCase() + "@kyra-enterprise.com"),
+                        department: oUser.department || "Enterprise Operations & Governance",
+                        currentPersona: sNormalizedPersona,
+                        selectedPersona: sNormalizedPersona,
+                        targetPersona: sNormalizedPersona,
+                        sourceTable: oUser.sourceTable || "access_management.requester_id",
+                        status: oUser.status || "Active",
+                        entitlementsCount: aEntitlements.length,
+                        entitlements: aEntitlements
+                    });
+                    oModel.setProperty("/personaLookupUserFound", true);
+                    MessageToast.show("Loaded details for Employee ID '" + sCanonicalId + "'.");
+                    return;
+                }
+            } catch (e) {
+                console.warn("Persona lookup API error, falling back to local profile:", e);
+            }
+
+            // Fallback lookup if offline
+            const sLower = sUsername.toLowerCase();
+            let sFallbackPersona = "Requester";
+            let sFallbackTable = "access_management.requester_id";
+            let sFallbackName = "Enterprise Employee (" + sUsername + ")";
+            let sFallbackDept = "Enterprise Business Operations";
+            if (sLower.startsWith("app")) {
+                sFallbackPersona = "Approver";
+                sFallbackTable = "access_management.approver_id";
+                sFallbackName = "Line Manager / Approver (" + sUsername + ")";
+                sFallbackDept = "IT Governance & Approvals";
+            } else if (sLower.startsWith("comp")) {
+                sFallbackPersona = "Compliance Reviewer";
+                sFallbackTable = "access_management.compliance_reviewer_id";
+                sFallbackName = "Compliance Officer (" + sUsername + ")";
+                sFallbackDept = "Risk & Compliance Governance";
+            } else if (sLower === "emp001") {
+                sFallbackName = "John Doe";
+                sFallbackDept = "Engineering & Cloud Operations";
+            }
+            oModel.setProperty("/personaLookupUser", {
+                userId: sLower,
+                username: sLower,
+                fullName: sFallbackName,
+                email: sLower + "@kyra-enterprise.com",
+                department: sFallbackDept,
+                currentPersona: sFallbackPersona,
+                selectedPersona: sFallbackPersona,
+                targetPersona: sFallbackPersona,
+                sourceTable: sFallbackTable,
+                status: "Active",
+                entitlementsCount: 0,
+                entitlements: []
+            });
+            oModel.setProperty("/personaLookupUserFound", true);
+            MessageToast.show("Loaded details for Employee ID '" + sLower + "'.");
+        },
+
+        onToggleLookupUserStatus() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !oModel.getProperty("/personaLookupUserFound")) return;
+            const sCurrent = oModel.getProperty("/personaLookupUser/status") || "Active";
+            const sNext = sCurrent === "Inactive" ? "Active" : "Inactive";
+            oModel.setProperty("/personaLookupUser/status", sNext);
+            MessageToast.show("User status set to " + sNext + ". Click Save to persist changes.");
+        },
+
+        async onSaveConvertedUserPersona() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !oModel.getProperty("/personaLookupUserFound")) return;
+            const oUser = oModel.getProperty("/personaLookupUser") || {};
+            const oSelectCtrl = this.byId("adminUserPersonaSelect");
+            const sSelectKey = (oSelectCtrl && typeof oSelectCtrl.getSelectedKey === "function") ? oSelectCtrl.getSelectedKey() : "";
+
+            const sUsername = (oUser.userId || oUser.username || oModel.getProperty("/personaLookupInput") || "").trim();
+            const sOldPersona = (oUser.currentPersona || "Requester").trim();
+            const sTargetPersona = (sSelectKey || oUser.selectedPersona || oUser.targetPersona || "Requester").trim();
+
+            if (!sUsername) {
+                MessageToast.show("Please enter and look up an Employee Login ID first.");
+                return;
+            }
+
+            try {
+                const res = await fetch("/odata/v4/admin-portal/convertUserPersona", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: sUsername,
+                        targetPersona: sTargetPersona,
+                        status: oUser.status || "Active",
+                        fullName: oUser.fullName || sUsername,
+                        email: oUser.email || (sUsername.toLowerCase() + "@kyra-enterprise.com"),
+                        department: oUser.department || "Enterprise Operations"
+                    })
+                });
+                const oData = res.ok ? await res.json() : null;
+                const sNewTable = (oData && (oData.targetTable || oData.sourceTable || (oData.user && oData.user.sourceTable))) || (
+                    sTargetPersona === "Approver"
+                        ? "access_management.approver_id"
+                        : (sTargetPersona === "Compliance Reviewer" ? "access_management.compliance_reviewer_id" : "access_management.requester_id")
+                );
+
+                oModel.setProperty("/personaLookupUser/userId", sUsername);
+                oModel.setProperty("/personaLookupUser/username", sUsername);
+                oModel.setProperty("/personaLookupUser/currentPersona", sTargetPersona);
+                oModel.setProperty("/personaLookupUser/selectedPersona", sTargetPersona);
+                oModel.setProperty("/personaLookupUser/targetPersona", sTargetPersona);
+                oModel.setProperty("/personaLookupUser/sourceTable", sNewTable);
+                oModel.setProperty("/personaLookupUser/status", "Active");
+
+                // Also sync adminPersonaUsers list
+                const aPersonaUsers = (oModel.getProperty("/adminPersonaUsers") || []).slice();
+                const iIdx = aPersonaUsers.findIndex(u => (u.userId || "").toLowerCase() === sUsername.toLowerCase());
+                if (iIdx >= 0) {
+                    aPersonaUsers[iIdx] = Object.assign({}, aPersonaUsers[iIdx], {
+                        currentPersona: sTargetPersona,
+                        targetPersona: sTargetPersona,
+                        status: "Active"
+                    });
+                } else {
+                    aPersonaUsers.push({
+                        userId: sUsername,
+                        currentPersona: sTargetPersona,
+                        targetPersona: sTargetPersona,
+                        status: "Active"
+                    });
+                }
+                oModel.setProperty("/adminPersonaUsers", aPersonaUsers);
+                this._syncAdminConfigToLiveAddAccess(oModel);
+
+                MessageToast.show(
+                    "User '" + sUsername + "' converted from " + sOldPersona + " to " + sTargetPersona +
+                    " (moved to " + sNewTable + ") and activated."
+                );
+            } catch (e) {
+                console.error("Error converting user persona:", e);
+                MessageToast.show("Error saving persona conversion for '" + sUsername + "'.");
             }
         }
     });
