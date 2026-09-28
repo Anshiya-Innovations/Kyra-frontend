@@ -273,7 +273,7 @@
                                 <HBox alignItems="Center" class="kyraCardHeaderLeft">
                                     <Avatar src="sap-icon://employee" class="kyraMasterViewAvatar fioriCardAvatar" displaySize="M" />
                                     <VBox class="kyraCardHeaderTextCol">
-                                        <Title text="{= (${accessModel>/personaLookupUser/fullName} || ${accessModel>/personaLookupUser/userId}) + ' (' + (${accessModel>/personaLookupUser/userId} || '') + ')' }" level="H4" class="kyraAdminCardTitle" />
+                                        <Title text="{= ${accessModel>/personaLookupUser/fullName} ? (${accessModel>/personaLookupUser/fullName}.indexOf('(') >= 0 ? ${accessModel>/personaLookupUser/fullName} : (${accessModel>/personaLookupUser/fullName} + ' (' + ${accessModel>/personaLookupUser/userId} + ')')) : ${accessModel>/personaLookupUser/userId} }" level="H4" class="kyraAdminCardTitle" />
                                         <Text text="{= 'Database Table: ' + (${accessModel>/personaLookupUser/sourceTable} || 'access_management.requester_id') }" class="fioriDescriptionText" />
                                     </VBox>
                                 </HBox>
@@ -287,6 +287,7 @@
                                         <Select
                                             id="adminUserPersonaSelect"
                                             selectedKey="{accessModel>/personaLookupUser/selectedPersona}"
+                                            change=".onAdminPersonaDropdownChange"
                                             width="100%"
                                             class="kyraAdminBuilderSelect">
                                             <core:Item key="Requester" text="Requester" />

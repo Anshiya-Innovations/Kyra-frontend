@@ -11197,7 +11197,7 @@ sap.ui.define([
             const sRawInput = (oInputCtrl && typeof oInputCtrl.getValue === "function" ? oInputCtrl.getValue() : oModel.getProperty("/personaLookupInput")) || "";
             const sUsername = sRawInput.trim();
             if (!sUsername) {
-                MessageToast.show("Please enter an Employee Login ID (e.g., emp001, app01, comp01).");
+                MessageToast.show("Please enter an Employee Login ID (e.g., emp001, emp018, emp081, emp098).");
                 return;
             }
             oModel.setProperty("/personaLookupInput", sUsername);
@@ -11209,8 +11209,9 @@ sap.ui.define([
                     body: JSON.stringify({ username: sUsername })
                 });
                 const oData = res.ok ? await res.json() : null;
-                if (oData && (oData.ok || oData.found)) {
-                    const oUser = oData.user || oData;
+                const oUser = (oData && (oData.user || oData.value || oData)) || null;
+
+                if (oUser && (oUser.ok || oUser.found || oUser.userId || oUser.username)) {
                     let aEntitlements = [];
                     if (Array.isArray(oUser.entitlements)) {
                         aEntitlements = oUser.entitlements;
@@ -11218,30 +11219,55 @@ sap.ui.define([
                         try { aEntitlements = JSON.parse(oUser.entitlementsJson); } catch (e) {}
                     }
                     const sCanonicalId = oUser.userId || oUser.username || sUsername;
-                    const sNormalizedPersona = oUser.currentPersona === "Compliance Review" ? "Compliance Reviewer" : (oUser.currentPersona || "Requester");
+                    let sNormalizedPersona = oUser.currentPersona || "Requester";
+                    const sLowerPersona = sNormalizedPersona.toLowerCase();
+                    if (sLowerPersona.includes("approv")) {
+                        sNormalizedPersona = "Approver";
+                    } else if (sLowerPersona.includes("complian")) {
+                        sNormalizedPersona = "Compliance Reviewer";
+                    } else {
+                        sNormalizedPersona = "Requester";
+                    }
+
+                    const sTable = oUser.sourceTable || (
+                        sNormalizedPersona === "Approver" ? "access_management.approver_id" :
+                        sNormalizedPersona === "Compliance Reviewer" ? "access_management.compliance_reviewer_id" :
+                        "access_management.requester_id"
+                    );
+
                     oModel.setProperty("/personaLookupUser", {
                         userId: sCanonicalId,
                         username: sCanonicalId,
                         fullName: oUser.fullName || sCanonicalId,
-                        email: oUser.email || (sCanonicalId.toLowerCase() + "@kyra-enterprise.com"),
-                        department: oUser.department || "Enterprise Operations & Governance",
+                        email: oUser.email || (sCanonicalId.toLowerCase() + "@kyra.com"),
+                        department: oUser.department || "Enterprise Business Operations",
                         currentPersona: sNormalizedPersona,
                         selectedPersona: sNormalizedPersona,
                         targetPersona: sNormalizedPersona,
-                        sourceTable: oUser.sourceTable || "access_management.requester_id",
+                        sourceTable: sTable,
                         status: oUser.status || "Active",
                         entitlementsCount: aEntitlements.length,
                         entitlements: aEntitlements
                     });
                     oModel.setProperty("/personaLookupUserFound", true);
-                    MessageToast.show("Loaded details for Employee ID '" + sCanonicalId + "'.");
+
+                    // Sync the dropdown selected key
+                    const oSelectCtrl = this.byId("adminUserPersonaSelect");
+                    if (oSelectCtrl && typeof oSelectCtrl.setSelectedKey === "function") {
+                        oSelectCtrl.setSelectedKey(sNormalizedPersona);
+                    }
+
+                    MessageToast.show("Loaded live details for Employee ID '" + sCanonicalId + "'.");
+                    return;
+                } else if (oUser && oUser.message) {
+                    MessageToast.show(oUser.message);
                     return;
                 }
             } catch (e) {
                 console.warn("Persona lookup API error, falling back to local profile:", e);
             }
 
-            // Fallback lookup if offline
+            // Fallback lookup if backend is completely unreachable
             const sLower = sUsername.toLowerCase();
             let sFallbackPersona = "Requester";
             let sFallbackTable = "access_management.requester_id";
@@ -11265,7 +11291,7 @@ sap.ui.define([
                 userId: sLower,
                 username: sLower,
                 fullName: sFallbackName,
-                email: sLower + "@kyra-enterprise.com",
+                email: sLower + "@kyra.com",
                 department: sFallbackDept,
                 currentPersona: sFallbackPersona,
                 selectedPersona: sFallbackPersona,
@@ -11276,7 +11302,22 @@ sap.ui.define([
                 entitlements: []
             });
             oModel.setProperty("/personaLookupUserFound", true);
+
+            const oSelectCtrl = this.byId("adminUserPersonaSelect");
+            if (oSelectCtrl && typeof oSelectCtrl.setSelectedKey === "function") {
+                oSelectCtrl.setSelectedKey(sFallbackPersona);
+            }
+
             MessageToast.show("Loaded details for Employee ID '" + sLower + "'.");
+        },
+
+        onAdminPersonaDropdownChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sSelected = (oEvent && oEvent.getParameter("selectedItem")) ? oEvent.getParameter("selectedItem").getKey() : "";
+            const sKey = sSelected || oModel.getProperty("/personaLookupUser/selectedPersona") || "Requester";
+            oModel.setProperty("/personaLookupUser/selectedPersona", sKey);
+            oModel.setProperty("/personaLookupUser/targetPersona", sKey);
         },
 
         onToggleLookupUserStatus() {
@@ -11313,12 +11354,18 @@ sap.ui.define([
                         targetPersona: sTargetPersona,
                         status: oUser.status || "Active",
                         fullName: oUser.fullName || sUsername,
-                        email: oUser.email || (sUsername.toLowerCase() + "@kyra-enterprise.com"),
-                        department: oUser.department || "Enterprise Operations"
+                        email: oUser.email || (sUsername.toLowerCase() + "@kyra.com"),
+                        department: oUser.department || "Enterprise Business Operations"
                     })
                 });
                 const oData = res.ok ? await res.json() : null;
-                const sNewTable = (oData && (oData.targetTable || oData.sourceTable || (oData.user && oData.user.sourceTable))) || (
+                const oResult = (oData && (oData.user || oData.value || oData)) || {};
+
+                if (!res.ok || oResult.ok === false) {
+                    throw new Error(oResult.message || ("Server returned status " + res.status));
+                }
+
+                const sNewTable = oResult.targetTable || oResult.sourceTable || (
                     sTargetPersona === "Approver"
                         ? "access_management.approver_id"
                         : (sTargetPersona === "Compliance Reviewer" ? "access_management.compliance_reviewer_id" : "access_management.requester_id")
@@ -11330,7 +11377,13 @@ sap.ui.define([
                 oModel.setProperty("/personaLookupUser/selectedPersona", sTargetPersona);
                 oModel.setProperty("/personaLookupUser/targetPersona", sTargetPersona);
                 oModel.setProperty("/personaLookupUser/sourceTable", sNewTable);
-                oModel.setProperty("/personaLookupUser/status", "Active");
+                oModel.setProperty("/personaLookupUser/status", oResult.status || oUser.status || "Active");
+
+                // Update entitlements if returned
+                if (Array.isArray(oResult.entitlements)) {
+                    oModel.setProperty("/personaLookupUser/entitlements", oResult.entitlements);
+                    oModel.setProperty("/personaLookupUser/entitlementsCount", oResult.entitlements.length);
+                }
 
                 // Also sync adminPersonaUsers list
                 const aPersonaUsers = (oModel.getProperty("/adminPersonaUsers") || []).slice();
@@ -11339,26 +11392,26 @@ sap.ui.define([
                     aPersonaUsers[iIdx] = Object.assign({}, aPersonaUsers[iIdx], {
                         currentPersona: sTargetPersona,
                         targetPersona: sTargetPersona,
-                        status: "Active"
+                        status: oResult.status || oUser.status || "Active"
                     });
                 } else {
                     aPersonaUsers.push({
                         userId: sUsername,
                         currentPersona: sTargetPersona,
                         targetPersona: sTargetPersona,
-                        status: "Active"
+                        status: oResult.status || oUser.status || "Active"
                     });
                 }
                 oModel.setProperty("/adminPersonaUsers", aPersonaUsers);
                 this._syncAdminConfigToLiveAddAccess(oModel);
 
                 MessageToast.show(
-                    "User '" + sUsername + "' converted from " + sOldPersona + " to " + sTargetPersona +
-                    " (moved to " + sNewTable + ") and activated."
+                    "User '" + sUsername + "' successfully converted from " + sOldPersona + " to " + sTargetPersona +
+                    " (saved in " + sNewTable + ")."
                 );
             } catch (e) {
                 console.error("Error converting user persona:", e);
-                MessageToast.show("Error saving persona conversion for '" + sUsername + "'.");
+                MessageToast.show("Error saving persona conversion for '" + sUsername + "': " + (e.message || "Failed"));
             }
         }
     });
