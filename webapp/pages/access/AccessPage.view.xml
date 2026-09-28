@@ -499,7 +499,10 @@
                                         <Title text="1-to-1 Column Positional Mapping" level="H5" />
                                         <Text text="Source extracted column directly maps to target column. Click to modify target column names." class="kyraHeaderSub" />
                                     </VBox>
-                                    <Button text="Auto-Map All Columns" icon="sap-icon://auto-generating-rule" press=".onAutoMapColumns" />
+                                    <HBox alignItems="Center">
+                                        <Button text="+ Add Column" icon="sap-icon://add" press=".onAddMigrationColumn" type="Ghost" class="sapUiTinyMarginEnd" />
+                                        <Button text="Auto-Map All Columns" icon="sap-icon://auto-generating-rule" press=".onAutoMapColumns" />
+                                    </HBox>
                                 </HBox>
 
                                 <Table
@@ -512,19 +515,54 @@
                                         <Column width="60px"><Text text="→" /></Column>
                                         <Column><Text text="Target Column (Loaded)" /></Column>
                                         <Column width="140px"><Text text="Data Type" /></Column>
+                                        <Column width="50px" hAlign="Center"><Text text="" /></Column>
                                     </columns>
                                     <items>
                                         <ColumnListItem>
                                             <cells>
                                                 <Text text="{accessModel>index}" />
                                                 <ObjectIdentifier title="{accessModel>sourceCol}" />
-                                                <core:Icon src="sap-icon://navigation-right-arrow" color="#008796" />
+                                                <core:Icon src="sap-icon://navigation-right-arrow" color="#2563EB" />
                                                 <Input value="{accessModel>targetCol}" />
                                                 <ObjectStatus text="{accessModel>type}" state="Information" />
+                                                <Button icon="sap-icon://delete" type="Transparent" press=".onRemoveMigrationColumn" tooltip="Delete Column" />
                                             </cells>
                                         </ColumnListItem>
                                     </items>
                                 </Table>
+                            </VBox>
+
+                            <!-- Live Migration Progress HUD -->
+                            <VBox class="kyraMigrationHud" visible="{= ${accessModel>/dbMigration/hud/visible} }">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraHudHeaderRow">
+                                    <HBox alignItems="Center">
+                                        <HBox class="{= 'kyraStatusDot ' + (${accessModel>/dbMigration/hud/state} === 'active' ? 'kyraDotPulsing' : 'kyraDotSuccess') }" />
+                                        <Text text="Live DataBridge Pipeline Stream" class="kyraHudTitle" />
+                                    </HBox>
+                                    <Text text="{accessModel>/dbMigration/hud/statusBadge}" class="{= 'kyraHudBadge ' + (${accessModel>/dbMigration/hud/state} === 'active' ? 'kyraHudBadgeActive' : 'kyraHudBadgeSuccess') }" />
+                                </HBox>
+
+                                <ProgressIndicator
+                                    percentValue="{accessModel>/dbMigration/hud/progressPercent}"
+                                    displayValue="{accessModel>/dbMigration/hud/progressText}"
+                                    state="{accessModel>/dbMigration/hud/progressState}"
+                                    class="sapUiSmallMarginBottom" />
+
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraHudStatsRow">
+                                    <Text text="{= 'Pipeline: ' + (${accessModel>/dbMigration/source/engine} || 'POSTGRESQL').toUpperCase() + ' ➔ ' + (${accessModel>/dbMigration/targetMode} === 'kyra' ? 'Kyra Cloud DB (RDS)' : 'Custom Target') }" class="kyraHudStatItem" />
+                                    <Text text="{= 'Mapped Columns: ' + ${accessModel>/dbMigration/columnMappings}.length + ' cols' }" class="kyraHudStatItem" />
+                                    <Text text="{= 'Rows Transferred: ' + ${accessModel>/dbMigration/hud/rowsTransferred} + ' rows' }" class="kyraHudStatItem" />
+                                    <Text text="{= 'Latency: ' + ${accessModel>/dbMigration/hud/latency} }" class="kyraHudStatItem" />
+                                </HBox>
+
+                                <!-- Dark Console Log Box -->
+                                <VBox class="kyraHudConsole">
+                                    <List items="{accessModel>/dbMigration/hud/logs}" noDataText="Awaiting pipeline execution...">
+                                        <items>
+                                            <StandardListItem title="{accessModel>text}" icon="{accessModel>icon}" class="kyraConsoleLogLine" />
+                                        </items>
+                                    </List>
+                                </VBox>
                             </VBox>
 
                             <!-- Navigation Bar Step 2 -->
@@ -533,7 +571,7 @@
                                     <Button text="Back to Connections" icon="sap-icon://navigation-left-arrow" press=".onGoToStep1" />
                                 </contentLeft>
                                 <contentRight>
-                                    <Button text="Execute Migration Pipeline" icon="sap-icon://begin" type="Emphasized" press=".onExecuteMigration" />
+                                    <Button text="Migrate Data" icon="sap-icon://begin" type="Emphasized" press=".onExecuteMigration" />
                                 </contentRight>
                             </Bar>
                         </VBox>

@@ -35082,3 +35082,113 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     font-weight: 700 !important;
     font-size: 14px !important;
 }
+
+/* ========================================================================== */
+/* KYRA DATABRIDGE STUDIO - LIVE MIGRATION HUD STYLES                         */
+/* ========================================================================== */
+
+.kyraMigrationHud {
+    background: #0B0F19 !important;
+    border: 1px solid #1F293D !important;
+    border-radius: 14px !important;
+    padding: 20px 24px !important;
+    margin-top: 18px !important;
+    margin-bottom: 18px !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35) !important;
+}
+
+.kyraHudHeaderRow {
+    margin-bottom: 12px !important;
+}
+
+.kyraStatusDot {
+    width: 9px !important;
+    height: 9px !important;
+    border-radius: 50% !important;
+    margin-right: 10px !important;
+}
+
+.kyraDotPulsing {
+    background: #3B82F6 !important;
+    box-shadow: 0 0 10px #3B82F6 !important;
+    animation: kyraHudPulse 1.2s infinite ease-in-out !important;
+}
+
+@keyframes kyraHudPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.25); }
+}
+
+.kyraDotSuccess {
+    background: #10B981 !important;
+    box-shadow: 0 0 10px #10B981 !important;
+}
+
+.kyraHudTitle {
+    color: #F8FAFC !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.kyraHudBadge {
+    padding: 3px 10px !important;
+    border-radius: 9999px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+.kyraHudBadgeActive {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #60A5FA !important;
+    border: 1px solid #3B82F6 !important;
+}
+
+.kyraHudBadgeSuccess {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34D399 !important;
+    border: 1px solid #10B981 !important;
+}
+
+.kyraHudStatsRow {
+    background: #111827 !important;
+    border: 1px solid #1E293B !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    margin: 12px 0 !important;
+}
+
+.kyraHudStatItem {
+    color: #94A3B8 !important;
+    font-size: 12px !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.kyraHudConsole {
+    background: #06090F !important;
+    border: 1px solid #1E293B !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    max-height: 180px !important;
+    overflow-y: auto !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.kyraConsoleLogLine {
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+    color: #38BDF8 !important;
+}
+
+.kyraConsoleLogLine .sapMSLITitleOnly {
+    color: #38BDF8 !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font-size: 12px !important;
+}
+
+.kyraConsoleLogLine .sapMSLIIcon {
+    color: #10B981 !important;
+    font-size: 12px !important;
+}
