@@ -11851,6 +11851,132 @@ sap.ui.define([
             });
         },
 
+                onEditAdminSubClassification(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oTarget = oCtx.getObject();
+            const sOldName = oTarget.name;
+            const sCurrentStatus = oTarget.status || "Active";
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Persona</div>
+                                    <div class="kyra-system-modal-subtitle">Modify persona parameters and active status</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_persona_edit_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_persona_name">PERSONA NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_persona_name" class="kyra-system-modal-input" placeholder="Enter persona name" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_persona_status">STATUS</label>
+                                <select id="kyra_edit_persona_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_persona_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_persona_submit_btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_persona_edit_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_edit_persona_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_edit_persona_name");
+                    if (nameInput) {
+                        nameInput.focus();
+                        nameInput.select();
+                    }
+
+                    const submitBtn = document.getElementById("kyra_edit_persona_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sNewName = (nameInput ? nameInput.value : "").trim();
+                            if (!sNewName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Persona Name cannot be empty.");
+                                return;
+                            }
+                            const statusSelect = document.getElementById("kyra_edit_persona_status");
+                            const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                            // Update this Persona in selectedAdminClassification
+                            const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p =>
+                                p.name === sOldName ? Object.assign({}, p, { name: sNewName, status: sNewStatus }) : p
+                            );
+                            oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                            // Sync back into adminClassifications list
+                            const oSelected = oModel.getProperty("/selectedAdminClassification");
+                            oSelected.subClassifications = aSubs;
+                            const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                item.name === oSelected.name ? Object.assign({}, oSelected, { selected: true }) : item
+                            );
+                            oModel.setProperty("/adminClassifications", aList);
+                            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+
+                            that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated successfully.");
+                            MessageToast.show("Persona '" + sNewName + "' updated successfully.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
+        },
+
         onDeleteAdminSubClassification(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");

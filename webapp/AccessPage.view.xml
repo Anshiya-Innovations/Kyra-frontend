@@ -216,10 +216,7 @@
                                                 class="{= ${accessModel>status} === 'Inactive' ? 'kyraAdminStatusInactiveText' : 'kyraAdminStatusActiveText' }" />
                                         </HBox>
                                         <HBox justifyContent="Center" alignItems="Center" class="kyraAdminRowActionGroup">
-                                            <Button
-                                                text="{= ${accessModel>status} === 'Inactive' ? 'Activate' : 'Deactivate' }"
-                                                press=".onToggleAdminDbSchemaStatus"
-                                                class="{= ${accessModel>status} === 'Inactive' ? 'kyraAdminToggleActivateBtn' : 'kyraAdminToggleDeactivateBtn' }" />
+                                            
                                             <Button icon="sap-icon://edit" type="Transparent" press=".onSyncAdminDatabaseSchema" class="kyraAdminActionEditBtn" tooltip="Edit / Synchronize Schema" />
                                         </HBox>
                                     </cells>
@@ -299,10 +296,7 @@
                                         </Select>
                                     </VBox>
 
-                                    <Button
-                                        text="{= ${accessModel>/personaLookupUser/status} === 'Inactive' ? 'Activate' : 'Deactivate' }"
-                                        press=".onToggleLookupUserStatus"
-                                        class="{= (${accessModel>/personaLookupUser/status} === 'Inactive' ? 'kyraAdminToggleActivateBtn' : 'kyraAdminToggleDeactivateBtn') + ' kyraPersonaHeaderToggleBtn sapUiSmallMarginEnd' }" />
+                                    
 
                                     <Button
                                         text="Save"
@@ -421,11 +415,11 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable">
                                 <columns>
-                                    <Column width="28%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
-                                    <Column width="16%" hAlign="Begin"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
-                                    <Column width="16%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="18%" hAlign="Begin"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="30%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
+                                    <Column width="18%" hAlign="Begin"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
+                                    <Column width="18%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
+                                    <Column width="12%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
@@ -444,14 +438,6 @@
                                             <Text text="{accessModel>createdDate}" class="kyraAdminCellText" />
                                             <HBox alignItems="Center" class="kyraAdminRowActionGroup">
                                                 <Button
-                                                    text="{= ${accessModel>status} === 'Inactive' ? 'Activate' : 'Deactivate' }"
-                                                    press=".onToggleAdminSystemStatus"
-                                                    class="kyraAdminSystemDeactivateBtn">
-                                                    <customData>
-                                                        <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
-                                                    </customData>
-                                                </Button>
-                                                <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditAdminSystem"
                                                     class="kyraAdminSystemEditBtn"
@@ -459,7 +445,7 @@
                                                 <Button
                                                     icon="sap-icon://delete"
                                                     press=".onDeleteAdminSystem"
-                                                    class="kyraAdminSystemDeleteBtn"
+                                                    class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
                                                     tooltip="Delete System" />
                                             </HBox>
                                         </cells>
@@ -500,9 +486,9 @@
                                         fixedLayout="true"
                                         class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
                                         <columns>
-                                            <Column width="34%" hAlign="Begin"><Text text="SERVICE NAME" class="kyraAdminColHeader" /></Column>
-                                            <Column width="24%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                            <Column width="42%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="48%" hAlign="Begin"><Text text="SERVICE NAME" class="kyraAdminColHeader" /></Column>
+                                            <Column width="28%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="24%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                         </columns>
                                         <items>
                                             <ColumnListItem
@@ -526,14 +512,6 @@
                                                     </HBox>
                                                     <HBox alignItems="Center" class="kyraAdminRowActionGroup">
                                                         <Button
-                                                            text="{= ${accessModel>status} === 'Inactive' ? 'Activate' : 'Deactivate' }"
-                                                            press=".onToggleAdminServiceStatus"
-                                                            class="kyraAdminSystemDeactivateBtn">
-                                                            <customData>
-                                                                <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
-                                                            </customData>
-                                                        </Button>
-                                                        <Button
                                                             icon="sap-icon://edit"
                                                             press=".onEditAdminService"
                                                             class="kyraAdminSystemEditBtn"
@@ -541,7 +519,7 @@
                                                         <Button
                                                             icon="sap-icon://delete"
                                                             press=".onDeleteAdminService"
-                                                            class="kyraAdminSystemDeleteBtn"
+                                                            class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
                                                             tooltip="Delete Service" />
                                                     </HBox>
                                                 </cells>
@@ -604,25 +582,24 @@
                                         </VBox>
 
                                         <!-- Right Sub-Panel: Team Name &amp; Persona (live Personas for selected Team) -->
-                                        <VBox width="61%" class="kyraAdminClassDetailSubPanel">
+                                        <VBox width="65%" class="kyraAdminClassDetailSubPanel">
                                             <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                                 <Text text="Team Name" class="kyraAdminFormLabel" />
                                                 <Text text="*" class="kyraAdminRequiredStar" />
                                             </HBox>
-                                            <Input
-                                                id="adminTeamNameInput"
-                                                value="{accessModel>/selectedAdminClassification/name}"
-                                                liveChange=".onLiveChangeSelectedTeamName"
-                                                class="kyraAdminFormInput"
-                                                width="100%" />
-
-                                            <!-- Action buttons below Team Name text bar -->
-                                            <HBox alignItems="Center" class="kyraAdminTeamDetailActions sapUiTinyMarginTop sapUiSmallMarginBottom">
+                                            <HBox alignItems="Center" class="kyraAdminTeamNameRow sapUiSmallMarginBottom" width="100%">
+                                                <Input
+                                                    id="adminTeamNameInput"
+                                                    value="{accessModel>/selectedAdminClassification/name}"
+                                                    editable="false"
+                                                    tooltip="{accessModel>/selectedAdminClassification/name}"
+                                                    class="kyraAdminFormInput kyraAdminReadOnlyInput"
+                                                    width="100%" />
                                                 <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditSelectedAdminTeam"
-                                                    class="kyraAdminSystemEditBtn"
-                                                    tooltip="Edit Team Name" />
+                                                    class="kyraAdminSystemEditBtn sapUiTinyMarginBegin"
+                                                    tooltip="Edit Team" />
                                                 <Button
                                                     icon="sap-icon://delete"
                                                     press=".onDeleteSelectedAdminTeam"
@@ -638,20 +615,18 @@
                                                 <HBox alignItems="Center" class="kyraAdminSubClassRow" width="100%">
                                                     <Input
                                                         value="{accessModel>name}"
-                                                        liveChange=".onLiveChangeSelectedPersonaName"
-                                                        class="kyraAdminSubClassInput" />
+                                                        editable="false"
+                                                        tooltip="{accessModel>name}"
+                                                        class="kyraAdminSubClassInput kyraAdminReadOnlyInput" />
                                                     <Button
-                                                        text="{= ${accessModel>status} === 'Inactive' ? 'Activate' : 'Deactivate' }"
-                                                        press=".onToggleAdminPersonaStatus"
-                                                        class="kyraAdminSystemDeactivateBtn kyraAdminMiniToggleBtn">
-                                                        <customData>
-                                                            <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
-                                                        </customData>
-                                                    </Button>
+                                                        icon="sap-icon://edit"
+                                                        press=".onEditAdminSubClassification"
+                                                        class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                        tooltip="Edit Persona" />
                                                     <Button
                                                         icon="sap-icon://delete"
                                                         press=".onDeleteAdminSubClassification"
-                                                        class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn"
+                                                        class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
                                                         tooltip="Delete Persona" />
                                                 </HBox>
                                             </VBox>
@@ -780,12 +755,12 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable">
                                 <columns>
-                                    <Column width="15%" hAlign="Begin"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
-                                    <Column width="20%" hAlign="Begin"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="20%" hAlign="Begin"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="18%" hAlign="Begin"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
-                                    <Column width="12%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="15%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="18%" hAlign="Begin"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="20%" hAlign="Begin"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
+                                    <Column width="10%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="8%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
@@ -805,14 +780,6 @@
                                             </HBox>
                                             <HBox alignItems="Center" class="kyraAdminRowActionGroup">
                                                 <Button
-                                                    text="{= ${accessModel>status} === 'Inactive' ? 'Activate' : 'Deactivate' }"
-                                                    press=".onToggleAdminConflictStatus"
-                                                    class="kyraAdminSystemDeactivateBtn">
-                                                    <customData>
-                                                        <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
-                                                    </customData>
-                                                </Button>
-                                                <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditAdminConflictRule"
                                                     class="kyraAdminSystemEditBtn"
@@ -820,7 +787,7 @@
                                                 <Button
                                                     icon="sap-icon://delete"
                                                     press=".onDeleteAdminConflictRule"
-                                                    class="kyraAdminSystemDeleteBtn"
+                                                    class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
                                                     tooltip="Delete Conflict Rule" />
                                             </HBox>
                                         </cells>

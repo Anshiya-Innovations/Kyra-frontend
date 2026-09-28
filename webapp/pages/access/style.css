@@ -34053,3 +34053,172 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 .kyraAdminTeamNameBox {
     cursor: pointer !important;
 }
+
+/* ========================================================================== */
+/* PERFECTED STATUS PILLS (ACTIVE & INACTIVE MATCHING FIFTH IMAGE)             */
+/* ========================================================================== */
+.kyraAdminStatusPill,
+.sapMFlexBox.kyraAdminStatusPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    background: #E6F7F7 !important;
+    background-color: #E6F7F7 !important;
+    border: 1px solid rgba(0, 140, 156, 0.3) !important;
+    border-radius: 9999px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    padding: 0 13px !important;
+    width: fit-content !important;
+    min-width: 80px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 1px 2px rgba(0, 140, 156, 0.08) !important;
+}
+
+/* INACTIVE PILL (Exact Match to Fifth Image: crisp slate, soft background, clear dot and text) */
+.kyraAdminStatusPill[data-status="Inactive"],
+.sapMFlexBox.kyraAdminStatusPill[data-status="Inactive"] {
+    background: #F1F5F9 !important;
+    background-color: #F1F5F9 !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.kyraAdminStatusPill .kyraAdminVectorDot,
+.kyraAdminStatusPill .kyraAdminPillDot,
+.kyraAdminStatusPill .sapUiIcon,
+.sapMFlexBox.kyraAdminStatusPill .sapUiIcon {
+    width: 7px !important;
+    height: 7px !important;
+    min-width: 7px !important;
+    max-width: 7px !important;
+    min-height: 7px !important;
+    max-height: 7px !important;
+    border-radius: 50% !important;
+    background-color: #008C9C !important;
+    background: #008C9C !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraAdminStatusPill[data-status="Inactive"] .kyraAdminVectorDot,
+.kyraAdminStatusPill[data-status="Inactive"] .kyraAdminPillDot,
+.kyraAdminStatusPill[data-status="Inactive"] .sapUiIcon,
+.sapMFlexBox.kyraAdminStatusPill[data-status="Inactive"] .sapUiIcon {
+    background-color: #64748B !important;
+    background: #64748B !important;
+}
+
+.kyraAdminStatusPill .kyraAdminPillText,
+.kyraAdminStatusPill .sapMText,
+.sapMFlexBox.kyraAdminStatusPill .sapMText {
+    color: #007684 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    text-overflow: clip !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraAdminStatusPill[data-status="Inactive"] .kyraAdminPillText,
+.kyraAdminStatusPill[data-status="Inactive"] .sapMText,
+.sapMFlexBox.kyraAdminStatusPill[data-status="Inactive"] .sapMText {
+    color: #334155 !important;
+}
+
+/* Modal Form Controls: Strict KYRA Brand Teal Theme */
+.kyra-system-modal-select {
+    accent-color: #008C9C !important;
+    cursor: pointer !important;
+}
+
+.kyra-system-modal-select:focus {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyra-system-modal-submit-btn {
+    background: #008C9C !important;
+    border: 1px solid #007684 !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+.kyra-system-modal-submit-btn:hover {
+    background: #007684 !important;
+}
+
+/* Persona SubClassRow: Full Width Input with Delete Icon */
+.kyraAdminSubClassRow .kyraAdminSubClassInput {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+}
+
+/* ========================================================================== */
+/* TEAM NAME ROW & PERSONA ROW FULL VIEW REFINEMENTS */
+/* ========================================================================== */
+
+.kyraAdminTeamNameRow {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 8px !important;
+}
+
+.kyraAdminTeamNameRow .kyraAdminFormInput {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+.kyraAdminReadOnlyInput .sapMInputBaseContentWrapper {
+    background-color: #F8FAFC !important;
+    border-color: #E2E8F0 !important;
+    cursor: default !important;
+}
+
+.kyraAdminReadOnlyInput input.sapMInputBaseInner {
+    color: #1E293B !important;
+    font-weight: 500 !important;
+    cursor: default !important;
+}
+
+.kyraAdminSubClassRow {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+}
+
+.kyraAdminSubClassRow .kyraAdminSubClassInput {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+.kyraAdminSubClassRow .kyraAdminSubClassInput .sapMInputBaseContentWrapper {
+    width: 100% !important;
+}
+
+.kyraAdminSubClassRow .kyraAdminSubClassInput input.sapMInputBaseInner {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #1E293B !important;
+    text-overflow: clip !important;
+    overflow-x: auto !important;
+}
