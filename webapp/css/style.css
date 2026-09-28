@@ -34027,3 +34027,29 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 .kyraAdminSubClassRow .kyraAdminMiniActionBtn {
     flex-shrink: 0 !important;
 }
+
+/* Actions directly below Team Name text bar */
+.kyraAdminTeamDetailActions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+    margin-bottom: 18px !important;
+}
+
+.kyraAdminTeamDetailActions .sapUiTinyMarginBegin {
+    margin-left: 0 !important;
+}
+
+/* Left Team List Cards: Clean, clickable cards */
+.kyraAdminClassItemCard {
+    cursor: pointer !important;
+    padding: 12px 14px !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.kyraAdminTeamNameBox {
+    cursor: pointer !important;
+}

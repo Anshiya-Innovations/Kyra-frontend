@@ -298,20 +298,20 @@ sap.ui.define([
                 adminSelectedSection: "",
                 selectedAdminServiceName: "System Administrator",
                 adminSystemsAll: [
-                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-01-10" },
-                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "95%", status: "Active", createdDate: "2025-01-12" },
-                    { systemName: "KYRA Central Governance", environment: "Governance", thresholdLimit: "85%", status: "Active", createdDate: "2025-01-15" },
-                    { systemName: "Active Directory / IAM", environment: "Identity & Security", thresholdLimit: "90%", status: "Active", createdDate: "2025-02-01" },
-                    { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "95%", status: "Active", createdDate: "2025-02-14" },
-                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-03-01" }
+                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" },
+                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "8", status: "Active", createdDate: "2025-01-12" },
+                    { systemName: "KYRA Central Governance", environment: "Governance", thresholdLimit: "4", status: "Active", createdDate: "2025-01-15" },
+                    { systemName: "Active Directory / IAM", environment: "Identity & Security", thresholdLimit: "5", status: "Active", createdDate: "2025-02-01" },
+                    { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "8", status: "Active", createdDate: "2025-02-14" },
+                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-03-01" }
                 ],
                 adminSystems: [
-                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-01-10" },
-                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "95%", status: "Active", createdDate: "2025-01-12" },
-                    { systemName: "KYRA Central Governance", environment: "Governance", thresholdLimit: "85%", status: "Active", createdDate: "2025-01-15" },
-                    { systemName: "Active Directory / IAM", environment: "Identity & Security", thresholdLimit: "90%", status: "Active", createdDate: "2025-02-01" },
-                    { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "95%", status: "Active", createdDate: "2025-02-14" },
-                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-03-01" }
+                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" },
+                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "8", status: "Active", createdDate: "2025-01-12" },
+                    { systemName: "KYRA Central Governance", environment: "Governance", thresholdLimit: "4", status: "Active", createdDate: "2025-01-15" },
+                    { systemName: "Active Directory / IAM", environment: "Identity & Security", thresholdLimit: "5", status: "Active", createdDate: "2025-02-01" },
+                    { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "8", status: "Active", createdDate: "2025-02-14" },
+                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-03-01" }
                 ],
                 adminServicesAll: [
                     { serviceName: "System Administrator", status: "Active", selected: true },
@@ -10252,16 +10252,16 @@ sap.ui.define([
             if (!oModel || !oParsed || typeof oParsed !== "object") return;
             if (Array.isArray(oParsed.adminSystemsAll) && oParsed.adminSystemsAll.length > 0) {
                 const oDefaultLimits = {
-                    "SAP BTP Cloud Platform": "90%",
-                    "SAP S/4HANA Enterprise": "95%",
-                    "KYRA Central Governance": "85%",
-                    "Active Directory / IAM": "90%",
-                    "SAP SuccessFactors": "95%",
-                    "SAP Ariba Supply Network": "90%"
+                    "SAP BTP Cloud Platform": "5",
+                    "SAP S/4HANA Enterprise": "8",
+                    "KYRA Central Governance": "4",
+                    "Active Directory / IAM": "5",
+                    "SAP SuccessFactors": "7",
+                    "SAP Ariba Supply Network": "6"
                 };
                 const aSys = oParsed.adminSystemsAll.map(s => Object.assign({
                     status: "Active",
-                    thresholdLimit: s.thresholdLimit || oDefaultLimits[s.systemName] || "90%"
+                    thresholdLimit: (s.thresholdLimit && !s.thresholdLimit.includes("%")) ? s.thresholdLimit : (oDefaultLimits[s.systemName] || "5")
                 }, s));
                 oModel.setProperty("/adminSystemsAll", aSys);
                 oModel.setProperty("/adminSystems", aSys.slice());
@@ -10707,11 +10707,16 @@ sap.ui.define([
                                 <div class="kyra-system-modal-form-group" style="flex:1;">
                                     <label class="kyra-system-modal-label" for="kyra_add_sys_threshold">THRESHOLD LIMIT</label>
                                     <select id="kyra_add_sys_threshold" class="kyra-system-modal-select">
-                                        <option value="80%">80%</option>
-                                        <option value="85%">85%</option>
-                                        <option value="90%" selected>90%</option>
-                                        <option value="95%">95%</option>
-                                        <option value="100%">100%</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5" selected>5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
                                     </select>
                                 </div>
                                 <div class="kyra-system-modal-form-group" style="flex:1;">
@@ -10769,7 +10774,7 @@ sap.ui.define([
                                 return;
                             }
                             const threshSelect = document.getElementById("kyra_add_sys_threshold");
-                            const sThreshold = threshSelect ? threshSelect.value : "90%";
+                            const sThreshold = threshSelect ? threshSelect.value : "5";
                             const statusSelect = document.getElementById("kyra_add_sys_status");
                             const sStatus = statusSelect ? statusSelect.value : "Active";
                             const sToday = new Date().toISOString().split("T")[0];
@@ -10805,7 +10810,7 @@ sap.ui.define([
 
             const that = this;
             const sOldName = oObj.systemName;
-            const sCurrentThreshold = oObj.thresholdLimit || "90%";
+            const sCurrentThreshold = String(oObj.thresholdLimit || "5").replace("%", "");
             const sCurrentStatus = oObj.status || "Active";
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
@@ -10842,11 +10847,16 @@ sap.ui.define([
                                 <div class="kyra-system-modal-form-group" style="flex:1;">
                                     <label class="kyra-system-modal-label" for="kyra_edit_sys_threshold">THRESHOLD LIMIT</label>
                                     <select id="kyra_edit_sys_threshold" class="kyra-system-modal-select">
-                                        <option value="80%" ${sCurrentThreshold === "80%" ? "selected" : ""}>80%</option>
-                                        <option value="85%" ${sCurrentThreshold === "85%" ? "selected" : ""}>85%</option>
-                                        <option value="90%" ${sCurrentThreshold === "90%" ? "selected" : ""}>90%</option>
-                                        <option value="95%" ${sCurrentThreshold === "95%" ? "selected" : ""}>95%</option>
-                                        <option value="100%" ${sCurrentThreshold === "100%" ? "selected" : ""}>100%</option>
+                                        <option value="1" ${sCurrentThreshold === "1" ? "selected" : ""}>1</option>
+                                        <option value="2" ${sCurrentThreshold === "2" ? "selected" : ""}>2</option>
+                                        <option value="3" ${sCurrentThreshold === "3" ? "selected" : ""}>3</option>
+                                        <option value="4" ${sCurrentThreshold === "4" ? "selected" : ""}>4</option>
+                                        <option value="5" ${sCurrentThreshold === "5" || sCurrentThreshold === "90" || sCurrentThreshold === "90%" ? "selected" : ""}>5</option>
+                                        <option value="6" ${sCurrentThreshold === "6" ? "selected" : ""}>6</option>
+                                        <option value="7" ${sCurrentThreshold === "7" ? "selected" : ""}>7</option>
+                                        <option value="8" ${sCurrentThreshold === "8" || sCurrentThreshold === "95" || sCurrentThreshold === "95%" ? "selected" : ""}>8</option>
+                                        <option value="9" ${sCurrentThreshold === "9" ? "selected" : ""}>9</option>
+                                        <option value="10" ${sCurrentThreshold === "10" || sCurrentThreshold === "100" || sCurrentThreshold === "100%" ? "selected" : ""}>10</option>
                                     </select>
                                 </div>
                                 <div class="kyra-system-modal-form-group" style="flex:1;">
@@ -11295,6 +11305,14 @@ sap.ui.define([
             MessageToast.show("Service '" + oObj.serviceName + "' is now " + sNextStatus + ".");
         },
 
+        onCancelAdminServicesSection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const aAll = oModel.getProperty("/adminServicesAll") || [];
+            oModel.setProperty("/adminServices", aAll.slice());
+            sap.m.MessageToast.show("Service changes reverted.");
+        },
+
         onSaveAdminServicesSection() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -11353,6 +11371,186 @@ sap.ui.define([
             }
         },
 
+        onToggleSelectedAdminTeamStatus() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oSelected = oModel.getProperty("/selectedAdminClassification");
+            if (!oSelected) return;
+            const sNextStatus = oSelected.status === "Inactive" ? "Active" : "Inactive";
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+
+            oSelected.status = sNextStatus;
+            oModel.setProperty("/selectedAdminClassification/status", sNextStatus);
+
+            const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                item.name === oSelected.name ? Object.assign({}, item, { status: sNextStatus }) : item
+            );
+            oModel.setProperty("/adminClassifications", aList);
+
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            this._showSlideNotification("Team Status Updated", "Team '" + oSelected.name + "' is now " + sNextStatus + ".");
+            sap.m.MessageToast.show("Team '" + oSelected.name + "' is now " + sNextStatus + ".");
+        },
+
+        onEditSelectedAdminTeam() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oSelected = oModel.getProperty("/selectedAdminClassification");
+            if (!oSelected) return;
+
+            const that = this;
+            const sOldName = oSelected.name;
+            const sCurrentStatus = oSelected.status || "Active";
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Team</div>
+                                    <div class="kyra-system-modal-subtitle">Modify team parameters and active status</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_team_edit_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_team_name">TEAM NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_team_name" class="kyra-system-modal-input" placeholder="Enter team name" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_team_status">STATUS</label>
+                                <select id="kyra_edit_team_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_team_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_team_submit_btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_team_edit_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_edit_team_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_edit_team_name");
+                    if (nameInput) {
+                        nameInput.focus();
+                        nameInput.select();
+                    }
+
+                    const submitBtn = document.getElementById("kyra_edit_team_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sNewName = (nameInput ? nameInput.value : "").trim();
+                            if (!sNewName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Team Name cannot be empty.");
+                                return;
+                            }
+                            const statusSelect = document.getElementById("kyra_edit_team_status");
+                            const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                            // Update only this Team (do not touch or modify the Service!)
+                            oSelected.name = sNewName;
+                            oSelected.status = sNewStatus;
+                            oModel.setProperty("/selectedAdminClassification", Object.assign({}, oSelected));
+
+                            const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                item.name === sOldName ? Object.assign({}, item, {
+                                    name: sNewName,
+                                    status: sNewStatus
+                                }) : item
+                            );
+                            oModel.setProperty("/adminClassifications", aList);
+
+                            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._showSlideNotification("Team Updated", "Team '" + sNewName + "' updated successfully.");
+                            MessageToast.show("Team '" + sNewName + "' updated successfully.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
+        },
+
+        onDeleteSelectedAdminTeam() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oSelected = oModel.getProperty("/selectedAdminClassification");
+            if (!oSelected) return;
+            const sName = oSelected.name;
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+            const that = this;
+
+            this._confirmDelete("Delete Team", sName, "Team", () => {
+                const aList = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== sName);
+                oModel.setProperty("/adminClassifications", aList);
+
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+
+                if (aList.length > 0) {
+                    aList[0].selected = true;
+                    oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(aList[0])));
+                } else {
+                    oModel.setProperty("/selectedAdminClassification", null);
+                }
+
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._showSlideNotification("Team Deleted", "Team '" + sName + "' has been deleted.", "delete");
+                sap.m.MessageToast.show("Team '" + sName + "' deleted.");
+            });
+        },
         onToggleAdminTeamStatus(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
