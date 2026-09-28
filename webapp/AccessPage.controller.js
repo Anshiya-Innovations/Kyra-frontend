@@ -298,20 +298,20 @@ sap.ui.define([
                 adminSelectedSection: "",
                 selectedAdminServiceName: "System Administrator",
                 adminSystemsAll: [
-                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", status: "Active", createdDate: "2025-01-10" },
-                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", status: "Active", createdDate: "2025-01-12" },
-                    { systemName: "KYRA Central Governance", environment: "Governance", status: "Active", createdDate: "2025-01-15" },
-                    { systemName: "Active Directory / IAM", environment: "Identity & Security", status: "Active", createdDate: "2025-02-01" },
-                    { systemName: "SAP SuccessFactors", environment: "Cloud", status: "Active", createdDate: "2025-02-14" },
-                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", status: "Active", createdDate: "2025-03-01" }
+                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-01-10" },
+                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "95%", status: "Active", createdDate: "2025-01-12" },
+                    { systemName: "KYRA Central Governance", environment: "Governance", thresholdLimit: "85%", status: "Active", createdDate: "2025-01-15" },
+                    { systemName: "Active Directory / IAM", environment: "Identity & Security", thresholdLimit: "90%", status: "Active", createdDate: "2025-02-01" },
+                    { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "95%", status: "Active", createdDate: "2025-02-14" },
+                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-03-01" }
                 ],
                 adminSystems: [
-                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", status: "Active", createdDate: "2025-01-10" },
-                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", status: "Active", createdDate: "2025-01-12" },
-                    { systemName: "KYRA Central Governance", environment: "Governance", status: "Active", createdDate: "2025-01-15" },
-                    { systemName: "Active Directory / IAM", environment: "Identity & Security", status: "Active", createdDate: "2025-02-01" },
-                    { systemName: "SAP SuccessFactors", environment: "Cloud", status: "Active", createdDate: "2025-02-14" },
-                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", status: "Active", createdDate: "2025-03-01" }
+                    { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-01-10" },
+                    { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "95%", status: "Active", createdDate: "2025-01-12" },
+                    { systemName: "KYRA Central Governance", environment: "Governance", thresholdLimit: "85%", status: "Active", createdDate: "2025-01-15" },
+                    { systemName: "Active Directory / IAM", environment: "Identity & Security", thresholdLimit: "90%", status: "Active", createdDate: "2025-02-01" },
+                    { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "95%", status: "Active", createdDate: "2025-02-14" },
+                    { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "90%", status: "Active", createdDate: "2025-03-01" }
                 ],
                 adminServicesAll: [
                     { serviceName: "System Administrator", status: "Active", selected: true },
@@ -10251,7 +10251,18 @@ sap.ui.define([
         _applyParsedAdminConfigToModel(oModel, oParsed) {
             if (!oModel || !oParsed || typeof oParsed !== "object") return;
             if (Array.isArray(oParsed.adminSystemsAll) && oParsed.adminSystemsAll.length > 0) {
-                const aSys = oParsed.adminSystemsAll.map(s => Object.assign({ status: "Active" }, s));
+                const oDefaultLimits = {
+                    "SAP BTP Cloud Platform": "90%",
+                    "SAP S/4HANA Enterprise": "95%",
+                    "KYRA Central Governance": "85%",
+                    "Active Directory / IAM": "90%",
+                    "SAP SuccessFactors": "95%",
+                    "SAP Ariba Supply Network": "90%"
+                };
+                const aSys = oParsed.adminSystemsAll.map(s => Object.assign({
+                    status: "Active",
+                    thresholdLimit: s.thresholdLimit || oDefaultLimits[s.systemName] || "90%"
+                }, s));
                 oModel.setProperty("/adminSystemsAll", aSys);
                 oModel.setProperty("/adminSystems", aSys.slice());
             }
@@ -10532,31 +10543,257 @@ sap.ui.define([
             }
             const aFiltered = aAll.filter(item =>
                 (item.systemName || "").toLowerCase().includes(sQuery) ||
+                (item.thresholdLimit || "").toLowerCase().includes(sQuery) ||
                 (item.environment || "").toLowerCase().includes(sQuery) ||
-                (item.status || "").toLowerCase().includes(sQuery)
+                (item.status || "").toLowerCase().includes(sQuery) ||
+                (item.createdDate || "").toLowerCase().includes(sQuery)
             );
             oModel.setProperty("/adminSystems", aFiltered);
+        },
+
+        _showSlideNotification(sTitle, sMessage) {
+            try {
+                let oSlide = document.getElementById("kyra_global_slide_notification");
+                if (!oSlide) {
+                    oSlide = document.createElement("div");
+                    oSlide.id = "kyra_global_slide_notification";
+                    oSlide.className = "kyra-slide-notification";
+                    document.body.appendChild(oSlide);
+                }
+                oSlide.innerHTML = `
+                    <div class="kyra-slide-notification-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <div class="kyra-slide-notification-body">
+                        <div class="kyra-slide-notification-title">${sTitle || "Notification"}</div>
+                        <div class="kyra-slide-notification-text">${sMessage || ""}</div>
+                    </div>
+                    <button type="button" class="kyra-slide-notification-close" title="Dismiss" onclick="this.parentElement.classList.remove('kyra-slide-notification-active')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                `;
+                oSlide.classList.remove("kyra-slide-notification-active");
+                void oSlide.offsetWidth;
+                oSlide.classList.add("kyra-slide-notification-active");
+
+                if (this._slideNotifTimer) {
+                    clearTimeout(this._slideNotifTimer);
+                }
+                this._slideNotifTimer = setTimeout(() => {
+                    if (oSlide) oSlide.classList.remove("kyra-slide-notification-active");
+                }, 3800);
+            } catch (err) {
+                // Fallback
+            }
+        },
+
+        
+        _confirmDelete(sTitle, sItemName, sItemType, onConfirmFn) {
+            const that = this;
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML"], (Dialog, HTML) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card" style="max-width: 440px;">
+                        <div class="kyra-system-modal-header" style="border-bottom: 1px solid #FEE2E2;">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge" style="background: #FEE2E2;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title" style="color: #991B1B;">${sTitle || "Confirm Deletion"}</div>
+                                    <div class="kyra-system-modal-subtitle">This action cannot be undone</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_del_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body" style="padding: 18px 24px;">
+                            <p style="margin: 0; font-size: 13.5px; color: #334155; line-height: 1.5;">
+                                Are you sure you want to delete <strong>${sItemName || "this item"}</strong>? It will be permanently removed from this configuration.
+                            </p>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_del_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-del-confirm-btn" id="kyra_del_confirm_btn">Delete ${sItemType || ""}</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "440px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_del_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_del_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+                    const confirmBtn = document.getElementById("kyra_del_confirm_btn");
+                    if (confirmBtn) {
+                        confirmBtn.onclick = () => {
+                            closeFn();
+                            if (typeof onConfirmFn === "function") {
+                                onConfirmFn();
+                            }
+                        };
+                    }
+                }, 50);
+            });
         },
 
         onAddAdminSystem() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const sName = window.prompt("Enter new System Name:", "SAP Analytics Cloud");
-            if (!sName || !sName.trim()) return;
-            const sEnv = window.prompt("Enter Environment (Cloud / Production / Governance):", "Cloud") || "Cloud";
-            const sToday = new Date().toISOString().split("T")[0];
-            const oNew = {
-                systemName: sName.trim(),
-                environment: sEnv.trim(),
-                status: "Active",
-                createdDate: sToday
-            };
-            const aAll = (oModel.getProperty("/adminSystemsAll") || []).slice();
-            aAll.push(oNew);
-            oModel.setProperty("/adminSystemsAll", aAll);
-            oModel.setProperty("/adminSystems", aAll.slice());
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("System '" + oNew.systemName + "' added and activated in Add Access.");
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add System</div>
+                                    <div class="kyra-system-modal-subtitle">Configure and register a new target system with threshold limit</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_sys_add_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_sys_name">SYSTEM NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_sys_name" class="kyra-system-modal-input" placeholder="e.g. SAP Analytics Cloud" value="" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-row">
+                                <div class="kyra-system-modal-form-group" style="flex:1;">
+                                    <label class="kyra-system-modal-label" for="kyra_add_sys_threshold">THRESHOLD LIMIT</label>
+                                    <select id="kyra_add_sys_threshold" class="kyra-system-modal-select">
+                                        <option value="80%">80%</option>
+                                        <option value="85%">85%</option>
+                                        <option value="90%" selected>90%</option>
+                                        <option value="95%">95%</option>
+                                        <option value="100%">100%</option>
+                                    </select>
+                                </div>
+                                <div class="kyra-system-modal-form-group" style="flex:1;">
+                                    <label class="kyra-system-modal-label" for="kyra_add_sys_status">STATUS</label>
+                                    <select id="kyra_add_sys_status" class="kyra-system-modal-select">
+                                        <option value="Active" selected>Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_add_sys_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_add_sys_submit_btn">+ Add System</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "520px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_sys_add_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_add_sys_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_add_sys_name");
+                    if (nameInput) nameInput.focus();
+
+                    const submitBtn = document.getElementById("kyra_add_sys_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sName = (nameInput ? nameInput.value : "").trim();
+                            if (!sName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Please enter a valid System Name.");
+                                return;
+                            }
+                            const threshSelect = document.getElementById("kyra_add_sys_threshold");
+                            const sThreshold = threshSelect ? threshSelect.value : "90%";
+                            const statusSelect = document.getElementById("kyra_add_sys_status");
+                            const sStatus = statusSelect ? statusSelect.value : "Active";
+                            const sToday = new Date().toISOString().split("T")[0];
+
+                            const oNew = {
+                                systemName: sName,
+                                thresholdLimit: sThreshold,
+                                environment: "Cloud",
+                                status: sStatus,
+                                createdDate: sToday
+                            };
+
+                            const aAll = (oModel.getProperty("/adminSystemsAll") || []).slice();
+                            aAll.push(oNew);
+                            oModel.setProperty("/adminSystemsAll", aAll);
+                            oModel.setProperty("/adminSystems", aAll.slice());
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._showSlideNotification("System Added", "System '" + oNew.systemName + "' added successfully.");
+                            MessageToast.show("System '" + oNew.systemName + "' added successfully.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
         },
 
         onEditAdminSystem(oEvent) {
@@ -10564,18 +10801,133 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
+            if (!oObj) return;
+
+            const that = this;
             const sOldName = oObj.systemName;
-            const sNewName = window.prompt("Edit System Name:", sOldName);
-            if (sNewName && sNewName.trim()) {
-                const sTrimmed = sNewName.trim();
-                const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
-                    item.systemName === sOldName ? Object.assign({}, item, { systemName: sTrimmed, status: "Active" }) : item
-                );
-                oModel.setProperty("/adminSystemsAll", aAll);
-                oModel.setProperty("/adminSystems", aAll.slice());
-                this._syncAdminConfigToLiveAddAccess(oModel);
-                MessageToast.show("System '" + sTrimmed + "' saved and activated.");
-            }
+            const sCurrentThreshold = oObj.thresholdLimit || "90%";
+            const sCurrentStatus = oObj.status || "Active";
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit System</div>
+                                    <div class="kyra-system-modal-subtitle">Modify system parameters, threshold limit, and active status</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_sys_edit_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_sys_name">SYSTEM NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_sys_name" class="kyra-system-modal-input" placeholder="Enter system name" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-row">
+                                <div class="kyra-system-modal-form-group" style="flex:1;">
+                                    <label class="kyra-system-modal-label" for="kyra_edit_sys_threshold">THRESHOLD LIMIT</label>
+                                    <select id="kyra_edit_sys_threshold" class="kyra-system-modal-select">
+                                        <option value="80%" ${sCurrentThreshold === "80%" ? "selected" : ""}>80%</option>
+                                        <option value="85%" ${sCurrentThreshold === "85%" ? "selected" : ""}>85%</option>
+                                        <option value="90%" ${sCurrentThreshold === "90%" ? "selected" : ""}>90%</option>
+                                        <option value="95%" ${sCurrentThreshold === "95%" ? "selected" : ""}>95%</option>
+                                        <option value="100%" ${sCurrentThreshold === "100%" ? "selected" : ""}>100%</option>
+                                    </select>
+                                </div>
+                                <div class="kyra-system-modal-form-group" style="flex:1;">
+                                    <label class="kyra-system-modal-label" for="kyra_edit_sys_status">STATUS</label>
+                                    <select id="kyra_edit_sys_status" class="kyra-system-modal-select">
+                                        <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                        <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_sys_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_sys_submit_btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "520px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_sys_edit_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_edit_sys_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_edit_sys_name");
+                    if (nameInput) {
+                        nameInput.focus();
+                        nameInput.select();
+                    }
+
+                    const submitBtn = document.getElementById("kyra_edit_sys_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sNewName = (nameInput ? nameInput.value : "").trim();
+                            if (!sNewName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("System Name cannot be empty.");
+                                return;
+                            }
+                            const threshSelect = document.getElementById("kyra_edit_sys_threshold");
+                            const sNewThreshold = threshSelect ? threshSelect.value : sCurrentThreshold;
+                            const statusSelect = document.getElementById("kyra_edit_sys_status");
+                            const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                            const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
+                                item.systemName === sOldName ? Object.assign({}, item, {
+                                    systemName: sNewName,
+                                    thresholdLimit: sNewThreshold,
+                                    status: sNewStatus
+                                }) : item
+                            );
+                            oModel.setProperty("/adminSystemsAll", aAll);
+                            oModel.setProperty("/adminSystems", aAll.slice());
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._showSlideNotification("System Updated", "System '" + sNewName + "' updated successfully.");
+                            MessageToast.show("System '" + sNewName + "' updated successfully.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
         },
 
         onToggleAdminSystemStatus(oEvent) {
@@ -10605,11 +10957,16 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
-            const aAll = (oModel.getProperty("/adminSystemsAll") || []).filter(item => item.systemName !== oObj.systemName);
-            oModel.setProperty("/adminSystemsAll", aAll);
-            oModel.setProperty("/adminSystems", aAll.slice());
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("System '" + oObj.systemName + "' deleted.");
+            const that = this;
+
+            this._confirmDelete("Delete Target System", oObj.systemName, "System", () => {
+                const aAll = (oModel.getProperty("/adminSystemsAll") || []).filter(item => item.systemName !== oObj.systemName);
+                oModel.setProperty("/adminSystemsAll", aAll);
+                oModel.setProperty("/adminSystems", aAll.slice());
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._showSlideNotification("System Deleted", "System '" + oObj.systemName + "' has been deleted.", "delete");
+                sap.m.MessageToast.show("System '" + oObj.systemName + "' deleted.");
+            });
         },
 
         onSearchAdminServices(oEvent) {
@@ -10674,35 +11031,126 @@ sap.ui.define([
         onAddAdminService() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const sName = window.prompt("Enter new Service / Topic Name:", "Cloud Operations");
-            if (!sName || !sName.trim()) return;
-            const sTrimmed = sName.trim();
-            const oNew = {
-                serviceName: sTrimmed,
-                status: "Active",
-                selected: false
-            };
-            const aAll = (oModel.getProperty("/adminServicesAll") || []).slice();
-            aAll.push(oNew);
-            oModel.setProperty("/adminServicesAll", aAll);
-            oModel.setProperty("/adminServices", aAll.slice());
 
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            if (!oDetailsMap[sTrimmed]) {
-                oDetailsMap[sTrimmed] = [
-                    {
-                        name: sTrimmed + " Engineer (" + sTrimmed + ")",
-                        status: "Active",
-                        selected: true,
-                        subClassifications: [
-                            { name: sTrimmed + " Specialist Persona (" + sTrimmed + " Engineer)", status: "Active" }
-                        ]
+            const that = this;
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add Service</div>
+                                    <div class="kyra-system-modal-subtitle">Define a new service / topic for access control</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_svc_add_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_svc_name">SERVICE NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_svc_name" class="kyra-system-modal-input" placeholder="e.g. Cloud Operations" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_svc_status">STATUS</label>
+                                <select id="kyra_add_svc_status" class="kyra-system-modal-select">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_add_svc_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_add_svc_submit_btn">Create Service</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_svc_add_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_add_svc_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_add_svc_name");
+                    if (nameInput) nameInput.focus();
+
+                    const submitBtn = document.getElementById("kyra_add_svc_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sNewName = (nameInput ? nameInput.value : "").trim();
+                            if (!sNewName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Please enter a valid Service Name.");
+                                return;
+                            }
+                            const statusSelect = document.getElementById("kyra_add_svc_status");
+                            const sNewStatus = statusSelect ? statusSelect.value : "Active";
+
+                            const oNew = {
+                                serviceName: sNewName,
+                                status: sNewStatus,
+                                selected: false
+                            };
+                            const aAll = (oModel.getProperty("/adminServicesAll") || []).slice();
+                            aAll.push(oNew);
+                            oModel.setProperty("/adminServicesAll", aAll);
+                            oModel.setProperty("/adminServices", aAll.slice());
+
+                            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                            if (!oDetailsMap[sNewName]) {
+                                oDetailsMap[sNewName] = [
+                                    {
+                                        name: sNewName + " Engineer (" + sNewName + ")",
+                                        status: "Active",
+                                        selected: true,
+                                        subClassifications: [
+                                            { name: sNewName + " Specialist Persona (" + sNewName + " Engineer)", status: "Active" }
+                                        ]
+                                    }
+                                ];
+                                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                            }
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._showSlideNotification("Service Created", "Service '" + sNewName + "' added and activated.");
+                            MessageToast.show("Service '" + sNewName + "' added and activated in Add Access.");
+                            closeFn();
+                        };
                     }
-                ];
-                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            }
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Service '" + oNew.serviceName + "' added and activated in Add Access.");
+                }, 50);
+            });
         },
 
         onEditAdminService(oEvent) {
@@ -10710,27 +11158,126 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
+            if (!oObj) return;
+
+            const that = this;
             const sOldName = oObj.serviceName;
-            const sNewName = window.prompt("Edit Service Name:", sOldName);
-            if (sNewName && sNewName.trim()) {
-                const sTrimmed = sNewName.trim();
-                const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
-                    item.serviceName === sOldName ? Object.assign({}, item, { serviceName: sTrimmed, status: "Active" }) : item
-                );
-                oModel.setProperty("/adminServicesAll", aAll);
-                oModel.setProperty("/adminServices", aAll.slice());
-                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                if (oDetailsMap[sOldName]) {
-                    oDetailsMap[sTrimmed] = oDetailsMap[sOldName];
-                    delete oDetailsMap[sOldName];
-                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                }
-                if (oObj.selected) {
-                    oModel.setProperty("/selectedAdminServiceName", sTrimmed);
-                }
-                this._syncAdminConfigToLiveAddAccess(oModel);
-                MessageToast.show("Service '" + sTrimmed + "' saved and activated.");
-            }
+            const sCurrentStatus = oObj.status || "Active";
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Service</div>
+                                    <div class="kyra-system-modal-subtitle">Modify service parameters and active status</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_svc_edit_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_svc_name">SERVICE NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_svc_name" class="kyra-system-modal-input" placeholder="Enter service name" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_svc_status">STATUS</label>
+                                <select id="kyra_edit_svc_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_svc_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_svc_submit_btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_svc_edit_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_edit_svc_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_edit_svc_name");
+                    if (nameInput) {
+                        nameInput.focus();
+                        nameInput.select();
+                    }
+
+                    const submitBtn = document.getElementById("kyra_edit_svc_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sNewName = (nameInput ? nameInput.value : "").trim();
+                            if (!sNewName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Service Name cannot be empty.");
+                                return;
+                            }
+                            const statusSelect = document.getElementById("kyra_edit_svc_status");
+                            const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                            const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
+                                item.serviceName === sOldName ? Object.assign({}, item, { serviceName: sNewName, status: sNewStatus }) : item
+                            );
+                            oModel.setProperty("/adminServicesAll", aAll);
+                            oModel.setProperty("/adminServices", aAll.slice());
+
+                            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                            if (oDetailsMap[sOldName]) {
+                                oDetailsMap[sNewName] = oDetailsMap[sOldName];
+                                if (sNewName !== sOldName) {
+                                    delete oDetailsMap[sOldName];
+                                }
+                                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                            }
+                            if (oObj.selected || oModel.getProperty("/selectedAdminServiceName") === sOldName) {
+                                oModel.setProperty("/selectedAdminServiceName", sNewName);
+                            }
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._showSlideNotification("Service Updated", "Service '" + sNewName + "' saved and activated.");
+                            MessageToast.show("Service '" + sNewName + "' saved and activated.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
         },
 
         onToggleAdminServiceStatus(oEvent) {
@@ -10760,14 +11307,19 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
-            const aAll = (oModel.getProperty("/adminServicesAll") || []).filter(item => item.serviceName !== oObj.serviceName);
-            oModel.setProperty("/adminServicesAll", aAll);
-            oModel.setProperty("/adminServices", aAll.slice());
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            delete oDetailsMap[oObj.serviceName];
-            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Service '" + oObj.serviceName + "' deleted.");
+            const that = this;
+
+            this._confirmDelete("Delete Service", oObj.serviceName, "Service", () => {
+                const aAll = (oModel.getProperty("/adminServicesAll") || []).filter(item => item.serviceName !== oObj.serviceName);
+                oModel.setProperty("/adminServicesAll", aAll);
+                oModel.setProperty("/adminServices", aAll.slice());
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                delete oDetailsMap[oObj.serviceName];
+                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' has been deleted.", "delete");
+                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' deleted.");
+            });
         },
 
         onSelectAdminClassification(oEvent) {
@@ -10782,6 +11334,8 @@ sap.ui.define([
             }));
             oModel.setProperty("/adminClassifications", aList);
             oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oClicked)));
+            this._showSlideNotification("Editing Team", "Selected '" + oClicked.name + "' for editing in Service Details.");
+            MessageToast.show("Editing: " + oClicked.name);
         },
 
         onLiveChangeSelectedTeamName(oEvent) {
@@ -10818,6 +11372,7 @@ sap.ui.define([
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             this._syncAdminConfigToLiveAddAccess(oModel);
+            this._showSlideNotification("Team Status Updated", "Team '" + oObj.name + "' is now " + sNextStatus + ".");
             MessageToast.show("Team '" + oObj.name + "' is now " + sNextStatus + ".");
         },
 
@@ -10839,6 +11394,7 @@ sap.ui.define([
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             this._syncAdminConfigToLiveAddAccess(oModel);
+            this._showSlideNotification("Persona Status Updated", "Persona '" + oObj.name + "' is now " + sNextStatus + ".");
             MessageToast.show("Persona '" + oObj.name + "' is now " + sNextStatus + ".");
         },
 
@@ -10846,30 +11402,122 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
-            const sName = window.prompt("Enter new Team Role Name:", "Platform Architecture (" + sServiceName + ")");
-            if (!sName || !sName.trim()) return;
-            const sFinalName = sName.trim().includes("(") ? sName.trim() : (sName.trim() + " (" + sServiceName + ")");
-            const sShortTeam = sFinalName.replace(/\s*\([^)]*\)/g, "").trim();
-            const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
-                selected: false
-            }));
-            const oNewTeam = {
-                name: sFinalName,
-                status: "Active",
-                selected: true,
-                subClassifications: [
-                    { name: sShortTeam + " Lead Persona (" + sShortTeam + ")", status: "Active" }
-                ]
-            };
-            aList.push(oNewTeam);
-            oModel.setProperty("/adminClassifications", aList);
-            oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oNewTeam)));
 
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Team '" + oNewTeam.name + "' added and activated.");
+            const that = this;
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add Team Role</div>
+                                    <div class="kyra-system-modal-subtitle">Add a new team under ${sServiceName}</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_team_add_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_team_name">TEAM ROLE NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_team_name" class="kyra-system-modal-input" placeholder="e.g. Platform Architecture" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_team_status">STATUS</label>
+                                <select id="kyra_add_team_status" class="kyra-system-modal-select">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_add_team_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_add_team_submit_btn">Create Team</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_team_add_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_add_team_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_add_team_name");
+                    if (nameInput) nameInput.focus();
+
+                    const submitBtn = document.getElementById("kyra_add_team_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sName = (nameInput ? nameInput.value : "").trim();
+                            if (!sName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Please enter a valid Team Name.");
+                                return;
+                            }
+                            const statusSelect = document.getElementById("kyra_add_team_status");
+                            const sStatus = statusSelect ? statusSelect.value : "Active";
+
+                            const sFinalName = sName.includes("(") ? sName : (sName + " (" + sServiceName + ")");
+                            const sShortTeam = sFinalName.replace(/\s*\([^)]*\)/g, "").trim();
+                            const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
+                                selected: false
+                            }));
+                            const oNewTeam = {
+                                name: sFinalName,
+                                status: sStatus,
+                                selected: true,
+                                subClassifications: [
+                                    { name: sShortTeam + " Lead Persona (" + sShortTeam + ")", status: "Active" }
+                                ]
+                            };
+                            aList.push(oNewTeam);
+                            oModel.setProperty("/adminClassifications", aList);
+                            oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oNewTeam)));
+
+                            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' added successfully.");
+                            MessageToast.show("Team '" + oNewTeam.name + "' added and activated.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
         },
 
         onDeleteAdminClassification(oEvent) {
@@ -10878,17 +11526,22 @@ sap.ui.define([
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
-            const aRemaining = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== oObj.name);
-            if (aRemaining.length > 0 && !aRemaining.some(c => c.selected)) {
-                aRemaining[0].selected = true;
-                oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(aRemaining[0])));
-            }
-            oModel.setProperty("/adminClassifications", aRemaining);
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aRemaining));
-            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Team '" + oObj.name + "' removed.");
+            const that = this;
+
+            this._confirmDelete("Delete Team Role", oObj.name, "Team", () => {
+                const aRemaining = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== oObj.name);
+                if (aRemaining.length > 0 && !aRemaining.some(c => c.selected)) {
+                    aRemaining[0].selected = true;
+                    oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(aRemaining[0])));
+                }
+                oModel.setProperty("/adminClassifications", aRemaining);
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aRemaining));
+                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' has been deleted.", "delete");
+                sap.m.MessageToast.show("Team '" + oObj.name + "' removed.");
+            });
         },
 
         onAddAdminSubClassification() {
@@ -10896,11 +11549,108 @@ sap.ui.define([
             if (!oModel) return;
             const sCurrentTeam = oModel.getProperty("/selectedAdminClassification/name") || "IT Developers";
             const sShortTeam = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
-            const sSubName = window.prompt("Enter new Persona Name:", "Enterprise Cloud Architect Persona (" + sShortTeam + ")");
-            if (!sSubName || !sSubName.trim()) return;
-            const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
-            aSubs.push({ name: sSubName.trim(), status: "Active" });
-            oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+            const that = this;
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add Persona</div>
+                                    <div class="kyra-system-modal-subtitle">Add a new persona under ${sShortTeam}</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_persona_add_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_persona_name">PERSONA NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_persona_name" class="kyra-system-modal-input" placeholder="e.g. Lead Cloud Architect" autocomplete="off" />
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_add_persona_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_add_persona_submit_btn">Create Persona</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_persona_add_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_add_persona_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const nameInput = document.getElementById("kyra_add_persona_name");
+                    if (nameInput) nameInput.focus();
+
+                    const submitBtn = document.getElementById("kyra_add_persona_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const sSubName = (nameInput ? nameInput.value : "").trim();
+                            if (!sSubName) {
+                                if (nameInput) {
+                                    nameInput.style.borderColor = "#EF4444";
+                                    nameInput.focus();
+                                }
+                                MessageToast.show("Please enter a valid Persona Name.");
+                                return;
+                            }
+
+                            const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
+                            const sPersonaFull = sSubName.includes("(") ? sSubName : (sSubName + " (" + sShortTeam + ")");
+                            aSubs.push({ name: sPersonaFull, status: "Active" });
+                            oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                            // Sync back into adminClassifications list
+                            const oSelected = oModel.getProperty("/selectedAdminClassification");
+                            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+                            const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                item.name === oSelected.name ? Object.assign({}, oSelected, { selected: true }) : item
+                            );
+                            oModel.setProperty("/adminClassifications", aList);
+                            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                            oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+
+                            that._showSlideNotification("Persona Created", "Persona '" + sPersonaFull + "' added successfully.");
+                            MessageToast.show("Persona added successfully.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
+            });
         },
 
         onDeleteAdminSubClassification(oEvent) {
@@ -10908,8 +11658,15 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oTarget = oCtx.getObject();
-            const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).filter(item => item.name !== oTarget.name);
-            oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+            const that = this;
+
+            this._confirmDelete("Delete Persona", oTarget.name, "Persona", () => {
+                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).filter(item => item.name !== oTarget.name);
+                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._showSlideNotification("Persona Deleted", "Persona '" + oTarget.name + "' has been deleted.", "delete");
+                sap.m.MessageToast.show("Persona '" + oTarget.name + "' deleted.");
+            });
         },
 
         onSaveAdminServiceDetails() {
@@ -11112,13 +11869,18 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oRule = oCtx.getObject();
-            const aRemaining = (oModel.getProperty("/adminCustomConflictsAll") || []).filter(item =>
-                !(item.role1 === oRule.role1 && item.role2 === oRule.role2 && item.system === oRule.system)
-            );
-            oModel.setProperty("/adminCustomConflictsAll", aRemaining);
-            oModel.setProperty("/adminCustomConflicts", aRemaining.slice());
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Conflict Rule removed.");
+            const sTitle = oRule.description || "Conflict Rule";
+
+            this._confirmDelete(sTitle, () => {
+                const aRemaining = (oModel.getProperty("/adminCustomConflictsAll") || []).filter(item =>
+                    !(item.role1 === oRule.role1 && item.role2 === oRule.role2 && item.system === oRule.system)
+                );
+                oModel.setProperty("/adminCustomConflictsAll", aRemaining);
+                oModel.setProperty("/adminCustomConflicts", aRemaining.slice());
+                this._syncAdminConfigToLiveAddAccess(oModel);
+                this._showSlideNotification("Conflict Rule Deleted", `"${sTitle}" has been deleted.`, "delete");
+                MessageToast.show("Conflict Rule deleted.");
+            });
         },
 
         onToggleAdminDbSchemaStatus(oEvent) {
