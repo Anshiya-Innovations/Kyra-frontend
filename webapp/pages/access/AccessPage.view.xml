@@ -924,7 +924,7 @@
                                     <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminServiceDetailsSplitBox">
 
                                         <!-- Left Sub-Panel: Team (live Team Roles for selected Service) -->
-                                        <VBox width="37%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
+                                        <VBox width="35%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
                                             <VBox width="100%">
                                                 <Text text="{= 'Team (' + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle" />
 
@@ -932,16 +932,25 @@
                                                     <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom">
                                                         <customData>
                                                             <core:CustomData key="selectedClass" value="{= ${accessModel>selected} ? 'true' : 'false' }" writeToDom="true" />
+                                                            <core:CustomData key="status" value="{= ${accessModel>status} || 'Active' }" writeToDom="true" />
                                                         </customData>
-                                                        <HBox alignItems="Center" class="kyraAdminTeamNameBox" width="100%">
-                                                            <HBox class="kyraAdminVectorDot" />
-                                                            <Link
-                                                                text="{accessModel>name}"
-                                                                press=".onSelectAdminClassification"
-                                                                class="kyraAdminClassItemLink"
-                                                                wrapping="true" />
+                                                        <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminTeamNameBox" width="100%">
+                                                            <HBox alignItems="Center" class="kyraAdminTeamLeftContent">
+                                                                <HBox class="kyraAdminVectorDot" />
+                                                                <Link
+                                                                    text="{accessModel>name}"
+                                                                    press=".onSelectAdminClassification"
+                                                                    class="kyraAdminClassItemLink"
+                                                                    wrapping="true" />
+                                                            </HBox>
+                                                            <HBox alignItems="Center" class="kyraAdminStatusPill kyraAdminTeamStatusPill">
+                                                                <customData>
+                                                                    <core:CustomData key="status" value="{= ${accessModel>status} || 'Active' }" writeToDom="true" />
+                                                                </customData>
+                                                                <HBox class="kyraAdminVectorDot" />
+                                                                <Text text="{= ${accessModel>status} || 'Active' }" class="kyraAdminPillText" />
+                                                            </HBox>
                                                         </HBox>
-                                                        
                                                     </VBox>
                                                 </VBox>
                                             </VBox>
@@ -960,18 +969,20 @@
                                                 <Text text="Team Name" class="kyraAdminFormLabel" />
                                                 <Text text="*" class="kyraAdminRequiredStar" />
                                             </HBox>
-                                            <HBox alignItems="Center" class="kyraAdminTeamNameRow sapUiSmallMarginBottom" width="100%">
-                                                <Input
-                                                    id="adminTeamNameInput"
-                                                    value="{accessModel>/selectedAdminClassification/name}"
-                                                    editable="false"
-                                                    tooltip="{accessModel>/selectedAdminClassification/name}"
-                                                    class="kyraAdminFormInput kyraAdminReadOnlyInput"
-                                                    width="100%" />
+                                            <Input
+                                                id="adminTeamNameInput"
+                                                value="{accessModel>/selectedAdminClassification/name}"
+                                                editable="false"
+                                                tooltip="{accessModel>/selectedAdminClassification/name}"
+                                                class="kyraAdminFormInput kyraAdminReadOnlyInput"
+                                                width="100%" />
+
+                                            <!-- Image 1: Action buttons below Team Name text bar, aligned properly to the RIGHT -->
+                                            <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminTeamDetailActions sapUiTinyMarginTop sapUiSmallMarginBottom">
                                                 <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditSelectedAdminTeam"
-                                                    class="kyraAdminSystemEditBtn sapUiTinyMarginBegin"
+                                                    class="kyraAdminSystemEditBtn"
                                                     tooltip="Edit Team" />
                                                 <Button
                                                     icon="sap-icon://delete"

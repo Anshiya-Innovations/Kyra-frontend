@@ -12206,21 +12206,167 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oRule = oCtx.getObject();
-            const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-            const iIdx = aAll.findIndex(c =>
-                c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
-            );
+            if (!oRule) return;
 
-            // Load into the Conflict Edit section above the table so user can edit and click Save
-            oModel.setProperty("/newConflictDraft", {
-                system: oRule.system || "SAP BTP Cloud Platform",
-                service: oRule.service || "System Administrator",
-                role1: oRule.role1 || "",
-                role2: oRule.role2 || "",
-                description: oRule.description || "",
-                _editingIndex: iIdx
+            const that = this;
+            const sSystem = oRule.system || "SAP BTP Cloud Platform";
+            const sRole1 = oRule.role1 || "";
+            const sRole2 = oRule.role2 || "";
+            const sDesc = oRule.description || "";
+            const sCurrentStatus = oRule.status || "Active";
+
+            const aSystems = (oModel.getProperty("/adminSystems") || []).map(s => s.systemName);
+            if (!aSystems.includes("SAP BTP Cloud Platform")) aSystems.unshift("SAP BTP Cloud Platform");
+            if (!aSystems.includes("SAP S/4HANA Enterprise")) aSystems.push("SAP S/4HANA Enterprise");
+            if (!aSystems.includes("KYRA Central Governance")) aSystems.push("KYRA Central Governance");
+            if (!aSystems.includes("Active Directory / IAM")) aSystems.push("Active Directory / IAM");
+            if (!aSystems.includes("SAP SuccessFactors")) aSystems.push("SAP SuccessFactors");
+            if (!aSystems.includes("SAP Ariba Supply Network")) aSystems.push("SAP Ariba Supply Network");
+            const aUniqueSystems = [...new Set(aSystems)];
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sSystemOptions = aUniqueSystems.map(sys =>
+                    `<option value="${sys}" ${sys === sSystem ? "selected" : ""}>${sys}</option>`
+                ).join("");
+
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Conflict Rule</div>
+                                    <div class="kyra-system-modal-subtitle">Modify target system, conflicting roles, reason, and status</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x" id="kyra_conflict_edit_close_x" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_conflict_system">TARGET SYSTEM <span style="color:#EF4444">*</span></label>
+                                <select id="kyra_edit_conflict_system" class="kyra-system-modal-select">
+                                    ${sSystemOptions}
+                                </select>
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_conflict_role1">PRIMARY TEAM / PERSONA <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_conflict_role1" class="kyra-system-modal-input" placeholder="e.g. Cloud Infrastructure Administrator Persona" value="${sRole1}" autocomplete="off" />
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_conflict_role2">CONFLICTING TEAM / PERSONA <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_conflict_role2" class="kyra-system-modal-input" placeholder="e.g. Frontend &amp; UI Developer Persona" value="${sRole2}" autocomplete="off" />
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_conflict_desc">CONFLICT REASON</label>
+                                <input type="text" id="kyra_edit_conflict_desc" class="kyra-system-modal-input" placeholder="Describe the segregation of duties conflict risk" value="${sDesc}" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_conflict_status">STATUS</label>
+                                <select id="kyra_edit_conflict_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_conflict_cancel_btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_conflict_submit_btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "520px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    class: "kyraSystemModalDialog",
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterClose: () => oDialog.destroy()
+                });
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+
+                setTimeout(() => {
+                    const closeFn = () => oDialog.close();
+                    const closeX = document.getElementById("kyra_conflict_edit_close_x");
+                    if (closeX) closeX.onclick = closeFn;
+                    const cancelBtn = document.getElementById("kyra_edit_conflict_cancel_btn");
+                    if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                    const role1Input = document.getElementById("kyra_edit_conflict_role1");
+                    const role2Input = document.getElementById("kyra_edit_conflict_role2");
+                    const descInput = document.getElementById("kyra_edit_conflict_desc");
+                    const sysSelect = document.getElementById("kyra_edit_conflict_system");
+                    const statusSelect = document.getElementById("kyra_edit_conflict_status");
+
+                    if (role1Input) role1Input.focus();
+
+                    const submitBtn = document.getElementById("kyra_edit_conflict_submit_btn");
+                    if (submitBtn) {
+                        submitBtn.onclick = () => {
+                            const newSys = sysSelect ? sysSelect.value : sSystem;
+                            const newR1 = (role1Input ? role1Input.value : "").trim();
+                            const newR2 = (role2Input ? role2Input.value : "").trim();
+                            const newDesc = (descInput ? descInput.value : "").trim() || "Segregation of Duties conflict between selected privileges.";
+                            const newStat = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                            if (!newR1 || !newR2) {
+                                MessageToast.show("Both Primary and Conflicting personas are required.");
+                                return;
+                            }
+
+                            const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+                            const iIdx = aAll.findIndex(c =>
+                                c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
+                            );
+
+                            const updatedRule = {
+                                system: newSys,
+                                service: oRule.service || "System Administrator",
+                                role1: newR1,
+                                role2: newR2,
+                                description: newDesc,
+                                status: newStat
+                            };
+
+                            if (iIdx >= 0) {
+                                aAll[iIdx] = updatedRule;
+                            } else {
+                                aAll.push(updatedRule);
+                            }
+
+                            oModel.setProperty("/adminCustomConflictsAll", aAll);
+                            oModel.setProperty("/adminCustomConflicts", aAll.slice());
+                            that._syncAdminConfigToLiveAddAccess(oModel);
+
+                            that._showSlideNotification("Conflict Rule Updated", "Conflict rule for " + newSys + " updated successfully.");
+                            MessageToast.show("Conflict rule updated successfully.");
+                            closeFn();
+                        };
+                    }
+                }, 50);
             });
-            MessageToast.show("Loaded conflict rule into Conflict Edit section above. Make changes and click Save to activate.");
         },
 
         onToggleAdminConflictStatus(oEvent) {
