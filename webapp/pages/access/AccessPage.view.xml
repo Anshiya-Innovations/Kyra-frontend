@@ -1091,14 +1091,10 @@
 
                         <!-- DUAL-MODE TAB / SEGMENTED SWITCHER -->
                         <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                            <SegmentedButton
-                                id="adminPersonaConversionModeSwitch"
-                                selectedKey="{accessModel>/personaConversionMode}"
-                                selectionChange=".onPersonaConversionModeChange"
-                                class="sapUiSmallMarginBottom">
+                            <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="sapUiSmallMarginBottom kyraPersonaSegmentedBtn">
                                 <items>
-                                    <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" />
-                                    <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" />
+                                    <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" width="220px" />
+                                    <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" width="250px" />
                                 </items>
                             </SegmentedButton>
                         </HBox>
