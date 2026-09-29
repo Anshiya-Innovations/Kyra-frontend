@@ -1,0 +1,7 @@
+const fs = require('fs');
+
+const c = fs.readFileSync('webapp/pages/access/AccessPage.controller.js', 'utf8');
+const idx = c.indexOf('onCloseAdminSection');
+if (idx !== -1) {
+    console.log(c.substring(idx, idx + 400));
+}
