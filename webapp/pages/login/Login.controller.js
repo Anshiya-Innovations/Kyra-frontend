@@ -355,6 +355,8 @@ sap.ui.define([
                 sessionStorage.setItem("kyra_user_id", sCanonicalUser);
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
                 sessionStorage.setItem("kyra_active_role", sEffectiveTitle);
+                sessionStorage.setItem("kyra_company_name", (oResult && oResult.companyName) ? oResult.companyName : "");
+                sessionStorage.setItem("kyra_schema_keyword", (oResult && oResult.schemaKeyword) ? oResult.schemaKeyword : "");
 
                 if (bRemember) {
                     localStorage.setItem("kyra_remember_id", sCanonicalUser);

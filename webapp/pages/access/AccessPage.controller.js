@@ -537,13 +537,68 @@ sap.ui.define([
                     ]
                 },
                 adminConflictSystemOptions: [
-                    { key: "All Systems (Global)", text: "All Systems (Global)" },
+                    { key: "", text: "-Select-" },
+                    { key: "All Systems", text: "All Systems" },
                     { key: "SAP BTP Cloud Platform", text: "SAP BTP Cloud Platform" },
                     { key: "SAP S/4HANA Enterprise", text: "SAP S/4HANA Enterprise" },
                     { key: "KYRA Central Governance", text: "KYRA Central Governance" },
                     { key: "Active Directory / IAM", text: "Active Directory / IAM" },
                     { key: "SAP SuccessFactors", text: "SAP SuccessFactors" },
                     { key: "SAP Ariba Supply Network", text: "SAP Ariba Supply Network" }
+                ],
+                adminPrimaryPersonaOptions: [
+                    { key: "", text: "-Select-" },
+                    { key: "Frontend & UI Developer Persona (IT Developers)", text: "Frontend & UI Developer Persona (IT Developers)" },
+                    { key: "Backend & Systems Developer Persona (IT Developers)", text: "Backend & Systems Developer Persona (IT Developers)" },
+                    { key: "Cloud Infrastructure Administrator Persona (IT Administrators)", text: "Cloud Infrastructure Administrator Persona (IT Administrators)" },
+                    { key: "Database & IAM Administrator Persona (IT Administrators)", text: "Database & IAM Administrator Persona (IT Administrators)" },
+                    { key: "Principal Systems Engineer Persona (Lead Engineer)", text: "Principal Systems Engineer Persona (Lead Engineer)" },
+                    { key: "DevOps & Platform Lead Persona (Lead Engineer)", text: "DevOps & Platform Lead Persona (Lead Engineer)" },
+                    { key: "Security Audit & GRC Persona (IT Security)", text: "Security Audit & GRC Persona (IT Security)" },
+                    { key: "Cybersecurity Operations Persona (IT Security)", text: "Cybersecurity Operations Persona (IT Security)" },
+                    { key: "Technical Product Manager Persona (Technical Product Owner)", text: "Technical Product Manager Persona (Technical Product Owner)" },
+                    { key: "Solution Architecture Owner Persona (Technical Product Owner)", text: "Solution Architecture Owner Persona (Technical Product Owner)" },
+                    { key: "Product Suite Engineer Persona (Product Group Engineer)", text: "Product Suite Engineer Persona (Product Group Engineer)" },
+                    { key: "Integration Engineering Lead Persona (Product Group Engineer)", text: "Integration Engineering Lead Persona (Product Group Engineer)" },
+                    { key: "Business Strategy Lead Persona (Business Product Owner)", text: "Business Strategy Lead Persona (Business Product Owner)" },
+                    { key: "Enterprise Process Owner Persona (Business Product Owner)", text: "Enterprise Process Owner Persona (Business Product Owner)" },
+                    { key: "Department Resource Manager Persona (Line Manager)", text: "Department Resource Manager Persona (Line Manager)" },
+                    { key: "People Operations Lead Persona (Line Manager)", text: "People Operations Lead Persona (Line Manager)" },
+                    { key: "Regulatory Compliance Officer Persona (Compliance Manager)", text: "Regulatory Compliance Officer Persona (Compliance Manager)" },
+                    { key: "Data Privacy Auditor Persona (Compliance Manager)", text: "Data Privacy Auditor Persona (Compliance Manager)" },
+                    { key: "Entitlement & Role Custodian Persona (Role Owner)", text: "Entitlement & Role Custodian Persona (Role Owner)" },
+                    { key: "Access Governance Approver Persona (Role Owner)", text: "Access Governance Approver Persona (Role Owner)" },
+                    { key: "Information Security Risk Manager Persona (ISRM)", text: "Information Security Risk Manager Persona (ISRM)" },
+                    { key: "Risk & Assessment Analyst Persona (ISRM)", text: "Risk & Assessment Analyst Persona (ISRM)" },
+                    { key: "Identity Management Specialist Persona (IAM / GRC Team)", text: "Identity Management Specialist Persona (IAM / GRC Team)" },
+                    { key: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", text: "Governance Risk Compliance Lead Persona (IAM / GRC Team)" }
+                ],
+                adminConflictingPersonaOptions: [
+                    { key: "", text: "-Select-" },
+                    { key: "Frontend & UI Developer Persona (IT Developers)", text: "Frontend & UI Developer Persona (IT Developers)" },
+                    { key: "Backend & Systems Developer Persona (IT Developers)", text: "Backend & Systems Developer Persona (IT Developers)" },
+                    { key: "Cloud Infrastructure Administrator Persona (IT Administrators)", text: "Cloud Infrastructure Administrator Persona (IT Administrators)" },
+                    { key: "Database & IAM Administrator Persona (IT Administrators)", text: "Database & IAM Administrator Persona (IT Administrators)" },
+                    { key: "Principal Systems Engineer Persona (Lead Engineer)", text: "Principal Systems Engineer Persona (Lead Engineer)" },
+                    { key: "DevOps & Platform Lead Persona (Lead Engineer)", text: "DevOps & Platform Lead Persona (Lead Engineer)" },
+                    { key: "Security Audit & GRC Persona (IT Security)", text: "Security Audit & GRC Persona (IT Security)" },
+                    { key: "Cybersecurity Operations Persona (IT Security)", text: "Cybersecurity Operations Persona (IT Security)" },
+                    { key: "Technical Product Manager Persona (Technical Product Owner)", text: "Technical Product Manager Persona (Technical Product Owner)" },
+                    { key: "Solution Architecture Owner Persona (Technical Product Owner)", text: "Solution Architecture Owner Persona (Technical Product Owner)" },
+                    { key: "Product Suite Engineer Persona (Product Group Engineer)", text: "Product Suite Engineer Persona (Product Group Engineer)" },
+                    { key: "Integration Engineering Lead Persona (Product Group Engineer)", text: "Integration Engineering Lead Persona (Product Group Engineer)" },
+                    { key: "Business Strategy Lead Persona (Business Product Owner)", text: "Business Strategy Lead Persona (Business Product Owner)" },
+                    { key: "Enterprise Process Owner Persona (Business Product Owner)", text: "Enterprise Process Owner Persona (Business Product Owner)" },
+                    { key: "Department Resource Manager Persona (Line Manager)", text: "Department Resource Manager Persona (Line Manager)" },
+                    { key: "People Operations Lead Persona (Line Manager)", text: "People Operations Lead Persona (Line Manager)" },
+                    { key: "Regulatory Compliance Officer Persona (Compliance Manager)", text: "Regulatory Compliance Officer Persona (Compliance Manager)" },
+                    { key: "Data Privacy Auditor Persona (Compliance Manager)", text: "Data Privacy Auditor Persona (Compliance Manager)" },
+                    { key: "Entitlement & Role Custodian Persona (Role Owner)", text: "Entitlement & Role Custodian Persona (Role Owner)" },
+                    { key: "Access Governance Approver Persona (Role Owner)", text: "Access Governance Approver Persona (Role Owner)" },
+                    { key: "Information Security Risk Manager Persona (ISRM)", text: "Information Security Risk Manager Persona (ISRM)" },
+                    { key: "Risk & Assessment Analyst Persona (ISRM)", text: "Risk & Assessment Analyst Persona (ISRM)" },
+                    { key: "Identity Management Specialist Persona (IAM / GRC Team)", text: "Identity Management Specialist Persona (IAM / GRC Team)" },
+                    { key: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", text: "Governance Risk Compliance Lead Persona (IAM / GRC Team)" }
                 ],
                 adminAllConfiguredRolesAndPersonas: [
                     { key: "Frontend & UI Developer Persona (IT Developers)", text: "Frontend & UI Developer Persona (IT Developers)" },
@@ -572,11 +627,11 @@ sap.ui.define([
                     { key: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", text: "Governance Risk Compliance Lead Persona (IAM / GRC Team)" }
                 ],
                 newConflictDraft: {
-                    system: "SAP BTP Cloud Platform",
+                    system: "",
                     service: "System Administrator",
-                    role1: "Cloud Infrastructure Administrator Persona (IT Administrators)",
-                    role2: "Frontend & UI Developer Persona (IT Developers)",
-                    description: "Segregation of Duties conflict between Developer and Admin privileges."
+                    role1: "",
+                    role2: "",
+                    description: ""
                 },
                 adminCustomConflictsAll: [
                     { system: "SAP BTP Cloud Platform", service: "System Administrator", role1: "Cloud Infrastructure Administrator Persona (IT Administrators)", role2: "Frontend & UI Developer Persona (IT Developers)", description: "Segregation of Duties conflict between Developer and Admin privileges.", status: "Active" },
@@ -611,6 +666,30 @@ sap.ui.define([
                 ],
                 personaLookupInput: "",
                 personaLookupUserFound: false,
+                personaConversionMode: "single",
+                departmentPersona: {
+                    departmentName: "",
+                    targetPersona: "Requester",
+                    status: "Active"
+                },
+                allAvailableDepartments: [
+                    { name: "Engineering" },
+                    { name: "Enterprise Architecture" },
+                    { name: "Finance & Accounting" },
+                    { name: "Human Resources" },
+                    { name: "Information Security" },
+                    { name: "IT Developer" },
+                    { name: "IT Infrastructure" },
+                    { name: "Legal & Compliance" },
+                    { name: "Operations" },
+                    { name: "Sales & Marketing" },
+                    { name: "Supply Chain" }
+                ],
+                departmentPersonaUsers: [],
+                departmentPersonaResult: {
+                    message: "",
+                    state: "None"
+                },
                 personaLookupUser: {
                     userId: "",
                     username: "",
@@ -631,6 +710,7 @@ sap.ui.define([
             this.getOwnerComponent().setModel(oModel, "accessModel");
             this._loadCustomAccessAndConflictConfig(oModel);
             this._loadSubmittedRequests(oModel);
+            this._loadAvailableDepartments();
 
             // Setup Real-Time BroadcastChannel Event Bus & Storage Sync (Zero-Server-Overload Live Update)
             this._setupRealtimeSync(oModel);
@@ -5555,7 +5635,8 @@ sap.ui.define([
                             return {
                                 key: sPersName,
                                 text: sPersName,
-                                icon: "sap-icon://person-placeholder"
+                                icon: "sap-icon://person-placeholder",
+                                accessPrivilege: p.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted")
                             };
                         });
                     oTeamPersonasMap[sTeamName] = aActivePersonas;
@@ -5837,6 +5918,11 @@ sap.ui.define([
                         statusType: "new"
                     };
 
+                    const bIsRestrEntitlement = this._isRestrictedPersona(sCleanPers, oItem);
+                    oItem.accessPrivilege = bIsRestrEntitlement ? "Restricted" : "Not restricted";
+                    oItem.isRestricted = bIsRestrEntitlement;
+                    oItem.accessType = bIsRestrEntitlement ? "RESTRICTED" : "Addition";
+
                     // Standard matching helper for System + Persona + Role granularity
                     const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").replace(/\s+persona\b/gi, "").replace(/[^a-zA-Z0-9]/g, "").trim().toLowerCase();
                     const isSameSys = (sysA, sysB) => String(sysA || "").trim().toLowerCase() === String(sysB || "").trim().toLowerCase();
@@ -5958,34 +6044,47 @@ sap.ui.define([
             const sSelectedSector = oModel.getProperty("/selectedSector") || "";
             const sSelectedFunction = oModel.getProperty("/selectedFunction") || "";
 
-            const aAllowedRestrictedPersonas = [
-                "cloud infrastructure administrator",
-                "database & iam administrator",
-                "devops & platform lead",
-                "cybersecurity operations",
-                "identity management specialist",
-                "solution architecture owner",
-                "integration engineering lead"
-            ];
-            const isRestrictedPersona = (sPers) => {
-                const sClean = cleanPersonaName(sPers || "").toLowerCase();
-                return aAllowedRestrictedPersonas.includes(sClean);
+            const isRestrictedPersona = (sPers, oItem) => {
+                return this._isRestrictedPersona(sPers, oItem);
             };
 
             aSummaryItems.forEach(item => {
-                const bRestr = isRestrictedPersona(item.persona || item.selectedPersona);
+                const bRestr = isRestrictedPersona(item.persona || item.selectedPersona, item);
                 item.isRestricted = bRestr;
                 item.accessType = bRestr ? "RESTRICTED" : "Addition";
             });
 
-            // Build dynamic Restricted Records matching exact 6-column specification (only for the 7 restricted personas)
+            // Build dynamic Restricted Records matching exact 6-column specification
             const aRestrictedRecords = aSummaryItems
-                .filter(item => isRestrictedPersona(item.persona || item.selectedPersona))
+                .filter(item => isRestrictedPersona(item.persona || item.selectedPersona, item))
                 .map((item, idx) => {
                 const sSys = item.system || item.systemName || "";
-                const sServices = item.services || item.serviceTopic || item.topic || "";
-                const sTeam = cleanPersonaName(item.team || item.teamRole || item.roleTitle || item.roleName || "");
+                let sServices = item.services || item.serviceTopic || item.topic || "";
+                let sTeam = cleanPersonaName(item.team || item.teamRole || item.roleTitle || item.roleName || "");
                 const sPersona = cleanPersonaName(item.persona || item.selectedPersona || "");
+
+                // Auto-resolve missing Service or Team from adminServiceDetailsMap
+                if (!sServices || sServices === "undefined") {
+                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                    for (const [srvName, aTeams] of Object.entries(oDetailsMap)) {
+                        if (aTeams.some(t => (t.subClassifications || []).some(p => this._cleanPersonaForComparison(p.name) === this._cleanPersonaForComparison(sPersona)))) {
+                            sServices = srvName;
+                            break;
+                        }
+                    }
+                }
+                if (!sServices) sServices = "System Administrator";
+
+                if (!sTeam || sTeam === "undefined") {
+                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                    for (const aTeams of Object.values(oDetailsMap)) {
+                        const foundTeam = aTeams.find(t => (t.subClassifications || []).some(p => this._cleanPersonaForComparison(p.name) === this._cleanPersonaForComparison(sPersona)));
+                        if (foundTeam) {
+                            sTeam = cleanPersonaName(foundTeam.name);
+                            break;
+                        }
+                    }
+                }
                 
                 let sSecGroup = "SEC-PRIVILEGED-ACCESS";
                 let sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
@@ -6059,27 +6158,40 @@ sap.ui.define([
                 return str || s;
             };
 
-            const aAllowedRestrictedPersonas = [
-                "cloud infrastructure administrator",
-                "database & iam administrator",
-                "devops & platform lead",
-                "cybersecurity operations",
-                "identity management specialist",
-                "solution architecture owner",
-                "integration engineering lead"
-            ];
-            const isRestrictedPersona = (sPers) => {
-                const sClean = cleanPersonaName(sPers || "").toLowerCase();
-                return aAllowedRestrictedPersonas.includes(sClean);
+            const isRestrictedPersona = (sPers, oItem) => {
+                return this._isRestrictedPersona(sPers, oItem);
             };
 
             const aRestrictedRecords = aSummaryItems
-                .filter(item => isRestrictedPersona(item.persona || item.selectedPersona))
+                .filter(item => isRestrictedPersona(item.persona || item.selectedPersona, item))
                 .map((item, idx) => {
                 const sSys = item.system || item.systemName || "";
-                const sServices = item.services || item.serviceTopic || item.topic || "";
-                const sTeam = cleanPersonaName(item.team || item.teamRole || item.roleTitle || item.roleName || "");
+                let sServices = item.services || item.serviceTopic || item.topic || "";
+                let sTeam = cleanPersonaName(item.team || item.teamRole || item.roleTitle || item.roleName || "");
                 const sPersona = cleanPersonaName(item.persona || item.selectedPersona || "");
+
+                // Auto-resolve missing Service or Team from adminServiceDetailsMap
+                if (!sServices || sServices === "undefined") {
+                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                    for (const [srvName, aTeams] of Object.entries(oDetailsMap)) {
+                        if (aTeams.some(t => (t.subClassifications || []).some(p => this._cleanPersonaForComparison(p.name) === this._cleanPersonaForComparison(sPersona)))) {
+                            sServices = srvName;
+                            break;
+                        }
+                    }
+                }
+                if (!sServices) sServices = "System Administrator";
+
+                if (!sTeam || sTeam === "undefined") {
+                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                    for (const aTeams of Object.values(oDetailsMap)) {
+                        const foundTeam = aTeams.find(t => (t.subClassifications || []).some(p => this._cleanPersonaForComparison(p.name) === this._cleanPersonaForComparison(sPersona)));
+                        if (foundTeam) {
+                            sTeam = cleanPersonaName(foundTeam.name);
+                            break;
+                        }
+                    }
+                }
                 
                 let sSecGroup = "SEC-PRIVILEGED-ACCESS";
                 let sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
@@ -6360,14 +6472,26 @@ sap.ui.define([
                 // Distinct total count across (Newly Selected + Active Access + Pending Requests)
                 const iTotalUniqueCount = uniqueSet.size;
 
-                if (iTotalUniqueCount > 5) {
-                    const iPct = Math.round((iTotalUniqueCount / 5) * 100);
+                // Dynamically fetch system threshold limit configured by admin
+                const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
+                const cleanSysName = (s) => String(s || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+                const oSysCfg = aAdminSystems.find(s => s && (isSameSys(s.systemName, sSys) || cleanSysName(s.systemName) === cleanSysName(sSys)));
+                let iSysLimit = 5;
+                if (oSysCfg && oSysCfg.thresholdLimit) {
+                    const parsedLimit = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
+                    if (!isNaN(parsedLimit) && parsedLimit > 0) {
+                        iSysLimit = parsedLimit;
+                    }
+                }
+
+                if (iTotalUniqueCount > iSysLimit) {
+                    const iPct = Math.round((iTotalUniqueCount / iSysLimit) * 100);
                     aThresholdLimits.push({
                         system: sSys,
                         sector: oSystemSector[sSys] || "Enterprise Access",
-                        thresholdLimit: "5",
+                        thresholdLimit: String(iSysLimit),
                         actualCount: iTotalUniqueCount,
-                        limit: iTotalUniqueCount + "/5",
+                        limit: iTotalUniqueCount + "/" + iSysLimit,
                         excessivePercentage: iPct + "%",
                         status: "Excessive",
                         state: "Warning",
@@ -6572,6 +6696,7 @@ sap.ui.define([
                     const sActivePersona = activeRole.selected_persona || activeRole.persona || activeRole.selectedPersona || sActiveRoleName;
 
                     aSodRules.forEach(rule => {
+                        if (rule.system && rule.system !== "All Systems" && !isSameSystem(rule.system, sNewSys)) return;
                         const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and newly requested access.";
 
                         if (checkConflictMatch(sNewRoleName, sNewPersona, sActiveRoleName, sActivePersona, rule)) {
@@ -6629,6 +6754,7 @@ sap.ui.define([
                     const sPendingPersona = pendingReq.selected_persona || pendingReq.persona || pendingReq.selectedPersona || sPendingRoleName;
 
                     aSodRules.forEach(rule => {
+                        if (rule.system && rule.system !== "All Systems" && !isSameSystem(rule.system, sNewSys)) return;
                         const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between pending request and newly requested access.";
 
                         if (checkConflictMatch(sNewRoleName, sNewPersona, sPendingRoleName, sPendingPersona, rule)) {
@@ -6688,6 +6814,7 @@ sap.ui.define([
                     const sPersonaB = itemB.persona || itemB.selectedPersona || itemB.selected_persona || sRoleB;
 
                     aSodRules.forEach(rule => {
+                        if (rule.system && rule.system !== "All Systems" && !isSameSystem(rule.system, sSysA)) return;
                         const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between multiple roles selected in this request.";
 
                         if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
@@ -10198,6 +10325,77 @@ sap.ui.define([
             return oTeamToPersonaMap[sTrim] || sTrim;
         },
 
+        _cleanPersonaForComparison(s) {
+            if (!s) return "";
+            let str = String(s).trim();
+            str = str.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+            str = str.replace(/\bpersona\b/gi, "").trim();
+            str = str.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+            return str;
+        },
+
+        _isDefaultRestrictedPersona(sName) {
+            const sClean = this._cleanPersonaForComparison(sName);
+            const aAllowedRestrictedPersonas = [
+                "cloud infrastructure administrator",
+                "database iam administrator",
+                "database & iam administrator",
+                "devops platform lead",
+                "devops & platform lead",
+                "cybersecurity operations",
+                "identity management specialist",
+                "solution architecture owner",
+                "integration engineering lead"
+            ];
+            return aAllowedRestrictedPersonas.some(r => this._cleanPersonaForComparison(r) === sClean);
+        },
+
+        _isRestrictedPersona(sPers, oItem) {
+            const oModel = this.getView() && this.getView().getModel("accessModel");
+
+            // 1. Direct item property if explicitly provided
+            if (oItem && oItem.accessPrivilege) {
+                if (oItem.accessPrivilege === "Restricted") return true;
+                if (oItem.accessPrivilege === "Not restricted") return false;
+            }
+
+            const sTargetClean = this._cleanPersonaForComparison(sPers || (oItem && (oItem.persona || oItem.selectedPersona)));
+            if (!sTargetClean) return false;
+
+            // 2. Check dynamic adminServiceDetailsMap configuration
+            if (oModel) {
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                for (const sSrv of Object.keys(oDetailsMap)) {
+                    const aTeams = oDetailsMap[sSrv] || [];
+                    for (const oTeam of aTeams) {
+                        const aSubs = (oTeam && oTeam.subClassifications) || [];
+                        for (const oSub of aSubs) {
+                            if (!oSub || !oSub.name) continue;
+                            const sSubClean = this._cleanPersonaForComparison(oSub.name);
+                            if (sSubClean === sTargetClean || sSubClean.includes(sTargetClean) || sTargetClean.includes(sSubClean)) {
+                                if (oSub.accessPrivilege === "Restricted") return true;
+                                if (oSub.accessPrivilege === "Not restricted") return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 3. Fallback to default check
+            return this._isDefaultRestrictedPersona(sTargetClean);
+        },
+
+        _ensureAdminSnapshots(oModel) {
+            if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
+            if (!oModel) return;
+            if (!this._savedAdminServicesAll) {
+                this._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
+            }
+            if (!this._savedAdminServiceDetailsMap) {
+                this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
+            }
+        },
+
         _getDefaultAdminServiceDetailsMap() {
             return {
                 "System Administrator": [
@@ -10206,8 +10404,8 @@ sap.ui.define([
                         status: "Active",
                         selected: true,
                         subClassifications: [
-                            { name: "Frontend & UI Developer Persona (IT Developers)", status: "Active" },
-                            { name: "Backend & Systems Developer Persona (IT Developers)", status: "Active" }
+                            { name: "Frontend & UI Developer Persona (IT Developers)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Backend & Systems Developer Persona (IT Developers)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     },
                     {
@@ -10215,8 +10413,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Cloud Infrastructure Administrator Persona (IT Administrators)", status: "Active" },
-                            { name: "Database & IAM Administrator Persona (IT Administrators)", status: "Active" }
+                            { name: "Cloud Infrastructure Administrator Persona (IT Administrators)", status: "Active", accessPrivilege: "Restricted" },
+                            { name: "Database & IAM Administrator Persona (IT Administrators)", status: "Active", accessPrivilege: "Restricted" }
                         ]
                     },
                     {
@@ -10224,8 +10422,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Principal Systems Engineer Persona (Lead Engineer)", status: "Active" },
-                            { name: "DevOps & Platform Lead Persona (Lead Engineer)", status: "Active" }
+                            { name: "Principal Systems Engineer Persona (Lead Engineer)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "DevOps & Platform Lead Persona (Lead Engineer)", status: "Active", accessPrivilege: "Restricted" }
                         ]
                     },
                     {
@@ -10233,8 +10431,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Security Audit & GRC Persona (IT Security)", status: "Active" },
-                            { name: "Cybersecurity Operations Persona (IT Security)", status: "Active" }
+                            { name: "Security Audit & GRC Persona (IT Security)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Cybersecurity Operations Persona (IT Security)", status: "Active", accessPrivilege: "Restricted" }
                         ]
                     }
                 ],
@@ -10244,8 +10442,8 @@ sap.ui.define([
                         status: "Active",
                         selected: true,
                         subClassifications: [
-                            { name: "Technical Product Manager Persona (Technical Product Owner)", status: "Active" },
-                            { name: "Solution Architecture Owner Persona (Technical Product Owner)", status: "Active" }
+                            { name: "Technical Product Manager Persona (Technical Product Owner)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Solution Architecture Owner Persona (Technical Product Owner)", status: "Active", accessPrivilege: "Restricted" }
                         ]
                     },
                     {
@@ -10253,8 +10451,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Product Suite Engineer Persona (Product Group Engineer)", status: "Active" },
-                            { name: "Integration Engineering Lead Persona (Product Group Engineer)", status: "Active" }
+                            { name: "Product Suite Engineer Persona (Product Group Engineer)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Integration Engineering Lead Persona (Product Group Engineer)", status: "Active", accessPrivilege: "Restricted" }
                         ]
                     }
                 ],
@@ -10264,8 +10462,8 @@ sap.ui.define([
                         status: "Active",
                         selected: true,
                         subClassifications: [
-                            { name: "Business Strategy Lead Persona (Business Product Owner)", status: "Active" },
-                            { name: "Enterprise Process Owner Persona (Business Product Owner)", status: "Active" }
+                            { name: "Business Strategy Lead Persona (Business Product Owner)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Enterprise Process Owner Persona (Business Product Owner)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     },
                     {
@@ -10273,8 +10471,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Department Resource Manager Persona (Line Manager)", status: "Active" },
-                            { name: "People Operations Lead Persona (Line Manager)", status: "Active" }
+                            { name: "Department Resource Manager Persona (Line Manager)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "People Operations Lead Persona (Line Manager)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     },
                     {
@@ -10282,8 +10480,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Regulatory Compliance Officer Persona (Compliance Manager)", status: "Active" },
-                            { name: "Data Privacy Auditor Persona (Compliance Manager)", status: "Active" }
+                            { name: "Regulatory Compliance Officer Persona (Compliance Manager)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Data Privacy Auditor Persona (Compliance Manager)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     },
                     {
@@ -10291,8 +10489,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Entitlement & Role Custodian Persona (Role Owner)", status: "Active" },
-                            { name: "Access Governance Approver Persona (Role Owner)", status: "Active" }
+                            { name: "Entitlement & Role Custodian Persona (Role Owner)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Access Governance Approver Persona (Role Owner)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     },
                     {
@@ -10300,8 +10498,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Information Security Risk Manager Persona (ISRM)", status: "Active" },
-                            { name: "Risk & Assessment Analyst Persona (ISRM)", status: "Active" }
+                            { name: "Information Security Risk Manager Persona (ISRM)", status: "Active", accessPrivilege: "Not restricted" },
+                            { name: "Risk & Assessment Analyst Persona (ISRM)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     },
                     {
@@ -10309,8 +10507,8 @@ sap.ui.define([
                         status: "Active",
                         selected: false,
                         subClassifications: [
-                            { name: "Identity Management Specialist Persona (IAM / GRC Team)", status: "Active" },
-                            { name: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", status: "Active" }
+                            { name: "Identity Management Specialist Persona (IAM / GRC Team)", status: "Active", accessPrivilege: "Restricted" },
+                            { name: "Governance Risk Compliance Lead Persona (IAM / GRC Team)", status: "Active", accessPrivilege: "Not restricted" }
                         ]
                     }
                 ]
@@ -10328,10 +10526,15 @@ sap.ui.define([
                     "SAP SuccessFactors": "7",
                     "SAP Ariba Supply Network": "6"
                 };
-                const aSys = oParsed.adminSystemsAll.map(s => Object.assign({
-                    status: "Active",
-                    thresholdLimit: (s.thresholdLimit && !s.thresholdLimit.includes("%")) ? s.thresholdLimit : (oDefaultLimits[s.systemName] || "5")
-                }, s));
+                const aSys = oParsed.adminSystemsAll.map(s => {
+                    const sLimit = (s && s.thresholdLimit !== undefined && s.thresholdLimit !== null)
+                        ? String(s.thresholdLimit).replace("%", "").trim()
+                        : (oDefaultLimits[s && s.systemName] || "5");
+                    return Object.assign({}, s, {
+                        status: (s && s.status) || "Active",
+                        thresholdLimit: sLimit || "5"
+                    });
+                });
                 oModel.setProperty("/adminSystemsAll", aSys);
                 oModel.setProperty("/adminSystems", aSys.slice());
             }
@@ -10342,6 +10545,15 @@ sap.ui.define([
             }
             if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object") {
                 const oMergedMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oParsed.adminServiceDetailsMap);
+                Object.keys(oMergedMap).forEach(sSrv => {
+                    (oMergedMap[sSrv] || []).forEach(oTeam => {
+                        (oTeam.subClassifications || []).forEach(oSub => {
+                            if (!oSub.accessPrivilege) {
+                                oSub.accessPrivilege = this._isDefaultRestrictedPersona(oSub.name) ? "Restricted" : "Not restricted";
+                            }
+                        });
+                    });
+                });
                 oModel.setProperty("/adminServiceDetailsMap", oMergedMap);
                 const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
                 const aTeams = oMergedMap[sSelectedSrv] || [];
@@ -10417,25 +10629,32 @@ sap.ui.define([
                 oModel.setProperty("/sodMatrix", aNorm.filter(c => c.status !== "Inactive"));
             }
 
+            this._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
+            this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
+
             this._syncAdminConfigToLiveAddAccess(oModel, true);
 
-            // Fetch from backend server via /odata/admin/customization (proxied by UI5 server)
-            fetch("/odata/admin/customization")
+            const that = this;
+            // Fetch persistent configuration from backend via getAdminCustomization
+            fetch("/odata/v4/admin-portal/getAdminCustomization", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: "{}"
+            })
                 .then(res => res.ok ? res.json() : null)
                 .then(oRes => {
-                    if (oRes && oRes.config && typeof oRes.config === "object") {
-                        this._applyParsedAdminConfigToModel(oModel, oRes.config);
-                        const aLoadedConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
-                        if (!Array.isArray(aLoadedConflicts) || aLoadedConflicts.length === 0) {
-                            const aDefault = this._getDefaultAdminConflictRules();
-                            oModel.setProperty("/adminCustomConflictsAll", aDefault);
-                            oModel.setProperty("/adminCustomConflicts", aDefault.slice());
-                        }
+                    const sJson = oRes && (oRes.configJson || (oRes.value && oRes.value.configJson));
+                    if (sJson) {
                         try {
-                            localStorage.setItem("kyra_custom_access_config", JSON.stringify(oRes.config));
-                            localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oModel.getProperty("/adminCustomConflictsAll")));
-                        } catch (err) {}
-                        this._syncAdminConfigToLiveAddAccess(oModel, true);
+                            const oParsed = JSON.parse(sJson);
+                            if (oParsed && typeof oParsed === "object") {
+                                that._applyParsedAdminConfigToModel(oModel, oParsed);
+                                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oParsed));
+                                that._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
+                                that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
+                                that._syncAdminConfigToLiveAddAccess(oModel, true);
+                            }
+                        } catch (e) {}
                     }
                 })
                 .catch(() => {});
@@ -10469,29 +10688,36 @@ sap.ui.define([
             oModel.setProperty("/activeAdminSystems", aActiveSystems);
             oModel.setProperty("/activeAdminServices", aActiveServices);
 
-            // 1. Rebuild System Options for Custom Conflict Builder (includes all existing systems)
-            const aSystemOpts = [{ key: "All Systems (Global)", text: "All Systems (Global)" }];
-            const oSeenSys = new Set(["All Systems (Global)"]);
-            aSystems.forEach(s => {
-                if (s && s.systemName && !oSeenSys.has(s.systemName)) {
-                    oSeenSys.add(s.systemName);
-                    aSystemOpts.push({ key: s.systemName, text: s.systemName });
+            // 1. Rebuild System Options for Custom Conflict Builder: placeholder + All Systems (always present) + live active systems
+            const aSystemOpts = [
+                { key: "", text: "-Select-" },
+                { key: "All Systems", text: "All Systems" }
+            ];
+            const oSeenSys = new Set(["", "All Systems"]);
+            aActiveSystems.forEach(s => {
+                const sName = (s.systemName || "").trim();
+                if (sName && !oSeenSys.has(sName)) {
+                    oSeenSys.add(sName);
+                    aSystemOpts.push({ key: sName, text: sName });
                 }
             });
+            if (aSystemOpts.length === 2 && aSystems.length > 0) {
+                aSystems.forEach(s => {
+                    const sName = (s.systemName || "").trim();
+                    if (sName && !oSeenSys.has(sName)) {
+                        oSeenSys.add(sName);
+                        aSystemOpts.push({ key: sName, text: sName });
+                    }
+                });
+            }
             oModel.setProperty("/adminConflictSystemOptions", aSystemOpts);
 
             // 2. Rebuild Live Team Roles (addAccessSubRolesList), Personas (addAccessPersonasList),
-            //    and 2nd & 3rd Conflict Builder Dropdown Options (ONLY Personas from the Add Access section!)
+            //    and 2nd & 3rd Conflict Builder Dropdown Options (ONLY currently active and available Personas from the Add Access section!)
             const aSubRolesList = [];
             const aPersonasList = [];
             const aPersonaDropdownOptions = [];
             const oSeenPersonaOpt = new Set();
-            const addPersonaOption = (sVal) => {
-                if (sVal && !oSeenPersonaOpt.has(sVal)) {
-                    oSeenPersonaOpt.add(sVal);
-                    aPersonaDropdownOptions.push({ key: sVal, text: sVal });
-                }
-            };
             const aActiveServiceNames = aActiveServices.map(s => s.serviceName);
 
             Object.keys(oDetailsMap).forEach(sService => {
@@ -10519,16 +10745,21 @@ sap.ui.define([
                         if (!sPersName.includes("(") && sCleanTeamShort) {
                             sPersName = sPersName + " (" + sCleanTeamShort + ")";
                         }
+                        // Only add Personas that are currently active and available in Add Access!
                         if (bTeamActive && oPers.status !== "Inactive") {
+                            const sPriv = oPers.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted");
                             aPersonasList.push({
                                 key: sPersName,
                                 text: sPersName,
                                 parentTeam: sTeamName,
-                                icon: "sap-icon://person-placeholder"
+                                icon: "sap-icon://person-placeholder",
+                                accessPrivilege: sPriv
                             });
+                            if (!oSeenPersonaOpt.has(sPersName)) {
+                                oSeenPersonaOpt.add(sPersName);
+                                aPersonaDropdownOptions.push({ key: sPersName, text: sPersName });
+                            }
                         }
-                        // Only add Personas to the 2nd & 3rd Custom Conflict dropdowns!
-                        addPersonaOption(sPersName);
                     });
                 });
             });
@@ -10539,8 +10770,38 @@ sap.ui.define([
             if (aPersonasList.length > 0) {
                 oModel.setProperty("/addAccessPersonasList", aPersonasList);
             }
-            if (aPersonaDropdownOptions.length > 0) {
-                oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
+            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
+
+            const aPrimaryOptions = [
+                { key: "", text: "-Select-" }
+            ];
+            aPersonaDropdownOptions.forEach(p => {
+                aPrimaryOptions.push({ key: p.key, text: p.text });
+            });
+            oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
+
+            const oDraft = oModel.getProperty("/newConflictDraft") || {};
+            const sCurrentRole1 = oDraft.role1 || "";
+
+            // 3rd dropdown excludes selected persona from 2nd dropdown
+            const aConflictingOptions = [
+                { key: "", text: "-Select-" }
+            ];
+            aPersonaDropdownOptions.forEach(p => {
+                if (!sCurrentRole1 || p.key !== sCurrentRole1) {
+                    aConflictingOptions.push({ key: p.key, text: p.text });
+                }
+            });
+            oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+
+            if (oDraft.role2 && oDraft.role1 && oDraft.role2 === oDraft.role1) {
+                oDraft.role2 = "";
+                oModel.setProperty("/newConflictDraft/role2", "");
+            }
+
+            if (oDraft.role1 && oDraft.role2) {
+                oDraft.description = this._generateDefaultConflictReason(oDraft.system, oDraft.role1, oDraft.role2);
+                oModel.setProperty("/newConflictDraft", oDraft);
             }
 
             // Refresh Step 3 dependent lists if user has services/roles selected
@@ -10565,11 +10826,17 @@ sap.ui.define([
             } catch (e) {}
 
             if (!bSkipBackendSave) {
-                fetch("/odata/admin/customization", {
+                fetch("/odata/v4/admin-portal/saveAdminCustomization", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(oPayload)
+                    body: JSON.stringify({ configJson: JSON.stringify(oPayload) })
                 }).catch(() => {});
+            }
+
+            // Immediately re-evaluate Threshold Limits and SoD validations for any cart items
+            const aCart = oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
+            if (Array.isArray(aCart) && aCart.length > 0 && typeof this._evaluateThresholdAndDuplicates === "function") {
+                this._evaluateThresholdAndDuplicates(aCart);
             }
         },
 
@@ -10603,7 +10870,12 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
-            oModel.setProperty("/adminSelectedSection", sCurrent === "accessCustomization" ? "" : "accessCustomization");
+            const sNext = sCurrent === "accessCustomization" ? "" : "accessCustomization";
+            oModel.setProperty("/adminSelectedSection", sNext);
+            if (sNext === "accessCustomization") {
+                this._ensureAdminSnapshots(oModel);
+                this._refreshCustomConflictOptions(oModel);
+            }
         },
 
         onCloseAdminSection() {
@@ -11234,9 +11506,9 @@ sap.ui.define([
                                 ];
                                 oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                             }
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("Service Created", "Service '" + sNewName + "' added and activated.");
-                            MessageToast.show("Service '" + sNewName + "' added and activated in Add Access.");
+                            that._ensureAdminSnapshots(oModel);
+                            that._showSlideNotification("Service Created", "Service '" + sNewName + "' added (Draft). Click Save to apply changes.");
+                            MessageToast.show("Service '" + sNewName + "' added (Draft). Click Save to apply changes.");
                             closeFn();
                         };
                     }
@@ -11361,9 +11633,9 @@ sap.ui.define([
                             if (oObj.selected || oModel.getProperty("/selectedAdminServiceName") === sOldName) {
                                 oModel.setProperty("/selectedAdminServiceName", sNewName);
                             }
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("Service Updated", "Service '" + sNewName + "' saved and activated.");
-                            MessageToast.show("Service '" + sNewName + "' saved and activated.");
+                            that._ensureAdminSnapshots(oModel);
+                            that._showSlideNotification("Service Updated", "Service '" + sNewName + "' updated (Draft). Click Save to apply changes.");
+                            MessageToast.show("Service '" + sNewName + "' updated (Draft). Click Save to apply changes.");
                             closeFn();
                         };
                     }
@@ -11382,23 +11654,56 @@ sap.ui.define([
             );
             oModel.setProperty("/adminServicesAll", aAll);
             oModel.setProperty("/adminServices", aAll.slice());
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Service '" + oObj.serviceName + "' is now " + sNextStatus + ".");
+            this._ensureAdminSnapshots(oModel);
+            MessageToast.show("Service '" + oObj.serviceName + "' status is now " + sNextStatus + " (Draft). Click Save to apply.");
         },
 
         onCancelAdminServicesSection() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const aAll = oModel.getProperty("/adminServicesAll") || [];
-            oModel.setProperty("/adminServices", aAll.slice());
-            sap.m.MessageToast.show("Service changes reverted.");
+            this._ensureAdminSnapshots(oModel);
+
+            // Revert Services to snapshot
+            const aRestoredServices = JSON.parse(JSON.stringify(this._savedAdminServicesAll || []));
+            oModel.setProperty("/adminServicesAll", aRestoredServices);
+            oModel.setProperty("/adminServices", aRestoredServices.slice());
+
+            // Revert Details Map to snapshot
+            const oRestoredMap = JSON.parse(JSON.stringify(this._savedAdminServiceDetailsMap || {}));
+            oModel.setProperty("/adminServiceDetailsMap", oRestoredMap);
+
+            // Ensure valid selected service
+            let sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
+            const bStillExists = aRestoredServices.some(s => s.serviceName === sSelectedSrv);
+            if (!bStillExists && aRestoredServices.length > 0) {
+                sSelectedSrv = aRestoredServices[0].serviceName;
+                oModel.setProperty("/selectedAdminServiceName", sSelectedSrv);
+            }
+
+            // Refresh right-hand service details panel
+            const aTeams = oRestoredMap[sSelectedSrv] || [];
+            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: "Active" }, t, {
+                selected: idx === 0
+            }));
+            oModel.setProperty("/adminClassifications", aTeamsCopy);
+            oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+
+            sap.m.MessageToast.show("Service changes cancelled and reverted.");
         },
 
         onSaveAdminServicesSection() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            const aAll = oModel.getProperty("/adminServicesAll") || [];
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+
+            // Commit snapshot
+            this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
+            this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oDetailsMap));
+
             this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Service configuration saved and activated for all users.");
+            sap.m.MessageToast.show("Service configuration saved and activated for all users.");
         },
 
         onDeleteAdminService(oEvent) {
@@ -11415,9 +11720,9 @@ sap.ui.define([
                 const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                 delete oDetailsMap[oObj.serviceName];
                 oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                that._syncAdminConfigToLiveAddAccess(oModel);
-                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' has been deleted.", "delete");
-                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' deleted.");
+                that._ensureAdminSnapshots(oModel);
+                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' removed (Draft). Click Save to apply.", "delete");
+                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' removed (Draft). Click Save to apply.");
             });
         },
 
@@ -11471,9 +11776,9 @@ sap.ui.define([
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Team Status Updated", "Team '" + oSelected.name + "' is now " + sNextStatus + ".");
-            sap.m.MessageToast.show("Team '" + oSelected.name + "' is now " + sNextStatus + ".");
+            this._ensureAdminSnapshots(oModel);
+            this._showSlideNotification("Team Status Updated", "Team '" + oSelected.name + "' is now " + sNextStatus + " (Draft). Click Save to apply.");
+            sap.m.MessageToast.show("Team '" + oSelected.name + "' is now " + sNextStatus + " (Draft). Click Save to apply.");
         },
 
         onEditSelectedAdminTeam() {
@@ -11593,9 +11898,9 @@ sap.ui.define([
                             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
                             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
 
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("Team Updated", "Team '" + sNewName + "' updated successfully.");
-                            MessageToast.show("Team '" + sNewName + "' updated successfully.");
+                            that._ensureAdminSnapshots(oModel);
+                            that._showSlideNotification("Team Updated", "Team '" + sNewName + "' updated (Draft). Click Save to apply.");
+                            MessageToast.show("Team '" + sNewName + "' updated (Draft). Click Save to apply.");
                             closeFn();
                         };
                     }
@@ -11627,9 +11932,9 @@ sap.ui.define([
                     oModel.setProperty("/selectedAdminClassification", null);
                 }
 
-                that._syncAdminConfigToLiveAddAccess(oModel);
-                that._showSlideNotification("Team Deleted", "Team '" + sName + "' has been deleted.", "delete");
-                sap.m.MessageToast.show("Team '" + sName + "' deleted.");
+                that._ensureAdminSnapshots(oModel);
+                that._showSlideNotification("Team Deleted", "Team '" + sName + "' removed (Draft). Click Save to apply.", "delete");
+                sap.m.MessageToast.show("Team '" + sName + "' removed (Draft). Click Save to apply.");
             });
         },
         onToggleAdminTeamStatus(oEvent) {
@@ -11650,9 +11955,9 @@ sap.ui.define([
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Team Status Updated", "Team '" + oObj.name + "' is now " + sNextStatus + ".");
-            MessageToast.show("Team '" + oObj.name + "' is now " + sNextStatus + ".");
+            this._ensureAdminSnapshots(oModel);
+            this._showSlideNotification("Team Status Updated", "Team '" + oObj.name + "' is now " + sNextStatus + " (Draft). Click Save to apply.");
+            MessageToast.show("Team '" + oObj.name + "' is now " + sNextStatus + " (Draft). Click Save to apply.");
         },
 
         onToggleAdminPersonaStatus(oEvent) {
@@ -11672,9 +11977,9 @@ sap.ui.define([
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Persona Status Updated", "Persona '" + oObj.name + "' is now " + sNextStatus + ".");
-            MessageToast.show("Persona '" + oObj.name + "' is now " + sNextStatus + ".");
+            this._ensureAdminSnapshots(oModel);
+            this._showSlideNotification("Persona Status Updated", "Persona '" + oObj.name + "' is now " + sNextStatus + " (Draft). Click Save to apply.");
+            MessageToast.show("Persona '" + oObj.name + "' is now " + sNextStatus + " (Draft). Click Save to apply.");
         },
 
         onAddAdminClassification() {
@@ -11779,7 +12084,11 @@ sap.ui.define([
                                 status: sStatus,
                                 selected: true,
                                 subClassifications: [
-                                    { name: sShortTeam + " Lead Persona (" + sShortTeam + ")", status: "Active" }
+                                    {
+                                        name: sShortTeam + " Lead Persona (" + sShortTeam + ")",
+                                        status: "Active",
+                                        accessPrivilege: "Not restricted"
+                                    }
                                 ]
                             };
                             aList.push(oNewTeam);
@@ -11789,9 +12098,9 @@ sap.ui.define([
                             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
                             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' added successfully.");
-                            MessageToast.show("Team '" + oNewTeam.name + "' added and activated.");
+                            that._ensureAdminSnapshots(oModel);
+                            that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' added (Draft). Click Save to apply.");
+                            MessageToast.show("Team '" + oNewTeam.name + "' added (Draft). Click Save to apply.");
                             closeFn();
                         };
                     }
@@ -11817,9 +12126,9 @@ sap.ui.define([
                 const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                 oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aRemaining));
                 oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                that._syncAdminConfigToLiveAddAccess(oModel);
-                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' has been deleted.", "delete");
-                sap.m.MessageToast.show("Team '" + oObj.name + "' removed.");
+                that._ensureAdminSnapshots(oModel);
+                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' deleted (Draft). Click Save to apply.", "delete");
+                sap.m.MessageToast.show("Team '" + oObj.name + "' removed (Draft). Click Save to apply.");
             });
         },
 
@@ -11908,11 +12217,16 @@ sap.ui.define([
 
                             const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
                             const sPersonaFull = sSubName.includes("(") ? sSubName : (sSubName + " (" + sShortTeam + ")");
-                            aSubs.push({ name: sPersonaFull, status: "Active" });
+                            aSubs.push({
+                                name: sPersonaFull,
+                                status: "Active",
+                                accessPrivilege: "Not restricted"
+                            });
                             oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
 
                             // Sync back into adminClassifications list
                             const oSelected = oModel.getProperty("/selectedAdminClassification");
+                            oSelected.subClassifications = aSubs;
                             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
                             const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
                                 item.name === oSelected.name ? Object.assign({}, oSelected, { selected: true }) : item
@@ -11921,10 +12235,10 @@ sap.ui.define([
                             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
                             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._ensureAdminSnapshots(oModel);
 
-                            that._showSlideNotification("Persona Created", "Persona '" + sPersonaFull + "' added successfully.");
-                            MessageToast.show("Persona added successfully.");
+                            that._showSlideNotification("Persona Created", "Persona '" + sPersonaFull + "' added (Draft). Click Save to apply.");
+                            MessageToast.show("Persona added (Draft). Click Save to apply.");
                             closeFn();
                         };
                     }
@@ -11932,13 +12246,14 @@ sap.ui.define([
             });
         },
 
-                onEditAdminSubClassification(oEvent) {
+        onEditAdminSubClassification(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oTarget = oCtx.getObject();
             const sOldName = oTarget.name;
             const sCurrentStatus = oTarget.status || "Active";
+            const sCurrentPrivilege = oTarget.accessPrivilege || (this._isDefaultRestrictedPersona(sOldName) ? "Restricted" : "Not restricted");
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
             const that = this;
 
@@ -11955,7 +12270,7 @@ sap.ui.define([
                                 </div>
                                 <div>
                                     <div class="kyra-system-modal-title">Edit Persona</div>
-                                    <div class="kyra-system-modal-subtitle">Modify persona parameters and active status</div>
+                                    <div class="kyra-system-modal-subtitle">Modify persona parameters and privilege</div>
                                 </div>
                             </div>
                             <button type="button" class="kyra-system-modal-close-x" id="kyra_persona_edit_close_x" title="Close">
@@ -11970,6 +12285,14 @@ sap.ui.define([
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_persona_name">PERSONA NAME <span style="color:#EF4444">*</span></label>
                                 <input type="text" id="kyra_edit_persona_name" class="kyra-system-modal-input" placeholder="Enter persona name" value="${sOldName}" autocomplete="off" />
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_persona_privilege">ACCESS PREVILAGE</label>
+                                <select id="kyra_edit_persona_privilege" class="kyra-system-modal-select">
+                                    <option value="Not restricted" ${sCurrentPrivilege === "Not restricted" ? "selected" : ""}>Not restricted</option>
+                                    <option value="Restricted" ${sCurrentPrivilege === "Restricted" ? "selected" : ""}>Restricted</option>
+                                </select>
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
@@ -12028,12 +12351,18 @@ sap.ui.define([
                                 MessageToast.show("Persona Name cannot be empty.");
                                 return;
                             }
+                            const privSelect = document.getElementById("kyra_edit_persona_privilege");
+                            const sNewPrivilege = privSelect ? privSelect.value : sCurrentPrivilege;
                             const statusSelect = document.getElementById("kyra_edit_persona_status");
                             const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
 
                             // Update this Persona in selectedAdminClassification
                             const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p =>
-                                p.name === sOldName ? Object.assign({}, p, { name: sNewName, status: sNewStatus }) : p
+                                p.name === sOldName ? Object.assign({}, p, {
+                                    name: sNewName,
+                                    status: sNewStatus,
+                                    accessPrivilege: sNewPrivilege
+                                }) : p
                             );
                             oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
 
@@ -12047,10 +12376,10 @@ sap.ui.define([
                             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
                             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                            that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._ensureAdminSnapshots(oModel);
 
-                            that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated successfully.");
-                            MessageToast.show("Persona '" + sNewName + "' updated successfully.");
+                            that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated (Draft: " + sNewPrivilege + "). Click Save to apply.");
+                            MessageToast.show("Persona '" + sNewName + "' updated (Draft). Click Save to apply.");
                             closeFn();
                         };
                     }
@@ -12063,14 +12392,28 @@ sap.ui.define([
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
             if (!oModel || !oCtx) return;
             const oTarget = oCtx.getObject();
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
             const that = this;
 
             this._confirmDelete("Delete Persona", oTarget.name, "Persona", () => {
                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).filter(item => item.name !== oTarget.name);
                 oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
-                that._syncAdminConfigToLiveAddAccess(oModel);
-                that._showSlideNotification("Persona Deleted", "Persona '" + oTarget.name + "' has been deleted.", "delete");
-                sap.m.MessageToast.show("Persona '" + oTarget.name + "' deleted.");
+
+                const oSelected = oModel.getProperty("/selectedAdminClassification");
+                if (oSelected) {
+                    oSelected.subClassifications = aSubs;
+                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                        item.name === oSelected.name ? Object.assign({}, oSelected, { selected: true }) : item
+                    );
+                    oModel.setProperty("/adminClassifications", aList);
+                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                }
+
+                that._ensureAdminSnapshots(oModel);
+                that._showSlideNotification("Persona Deleted", "Persona '" + oTarget.name + "' deleted (Draft). Click Save to apply.", "delete");
+                sap.m.MessageToast.show("Persona '" + oTarget.name + "' deleted (Draft). Click Save to apply.");
             });
         },
 
@@ -12089,9 +12432,11 @@ sap.ui.define([
                 if (sTeamShort && sPName.includes("(")) {
                     sPName = sPName.replace(/\([^)]*\)\s*$/, "(" + sTeamShort + ")");
                 }
+                const sPrivilege = p.accessPrivilege || (this._isDefaultRestrictedPersona(sPName) ? "Restricted" : "Not restricted");
                 return Object.assign({}, p, {
                     name: sPName,
-                    status: p.status === "Inactive" ? "Active" : (p.status || "Active")
+                    status: p.status === "Inactive" ? "Active" : (p.status || "Active"),
+                    accessPrivilege: sPrivilege
                 });
             });
             const oActivatedSelected = Object.assign({}, oSelected, {
@@ -12103,7 +12448,7 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminClassification", oActivatedSelected);
 
             const aList = (oModel.getProperty("/adminClassifications") || []).map(item => {
-                if (item.selected) {
+                if (item.selected || item.name === oActivatedSelected.name) {
                     return JSON.parse(JSON.stringify(oActivatedSelected));
                 }
                 return item;
@@ -12113,19 +12458,49 @@ sap.ui.define([
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+
+            // Commit snapshot
+            this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oDetailsMap));
+            const aAllServices = oModel.getProperty("/adminServicesAll") || [];
+            this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAllServices));
+
             this._syncAdminConfigToLiveAddAccess(oModel);
+            this._showSlideNotification("Service Details Saved", "Changes to Service Details and Personas have been saved and applied to Add Access.");
             MessageToast.show("Service Details (Team & Persona) saved, activated, and reflected in Add Access for all users.");
         },
 
         onCancelAdminServiceDetails() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const aList = oModel.getProperty("/adminClassifications") || [];
-            const oActive = aList.find(c => c.selected) || aList[0];
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+
+            this._ensureAdminSnapshots(oModel);
+
+            // Revert Details Map to snapshot
+            if (this._savedAdminServiceDetailsMap) {
+                oModel.setProperty("/adminServiceDetailsMap", JSON.parse(JSON.stringify(this._savedAdminServiceDetailsMap)));
+            }
+
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            let aCurrentClassifications = oDetailsMap[sServiceName];
+            if (!aCurrentClassifications || aCurrentClassifications.length === 0) {
+                const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
+                aCurrentClassifications = oDefaultMap[sServiceName] || [];
+            }
+
+            const aRestored = JSON.parse(JSON.stringify(aCurrentClassifications));
+            let oActive = aRestored.find(c => c.selected);
+            if (!oActive && aRestored.length > 0) {
+                aRestored[0].selected = true;
+                oActive = aRestored[0];
+            }
+            oModel.setProperty("/adminClassifications", aRestored);
             if (oActive) {
                 oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oActive)));
             }
-            MessageToast.show("Changes reverted.");
+
+            this._showSlideNotification("Changes Cancelled", "Service Details draft changes reverted.");
+            MessageToast.show("Service Details changes reverted to last saved state.");
         },
 
         // ── Custom Conflict Section Handlers ──────────────────────────────────────
@@ -12149,31 +12524,247 @@ sap.ui.define([
             oModel.setProperty("/adminCustomConflicts", aFiltered);
         },
 
+        _refreshCustomConflictOptions(oModel) {
+            if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            // 1. Target System dropdown: Latest updated, currently available & active systems ONLY
+            // Permanently includes "-Select-" placeholder at index 0 and "All Systems" at index 1
+            const aSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
+            const aActiveSystems = aSystems.filter(s => s && s.status !== "Inactive");
+            const aSystemOpts = [
+                { key: "", text: "-Select-" },
+                { key: "All Systems", text: "All Systems" }
+            ];
+            const oSeenSys = new Set(["", "All Systems"]);
+            aActiveSystems.forEach(s => {
+                const sName = (s.systemName || "").trim();
+                if (sName && !oSeenSys.has(sName)) {
+                    oSeenSys.add(sName);
+                    aSystemOpts.push({ key: sName, text: sName });
+                }
+            });
+            if (aSystemOpts.length === 2 && aSystems.length > 0) {
+                aSystems.forEach(s => {
+                    const sName = (s.systemName || "").trim();
+                    if (sName && !oSeenSys.has(sName)) {
+                        oSeenSys.add(sName);
+                        aSystemOpts.push({ key: sName, text: sName });
+                    }
+                });
+            }
+            oModel.setProperty("/adminConflictSystemOptions", aSystemOpts);
+
+            // 2. 2nd & 3rd Dropdowns: ONLY active and available Personas from the Add Access section!
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const aServices = oModel.getProperty("/adminServicesAll") || [];
+            const aActiveServiceNames = aServices.filter(s => s.status !== "Inactive").map(s => s.serviceName);
+
+            const aPersonaDropdownOptions = [];
+            const oSeenPersonaOpt = new Set();
+
+            Object.keys(oDetailsMap).forEach(sService => {
+                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService);
+                const aTeams = oDetailsMap[sService] || [];
+                aTeams.forEach(oTeam => {
+                    if (!oTeam || !oTeam.name) return;
+                    const sTeamName = oTeam.name.trim();
+                    const bTeamActive = bServiceActive && oTeam.status !== "Inactive";
+
+                    const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    const aPersonas = oTeam.subClassifications || [];
+                    aPersonas.forEach(oPers => {
+                        if (!oPers || !oPers.name) return;
+                        let sPersName = oPers.name.trim();
+                        if (!sPersName.includes("(") && sCleanTeamShort) {
+                            sPersName = sPersName + " (" + sCleanTeamShort + ")";
+                        }
+                        if (bTeamActive && oPers.status !== "Inactive") {
+                            if (!oSeenPersonaOpt.has(sPersName)) {
+                                oSeenPersonaOpt.add(sPersName);
+                                aPersonaDropdownOptions.push({ key: sPersName, text: sPersName });
+                            }
+                        }
+                    });
+                });
+            });
+
+            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
+
+            // 2nd Dropdown Options: "-Select-" + active personas
+            const aPrimaryOptions = [
+                { key: "", text: "-Select-" }
+            ];
+            aPersonaDropdownOptions.forEach(p => {
+                aPrimaryOptions.push({ key: p.key, text: p.text });
+            });
+            oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
+
+            const oDraft = oModel.getProperty("/newConflictDraft") || {};
+            const sCurrentRole1 = oDraft.role1 || "";
+
+            // 3rd Dropdown Options: "-Select-" + active personas EXCLUDING role1
+            const aConflictingOptions = [
+                { key: "", text: "-Select-" }
+            ];
+            aPersonaDropdownOptions.forEach(p => {
+                if (!sCurrentRole1 || p.key !== sCurrentRole1) {
+                    aConflictingOptions.push({ key: p.key, text: p.text });
+                }
+            });
+            oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+
+            if (oDraft.role2 && oDraft.role1 && oDraft.role2 === oDraft.role1) {
+                oDraft.role2 = "";
+                oModel.setProperty("/newConflictDraft/role2", "");
+            }
+
+            if (oDraft.role1 && oDraft.role2) {
+                if (!oDraft.description) {
+                    oDraft.description = this._generateDefaultConflictReason(oDraft.system, oDraft.role1, oDraft.role2);
+                    oModel.setProperty("/newConflictDraft/description", oDraft.description);
+                }
+            } else {
+                if (!oDraft.description) {
+                    oDraft.description = "";
+                    oModel.setProperty("/newConflictDraft/description", "");
+                }
+            }
+        },
+
+        _generateDefaultConflictReason(sSystem, sRole1, sRole2) {
+            const oModel = this.getView() && this.getView().getModel("accessModel");
+            const sSys = (sSystem || "").trim();
+            const sR1 = (sRole1 || "").trim();
+            const sR2 = (sRole2 || "").trim();
+
+            if (!sR1 || !sR2 || sR1 === "-Select-" || sR2 === "-Select-") {
+                return "";
+            }
+
+            // 1. Check existing conflict rules for curated description
+            if (oModel) {
+                const aExisting = oModel.getProperty("/adminCustomConflictsAll") || [];
+                const found = aExisting.find(c =>
+                    ((c.role1 === sR1 && c.role2 === sR2) || (c.role1 === sR2 && c.role2 === sR1)) &&
+                    (!sSys || !c.system || c.system === sSys || c.system === "All Systems" || c.system.includes("Global"))
+                );
+                if (found && found.description) {
+                    return found.description;
+                }
+            }
+
+            const cleanPersonaName = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").replace(/\s+Persona\b/gi, "").trim();
+            const extractTeam = (s) => {
+                const m = (s || "").match(/\(([^)]+)\)/);
+                return m ? m[1].trim() : "";
+            };
+
+            const sName1 = cleanPersonaName(sR1);
+            const sName2 = cleanPersonaName(sR2);
+            const sTeam1 = extractTeam(sR1);
+            const sTeam2 = extractTeam(sR2);
+
+            const sLower1 = (sR1 + " " + sTeam1).toLowerCase();
+            const sLower2 = (sR2 + " " + sTeam2).toLowerCase();
+
+            // Curated domain pairings
+            if ((sLower1.includes("developer") && sLower2.includes("admin")) || (sLower2.includes("developer") && sLower1.includes("admin"))) {
+                return "Segregation of Duties conflict between Developer and Admin privileges.";
+            }
+            if ((sLower1.includes("admin") && sLower2.includes("security")) || (sLower2.includes("admin") && sLower1.includes("security"))) {
+                return "System Administrator conflicts with Security Governance.";
+            }
+            if ((sLower1.includes("admin") && sLower2.includes("compliance")) || (sLower2.includes("admin") && sLower1.includes("compliance"))) {
+                return "System Administrator conflicts with Compliance Manager oversight.";
+            }
+            if ((sLower1.includes("developer") && sLower2.includes("security")) || (sLower2.includes("developer") && sLower1.includes("security"))) {
+                return "Developer access conflicts with IT Security audit authority.";
+            }
+            if ((sLower1.includes("lead") && sLower2.includes("admin")) || (sLower2.includes("lead") && sLower1.includes("admin"))) {
+                return "Lead Engineer conflicts with IT Administrators elevated system access.";
+            }
+            if ((sLower1.includes("iam") && sLower2.includes("owner")) || (sLower2.includes("iam") && sLower1.includes("owner"))) {
+                return "IAM Specialist conflicts with Role Owner approval authority.";
+            }
+
+            // General structured default
+            if (sName1 && sName2) {
+                if (sTeam1 && sTeam2 && sTeam1 !== sTeam2) {
+                    return "Segregation of Duties conflict between " + sTeam1 + " and " + sTeam2 + " privileges.";
+                }
+                return "Segregation of Duties conflict between " + sName1 + " and " + sName2 + ".";
+            } else if (sName1) {
+                return "Segregation of Duties conflict for " + sName1 + ".";
+            }
+            return "Segregation of Duties conflict between selected Persona entitlements.";
+        },
+
+        onConflictDraftSelectionChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const oDraft = oModel.getProperty("/newConflictDraft") || {};
+            const sSys = oDraft.system || "";
+            const sRole1 = oDraft.role1 || "";
+            let sRole2 = oDraft.role2 || "";
+
+            // Dynamic exclusion: Ensure 3rd dropdown (Conflicting Team / Persona) does NOT include role1
+            const aAllPersonas = oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || [];
+            const aConflictingOptions = [
+                { key: "", text: "-Select-" }
+            ];
+            aAllPersonas.forEach(p => {
+                if (!sRole1 || p.key !== sRole1) {
+                    aConflictingOptions.push({ key: p.key, text: p.text });
+                }
+            });
+            oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+
+            // If the previously selected role2 is now equal to role1, clear role2 to placeholder
+            if (sRole2 && sRole1 && sRole2 === sRole1) {
+                sRole2 = "";
+                oDraft.role2 = "";
+                oModel.setProperty("/newConflictDraft/role2", "");
+            }
+
+            // Automatically recalculate default reason based on selected roles
+            const sNewReason = this._generateDefaultConflictReason(sSys, sRole1, sRole2);
+            oDraft.description = sNewReason;
+            oModel.setProperty("/newConflictDraft/description", sNewReason);
+        },
+
         onAddNewConflictDraft() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
             oModel.setProperty("/newConflictDraft", {
-                system: "SAP BTP Cloud Platform",
-                service: "System Administrator",
+                system: "",
+                service: "",
                 role1: "",
                 role2: "",
                 description: "",
                 _editingIndex: -1
             });
-            MessageToast.show("Enter conflict details below and click Save to activate.");
+
+            this._refreshCustomConflictOptions(oModel);
+            MessageToast.show("Select parameters below and customize reason if needed.");
         },
 
         onCancelCustomConflictDraft() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
             oModel.setProperty("/newConflictDraft", {
-                system: "SAP BTP Cloud Platform",
-                service: "System Administrator",
-                role1: "Cloud Infrastructure Administrator Persona (IT Administrators)",
-                role2: "Frontend & UI Developer Persona (IT Developers)",
-                description: "Segregation of Duties conflict between selected Persona entitlements.",
+                system: "",
+                service: "",
+                role1: "",
+                role2: "",
+                description: "",
                 _editingIndex: -1
             });
+
+            this._refreshCustomConflictOptions(oModel);
             MessageToast.show("Conflict edit changes cleared.");
         },
 
@@ -12181,14 +12772,17 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const oDraft = oModel.getProperty("/newConflictDraft") || {};
-            const sSystem = (oDraft.system || "SAP BTP Cloud Platform").trim();
-            const sService = (oDraft.service || "System Administrator").trim();
+            const sSystem = (oDraft.system || "").trim();
+            const sService = (oDraft.service || "").trim();
             const sRole1 = (oDraft.role1 || "").trim();
             const sRole2 = (oDraft.role2 || "").trim();
-            const sDesc = (oDraft.description || "").trim() || ("Custom SoD Conflict between " + sRole1 + " and " + sRole2 + ".");
             const iEditIdx = typeof oDraft._editingIndex === "number" ? oDraft._editingIndex : -1;
 
-            if (!sRole1 || !sRole2) {
+            if (!sSystem || sSystem === "-Select-") {
+                MessageToast.show("Please select a Target System.");
+                return;
+            }
+            if (!sRole1 || sRole1 === "-Select-" || !sRole2 || sRole2 === "-Select-") {
                 MessageToast.show("Please select both Primary Persona and Conflicting Persona.");
                 return;
             }
@@ -12197,9 +12791,11 @@ sap.ui.define([
                 return;
             }
 
+            const sDesc = (oDraft.description || "").trim() || this._generateDefaultConflictReason(sSystem, sRole1, sRole2) || ("Custom SoD Conflict between " + sRole1 + " and " + sRole2 + ".");
+
             const oSavedConflict = {
                 system: sSystem,
-                service: sService,
+                service: sService || "System Administrator",
                 role1: sRole1,
                 role2: sRole2,
                 description: sDesc,
@@ -12222,7 +12818,14 @@ sap.ui.define([
 
             oModel.setProperty("/adminCustomConflictsAll", aAll);
             oModel.setProperty("/adminCustomConflicts", aAll.slice());
-            oModel.setProperty("/newConflictDraft/_editingIndex", -1);
+            oModel.setProperty("/newConflictDraft", {
+                system: "",
+                service: "",
+                role1: "",
+                role2: "",
+                description: "",
+                _editingIndex: -1
+            });
             this._syncAdminConfigToLiveAddAccess(oModel);
 
             MessageToast.show("Custom Conflict saved and activated for Add Access SoD Validation.");
@@ -13299,6 +13902,148 @@ sap.ui.define([
             } catch (e) {
                 console.error("Error converting user persona:", e);
                 MessageToast.show("Error saving persona conversion for '" + sUsername + "': " + (e.message || "Failed"));
+            }
+        },
+
+        onPersonaConversionModeChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sKey = (oEvent && oEvent.getParameter("item")) ? oEvent.getParameter("item").getKey() : "single";
+            oModel.setProperty("/personaConversionMode", sKey);
+            if (sKey === "department") {
+                this._loadAvailableDepartments();
+            }
+        },
+
+        async _loadAvailableDepartments() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            try {
+                const res = await fetch("/odata/v4/admin-portal/getAllDepartments", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: "{}"
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    let aDepts = [];
+                    if (data && typeof data.departmentsJson === "string") {
+                        try { aDepts = JSON.parse(data.departmentsJson); } catch (e) {}
+                    }
+                    if (Array.isArray(aDepts) && aDepts.length > 0) {
+                        if (!aDepts.some(d => d.toLowerCase() === "it developer")) {
+                            aDepts.push("IT Developer");
+                        }
+                        aDepts.sort();
+                        oModel.setProperty("/allAvailableDepartments", aDepts.map(d => ({ name: d })));
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not load departments from backend:", e);
+            }
+        },
+
+        async onPreviewDepartmentUsers() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
+            const sDept = (oDeptCtrl && typeof oDeptCtrl.getValue === "function" ? oDeptCtrl.getValue() : oModel.getProperty("/departmentPersona/departmentName")) || "";
+            const sCleanDept = sDept.trim();
+
+            if (!sCleanDept) {
+                sap.m.MessageToast.show("Please enter or select a Department Name.");
+                return;
+            }
+            oModel.setProperty("/departmentPersona/departmentName", sCleanDept);
+
+            try {
+                const res = await fetch("/odata/v4/admin-portal/getDepartmentUsers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ department: sCleanDept })
+                });
+                const oData = res.ok ? await res.json() : null;
+                const oResult = (oData && (oData.value || oData)) || {};
+                let aUsers = [];
+                if (oResult.usersJson) {
+                    try { aUsers = JSON.parse(oResult.usersJson); } catch (e) {}
+                }
+
+                oModel.setProperty("/departmentPersonaUsers", aUsers);
+                if (aUsers.length > 0) {
+                    oModel.setProperty("/departmentPersonaResult", {
+                        message: `Found ${aUsers.length} user(s) in department '${sCleanDept}'. Select target persona and click Save Changes to convert them.`,
+                        state: "Information"
+                    });
+                    sap.m.MessageToast.show(`Found ${aUsers.length} user(s) in '${sCleanDept}'.`);
+                } else {
+                    oModel.setProperty("/departmentPersonaResult", {
+                        message: `No active users currently registered in department '${sCleanDept}'.`,
+                        state: "Warning"
+                    });
+                    sap.m.MessageToast.show(`No users found in department '${sCleanDept}'.`);
+                }
+            } catch (err) {
+                console.error("Preview department users error:", err);
+                sap.m.MessageToast.show("Failed to preview department users: " + (err.message || "Error"));
+            }
+        },
+
+        async onConvertDepartmentPersona() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
+            const sDept = (oDeptCtrl && typeof oDeptCtrl.getValue === "function" ? oDeptCtrl.getValue() : oModel.getProperty("/departmentPersona/departmentName")) || "";
+            const sCleanDept = sDept.trim();
+            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "Requester").trim();
+
+            if (!sCleanDept) {
+                sap.m.MessageToast.show("Please enter or select a Department Name.");
+                return;
+            }
+            oModel.setProperty("/departmentPersona/departmentName", sCleanDept);
+
+            try {
+                const res = await fetch("/odata/v4/admin-portal/convertDepartmentPersona", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        department: sCleanDept,
+                        targetPersona: sTargetPersona,
+                        status: "Active"
+                    })
+                });
+                const oData = res.ok ? await res.json() : null;
+                const oResult = (oData && (oData.value || oData)) || {};
+
+                if (!res.ok || oResult.ok === false) {
+                    throw new Error(oResult.message || ("Server returned " + res.status));
+                }
+
+                let aConvertedUsers = [];
+                if (oResult.usersJson) {
+                    try { aConvertedUsers = JSON.parse(oResult.usersJson); } catch (e) {}
+                }
+
+                oModel.setProperty("/departmentPersonaUsers", aConvertedUsers);
+                const sMsg = oResult.message || `Successfully converted ${oResult.count || aConvertedUsers.length} user(s) in '${sCleanDept}' to ${sTargetPersona}.`;
+                oModel.setProperty("/departmentPersonaResult", {
+                    message: sMsg,
+                    state: "Success"
+                });
+
+                // Sync live admin config
+                this._syncAdminConfigToLiveAddAccess(oModel);
+                this._showSlideNotification("Department Converted", sMsg, "success");
+                sap.m.MessageToast.show(sMsg);
+            } catch (err) {
+                console.error("Convert department persona error:", err);
+                oModel.setProperty("/departmentPersonaResult", {
+                    message: err.message || "Failed to convert department personas.",
+                    state: "Error"
+                });
+                sap.m.MessageToast.show("Error converting department: " + (err.message || "Failed"));
             }
         }
     });
