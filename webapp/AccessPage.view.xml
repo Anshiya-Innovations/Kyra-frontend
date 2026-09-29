@@ -1131,15 +1131,15 @@
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <Select
-                                            id="adminUserPersonaSelect"
-                                            selectedKey="{accessModel>/personaLookupUser/selectedPersona}"
-                                            change=".onAdminPersonaDropdownChange"
-                                            width="100%"
-                                            class="kyraAdminBuilderSelect">
-                                            <core:Item key="Requester" text="Requester" />
-                                            <core:Item key="Approver" text="Approver" />
-                                            <core:Item key="Compliance Reviewer" text="Compliance Reviewer" />
-                                        </Select>
+                                                id="adminUserPersonaSelect"
+                                                selectedKey="{accessModel>/personaLookupUser/selectedPersona}"
+                                                change=".onAdminPersonaDropdownChange"
+                                                width="100%"
+                                                class="kyraAdminBuilderSelect kyraDeptSelect">
+                                                <core:Item key="Requester" text="Requester" />
+                                                <core:Item key="Approver" text="Approver" />
+                                                <core:Item key="Compliance Reviewer" text="Compliance Reviewer" />
+                                            </Select>
                                     </VBox>
 
                                     

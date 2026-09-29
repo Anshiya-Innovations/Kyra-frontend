@@ -14012,7 +14012,11 @@ sap.ui.define([
             const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
             const sDept = (oDeptCtrl && typeof oDeptCtrl.getValue === "function" ? oDeptCtrl.getValue() : oModel.getProperty("/departmentPersona/departmentName")) || "";
             const sCleanDept = sDept.trim();
-            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "Requester").trim();
+            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
+            if (!sTargetPersona) {
+                sap.m.MessageToast.show("Please select a Target Persona.");
+                return;
+            }
 
             if (!sCleanDept) {
                 sap.m.MessageToast.show("Please enter or select a Department Name.");
