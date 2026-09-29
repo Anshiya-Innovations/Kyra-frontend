@@ -92,6 +92,9 @@ sap.ui.define([
                             sessionStorage.setItem("kyra_redirect_args", JSON.stringify(oArgs));
                         } catch(e) {}
                         oRouter.navTo("Login", {}, true);
+                        if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                            oRouter.getTargets().display("TargetLogin");
+                        }
                         return;
                     }
                 }

@@ -78,20 +78,14 @@ sap.ui.define([
                 .catch(err => console.error("Architecture SVG load error:", err));
 
             const oRouter = this.getOwnerComponent().getRouter();
-            oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
-
-            // Pre-load AccessPage during idle time so first login transition is instantaneous
-            setTimeout(() => {
-                try {
-                    sap.ui.require(["kyra001/pages/access/AccessPage.controller"]);
-                    if (oRouter && oRouter.getTargets && typeof oRouter.getTargets().getTarget === "function") {
-                        const oTarget = oRouter.getTargets().getTarget("TargetAccessPage");
-                        if (oTarget && typeof oTarget._load === "function") {
-                            oTarget._load();
-                        }
-                    }
-                } catch(e) {}
-            }, 500);
+            if (oRouter) {
+                if (oRouter.getRoute("Login")) {
+                    oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
+                }
+                if (oRouter.getRoute("AppPreviewLogin")) {
+                    oRouter.getRoute("AppPreviewLogin").attachPatternMatched(this._onRouteMatched, this);
+                }
+            }
         },
 
         onAfterRendering() {

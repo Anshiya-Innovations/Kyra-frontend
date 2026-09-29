@@ -185,7 +185,20 @@ sap.ui.define([
                 const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
                 if (oRouter) {
                     oRouter.navTo("Login", {}, true);
+                    if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                        oRouter.getTargets().display("TargetLogin");
+                    }
                 }
+                try {
+                    const oApp = (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                    if (oApp) {
+                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                        if (oInnerApp && typeof oInnerApp.to === "function") {
+                            oInnerApp.to("Login");
+                        }
+                    }
+                } catch(e) {}
                 return;
             }
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
@@ -1653,7 +1666,20 @@ sap.ui.define([
                 const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
                 if (oRouter) {
                     oRouter.navTo("Login", {}, true);
+                    if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                        oRouter.getTargets().display("TargetLogin");
+                    }
                 }
+                try {
+                    const oApp = (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                    if (oApp) {
+                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                        if (oInnerApp && typeof oInnerApp.to === "function") {
+                            oInnerApp.to("Login");
+                        }
+                    }
+                } catch(e) {}
                 return;
             }
             const oModel = this.getView().getModel("accessModel");
