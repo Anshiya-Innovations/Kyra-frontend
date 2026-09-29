@@ -15,6 +15,40 @@ sap.ui.define([], () => {
     // 24 hours session validity
     const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
+    function getCookie(name) {
+        if (typeof document === "undefined") {
+            return null;
+        }
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(";");
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === " ") {
+                c = c.substring(1, c.length);
+            }
+            if (c.indexOf(nameEQ) === 0) {
+                return decodeURIComponent(c.substring(nameEQ.length, c.length));
+            }
+        }
+        return null;
+    }
+
+    function setSessionCookie(name, value) {
+        if (typeof document === "undefined") {
+            return;
+        }
+        // Browser session cookie without Expires/Max-Age:
+        // Automatically deleted by browser on close, but shared across tabs in the same browser.
+        document.cookie = `${name}=${encodeURIComponent(value)}; path=/; SameSite=Lax`;
+    }
+
+    function deleteCookie(name) {
+        if (typeof document === "undefined") {
+            return;
+        }
+        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    }
+
     const AuthManager = {
         /**
          * Persist authentication session state
@@ -34,7 +68,15 @@ sap.ui.define([], () => {
             const sEffectiveRole = sRole || "Requester";
             const sEffectiveUuid = sUserUuid || "dev-user-001-uuid";
 
-            // Always store in sessionStorage (active tab session)
+            // 1. Set document session cookies (no Expires / no Max-Age)
+            // Persists across tabs in the same browser; purged automatically when the browser closes.
+            setSessionCookie("kyra_session_user", sCanonicalUser);
+            setSessionCookie("kyra_session_role", sEffectiveRole);
+            setSessionCookie("kyra_session_uuid", sEffectiveUuid);
+            setSessionCookie("kyra_session_token", sEffectiveToken);
+            setSessionCookie("kyra_session_time", sNow);
+
+            // 2. Store in sessionStorage (active tab session)
             sessionStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
             sessionStorage.setItem(AUTH_KEYS.ACTIVE_USER, sCanonicalUser);
             sessionStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sEffectiveRole);
@@ -44,18 +86,21 @@ sap.ui.define([], () => {
 
             // Backward compatibility aliases for existing components
             sessionStorage.setItem("kyra_user_id", sCanonicalUser);
+            sessionStorage.setItem("kyra_active_user", sCanonicalUser);
+            sessionStorage.setItem("kyra_active_role", sEffectiveRole);
 
-            // Always persist core auth keys to localStorage so hard-refresh and
-            // server restarts don't silently lose the session. The existing
-            // isAuthenticated() fallback will restore sessionStorage from here.
-            localStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
-            localStorage.setItem(AUTH_KEYS.ACTIVE_USER, sCanonicalUser);
-            localStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sEffectiveRole);
-            localStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sEffectiveUuid);
-            localStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sEffectiveToken);
-            localStorage.setItem(AUTH_KEYS.AUTH_TIMESTAMP, sNow);
+            // 3. Remove permanent authentication keys from localStorage so closing browser requires re-login
+            localStorage.removeItem(AUTH_KEYS.IS_AUTHENTICATED);
+            localStorage.removeItem(AUTH_KEYS.ACTIVE_USER);
+            localStorage.removeItem(AUTH_KEYS.ACTIVE_ROLE);
+            localStorage.removeItem(AUTH_KEYS.ACTIVE_UUID);
+            localStorage.removeItem(AUTH_KEYS.AUTH_TOKEN);
+            localStorage.removeItem(AUTH_KEYS.AUTH_TIMESTAMP);
+            localStorage.removeItem("kyra_active_user");
+            localStorage.removeItem("kyra_user_id");
 
-            // Remember-me: also persist credentials for next browser launch
+            // Remember-me: only save the user identifier and role to prefill the login input
+            // Does NOT authenticate the user automatically
             if (bRemember) {
                 localStorage.setItem(AUTH_KEYS.REMEMBER_ID, sCanonicalUser);
                 localStorage.setItem(AUTH_KEYS.REMEMBER_ROLE, sEffectiveRole);
@@ -70,7 +115,7 @@ sap.ui.define([], () => {
          * @returns {boolean} True if authenticated and valid
          */
         isAuthenticated() {
-            // 1. Check sessionStorage
+            // 1. Check current tab sessionStorage
             const bSessionAuth = sessionStorage.getItem(AUTH_KEYS.IS_AUTHENTICATED) === "true";
             const sSessionUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER);
             const sSessionTime = sessionStorage.getItem(AUTH_KEYS.AUTH_TIMESTAMP);
@@ -83,39 +128,30 @@ sap.ui.define([], () => {
                 return true;
             }
 
-            // 2. Fallback to localStorage if rememberMe was active
-            const bLocalAuth = localStorage.getItem(AUTH_KEYS.IS_AUTHENTICATED) === "true";
-            const sLocalUser = localStorage.getItem(AUTH_KEYS.ACTIVE_USER);
-            const sLocalTime = localStorage.getItem(AUTH_KEYS.AUTH_TIMESTAMP);
-
-            if (bLocalAuth && sLocalUser) {
-                if (sLocalTime && (Date.now() - parseInt(sLocalTime, 10)) > SESSION_EXPIRY_MS) {
+            // 2. Check session cookie (new tab in same browser)
+            // Session cookie exists if user is logged in within the same browser session.
+            // It does NOT exist in a different browser, incognito, or after the browser was closed.
+            const sCookieUser = getCookie("kyra_session_user");
+            if (sCookieUser) {
+                const sCookieTime = getCookie("kyra_session_time");
+                if (sCookieTime && (Date.now() - parseInt(sCookieTime, 10)) > SESSION_EXPIRY_MS) {
                     this.clearSession();
                     return false;
                 }
-                // Restore from localStorage to current sessionStorage
-                const sRole = localStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || "Requester";
-                const sUuid = localStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || "dev-user-001-uuid";
-                const sToken = localStorage.getItem(AUTH_KEYS.AUTH_TOKEN) || "";
-                this.setSession(sLocalUser, sRole, sUuid, sToken, true);
-                return true;
-            }
+                const sRole = getCookie("kyra_session_role") || "Requester";
+                const sUuid = getCookie("kyra_session_uuid") || "dev-user-001-uuid";
+                const sToken = getCookie("kyra_session_token") || "";
 
-            // 3. Fallback for browser reload with active session keys
-            const sFallbackUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER) || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id");
-            if (sFallbackUser) {
-                const sFallbackRole = sessionStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || sessionStorage.getItem("kyra_active_role") || "Requester";
-                const sFallbackUuid = sessionStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || sessionStorage.getItem("kyra_active_user_uuid") || "dev-user-001-uuid";
-                this.setSession(sFallbackUser, sFallbackRole, sFallbackUuid, null, false);
-                return true;
-            }
-
-            // 4. Fallback for remember-me in localStorage
-            const sLocalFallbackUser = localStorage.getItem(AUTH_KEYS.ACTIVE_USER) || localStorage.getItem("kyra_active_user") || localStorage.getItem("kyra_remember_id");
-            if (sLocalFallbackUser) {
-                const sLocalFallbackRole = localStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || localStorage.getItem("kyra_active_role") || localStorage.getItem("kyra_remember_role") || "Requester";
-                const sLocalFallbackUuid = localStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || localStorage.getItem("kyra_active_user_uuid") || "dev-user-001-uuid";
-                this.setSession(sLocalFallbackUser, sLocalFallbackRole, sLocalFallbackUuid, null, true);
+                // Hydrate sessionStorage for this new tab
+                sessionStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
+                sessionStorage.setItem(AUTH_KEYS.ACTIVE_USER, sCookieUser);
+                sessionStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sRole);
+                sessionStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sUuid);
+                sessionStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sToken);
+                sessionStorage.setItem(AUTH_KEYS.AUTH_TIMESTAMP, sCookieTime || String(Date.now()));
+                sessionStorage.setItem("kyra_user_id", sCookieUser);
+                sessionStorage.setItem("kyra_active_user", sCookieUser);
+                sessionStorage.setItem("kyra_active_role", sRole);
                 return true;
             }
 
@@ -126,6 +162,12 @@ sap.ui.define([], () => {
          * Clears all session and authentication state
          */
         clearSession() {
+            deleteCookie("kyra_session_user");
+            deleteCookie("kyra_session_role");
+            deleteCookie("kyra_session_uuid");
+            deleteCookie("kyra_session_token");
+            deleteCookie("kyra_session_time");
+
             sessionStorage.removeItem(AUTH_KEYS.IS_AUTHENTICATED);
             sessionStorage.removeItem(AUTH_KEYS.ACTIVE_USER);
             sessionStorage.removeItem(AUTH_KEYS.ACTIVE_ROLE);
@@ -148,8 +190,8 @@ sap.ui.define([], () => {
             localStorage.removeItem(AUTH_KEYS.ACTIVE_UUID);
             localStorage.removeItem(AUTH_KEYS.AUTH_TOKEN);
             localStorage.removeItem(AUTH_KEYS.AUTH_TIMESTAMP);
-            localStorage.removeItem(AUTH_KEYS.REMEMBER_ID);
-            localStorage.removeItem(AUTH_KEYS.REMEMBER_ROLE);
+            localStorage.removeItem("kyra_active_user");
+            localStorage.removeItem("kyra_user_id");
         },
 
         /**
@@ -157,9 +199,9 @@ sap.ui.define([], () => {
          * @returns {{ userId: string, role: string, userUuid: string, isApproverPersona: boolean }}
          */
         getUserInfo() {
-            const sUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER) || localStorage.getItem(AUTH_KEYS.ACTIVE_USER) || "";
-            const sRole = sessionStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || localStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || "Requester";
-            const sUuid = sessionStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || localStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || "dev-user-001-uuid";
+            const sUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER) || getCookie("kyra_session_user") || "";
+            const sRole = sessionStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || getCookie("kyra_session_role") || "Requester";
+            const sUuid = sessionStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || getCookie("kyra_session_uuid") || "dev-user-001-uuid";
             const bIsApprover = (
                 sRole === "Approver" ||
                 sRole === "Approver 1" ||

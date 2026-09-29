@@ -180,11 +180,19 @@ sap.ui.define([
                 localStorage.removeItem("kyra_pending_revocations");
                 sessionStorage.removeItem("kyra_pending_revocations");
             } catch(e) {}
-            const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "emp001";
-            const sActiveUser = (sRawActiveUser || "").trim().toLowerCase();
+            const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
+            if (!bAuthenticated) {
+                const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
+                if (oRouter) {
+                    oRouter.navTo("Login", {}, true);
+                }
+                return;
+            }
+            const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
+            const sActiveUser = (oAuthInfo.userId || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim().toLowerCase();
             sessionStorage.setItem("kyra_active_user", sActiveUser);
             sessionStorage.setItem("kyra_user_id", sActiveUser);
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const sActiveRole = oAuthInfo.role || sessionStorage.getItem("kyra_active_role") || "Requester";
             const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
             const isCompliance = sActiveRole.toLowerCase().includes("compliance");
             const isReviewerRole = bIsApprover || isCompliance;
@@ -1640,12 +1648,20 @@ sap.ui.define([
         },
 
         _onRouteMatched() {
+            const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
+            if (!bAuthenticated) {
+                const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
+                if (oRouter) {
+                    oRouter.navTo("Login", {}, true);
+                }
+                return;
+            }
             const oModel = this.getView().getModel("accessModel");
-            const sRawActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || (oModel ? oModel.getProperty("/activeUser") : null) || "emp001";
-            const sActiveUser = (sRawActiveUser || "emp001").trim().toLowerCase();
+            const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
+            const sActiveUser = (oAuthInfo.userId || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || (oModel ? oModel.getProperty("/activeUser") : null) || "").trim().toLowerCase();
             sessionStorage.setItem("kyra_active_user", sActiveUser);
             sessionStorage.setItem("kyra_user_id", sActiveUser);
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const sActiveRole = oAuthInfo.role || sessionStorage.getItem("kyra_active_role") || "Requester";
 
             if (oModel) {
                 const sRoleLower = (sActiveRole || "").toLowerCase();
