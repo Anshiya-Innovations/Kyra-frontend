@@ -1455,9 +1455,9 @@
                                         fixedLayout="true"
                                         class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
                                         <columns>
-                                            <Column width="48%" hAlign="Begin"><Text text="SERVICE NAME" class="kyraAdminColHeader" /></Column>
-                                            <Column width="28%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                            <Column width="24%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="46%" hAlign="Begin"><Text text="SERVICE NAME" class="kyraAdminColHeader" /></Column>
+                                            <Column width="27%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="27%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                         </columns>
                                         <items>
                                             <ColumnListItem
@@ -1564,7 +1564,7 @@
                                         </VBox>
 
                                         <!-- Right Sub-Panel: Team Name & Persona (Matches media_1790767316133.png) -->
-                                        <VBox width="60%" class="kyraAdminClassDetailSubPanel">
+                                        <VBox width="59%" class="kyraAdminClassDetailSubPanel">
                                             <!-- TEAM NAME Header Label -->
                                             <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                                 <Text text="TEAM NAME" class="kyraAdminFormLabel" />
@@ -2597,7 +2597,7 @@
                         <!-- SUB-STEP 3.1: TARGET SYSTEMS SLIDE CONFIGURATION -->
                         <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 1 || !${accessModel>/addAccessConfigSubStep} }">
                             <form:SimpleForm
-                                editable="true"
+                                editable="false"
                                 layout="ColumnLayout"
                                 columnsM="2"
                                 columnsL="2"
@@ -2639,7 +2639,7 @@
                                 </HBox>
 
                                 <form:SimpleForm
-                                    editable="true"
+                                    editable="false"
                                     layout="ColumnLayout"
                                     columnsM="2"
                                     columnsL="2"
