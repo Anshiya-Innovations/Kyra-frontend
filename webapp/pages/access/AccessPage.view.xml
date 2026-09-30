@@ -777,11 +777,7 @@
 
                                     <!-- Verify Target Destination link button -->
                                     <HBox class="sapUiTinyMarginTop">
-                                        <Button
-                                            text="↗ Verify Target Destination"
-                                            press=".onVerifyTargetTable"
-                                            type="Transparent"
-                                            class="kyraVerifyDestLinkBtn" />
+                                        <Button text="Verify Target Destination" icon="sap-icon://accept" press=".onVerifyTargetTable" type="Transparent" class="kyraVerifyDestLinkBtn" />
                                     </HBox>
                                 </VBox>
 
@@ -843,19 +839,10 @@
                             <!-- BOTTOM ACTION BAR: < Back to Connections (LEFT) + DOWN MIGRATE BUTTON (RIGHT) -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraStep2BottomActionBar sapUiMediumMarginTop">
                                 <!-- Left: Back to Connections Link -->
-                                <Button
-                                    text="&lt; Back to Connections"
-                                    press=".onGoToStep1"
-                                    type="Transparent"
-                                    class="kyraStep2BackLink" />
+                                <Button text="← Back to Connections" press=".onGoToStep1" type="Transparent" class="kyraStep2BackLink" />
 
                                 <!-- Right: DOWN MIGRATE BUTTON (Solid KYRA Teal, Prominent) -->
-                                <Button
-                                    id="btnMigrateData"
-                                    text="{= ${accessModel>/dbMigration/hud/state} === 'active' ? 'Migrating... ▷▷' : '▷▷ Migrate Data →' }"
-                                    type="Emphasized"
-                                    press=".onExecuteMigration"
-                                    class="kyraStep2MigrateBtn" />
+                                <Button id="btnMigrateData" text="{= ${accessModel>/dbMigration/hud/state} === 'active' ? 'Migrating Data...' : 'Migrate Data ➔' }" icon="sap-icon://paper-plane" type="Emphasized" press=".onExecuteMigration" class="kyraStep2MigrateBtn" />
                             </HBox>
 
                             <!-- DROPDOWN LIVE PIPELINE STREAM HUD (KYRA PROJECT THEMED DROPDOWN) -->
@@ -996,11 +983,7 @@
                                                 press=".onCloseMigrationDropdown"
                                                 type="Transparent"
                                                 class="kyraHudCloseTextBtn" />
-                                            <Button
-                                                text="Done &amp; Close Studio ✓"
-                                                type="Emphasized"
-                                                press=".onCloseAdminSection"
-                                                class="kyraHudDoneBtn" />
+                                            <Button text="Done" icon="sap-icon://accept" type="Emphasized" press=".onCloseAdminSection" class="kyraHudDoneBtn" />
                                         </HBox>
                                     </HBox>
 
