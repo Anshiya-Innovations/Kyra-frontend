@@ -102,7 +102,7 @@ sap.ui.define([
                     this._syncChannel.onmessage = (event) => {
                         const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                         if (oM) {
-                            this._reloadAllRequests(oM);
+                            this._reloadAllRequests(oM, true);
                         }
                     };
                 } catch(e) {}
@@ -112,7 +112,7 @@ sap.ui.define([
                     if (e.key === "kyra_last_db_mutation" || e.key === "kyra_pending_revocations") {
                         const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                         if (oM) {
-                            this._reloadAllRequests(oM);
+                            this._reloadAllRequests(oM, true);
                         }
                     }
                 };
@@ -215,18 +215,28 @@ sap.ui.define([
             this.onSelectRevokeRequestsTab();
         },
 
+        _setSmartProperty(oModel, sPath, vNewVal) {
+            if (!oModel) return;
+            const vOldVal = oModel.getProperty(sPath);
+            const sOldJson = JSON.stringify(vOldVal === undefined ? null : vOldVal);
+            const sNewJson = JSON.stringify(vNewVal === undefined ? null : vNewVal);
+            if (sOldJson !== sNewJson) {
+                oModel.setProperty(sPath, vNewVal);
+            }
+        },
+
         _updateDisplayedHistoryRequests() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const bIsCompliance = !!oModel.getProperty("/isCompliance");
             if (bIsCompliance) {
                 const aProcessed = oModel.getProperty("/processedRequests") || [];
-                oModel.setProperty("/displayedHistoryRequests", aProcessed);
+                this._setSmartProperty(oModel, "/displayedHistoryRequests", aProcessed);
             } else {
                 const sTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
-                const aAccess = oModel.getProperty("/historyAccessRequests") || [];
-                const aRevoke = oModel.getProperty("/historyRevokeRequests") || [];
-                oModel.setProperty("/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
+                const aAccess = oModel.getProperty("/historyAccessRequests") || oModel.getProperty("/processedAccessRequests") || [];
+                const aRevoke = oModel.getProperty("/historyRevokeRequests") || oModel.getProperty("/processedRevokeRequests") || [];
+                this._setSmartProperty(oModel, "/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
             }
             if (this._sCurrentSearchQuery) {
                 this._applySearchFilter(this._sCurrentSearchQuery);
@@ -825,12 +835,19 @@ sap.ui.define([
             oModel.setProperty("/notificationCount", aNotifs.length);
 
             // Persist the decision to the database
-            const bHasConflict = (oData.hasConflict === true || oData.has_conflict === true);
+            const bHasConflict = (
+                oData.hasConflict === true ||
+                oData.has_conflict === true ||
+                !!oData.conflictingRole ||
+                !!oData.conflicting_role ||
+                (oData.entitlements || []).some(e => e.hasConflict === true || e.has_conflict === true || !!e.conflictingRole || !!e.conflicting_role)
+            );
             const aDecisionsPayload = (oData.entitlements || []).map(e => ({
+                requestNumber: e.requestId || oData.requestId,
                 targetSystem: e.system,
                 roleName: e.roleName,
-                selectedPersona: oData.persona,
-                status: e.status === "Rejected" ? "REJECTED" : "APPROVED",
+                selectedPersona: e.selectedPersona || oData.persona,
+                status: (e.status || "").toLowerCase().includes("reject") ? "REJECTED" : "APPROVED",
                 hasConflict: bHasConflict
             }));
 
@@ -880,6 +897,7 @@ sap.ui.define([
             };
 
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+            const sActiveUser = (sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim().toLowerCase();
             const isCompliance = sActiveRole.includes("compliance");
             const isIam1 = sActiveRole.includes("approver 1") || sActiveRole.includes("iam 1") || sActiveRole.includes("iam_1");
             const isIam2 = sActiveRole.includes("approver 2") || sActiveRole.includes("iam 2") || sActiveRole.includes("iam_2");
@@ -888,17 +906,110 @@ sap.ui.define([
             const oGrouped = {};
             const oPendingGrouped = {};
 
-            (aRawRecords || []).forEach(r => {
+            const aSortedRecords = [...(aRawRecords || [])].sort((a, b) => {
+                const tA = new Date(a.updated_at || a.created_at || 0).getTime() || 0;
+                const tB = new Date(b.updated_at || b.created_at || 0).getTime() || 0;
+                if (tB !== tA) return tB - tA;
+                return String(b.request_number || "").localeCompare(String(a.request_number || ""));
+            });
+
+            // ── PASS 1: Base Request Pre-Aggregation across all child items ────────
+            const mBaseInfo = {};
+            aSortedRecords.forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
-                const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
+                if (sDbStatus === "EXPIRED") return;
+                const sBase = getBaseReqId(r.request_number || r.requestId || r.id);
+                if (!sBase) return;
+
+                if (!mBaseInfo[sBase]) {
+                    mBaseInfo[sBase] = {
+                        hasConflict: false,
+                        conflictingRole: "",
+                        isRevocation: false,
+                        hasApproverDecided: false,
+                        hasApproverRejected: false,
+                        hasComplianceDecided: false,
+                        hasComplianceRejected: false,
+                        hasIam1Decided: false,
+                        hasIam2Decided: false,
+                        statuses: new Set(),
+                        allRows: []
+                    };
+                }
+                const info = mBaseInfo[sBase];
+                info.allRows.push(r);
+                info.statuses.add(sDbStatus);
+
+                const hasRowConflict = r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim());
+                if (hasRowConflict) {
+                    info.hasConflict = true;
+                    if (r.conflicting_role) info.conflictingRole = r.conflicting_role;
+                }
+
+                const isRowRevoc = (r.access_type || r.request_type || r.accessType || r.type || "").toUpperCase().includes("REV") ||
+                                   (r.business_function || r.businessFunction || "").toUpperCase().includes("REVOCATION") ||
+                                   (r.request_number || r.requestId || "").toUpperCase().startsWith("REV-") ||
+                                   (r.request_number || r.requestId || "").toUpperCase().includes("-REV-");
+                if (isRowRevoc) {
+                    info.isRevocation = true;
+                }
+
+                const sApprStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
                 const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
                 const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
 
-                const isRevocation = (r.access_type || r.request_type || r.accessType || r.type || "").toUpperCase().includes("REV") ||
-                             (r.business_function || r.businessFunction || "").toUpperCase().includes("REVOCATION") ||
-                             (r.request_number || r.requestId || "").toUpperCase().startsWith("REV-") ||
-                             (r.request_number || r.requestId || "").toUpperCase().includes("-REV-");
+                if (sApprStatus === "APPROVED" || sApprStatus === "REJECTED" ||
+                    sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
+                    sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED") {
+                    info.hasApproverDecided = true;
+                }
+                if (sApprStatus === "REJECTED" || (sDbStatus === "REJECTED" && !sCompStatus && !sIam1Status && !sIam2Status)) {
+                    info.hasApproverRejected = true;
+                }
+
+                if (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" ||
+                    sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" ||
+                    (sDbStatus === "APPROVED" && info.hasConflict) ||
+                    (sDbStatus === "REJECTED" && sCompStatus === "REJECTED")) {
+                    info.hasComplianceDecided = true;
+                }
+                if (sCompStatus === "REJECTED") {
+                    info.hasComplianceRejected = true;
+                }
+
+                if (sIam1Status === "APPROVED" || sIam1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                    info.hasIam1Decided = true;
+                }
+
+                if (sIam2Status === "APPROVED" || sIam2Status === "REJECTED" || sDbStatus === "APPROVED") {
+                    info.hasIam2Decided = true;
+                }
+            });
+
+            // ── PASS 2: Categorization & Grouping based on Base Aggregation ────
+            aSortedRecords.forEach(r => {
+                const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
+                if (sDbStatus === "EXPIRED") return;
+                const sReqUser = (r.requester_username || r.requesterId || r.requesterUsername || "").trim().toLowerCase();
+                if (sActiveUser && sReqUser === sActiveUser) return;
+
+                const sBaseId = getBaseReqId(r.request_number || r.requestId || r.id);
+                const info = mBaseInfo[sBaseId] || {
+                    hasConflict: r.has_conflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim()),
+                    conflictingRole: r.conflicting_role || "",
+                    isRevocation: false,
+                    hasApproverDecided: false,
+                    hasApproverRejected: false,
+                    hasComplianceDecided: false,
+                    hasComplianceRejected: false,
+                    hasIam1Decided: false,
+                    hasIam2Decided: false,
+                    statuses: new Set([sDbStatus])
+                };
+
+                const hasConflict = info.hasConflict;
+                const isRevocation = info.isRevocation;
 
                 let isPendingForRole = false;
                 let bRoleApproved = false;
@@ -906,43 +1017,43 @@ sap.ui.define([
 
                 if (isCompliance) {
                     // COMPLIANCE REVIEWER:
-                    // Only sees Addition requests that reached PENDING_COMPLIANCE (because of SoD conflict).
-                    // NEVER sees freshly submitted Addition requests (status PENDING)!
-                    // NEVER sees Revocation requests!
-                    if (!isRevocation && sDbStatus === "PENDING_COMPLIANCE" && sCompStatus !== "APPROVED" && sCompStatus !== "REJECTED") {
-                        isPendingForRole = true;
-                    } else if (!isRevocation && (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED")) {
-                        isProcessedForRole = true;
-                        bRoleApproved = (sCompStatus === "APPROVED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sCompStatus !== "REJECTED";
+                    // Only handles non-revocation requests WITH conflict.
+                    // If Compliance has already decided: goes to History (Processed), NEVER in Pending!
+                    if (!isRevocation && hasConflict) {
+                        if (info.hasComplianceDecided) {
+                            isProcessedForRole = true;
+                            bRoleApproved = !info.hasComplianceRejected;
+                        } else if (info.hasApproverDecided && (info.statuses.has("PENDING_COMPLIANCE") || !info.statuses.has("PENDING"))) {
+                            isPendingForRole = true;
+                        }
                     }
                 } else if (isIam1) {
                     // IAM APPROVER 1:
-                    if (sDbStatus === "PENDING_IAM_1" && sIam1Status !== "APPROVED" && sIam1Status !== "REJECTED") {
-                        isPendingForRole = true;
-                    } else if (sIam1Status === "APPROVED" || sIam1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                    if (info.hasIam1Decided) {
                         isProcessedForRole = true;
-                        bRoleApproved = (sIam1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sIam1Status !== "REJECTED";
+                        bRoleApproved = (r.iam_approver_1_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
+                    } else if (info.statuses.has("PENDING_IAM_1") || 
+                              (isRevocation && info.hasApproverDecided) ||
+                              (!hasConflict && info.hasApproverDecided) ||
+                              (hasConflict && info.hasComplianceDecided)) {
+                        isPendingForRole = true;
                     }
                 } else if (isIam2) {
                     // IAM APPROVER 2:
-                    if (sDbStatus === "PENDING_IAM_2" && sIam2Status !== "APPROVED" && sIam2Status !== "REJECTED") {
-                        isPendingForRole = true;
-                    } else if (sIam2Status === "APPROVED" || sIam2Status === "REJECTED" || sDbStatus === "APPROVED") {
+                    if (info.hasIam2Decided) {
                         isProcessedForRole = true;
-                        bRoleApproved = (sIam2Status === "APPROVED" || sDbStatus === "APPROVED") && sIam2Status !== "REJECTED";
+                        bRoleApproved = (r.iam_approver_2_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
+                    } else if (info.statuses.has("PENDING_IAM_2") || info.hasIam1Decided) {
+                        isPendingForRole = true;
                     }
                 } else {
                     // INITIAL APPROVER (Line Manager):
-                    // Freshly submitted requests start at PENDING -> Only initial Approver sees them in pending queue
-                    const isApproverDecided = sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" ||
-                                              sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
-                                              sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
-
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || sDbStatus === "SUBMITTED" || (isRevocation && (sDbStatus.includes("PENDING") || sDbStatus === "ACTIVE" || sDbStatus === "SUBMITTED" || sDbStatus === "IN_PROGRESS" || !sDbStatus || sDbStatus === "")))) {
-                        isPendingForRole = true;
-                    } else if (isApproverDecided) {
+                    // If Initial Approver has already decided: goes to History (Processed), NEVER in Pending!
+                    if (info.hasApproverDecided) {
                         isProcessedForRole = true;
-                        bRoleApproved = (sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED";
+                        bRoleApproved = !info.hasApproverRejected;
+                    } else if (info.statuses.has("PENDING") || info.statuses.has("PENDING_APPROVER") || info.statuses.has("REVOKE_PENDING") || info.statuses.has("REVOCATION_PENDING") || info.statuses.has("SUBMITTED") || isRevocation) {
+                        isPendingForRole = true;
                     }
                 }
 
@@ -1009,10 +1120,21 @@ sap.ui.define([
                             statusState: isRevocation ? "Error" : "Warning",
                             statusIcon: "sap-icon://pending",
                             isRevocation: isRevocation,
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || "",
                             _isPendingForRole: true,
                             approverRemark: r.approver_comment || r.approverRemark || "",
                             entitlements: []
                         };
+                    } else if (hasConflict) {
+                        oPendingGrouped[sPendKey].hasConflict = true;
+                        oPendingGrouped[sPendKey].has_conflict = true;
+                        if (r.conflicting_role) {
+                            oPendingGrouped[sPendKey].conflictingRole = r.conflicting_role;
+                            oPendingGrouped[sPendKey].conflicting_role = r.conflicting_role;
+                        }
                     }
                     oPendingGrouped[sPendKey].entitlements.push({
                         requestId: r.request_number || r.requestId,
@@ -1026,7 +1148,11 @@ sap.ui.define([
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
                         approverRemark: r.approver_comment || r.approverRemark || "",
-                        comment: r.reviewer_comment || r.comments || ""
+                        comment: r.reviewer_comment || r.comments || "",
+                        hasConflict: hasConflict,
+                        has_conflict: hasConflict,
+                        conflictingRole: r.conflicting_role || "",
+                        conflicting_role: r.conflicting_role || ""
                     });
                     return;
                 }
@@ -1058,13 +1184,39 @@ sap.ui.define([
                             submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
-                            updated_at: r.updated_at || r.created_at || new Date().toISOString(),
+                            updatedAtRaw: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
+                            updated_at: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || "",
                             _isPendingForRole: false,
                             entitlements: []
                         };
+                    } else if (hasConflict) {
+                        oGrouped[sGroupKey].hasConflict = true;
+                        oGrouped[sGroupKey].has_conflict = true;
+                        if (r.conflicting_role) {
+                            oGrouped[sGroupKey].conflictingRole = r.conflicting_role;
+                            oGrouped[sGroupKey].conflicting_role = r.conflicting_role;
+                        }
                     }
 
+                    const sCandidateUpd = r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || "";
+                    if (sCandidateUpd && new Date(sCandidateUpd).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].updated_at || 0).getTime()) {
+                        oGrouped[sGroupKey].updatedAtRaw = sCandidateUpd;
+                        oGrouped[sGroupKey].updated_at = sCandidateUpd;
+                        oGrouped[sGroupKey].decisionDate = sCandidateUpd.split("T")[0];
+                    }
+                    if (window._kyraLastDecidedReqId && getBaseReqId(oGrouped[sGroupKey].requestId).toUpperCase() === String(window._kyraLastDecidedReqId).toUpperCase() && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                        const sForcedIso = new Date(window._kyraLastDecisionSubmitTime).toISOString();
+                        if (new Date(sForcedIso).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || 0).getTime()) {
+                            oGrouped[sGroupKey].updatedAtRaw = sForcedIso;
+                            oGrouped[sGroupKey].updated_at = sForcedIso;
+                            oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
+                        }
+                    }
                     oGrouped[sGroupKey].entitlements.push({
                         requestId: r.request_number || r.requestId,
                         system: r.target_system || r.system,
@@ -1101,9 +1253,9 @@ sap.ui.define([
             });
 
             aProcessed.sort((a, b) => {
-                const dA = new Date(a.decisionDate || a.submissionDate || "1970-01-01").getTime();
-                const dB = new Date(b.decisionDate || b.submissionDate || "1970-01-01").getTime();
-                if (dA !== dB) return dB - dA;
+                const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
+                const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
+                if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
@@ -1152,10 +1304,15 @@ sap.ui.define([
                 oModel.setProperty("/showApprovalHistory", false);
             }
 
-            let aRawData = [];
-            try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
+            const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
+                if (window._kyraDecisionInFlight) return;
+                let aRawData = [];
+                try {
+                    const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                    const data = await response.json();
+                    if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
+                        return;
+                    }
                 if (data && data.value && data.value.length > 0) {
                     aRawData = data.value.slice();
                 }
@@ -1224,21 +1381,31 @@ sap.ui.define([
                         processedBaseIds.add(getBaseReqId(String(p.request_number).trim()).toUpperCase());
                     }
                 });
-                aStoredProc.forEach(sp => {
-                    if (sp && sp.requestId) {
-                        const sReq = String(sp.requestId).trim().toUpperCase();
-                        const bReq = getBaseReqId(sReq).toUpperCase();
-                        processedBaseIds.add(sReq);
-                        processedBaseIds.add(bReq);
-                        if (!aProcessed.some(p => {
-                            const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
-                            return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
-                        })) {
-                            aProcessed.unshift(sp);
+                const aRemainingStoredProc = [];
+                    aStoredProc.forEach(sp => {
+                        if (sp && sp.requestId) {
+                            const sReq = String(sp.requestId).trim().toUpperCase();
+                            const bReq = getBaseReqId(sReq).toUpperCase();
+                            processedBaseIds.add(sReq);
+                            processedBaseIds.add(bReq);
+                            const bExistsInDb = aProcessed.some(p => {
+                                const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
+                                return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
+                            });
+                            if (!bExistsInDb) {
+                                if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
+                                if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
+                                aProcessed.unshift(sp);
+                                aRemainingStoredProc.push(sp);
+                            }
                         }
+                    });
+                    // Preserve stored processed requests in sessionStorage so reload never loses them
+                    if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                        processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
+                        processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
                     }
-                });
-                aPending = aPending.filter(p => {
+                    aPending = aPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
                     return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
@@ -1295,18 +1462,24 @@ sap.ui.define([
             aAccessProcessed.sort(sortChronologicallyDesc);
             aRevokeProcessed.sort(sortChronologicallyDesc);
 
-            oModel.setProperty("/pendingAccessRequests", aAccessPending);
-            oModel.setProperty("/pendingRevokeRequests", aRevokePending);
-            oModel.setProperty("/pendingAccessCount", aAccessPending.length);
-            oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
+            this._setSmartProperty(oModel, "/pendingAccessRequests", aAccessPending);
+                this._setSmartProperty(oModel, "/pendingRevokeRequests", aRevokePending);
+                this._setSmartProperty(oModel, "/pendingAccessCount", aAccessPending.length);
+                this._setSmartProperty(oModel, "/pendingRevokeCount", aRevokePending.length);
 
-            oModel.setProperty("/historyAccessRequests", aAccessProcessed);
-            oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
-            oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
-            oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oModel, "/processedAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oModel, "/processedRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oModel, "/processedAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oModel, "/processedRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oModel, "/processedCount", aProcessed.length);
 
-            oModel.setProperty("/pendingRequests", isCompliance ? aAccessPending : aPending);
-            oModel.setProperty("/processedRequests", aProcessed);
+                this._setSmartProperty(oModel, "/historyAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oModel, "/historyRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oModel, "/historyAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oModel, "/historyRevokeCount", aRevokeProcessed.length);
+
+                this._setSmartProperty(oModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
+                this._setSmartProperty(oModel, "/processedRequests", aProcessed);
             this._updateDisplayedHistoryRequests();
         },
 

@@ -724,11 +724,8 @@ sap.ui.define([
         },
 
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
-            window._kyraDecisionInFlight = true;
-            window._kyraDecisionMutationEpoch = Date.now();
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) {
-                window._kyraDecisionInFlight = false;
                 return;
             }
             const sDate = new Date().toISOString().split("T")[0];
@@ -838,12 +835,19 @@ sap.ui.define([
             oModel.setProperty("/notificationCount", aNotifs.length);
 
             // Persist the decision to the database
-            const bHasConflict = (oData.hasConflict === true || oData.has_conflict === true);
+            const bHasConflict = (
+                oData.hasConflict === true ||
+                oData.has_conflict === true ||
+                !!oData.conflictingRole ||
+                !!oData.conflicting_role ||
+                (oData.entitlements || []).some(e => e.hasConflict === true || e.has_conflict === true || !!e.conflictingRole || !!e.conflicting_role)
+            );
             const aDecisionsPayload = (oData.entitlements || []).map(e => ({
+                requestNumber: e.requestId || oData.requestId,
                 targetSystem: e.system,
                 roleName: e.roleName,
-                selectedPersona: oData.persona,
-                status: e.status === "Rejected" ? "REJECTED" : "APPROVED",
+                selectedPersona: e.selectedPersona || oData.persona,
+                status: (e.status || "").toLowerCase().includes("reject") ? "REJECTED" : "APPROVED",
                 hasConflict: bHasConflict
             }));
 
@@ -869,10 +873,6 @@ sap.ui.define([
 
             MessageToast.show("Decision submitted for User Id " + oData.requestId);
             oModel.setProperty("/showRequestDetailView", false);
-            
-            setTimeout(() => {
-                window._kyraDecisionInFlight = false;
-            }, 1000);
         },
 
         _buildApproverHistoryAndPending(aRawRecords) {
@@ -913,21 +913,103 @@ sap.ui.define([
                 return String(b.request_number || "").localeCompare(String(a.request_number || ""));
             });
 
+            // ── PASS 1: Base Request Pre-Aggregation across all child items ────────
+            const mBaseInfo = {};
+            aSortedRecords.forEach(r => {
+                const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
+                if (sDbStatus === "EXPIRED") return;
+                const sBase = getBaseReqId(r.request_number || r.requestId || r.id);
+                if (!sBase) return;
+
+                if (!mBaseInfo[sBase]) {
+                    mBaseInfo[sBase] = {
+                        hasConflict: false,
+                        conflictingRole: "",
+                        isRevocation: false,
+                        hasApproverDecided: false,
+                        hasApproverRejected: false,
+                        hasComplianceDecided: false,
+                        hasComplianceRejected: false,
+                        hasIam1Decided: false,
+                        hasIam2Decided: false,
+                        statuses: new Set(),
+                        allRows: []
+                    };
+                }
+                const info = mBaseInfo[sBase];
+                info.allRows.push(r);
+                info.statuses.add(sDbStatus);
+
+                const hasRowConflict = r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim());
+                if (hasRowConflict) {
+                    info.hasConflict = true;
+                    if (r.conflicting_role) info.conflictingRole = r.conflicting_role;
+                }
+
+                const isRowRevoc = (r.access_type || r.request_type || r.accessType || r.type || "").toUpperCase().includes("REV") ||
+                                   (r.business_function || r.businessFunction || "").toUpperCase().includes("REVOCATION") ||
+                                   (r.request_number || r.requestId || "").toUpperCase().startsWith("REV-") ||
+                                   (r.request_number || r.requestId || "").toUpperCase().includes("-REV-");
+                if (isRowRevoc) {
+                    info.isRevocation = true;
+                }
+
+                const sApprStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
+                const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
+                const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
+                const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
+
+                if (sApprStatus === "APPROVED" || sApprStatus === "REJECTED" ||
+                    sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
+                    sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED") {
+                    info.hasApproverDecided = true;
+                }
+                if (sApprStatus === "REJECTED" || (sDbStatus === "REJECTED" && !sCompStatus && !sIam1Status && !sIam2Status)) {
+                    info.hasApproverRejected = true;
+                }
+
+                if (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" ||
+                    sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" ||
+                    (sDbStatus === "APPROVED" && info.hasConflict) ||
+                    (sDbStatus === "REJECTED" && sCompStatus === "REJECTED")) {
+                    info.hasComplianceDecided = true;
+                }
+                if (sCompStatus === "REJECTED") {
+                    info.hasComplianceRejected = true;
+                }
+
+                if (sIam1Status === "APPROVED" || sIam1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                    info.hasIam1Decided = true;
+                }
+
+                if (sIam2Status === "APPROVED" || sIam2Status === "REJECTED" || sDbStatus === "APPROVED") {
+                    info.hasIam2Decided = true;
+                }
+            });
+
+            // ── PASS 2: Categorization & Grouping based on Base Aggregation ────
             aSortedRecords.forEach(r => {
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
                 if (sDbStatus === "EXPIRED") return;
                 const sReqUser = (r.requester_username || r.requesterId || r.requesterUsername || "").trim().toLowerCase();
                 if (sActiveUser && sReqUser === sActiveUser) return;
-                const sApproverStatus = (r.approver_status || r.approver_decision_status || "").toUpperCase();
-                const sCompStatus = (r.compliance_status || r.compliance_decision_status || "").toUpperCase();
-                const sIam1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
-                const sIam2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
-                const hasConflict = r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim());
 
-                const isRevocation = (r.access_type || r.request_type || r.accessType || r.type || "").toUpperCase().includes("REV") ||
-                             (r.business_function || r.businessFunction || "").toUpperCase().includes("REVOCATION") ||
-                             (r.request_number || r.requestId || "").toUpperCase().startsWith("REV-") ||
-                             (r.request_number || r.requestId || "").toUpperCase().includes("-REV-");
+                const sBaseId = getBaseReqId(r.request_number || r.requestId || r.id);
+                const info = mBaseInfo[sBaseId] || {
+                    hasConflict: r.has_conflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim()),
+                    conflictingRole: r.conflicting_role || "",
+                    isRevocation: false,
+                    hasApproverDecided: false,
+                    hasApproverRejected: false,
+                    hasComplianceDecided: false,
+                    hasComplianceRejected: false,
+                    hasIam1Decided: false,
+                    hasIam2Decided: false,
+                    statuses: new Set([sDbStatus])
+                };
+
+                const hasConflict = info.hasConflict;
+                const isRevocation = info.isRevocation;
 
                 let isPendingForRole = false;
                 let bRoleApproved = false;
@@ -935,43 +1017,43 @@ sap.ui.define([
 
                 if (isCompliance) {
                     // COMPLIANCE REVIEWER:
-                    // Only sees Addition requests that reached PENDING_COMPLIANCE (because of SoD conflict).
-                    // NEVER sees freshly submitted Addition requests (status PENDING) or non-conflict requests!
-                    // NEVER sees Revocation requests!
-                    if (!isRevocation && sDbStatus === "PENDING_COMPLIANCE" && sCompStatus !== "APPROVED" && sCompStatus !== "REJECTED") {
-                        isPendingForRole = true;
-                    } else if (!isRevocation && (sCompStatus === "APPROVED" || sCompStatus === "REJECTED" || (hasConflict && (sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED")))) {
-                        isProcessedForRole = true;
-                        bRoleApproved = (sCompStatus === "APPROVED" || (hasConflict && (sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED"))) && sCompStatus !== "REJECTED";
+                    // Only handles non-revocation requests WITH conflict.
+                    // If Compliance has already decided: goes to History (Processed), NEVER in Pending!
+                    if (!isRevocation && hasConflict) {
+                        if (info.hasComplianceDecided) {
+                            isProcessedForRole = true;
+                            bRoleApproved = !info.hasComplianceRejected;
+                        } else if (info.hasApproverDecided && (info.statuses.has("PENDING_COMPLIANCE") || !info.statuses.has("PENDING"))) {
+                            isPendingForRole = true;
+                        }
                     }
                 } else if (isIam1) {
                     // IAM APPROVER 1:
-                    if (sDbStatus === "PENDING_IAM_1" && sIam1Status !== "APPROVED" && sIam1Status !== "REJECTED") {
-                        isPendingForRole = true;
-                    } else if (sIam1Status === "APPROVED" || sIam1Status === "REJECTED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                    if (info.hasIam1Decided) {
                         isProcessedForRole = true;
-                        bRoleApproved = (sIam1Status === "APPROVED" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sIam1Status !== "REJECTED";
+                        bRoleApproved = (r.iam_approver_1_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
+                    } else if (info.statuses.has("PENDING_IAM_1") || 
+                              (isRevocation && info.hasApproverDecided) ||
+                              (!hasConflict && info.hasApproverDecided) ||
+                              (hasConflict && info.hasComplianceDecided)) {
+                        isPendingForRole = true;
                     }
                 } else if (isIam2) {
                     // IAM APPROVER 2:
-                    if (sDbStatus === "PENDING_IAM_2" && sIam2Status !== "APPROVED" && sIam2Status !== "REJECTED") {
-                        isPendingForRole = true;
-                    } else if (sIam2Status === "APPROVED" || sIam2Status === "REJECTED" || sDbStatus === "APPROVED") {
+                    if (info.hasIam2Decided) {
                         isProcessedForRole = true;
-                        bRoleApproved = (sIam2Status === "APPROVED" || sDbStatus === "APPROVED") && sIam2Status !== "REJECTED";
+                        bRoleApproved = (r.iam_approver_2_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
+                    } else if (info.statuses.has("PENDING_IAM_2") || info.hasIam1Decided) {
+                        isPendingForRole = true;
                     }
                 } else {
                     // INITIAL APPROVER (Line Manager):
-                    // Freshly submitted requests start at PENDING -> Only initial Approver sees them in pending queue
-                    const isApproverDecided = sApproverStatus === "APPROVED" || sApproverStatus === "REJECTED" ||
-                                              sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" ||
-                                              sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
-
-                    if (!isApproverDecided && (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || sDbStatus === "SUBMITTED" || (isRevocation && (sDbStatus.includes("PENDING") || sDbStatus === "ACTIVE" || sDbStatus === "SUBMITTED" || sDbStatus === "IN_PROGRESS" || !sDbStatus || sDbStatus === "")))) {
-                        isPendingForRole = true;
-                    } else if (isApproverDecided) {
+                    // If Initial Approver has already decided: goes to History (Processed), NEVER in Pending!
+                    if (info.hasApproverDecided) {
                         isProcessedForRole = true;
-                        bRoleApproved = (sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED";
+                        bRoleApproved = !info.hasApproverRejected;
+                    } else if (info.statuses.has("PENDING") || info.statuses.has("PENDING_APPROVER") || info.statuses.has("REVOKE_PENDING") || info.statuses.has("REVOCATION_PENDING") || info.statuses.has("SUBMITTED") || isRevocation) {
+                        isPendingForRole = true;
                     }
                 }
 
@@ -1038,10 +1120,21 @@ sap.ui.define([
                             statusState: isRevocation ? "Error" : "Warning",
                             statusIcon: "sap-icon://pending",
                             isRevocation: isRevocation,
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || "",
                             _isPendingForRole: true,
                             approverRemark: r.approver_comment || r.approverRemark || "",
                             entitlements: []
                         };
+                    } else if (hasConflict) {
+                        oPendingGrouped[sPendKey].hasConflict = true;
+                        oPendingGrouped[sPendKey].has_conflict = true;
+                        if (r.conflicting_role) {
+                            oPendingGrouped[sPendKey].conflictingRole = r.conflicting_role;
+                            oPendingGrouped[sPendKey].conflicting_role = r.conflicting_role;
+                        }
                     }
                     oPendingGrouped[sPendKey].entitlements.push({
                         requestId: r.request_number || r.requestId,
@@ -1055,7 +1148,11 @@ sap.ui.define([
                         statusState: "Warning",
                         statusIcon: "sap-icon://pending",
                         approverRemark: r.approver_comment || r.approverRemark || "",
-                        comment: r.reviewer_comment || r.comments || ""
+                        comment: r.reviewer_comment || r.comments || "",
+                        hasConflict: hasConflict,
+                        has_conflict: hasConflict,
+                        conflictingRole: r.conflicting_role || "",
+                        conflicting_role: r.conflicting_role || ""
                     });
                     return;
                 }
@@ -1090,9 +1187,20 @@ sap.ui.define([
                             updatedAtRaw: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
                             updated_at: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
                             isRevocation: isRevocation,
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || "",
                             _isPendingForRole: false,
                             entitlements: []
                         };
+                    } else if (hasConflict) {
+                        oGrouped[sGroupKey].hasConflict = true;
+                        oGrouped[sGroupKey].has_conflict = true;
+                        if (r.conflicting_role) {
+                            oGrouped[sGroupKey].conflictingRole = r.conflicting_role;
+                            oGrouped[sGroupKey].conflicting_role = r.conflicting_role;
+                        }
                     }
 
                     const sCandidateUpd = r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || "";
@@ -1292,9 +1400,7 @@ sap.ui.define([
                             }
                         }
                     });
-                    if (aRemainingStoredProc.length !== aStoredProc.length) {
-                        sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aRemainingStoredProc));
-                    }
+                    // Preserve stored processed requests in sessionStorage so reload never loses them
                     if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
                         processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
                         processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
