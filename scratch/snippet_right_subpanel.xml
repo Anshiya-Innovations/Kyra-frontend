@@ -1,0 +1,67 @@
+<!-- Right Sub-Panel: Team Name & Persona (Matches media_1790767316133.png) -->
+                                        <VBox width="54%" class="kyraAdminClassDetailSubPanel">
+                                            <!-- TEAM NAME Header Label -->
+                                            <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
+                                                <Text text="TEAM NAME" class="kyraAdminFormLabel" />
+                                                <Text text="*" class="kyraAdminRequiredStar" />
+                                            </HBox>
+
+                                            <!-- Full-Width Team Name Input Box -->
+                                            <Input
+                                                id="adminTeamNameInput"
+                                                value="{accessModel>/selectedAdminClassification/name}"
+                                                editable="false"
+                                                tooltip="{accessModel>/selectedAdminClassification/name}"
+                                                class="kyraAdminSubClassInput kyraAdminReadOnlyInput"
+                                                width="100%" />
+
+                                            <!-- Right-Aligned Edit & Delete Action Buttons directly below Team Name Input -->
+                                            <HBox width="100%" justifyContent="End" alignItems="Center" class="sapUiTinyMarginTop sapUiSmallMarginBottom">
+                                                <Button
+                                                    icon="sap-icon://edit"
+                                                    press=".onEditSelectedAdminTeam"
+                                                    class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
+                                                    tooltip="Edit Team" />
+                                                <Button
+                                                    icon="sap-icon://delete"
+                                                    press=".onDeleteSelectedAdminTeam"
+                                                    class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                    tooltip="Delete Team" />
+                                            </HBox>
+
+                                            <!-- Persona (2) Title -->
+                                            <Text
+                                                text="{= 'Persona (' + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
+                                                class="kyraAdminSubPanelTitle kyraAdminSubClassHeader sapUiTinyMarginBottom" />
+
+                                            <!-- Persona List: Full-Width Input on Left + Edit & Delete on Right -->
+                                            <VBox items="{accessModel>/selectedAdminClassification/subClassifications}" class="kyraAdminSubClassListContainer" width="100%">
+                                                <HBox alignItems="Center" class="kyraAdminSubClassRow sapUiTinyMarginBottom" width="100%">
+                                                    <Input
+                                                        value="{accessModel>name}"
+                                                        editable="false"
+                                                        tooltip="{accessModel>name}"
+                                                        class="kyraAdminSubClassInput kyraAdminReadOnlyInput"
+                                                        width="100%" />
+                                                    <Button
+                                                        icon="sap-icon://edit"
+                                                        press=".onEditAdminSubClassification"
+                                                        class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                        tooltip="Edit Persona" />
+                                                    <Button
+                                                        icon="sap-icon://delete"
+                                                        press=".onDeleteAdminSubClassification"
+                                                        class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                        tooltip="Delete Persona" />
+                                                </HBox>
+                                            </VBox>
+
+                                            <!-- +Add Persona Dashed Outline Full-Width Button -->
+                                            <Button
+                                                text="+Add Persona"
+                                                press=".onAddAdminSubClassification"
+                                                class="kyraAdminSubAddBtn kyraAdminAddSubClassBtn sapUiTinyMarginTop"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
+                                </VBox>

@@ -1,56 +1,45 @@
 const fs = require('fs');
 
-const xml = fs.readFileSync('webapp/pages/access/AccessPage.view.xml', 'utf8');
+const files = [
+  'webapp/pages/access/AccessPage.view.xml',
+  'webapp/AccessPage.view.xml',
+  'dist/pages/access/AccessPage.view.xml'
+];
 
-// Use xmldom or native XML parse check if available
-try {
-    const { DOMParser } = require('@xmldom/xmldom');
-    const parser = new DOMParser({
-        errorHandler: {
-            error: (e) => console.error('XML Error:', e),
-            fatalError: (e) => console.error('XML Fatal Error:', e)
-        }
-    });
-    const doc = parser.parseFromString(xml, 'text/xml');
-    console.log('XML parsed successfully with xmldom. Document element:', doc.documentElement.tagName);
-} catch (e) {
-    console.log('xmldom not installed or error:', e.message);
-    // Let's do a fast tag balancing check
-    const stack = [];
-    const tagRegex = /<(\/)?([a-zA-Z0-9_:]+)([^>]*?)(\/?)>/g;
-    let match;
-    let line = 1;
-    let lastIndex = 0;
-    while ((match = tagRegex.exec(xml)) !== null) {
-        const textBefore = xml.substring(lastIndex, match.index);
-        line += (textBefore.match(/\n/g) || []).length;
-        lastIndex = match.index;
+files.forEach(f => {
+  const content = fs.readFileSync(f, 'utf8');
+  // Simple XML tag matching check
+  const tagStack = [];
+  const tagRegex = /<(\/)?([a-zA-Z0-9_:]+)([^>]*?)(\/)?>/g;
+  let match;
+  let line = 1;
+  let lastIndex = 0;
+  let errors = 0;
 
-        const isClosing = match[1] === '/';
-        const tagName = match[2];
-        const isSelfClosing = match[4] === '/';
+  while ((match = tagRegex.exec(content)) !== null) {
+    const isClosing = !!match[1];
+    const tagName = match[2];
+    const isSelfClosing = !!match[4] || match[0].endsWith('/>');
 
-        if (tagName.startsWith('!--') || tagName.startsWith('?')) continue;
+    if (tagName.startsWith('!--') || tagName.startsWith('?xml')) continue;
 
-        if (isSelfClosing) {
-            // self closing
-        } else if (isClosing) {
-            if (stack.length === 0) {
-                console.error(`Unexpected closing tag </${tagName}> at line ${line}`);
-            } else {
-                const popped = stack.pop();
-                if (popped.name !== tagName) {
-                    console.error(`Tag mismatch at line ${line}: expected </${popped.name}> (opened line ${popped.line}), got </${tagName}>`);
-                }
-            }
-        } else {
-            stack.push({ name: tagName, line });
-        }
-    }
-    if (stack.length > 0) {
-        console.error('Unclosed tags at end of file:');
-        stack.forEach(s => console.error(`  <${s.name}> opened at line ${s.line}`));
+    if (isSelfClosing) {
+      // self closing, no stack change
+    } else if (isClosing) {
+      const top = tagStack.pop();
+      if (top !== tagName) {
+        console.error(`[${f}] Mismatched closing tag </${tagName}>, expected </${top}> at index ${match.index}`);
+        errors++;
+        break;
+      }
     } else {
-        console.log('All tags balanced perfectly!');
+      tagStack.push(tagName);
     }
-}
+  }
+
+  if (errors === 0 && tagStack.length === 0) {
+    console.log(`[PASS] XML syntax perfectly valid: ${f}`);
+  } else if (tagStack.length > 0) {
+    console.error(`[FAIL] Unclosed tags in ${f}:`, tagStack.slice(-5));
+  }
+});
