@@ -142,40 +142,36 @@ sap.ui.define([
         },
 
         _onRouteMatched(oEvent) {
-            const bResetFlag = sessionStorage.getItem("kyra_reset_add_access") === "true";
             const sPreSector = sessionStorage.getItem("kyra_wizard_pre_sector");
             const sPreFunc = sessionStorage.getItem("kyra_wizard_pre_function");
 
+            sessionStorage.removeItem("kyra_reset_add_access");
+            sessionStorage.removeItem("kyra_wizard_sector");
+            sessionStorage.removeItem("kyra_wizard_function");
+
             const oModel = this.getView().getModel("addAccessModel");
-
-            if (bResetFlag) {
-                sessionStorage.removeItem("kyra_reset_add_access");
-                sessionStorage.removeItem("kyra_wizard_sector");
-                sessionStorage.removeItem("kyra_wizard_function");
-
-                if (oModel) {
-                    oModel.setData({
-                        step1Visible: true,
-                        step2Visible: false,
-                        step3Visible: false,
-                        sector: "",
-                        function: "",
-                        functionsList: [],
-                        region: "",
-                        selectedSystems: [],
-                        selectedServices: [],
-                        subRolesList: [],
-                        selectedRoles: [],
-                        personasList: [],
-                        selectedPersonas: [],
-                        duration: "",
-                        justification: "",
-                        activeUser: "",
-                        activePersona: "",
-                        summaryItems: [],
-                        submitEnabled: true
-                    });
-                }
+            if (oModel) {
+                oModel.setData({
+                    step1Visible: true,
+                    step2Visible: false,
+                    step3Visible: false,
+                    sector: "",
+                    function: "",
+                    functionsList: [],
+                    region: "",
+                    selectedSystems: [],
+                    selectedServices: [],
+                    subRolesList: [],
+                    selectedRoles: [],
+                    personasList: [],
+                    selectedPersonas: [],
+                    duration: "",
+                    justification: "",
+                    activeUser: "",
+                    activePersona: "",
+                    summaryItems: [],
+                    submitEnabled: true
+                });
             }
 
             if (sPreSector && oModel) {
@@ -190,6 +186,35 @@ sap.ui.define([
         },
 
         onNavBackToPortal() {
+            sessionStorage.removeItem("kyra_wizard_sector");
+            sessionStorage.removeItem("kyra_wizard_function");
+            sessionStorage.removeItem("kyra_wizard_pre_sector");
+            sessionStorage.removeItem("kyra_wizard_pre_function");
+            sessionStorage.setItem("kyra_reset_add_access", "true");
+            const oModel = this.getView().getModel("addAccessModel");
+            if (oModel) {
+                oModel.setData({
+                    step1Visible: true,
+                    step2Visible: false,
+                    step3Visible: false,
+                    sector: "",
+                    function: "",
+                    functionsList: [],
+                    region: "",
+                    selectedSystems: [],
+                    selectedServices: [],
+                    subRolesList: [],
+                    selectedRoles: [],
+                    personasList: [],
+                    selectedPersonas: [],
+                    duration: "",
+                    justification: "",
+                    activeUser: "",
+                    activePersona: "",
+                    summaryItems: [],
+                    submitEnabled: true
+                });
+            }
             this.getOwnerComponent().getRouter().navTo("AccessPage");
         },
 

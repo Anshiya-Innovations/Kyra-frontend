@@ -1728,6 +1728,9 @@ sap.ui.define([
                 oModel.setProperty("/selectedRequestDetail", {});
                 oModel.setProperty("/approverPendingTab", "accessRequests");
 
+                // Always reset Add Access state on route match / page reload so it is 100% fresh and empty
+                this._resetAddAccessState();
+
                 // Clear in-memory revocation state when user changes
                 if (bUserChanged) {
                     this._localInFlightRevocations = {};
@@ -5038,6 +5041,9 @@ sap.ui.define([
                 }
             }
 
+            // Reset all fields so Add Access is completely fresh and empty every time the user opens it
+            this._resetAddAccessState();
+
             oModel.setProperty("/showAddAccessSector", true);
             oModel.setProperty("/showPendingSection", false);
             oModel.setProperty("/showApprovedSection", false);
@@ -7458,7 +7464,8 @@ sap.ui.define([
                 // Broadcast real-time mutation event to all open tabs/views
                 this._notifyDatabaseMutation();
 
-                // Clear submitted access items from memory immediately so they cannot affect future requests
+                // Reset Add Access form and fields completely immediately upon submission
+                this._resetAddAccessState();
                 oModel.setProperty("/addAccessSummaryItems", []);
                 oModel.setProperty("/addAccessSystemSlideConfigs", {});
 
@@ -7646,65 +7653,169 @@ sap.ui.define([
 
         _resetAddAccessState() {
             const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
             this._aSelectedRegionIds = [];
-            this._updatePinSelectionStates();
-            this._updateSelectedChips();
-            this._updateSelectAllButtonState();
-
-            oModel.setProperty("/showAddAccessSector", false);
-            oModel.setProperty("/showMyAccessMasterSection", false);
-            oModel.setProperty("/selectedSector", "");
-            oModel.setProperty("/selectedFunction", "");
-            oModel.setProperty("/availableFunctions", []);
-            oModel.setProperty("/addAccessRegion", "");
-            oModel.setProperty("/mapSelectedRegions", []);
-            oModel.setProperty("/hasMapRegionSelection", false);
-            oModel.setProperty("/addAccessSelectedSystems", []);
-            oModel.setProperty("/hasSelectedTargetSystems", false);
-            oModel.setProperty("/targetSystemSlideTitle", "");
-            oModel.setProperty("/targetSystemSlideBadge", "");
-            oModel.setProperty("/currentSystemSlideName", "");
-            oModel.setProperty("/addAccessSelectedServices", []);
-            oModel.setProperty("/addAccessSelectedRoles", []);
-            oModel.setProperty("/addAccessSelectedPersonas", []);
-            oModel.setProperty("/addAccessSubRolesList", []);
-            oModel.setProperty("/addAccessPersonasList", []);
-            oModel.setProperty("/addAccessDuration", "");
-            oModel.setProperty("/addAccessJustification", "");
-            oModel.setProperty("/addAccessSystemSlideConfigs", {});
-            oModel.setProperty("/addAccessSummaryItems", []);
-            oModel.setProperty("/currentSystemSlideName", "");
-            oModel.setProperty("/addAccessCurrentSystemIndex", 0);
-            oModel.setProperty("/addAccessStep", 1);
-            oModel.setProperty("/addAccessConfigSubStep", 1);
-            oModel.setProperty("/isEditingFromSummary", false);
-            oModel.setProperty("/activeSodConflictsList", []);
-            oModel.setProperty("/pendingOnlySodConflictsList", []);
-            oModel.setProperty("/batchSodConflictsList", []);
+            try {
+                this._updatePinSelectionStates();
+                this._updateSelectedChips();
+                this._updateSelectAllButtonState();
+            } catch(e) {}
 
             try {
-                const oSystems = this.byId("inPageSystemsMultiSelect");
-                if (oSystems) oSystems.setSelectedKeys([]);
-                const oServices = this.byId("inPageServicesMultiSelect");
-                if (oServices) oServices.setSelectedKeys([]);
-                const oTeam = this.byId("inPageTeamMultiSelect");
-                if (oTeam) oTeam.setSelectedKeys([]);
-                const oPersona = this.byId("inPagePersonaMultiSelect");
-                if (oPersona) oPersona.setSelectedKeys([]);
+                document.querySelectorAll(".map-pin-container").forEach(el => el.classList.remove("active"));
+                const oSelectAll = document.getElementById("selectAllBtn") || document.getElementById("selectAllBtnAddAccess");
+                if (oSelectAll) {
+                    oSelectAll.classList.remove("active");
+                    const oText = oSelectAll.querySelector(".select-all-text");
+                    if (oText) oText.textContent = "Select All Regions";
+                }
+            } catch(e) {}
+
+            if (oModel) {
+                oModel.setProperty("/showAddAccessSector", false);
+                oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/selectedSector", "");
+                oModel.setProperty("/selectedFunction", "");
+                oModel.setProperty("/availableFunctions", []);
+                oModel.setProperty("/selectedBusinessSector", "");
+                oModel.setProperty("/selectedBusinessFunction", "");
+                oModel.setProperty("/addAccessBusinessSector", "");
+                oModel.setProperty("/addAccessBusinessFunction", "");
+                oModel.setProperty("/addAccessRegion", "");
+                oModel.setProperty("/mapSelectedRegions", []);
+                oModel.setProperty("/hasMapRegionSelection", false);
+                oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/hasSelectedTargetSystems", false);
+                oModel.setProperty("/targetSystemSlideTitle", "");
+                oModel.setProperty("/targetSystemSlideBadge", "");
+                oModel.setProperty("/targetSystemSlideCount", 0);
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/currentSystemSlideIndex", 0);
+                oModel.setProperty("/addAccessCurrentSystemIndex", 0);
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                oModel.setProperty("/addAccessSubRolesList", []);
+                oModel.setProperty("/addAccessPersonasList", []);
+                oModel.setProperty("/addAccessDuration", "");
+                oModel.setProperty("/addAccessJustification", "");
+                oModel.setProperty("/addAccessSystemSlideConfigs", {});
+                oModel.setProperty("/addAccessSummaryItems", []);
+                oModel.setProperty("/addAccessSummaryTables", []);
+                oModel.setProperty("/addAccessStep", 1);
+                oModel.setProperty("/addAccessConfigSubStep", 1);
+                oModel.setProperty("/addAccessStep4SubStep", 1);
+                oModel.setProperty("/isEditingFromSummary", false);
+                oModel.setProperty("/thresholdLimits", []);
+                oModel.setProperty("/excessiveThresholdIssues", []);
+                oModel.setProperty("/restrictedRecords", []);
+                oModel.setProperty("/duplicateRoles", []);
+                oModel.setProperty("/activeSodConflictsList", []);
+                oModel.setProperty("/pendingOnlySodConflictsList", []);
+                oModel.setProperty("/batchSodConflictsList", []);
+            }
+
+            try {
                 const oSector = this.byId("inPageBusinessSectorSelect");
-                if (oSector) oSector.setSelectedKey("");
+                if (oSector) {
+                    oSector.setSelectedKey("");
+                    oSector.setValue("");
+                    if (typeof oSector.clearSelection === "function") oSector.clearSelection();
+                    const oInner = oSector.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
                 const oFunc = this.byId("inPageBusinessFunctionSelect");
-                if (oFunc) oFunc.setSelectedKey("");
+                if (oFunc) {
+                    oFunc.setSelectedKey("");
+                    oFunc.setValue("");
+                    if (typeof oFunc.clearSelection === "function") oFunc.clearSelection();
+                    const oInner = oFunc.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
+                const oSystems = this.byId("inPageSystemsMultiSelect");
+                if (oSystems) {
+                    oSystems.setSelectedKeys([]);
+                    oSystems.setValue("");
+                    if (typeof oSystems.clearSelection === "function") oSystems.clearSelection();
+                    if (typeof oSystems.removeAllTokens === "function") oSystems.removeAllTokens();
+                    if (typeof oSystems.destroyTokens === "function") oSystems.destroyTokens();
+                    const oInner = oSystems.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
+                const oServices = this.byId("inPageServicesMultiSelect");
+                if (oServices) {
+                    oServices.setSelectedKeys([]);
+                    oServices.setValue("");
+                    if (typeof oServices.clearSelection === "function") oServices.clearSelection();
+                    if (typeof oServices.removeAllTokens === "function") oServices.removeAllTokens();
+                    if (typeof oServices.destroyTokens === "function") oServices.destroyTokens();
+                    const oInner = oServices.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
+                const oTeam = this.byId("inPageTeamMultiSelect");
+                if (oTeam) {
+                    oTeam.setSelectedKeys([]);
+                    oTeam.setValue("");
+                    if (typeof oTeam.clearSelection === "function") oTeam.clearSelection();
+                    if (typeof oTeam.removeAllTokens === "function") oTeam.removeAllTokens();
+                    if (typeof oTeam.destroyTokens === "function") oTeam.destroyTokens();
+                    const oInner = oTeam.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
+                const oPersona = this.byId("inPagePersonaMultiSelect");
+                if (oPersona) {
+                    oPersona.setSelectedKeys([]);
+                    oPersona.setValue("");
+                    if (typeof oPersona.clearSelection === "function") oPersona.clearSelection();
+                    if (typeof oPersona.removeAllTokens === "function") oPersona.removeAllTokens();
+                    if (typeof oPersona.destroyTokens === "function") oPersona.destroyTokens();
+                    const oInner = oPersona.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
                 const oDur = this.byId("inPageDurationSelect");
-                if (oDur) oDur.setSelectedKey("");
+                if (oDur) {
+                    oDur.setSelectedKey("");
+                    oDur.setValue("");
+                    if (typeof oDur.clearSelection === "function") oDur.clearSelection();
+                    const oInner = oDur.getDomRef("inner");
+                    if (oInner) oInner.value = "";
+                }
                 const oJust = this.byId("inPageJustificationArea");
-                if (oJust) oJust.setValue("");
+                if (oJust) {
+                    oJust.setValue("");
+                    const oInner = oJust.getDomRef("inner") || oJust.getDomRef();
+                    if (oInner) oInner.value = "";
+                }
+            } catch(e) {}
+
+            try {
+                const aInnerInputs = [
+                    "inPageBusinessSectorSelect-inner",
+                    "inPageBusinessFunctionSelect-inner",
+                    "inPageSystemsMultiSelect-inner",
+                    "inPageServicesMultiSelect-inner",
+                    "inPageTeamMultiSelect-inner",
+                    "inPagePersonaMultiSelect-inner",
+                    "inPageDurationSelect-inner",
+                    "inPageJustificationArea-inner"
+                ];
+                aInnerInputs.forEach(sDomId => {
+                    const el = document.getElementById(sDomId) || document.querySelector(`[id$="${sDomId}"]`);
+                    if (el) el.value = "";
+                });
+            } catch(e) {}
+
+            try {
+                sessionStorage.removeItem("kyra_wizard_sector");
+                sessionStorage.removeItem("kyra_wizard_function");
+                sessionStorage.removeItem("kyra_wizard_pre_sector");
+                sessionStorage.removeItem("kyra_wizard_pre_function");
+                sessionStorage.removeItem("kyra_reset_add_access");
             } catch(e) {}
         },
 
         _confirmDiscardAddAccess(fnProceedCallback) {
             if (!this._hasAddAccessInProgress()) {
+                this._resetAddAccessState();
                 fnProceedCallback();
                 return;
             }
@@ -10795,6 +10906,7 @@ sap.ui.define([
 
             const that = this;
             // Fetch persistent configuration from backend via getAdminCustomization
+            const iLoadTs = Date.now();
             fetch("/odata/v4/admin-portal/getAdminCustomization", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -10807,6 +10919,13 @@ sap.ui.define([
                         try {
                             const oParsed = JSON.parse(sJson);
                             if (oParsed && typeof oParsed === "object") {
+                                // Don't overwrite if admin made a conflict change more recently than this load started
+                                const iLastSave = that._lastConflictSaveTs || 0;
+                                if (iLastSave > iLoadTs) {
+                                    // Admin made edits after this load was triggered — skip conflict overwrite
+                                    that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    return;
+                                }
                                 that._applyParsedAdminConfigToModel(oModel, oParsed);
                                 localStorage.setItem("kyra_custom_access_config", JSON.stringify(oParsed));
                                 that._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
@@ -10832,8 +10951,13 @@ sap.ui.define([
                 role1: this._normalizeRoleToPersonaName(c.role1),
                 role2: this._normalizeRoleToPersonaName(c.role2)
             }));
-            if (!Array.isArray(aConflicts) || aConflicts.length === 0) {
+            // Only fall back to defaults on initial load (bSkipBackendSave=true AND no prior admin edits).
+            // When the admin intentionally removes all conflicts, the empty array must be respected.
+            if ((!Array.isArray(aConflicts) || aConflicts.length === 0) && bSkipBackendSave && !this._adminConflictsInitialized) {
                 aConflicts = this._getDefaultAdminConflictRules();
+            }
+            if (Array.isArray(aConflicts) && aConflicts.length > 0) {
+                this._adminConflictsInitialized = true;
             }
             oModel.setProperty("/adminCustomConflictsAll", aConflicts);
             oModel.setProperty("/adminCustomConflicts", aConflicts.slice());
@@ -10999,12 +11123,64 @@ sap.ui.define([
             }
         },
 
+        /**
+         * Directly persists the current custom conflicts list to the database.
+         * Called after every add / edit / delete / toggle of a conflict rule.
+         * Shows a success toast on save, or a warning toast if the save fails.
+         */
+        _persistConflictsToDb(oModel, sSuccessMsg) {
+            if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            // Build the full config payload (same shape as _syncAdminConfigToLiveAddAccess)
+            const aConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const oPayload = {
+                adminSystemsAll: oModel.getProperty("/adminSystemsAll") || [],
+                adminServicesAll: oModel.getProperty("/adminServicesAll") || [],
+                adminServiceDetailsMap: oModel.getProperty("/adminServiceDetailsMap") || {},
+                adminCustomConflictsAll: aConflicts,
+                adminDatabaseSchemas: oModel.getProperty("/adminDatabaseSchemas") || [],
+                adminPersonaUsers: oModel.getProperty("/adminPersonaUsers") || []
+            };
+
+            // Immediately update localStorage so a reload picks up the latest state
+            try {
+                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
+                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
+            } catch (e) {}
+
+            // Mark the timestamp of the last admin-triggered conflict save.
+            // The async getAdminCustomization fetch will skip overwriting if it returns
+            // data that is older than this timestamp.
+            this._lastConflictSaveTs = Date.now();
+
+            fetch("/odata/v4/admin-portal/saveAdminCustomization", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ configJson: JSON.stringify(oPayload) })
+            })
+                .then(res => res.ok ? res.json() : Promise.reject(res.status))
+                .then(oRes => {
+                    if (oRes && oRes.ok) {
+                        MessageToast.show(sSuccessMsg || "Conflict rules saved to database successfully.");
+                    } else {
+                        MessageToast.show("⚠ Conflict saved locally but DB sync returned an error. Please retry.");
+                    }
+                })
+                .catch(() => {
+                    MessageToast.show("⚠ Could not reach database. Conflict rule saved locally — will retry on next load.");
+                });
+        },
+
+
+
         onSelectAdminDatabaseConfig() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
             const sNext = sCurrent === "databaseConfig" ? "" : "databaseConfig";
             oModel.setProperty("/adminSelectedSection", sNext);
+
             if (sNext === "databaseConfig") {
                 const sMode = oModel.getProperty("/dbMigration/targetMode") || "kyra";
                 oModel.setProperty("/dbMigration/targetMode", sMode);
@@ -13007,10 +13183,11 @@ sap.ui.define([
                 _editingIndex: -1
             });
             this._syncAdminConfigToLiveAddAccess(oModel);
+            this._persistConflictsToDb(oModel, "✅ Custom Conflict saved to database successfully.");
 
             oModel.setProperty("/showCustomConflictSlide", false);
-            MessageToast.show("Custom Conflict saved and activated for Add Access SoD Validation.");
         },
+
 
         onEditAdminConflictRule(oEvent) {
             const oModel = this.getView().getModel("accessModel");
@@ -13184,9 +13361,9 @@ sap.ui.define([
                             oModel.setProperty("/adminCustomConflictsAll", aAll);
                             oModel.setProperty("/adminCustomConflicts", aAll.slice());
                             that._syncAdminConfigToLiveAddAccess(oModel);
+                            that._persistConflictsToDb(oModel, "✅ Conflict Rule updated in database successfully.");
 
                             that._showSlideNotification("Conflict Rule Updated", "Conflict rule for " + newSys + " updated successfully.");
-                            MessageToast.show("Conflict rule updated successfully.");
                             closeFn();
                         };
                     }
@@ -13210,7 +13387,7 @@ sap.ui.define([
             oModel.setProperty("/adminCustomConflictsAll", aAll);
             oModel.setProperty("/adminCustomConflicts", aAll.slice());
             this._syncAdminConfigToLiveAddAccess(oModel);
-            MessageToast.show("Conflict Rule is now " + sNextStatus + ".");
+            this._persistConflictsToDb(oModel, "✅ Conflict Rule status updated in database (now " + sNextStatus + ").");
         },
 
         onDeleteAdminConflictRule(oEvent) {
@@ -13227,8 +13404,8 @@ sap.ui.define([
                 oModel.setProperty("/adminCustomConflictsAll", aRemaining);
                 oModel.setProperty("/adminCustomConflicts", aRemaining.slice());
                 this._syncAdminConfigToLiveAddAccess(oModel);
+                this._persistConflictsToDb(oModel, "✅ Conflict Rule deleted from database successfully.");
                 this._showSlideNotification("Conflict Rule Deleted", `"${sTitle}" has been deleted.`, "delete");
-                MessageToast.show("Conflict Rule deleted.");
             });
         },
 

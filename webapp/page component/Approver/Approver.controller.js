@@ -37,6 +37,15 @@ sap.ui.define([
         return cleanPersonaName(s);
     }
 
+    function getBaseReqId(num) {
+        if (!num) return "";
+        const str = String(num).trim();
+        const parts = str.split("-");
+        if (parts.length >= 3) {
+            return parts.slice(0, 3).join("-");
+        }
+        return str;
+    }
 
     function calculateRevokeRemainingDays(r, matchingActiveRole) {
         return formatArDuration(r, matchingActiveRole);
@@ -339,17 +348,12 @@ sap.ui.define([
                     return;
                 }
 
-                // 2. Validation: Remarks/Comments mandatory
-                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
-                if (aMissingRemarks.length > 0) {
-                    sap.ui.require(["sap/m/MessageBox"], (MessageBox) => {
-                        MessageBox.warning(
-                            "Remarks Required: Please enter comments/remarks for all " + aEntitlements.length + " entitlement(s) before submitting your decision.",
-                            { title: "Remarks Required" }
-                        );
-                    });
-                    return;
-                }
+                // 2. Default remark / comment if omitted so user is not blocked
+                aEntitlements.forEach(e => {
+                    if (!e.comment || !e.comment.trim()) {
+                        e.comment = ((e.status || "").toLowerCase().includes("reject")) ? "Rejected by Approver" : "Approved by Approver";
+                    }
+                });
 
                 this._showDecisionSummarySlide(oData, false);
             }
@@ -801,10 +805,10 @@ sap.ui.define([
             oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
 
             const isReqRevoc = isRevCheckInner(oData);
-            oModel.setProperty("/showApprovalHistory", false);
-            sessionStorage.removeItem("kyra_show_approval_history");
-            sessionStorage.setItem("kyra_show_approval_history", "false");
-            oModel.setProperty("/approverPendingTab", isReqRevoc ? "revokeRequests" : "accessRequests");
+            oModel.setProperty("/showApprovalHistory", true);
+            sessionStorage.setItem("kyra_show_approval_history", "true");
+            oModel.setProperty("/approverHistoryTab", isReqRevoc ? "revokeRequests" : "accessRequests");
+            this._updateDisplayedHistoryRequests();
             sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aPending));
             sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aProcessed));
 
@@ -842,7 +846,7 @@ sap.ui.define([
                 !!oData.conflicting_role ||
                 (oData.entitlements || []).some(e => e.hasConflict === true || e.has_conflict === true || !!e.conflictingRole || !!e.conflicting_role)
             );
-            const aDecisionsPayload = (oData.entitlements || []).map(e => ({
+            let aDecisionsPayload = (oData.entitlements || []).map(e => ({
                 requestNumber: e.requestId || oData.requestId,
                 targetSystem: e.system,
                 roleName: e.roleName,
@@ -851,13 +855,28 @@ sap.ui.define([
                 hasConflict: bHasConflict
             }));
 
+            if (!aDecisionsPayload || aDecisionsPayload.length === 0) {
+                const isRejected = (sOverallStatus || "").toLowerCase().includes("reject");
+                aDecisionsPayload = [{
+                    requestNumber: oData.requestId,
+                    targetSystem: oData.system || "SAP System",
+                    roleName: oData.roleName || oData.serviceAndRole || "System Entitlement",
+                    selectedPersona: oData.selectedPersona || oData.persona || "User",
+                    status: isRejected ? "REJECTED" : "APPROVED",
+                    hasConflict: bHasConflict
+                }];
+            }
+
             try {
+                const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "emp081";
                 const response = await fetch("/odata/v4/auth/submitAccessDecision", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         requestNumber: oData.requestId,
                         actorRole: sessionStorage.getItem("kyra_active_role") || "Approver",
+                        actorUsername: sActiveUser,
+                        approverUsername: sActiveUser,
                         hasConflict: bHasConflict,
                         decisions: aDecisionsPayload
                     })
@@ -876,14 +895,6 @@ sap.ui.define([
         },
 
         _buildApproverHistoryAndPending(aRawRecords) {
-            const getBaseReqId = (num) => {
-                if (!num) return "";
-                const lastDash = num.lastIndexOf('-');
-                if (lastDash > 0 && lastDash >= num.length - 4) {
-                    return num.slice(0, lastDash);
-                }
-                return num;
-            };
 
             const deriveCleanService = (r) => {
                 const roleStr = (r.role_name || r.roleName || r.selected_persona || r.selectedPersona || r.requester_persona || r.persona || "").toLowerCase();

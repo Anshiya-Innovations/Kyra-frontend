@@ -12,8 +12,9 @@ sap.ui.define([
     "sap/m/VBox",
     "sap/m/HBox",
     "sap/m/Avatar",
-    "sap/m/ObjectStatus"
-], (Controller, MessageToast, MessageBox, Dialog, List, StandardListItem, Button, Title, Text, Label, VBox, HBox, Avatar, ObjectStatus) => {
+    "sap/m/ObjectStatus",
+    "kyra001/model/KyraDialog"
+], (Controller, MessageToast, MessageBox, Dialog, List, StandardListItem, Button, Title, Text, Label, VBox, HBox, Avatar, ObjectStatus, KyraDialog) => {
     "use strict";
 
     function cleanPersonaName(s) {
@@ -1228,17 +1229,12 @@ sap.ui.define([
                     return;
                 }
 
-                // 2. VALIDATION: Comments / Remarks are strictly mandatory!
-                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
-                if (aMissingRemarks.length > 0) {
-                    MessageBox.warning(
-                        "Remarks Required: Please enter comments/remarks for all " + aEntitlements.length + " entitlement(s) before submitting your decision.",
-                        {
-                            title: "Remarks Required"
-                        }
-                    );
-                    return;
-                }
+                // 2. Default remark / comment if omitted so user is not blocked
+                aEntitlements.forEach(e => {
+                    if (!e.comment || !e.comment.trim()) {
+                        e.comment = ((e.status || "").toLowerCase().includes("reject")) ? "Rejected by Approver" : "Approved by Approver";
+                    }
+                });
 
                 this._showDecisionSummarySlide(oData, false);
             }
@@ -1449,8 +1445,9 @@ sap.ui.define([
                 </div>
             `;
 
-            if (typeof KyraDialog !== "undefined") {
-                KyraDialog.show({
+            const oDialog = (typeof KyraDialog !== "undefined" ? KyraDialog : (typeof window !== "undefined" ? window.KyraDialog : null));
+            if (oDialog && typeof oDialog.show === "function") {
+                oDialog.show({
                     title: "Decision Breakdown Summary",
                     type: sOverallState,
                     maxWidth: "520px",
@@ -1463,6 +1460,10 @@ sap.ui.define([
                         }
                     }
                 });
+            } else {
+                if (!bReadOnly) {
+                    this._executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems);
+                }
             }
         },
 
@@ -1508,7 +1509,7 @@ sap.ui.define([
                 const isReqRevocation = !!(oData.isRevocation || oData.type === "Revocation" || (oData.accessType && String(oData.accessType).toUpperCase().includes("REV")) || String(oData.requestId || "").startsWith("REV-"));
 
                 // Build decisions payload for backend persistence with approver comments
-                const aDecisionsPayload = (oData.entitlements || []).map(e => {
+                let aDecisionsPayload = (oData.entitlements || []).map(e => {
                     const isRejected = (e.status || "").toLowerCase().includes("reject");
                     let sStatus = isRejected ? "REJECTED" : "APPROVED";
                     let sComment = e.comment || e.comments || (isRejected ? "Rejected by Approver" : "Approved by Approver");
@@ -1526,7 +1527,49 @@ sap.ui.define([
                     };
                 });
 
-                // 1. Immediately update pending queue and counts in model
+                if (!aDecisionsPayload || aDecisionsPayload.length === 0) {
+                    const isRejected = (sOverallStatus || "").toLowerCase().includes("reject");
+                    aDecisionsPayload = [{
+                        requestNumber: oData.requestId,
+                        targetSystem: oData.system || "SAP System",
+                        roleName: oData.roleName || oData.serviceAndRole || "System Entitlement",
+                        selectedPersona: oData.selectedPersona || oData.persona || "User",
+                        status: isRejected ? "REJECTED" : "APPROVED",
+                        comments: isRejected ? "Rejected by Approver" : "Approved by Approver",
+                        actorRole: sActiveRole,
+                        hasConflict: bHasConflict,
+                        accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition")
+                    }];
+                }
+
+                // 1. AWAIT backend persistence FIRST so DB is 100% updated BEFORE updating local model/storage
+                const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "emp081";
+                const oResp = await fetch("/odata/v4/auth/submitAccessDecision", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        requestNumber: oData.requestId,
+                        actorRole: sActiveRole,
+                        actorUsername: sActiveUser,
+                        approverUsername: sActiveUser,
+                        hasConflict: bHasConflict,
+                        accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition"),
+                        decisions: aDecisionsPayload
+                    })
+                });
+
+                if (!oResp.ok) {
+                    const sErrTxt = await oResp.text().catch(() => "");
+                    console.error("Backend submitAccessDecision failed with status:", oResp.status, sErrTxt);
+                    MessageBox.error("Failed to persist access decision to database. (Status: " + oResp.status + "). Please try again.");
+                    window._kyraDecisionInFlight = false;
+                    return;
+                }
+
+                const respData = await oResp.json().catch(() => ({}));
+                console.log("Decision persisted into database successfully:", respData);
+
+                // 2. Immediately update pending queue and counts in model
                 let aCurrentPending = oModel.getProperty("/pendingRequests") || [];
                 let aCurrentProcessed = oModel.getProperty("/processedRequests") || [];
 
@@ -1561,7 +1604,7 @@ sap.ui.define([
                 const sFunc = oData.businessFunction || oData.function || "Corporate Governance";
                 const sDur = oData.duration || "Permanent (Default)";
 
-                // 2. Build newly processed history item with authoritative timestamps so it never flickers or mis-sorts
+                // 3. Build newly processed history item with authoritative timestamps so it never flickers or mis-sorts
                 const sNowIso = new Date().toISOString();
                 const sTodayStr = sNowIso.split("T")[0];
                 const oNewProcessedItem = {
@@ -1607,7 +1650,7 @@ sap.ui.define([
                     }))
                 };
 
-                // 3. Immediately prepend to processed list and partitioned history arrays
+                // 4. Immediately prepend to processed list and partitioned history arrays
                 aCurrentProcessed = aCurrentProcessed.filter(p => !isSubTargetReq(p.requestId) && !isSubTargetReq(p.request_number));
                 aCurrentProcessed.unshift(oNewProcessedItem);
                 const sortDescSub = (a, b) => {
@@ -1657,33 +1700,11 @@ sap.ui.define([
                     console.warn("Storage warning:", eStorage);
                 }
 
-                // 4. AWAIT backend persistence so DB is 100% updated BEFORE any dashboard reload runs
-                try {
-                    const oResp = await fetch("/odata/v4/auth/submitAccessDecision", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            requestNumber: oData.requestId,
-                            actorRole: sActiveRole,
-                            hasConflict: bHasConflict,
-                            accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition"),
-                            decisions: aDecisionsPayload
-                        })
-                    });
-                    if (oResp.ok) {
-                        const data = await oResp.json().catch(() => ({}));
-                        console.log("Decision persisted into database successfully:", data);
-                    }
-                    window._kyraDecisionInFlight = false;
-                    window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
-                    window._kyraLastDecisionSubmitTime = Date.now();
-                    await this._reloadAllRequests(oModel);
-                    this._notifyDatabaseMutation();
-                } catch (netErr) {
-                    window._kyraDecisionInFlight = false;
-                    window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
-                    console.warn("Network / DB persistence note:", netErr.message);
-                }
+                window._kyraDecisionInFlight = false;
+                window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
+                window._kyraLastDecisionSubmitTime = Date.now();
+                await this._reloadAllRequests(oModel);
+                this._notifyDatabaseMutation();
 
                 // 5. Create user notification for requester
                 const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert");
