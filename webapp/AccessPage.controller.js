@@ -10834,10 +10834,10 @@ sap.ui.define([
                 oModel.setProperty("/adminServicesAll", aSrv);
                 oModel.setProperty("/adminServices", aSrv.slice());
             }
-            if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object") {
-                const oMergedMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oParsed.adminServiceDetailsMap);
-                Object.keys(oMergedMap).forEach(sSrv => {
-                    (oMergedMap[sSrv] || []).forEach(oTeam => {
+            if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object" && Object.keys(oParsed.adminServiceDetailsMap).length > 0) {
+                const oMap = JSON.parse(JSON.stringify(oParsed.adminServiceDetailsMap));
+                Object.keys(oMap).forEach(sSrv => {
+                    (oMap[sSrv] || []).forEach(oTeam => {
                         (oTeam.subClassifications || []).forEach(oSub => {
                             if (!oSub.accessPrivilege) {
                                 oSub.accessPrivilege = this._isDefaultRestrictedPersona(oSub.name) ? "Restricted" : "Not restricted";
@@ -10845,9 +10845,9 @@ sap.ui.define([
                         });
                     });
                 });
-                oModel.setProperty("/adminServiceDetailsMap", oMergedMap);
-                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Owners";
-                const aTeams = oMergedMap[sSelectedSrv] || [];
+                oModel.setProperty("/adminServiceDetailsMap", oMap);
+                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+                const aTeams = oMap[sSelectedSrv] || oMap[Object.keys(oMap)[0]] || [];
                 if (aTeams.length > 0) {
                     oModel.setProperty("/adminClassifications", JSON.parse(JSON.stringify(aTeams)));
                     const oActiveTeam = aTeams.find(t => t.selected) || aTeams[0];
@@ -10903,13 +10903,14 @@ sap.ui.define([
                 console.warn("Load custom conflicts error:", e);
             }
 
+            this._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
             this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
 
             this._syncAdminConfigToLiveAddAccess(oModel, true);
 
             const that = this;
-            // Fetch live persistent configuration from backend role_conflicts table
+            // Fetch live persistent configuration from backend PostgreSQL database tables
             const iLoadTs = Date.now();
             fetch("/odata/v4/admin-portal/getAdminCustomization", {
                 method: "POST",
@@ -10934,6 +10935,7 @@ sap.ui.define([
                                 if (Array.isArray(oParsed.adminCustomConflictsAll)) {
                                     localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oParsed.adminCustomConflictsAll));
                                 }
+                                that._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
                                 that._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
                                 that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
@@ -10950,7 +10952,10 @@ sap.ui.define([
 
             const aSystems = oModel.getProperty("/adminSystemsAll") || [];
             const aServices = oModel.getProperty("/adminServicesAll") || [];
-            const oDetailsMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oModel.getProperty("/adminServiceDetailsMap") || {});
+            const oExistingMap = oModel.getProperty("/adminServiceDetailsMap");
+            const oDetailsMap = (oExistingMap && Object.keys(oExistingMap).length > 0)
+                ? oExistingMap
+                : this._getDefaultAdminServiceDetailsMap();
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
 
             let aConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => Object.assign({ status: c.status || "Active" }, c, {
@@ -11126,34 +11131,34 @@ sap.ui.define([
         },
 
         /**
-         * Directly persists the current custom conflicts list to the database.
-         * Called after every add / edit / delete / toggle of a conflict rule.
-         * Shows a success toast on save, or a warning toast if the save fails.
+         * Persists all three sections (Systems, Services/Teams/Personas, and Custom Conflicts)
+         * to the PostgreSQL database tables.
          */
-        _persistConflictsToDb(oModel, sSuccessMsg) {
+        _persistAllCustomizationsToDb(oModel, sSuccessMsg) {
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            // Build the full config payload (same shape as _syncAdminConfigToLiveAddAccess)
+            const aSystems = oModel.getProperty("/adminSystemsAll") || [];
+            const aServices = oModel.getProperty("/adminServicesAll") || [];
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             const aConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const aDbSchemas = oModel.getProperty("/adminDatabaseSchemas") || [];
+            const aPersonaUsers = oModel.getProperty("/adminPersonaUsers") || [];
+
             const oPayload = {
-                adminSystemsAll: oModel.getProperty("/adminSystemsAll") || [],
-                adminServicesAll: oModel.getProperty("/adminServicesAll") || [],
-                adminServiceDetailsMap: oModel.getProperty("/adminServiceDetailsMap") || {},
+                adminSystemsAll: aSystems,
+                adminServicesAll: aServices,
+                adminServiceDetailsMap: oDetailsMap,
                 adminCustomConflictsAll: aConflicts,
-                adminDatabaseSchemas: oModel.getProperty("/adminDatabaseSchemas") || [],
-                adminPersonaUsers: oModel.getProperty("/adminPersonaUsers") || []
+                adminDatabaseSchemas: aDbSchemas,
+                adminPersonaUsers: aPersonaUsers
             };
 
-            // Immediately update localStorage so a reload picks up the latest state
             try {
                 localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
                 localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
             } catch (e) {}
 
-            // Mark the timestamp of the last admin-triggered conflict save.
-            // The async getAdminCustomization fetch will skip overwriting if it returns
-            // data that is older than this timestamp.
             this._lastConflictSaveTs = Date.now();
 
             fetch("/odata/v4/admin-portal/saveAdminCustomization", {
@@ -11164,14 +11169,22 @@ sap.ui.define([
                 .then(res => res.ok ? res.json() : Promise.reject(res.status))
                 .then(oRes => {
                     if (oRes && oRes.ok) {
-                        MessageToast.show(sSuccessMsg || "Conflict rules saved to database successfully.");
+                        MessageToast.show(sSuccessMsg || "Customization saved to database successfully.");
                     } else {
-                        MessageToast.show("⚠ Conflict saved locally but DB sync returned an error. Please retry.");
+                        MessageToast.show("⚠ Saved locally, but database sync returned an error.");
                     }
                 })
                 .catch(() => {
-                    MessageToast.show("⚠ Could not reach database. Conflict rule saved locally — will retry on next load.");
+                    MessageToast.show("⚠ Saved locally. Will retry synchronizing with database on next update.");
                 });
+        },
+
+        /**
+         * Directly persists the current custom conflicts list to the database.
+         * Called after every add / edit / delete / toggle of a conflict rule.
+         */
+        _persistConflictsToDb(oModel, sSuccessMsg) {
+            this._persistAllCustomizationsToDb(oModel, sSuccessMsg || "Conflict rules saved to database successfully.");
         },
 
 
@@ -11853,9 +11866,9 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             this._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Systems Saved", "System configuration saved and activated for all users.");
-            MessageToast.show("System configuration saved and activated for all users.");
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "System configuration saved to database and activated for all users.");
+            this._showSlideNotification("Systems Saved", "System configuration saved to database and activated for all users.");
         },
 
         onDeleteAdminSystem(oEvent) {
@@ -12233,8 +12246,9 @@ sap.ui.define([
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
             this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oDetailsMap));
 
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            sap.m.MessageToast.show("Service configuration saved and activated for all users.");
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Service configuration saved to database and activated for all users.");
+            this._showSlideNotification("Services Saved", "Service configuration saved to database and activated for all users.");
         },
 
         onDeleteAdminService(oEvent) {
@@ -12832,9 +12846,9 @@ sap.ui.define([
             const aAllServices = oModel.getProperty("/adminServicesAll") || [];
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAllServices));
 
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Service Details Saved", "Changes to Service Details and Personas have been saved and applied to Add Access.");
-            MessageToast.show("Service Details (Team & Persona) saved, activated, and reflected in Add Access for all users.");
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Service Details (Team & Persona) saved to database and activated for all users.");
+            this._showSlideNotification("Service Details Saved", "Changes to Service Details and Personas have been saved to database and applied to Add Access.");
         },
 
         onCancelAdminServiceDetails() {
