@@ -3226,15 +3226,16 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea *::after {
 .kyraJustificationTextArea:hover,
 .kyraJustificationTextArea.sapMTextArea:hover,
 #inPageJustificationArea:hover,
+.kyraSideJustificationTextArea:hover,
+.kyraSideJustificationTextArea.sapMTextArea:hover,
 .kyraJustificationTextArea.sapMFocus,
 .kyraJustificationTextArea:focus-within,
 #inPageJustificationArea.sapMFocus,
 #inPageJustificationArea:focus-within,
-[id$="inPageJustificationArea"].sapMFocus,
-[id$="inPageJustificationArea"]:focus-within,
 .kyraSideJustificationTextArea.sapMFocus,
 .kyraSideJustificationTextArea:focus-within {
     border-color: #008C9C !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -32229,8 +32230,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 /* Single-click active selection styling on hover and focus */
 .kyraSideJustificationTextArea:hover,
 .kyraSideJustificationTextArea.sapMTextArea:hover,
-#inPageJustificationArea:hover,
-[id$="inPageJustificationArea"]:hover {
+#inPageJustificationArea:hover {
     border: 1.5px solid #007380 !important;
 }
 
@@ -32244,12 +32244,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 #inPageJustificationArea:focus-within,
 #inPageJustificationArea.sapMFocus,
 #inPageJustificationArea.sapMInputBaseFocused,
-#inPageJustificationArea.kyraJustificationFocused,
-[id$="inPageJustificationArea"]:focus,
-[id$="inPageJustificationArea"]:focus-within,
-[id$="inPageJustificationArea"].sapMFocus,
-[id$="inPageJustificationArea"].sapMInputBaseFocused,
-[id$="inPageJustificationArea"].kyraJustificationFocused {
+#inPageJustificationArea.kyraJustificationFocused {
     border: 2px solid #008C9C !important;
     border-color: #008C9C !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.25) !important;
@@ -32259,9 +32254,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 
 /* Inner SAP content wrapper — NO border (prevents double border) */
 .kyraSideJustificationTextArea .sapMInputBaseContentWrapper,
-.kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper,
-#inPageJustificationArea .sapMInputBaseContentWrapper,
-[id$="inPageJustificationArea"] .sapMInputBaseContentWrapper {
+.kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper {
     border: none !important;
     border-radius: 0 !important;
     background: transparent !important;
@@ -32275,8 +32268,6 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     display: block !important;
     position: relative !important;
     box-sizing: border-box !important;
-    cursor: text !important;
-    pointer-events: auto !important;
 }
 
 /* Native textarea element — pinned to top-left, 16px padding, full 140px box click and touch area */
@@ -32284,10 +32275,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 .kyraSideJustificationTextArea .sapMTextAreaInner,
 #inPageJustificationArea textarea,
 #inPageJustificationArea .sapMTextAreaInner,
-#inPageJustificationArea-inner,
-[id$="inPageJustificationArea"] textarea,
-[id$="inPageJustificationArea"] .sapMTextAreaInner,
-[id$="inPageJustificationArea-inner"] {
+#inPageJustificationArea-inner {
     position: relative !important;
     display: block !important;
     z-index: 10 !important;
@@ -32317,9 +32305,37 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     overflow-y: auto !important;
 }
 
+/* Ensure placeholder overlays and growing clones never intercept pointer events */
+.kyraSideJustificationTextArea .sapMInputBasePlaceholder,
+.kyraSideJustificationTextArea [id$="-placeholder"],
+.kyraSideJustificationTextArea .sapMTextAreaPlaceholder,
+.kyraSideJustificationTextArea .sapMTextAreaGrowing,
+.kyraSideJustificationTextArea [id$="-growing"],
+#inPageJustificationArea .sapMInputBasePlaceholder,
+#inPageJustificationArea [id$="-placeholder"],
+#inPageJustificationArea .sapMTextAreaPlaceholder,
+#inPageJustificationArea .sapMTextAreaGrowing,
+#inPageJustificationArea [id$="-growing"] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    z-index: -1 !important;
+    position: absolute !important;
+}
+
+#inPageJustificationCol {
+    cursor: text !important;
+    pointer-events: auto !important;
+}
+
 /* Placeholder pinned to top-left (not centered or bottom) */
 .kyraSideJustificationTextArea textarea::placeholder,
-.kyraSideJustificationTextArea .sapMTextAreaInner::placeholder {
+.kyraSideJustificationTextArea .sapMTextAreaInner::placeholder,
+#inPageJustificationArea textarea::placeholder,
+#inPageJustificationArea .sapMTextAreaInner::placeholder {
     color: #94A3B8 !important;
     font-size: 13.5px !important;
     font-weight: 400 !important;
@@ -32327,22 +32343,6 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     text-align: left !important;
     line-height: 1.5 !important;
     opacity: 1 !important;
-}
-
-.kyraSideDisabledLabel,
-.kyraSideDisabledLabel.sapMLabel {
-    color: #94A3B8 !important;
-}
-
-.kyraSideLockedPlaceholder {
-    border: 1.5px dashed #CBD5E1 !important;
-    border-radius: 8px !important;
-    background: #F8FAFC !important;
-    min-height: 42px !important;
-    height: 42px !important;
-    padding: 0 14px !important;
-    box-sizing: border-box !important;
-    gap: 8px !important;
 }
 
 .kyraSideLockedIcon {

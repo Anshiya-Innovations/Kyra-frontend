@@ -92,6 +92,9 @@ sap.ui.define([
                             sessionStorage.setItem("kyra_redirect_args", JSON.stringify(oArgs));
                         } catch(e) {}
                         oRouter.navTo("Login", {}, true);
+                        if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                            oRouter.getTargets().display("TargetLogin");
+                        }
                         return;
                     }
                 }
@@ -463,11 +466,11 @@ sap.ui.define([
 
                 const startAlignmentLoop = (oControl, oPicker) => {
                     let rafId = null;
-                    const startTime = Date.now();
                     const loop = () => {
-                        positionPickerDirectly(oControl, oPicker);
-                        const bIsOpen = typeof oControl.isOpen === "function" ? oControl.isOpen() : true;
-                        if (Date.now() - startTime < 3000 || bIsOpen) {
+                        const bIsOpen = (typeof oControl.isOpen === "function" ? oControl.isOpen() : true) &&
+                                        (!oPicker || typeof oPicker.isOpen !== "function" || oPicker.isOpen());
+                        if (bIsOpen) {
+                            positionPickerDirectly(oControl, oPicker);
                             rafId = requestAnimationFrame(loop);
                         }
                     };
@@ -537,7 +540,8 @@ sap.ui.define([
                             oPicker._kyraCloseGuarded = true;
                             const origPickerClose = oPicker.close;
                             oPicker.close = function(bForce) {
-                                if ((this._bScreenMoving || (oControl && oControl._bScreenMoving)) && !bForce) {
+                                const isMulti = oControl && oControl.isA && oControl.isA("sap.m.MultiComboBox");
+                                if (isMulti && (this._bScreenMoving || (oControl && oControl._bScreenMoving)) && !bForce) {
                                     return this;
                                 }
                                 return origPickerClose.apply(this, arguments);
@@ -682,7 +686,8 @@ sap.ui.define([
 
                             const origProtoClose = proto.close;
                             proto.close = function(bForce) {
-                                if ((this._bScreenMoving || this._bPreventAutoClose) && !bForce) {
+                                const isMulti = this.isA && this.isA("sap.m.MultiComboBox");
+                                if (isMulti && (this._bScreenMoving || this._bPreventAutoClose) && !bForce) {
                                     return this;
                                 }
                                 this._bPreventAutoClose = false;

@@ -1303,6 +1303,18 @@ sap.ui.define([
                         if (typeof oPicker.addStyleClass === "function") {
                             oPicker.addStyleClass("kyraDropdownBottomOnly");
                         }
+                        if (!oPicker._hasKyraCloseAttached) {
+                            oPicker._hasKyraCloseAttached = true;
+                            if (typeof oPicker.attachAfterClose === "function") {
+                                oPicker.attachAfterClose(() => {
+                                    const oModel = this.getView().getModel("accessModel");
+                                    const sDur = oModel ? oModel.getProperty("/addAccessDuration") : "";
+                                    if (sDur && sDur.trim() !== "") {
+                                        this._focusJustificationAreaDirectly();
+                                    }
+                                });
+                            }
+                        }
                     }
                 } catch(e) {}
 
@@ -1361,6 +1373,42 @@ sap.ui.define([
                 }
             };
             oControl.addDelegate(oControl._durDelegate, true, oControl);
+        },
+
+        _focusJustificationAreaDirectly() {
+            this._setupJustificationAreaClick();
+
+            const doFocus = () => {
+                const oArea = this.byId("inPageJustificationArea");
+                let oTextarea = null;
+                if (oArea) {
+                    const oDom = oArea.getDomRef();
+                    oTextarea = oDom ? oDom.querySelector("textarea") : null;
+                    if (!oTextarea && typeof oArea.getFocusDomRef === "function") {
+                        oTextarea = oArea.getFocusDomRef();
+                    }
+                }
+                if (!oTextarea) {
+                    oTextarea = document.querySelector("#inPageJustificationArea textarea, .kyraSideJustificationTextArea textarea");
+                }
+                if (oTextarea) {
+                    try {
+                        oTextarea.focus();
+                        const len = oTextarea.value ? oTextarea.value.length : 0;
+                        oTextarea.setSelectionRange(len, len);
+                    } catch(e) {}
+                }
+            };
+
+            // Immediate focus attempt
+            doFocus();
+
+            if (window.requestAnimationFrame) {
+                window.requestAnimationFrame(doFocus);
+            }
+            [30, 80, 150, 250, 400].forEach(ms => {
+                setTimeout(doFocus, ms);
+            });
         },
 
         _setupJustificationAreaClick() {
@@ -1450,7 +1498,18 @@ sap.ui.define([
                 oArea._justificationDelegate = null;
             }
             oArea._justificationDelegate = {
-                onAfterRendering: fnApplyDirectFocus
+                onAfterRendering: () => {
+                    fnApplyDirectFocus();
+                    const oModel = this.getView().getModel("accessModel");
+                    const sDur = oModel ? oModel.getProperty("/addAccessDuration") : "";
+                    if (sDur && sDur.trim() !== "") {
+                        const oDom = oArea.getDomRef();
+                        const oTextarea = oDom ? oDom.querySelector("textarea") : null;
+                        if (oTextarea) {
+                            try { oTextarea.focus(); } catch(e) {}
+                        }
+                    }
+                }
             };
             oArea.addDelegate(oArea._justificationDelegate, true, oArea);
             fnApplyDirectFocus();
@@ -5115,19 +5174,20 @@ sap.ui.define([
                 oModel.setProperty("/addAccessDuration", sKey);
             }
 
-            // Once duration is selected, ensure Business Justification is ready for instant single-click input
+            // Immediately close and blur duration select to prevent UI5 focus-steal
+            if (oSource) {
+                if (typeof oSource.close === "function") {
+                    try { oSource.close(true); } catch(e) {}
+                }
+                const oInner = oSource.getDomRef ? oSource.getDomRef("inner") : null;
+                if (oInner && typeof oInner.blur === "function") {
+                    try { oInner.blur(); } catch(e) {}
+                }
+            }
+
+            // Instantly auto-focus Business Justification with 0 delay (< 1s)
             if (sKey && sKey.trim() !== "") {
-                setTimeout(() => {
-                    this._setupJustificationAreaClick();
-                    const oArea = this.byId("inPageJustificationArea");
-                    if (oArea) {
-                        const oDom = oArea.getDomRef();
-                        const oTextarea = oDom ? oDom.querySelector("textarea") : null;
-                        if (oTextarea) {
-                            oTextarea.focus();
-                        }
-                    }
-                }, 100);
+                this._focusJustificationAreaDirectly();
             }
         },
 

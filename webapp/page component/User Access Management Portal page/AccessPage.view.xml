@@ -2750,8 +2750,8 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- Right Column: Business Justification (Automatically opened ONLY once Duration is filled) -->
-                                    <VBox width="50%" class="kyraSideBySideCol kyraFadeSlideAnim" visible="{= !!${accessModel>/addAccessDuration} }">
+                                    <!-- Right Column: Business Justification -->
+                                    <VBox id="inPageJustificationCol" width="50%" class="kyraSideBySideCol">
                                         <HBox alignItems="Center" class="kyraSideLabelRow">
                                             <Label text="Business Justification:" required="true" labelFor="inPageJustificationArea" class="kyraSideLabel kyraSideJustLabel" />
                                         </HBox>
@@ -2759,23 +2759,12 @@
                                             id="inPageJustificationArea"
                                             value="{accessModel>/addAccessJustification}"
                                             valueLiveUpdate="true"
-                                            growing="false"
-                                            rows="5"
                                             placeholder="Provide detailed business justification for requesting these system permissions..."
                                             height="140px"
                                             width="100%"
+                                            growing="false"
+                                            rows="4"
                                             class="kyraSideJustificationTextArea" />
-                                    </VBox>
-
-                                    <!-- Placeholder when duration is not yet filled -->
-                                    <VBox width="50%" class="kyraSideBySideCol" visible="{= !${accessModel>/addAccessDuration} }">
-                                        <HBox alignItems="Center" class="kyraSideLabelRow">
-                                            <Label text="Business Justification:" class="kyraSideLabel kyraSideDisabledLabel" />
-                                        </HBox>
-                                        <HBox class="kyraSideLockedPlaceholder" alignItems="Center">
-                                            <core:Icon src="sap-icon://hint" class="kyraSideLockedIcon" />
-                                            <Text text="Please select an Access Duration to open Business Justification." class="kyraSideLockedNotice" />
-                                        </HBox>
                                     </VBox>
                                 </HBox>
                             </VBox>
