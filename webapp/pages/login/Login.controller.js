@@ -329,16 +329,14 @@ sap.ui.define([
 
             // Instant, bulletproof login handler with seamless pre-loading and smooth navigation
             const performLoginSuccess = (oResult) => {
-                // Update loader slide text to indicate pre-loading dashboard data
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                        duration: 15000
-                    });
-                } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
-                }
+                // Promptly dismiss loading slide for instantaneous dashboard display
+                setTimeout(() => {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                }, 350);
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";

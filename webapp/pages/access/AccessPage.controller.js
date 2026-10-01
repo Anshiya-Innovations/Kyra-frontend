@@ -673,7 +673,7 @@ sap.ui.define([
                 personaConversionMode: "single",
                 departmentPersona: {
                     departmentName: "",
-                    targetPersona: "",
+                    targetPersona: "Requester",
                     status: "Active"
                 },
                 allAvailableDepartments: [
@@ -682,7 +682,6 @@ sap.ui.define([
                     { name: "Finance & Accounting" },
                     { name: "Human Resources" },
                     { name: "Information Security" },
-                    { name: "IT Developer" },
                     { name: "IT Infrastructure" },
                     { name: "Legal & Compliance" },
                     { name: "Operations" },
@@ -2385,27 +2384,41 @@ sap.ui.define([
             this._bNeedsFollowUpReload = false;
             const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
 
-            if (!bSilent) {
+            const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
+            const sRoleCheck = (sessionStorage.getItem("kyra_active_role") || "").toLowerCase();
+            const bIsReviewerCheck = sRoleCheck.includes("compliance") || sRoleCheck.includes("approver");
+
+            if (!bSilent && !bHasWarmCache && !bIsReviewerCheck) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Loading KYRA Governance Dashboard...",
                         subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                        duration: 15000
+                        duration: 3000
                     });
                 } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 3000);
                 }
             }
 
-            localStorage.removeItem("kyra_submitted_my_pending");
-            localStorage.removeItem("kyra_submitted_approver_requests");
-            localStorage.removeItem("kyra_submitted_my_history");
-            sessionStorage.removeItem("kyra_submitted_requests");
-
             let aRawDbRequests = [];
+            if (window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
+                aRawDbRequests = window._kyraCachedGovRequests.slice();
+            }
+
             try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
+                if (!window._kyraGovFetchPromise) {
+                    window._kyraGovFetchPromise = fetch("/odata/v4/admin-portal/GovernanceHistory")
+                        .then(r => r.json())
+                        .catch(err => {
+                            console.error("Error fetching GovernanceHistory in AccessPage:", err);
+                            return null;
+                        })
+                        .finally(() => {
+                            setTimeout(() => { window._kyraGovFetchPromise = null; }, 200);
+                        });
+                }
+
+                const data = await window._kyraGovFetchPromise;
                 if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
                     this._bIsLoadingRequests = false;
                     if (this._bNeedsFollowUpReload && !window._kyraDecisionInFlight) {
@@ -2415,7 +2428,12 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value) {
-                    aRawDbRequests = data.value;
+                    aRawDbRequests = data.value.slice();
+                    window._kyraCachedGovRequests = aRawDbRequests;
+                    try {
+                        sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawDbRequests));
+                        localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawDbRequests));
+                    } catch(e) {}
 
                     const aDeletedKeys = JSON.parse(sessionStorage.getItem("kyra_deleted_entitlements") || "[]");
                     const aDeletedRequestIds = JSON.parse(sessionStorage.getItem("kyra_deleted_requests") || "[]");
@@ -14271,9 +14289,6 @@ sap.ui.define([
                         try { aDepts = JSON.parse(data.departmentsJson); } catch (e) {}
                     }
                     if (Array.isArray(aDepts) && aDepts.length > 0) {
-                        if (!aDepts.some(d => d.toLowerCase() === "it developer")) {
-                            aDepts.push("IT Developer");
-                        }
                         aDepts.sort();
                         oModel.setProperty("/allAvailableDepartments", aDepts.map(d => ({ name: d })));
                     }
@@ -14283,7 +14298,7 @@ sap.ui.define([
             }
         },
 
-                async onPreviewDepartmentUsers(sExplicitDept) {
+        async onPreviewDepartmentUsers(sExplicitDept) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
@@ -14317,12 +14332,9 @@ sap.ui.define([
                 oModel.setProperty("/departmentPersonaSelectedCount", aUsers.length);
 
                 if (aUsers.length > 0) {
-                    const sTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-                    const sInstruct = sTarget
-                        ? ("Target persona '" + sTarget + "' selected. Click Save Changes to convert them.")
-                        : "Select a Target Persona and click Save Changes to convert them.";
+                    const sTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "Requester").trim();
                     oModel.setProperty("/departmentPersonaResult", {
-                        message: "Found " + aUsers.length + " user(s) in department '" + sDept + "'. " + sInstruct,
+                        message: "Found " + aUsers.length + " user(s) in department '" + sDept + "'. Select the user IDs to convert, select a Target Persona, and click Save Changes.",
                         state: "Information"
                     });
                     sap.m.MessageToast.show("Found " + aUsers.length + " user(s) in '" + sDept + "'.");
@@ -14339,22 +14351,17 @@ sap.ui.define([
             }
         },
 
-        async onDepartmentSelectChange(oEvent) {
+        onDepartmentSelectChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const oItem = oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("selectedItem") : null;
             const sVal = oItem ? (oItem.getText() || oItem.getKey()) : ((oEvent && typeof oEvent.getParameter === "function") ? oEvent.getParameter("value") : (oEvent && oEvent.getSource ? oEvent.getSource().getValue() : ""));
             const sClean = (sVal || "").trim();
             oModel.setProperty("/departmentPersona/departmentName", sClean);
-
-            if (sClean) {
-                await this.onPreviewDepartmentUsers(sClean);
-            } else {
-                oModel.setProperty("/departmentPersonaUsers", []);
-                oModel.setProperty("/departmentPersonaAllSelected", false);
-                oModel.setProperty("/departmentPersonaSelectedCount", 0);
-                oModel.setProperty("/departmentPersonaResult", { message: "", state: "None" });
-            }
+            oModel.setProperty("/departmentPersonaUsers", []);
+            oModel.setProperty("/departmentPersonaAllSelected", false);
+            oModel.setProperty("/departmentPersonaSelectedCount", 0);
+            oModel.setProperty("/departmentPersonaResult", { message: "", state: "None" });
         },
 
         onDepartmentTargetPersonaChange(oEvent) {
@@ -14421,7 +14428,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/departmentPersona/departmentName", "");
-            oModel.setProperty("/departmentPersona/targetPersona", "");
+            oModel.setProperty("/departmentPersona/targetPersona", "Requester");
             oModel.setProperty("/departmentPersonaUsers", []);
             oModel.setProperty("/departmentPersonaAllSelected", false);
             oModel.setProperty("/departmentPersonaSelectedCount", 0);
@@ -14433,8 +14440,8 @@ sap.ui.define([
             }
             const oTargetCtrl = this.byId("adminDeptTargetPersonaSelect");
             if (oTargetCtrl) {
-                if (typeof oTargetCtrl.setValue === "function") oTargetCtrl.setValue("");
-                if (typeof oTargetCtrl.setSelectedKey === "function") oTargetCtrl.setSelectedKey("");
+                if (typeof oTargetCtrl.setValue === "function") oTargetCtrl.setValue("Requester");
+                if (typeof oTargetCtrl.setSelectedKey === "function") oTargetCtrl.setSelectedKey("Requester");
             }
             sap.m.MessageToast.show("Department conversion form reset.");
         },

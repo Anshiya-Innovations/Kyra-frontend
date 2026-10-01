@@ -1243,7 +1243,7 @@
                                     <!-- 1. Department Field (ComboBox with typing and selection support) -->
                                     <VBox class="kyraDeptFieldCol" width="340px">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                            <Text text="Department Name" class="kyraAdminFormLabel" />
+                                            <Text text="DEPARTMENT NAME" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <ComboBox
@@ -1260,10 +1260,10 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- 3. Target Persona Dropdown (Moved to where Preview was) -->
+                                    <!-- 2. Target Persona Dropdown -->
                                     <VBox class="kyraDeptFieldCol" width="240px">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                            <Text text="Target Persona" class="kyraAdminFormLabel" />
+                                            <Text text="TARGET PERSONA" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <ComboBox
@@ -1281,8 +1281,14 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- 4. Conversion Action Buttons: Cancel & Save Changes -->
+                                    <!-- 3. Conversion Action Buttons: Preview Users, Cancel & Save Changes -->
                                     <HBox alignItems="Center" class="kyraDeptActionBtns">
+                                        <Button
+                                            id="btnPreviewDepartmentUsers"
+                                            text="Preview Users"
+                                            icon="sap-icon://search"
+                                            press=".onPreviewDepartmentUsers"
+                                            class="kyraDeptPreviewBtn" />
                                         <Button
                                             text="Cancel"
                                             press=".onCancelDepartmentPersona"

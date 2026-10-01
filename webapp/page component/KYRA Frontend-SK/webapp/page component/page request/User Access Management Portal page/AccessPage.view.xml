@@ -1243,7 +1243,7 @@
                                     <!-- 1. Department Field (ComboBox with typing and selection support) -->
                                     <VBox class="kyraDeptFieldCol" width="340px">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                            <Text text="Department Name" class="kyraAdminFormLabel" />
+                                            <Text text="DEPARTMENT NAME" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <ComboBox
@@ -1260,10 +1260,10 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- 3. Target Persona Dropdown (Moved to where Preview was) -->
+                                    <!-- 2. Target Persona Dropdown -->
                                     <VBox class="kyraDeptFieldCol" width="240px">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                            <Text text="Target Persona" class="kyraAdminFormLabel" />
+                                            <Text text="TARGET PERSONA" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <ComboBox
@@ -1281,8 +1281,14 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- 4. Conversion Action Buttons: Cancel & Save Changes -->
+                                    <!-- 3. Conversion Action Buttons: Preview Users, Cancel & Save Changes -->
                                     <HBox alignItems="Center" class="kyraDeptActionBtns">
+                                        <Button
+                                            id="btnPreviewDepartmentUsers"
+                                            text="Preview Users"
+                                            icon="sap-icon://search"
+                                            press=".onPreviewDepartmentUsers"
+                                            class="kyraDeptPreviewBtn" />
                                         <Button
                                             text="Cancel"
                                             press=".onCancelDepartmentPersona"
@@ -2773,8 +2779,8 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- Right Column: Business Justification -->
-                                    <VBox id="inPageJustificationCol" width="50%" class="kyraSideBySideCol">
+                                    <!-- Right Column: Business Justification (Automatically opened ONLY once Duration is filled) -->
+                                    <VBox width="50%" class="kyraSideBySideCol kyraFadeSlideAnim" visible="{= !!${accessModel>/addAccessDuration} }">
                                         <HBox alignItems="Center" class="kyraSideLabelRow">
                                             <Label text="Business Justification:" required="true" labelFor="inPageJustificationArea" class="kyraSideLabel kyraSideJustLabel" />
                                         </HBox>
@@ -2785,9 +2791,18 @@
                                             placeholder="Provide detailed business justification for requesting these system permissions..."
                                             height="140px"
                                             width="100%"
-                                            growing="false"
-                                            rows="4"
                                             class="kyraSideJustificationTextArea" />
+                                    </VBox>
+
+                                    <!-- Placeholder when duration is not yet filled -->
+                                    <VBox width="50%" class="kyraSideBySideCol" visible="{= !${accessModel>/addAccessDuration} }">
+                                        <HBox alignItems="Center" class="kyraSideLabelRow">
+                                            <Label text="Business Justification:" class="kyraSideLabel kyraSideDisabledLabel" />
+                                        </HBox>
+                                        <HBox class="kyraSideLockedPlaceholder" alignItems="Center">
+                                            <core:Icon src="sap-icon://hint" class="kyraSideLockedIcon" />
+                                            <Text text="Please select an Access Duration to open Business Justification." class="kyraSideLockedNotice" />
+                                        </HBox>
                                     </VBox>
                                 </HBox>
                             </VBox>
