@@ -673,7 +673,7 @@ sap.ui.define([
                 personaConversionMode: "single",
                 departmentPersona: {
                     departmentName: "",
-                    targetPersona: "",
+                    targetPersona: "Requester",
                     status: "Active"
                 },
                 allAvailableDepartments: [
@@ -14151,9 +14151,8 @@ sap.ui.define([
                         email: oUser.email || (sCanonicalId.toLowerCase() + "@kyra.com"),
                         department: oUser.department || "Enterprise Business Operations",
                         currentPersona: sNormalizedPersona,
-                        selectedPersona: "",
-                        selectedPersonaText: "",
-                        targetPersona: "",
+                        selectedPersona: sNormalizedPersona,
+                        targetPersona: sNormalizedPersona,
                         sourceTable: sTable,
                         status: oUser.status || "Active",
                         entitlementsCount: aEntitlements.length,
@@ -14177,8 +14176,7 @@ sap.ui.define([
                             }
                         }
                         if (typeof oSelectCtrl.setSelectedKey === "function") {
-                            if (typeof oSelectCtrl.setSelectedKey === "function") { oSelectCtrl.setSelectedKey(""); }
-                        if (typeof oSelectCtrl.setValue === "function") { oSelectCtrl.setValue(""); }
+                            oSelectCtrl.setSelectedKey(sNormalizedPersona);
                         }
                     }
 
@@ -14221,9 +14219,8 @@ sap.ui.define([
                 email: sLower + "@kyra.com",
                 department: sFallbackDept,
                 currentPersona: sFallbackPersona,
-                selectedPersona: "",
-                selectedPersonaText: "",
-                targetPersona: "",
+                selectedPersona: sFallbackPersona,
+                targetPersona: sFallbackPersona,
                 sourceTable: sFallbackTable,
                 status: "Active",
                 entitlementsCount: 0,
@@ -14246,8 +14243,7 @@ sap.ui.define([
                     }
                 }
                 if (typeof oSelectCtrl.setSelectedKey === "function") {
-                    if (typeof oSelectCtrl.setSelectedKey === "function") { oSelectCtrl.setSelectedKey(""); }
-                if (typeof oSelectCtrl.setValue === "function") { oSelectCtrl.setValue(""); }
+                    oSelectCtrl.setSelectedKey(sFallbackPersona);
                 }
             }
 
@@ -14257,12 +14253,10 @@ sap.ui.define([
         onAdminPersonaDropdownChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const oItem = oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("selectedItem") : null;
-            const sKey = oItem ? oItem.getKey() : (oEvent && typeof oEvent.getParameter === "function" ? (oEvent.getParameter("value") || "") : "");
-            const sClean = (sKey || "").trim();
-            oModel.setProperty("/personaLookupUser/selectedPersona", sClean);
-            oModel.setProperty("/personaLookupUser/targetPersona", sClean);
-            oModel.setProperty("/personaLookupUser/selectedPersonaText", sClean);
+            const sSelected = (oEvent && oEvent.getParameter("selectedItem")) ? oEvent.getParameter("selectedItem").getKey() : "";
+            const sKey = sSelected || oModel.getProperty("/personaLookupUser/selectedPersona") || "Requester";
+            oModel.setProperty("/personaLookupUser/selectedPersona", sKey);
+            oModel.setProperty("/personaLookupUser/targetPersona", sKey);
         },
 
         onToggleLookupUserStatus() {
@@ -14292,11 +14286,7 @@ sap.ui.define([
 
             const sUsername = (oUser.userId || oUser.username || oModel.getProperty("/personaLookupInput") || "").trim();
             const sOldPersona = (oUser.currentPersona || "Requester").trim();
-            const sTargetPersona = (sSelectKey || oUser.selectedPersona || oUser.targetPersona || "").trim();
-            if (!sTargetPersona) {
-                sap.m.MessageToast.show("Please select an Assigned Persona to convert this user.");
-                return;
-            }
+            const sTargetPersona = (sSelectKey || oUser.selectedPersona || oUser.targetPersona || "Requester").trim();
 
             if (!sUsername) {
                 MessageToast.show("Please enter and look up an Employee Login ID first.");
@@ -14408,25 +14398,7 @@ sap.ui.define([
             }
         },
 
-                _formatDeptUser(u, sTargetPersona) {
-            const aValid = ["Requester", "Approver", "Compliance Reviewer"];
-            const sCur = aValid.indexOf(u.currentPersona) !== -1 ? u.currentPersona : "Requester";
-            const bSel = !!u.selected;
-            const sTgt = bSel && sTargetPersona && aValid.indexOf(sTargetPersona) !== -1 ? sTargetPersona : (u.targetPersona && aValid.indexOf(u.targetPersona) !== -1 && bSel ? u.targetPersona : sCur);
-            const sDisplay = bSel ? sTgt : sCur;
-            const sClass = sDisplay === "Approver" ? "kyraPersonaApprover" : (sDisplay === "Compliance Reviewer" ? "kyraPersonaCompliance" : "kyraPersonaRequester");
-            const sIcon = sDisplay === "Approver" ? "sap-icon://employee-approvals" : (sDisplay === "Compliance Reviewer" ? "sap-icon://shield" : "sap-icon://person-placeholder");
-            return Object.assign({}, u, {
-                selected: bSel,
-                currentPersona: sCur,
-                targetPersona: sTgt,
-                displayedPersona: sDisplay,
-                personaBadgeClass: sClass,
-                personaIcon: sIcon
-            });
-        },
-
-async onPreviewDepartmentUsers(sExplicitDept) {
+        async onPreviewDepartmentUsers(sExplicitDept) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
@@ -14452,14 +14424,12 @@ async onPreviewDepartmentUsers(sExplicitDept) {
                     try { aUsers = JSON.parse(oResult.usersJson); } catch (e) {}
                 }
 
-                const sCurrentTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-                const that = this;
                 const aFormattedUsers = aUsers.map(function(u) {
-                    return that._formatDeptUser(Object.assign({}, u, { selected: false }), sCurrentTarget);
+                    return Object.assign({}, u, { selected: true });
                 });
                 oModel.setProperty("/departmentPersonaUsers", aFormattedUsers);
-                oModel.setProperty("/departmentPersonaAllSelected", false);
-                oModel.setProperty("/departmentPersonaSelectedCount", 0);
+                oModel.setProperty("/departmentPersonaAllSelected", aUsers.length > 0);
+                oModel.setProperty("/departmentPersonaSelectedCount", aUsers.length);
 
                 if (aUsers.length > 0) {
                     const sTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "Requester").trim();
@@ -14488,7 +14458,6 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             const sVal = oItem ? (oItem.getText() || oItem.getKey()) : ((oEvent && typeof oEvent.getParameter === "function") ? oEvent.getParameter("value") : (oEvent && oEvent.getSource ? oEvent.getSource().getValue() : ""));
             const sClean = (sVal || "").trim();
             oModel.setProperty("/departmentPersona/departmentName", sClean);
-            oModel.setProperty("/departmentPersona/targetPersona", "");
             oModel.setProperty("/departmentPersonaUsers", []);
             oModel.setProperty("/departmentPersonaAllSelected", false);
             oModel.setProperty("/departmentPersonaSelectedCount", 0);
@@ -14500,29 +14469,8 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             if (!oModel) return;
             const oItem = oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("selectedItem") : null;
             const sVal = oItem ? oItem.getKey() : ((oEvent && typeof oEvent.getParameter === "function") ? oEvent.getParameter("value") : (oEvent && oEvent.getSource ? (oEvent.getSource().getSelectedKey() || oEvent.getSource().getValue()) : ""));
-            const aValidPersonas = ["Requester", "Approver", "Compliance Reviewer"];
             const sClean = (sVal || "").trim();
-            const sTarget = aValidPersonas.indexOf(sClean) !== -1 ? sClean : "";
-            oModel.setProperty("/departmentPersona/targetPersona", sTarget);
-
-            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
-            if (aUsers.length > 0) {
-                const that = this;
-                const aSelectedUsers = aUsers.filter(function(u) { return !!u.selected; });
-                if (aSelectedUsers.length > 0) {
-                    const aUpdatedUsers = aUsers.map(function(u) {
-                        if (u.selected) {
-                            return that._formatDeptUser(Object.assign({}, u, { targetPersona: sTarget }), sTarget);
-                        }
-                        return u;
-                    });
-                    oModel.setProperty("/departmentPersonaUsers", aUpdatedUsers);
-                    oModel.refresh(true);
-                    sap.m.MessageToast.show("Target Persona set to '" + sTarget + "' for " + aSelectedUsers.length + " selected user(s).");
-                } else if (sTarget) {
-                    sap.m.MessageToast.show("Selected Target Persona: " + sTarget + ". Select user(s) to convert.");
-                }
-            }
+            oModel.setProperty("/departmentPersona/targetPersona", sClean);
         },
 
                 onToggleMasterDeptCheckbox(oEvent) {
@@ -14530,10 +14478,8 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             if (!oModel) return;
             const bSelected = oEvent && typeof oEvent.getParameter === "function" ? !!oEvent.getParameter("selected") : !oModel.getProperty("/departmentPersonaAllSelected");
             const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
-            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-            const that = this;
             const aNewUsers = aUsers.map(function(u) {
-                return that._formatDeptUser(Object.assign({}, u, { selected: bSelected }), sTargetPersona);
+                return Object.assign({}, u, { selected: bSelected });
             });
             oModel.setProperty("/departmentPersonaUsers", aNewUsers);
             oModel.setProperty("/departmentPersonaAllSelected", bSelected);
@@ -14541,37 +14487,7 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             oModel.refresh(true);
         },
 
-        onDeptUserRowPress(oEvent) {
-            if (this._bCheckboxJustClicked) {
-                return;
-            }
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-
-            const oSource = oEvent && oEvent.getSource ? oEvent.getSource() : null;
-            const oCtx = oSource && oSource.getBindingContext ? oSource.getBindingContext("accessModel") : null;
-            if (!oCtx) return;
-
-            const oUser = oModel.getProperty(oCtx.getPath());
-            if (!oUser) return;
-
-            const bNewSelected = !oUser.selected;
-            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-            const oUpdated = this._formatDeptUser(Object.assign({}, oUser, { selected: bNewSelected }), sTargetPersona);
-            oModel.setProperty(oCtx.getPath(), oUpdated);
-
-            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
-            const nSelected = aUsers.filter(function(u) { return !!u.selected; }).length;
-            const bAllSelected = aUsers.length > 0 && nSelected === aUsers.length;
-
-            oModel.setProperty("/departmentPersonaSelectedCount", nSelected);
-            oModel.setProperty("/departmentPersonaAllSelected", bAllSelected);
-            oModel.refresh(true);
-        },
-
         onDeptUserCheckboxToggle(oEvent) {
-            this._bCheckboxJustClicked = true;
-            setTimeout(() => { this._bCheckboxJustClicked = false; }, 300);
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -14580,12 +14496,7 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             const oCtx = oSource && oSource.getBindingContext ? oSource.getBindingContext("accessModel") : null;
 
             if (oCtx) {
-                const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-                const oUser = oModel.getProperty(oCtx.getPath());
-                if (oUser) {
-                    const oUpdated = this._formatDeptUser(Object.assign({}, oUser, { selected: bSelected }), sTargetPersona);
-                    oModel.setProperty(oCtx.getPath(), oUpdated);
-                }
+                oModel.setProperty(oCtx.getPath() + "/selected", bSelected);
             }
 
             const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
@@ -14601,24 +14512,23 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
-            const bAllSelected = !oModel.getProperty("/departmentPersonaAllSelected");
-            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-            const that = this;
+            const bAllSelected = !!oModel.getProperty("/departmentPersonaAllSelected");
+            const bNewState = !bAllSelected;
             const aNewUsers = aUsers.map(function(u) {
-                return that._formatDeptUser(Object.assign({}, u, { selected: bAllSelected }), sTargetPersona);
+                return Object.assign({}, u, { selected: bNewState });
             });
             oModel.setProperty("/departmentPersonaUsers", aNewUsers);
-            oModel.setProperty("/departmentPersonaAllSelected", bAllSelected);
-            oModel.setProperty("/departmentPersonaSelectedCount", bAllSelected ? aNewUsers.length : 0);
+            oModel.setProperty("/departmentPersonaAllSelected", bNewState);
+            oModel.setProperty("/departmentPersonaSelectedCount", bNewState ? aNewUsers.length : 0);
             oModel.refresh(true);
-            sap.m.MessageToast.show(bAllSelected ? ("Selected all " + aNewUsers.length + " user(s).") : "Deselected all users.");
+            sap.m.MessageToast.show(bNewState ? ("Selected all " + aNewUsers.length + " user(s).") : "Deselected all users.");
         },
 
         onCancelDepartmentPersona() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/departmentPersona/departmentName", "");
-            oModel.setProperty("/departmentPersona/targetPersona", "");
+            oModel.setProperty("/departmentPersona/targetPersona", "Requester");
             oModel.setProperty("/departmentPersonaUsers", []);
             oModel.setProperty("/departmentPersonaAllSelected", false);
             oModel.setProperty("/departmentPersonaSelectedCount", 0);
@@ -14630,8 +14540,8 @@ async onPreviewDepartmentUsers(sExplicitDept) {
             }
             const oTargetCtrl = this.byId("adminDeptTargetPersonaSelect");
             if (oTargetCtrl) {
-                if (typeof oTargetCtrl.setValue === "function") oTargetCtrl.setValue("");
-                if (typeof oTargetCtrl.setSelectedKey === "function") oTargetCtrl.setSelectedKey("");
+                if (typeof oTargetCtrl.setValue === "function") oTargetCtrl.setValue("Requester");
+                if (typeof oTargetCtrl.setSelectedKey === "function") oTargetCtrl.setSelectedKey("Requester");
             }
             sap.m.MessageToast.show("Department conversion form reset.");
         },
