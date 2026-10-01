@@ -673,7 +673,7 @@ sap.ui.define([
                 personaConversionMode: "single",
                 departmentPersona: {
                     departmentName: "",
-                    targetPersona: "Requester",
+                    targetPersona: "",
                     status: "Active"
                 },
                 allAvailableDepartments: [
@@ -13966,6 +13966,18 @@ sap.ui.define([
         },
 
         // ── Button 2: Employee Login ID Lookup & Persona Conversion ───────────────
+        onPersonaLookupLiveChange(oEvent) {
+            const sVal = (oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("value") : "") || "";
+            if (!sVal.trim()) {
+                const oModel = this.getView().getModel("accessModel");
+                if (oModel) {
+                    oModel.setProperty("/personaLookupUserFound", false);
+                    oModel.setProperty("/personaLookupUser", null);
+                    oModel.setProperty("/personaLookupInput", "");
+                }
+            }
+        },
+
         async onLookupEmployeePersona() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -13973,6 +13985,9 @@ sap.ui.define([
             const sRawInput = (oInputCtrl && typeof oInputCtrl.getValue === "function" ? oInputCtrl.getValue() : oModel.getProperty("/personaLookupInput")) || "";
             const sUsername = sRawInput.trim();
             if (!sUsername) {
+                oModel.setProperty("/personaLookupUserFound", false);
+                oModel.setProperty("/personaLookupUser", null);
+                oModel.setProperty("/personaLookupInput", "");
                 MessageToast.show("Please enter an Employee Login ID (e.g., emp001, emp018, emp081, emp098).");
                 return;
             }
@@ -14027,16 +14042,32 @@ sap.ui.define([
                     });
                     oModel.setProperty("/personaLookupUserFound", true);
 
-                    // Sync the dropdown selected key
+                    // Sync the dropdown selected key and guarantee Requester is always in the items list
                     const oSelectCtrl = this.byId("adminUserPersonaSelect");
-                    if (oSelectCtrl && typeof oSelectCtrl.setSelectedKey === "function") {
-                        oSelectCtrl.setSelectedKey(sNormalizedPersona);
+                    if (oSelectCtrl) {
+                        if (typeof oSelectCtrl.getItems === "function") {
+                            const aCurrentKeys = (oSelectCtrl.getItems() || []).map(item => item.getKey());
+                            if (!aCurrentKeys.includes("Requester")) {
+                                oSelectCtrl.insertItem(new sap.ui.core.Item({ key: "Requester", text: "Requester" }), 0);
+                            }
+                            if (!aCurrentKeys.includes("Approver")) {
+                                oSelectCtrl.addItem(new sap.ui.core.Item({ key: "Approver", text: "Approver" }));
+                            }
+                            if (!aCurrentKeys.includes("Compliance Reviewer")) {
+                                oSelectCtrl.addItem(new sap.ui.core.Item({ key: "Compliance Reviewer", text: "Compliance Reviewer" }));
+                            }
+                        }
+                        if (typeof oSelectCtrl.setSelectedKey === "function") {
+                            oSelectCtrl.setSelectedKey(sNormalizedPersona);
+                        }
                     }
 
                     MessageToast.show("Loaded live details for Employee ID '" + sCanonicalId + "'.");
                     return;
-                } else if (oUser && oUser.message) {
-                    MessageToast.show(oUser.message);
+                } else if (oUser && (oUser.message || oUser.found === false || oUser.ok === false)) {
+                    oModel.setProperty("/personaLookupUserFound", false);
+                    oModel.setProperty("/personaLookupUser", null);
+                    MessageToast.show(oUser.message || ("No active user found for Employee ID '" + sUsername + "'."));
                     return;
                 }
             } catch (e) {
@@ -14080,8 +14111,22 @@ sap.ui.define([
             oModel.setProperty("/personaLookupUserFound", true);
 
             const oSelectCtrl = this.byId("adminUserPersonaSelect");
-            if (oSelectCtrl && typeof oSelectCtrl.setSelectedKey === "function") {
-                oSelectCtrl.setSelectedKey(sFallbackPersona);
+            if (oSelectCtrl) {
+                if (typeof oSelectCtrl.getItems === "function") {
+                    const aCurrentKeys = (oSelectCtrl.getItems() || []).map(item => item.getKey());
+                    if (!aCurrentKeys.includes("Requester")) {
+                        oSelectCtrl.insertItem(new sap.ui.core.Item({ key: "Requester", text: "Requester" }), 0);
+                    }
+                    if (!aCurrentKeys.includes("Approver")) {
+                        oSelectCtrl.addItem(new sap.ui.core.Item({ key: "Approver", text: "Approver" }));
+                    }
+                    if (!aCurrentKeys.includes("Compliance Reviewer")) {
+                        oSelectCtrl.addItem(new sap.ui.core.Item({ key: "Compliance Reviewer", text: "Compliance Reviewer" }));
+                    }
+                }
+                if (typeof oSelectCtrl.setSelectedKey === "function") {
+                    oSelectCtrl.setSelectedKey(sFallbackPersona);
+                }
             }
 
             MessageToast.show("Loaded details for Employee ID '" + sLower + "'.");
@@ -14238,24 +14283,24 @@ sap.ui.define([
             }
         },
 
-        async onPreviewDepartmentUsers() {
+                async onPreviewDepartmentUsers(sExplicitDept) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
-            const sDept = (oDeptCtrl && typeof oDeptCtrl.getValue === "function" ? oDeptCtrl.getValue() : oModel.getProperty("/departmentPersona/departmentName")) || "";
-            const sCleanDept = sDept.trim();
+            const sDept = (sExplicitDept !== undefined && sExplicitDept !== null && typeof sExplicitDept === "string" ? sExplicitDept : ((oDeptCtrl && typeof oDeptCtrl.getValue === "function" ? oDeptCtrl.getValue() : oModel.getProperty("/departmentPersona/departmentName")) || "")).trim();
 
-            if (!sCleanDept) {
+            if (!sDept) {
                 sap.m.MessageToast.show("Please enter or select a Department Name.");
                 return;
             }
-            oModel.setProperty("/departmentPersona/departmentName", sCleanDept);
+
+            oModel.setProperty("/departmentPersona/departmentName", sDept);
 
             try {
                 const res = await fetch("/odata/v4/admin-portal/getDepartmentUsers", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ department: sCleanDept })
+                    body: JSON.stringify({ department: sDept })
                 });
                 const oData = res.ok ? await res.json() : null;
                 const oResult = (oData && (oData.value || oData)) || {};
@@ -14264,24 +14309,112 @@ sap.ui.define([
                     try { aUsers = JSON.parse(oResult.usersJson); } catch (e) {}
                 }
 
-                oModel.setProperty("/departmentPersonaUsers", aUsers);
+                const aFormattedUsers = aUsers.map(function(u) {
+                    return Object.assign({}, u, { selected: true });
+                });
+                oModel.setProperty("/departmentPersonaUsers", aFormattedUsers);
+                oModel.setProperty("/departmentPersonaAllSelected", aUsers.length > 0);
+                oModel.setProperty("/departmentPersonaSelectedCount", aUsers.length);
+
                 if (aUsers.length > 0) {
+                    const sTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
+                    const sInstruct = sTarget
+                        ? ("Target persona '" + sTarget + "' selected. Click Save Changes to convert them.")
+                        : "Select a Target Persona and click Save Changes to convert them.";
                     oModel.setProperty("/departmentPersonaResult", {
-                        message: `Found ${aUsers.length} user(s) in department '${sCleanDept}'. Select target persona and click Save Changes to convert them.`,
+                        message: "Found " + aUsers.length + " user(s) in department '" + sDept + "'. " + sInstruct,
                         state: "Information"
                     });
-                    sap.m.MessageToast.show(`Found ${aUsers.length} user(s) in '${sCleanDept}'.`);
+                    sap.m.MessageToast.show("Found " + aUsers.length + " user(s) in '" + sDept + "'.");
                 } else {
                     oModel.setProperty("/departmentPersonaResult", {
-                        message: `No active users currently registered in department '${sCleanDept}'.`,
+                        message: "No active users currently registered in department '" + sDept + "'.",
                         state: "Warning"
                     });
-                    sap.m.MessageToast.show(`No users found in department '${sCleanDept}'.`);
+                    sap.m.MessageToast.show("No users found in department '" + sDept + "'.");
                 }
             } catch (err) {
                 console.error("Preview department users error:", err);
                 sap.m.MessageToast.show("Failed to preview department users: " + (err.message || "Error"));
             }
+        },
+
+        async onDepartmentSelectChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oItem = oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("selectedItem") : null;
+            const sVal = oItem ? (oItem.getText() || oItem.getKey()) : ((oEvent && typeof oEvent.getParameter === "function") ? oEvent.getParameter("value") : (oEvent && oEvent.getSource ? oEvent.getSource().getValue() : ""));
+            const sClean = (sVal || "").trim();
+            oModel.setProperty("/departmentPersona/departmentName", sClean);
+
+            if (sClean) {
+                await this.onPreviewDepartmentUsers(sClean);
+            } else {
+                oModel.setProperty("/departmentPersonaUsers", []);
+                oModel.setProperty("/departmentPersonaAllSelected", false);
+                oModel.setProperty("/departmentPersonaSelectedCount", 0);
+                oModel.setProperty("/departmentPersonaResult", { message: "", state: "None" });
+            }
+        },
+
+        onDepartmentTargetPersonaChange(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oItem = oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("selectedItem") : null;
+            const sVal = oItem ? oItem.getKey() : ((oEvent && typeof oEvent.getParameter === "function") ? oEvent.getParameter("value") : (oEvent && oEvent.getSource ? (oEvent.getSource().getSelectedKey() || oEvent.getSource().getValue()) : ""));
+            const sClean = (sVal || "").trim();
+            oModel.setProperty("/departmentPersona/targetPersona", sClean);
+        },
+
+                onToggleMasterDeptCheckbox(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const bSelected = oEvent && typeof oEvent.getParameter === "function" ? !!oEvent.getParameter("selected") : !oModel.getProperty("/departmentPersonaAllSelected");
+            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
+            const aNewUsers = aUsers.map(function(u) {
+                return Object.assign({}, u, { selected: bSelected });
+            });
+            oModel.setProperty("/departmentPersonaUsers", aNewUsers);
+            oModel.setProperty("/departmentPersonaAllSelected", bSelected);
+            oModel.setProperty("/departmentPersonaSelectedCount", bSelected ? aNewUsers.length : 0);
+            oModel.refresh(true);
+        },
+
+        onDeptUserCheckboxToggle(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const bSelected = oEvent && typeof oEvent.getParameter === "function" ? !!oEvent.getParameter("selected") : false;
+            const oSource = oEvent && oEvent.getSource ? oEvent.getSource() : null;
+            const oCtx = oSource && oSource.getBindingContext ? oSource.getBindingContext("accessModel") : null;
+
+            if (oCtx) {
+                oModel.setProperty(oCtx.getPath() + "/selected", bSelected);
+            }
+
+            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
+            const nSelected = aUsers.filter(function(u) { return !!u.selected; }).length;
+            const bAllSelected = aUsers.length > 0 && nSelected === aUsers.length;
+
+            oModel.setProperty("/departmentPersonaSelectedCount", nSelected);
+            oModel.setProperty("/departmentPersonaAllSelected", bAllSelected);
+            oModel.refresh(true);
+        },
+
+        onDeptSelectAllUsers() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
+            const bAllSelected = !!oModel.getProperty("/departmentPersonaAllSelected");
+            const bNewState = !bAllSelected;
+            const aNewUsers = aUsers.map(function(u) {
+                return Object.assign({}, u, { selected: bNewState });
+            });
+            oModel.setProperty("/departmentPersonaUsers", aNewUsers);
+            oModel.setProperty("/departmentPersonaAllSelected", bNewState);
+            oModel.setProperty("/departmentPersonaSelectedCount", bNewState ? aNewUsers.length : 0);
+            oModel.refresh(true);
+            sap.m.MessageToast.show(bNewState ? ("Selected all " + aNewUsers.length + " user(s).") : "Deselected all users.");
         },
 
         onCancelDepartmentPersona() {
@@ -14290,10 +14423,18 @@ sap.ui.define([
             oModel.setProperty("/departmentPersona/departmentName", "");
             oModel.setProperty("/departmentPersona/targetPersona", "");
             oModel.setProperty("/departmentPersonaUsers", []);
+            oModel.setProperty("/departmentPersonaAllSelected", false);
+            oModel.setProperty("/departmentPersonaSelectedCount", 0);
             oModel.setProperty("/departmentPersonaResult", { message: "", state: "None" });
             const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
-            if (oDeptCtrl && typeof oDeptCtrl.setValue === "function") {
-                oDeptCtrl.setValue("");
+            if (oDeptCtrl) {
+                if (typeof oDeptCtrl.setValue === "function") oDeptCtrl.setValue("");
+                if (typeof oDeptCtrl.setSelectedKey === "function") oDeptCtrl.setSelectedKey("");
+            }
+            const oTargetCtrl = this.byId("adminDeptTargetPersonaSelect");
+            if (oTargetCtrl) {
+                if (typeof oTargetCtrl.setValue === "function") oTargetCtrl.setValue("");
+                if (typeof oTargetCtrl.setSelectedKey === "function") oTargetCtrl.setSelectedKey("");
             }
             sap.m.MessageToast.show("Department conversion form reset.");
         },
@@ -14305,16 +14446,26 @@ sap.ui.define([
             const oDeptCtrl = this.byId("adminDeptPersonaComboBox");
             const sDept = (oDeptCtrl && typeof oDeptCtrl.getValue === "function" ? oDeptCtrl.getValue() : oModel.getProperty("/departmentPersona/departmentName")) || "";
             const sCleanDept = sDept.trim();
-            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
-            if (!sTargetPersona) {
-                sap.m.MessageToast.show("Please select a Target Persona.");
-                return;
-            }
+            const oTargetCtrl = this.byId("adminDeptTargetPersonaSelect");
+            const sTargetPersona = (oTargetCtrl && typeof oTargetCtrl.getSelectedKey === "function" && oTargetCtrl.getSelectedKey() ? oTargetCtrl.getSelectedKey() : (oModel.getProperty("/departmentPersona/targetPersona") || "")).trim();
 
             if (!sCleanDept) {
                 sap.m.MessageToast.show("Please enter or select a Department Name.");
                 return;
             }
+
+            if (!sTargetPersona) {
+                sap.m.MessageToast.show("Please select a Target Persona.");
+                return;
+            }
+
+            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
+            const aSelectedUsers = aUsers.filter(function(u) { return !!u.selected; });
+            if (aUsers.length > 0 && aSelectedUsers.length === 0) {
+                sap.m.MessageToast.show("Please select at least one user to convert.");
+                return;
+            }
+
             oModel.setProperty("/departmentPersona/departmentName", sCleanDept);
 
             try {
@@ -14324,7 +14475,8 @@ sap.ui.define([
                     body: JSON.stringify({
                         department: sCleanDept,
                         targetPersona: sTargetPersona,
-                        status: "Active"
+                        status: "Active",
+                        selectedUsernames: aSelectedUsers.map(function(u) { return u.username; })
                     })
                 });
                 const oData = res.ok ? await res.json() : null;
@@ -14339,7 +14491,10 @@ sap.ui.define([
                     try { aConvertedUsers = JSON.parse(oResult.usersJson); } catch (e) {}
                 }
 
+                aConvertedUsers.forEach(function(u) { u.selected = true; });
                 oModel.setProperty("/departmentPersonaUsers", aConvertedUsers);
+                oModel.setProperty("/departmentPersonaAllSelected", aConvertedUsers.length > 0);
+                oModel.setProperty("/departmentPersonaSelectedCount", aConvertedUsers.length);
                 const sMsg = oResult.message || `Successfully converted ${oResult.count || aConvertedUsers.length} user(s) in '${sCleanDept}' to ${sTargetPersona}.`;
                 oModel.setProperty("/departmentPersonaResult", {
                     message: sMsg,
@@ -14361,3 +14516,4 @@ sap.ui.define([
         }
     });
 });
+

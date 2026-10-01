@@ -1098,8 +1098,10 @@
                                         value="{accessModel>/personaLookupInput}"
                                         placeholder="Enter employee login ID (e.g., emp001, emp002, app01, comp01)..."
                                         submit=".onLookupEmployeePersona"
+                                        liveChange=".onPersonaLookupLiveChange"
+                                        change=".onPersonaLookupLiveChange"
                                         width="380px"
-                                        class="kyraAdminFormInput kyraAdminBuilderInput sapUiSmallMarginEnd" />
+                                        class="kyraAdminFormInput kyraAdminBuilderInput" />
                                     <Button
                                         text="Enter"
                                         icon="sap-icon://accept"
@@ -1122,7 +1124,7 @@
                                     </HBox>
 
                                     <HBox alignItems="End" class="kyraPersonaDropdownActionBar">
-                                        <VBox class="sapUiSmallMarginEnd" width="230px">
+                                        <VBox width="230px">
                                             <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                                 <Text text="Assigned Persona" class="kyraAdminFormLabel" />
                                                 <Text text="*" class="kyraAdminRequiredStar" />
@@ -1142,7 +1144,7 @@
                                         <Button
                                             text="Cancel"
                                             press=".onCancelEmployeePersonaLookup"
-                                            class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                            class="kyraAdminCancelBtn" />
                                         <Button
                                             text="Save"
                                             icon="sap-icon://save"
@@ -1248,6 +1250,8 @@
                                             id="adminDeptPersonaComboBox"
                                             value="{accessModel>/departmentPersona/departmentName}"
                                             selectedKey="{accessModel>/departmentPersona/departmentName}"
+                                            selectionChange=".onDepartmentSelectChange"
+                                            change=".onDepartmentSelectChange"
                                             placeholder="Enter or select department (e.g., IT Developer, Engineering)..."
                                             items="{accessModel>/allAvailableDepartments}"
                                             width="100%"
@@ -1256,35 +1260,33 @@
                                         </ComboBox>
                                     </VBox>
 
-                                    <!-- 2. Target Persona Dropdown -->
+                                    <!-- 3. Target Persona Dropdown (Moved to where Preview was) -->
                                     <VBox class="kyraDeptFieldCol" width="240px">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                             <Text text="Target Persona" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
-                                        <Select
+                                        <ComboBox
                                             id="adminDeptTargetPersonaSelect"
                                             selectedKey="{accessModel>/departmentPersona/targetPersona}"
+                                            value="{accessModel>/departmentPersona/targetPersona}"
+                                            selectionChange=".onDepartmentTargetPersonaChange"
+                                            change=".onDepartmentTargetPersonaChange"
+                                            placeholder="Select Target Persona..."
                                             width="100%"
-                                            class="kyraDeptSelect">
+                                            class="kyraDeptComboBox">
                                             <core:Item key="Requester" text="Requester" />
                                             <core:Item key="Approver" text="Approver" />
                                             <core:Item key="Compliance Reviewer" text="Compliance Reviewer" />
-                                        </Select>
+                                        </ComboBox>
                                     </VBox>
 
-                                    <!-- 3. Actions: Preview Users & Save Changes (Convert) -->
+                                    <!-- 4. Conversion Action Buttons: Cancel & Save Changes -->
                                     <HBox alignItems="Center" class="kyraDeptActionBtns">
-                                        <Button
-                                            id="btnPreviewDepartmentUsers"
-                                            text="Preview Users"
-                                            icon="sap-icon://search"
-                                            press=".onPreviewDepartmentUsers"
-                                            class="kyraDeptPreviewBtn sapUiSmallMarginEnd" />
                                         <Button
                                             text="Cancel"
                                             press=".onCancelDepartmentPersona"
-                                            class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                            class="kyraAdminCancelBtn kyraDeptCancelBtn" />
                                         <Button
                                             id="btnConvertDepartmentPersona"
                                             text="Save Changes"
@@ -1307,22 +1309,39 @@
 
                             <!-- Department Users Table (Shows matching users before or after conversion) -->
                             <VBox width="100%" visible="{= ${accessModel>/departmentPersonaUsers} &amp;&amp; ${accessModel>/departmentPersonaUsers}.length &gt; 0 }" class="kyraAdminWhiteCard sapUiSmallMarginTop">
-                                <HBox width="100%" justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                <HBox width="100%" justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow kyraDeptTableHeaderRow">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">
                                         <Avatar src="sap-icon://group" class="kyraAdminAvatarTeal fioriCardAvatar sapUiSmallMarginEnd" displaySize="S" />
                                         <VBox class="kyraCardHeaderTextCol">
                                             <Title text="{= 'Department Users (' + (${accessModel>/departmentPersonaUsers} ? ${accessModel>/departmentPersonaUsers}.length : 0) + ')' }" level="H5" class="kyraAdminCardTitle" />
-                                            <Text text="{= 'Department: ' + (${accessModel>/departmentPersona/departmentName} || 'Selected Department') + ' | Target Persona: ' + (${accessModel>/departmentPersona/targetPersona} || 'Requester') }" class="fioriDescriptionText" />
+                                            <Text text="{= 'Department: ' + (${accessModel>/departmentPersona/departmentName} || 'Selected Department') + (${accessModel>/departmentPersona/targetPersona} ? ' | Target Persona: ' + ${accessModel>/departmentPersona/targetPersona} : '') }" class="fioriDescriptionText" />
                                         </VBox>
                                     </HBox>
-                                    <HBox class="kyraPillBadgeSuccess" alignItems="Center">
-                                        <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
-                                        <Text text="{= ${accessModel>/departmentPersonaUsers}.length + ' Users' }" class="kyraPillBadgeSuccessText" />
+                                    <HBox alignItems="Center" class="kyraDeptHeaderActions">
+                                        <Button
+                                            id="btnDeptSelectAllUsers"
+                                            text="{= ${accessModel>/departmentPersonaAllSelected} ? 'Deselect All' : 'Select All' }"
+                                            icon="{= ${accessModel>/departmentPersonaAllSelected} ? 'sap-icon://clear-all' : 'sap-icon://multiselect-all' }"
+                                            press=".onDeptSelectAllUsers"
+                                            class="kyraDeptSelectAllBtn"
+                                            tooltip="Toggle select or deselect all users" />
+                                        <HBox class="kyraPillBadgeSuccess sapUiSmallMarginBegin" alignItems="Center">
+                                            <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
+                                            <Text text="{= (${accessModel>/departmentPersonaSelectedCount} !== undefined ? ${accessModel>/departmentPersonaSelectedCount} : ${accessModel>/departmentPersonaUsers}.length) + ' / ' + ${accessModel>/departmentPersonaUsers}.length + ' Selected' }" class="kyraPillBadgeSuccessText" />
+                                        </HBox>
                                     </HBox>
                                 </HBox>
 
-                                <Table items="{accessModel>/departmentPersonaUsers}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable">
+                                <Table id="deptPersonaUsersTable" items="{accessModel>/departmentPersonaUsers}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable kyraDeptUsersTable">
                                     <columns>
+                                        <Column width="52px" hAlign="Center" class="kyraAdminCheckCol">
+                                            <CheckBox
+                                                id="masterDeptCheckbox"
+                                                selected="{accessModel>/departmentPersonaAllSelected}"
+                                                select=".onToggleMasterDeptCheckbox"
+                                                class="kyraAdminTableCheckbox"
+                                                tooltip="Select or Reject all users" />
+                                        </Column>
                                         <Column width="18%"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
                                         <Column width="22%"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
                                         <Column width="24%"><Text text="EMAIL ADDRESS" class="kyraAdminColHeader" /></Column>
@@ -1332,13 +1351,17 @@
                                     <items>
                                         <ColumnListItem vAlign="Middle">
                                             <cells>
+                                                <CheckBox
+                                                    selected="{accessModel>selected}"
+                                                    select=".onDeptUserCheckboxToggle"
+                                                    class="kyraAdminTableCheckbox" />
                                                 <Text text="{accessModel>username}" class="kyraAdminCellBold" />
                                                 <Text text="{accessModel>fullName}" class="kyraAdminCellBold" />
                                                 <Text text="{accessModel>email}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>department}" class="kyraAdminCellText" />
                                                 <HBox alignItems="Center" class="kyraAdminStatusPill">
                                                     <core:Icon src="sap-icon://person-placeholder" class="sapUiTinyMarginEnd" color="#008C9C" />
-                                                    <Text text="{= ${accessModel>targetPersona} || ${accessModel>currentPersona} || 'Requester' }" class="kyraAdminStatusActiveText" />
+                                                    <Text text="{= ${accessModel>currentPersona} || ${accessModel>targetPersona} || 'Requester' }" class="kyraAdminStatusActiveText" />
                                                 </HBox>
                                             </cells>
                                         </ColumnListItem>

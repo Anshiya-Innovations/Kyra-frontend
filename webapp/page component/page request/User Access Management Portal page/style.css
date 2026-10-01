@@ -45354,3 +45354,297 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     transform: translateY(-1px) !important;
     box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
 }
+
+
+
+/* ========================================================================== */
+/* DEPARTMENT CONVERSION & SINGLE USER CONTROLS: EXACT ALIGNMENT & DESIGN     */
+/* ========================================================================== */
+
+.kyraDeptConversionControlsRow {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-end !important;
+    gap: 16px !important;
+    margin-top: 14px !important;
+    margin-bottom: 6px !important;
+}
+
+.kyraDeptFieldCol {
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+}
+
+.kyraAdminFieldLabelRow {
+    margin-bottom: 6px !important;
+    height: 18px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.kyraAdminFormLabel {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    color: #475569 !important;
+    text-transform: uppercase !important;
+}
+
+.kyraAdminRequiredStar {
+    color: #EF4444 !important;
+    font-weight: 700 !important;
+    margin-left: 3px !important;
+}
+
+/* ComboBox & Select Inputs: 40px Height, Clean Slate Border, Teal Focus */
+.kyraDeptComboBox.sapMInputBase,
+.kyraDeptComboBox,
+.kyraDeptSelect.sapMSlt,
+.kyraDeptSelect {
+    height: 40px !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraDeptComboBox .sapMInputBaseContentWrapper,
+.kyraDeptSelect.sapMSlt {
+    height: 40px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraDeptComboBox .sapMInputBaseInner,
+.kyraDeptSelect .sapMSltLabel {
+    height: 38px !important;
+    line-height: 38px !important;
+    font-size: 13.5px !important;
+    color: #0F172A !important;
+    padding: 0 12px !important;
+}
+
+/* Placeholder styling in normal state */
+.kyraDeptSelect.sapMSltWithPlaceholder .sapMSltLabel,
+.kyraDeptSelect .sapMSltLabel:empty,
+.kyraDeptComboBox .sapMInputBaseInner::placeholder,
+.kyraDeptComboBox input::placeholder {
+    color: #64748B !important;
+    font-weight: 400 !important;
+}
+
+/* Dropdown Arrow: Clean Teal, Remove Blue Square Box */
+.kyraDeptComboBox .sapMComboBoxArrow,
+.kyraDeptComboBox .sapMInputBaseIcon,
+.kyraDeptSelect .sapMSltArrow,
+.sapMSltArrow {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #008C9C !important;
+    font-size: 14px !important;
+}
+
+.kyraDeptSelect .sapMSltArrow::before,
+.sapMSltArrow::before {
+    color: #008C9C !important;
+    border: none !important;
+}
+
+.kyraDeptComboBox.sapMFocus .sapMInputBaseContentWrapper,
+.kyraDeptComboBox .sapMInputBaseContentWrapper:focus-within,
+.kyraDeptSelect.sapMSlt:focus,
+.kyraDeptSelect.sapMSlt.sapMFocus {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.2) !important;
+}
+
+/* Action Buttons Container: Exactly 40px High, Flex gap 10px */
+.kyraDeptActionBtns {
+    height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Preview Users Button: Clean Outline with Teal Search Icon */
+.kyraDeptPreviewBtn.sapMBtn,
+.kyraDeptPreviewBtn {
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraDeptPreviewBtn .sapMBtnInner {
+    height: 40px !important;
+    line-height: 38px !important;
+    padding: 0 16px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.kyraDeptPreviewBtn .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 14px !important;
+    margin-right: 6px !important;
+    transition: color 0.2s ease !important;
+}
+
+.kyraDeptPreviewBtn .sapMBtnContent,
+.kyraDeptPreviewBtn bdi {
+    color: #0F172A !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    transition: color 0.2s ease !important;
+}
+
+.kyraDeptPreviewBtn:hover .sapMBtnInner {
+    border-color: #008C9C !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    color: #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.18) !important;
+}
+
+.kyraDeptPreviewBtn:hover .sapMBtnContent,
+.kyraDeptPreviewBtn:hover bdi {
+    color: #008C9C !important;
+}
+
+.kyraDeptPreviewBtn:hover .sapUiIcon {
+    color: #007684 !important;
+}
+
+/* Clean Cancel Button for Department Conversion and Single User Action Bar */
+.kyraDeptCancelBtn.sapMBtn,
+.kyraDeptCancelBtn,
+.kyraDeptActionBtns .kyraAdminCancelBtn,
+.kyraPersonaDropdownActionBar .kyraAdminCancelBtn {
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraDeptCancelBtn .sapMBtnInner,
+.kyraDeptActionBtns .kyraAdminCancelBtn .sapMBtnInner,
+.kyraPersonaDropdownActionBar .kyraAdminCancelBtn .sapMBtnInner {
+    height: 40px !important;
+    line-height: 38px !important;
+    padding: 0 20px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.kyraDeptCancelBtn .sapMBtnContent,
+.kyraDeptCancelBtn bdi,
+.kyraDeptActionBtns .kyraAdminCancelBtn .sapMBtnContent,
+.kyraDeptActionBtns .kyraAdminCancelBtn bdi,
+.kyraPersonaDropdownActionBar .kyraAdminCancelBtn .sapMBtnContent,
+.kyraPersonaDropdownActionBar .kyraAdminCancelBtn bdi {
+    color: #1E293B !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+}
+
+.kyraDeptCancelBtn:hover .sapMBtnInner,
+.kyraDeptActionBtns .kyraAdminCancelBtn:hover .sapMBtnInner,
+.kyraPersonaDropdownActionBar .kyraAdminCancelBtn:hover .sapMBtnInner {
+    border-color: #94A3B8 !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    color: #0F172A !important;
+}
+
+/* Save Changes Button: Solid Teal */
+.kyraDeptSaveBtn.sapMBtn,
+.kyraDeptSaveBtn,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn.sapMBtn,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn {
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraDeptSaveBtn .sapMBtnInner,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn .sapMBtnInner {
+    height: 40px !important;
+    line-height: 38px !important;
+    padding: 0 20px !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #007684 !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.28) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraDeptSaveBtn .sapMBtnContent,
+.kyraDeptSaveBtn bdi,
+.kyraDeptSaveBtn .sapUiIcon,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn .sapMBtnContent,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn bdi,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+.kyraDeptSaveBtn:hover .sapMBtnInner,
+.kyraPersonaDropdownActionBar .kyraAdminSaveBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #005A65 !important;
+}
+
+/* Single User Lookup Action Bar: Alignment & Spacing */
+.kyraPersonaDropdownActionBar {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+}
+
+.kyraPersonaLookupSearchRow {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
