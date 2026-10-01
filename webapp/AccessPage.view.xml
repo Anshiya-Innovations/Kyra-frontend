@@ -1,4 +1,4 @@
-﻿<mvc:View
+<mvc:View
     controllerName="kyra001.pages.access.AccessPage"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -2759,6 +2759,8 @@
                                             id="inPageJustificationArea"
                                             value="{accessModel>/addAccessJustification}"
                                             valueLiveUpdate="true"
+                                            growing="false"
+                                            rows="5"
                                             placeholder="Provide detailed business justification for requesting these system permissions..."
                                             height="140px"
                                             width="100%"

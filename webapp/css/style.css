@@ -3226,16 +3226,15 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea *::after {
 .kyraJustificationTextArea:hover,
 .kyraJustificationTextArea.sapMTextArea:hover,
 #inPageJustificationArea:hover,
-.kyraSideJustificationTextArea:hover,
-.kyraSideJustificationTextArea.sapMTextArea:hover,
 .kyraJustificationTextArea.sapMFocus,
 .kyraJustificationTextArea:focus-within,
 #inPageJustificationArea.sapMFocus,
 #inPageJustificationArea:focus-within,
+[id$="inPageJustificationArea"].sapMFocus,
+[id$="inPageJustificationArea"]:focus-within,
 .kyraSideJustificationTextArea.sapMFocus,
 .kyraSideJustificationTextArea:focus-within {
     border-color: #008C9C !important;
-    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -32227,36 +32226,42 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     position: relative !important;
 }
 
-/* Zero selected box action on hover or focus — static clean teal border, box-shadow NONE, outline NONE */
+/* Single-click active selection styling on hover and focus */
 .kyraSideJustificationTextArea:hover,
 .kyraSideJustificationTextArea.sapMTextArea:hover,
+#inPageJustificationArea:hover,
+[id$="inPageJustificationArea"]:hover {
+    border: 1.5px solid #007380 !important;
+}
+
 .kyraSideJustificationTextArea:focus,
 .kyraSideJustificationTextArea:focus-within,
 .kyraSideJustificationTextArea.sapMFocus,
 .kyraSideJustificationTextArea.sapMTextArea.sapMFocus,
 .kyraSideJustificationTextArea.sapMInputBaseFocused,
-#inPageJustificationArea:hover,
+.kyraSideJustificationTextArea.kyraJustificationFocused,
 #inPageJustificationArea:focus,
 #inPageJustificationArea:focus-within,
 #inPageJustificationArea.sapMFocus,
-#inPageJustificationArea.sapMInputBaseFocused {
-    border: 1.5px solid #008C9C !important;
+#inPageJustificationArea.sapMInputBaseFocused,
+#inPageJustificationArea.kyraJustificationFocused,
+[id$="inPageJustificationArea"]:focus,
+[id$="inPageJustificationArea"]:focus-within,
+[id$="inPageJustificationArea"].sapMFocus,
+[id$="inPageJustificationArea"].sapMInputBaseFocused,
+[id$="inPageJustificationArea"].kyraJustificationFocused {
+    border: 2px solid #008C9C !important;
     border-color: #008C9C !important;
-    box-shadow: none !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.25) !important;
     outline: none !important;
-}
-
-.kyraSideJustificationTextArea *:focus,
-.kyraSideJustificationTextArea *:focus-within,
-#inPageJustificationArea *:focus,
-#inPageJustificationArea *:focus-within {
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: #FFFFFF !important;
 }
 
 /* Inner SAP content wrapper — NO border (prevents double border) */
 .kyraSideJustificationTextArea .sapMInputBaseContentWrapper,
-.kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper {
+.kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper,
+#inPageJustificationArea .sapMInputBaseContentWrapper,
+[id$="inPageJustificationArea"] .sapMInputBaseContentWrapper {
     border: none !important;
     border-radius: 0 !important;
     background: transparent !important;
@@ -32270,14 +32275,22 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     display: block !important;
     position: relative !important;
     box-sizing: border-box !important;
+    cursor: text !important;
+    pointer-events: auto !important;
 }
 
 /* Native textarea element — pinned to top-left, 16px padding, full 140px box click and touch area */
 .kyraSideJustificationTextArea textarea,
-.kyraSideJustificationTextArea .sapMTextAreaInner {
+.kyraSideJustificationTextArea .sapMTextAreaInner,
+#inPageJustificationArea textarea,
+#inPageJustificationArea .sapMTextAreaInner,
+#inPageJustificationArea-inner,
+[id$="inPageJustificationArea"] textarea,
+[id$="inPageJustificationArea"] .sapMTextAreaInner,
+[id$="inPageJustificationArea-inner"] {
     position: relative !important;
     display: block !important;
-    z-index: 5 !important;
+    z-index: 10 !important;
     border: none !important;
     outline: none !important;
     background: transparent !important;
@@ -32297,6 +32310,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     user-select: text !important;
     -webkit-user-select: text !important;
     -webkit-tap-highlight-color: transparent !important;
+    pointer-events: auto !important;
     /* Placeholder position: top-left */
     vertical-align: top !important;
     text-align: left !important;

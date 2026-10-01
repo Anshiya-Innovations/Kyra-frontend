@@ -1303,6 +1303,22 @@ sap.ui.define([
                         if (typeof oPicker.addStyleClass === "function") {
                             oPicker.addStyleClass("kyraDropdownBottomOnly");
                         }
+                        if (!oPicker._hasJustificationAfterClose) {
+                            oPicker._hasJustificationAfterClose = true;
+                            oPicker.attachAfterClose(() => {
+                                setTimeout(() => {
+                                    this._setupJustificationAreaClick();
+                                    const oArea = this.byId("inPageJustificationArea");
+                                    if (oArea) {
+                                        const oDom = oArea.getDomRef();
+                                        const oTextarea = oDom ? oDom.querySelector("textarea") : null;
+                                        if (oTextarea && document.activeElement !== oTextarea) {
+                                            oTextarea.focus();
+                                        }
+                                    }
+                                }, 50);
+                            });
+                        }
                     }
                 } catch(e) {}
 
@@ -1367,6 +1383,25 @@ sap.ui.define([
             const oArea = this.byId("inPageJustificationArea");
             if (!oArea) return;
 
+            const fnFocusTextarea = (bSetEnd) => {
+                const oDom = oArea.getDomRef();
+                const oTextarea = (oDom && oDom.querySelector("textarea")) || (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef());
+                if (!oTextarea) return;
+
+                if (document.activeElement !== oTextarea) {
+                    oTextarea.focus();
+                    if (bSetEnd && oTextarea.value) {
+                        const len = oTextarea.value.length;
+                        oTextarea.setSelectionRange(len, len);
+                    }
+                }
+                if (oDom) {
+                    oDom.classList.add("kyraJustificationFocused");
+                    const oWrapper = oDom.querySelector(".sapMInputBaseContentWrapper");
+                    if (oWrapper) oWrapper.classList.add("kyraJustificationFocused");
+                }
+            };
+
             const fnApplyDirectFocus = () => {
                 const oDom = oArea.getDomRef();
                 if (!oDom) return;
@@ -1401,26 +1436,41 @@ sap.ui.define([
                 oTextarea.disabled = false;
                 oTextarea.readOnly = false;
 
-                // Ensure placeholder overlay does not block mouse clicks
-                const aOverlays = oDom.querySelectorAll(".sapMInputBasePlaceholder, [id$='-placeholder'], .sapMTextAreaPlaceholder, .sapMTextAreaGrowing, [id$='-growing']");
+                // Ensure placeholder overlay and mirror clone divs do not block mouse clicks
+                const aOverlays = oDom.querySelectorAll(".sapMInputBasePlaceholder, [id$='-placeholder'], .sapMTextAreaPlaceholder, .sapMTextAreaGrowing, [id$='-growing'], [id$='-hidden']");
                 aOverlays.forEach(el => {
                     if (el) {
                         el.style.pointerEvents = "none";
+                        el.style.display = "none";
                     }
                 });
 
-                // Attach clean single-click focus without interfering with native browser caret placement
+                // Attach rock-solid single-click/pointerdown/mousedown handlers
                 if (!oDom._hasSingleClickSetup) {
                     oDom._hasSingleClickSetup = true;
 
-                    // If user clicks on padding or border wrapper outside the textarea, focus textarea
-                    oDom.addEventListener("click", (e) => {
+                    const fnOnInteraction = (e) => {
                         if (e.target !== oTextarea) {
-                            oTextarea.focus();
+                            if (e.type === "pointerdown" || e.type === "mousedown") {
+                                e.preventDefault();
+                            }
+                            fnFocusTextarea(true);
+                        } else {
+                            fnFocusTextarea(false);
                         }
-                    });
+                    };
 
-                    // Add visual highlight when focused
+                    oDom.addEventListener("pointerdown", fnOnInteraction);
+                    oDom.addEventListener("mousedown", fnOnInteraction);
+                    oDom.addEventListener("click", fnOnInteraction);
+                    oDom.addEventListener("touchstart", fnOnInteraction, { passive: true });
+
+                    if (oWrapper && oWrapper !== oDom) {
+                        oWrapper.addEventListener("pointerdown", fnOnInteraction);
+                        oWrapper.addEventListener("mousedown", fnOnInteraction);
+                        oWrapper.addEventListener("click", fnOnInteraction);
+                    }
+
                     oTextarea.addEventListener("focus", () => {
                         oDom.classList.add("kyraJustificationFocused");
                         if (oWrapper) oWrapper.classList.add("kyraJustificationFocused");
@@ -1432,15 +1482,30 @@ sap.ui.define([
                     });
                 }
 
+                // Also attach to parent VBox column so clicking anywhere in the business justification column focuses it
+                const oParentCol = oDom.closest(".kyraSideBySideCol");
+                if (oParentCol && !oParentCol._hasJustColClick) {
+                    oParentCol._hasJustColClick = true;
+                    oParentCol.addEventListener("click", (e) => {
+                        if (e.target !== oTextarea) {
+                            fnFocusTextarea(true);
+                        }
+                    });
+                }
+
                 // Clicking the label immediately focuses the textarea on first click
-                const aLabels = document.querySelectorAll(".kyraSideJustLabel, .kyraJustificationLabel, label[for='inPageJustificationArea']");
+                const aLabels = document.querySelectorAll(".kyraSideJustLabel, .kyraJustificationLabel, label[for*='inPageJustificationArea']");
                 aLabels.forEach(oLabel => {
                     if (oLabel && !oLabel._hasSingleClickSetup) {
                         oLabel._hasSingleClickSetup = true;
                         oLabel.style.cursor = "pointer";
-                        oLabel.addEventListener("click", () => {
-                            oTextarea.focus();
-                        });
+                        const fnLabelClick = (e) => {
+                            e.preventDefault();
+                            fnFocusTextarea(true);
+                        };
+                        oLabel.addEventListener("pointerdown", fnLabelClick);
+                        oLabel.addEventListener("mousedown", fnLabelClick);
+                        oLabel.addEventListener("click", fnLabelClick);
                     }
                 });
             };
@@ -1450,11 +1515,26 @@ sap.ui.define([
                 oArea._justificationDelegate = null;
             }
             oArea._justificationDelegate = {
-                onAfterRendering: fnApplyDirectFocus
+                onAfterRendering: fnApplyDirectFocus,
+                ontap: (oEvent) => {
+                    const oTextarea = (typeof oArea.getFocusDomRef === "function" && oArea.getFocusDomRef()) || (oArea.getDomRef() && oArea.getDomRef().querySelector("textarea"));
+                    if (oTextarea) {
+                        oTextarea.focus();
+                    }
+                },
+                onfocusin: (oEvent) => {
+                    const oDom = oArea.getDomRef();
+                    if (oDom) oDom.classList.add("kyraJustificationFocused");
+                },
+                onfocusout: (oEvent) => {
+                    const oDom = oArea.getDomRef();
+                    if (oDom) oDom.classList.remove("kyraJustificationFocused");
+                }
             };
             oArea.addDelegate(oArea._justificationDelegate, true, oArea);
             fnApplyDirectFocus();
-            setTimeout(fnApplyDirectFocus, 80);
+            setTimeout(fnApplyDirectFocus, 60);
+            setTimeout(fnApplyDirectFocus, 180);
         },
 
         // =========================================================================
@@ -5117,17 +5197,19 @@ sap.ui.define([
 
             // Once duration is selected, ensure Business Justification is ready for instant single-click input
             if (sKey && sKey.trim() !== "") {
-                setTimeout(() => {
-                    this._setupJustificationAreaClick();
-                    const oArea = this.byId("inPageJustificationArea");
-                    if (oArea) {
-                        const oDom = oArea.getDomRef();
-                        const oTextarea = oDom ? oDom.querySelector("textarea") : null;
-                        if (oTextarea) {
-                            oTextarea.focus();
+                [40, 120, 250, 400, 600].forEach(delay => {
+                    setTimeout(() => {
+                        this._setupJustificationAreaClick();
+                        const oArea = this.byId("inPageJustificationArea");
+                        if (oArea) {
+                            const oDom = oArea.getDomRef();
+                            const oTextarea = oDom ? oDom.querySelector("textarea") : null;
+                            if (oTextarea && document.activeElement !== oTextarea) {
+                                oTextarea.focus();
+                            }
                         }
-                    }
-                }, 100);
+                    }, delay);
+                });
             }
         },
 

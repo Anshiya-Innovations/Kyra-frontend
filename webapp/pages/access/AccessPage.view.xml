@@ -1,4 +1,4 @@
-﻿<mvc:View
+<mvc:View
     controllerName="kyra001.pages.access.AccessPage"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
