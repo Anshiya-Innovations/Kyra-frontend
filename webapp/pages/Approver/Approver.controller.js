@@ -99,13 +99,8 @@ sap.ui.define([
 
         onInit() {
             const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
-            if (oRouter) {
-                ["AccessPage", "UserDashboard", "AdminDashboard"].forEach(routeName => {
-                    const r = oRouter.getRoute(routeName);
-                    if (r) {
-                        r.attachPatternMatched(this._onRouteMatched, this);
-                    }
-                });
+            if (oRouter && oRouter.getRoute("AccessPage")) {
+                oRouter.getRoute("AccessPage").attachPatternMatched(this._onRouteMatched, this);
             }
             window.openApproverDecisionBreakdown = (sTargetIdOrData) => {
                 this.openDecisionBreakdownSummary(sTargetIdOrData);
@@ -123,7 +118,7 @@ sap.ui.define([
             }
             if (!this._boundStorageListener) {
                 this._boundStorageListener = (e) => {
-                    if (e.key === "kyra_last_db_mutation" || e.key === "kyra_pending_revocations" || e.key === "kyra_decided_requests_map") {
+                    if (e.key === "kyra_last_db_mutation" || e.key === "kyra_pending_revocations") {
                         const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
                         if (oM) {
                             this._reloadAllRequests(oM, true);
@@ -133,19 +128,6 @@ sap.ui.define([
                 window.addEventListener("storage", this._boundStorageListener);
             }
             this._syncModelAndRequests();
-        },
-
-        _notifyDatabaseMutation() {
-            if (typeof BroadcastChannel !== "undefined") {
-                try {
-                    const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "DECISION_SUBMITTED", timestamp: Date.now() });
-                    syncChannel.close();
-                } catch(e) {}
-            }
-            try {
-                localStorage.setItem("kyra_last_db_mutation", String(Date.now()));
-            } catch(e) {}
         },
 
         _onRouteMatched() {
@@ -905,80 +887,8 @@ sap.ui.define([
                 console.error("Database persistence approval decision error:", err);
             }
 
-            // 2. Clear in-flight background query coalescers so fresh DB read is forced
-            window._kyraGovFetchPromise = null;
-            window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
-            window._kyraDecisionInFlight = false;
-            window._kyraLastDecidedReqId = oData.requestId;
-            window._kyraLastDecisionSubmitTime = Date.now();
-
-            // 3. Track decided request in a persistent map so it can never leak back into pending
-            if (!window._kyraDecidedRequestsMap) {
-                window._kyraDecidedRequestsMap = {};
-                try {
-                    const sSavedMap = sessionStorage.getItem("kyra_decided_requests_map");
-                    if (sSavedMap) window._kyraDecidedRequestsMap = JSON.parse(sSavedMap);
-                } catch(e) {}
-            }
-            let oDecidedMap = window._kyraDecidedRequestsMap || {};
-            const sReqIdNorm = String(oData.requestId).trim().toUpperCase();
-            const sReqBaseNorm = getBaseReqId(sReqIdNorm).toUpperCase();
-            const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver");
-            const bIsCompliance = sActiveRole.toLowerCase().includes("compliance");
-            const oDecidedRecord = {
-                requestId: sReqIdNorm,
-                baseRequestId: sReqBaseNorm,
-                status: sOverallStatus,
-                actorRole: sActiveRole,
-                isCompliance: bIsCompliance,
-                timestamp: Date.now()
-            };
-            window._kyraDecidedRequestsMap[sReqIdNorm] = oDecidedRecord;
-            window._kyraDecidedRequestsMap[sReqBaseNorm] = oDecidedRecord;
-            oDecidedMap[sReqIdNorm] = oDecidedRecord;
-            oDecidedMap[sReqBaseNorm] = oDecidedRecord;
-            (oData.entitlements || []).forEach(e => {
-                if (e.requestId) {
-                    const eNorm = String(e.requestId).trim().toUpperCase();
-                    window._kyraDecidedRequestsMap[eNorm] = oDecidedRecord;
-                    oDecidedMap[eNorm] = oDecidedRecord;
-                }
-            });
-            try {
-                sessionStorage.setItem("kyra_decided_requests_map", JSON.stringify(oDecidedMap));
-            } catch(e) {}
-
-            // Immediately update in-memory and persisted cached requests
-            const sNowIso = new Date().toISOString();
-            if (window._kyraCachedGovRequests && Array.isArray(window._kyraCachedGovRequests)) {
-                window._kyraCachedGovRequests.forEach(r => {
-                    const rId = String(r.request_number || r.requestId || r.id || "").trim().toUpperCase();
-                    const rBase = getBaseReqId(rId).toUpperCase();
-                    if (rId === sReqIdNorm || rBase === sReqBaseNorm || rId === sReqBaseNorm || rBase === sReqIdNorm) {
-                        if (bIsCompliance) {
-                            r.compliance_status = sOverallStatus.toUpperCase();
-                            r.compliance_decision_status = sOverallStatus.toUpperCase();
-                            r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
-                            r.db_status = r.status;
-                        } else {
-                            r.approver_status = sOverallStatus.toUpperCase();
-                            r.approver_decision_status = sOverallStatus.toUpperCase();
-                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                            r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                            r.db_status = r.status;
-                        }
-                        r.updated_at = sNowIso;
-                    }
-                });
-                try {
-                    sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(window._kyraCachedGovRequests));
-                    localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(window._kyraCachedGovRequests));
-                } catch(e) {}
-            }
-
             // Sync with backend database states
             await this._reloadAllRequests(oModel);
-            this._notifyDatabaseMutation();
 
             MessageToast.show("Decision submitted for User Id " + oData.requestId);
             oModel.setProperty("/showRequestDetailView", false);
@@ -1013,46 +923,6 @@ sap.ui.define([
                 if (tB !== tA) return tB - tA;
                 return String(b.request_number || "").localeCompare(String(a.request_number || ""));
             });
-
-            let oDecidedMap = window._kyraDecidedRequestsMap || {};
-            try {
-                const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
-                if (sDecSaved) {
-                    const parsed = JSON.parse(sDecSaved);
-                    oDecidedMap = Object.assign({}, parsed, oDecidedMap);
-                }
-            } catch(eDec) {}
-
-            // Apply decided map to raw records so they carry their decided status
-            if (oDecidedMap && Object.keys(oDecidedMap).length > 0) {
-                aSortedRecords.forEach(r => {
-                    const sNum = (r.request_number || r.requestId || r.id || "").trim();
-                    const sBase = getBaseReqId(sNum);
-                    const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || 
-                                (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
-                    if (dec) {
-                        const sDecStatus = (dec.status || "").toUpperCase();
-                        if (dec.role === "compliance" || isCompliance) {
-                            r.compliance_status = sDecStatus;
-                            r.compliance_decision_status = sDecStatus;
-                            r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
-                            r.db_status = r.status;
-                        } else if (dec.role === "iam1" || isIam1) {
-                            r.iam_approver_1_status = sDecStatus;
-                            r.iam_approver_1_decision_status = sDecStatus;
-                        } else if (dec.role === "iam2" || isIam2) {
-                            r.iam_approver_2_status = sDecStatus;
-                            r.iam_approver_2_decision_status = sDecStatus;
-                        } else {
-                            r.approver_status = sDecStatus;
-                            r.approver_decision_status = sDecStatus;
-                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                            r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                            r.db_status = r.status;
-                        }
-                    }
-                });
-            }
 
             // ── PASS 1: Base Request Pre-Aggregation across all child items ────────
             const mBaseInfo = {};
@@ -1401,31 +1271,13 @@ sap.ui.define([
             });
 
             const processedBaseIds = new Set(Object.keys(oGrouped).map(k => getBaseReqId(k).toUpperCase()).filter(Boolean));
-            if (oDecidedMap) {
-                Object.keys(oDecidedMap).forEach(k => {
-                    const sK = String(k).trim().toUpperCase();
-                    processedBaseIds.add(sK);
-                    const bK = getBaseReqId(sK).toUpperCase();
-                    if (bK) processedBaseIds.add(bK);
-                });
-            }
-            if (window._kyraLastDecidedReqId) {
-                const sL = String(window._kyraLastDecidedReqId).trim().toUpperCase();
-                processedBaseIds.add(sL);
-                const bL = getBaseReqId(sL).toUpperCase();
-                if (bL) processedBaseIds.add(bL);
-            }
             Object.keys(oPendingGrouped).forEach(k => {
                 const bId = getBaseReqId(k).toUpperCase();
-                if (processedBaseIds.has(bId) || processedBaseIds.has(k.toUpperCase())) {
+                if (processedBaseIds.has(bId)) {
                     delete oPendingGrouped[k];
                 }
             });
-            const aPending = Object.values(oPendingGrouped).filter(p => {
-                const pId = String(p.requestId || p.request_number || "").toUpperCase();
-                const pBase = getBaseReqId(pId).toUpperCase();
-                return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
-            });
+            const aPending = Object.values(oPendingGrouped).filter(p => !processedBaseIds.has(getBaseReqId(p.requestId || p.request_number || "").toUpperCase()));
             const getPendingTime = (r) => {
                 const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
                 if (!raw) return 0;
@@ -1528,27 +1380,9 @@ sap.ui.define([
                         }
                     }
                 });
-                let oDecidedMap = window._kyraDecidedRequestsMap || {};
-                try {
-                    const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
-                    if (sDecSaved) {
-                        const parsed = JSON.parse(sDecSaved);
-                        oDecidedMap = Object.assign({}, parsed, oDecidedMap);
-                    }
-                } catch(eDec) {}
-                if (oDecidedMap) {
-                    Object.keys(oDecidedMap).forEach(k => {
-                        const sK = String(k).trim().toUpperCase();
-                        processedBaseIds.add(sK);
-                        const bK = getBaseReqId(sK).toUpperCase();
-                        if (bK) processedBaseIds.add(bK);
-                    });
-                }
-                if (window._kyraLastDecidedReqId) {
-                    const sL = String(window._kyraLastDecidedReqId).trim().toUpperCase();
-                    processedBaseIds.add(sL);
-                    const bL = getBaseReqId(sL).toUpperCase();
-                    if (bL) processedBaseIds.add(bL);
+                if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+                    processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
+                    processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
                 }
                 aPending = aPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
@@ -1663,13 +1497,7 @@ sap.ui.define([
 
             try {
                 if (!window._kyraGovFetchPromise) {
-                    window._kyraGovFetchPromise = fetch("/odata/v4/admin-portal/GovernanceHistory", {
-                        cache: "no-cache",
-                        headers: {
-                            "Cache-Control": "no-cache",
-                            "Pragma": "no-cache"
-                        }
-                    })
+                    window._kyraGovFetchPromise = fetch("/odata/v4/admin-portal/GovernanceHistory")
                         .then(r => r.json())
                         .catch(err => {
                             console.error("Error fetching GovernanceHistory in Approver:", err);
@@ -1682,39 +1510,11 @@ sap.ui.define([
 
                 const data = await window._kyraGovFetchPromise;
                 if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
-                    this._reloadAllRequests(oModel);
                     return;
                 }
 
                 if (data && data.value && data.value.length > 0) {
                     const aRawData = data.value.slice();
-                    let oDecidedMap = window._kyraDecidedRequestsMap || {};
-                    try {
-                        const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
-                        if (sDecSaved) oDecidedMap = Object.assign({}, JSON.parse(sDecSaved), oDecidedMap);
-                    } catch(eDec) {}
-                    if (oDecidedMap && Object.keys(oDecidedMap).length > 0) {
-                        aRawData.forEach(r => {
-                            const sNum = (r.request_number || r.requestId || r.id || "").trim();
-                            const sBase = getBaseReqId(sNum);
-                            const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
-                            if (dec) {
-                                const sDecStatus = (dec.status || "").toUpperCase();
-                                if (dec.isCompliance || isCompliance) {
-                                    r.compliance_status = sDecStatus;
-                                    r.compliance_decision_status = sDecStatus;
-                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
-                                    r.db_status = r.status;
-                                } else {
-                                    r.approver_status = sDecStatus;
-                                    r.approver_decision_status = sDecStatus;
-                                    const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                                    r.db_status = r.status;
-                                }
-                            }
-                        });
-                    }
                     window._kyraCachedGovRequests = aRawData;
                     try {
                         sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawData));
