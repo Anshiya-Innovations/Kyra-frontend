@@ -783,23 +783,52 @@ sap.ui.define([
             }
 
             // 2. Multi-Tab BroadcastChannel event bus
+            if (!this._instanceId) {
+                this._instanceId = "access_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+            }
             if (typeof BroadcastChannel !== "undefined" && !this._syncChannel) {
                 try {
                     this._syncChannel = new BroadcastChannel("kyra_db_sync_channel");
                     this._syncChannel.onmessage = (evt) => {
-                        if (evt && evt.data && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED")) {
-                            console.log("Real-time DB sync event received:", evt.data);
-                            this._loadSubmittedRequests(oModel, true);
+                        if (evt && evt.data) {
+                            if (evt.data.senderId && evt.data.senderId === this._instanceId) {
+                                return; // Ignore own broadcast messages to prevent self-loop
+                            }
+                            if (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED") {
+                                console.log("Real-time DB sync event received:", evt.data);
+                                this._loadSubmittedRequests(oModel, true);
+                            } else if (evt.data.type === "ADMIN_CONFIG_MUTATED") {
+                                console.log("Real-time Admin Config mutation received:", evt.data);
+                                clearTimeout(this._adminConfigSyncDebounceTimer);
+                                this._adminConfigSyncDebounceTimer = setTimeout(() => {
+                                    this._loadCustomAccessAndConflictConfig(oModel, true);
+                                    this._loadBackendSoDMatrix(true);
+                                    const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
+                                    if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
+                                        this._evaluateSodConflicts(aCart);
+                                    }
+                                }, 400);
+                            }
                         }
                     };
                 } catch(e) { console.warn("BroadcastChannel init error:", e); }
             }
 
-            // 3. Local Storage Sync
+            // 3. Local Storage Sync (listen ONLY to explicit mutation timestamps, never cache writes)
             if (!this._fnStorageHandler) {
                 this._fnStorageHandler = (e) => {
                     if (e.key === "kyra_last_db_mutation") {
                         this._loadSubmittedRequests(oModel, true);
+                    } else if (e.key === "kyra_last_admin_config_mutation") {
+                        clearTimeout(this._adminConfigSyncDebounceTimer);
+                        this._adminConfigSyncDebounceTimer = setTimeout(() => {
+                            this._loadCustomAccessAndConflictConfig(oModel, true);
+                            this._loadBackendSoDMatrix(true);
+                            const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
+                            if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
+                                this._evaluateSodConflicts(aCart);
+                            }
+                        }, 400);
                     }
                 };
                 window.addEventListener("storage", this._fnStorageHandler);
@@ -810,6 +839,8 @@ sap.ui.define([
                 this._fnVisibilityHandler = () => {
                     if (!document.hidden) {
                         this._loadSubmittedRequests(oModel, true);
+                        this._loadCustomAccessAndConflictConfig(oModel);
+                        this._loadBackendSoDMatrix();
                     }
                 };
                 document.addEventListener("visibilitychange", this._fnVisibilityHandler);
@@ -818,16 +849,17 @@ sap.ui.define([
             // 5. Load backend SoD Matrix rules
             this._loadBackendSoDMatrix();
 
-            // 6. Adaptive Low-Frequency Backup Sync (every 10s only if tab is focused)
+            // 6. Adaptive Low-Frequency Backup Sync (every 15s only if tab is focused)
             if (!this._pollInterval) {
                 this._pollInterval = setInterval(() => {
                     if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
                         const oM = this.getView().getModel("accessModel");
                         if (oM && !oM.getProperty("/showRequestDetailsPage")) {
                             this._loadSubmittedRequests(oM, true);
+                            this._loadBackendSoDMatrix();
                         }
                     }
-                }, 10000);
+                }, 15000);
             }
         },
 
@@ -1982,6 +2014,46 @@ sap.ui.define([
 
             const sActiveUser = (sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim().toLowerCase();
 
+            let oDecidedMap = window._kyraDecidedRequestsMap || {};
+            try {
+                const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
+                if (sDecSaved) {
+                    const parsed = JSON.parse(sDecSaved);
+                    oDecidedMap = Object.assign({}, parsed, oDecidedMap);
+                }
+            } catch(eDec) {}
+
+            // Apply decided map to raw records so they carry their decided status
+            if (oDecidedMap && Object.keys(oDecidedMap).length > 0) {
+                aSortedRecords.forEach(r => {
+                    const sNum = (r.request_number || r.requestId || r.id || "").trim();
+                    const sBase = getBaseReqId(sNum);
+                    const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || 
+                                (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
+                    if (dec) {
+                        const sDecStatus = (dec.status || "").toUpperCase();
+                        if (dec.role === "compliance" || isCompliance) {
+                            r.compliance_status = sDecStatus;
+                            r.compliance_decision_status = sDecStatus;
+                            r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
+                            r.db_status = r.status;
+                        } else if (dec.role === "iam1" || isIam1) {
+                            r.iam_approver_1_status = sDecStatus;
+                            r.iam_approver_1_decision_status = sDecStatus;
+                        } else if (dec.role === "iam2" || isIam2) {
+                            r.iam_approver_2_status = sDecStatus;
+                            r.iam_approver_2_decision_status = sDecStatus;
+                        } else {
+                            r.approver_status = sDecStatus;
+                            r.approver_decision_status = sDecStatus;
+                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
+                            r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                            r.db_status = r.status;
+                        }
+                    }
+                });
+            }
+
             // ── PASS 1: Base Request Pre-Aggregation across all child items ────────
             const mBaseInfo = {};
             aSortedRecords.forEach(r => {
@@ -2325,14 +2397,32 @@ sap.ui.define([
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
             const processedBaseIdsInner = new Set(Object.keys(oGrouped).map(k => getBaseReqId(k).toUpperCase()).filter(Boolean));
+            if (oDecidedMap) {
+                Object.keys(oDecidedMap).forEach(k => {
+                    const sK = String(k).trim().toUpperCase();
+                    processedBaseIdsInner.add(sK);
+                    const bK = getBaseReqId(sK).toUpperCase();
+                    if (bK) processedBaseIdsInner.add(bK);
+                });
+            }
+            if (window._kyraLastDecidedReqId) {
+                const sL = String(window._kyraLastDecidedReqId).trim().toUpperCase();
+                processedBaseIdsInner.add(sL);
+                const bL = getBaseReqId(sL).toUpperCase();
+                if (bL) processedBaseIdsInner.add(bL);
+            }
             Object.keys(oPendingGrouped).forEach(k => {
                 const bId = getBaseReqId(k).toUpperCase();
-                if (processedBaseIdsInner.has(bId)) {
+                if (processedBaseIdsInner.has(bId) || processedBaseIdsInner.has(k.toUpperCase())) {
                     delete oPendingGrouped[k];
                 }
             });
 
-            const aApproverPending = Object.values(oPendingGrouped);
+            const aApproverPending = Object.values(oPendingGrouped).filter(p => {
+                const pId = String(p.requestId || p.request_number || "").toUpperCase();
+                const pBase = getBaseReqId(pId).toUpperCase();
+                return !processedBaseIdsInner.has(pId) && !processedBaseIdsInner.has(pBase);
+            });
             const getPendingTimeAccess = (r) => {
                 const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
                 if (!raw) return 0;
@@ -2384,27 +2474,47 @@ sap.ui.define([
             this._bNeedsFollowUpReload = false;
             const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
 
-            if (!bSilent) {
+            const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
+            const sRoleCheck = (sessionStorage.getItem("kyra_active_role") || "").toLowerCase();
+            const bIsReviewerCheck = sRoleCheck.includes("compliance") || sRoleCheck.includes("approver");
+
+            if (!bSilent && !bHasWarmCache && !bIsReviewerCheck) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Loading KYRA Governance Dashboard...",
                         subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                        duration: 15000
+                        duration: 3000
                     });
                 } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
+                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 3000);
                 }
             }
 
-            localStorage.removeItem("kyra_submitted_my_pending");
-            localStorage.removeItem("kyra_submitted_approver_requests");
-            localStorage.removeItem("kyra_submitted_my_history");
-            sessionStorage.removeItem("kyra_submitted_requests");
-
             let aRawDbRequests = [];
+            if (window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
+                aRawDbRequests = window._kyraCachedGovRequests.slice();
+            }
+
             try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                const data = await response.json();
+                if (!window._kyraGovFetchPromise) {
+                    window._kyraGovFetchPromise = fetch("/odata/v4/admin-portal/GovernanceHistory", {
+                        cache: "no-cache",
+                        headers: {
+                            "Cache-Control": "no-cache",
+                            "Pragma": "no-cache"
+                        }
+                    })
+                        .then(r => r.json())
+                        .catch(err => {
+                            console.error("Error fetching GovernanceHistory in AccessPage:", err);
+                            return null;
+                        })
+                        .finally(() => {
+                            setTimeout(() => { window._kyraGovFetchPromise = null; }, 200);
+                        });
+                }
+
+                const data = await window._kyraGovFetchPromise;
                 if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
                     this._bIsLoadingRequests = false;
                     if (this._bNeedsFollowUpReload && !window._kyraDecisionInFlight) {
@@ -2414,7 +2524,39 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value) {
-                    aRawDbRequests = data.value;
+                    aRawDbRequests = data.value.slice();
+                    let oDecidedMap = window._kyraDecidedRequestsMap || {};
+                    try {
+                        const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
+                        if (sDecSaved) oDecidedMap = Object.assign({}, JSON.parse(sDecSaved), oDecidedMap);
+                    } catch(eDec) {}
+                    if (oDecidedMap && Object.keys(oDecidedMap).length > 0) {
+                        aRawDbRequests.forEach(r => {
+                            const sNum = (r.request_number || r.requestId || r.id || "").trim();
+                            const sBase = getBaseReqId(sNum);
+                            const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
+                            if (dec) {
+                                const sDecStatus = (dec.status || "").toUpperCase();
+                                if (dec.isCompliance || isCompliancePersona) {
+                                    r.compliance_status = sDecStatus;
+                                    r.compliance_decision_status = sDecStatus;
+                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
+                                    r.db_status = r.status;
+                                } else {
+                                    r.approver_status = sDecStatus;
+                                    r.approver_decision_status = sDecStatus;
+                                    const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
+                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                                    r.db_status = r.status;
+                                }
+                            }
+                        });
+                    }
+                    window._kyraCachedGovRequests = aRawDbRequests;
+                    try {
+                        sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawDbRequests));
+                        localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawDbRequests));
+                    } catch(e) {}
 
                     const aDeletedKeys = JSON.parse(sessionStorage.getItem("kyra_deleted_entitlements") || "[]");
                     const aDeletedRequestIds = JSON.parse(sessionStorage.getItem("kyra_deleted_requests") || "[]");
@@ -3214,10 +3356,27 @@ sap.ui.define([
                         }
                     }
                 });
-                // Preserve stored processed requests in sessionStorage so reload never loses them
-                if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
-                    processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
-                    processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
+                let oDecidedMap = window._kyraDecidedRequestsMap || {};
+                try {
+                    const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
+                    if (sDecSaved) {
+                        const parsed = JSON.parse(sDecSaved);
+                        oDecidedMap = Object.assign({}, parsed, oDecidedMap);
+                    }
+                } catch(eDec) {}
+                if (oDecidedMap) {
+                    Object.keys(oDecidedMap).forEach(k => {
+                        const sK = String(k).trim().toUpperCase();
+                        processedBaseIds.add(sK);
+                        const bK = getBaseReqId(sK).toUpperCase();
+                        if (bK) processedBaseIds.add(bK);
+                    });
+                }
+                if (window._kyraLastDecidedReqId) {
+                    const sL = String(window._kyraLastDecidedReqId).trim().toUpperCase();
+                    processedBaseIds.add(sL);
+                    const bL = getBaseReqId(sL).toUpperCase();
+                    if (bL) processedBaseIds.add(bL);
                 }
                 aApprPending = aApprPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
@@ -6679,14 +6838,24 @@ sap.ui.define([
             oModel.setProperty("/duplicateRoles", aUniqueDuplicateRoles);
         },
 
-        _loadBackendSoDMatrix() {
+        _loadBackendSoDMatrix(bForce = false) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            const now = Date.now();
+            if (this._lastSoDMatrixFetchTs && (now - this._lastSoDMatrixFetchTs < (bForce ? 2000 : 5000))) {
+                return;
+            }
+            if (this._isLoadingSoDMatrix) return;
+            this._isLoadingSoDMatrix = true;
+            this._lastSoDMatrixFetchTs = now;
+
             fetch("/odata/v4/admin-portal/SoDMatrix")
                 .then(res => res.json())
                 .then(data => {
                     if (data && data.value && Array.isArray(data.value)) {
                         const aRules = data.value.map(r => ({
+                            id: r.id,
                             system: r.system || "All Systems",
                             service: r.service || "System Administrator",
                             role1: r.roleA || r.role_a || r.role1,
@@ -6694,16 +6863,26 @@ sap.ui.define([
                             status: r.status || "Active",
                             description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
                         }));
-                        const aExisting = oModel.getProperty("/adminCustomConflictsAll") || [];
-                        if (aExisting.length === 0) {
+                        
+                        oModel.setProperty("/sodMatrix", aRules.filter(r => r.status !== "Inactive"));
+                        
+                        const iLastSave = this._lastConflictSaveTs || 0;
+                        if (Date.now() - iLastSave > 3000) {
                             oModel.setProperty("/adminCustomConflictsAll", aRules);
                             oModel.setProperty("/adminCustomConflicts", aRules.slice());
                         }
-                        oModel.setProperty("/sodMatrix", aRules.filter(r => r.status !== "Inactive"));
+
+                        const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
+                        if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
+                            this._evaluateSodConflicts(aCart);
+                        }
                     }
                 })
                 .catch(err => {
                     console.warn("SoDMatrix backend query skipped or unavailable:", err);
+                })
+                .finally(() => {
+                    this._isLoadingSoDMatrix = false;
                 });
         },
 
@@ -6714,21 +6893,49 @@ sap.ui.define([
             const aUserActiveRoles = oModel.getProperty("/activeRoles") || oModel.getProperty("/userAccessList") || [];
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
-            const aCustomAll = oModel.getProperty("/adminCustomConflictsAll");
-            const aModelSod = (Array.isArray(aCustomAll) && aCustomAll.length > 0)
-                ? aCustomAll
-                : oModel.getProperty("/sodMatrix");
-            const aRawSodRules = (aModelSod && aModelSod.length > 0) ? aModelSod : [
-                { role1: "IT Admin", role2: "IT Developer", status: "Active", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                { role1: "IT Admin", role2: "IT Security", status: "Active", description: "System Administrator conflicts with Security Governance." },
-                { role1: "IT Admin", role2: "Compliance Manager", status: "Active", description: "System Administrator conflicts with Compliance Manager oversight." },
-                { role1: "IT Security", role2: "IT Developer", status: "Active", description: "Developer access conflicts with IT Security audit authority." },
-                { role1: "Lead Engineer", role2: "IT Admin", status: "Active", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                { role1: "Security", role2: "Compliance Manager", status: "Active", description: "Compliance Manager conflicts with Security Operational access." },
-                { role1: "Security Audit", role2: "IT Developer", status: "Active", description: "Security Audit oversight conflicts with Developer operational access." },
-                { role1: "System Administrator", role2: "Security Audit", status: "Active", description: "System Administrator conflicts with Security Audit role." }
-            ];
-            const aSodRules = aRawSodRules.filter(r => r && r.status !== "Inactive");
+            const aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const aModelSod = oModel.getProperty("/sodMatrix") || [];
+
+            // Combine all sources: custom conflicts from admin and backend sodMatrix
+            const ruleMap = new Map();
+            const addRuleToMap = (r) => {
+                if (!r || r.status === "Inactive") return;
+                const r1 = String(r.role1 || r.roleA || r.role_a || "").trim().toLowerCase();
+                const r2 = String(r.role2 || r.roleB || r.role_b || "").trim().toLowerCase();
+                const sys = String(r.system || "All Systems").trim().toLowerCase();
+                if (!r1 || !r2) return;
+                const key1 = `${sys}::${r1}::${r2}`;
+                const key2 = `${sys}::${r2}::${r1}`;
+                if (!ruleMap.has(key1) && !ruleMap.has(key2)) {
+                    ruleMap.set(key1, {
+                        id: r.id,
+                        system: r.system || "All Systems",
+                        service: r.service || "System Administrator",
+                        role1: r.role1 || r.roleA || r.role_a,
+                        role2: r.role2 || r.roleB || r.role_b,
+                        status: r.status || "Active",
+                        description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
+                    });
+                }
+            };
+
+            aModelSod.forEach(addRuleToMap);
+            aCustomAll.forEach(addRuleToMap);
+
+            if (ruleMap.size === 0) {
+                [
+                    { role1: "IT Admin", role2: "IT Developer", status: "Active", description: "Segregation of Duties conflict between Developer and Admin privileges." },
+                    { role1: "IT Admin", role2: "IT Security", status: "Active", description: "System Administrator conflicts with Security Governance." },
+                    { role1: "IT Admin", role2: "Compliance Manager", status: "Active", description: "System Administrator conflicts with Compliance Manager oversight." },
+                    { role1: "IT Security", role2: "IT Developer", status: "Active", description: "Developer access conflicts with IT Security audit authority." },
+                    { role1: "Lead Engineer", role2: "IT Admin", status: "Active", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
+                    { role1: "Security", role2: "Compliance Manager", status: "Active", description: "Compliance Manager conflicts with Security Operational access." },
+                    { role1: "Security Audit", role2: "IT Developer", status: "Active", description: "Security Audit oversight conflicts with Developer operational access." },
+                    { role1: "System Administrator", role2: "Security Audit", status: "Active", description: "System Administrator conflicts with Security Audit role." }
+                ].forEach(addRuleToMap);
+            }
+
+            const aSodRules = Array.from(ruleMap.values());
 
             const normalizeSystemName = (sys) => {
                 if (!sys) return "";
@@ -6770,10 +6977,11 @@ sap.ui.define([
                 const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
 
                 if (persA && persB) {
-                    if (persA === persB) return true;
                     const pA = persA.replace(/persona/g, "").trim();
                     const pB = persB.replace(/persona/g, "").trim();
-                    if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
+                    if (persA === persB || (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA)))) return true;
+                    // If both items define personas and they are distinct, they are DIFFERENT entitlements!
+                    return false;
                 }
                 if (roleA && roleB) {
                     return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
@@ -6809,6 +7017,39 @@ sap.ui.define([
                 return s;
             };
 
+            const matchesRoleOrPersona = (role, persona, ruleTarget) => {
+                if (!ruleTarget) return false;
+                const sRule = String(ruleTarget).trim().toLowerCase();
+                const cRule = cleanStr(ruleTarget);
+                
+                const sRole = String(role || "").trim().toLowerCase();
+                const cRole = cleanStr(role);
+                
+                const sPersona = String(persona || "").trim().toLowerCase();
+                const cPersona = cleanStr(persona);
+
+                // 1. Exact matches (cleaned or raw)
+                if (sPersona && (sPersona === sRule || cPersona === cRule)) return true;
+                if (sRole && (sRole === sRule || cRole === cRule)) return true;
+
+                // 2. Substring inclusions in either direction
+                if (cPersona && cRule && (cPersona.includes(cRule) || cRule.includes(cPersona))) return true;
+                if (sPersona && sRule && (sPersona.includes(sRule) || sRule.includes(sPersona))) return true;
+                if (cRole && cRule && (cRole.includes(cRule) || cRule.includes(cRole))) return true;
+                if (sRole && sRule && (sRole.includes(sRule) || sRule.includes(sRole))) return true;
+
+                // 3. Parenthetical team matching in rule target
+                const mRuleTeam = sRule.match(/\(([^)]+)\)/);
+                if (mRuleTeam) {
+                    const ruleTeam = cleanStr(mRuleTeam[1]);
+                    if (cPersona === cRule && (cRole.includes(ruleTeam) || sPersona.includes(ruleTeam))) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
             const checkConflictMatch = (roleA, personaA, roleB, personaB, rule) => {
                 const sR1 = String(rule.role1 || rule.role_a || rule.roleA || "").toLowerCase().trim();
                 const sR2 = String(rule.role2 || rule.role_b || rule.roleB || "").toLowerCase().trim();
@@ -6817,17 +7058,19 @@ sap.ui.define([
                 const cPA = cleanStr(personaA);
                 const cPB = cleanStr(personaB);
 
-                const archA = getFunctionalArchetype(roleA, personaA);
-                const archB = getFunctionalArchetype(roleB, personaB);
-
-                if (archA === archB && (cRA === cRB || (cPA && cPB && cPA === cPB))) {
+                // Duplicate access check
+                if (cRA === cRB && (!cPA || !cPB || cPA === cPB)) {
                     return false;
                 }
 
-                const directMatch1 = (cRA.includes(sR1) || cPA.includes(sR1)) && (cRB.includes(sR2) || cPB.includes(sR2));
-                const directMatch2 = (cRA.includes(sR2) || cPA.includes(sR2)) && (cRB.includes(sR1) || cPB.includes(sR1));
+                // 1. Direct symmetric matching
+                const directMatch1 = matchesRoleOrPersona(roleA, personaA, sR1) && matchesRoleOrPersona(roleB, personaB, sR2);
+                const directMatch2 = matchesRoleOrPersona(roleA, personaA, sR2) && matchesRoleOrPersona(roleB, personaB, sR1);
                 if (directMatch1 || directMatch2) return true;
 
+                // 2. Functional Archetype fallback
+                const archA = getFunctionalArchetype(roleA, personaA);
+                const archB = getFunctionalArchetype(roleB, personaB);
                 if (archA === archB) return false;
 
                 const r1 = getRuleArchetype(sR1);
@@ -6865,37 +7108,32 @@ sap.ui.define([
                         if (checkConflictMatch(sNewRoleName, sNewPersona, sActiveRoleName, sActivePersona, rule)) {
                             const sCleanActiveRole = cleanPersonaName(sActiveRoleName);
                             const sCleanNewRole = cleanPersonaName(sNewRoleName);
-                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sNewSys}:::${sCleanNewRole}`;
+                            const sCleanActivePersona = cleanPersonaName(sActivePersona) || sCleanActiveRole;
+                            const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
+                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sCleanActivePersona}:::${sNewSys}:::${sCleanNewRole}:::${sCleanNewPersona}`;
                             if (!activeConflictMap.has(sKey)) {
                                 activeConflictMap.set(sKey, {
                                     system: sNewSys,
                                     existingRole: `${sActiveSys} — ${sCleanActiveRole}`,
+                                    existingPersona: sCleanActivePersona,
                                     newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    cleanActiveRole: sCleanActiveRole,
-                                    cleanNewRole: sCleanNewRole,
-                                    existingPersonas: new Set(),
-                                    newPersonas: new Set(),
+                                    newPersona: sCleanNewPersona,
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
-                            const entry = activeConflictMap.get(sKey);
-                            if (sActivePersona) entry.existingPersonas.add(cleanPersonaName(sActivePersona));
-                            if (sNewPersona) entry.newPersonas.add(cleanPersonaName(sNewPersona));
                         }
                     });
                 });
             });
 
             activeConflictMap.forEach(entry => {
-                const sExisting = Array.from(entry.existingPersonas).join("\n");
-                const sNew = Array.from(entry.newPersonas).join("\n");
                 aActiveConflicts.push({
                     system: entry.system,
                     existingRole: entry.existingRole,
-                    existingPersona: sExisting,
+                    existingPersona: entry.existingPersona,
                     newRole: entry.newRole,
-                    newPersona: sNew,
+                    newPersona: entry.newPersona,
                     conflictTitle: entry.conflictTitle,
                     conflictDesc: entry.conflictDesc
                 });
@@ -6923,37 +7161,32 @@ sap.ui.define([
                         if (checkConflictMatch(sNewRoleName, sNewPersona, sPendingRoleName, sPendingPersona, rule)) {
                             const sCleanPendingRole = cleanPersonaName(sPendingRoleName);
                             const sCleanNewRole = cleanPersonaName(sNewRoleName);
-                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sNewSys}:::${sCleanNewRole}`;
+                            const sCleanPendingPersona = cleanPersonaName(sPendingPersona) || sCleanPendingRole;
+                            const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
+                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sCleanPendingPersona}:::${sNewSys}:::${sCleanNewRole}:::${sCleanNewPersona}`;
                             if (!pendingConflictMap.has(sKey)) {
                                 pendingConflictMap.set(sKey, {
                                     system: sNewSys,
                                     existingRole: `${sPendingSys} — ${sCleanPendingRole}`,
+                                    existingPersona: sCleanPendingPersona,
                                     newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    cleanPendingRole: sCleanPendingRole,
-                                    cleanNewRole: sCleanNewRole,
-                                    existingPersonas: new Set(),
-                                    newPersonas: new Set(),
+                                    newPersona: sCleanNewPersona,
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
-                            const entry = pendingConflictMap.get(sKey);
-                            if (sPendingPersona) entry.existingPersonas.add(cleanPersonaName(sPendingPersona));
-                            if (sNewPersona) entry.newPersonas.add(cleanPersonaName(sNewPersona));
                         }
                     });
                 });
             });
 
             pendingConflictMap.forEach(entry => {
-                const sExisting = Array.from(entry.existingPersonas).join("\n");
-                const sNew = Array.from(entry.newPersonas).join("\n");
                 aPendingConflicts.push({
                     system: entry.system,
                     existingRole: entry.existingRole,
-                    existingPersona: sExisting,
+                    existingPersona: entry.existingPersona,
                     newRole: entry.newRole,
-                    newPersona: sNew,
+                    newPersona: entry.newPersona,
                     conflictTitle: entry.conflictTitle,
                     conflictDesc: entry.conflictDesc
                 });
@@ -6983,15 +7216,15 @@ sap.ui.define([
                         if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
                             const sCleanRoleA = cleanPersonaName(sRoleA);
                             const sCleanRoleB = cleanPersonaName(sRoleB);
+                            const sCleanPersonaA = cleanPersonaName(sPersonaA) || sCleanRoleA;
+                            const sCleanPersonaB = cleanPersonaName(sPersonaB) || sCleanRoleB;
 
-                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sSysB}:::${sCleanRoleB}`;
-                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sSysA}:::${sCleanRoleA}`;
+                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sCleanPersonaA}:::${sSysB}:::${sCleanRoleB}:::${sCleanPersonaB}`;
+                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sCleanPersonaB}:::${sSysA}:::${sCleanRoleA}:::${sCleanPersonaA}`;
 
                             let targetKey = sKey;
-                            let bIsReverse = false;
                             if (batchConflictMap.has(sReverseKey)) {
                                 targetKey = sReverseKey;
-                                bIsReverse = true;
                             }
 
                             if (!batchConflictMap.has(targetKey)) {
@@ -7001,60 +7234,29 @@ sap.ui.define([
                                     roleB: `${sSysB} — ${sCleanRoleB}`,
                                     cleanRoleA: sCleanRoleA,
                                     cleanRoleB: sCleanRoleB,
-                                    personasA: new Set(),
-                                    personasB: new Set(),
-                                    conflictTitle: "Batch Selection SoD Conflict",
+                                    personaA: sCleanPersonaA,
+                                    personaB: sCleanPersonaB,
+                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
-                            }
-
-                            const entry = batchConflictMap.get(targetKey);
-                            if (!bIsReverse) {
-                                if (sPersonaA) entry.personasA.add(cleanPersonaName(sPersonaA));
-                                if (sPersonaB) entry.personasB.add(cleanPersonaName(sPersonaB));
-                            } else {
-                                if (sPersonaA) entry.personasB.add(cleanPersonaName(sPersonaA));
-                                if (sPersonaB) entry.personasA.add(cleanPersonaName(sPersonaB));
                             }
                         }
                     });
                 }
             }
 
-            // Also ensure any matching items in the batch are collected for these conflicted roles
             batchConflictMap.forEach(entry => {
-                aItemsToCheck.forEach(item => {
-                    const itemSys = item.system || "";
-                    if (!isSameSystem(itemSys, entry.system)) return;
-                    const itemRole = cleanPersonaName(item.roleName || item.roleTitle || item.persona || "");
-                    const itemPersona = cleanPersonaName(item.persona || item.selectedPersona || item.selected_persona || "");
-                    if (!itemPersona) return;
-
-                    const arch = getFunctionalArchetype(itemRole, itemPersona);
-                    const archA = getFunctionalArchetype(entry.cleanRoleA, entry.cleanRoleA);
-                    const archB = getFunctionalArchetype(entry.cleanRoleB, entry.cleanRoleB);
-
-                    if (itemRole === entry.cleanRoleA || arch === archA) {
-                        entry.personasA.add(itemPersona);
-                    } else if (itemRole === entry.cleanRoleB || arch === archB) {
-                        entry.personasB.add(itemPersona);
-                    }
-                });
-
-                const sPersonaA = Array.from(entry.personasA).join("\n");
-                const sPersonaB = Array.from(entry.personasB).join("\n");
-
                 aBatchConflicts.push({
                     system: entry.system,
                     roleA: entry.roleA,
-                    personaA: sPersonaA,
+                    personaA: entry.personaA,
                     roleB: entry.roleB,
-                    personaB: sPersonaB,
+                    personaB: entry.personaB,
                     existingRole: entry.roleA,
-                    existingPersona: sPersonaA,
+                    existingPersona: entry.personaA,
                     newRole: entry.roleB,
-                    newPersona: sPersonaB,
-                    conflictTitle: "Batch Selection SoD Conflict",
+                    newPersona: entry.personaB,
+                    conflictTitle: entry.conflictTitle || "Segregation of Duties (SoD) Conflict",
                     conflictDesc: entry.conflictDesc
                 });
             });
@@ -7390,8 +7592,12 @@ sap.ui.define([
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
             const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
             const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0);
+            const sSpecificConflictReason = (aBatchConflicts[0] && aBatchConflicts[0].conflictDesc) ||
+                (aActiveConflicts[0] && aActiveConflicts[0].conflictDesc) ||
+                (aPendingConflicts[0] && aPendingConflicts[0].conflictDesc) ||
+                "Segregation of Duties conflict detected";
 
-                        const aPayload = aValidItems.map((item, idx) => {
+            const aPayload = aValidItems.map((item, idx) => {
                 let sItemReqNum = item.requestId;
                 if (!sItemReqNum || sItemReqNum === "REQ-2026-000378") {
                     sItemReqNum = "REQ-2026-" + Math.floor(100000 + Math.random() * 900000);
@@ -7422,7 +7628,7 @@ sap.ui.define([
                     justification: sJustification || "Access Request",
                     hasConflict: bHasConflict || item.hasConflict || false,
                     conflictingRole: bHasConflict ? "SoD Conflict" : (item.conflictingRole || ""),
-                    conflictReason: bHasConflict ? "Segregation of Duties conflict detected" : (item.conflictReason || "")
+                    conflictReason: bHasConflict ? sSpecificConflictReason : (item.conflictReason || "")
                 };
             });
 
@@ -10815,10 +11021,10 @@ sap.ui.define([
                 oModel.setProperty("/adminServicesAll", aSrv);
                 oModel.setProperty("/adminServices", aSrv.slice());
             }
-            if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object") {
-                const oMergedMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oParsed.adminServiceDetailsMap);
-                Object.keys(oMergedMap).forEach(sSrv => {
-                    (oMergedMap[sSrv] || []).forEach(oTeam => {
+            if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object" && Object.keys(oParsed.adminServiceDetailsMap).length > 0) {
+                const oMap = JSON.parse(JSON.stringify(oParsed.adminServiceDetailsMap));
+                Object.keys(oMap).forEach(sSrv => {
+                    (oMap[sSrv] || []).forEach(oTeam => {
                         (oTeam.subClassifications || []).forEach(oSub => {
                             if (!oSub.accessPrivilege) {
                                 oSub.accessPrivilege = this._isDefaultRestrictedPersona(oSub.name) ? "Restricted" : "Not restricted";
@@ -10826,9 +11032,9 @@ sap.ui.define([
                         });
                     });
                 });
-                oModel.setProperty("/adminServiceDetailsMap", oMergedMap);
-                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Owners";
-                const aTeams = oMergedMap[sSelectedSrv] || [];
+                oModel.setProperty("/adminServiceDetailsMap", oMap);
+                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+                const aTeams = oMap[sSelectedSrv] || oMap[Object.keys(oMap)[0]] || [];
                 if (aTeams.length > 0) {
                     oModel.setProperty("/adminClassifications", JSON.parse(JSON.stringify(aTeams)));
                     const oActiveTeam = aTeams.find(t => t.selected) || aTeams[0];
@@ -10852,7 +11058,7 @@ sap.ui.define([
             }
         },
 
-        _loadCustomAccessAndConflictConfig(oModel) {
+        _loadCustomAccessAndConflictConfig(oModel, bForce = false) {
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -10884,13 +11090,24 @@ sap.ui.define([
                 console.warn("Load custom conflicts error:", e);
             }
 
+            this._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
             this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
 
             this._syncAdminConfigToLiveAddAccess(oModel, true);
 
+            // Throttle & in-flight guard: prevent duplicate or continuous backend queries
+            const now = Date.now();
+            if (this._lastAdminConfigFetchTs && (now - this._lastAdminConfigFetchTs < (bForce ? 2000 : 5000))) {
+                return;
+            }
+            if (this._isLoadingAdminConfig) {
+                return;
+            }
+            this._isLoadingAdminConfig = true;
+            this._lastAdminConfigFetchTs = now;
+
             const that = this;
-            // Fetch live persistent configuration from backend role_conflicts table
             const iLoadTs = Date.now();
             fetch("/odata/v4/admin-portal/getAdminCustomization", {
                 method: "POST",
@@ -10911,10 +11128,7 @@ sap.ui.define([
                                     return;
                                 }
                                 that._applyParsedAdminConfigToModel(oModel, oParsed);
-                                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oParsed));
-                                if (Array.isArray(oParsed.adminCustomConflictsAll)) {
-                                    localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oParsed.adminCustomConflictsAll));
-                                }
+                                that._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
                                 that._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
                                 that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
@@ -10922,7 +11136,12 @@ sap.ui.define([
                         } catch (e) {}
                     }
                 })
-                .catch(() => {});
+                .catch(err => {
+                    console.warn("getAdminCustomization query failed:", err);
+                })
+                .finally(() => {
+                    that._isLoadingAdminConfig = false;
+                });
         },
 
         _syncAdminConfigToLiveAddAccess(oModel, bSkipBackendSave) {
@@ -10931,7 +11150,10 @@ sap.ui.define([
 
             const aSystems = oModel.getProperty("/adminSystemsAll") || [];
             const aServices = oModel.getProperty("/adminServicesAll") || [];
-            const oDetailsMap = Object.assign({}, this._getDefaultAdminServiceDetailsMap(), oModel.getProperty("/adminServiceDetailsMap") || {});
+            const oExistingMap = oModel.getProperty("/adminServiceDetailsMap");
+            const oDetailsMap = (oExistingMap && Object.keys(oExistingMap).length > 0)
+                ? oExistingMap
+                : this._getDefaultAdminServiceDetailsMap();
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
 
             let aConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => Object.assign({ status: c.status || "Active" }, c, {
@@ -11083,17 +11305,8 @@ sap.ui.define([
                 adminPersonaUsers: aPersonaUsers
             };
 
-            try {
-                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
-                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
-            } catch (e) {}
-
             if (!bSkipBackendSave) {
-                fetch("/odata/v4/admin-portal/saveAdminCustomization", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ configJson: JSON.stringify(oPayload) })
-                }).catch(() => {});
+                this._persistAllCustomizationsToDb(oModel);
             }
 
             // Immediately re-evaluate Threshold Limits and SoD validations for Add Access conflict section
@@ -11107,34 +11320,34 @@ sap.ui.define([
         },
 
         /**
-         * Directly persists the current custom conflicts list to the database.
-         * Called after every add / edit / delete / toggle of a conflict rule.
-         * Shows a success toast on save, or a warning toast if the save fails.
+         * Persists all three sections (Systems, Services/Teams/Personas, and Custom Conflicts)
+         * to the PostgreSQL database tables.
          */
-        _persistConflictsToDb(oModel, sSuccessMsg) {
+        _persistAllCustomizationsToDb(oModel, sSuccessMsg) {
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            // Build the full config payload (same shape as _syncAdminConfigToLiveAddAccess)
+            const aSystems = oModel.getProperty("/adminSystemsAll") || [];
+            const aServices = oModel.getProperty("/adminServicesAll") || [];
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             const aConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
+            const aDbSchemas = oModel.getProperty("/adminDatabaseSchemas") || [];
+            const aPersonaUsers = oModel.getProperty("/adminPersonaUsers") || [];
+
             const oPayload = {
-                adminSystemsAll: oModel.getProperty("/adminSystemsAll") || [],
-                adminServicesAll: oModel.getProperty("/adminServicesAll") || [],
-                adminServiceDetailsMap: oModel.getProperty("/adminServiceDetailsMap") || {},
+                adminSystemsAll: aSystems,
+                adminServicesAll: aServices,
+                adminServiceDetailsMap: oDetailsMap,
                 adminCustomConflictsAll: aConflicts,
-                adminDatabaseSchemas: oModel.getProperty("/adminDatabaseSchemas") || [],
-                adminPersonaUsers: oModel.getProperty("/adminPersonaUsers") || []
+                adminDatabaseSchemas: aDbSchemas,
+                adminPersonaUsers: aPersonaUsers
             };
 
-            // Immediately update localStorage so a reload picks up the latest state
             try {
                 localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
                 localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
             } catch (e) {}
 
-            // Mark the timestamp of the last admin-triggered conflict save.
-            // The async getAdminCustomization fetch will skip overwriting if it returns
-            // data that is older than this timestamp.
             this._lastConflictSaveTs = Date.now();
 
             fetch("/odata/v4/admin-portal/saveAdminCustomization", {
@@ -11145,14 +11358,36 @@ sap.ui.define([
                 .then(res => res.ok ? res.json() : Promise.reject(res.status))
                 .then(oRes => {
                     if (oRes && oRes.ok) {
-                        MessageToast.show(sSuccessMsg || "Conflict rules saved to database successfully.");
+                        MessageToast.show(sSuccessMsg || "Customization saved to database successfully.");
+                        try {
+                            localStorage.setItem("kyra_last_admin_config_mutation", String(Date.now()));
+                        } catch(e) {}
+                        if (typeof BroadcastChannel !== "undefined") {
+                            try {
+                                const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
+                                syncChannel.postMessage({ 
+                                    type: "ADMIN_CONFIG_MUTATED", 
+                                    senderId: this._instanceId, 
+                                    timestamp: Date.now() 
+                                });
+                                syncChannel.close();
+                            } catch(e) {}
+                        }
                     } else {
-                        MessageToast.show("⚠ Conflict saved locally but DB sync returned an error. Please retry.");
+                        MessageToast.show("⚠ Saved locally, but database sync returned an error.");
                     }
                 })
                 .catch(() => {
-                    MessageToast.show("⚠ Could not reach database. Conflict rule saved locally — will retry on next load.");
+                    MessageToast.show("⚠ Saved locally. Will retry synchronizing with database on next update.");
                 });
+        },
+
+        /**
+         * Directly persists the current custom conflicts list to the database.
+         * Called after every add / edit / delete / toggle of a conflict rule.
+         */
+        _persistConflictsToDb(oModel, sSuccessMsg) {
+            this._persistAllCustomizationsToDb(oModel, sSuccessMsg || "Conflict rules saved to database successfully.");
         },
 
 
@@ -11834,9 +12069,9 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             this._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Systems Saved", "System configuration saved and activated for all users.");
-            MessageToast.show("System configuration saved and activated for all users.");
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "System configuration saved to database and activated for all users.");
+            this._showSlideNotification("Systems Saved", "System configuration saved to database and activated for all users.");
         },
 
         onDeleteAdminSystem(oEvent) {
@@ -12214,8 +12449,9 @@ sap.ui.define([
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
             this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oDetailsMap));
 
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            sap.m.MessageToast.show("Service configuration saved and activated for all users.");
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Service configuration saved to database and activated for all users.");
+            this._showSlideNotification("Services Saved", "Service configuration saved to database and activated for all users.");
         },
 
         onDeleteAdminService(oEvent) {
@@ -12813,9 +13049,9 @@ sap.ui.define([
             const aAllServices = oModel.getProperty("/adminServicesAll") || [];
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAllServices));
 
-            this._syncAdminConfigToLiveAddAccess(oModel);
-            this._showSlideNotification("Service Details Saved", "Changes to Service Details and Personas have been saved and applied to Add Access.");
-            MessageToast.show("Service Details (Team & Persona) saved, activated, and reflected in Add Access for all users.");
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Service Details (Team & Persona) saved to database and activated for all users.");
+            this._showSlideNotification("Service Details Saved", "Changes to Service Details and Personas have been saved to database and applied to Add Access.");
         },
 
         onCancelAdminServiceDetails() {

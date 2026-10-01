@@ -783,40 +783,52 @@ sap.ui.define([
             }
 
             // 2. Multi-Tab BroadcastChannel event bus
+            if (!this._instanceId) {
+                this._instanceId = "access_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+            }
             if (typeof BroadcastChannel !== "undefined" && !this._syncChannel) {
                 try {
                     this._syncChannel = new BroadcastChannel("kyra_db_sync_channel");
                     this._syncChannel.onmessage = (evt) => {
                         if (evt && evt.data) {
+                            if (evt.data.senderId && evt.data.senderId === this._instanceId) {
+                                return; // Ignore own broadcast messages to prevent self-loop
+                            }
                             if (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED") {
                                 console.log("Real-time DB sync event received:", evt.data);
                                 this._loadSubmittedRequests(oModel, true);
                             } else if (evt.data.type === "ADMIN_CONFIG_MUTATED") {
                                 console.log("Real-time Admin Config mutation received:", evt.data);
-                                this._loadCustomAccessAndConflictConfig(oModel);
-                                this._loadBackendSoDMatrix();
-                                const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
-                                if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
-                                    this._evaluateSodConflicts(aCart);
-                                }
+                                clearTimeout(this._adminConfigSyncDebounceTimer);
+                                this._adminConfigSyncDebounceTimer = setTimeout(() => {
+                                    this._loadCustomAccessAndConflictConfig(oModel, true);
+                                    this._loadBackendSoDMatrix(true);
+                                    const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
+                                    if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
+                                        this._evaluateSodConflicts(aCart);
+                                    }
+                                }, 400);
                             }
                         }
                     };
                 } catch(e) { console.warn("BroadcastChannel init error:", e); }
             }
 
-            // 3. Local Storage Sync
+            // 3. Local Storage Sync (listen ONLY to explicit mutation timestamps, never cache writes)
             if (!this._fnStorageHandler) {
                 this._fnStorageHandler = (e) => {
                     if (e.key === "kyra_last_db_mutation") {
                         this._loadSubmittedRequests(oModel, true);
-                    } else if (e.key === "kyra_last_admin_config_mutation" || e.key === "kyra_custom_sod_matrix" || e.key === "kyra_custom_access_config") {
-                        this._loadCustomAccessAndConflictConfig(oModel);
-                        this._loadBackendSoDMatrix();
-                        const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
-                        if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
-                            this._evaluateSodConflicts(aCart);
-                        }
+                    } else if (e.key === "kyra_last_admin_config_mutation") {
+                        clearTimeout(this._adminConfigSyncDebounceTimer);
+                        this._adminConfigSyncDebounceTimer = setTimeout(() => {
+                            this._loadCustomAccessAndConflictConfig(oModel, true);
+                            this._loadBackendSoDMatrix(true);
+                            const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
+                            if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
+                                this._evaluateSodConflicts(aCart);
+                            }
+                        }, 400);
                     }
                 };
                 window.addEventListener("storage", this._fnStorageHandler);
@@ -837,7 +849,7 @@ sap.ui.define([
             // 5. Load backend SoD Matrix rules
             this._loadBackendSoDMatrix();
 
-            // 6. Adaptive Low-Frequency Backup Sync (every 5s only if tab is focused)
+            // 6. Adaptive Low-Frequency Backup Sync (every 15s only if tab is focused)
             if (!this._pollInterval) {
                 this._pollInterval = setInterval(() => {
                     if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
@@ -847,7 +859,7 @@ sap.ui.define([
                             this._loadBackendSoDMatrix();
                         }
                     }
-                }, 5000);
+                }, 15000);
             }
         },
 
@@ -6826,9 +6838,18 @@ sap.ui.define([
             oModel.setProperty("/duplicateRoles", aUniqueDuplicateRoles);
         },
 
-        _loadBackendSoDMatrix() {
+        _loadBackendSoDMatrix(bForce = false) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            const now = Date.now();
+            if (this._lastSoDMatrixFetchTs && (now - this._lastSoDMatrixFetchTs < (bForce ? 2000 : 5000))) {
+                return;
+            }
+            if (this._isLoadingSoDMatrix) return;
+            this._isLoadingSoDMatrix = true;
+            this._lastSoDMatrixFetchTs = now;
+
             fetch("/odata/v4/admin-portal/SoDMatrix")
                 .then(res => res.json())
                 .then(data => {
@@ -6859,6 +6880,9 @@ sap.ui.define([
                 })
                 .catch(err => {
                     console.warn("SoDMatrix backend query skipped or unavailable:", err);
+                })
+                .finally(() => {
+                    this._isLoadingSoDMatrix = false;
                 });
         },
 
@@ -11034,7 +11058,7 @@ sap.ui.define([
             }
         },
 
-        _loadCustomAccessAndConflictConfig(oModel) {
+        _loadCustomAccessAndConflictConfig(oModel, bForce = false) {
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -11072,8 +11096,18 @@ sap.ui.define([
 
             this._syncAdminConfigToLiveAddAccess(oModel, true);
 
+            // Throttle & in-flight guard: prevent duplicate or continuous backend queries
+            const now = Date.now();
+            if (this._lastAdminConfigFetchTs && (now - this._lastAdminConfigFetchTs < (bForce ? 2000 : 5000))) {
+                return;
+            }
+            if (this._isLoadingAdminConfig) {
+                return;
+            }
+            this._isLoadingAdminConfig = true;
+            this._lastAdminConfigFetchTs = now;
+
             const that = this;
-            // Fetch live persistent configuration from backend PostgreSQL database tables
             const iLoadTs = Date.now();
             fetch("/odata/v4/admin-portal/getAdminCustomization", {
                 method: "POST",
@@ -11094,10 +11128,6 @@ sap.ui.define([
                                     return;
                                 }
                                 that._applyParsedAdminConfigToModel(oModel, oParsed);
-                                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oParsed));
-                                if (Array.isArray(oParsed.adminCustomConflictsAll)) {
-                                    localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(oParsed.adminCustomConflictsAll));
-                                }
                                 that._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
                                 that._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
                                 that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
@@ -11106,7 +11136,12 @@ sap.ui.define([
                         } catch (e) {}
                     }
                 })
-                .catch(() => {});
+                .catch(err => {
+                    console.warn("getAdminCustomization query failed:", err);
+                })
+                .finally(() => {
+                    that._isLoadingAdminConfig = false;
+                });
         },
 
         _syncAdminConfigToLiveAddAccess(oModel, bSkipBackendSave) {
@@ -11270,26 +11305,8 @@ sap.ui.define([
                 adminPersonaUsers: aPersonaUsers
             };
 
-            try {
-                localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
-                localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
-                localStorage.setItem("kyra_last_admin_config_mutation", String(Date.now()));
-            } catch (e) {}
-
-            if (typeof BroadcastChannel !== "undefined") {
-                try {
-                    const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "ADMIN_CONFIG_MUTATED", timestamp: Date.now() });
-                    syncChannel.close();
-                } catch(e) {}
-            }
-
             if (!bSkipBackendSave) {
-                fetch("/odata/v4/admin-portal/saveAdminCustomization", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ configJson: JSON.stringify(oPayload) })
-                }).catch(() => {});
+                this._persistAllCustomizationsToDb(oModel);
             }
 
             // Immediately re-evaluate Threshold Limits and SoD validations for Add Access conflict section
@@ -11329,16 +11346,7 @@ sap.ui.define([
             try {
                 localStorage.setItem("kyra_custom_access_config", JSON.stringify(oPayload));
                 localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConflicts));
-                localStorage.setItem("kyra_last_admin_config_mutation", String(Date.now()));
             } catch (e) {}
-
-            if (typeof BroadcastChannel !== "undefined") {
-                try {
-                    const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "ADMIN_CONFIG_MUTATED", timestamp: Date.now() });
-                    syncChannel.close();
-                } catch(e) {}
-            }
 
             this._lastConflictSaveTs = Date.now();
 
@@ -11351,16 +11359,20 @@ sap.ui.define([
                 .then(oRes => {
                     if (oRes && oRes.ok) {
                         MessageToast.show(sSuccessMsg || "Customization saved to database successfully.");
-                        if (typeof BroadcastChannel !== "undefined") {
-                            try {
-                                const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                                syncChannel.postMessage({ type: "ADMIN_CONFIG_MUTATED", timestamp: Date.now() });
-                                syncChannel.close();
-                            } catch(e) {}
-                        }
                         try {
                             localStorage.setItem("kyra_last_admin_config_mutation", String(Date.now()));
                         } catch(e) {}
+                        if (typeof BroadcastChannel !== "undefined") {
+                            try {
+                                const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
+                                syncChannel.postMessage({ 
+                                    type: "ADMIN_CONFIG_MUTATED", 
+                                    senderId: this._instanceId, 
+                                    timestamp: Date.now() 
+                                });
+                                syncChannel.close();
+                            } catch(e) {}
+                        }
                     } else {
                         MessageToast.show("⚠ Saved locally, but database sync returned an error.");
                     }

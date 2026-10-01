@@ -99,6 +99,7 @@ sap.ui.define([
 
     return Controller.extend("kyra001.pages.Approver.ApproverDetail", {
         onInit() {
+            this._instanceId = "approver_detail_" + Date.now() + "_" + Math.random().toString(36).slice(2);
             const oRouter = this.getOwnerComponent().getRouter();
             if (oRouter) {
                 oRouter.getRoute("ApproverDetail").attachPatternMatched(this._onRouteMatched, this);
@@ -114,7 +115,7 @@ sap.ui.define([
             if (typeof BroadcastChannel !== "undefined") {
                 try {
                     const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "DECISION_SUBMITTED", timestamp: Date.now() });
+                    syncChannel.postMessage({ type: "DECISION_SUBMITTED", senderId: this._instanceId, timestamp: Date.now() });
                     syncChannel.close();
                 } catch(e) {}
             }
@@ -133,7 +134,10 @@ sap.ui.define([
                             const data = JSON.parse(evt.data);
                             if ((data.type === "NEW_REQUEST" || data.type === "DECISION_SUBMITTED" || data.type === "MUTATION") && this._bIsDetailViewActive) {
                                 console.log("Cross-network SSE real-time sync event in ApproverDetail:", data);
-                                this._reloadAllRequests(oModel);
+                                clearTimeout(this._detailSyncDebounceTimer);
+                                this._detailSyncDebounceTimer = setTimeout(() => {
+                                    this._reloadAllRequests(oModel);
+                                }, 350);
                             }
                         } catch(e) {}
                     };
@@ -145,9 +149,12 @@ sap.ui.define([
                 try {
                     this._syncChannel = new BroadcastChannel("kyra_db_sync_channel");
                     this._syncChannel.onmessage = (evt) => {
-                        if (evt && evt.data && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED") && this._bIsDetailViewActive) {
+                        if (evt && evt.data && evt.data.senderId !== this._instanceId && (evt.data.type === "NEW_REQUEST_SUBMITTED" || evt.data.type === "DECISION_SUBMITTED") && this._bIsDetailViewActive) {
                             console.log("Real-time DB sync event in ApproverDetail:", evt.data);
-                            this._reloadAllRequests(oModel);
+                            clearTimeout(this._detailSyncDebounceTimer);
+                            this._detailSyncDebounceTimer = setTimeout(() => {
+                                this._reloadAllRequests(oModel);
+                            }, 350);
                         }
                     };
                 } catch(e) {}
@@ -157,7 +164,10 @@ sap.ui.define([
             if (!this._fnStorageHandler) {
                 this._fnStorageHandler = (e) => {
                     if (e.key === "kyra_last_db_mutation" && this._bIsDetailViewActive) {
-                        this._reloadAllRequests(oModel);
+                        clearTimeout(this._detailStorageDebounceTimer);
+                        this._detailStorageDebounceTimer = setTimeout(() => {
+                            this._reloadAllRequests(oModel);
+                        }, 350);
                     }
                 };
                 window.addEventListener("storage", this._fnStorageHandler);

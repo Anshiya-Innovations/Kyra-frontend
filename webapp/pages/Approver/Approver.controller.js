@@ -110,24 +110,34 @@ sap.ui.define([
             window.openApproverDecisionBreakdown = (sTargetIdOrData) => {
                 this.openDecisionBreakdownSummary(sTargetIdOrData);
             };
+            this._instanceId = "approver_" + Date.now() + "_" + Math.random().toString(36).slice(2);
             if (typeof BroadcastChannel !== "undefined" && !this._syncChannel) {
                 try {
                     this._syncChannel = new BroadcastChannel("kyra_db_sync_channel");
                     this._syncChannel.onmessage = (event) => {
-                        const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
-                        if (oM) {
-                            this._reloadAllRequests(oM, true);
-                        }
+                        if (!event || !event.data) return;
+                        if (event.data.senderId === this._instanceId) return;
+                        if (event.data.type !== "DECISION_SUBMITTED" && event.data.type !== "NEW_REQUEST_SUBMITTED") return;
+                        clearTimeout(this._approverSyncDebounceTimer);
+                        this._approverSyncDebounceTimer = setTimeout(() => {
+                            const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+                            if (oM) {
+                                this._reloadAllRequests(oM, true);
+                            }
+                        }, 350);
                     };
                 } catch(e) {}
             }
             if (!this._boundStorageListener) {
                 this._boundStorageListener = (e) => {
-                    if (e.key === "kyra_last_db_mutation" || e.key === "kyra_pending_revocations" || e.key === "kyra_decided_requests_map") {
-                        const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
-                        if (oM) {
-                            this._reloadAllRequests(oM, true);
-                        }
+                    if (e.key === "kyra_last_db_mutation") {
+                        clearTimeout(this._approverStorageDebounceTimer);
+                        this._approverStorageDebounceTimer = setTimeout(() => {
+                            const oM = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+                            if (oM) {
+                                this._reloadAllRequests(oM, true);
+                            }
+                        }, 350);
                     }
                 };
                 window.addEventListener("storage", this._boundStorageListener);
@@ -139,7 +149,7 @@ sap.ui.define([
             if (typeof BroadcastChannel !== "undefined") {
                 try {
                     const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "DECISION_SUBMITTED", timestamp: Date.now() });
+                    syncChannel.postMessage({ type: "DECISION_SUBMITTED", senderId: this._instanceId, timestamp: Date.now() });
                     syncChannel.close();
                 } catch(e) {}
             }
