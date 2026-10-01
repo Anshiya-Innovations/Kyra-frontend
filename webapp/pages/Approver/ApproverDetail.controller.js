@@ -1683,8 +1683,68 @@ sap.ui.define([
                 oModel.setProperty("/displayedHistoryRequests", bIsCompliance ? aAccessProcessed : (sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
                 oModel.setProperty("/showApprovalHistory", true);
 
+                window._kyraGovFetchPromise = null;
                 window._kyraLastDecisionSubmitTime = Date.now();
                 window._kyraLastDecidedReqId = sSubTargetBase;
+
+                // Record decided request IDs in a shared map and sessionStorage
+                const sReqIdNorm = String(oData.requestId || "").trim().toUpperCase();
+                const sReqBaseNorm = getBaseReqId(sReqIdNorm).toUpperCase();
+                let oDecidedMap = {};
+                try {
+                    oDecidedMap = JSON.parse(sessionStorage.getItem("kyra_decided_requests_map") || "{}");
+                } catch(e) {}
+                if (!window._kyraDecidedRequestsMap) window._kyraDecidedRequestsMap = {};
+                
+                const oDecidedRecord = {
+                    requestId: sReqIdNorm,
+                    baseRequestId: sReqBaseNorm,
+                    status: sOverallStatus,
+                    actorRole: sActiveRole,
+                    isCompliance: bIsCompliance,
+                    timestamp: Date.now()
+                };
+                window._kyraDecidedRequestsMap[sReqIdNorm] = oDecidedRecord;
+                window._kyraDecidedRequestsMap[sReqBaseNorm] = oDecidedRecord;
+                oDecidedMap[sReqIdNorm] = oDecidedRecord;
+                oDecidedMap[sReqBaseNorm] = oDecidedRecord;
+                (oData.entitlements || []).forEach(e => {
+                    if (e.requestId) {
+                        const eNorm = String(e.requestId).trim().toUpperCase();
+                        window._kyraDecidedRequestsMap[eNorm] = oDecidedRecord;
+                        oDecidedMap[eNorm] = oDecidedRecord;
+                    }
+                });
+                try {
+                    sessionStorage.setItem("kyra_decided_requests_map", JSON.stringify(oDecidedMap));
+                } catch(e) {}
+
+                // Immediately update in-memory and persisted cached requests
+                if (window._kyraCachedGovRequests && Array.isArray(window._kyraCachedGovRequests)) {
+                    window._kyraCachedGovRequests.forEach(r => {
+                        const rId = String(r.request_number || r.requestId || r.id || "").trim().toUpperCase();
+                        const rBase = getBaseReqId(rId).toUpperCase();
+                        if (rId === sReqIdNorm || rBase === sReqBaseNorm || rId === sReqBaseNorm || rBase === sReqIdNorm) {
+                            if (bIsCompliance) {
+                                r.compliance_status = sOverallStatus.toUpperCase();
+                                r.compliance_decision_status = sOverallStatus.toUpperCase();
+                                r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
+                                r.db_status = r.status;
+                            } else {
+                                r.approver_status = sOverallStatus.toUpperCase();
+                                r.approver_decision_status = sOverallStatus.toUpperCase();
+                                const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
+                                r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                                r.db_status = r.status;
+                            }
+                            r.updated_at = sNowIso;
+                        }
+                    });
+                    try {
+                        sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(window._kyraCachedGovRequests));
+                        localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(window._kyraCachedGovRequests));
+                    } catch(e) {}
+                }
 
                 try {
                     sessionStorage.setItem("kyra_show_approval_history", "true");
@@ -1796,13 +1856,49 @@ sap.ui.define([
             const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
             if (window._kyraDecisionInFlight) return;
             try {
-                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                const response = await fetch("/odata/v4/admin-portal/GovernanceHistory", {
+                    cache: "no-cache",
+                    headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+                });
                 const data = await response.json();
-                if (window._kyraDecisionInFlight || (window._kyraDecisionMutationEpoch || 0) !== iStartEpoch) {
+                if (window._kyraDecisionInFlight) {
                     return;
                 }
                 if (data && data.value && data.value.length > 0) {
-                    const oApproverData = this._buildApproverHistoryAndPending(data.value);
+                    const aRawData = data.value.slice();
+                    let oDecidedMap = window._kyraDecidedRequestsMap || {};
+                    try {
+                        const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
+                        if (sDecSaved) oDecidedMap = Object.assign({}, JSON.parse(sDecSaved), oDecidedMap);
+                    } catch(eDec) {}
+                    if (oDecidedMap && Object.keys(oDecidedMap).length > 0) {
+                        aRawData.forEach(r => {
+                            const sNum = (r.request_number || r.requestId || r.id || "").trim();
+                            const sBase = getBaseReqId(sNum);
+                            const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
+                            if (dec) {
+                                const sDecStatus = (dec.status || "").toUpperCase();
+                                if (dec.isCompliance || isCompliance) {
+                                    r.compliance_status = sDecStatus;
+                                    r.compliance_decision_status = sDecStatus;
+                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
+                                    r.db_status = r.status;
+                                } else {
+                                    r.approver_status = sDecStatus;
+                                    r.approver_decision_status = sDecStatus;
+                                    const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
+                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                                    r.db_status = r.status;
+                                }
+                            }
+                        });
+                    }
+                    window._kyraCachedGovRequests = aRawData;
+                    try {
+                        sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawData));
+                        localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aRawData));
+                    } catch(e) {}
+                    const oApproverData = this._buildApproverHistoryAndPending(aRawData);
                     aPending = oApproverData.pending;
                     aProcessed = oApproverData.processed;
                 }
@@ -1845,7 +1941,17 @@ sap.ui.define([
                 if (aRemainingSessionProc.length !== aSessionProc.length) {
                     sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aRemainingSessionProc));
                 }
-                if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
+
+                let oDecidedMap = {};
+                try {
+                    oDecidedMap = Object.assign({}, window._kyraDecidedRequestsMap || {}, JSON.parse(sessionStorage.getItem("kyra_decided_requests_map") || "{}"));
+                } catch(e) {}
+                Object.keys(oDecidedMap).forEach(k => {
+                    processedBaseIds.add(k.toUpperCase());
+                    processedBaseIds.add(getBaseReqId(k).toUpperCase());
+                });
+
+                if (window._kyraLastDecidedReqId && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 60000)) {
                     processedBaseIds.add(String(window._kyraLastDecidedReqId).trim().toUpperCase());
                     processedBaseIds.add(getBaseReqId(String(window._kyraLastDecidedReqId).trim()).toUpperCase());
                 }
@@ -1926,6 +2032,7 @@ sap.ui.define([
             };
 
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
+            const sActiveUser = (sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim().toLowerCase();
             const isCompliance = sActiveRole.includes("compliance");
             const isIam1 = sActiveRole.includes("approver 1") || sActiveRole.includes("iam 1") || sActiveRole.includes("iam_1");
             const isIam2 = sActiveRole.includes("approver 2") || sActiveRole.includes("iam 2") || sActiveRole.includes("iam_2");
@@ -1934,7 +2041,32 @@ sap.ui.define([
             const oGrouped = {};
             const oPendingGrouped = {};
 
-            const aSortedRecords = [...(aRawRecords || [])].sort((a, b) => {
+            let oDecidedMap = {};
+            try {
+                oDecidedMap = Object.assign({}, window._kyraDecidedRequestsMap || {}, JSON.parse(sessionStorage.getItem("kyra_decided_requests_map") || "{}"));
+            } catch(e) {}
+
+            const aSortedRecords = [...(aRawRecords || [])].map(r => {
+                const copy = Object.assign({}, r);
+                const rId = String(copy.request_number || copy.requestId || copy.id || "").trim().toUpperCase();
+                const rBase = getBaseReqId(rId).toUpperCase();
+                const match = oDecidedMap[rId] || oDecidedMap[rBase];
+                if (match) {
+                    if (match.isCompliance) {
+                        copy.compliance_status = (match.status || "APPROVED").toUpperCase();
+                        copy.compliance_decision_status = copy.compliance_status;
+                        copy.status = copy.compliance_status.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
+                        copy.db_status = copy.status;
+                    } else {
+                        copy.approver_status = (match.status || "APPROVED").toUpperCase();
+                        copy.approver_decision_status = copy.approver_status;
+                        const hasRowConf = copy.has_conflict === true || !!(copy.conflicting_role && String(copy.conflicting_role).trim());
+                        copy.status = copy.approver_status.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                        copy.db_status = copy.status;
+                    }
+                }
+                return copy;
+            }).sort((a, b) => {
                 const tA = new Date(a.updated_at || a.created_at || 0).getTime() || 0;
                 const tB = new Date(b.updated_at || b.created_at || 0).getTime() || 0;
                 if (tB !== tA) return tB - tA;
