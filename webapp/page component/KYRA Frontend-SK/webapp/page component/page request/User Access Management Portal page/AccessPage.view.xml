@@ -1340,7 +1340,7 @@
 
                                 <Table id="deptPersonaUsersTable" items="{accessModel>/departmentPersonaUsers}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable kyraDeptUsersTable">
                                     <columns>
-                                        <Column width="52px" hAlign="Center" class="kyraAdminCheckCol">
+                                        <Column width="50px" hAlign="Center" class="kyraAdminCheckCol">
                                             <CheckBox
                                                 id="masterDeptCheckbox"
                                                 selected="{accessModel>/departmentPersonaAllSelected}"
@@ -1549,11 +1549,11 @@
                                     <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminServiceDetailsSplitBox">
 
                                         <!-- Left Sub-Panel: Team (live Team Roles for selected Service) -->
-                                        <VBox width="38%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
+                                        <VBox width="46%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
                                             <VBox width="100%">
-                                                <Text text="{= 'Team (' + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle" />
+                                                <Text text="{= 'Team (' + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
 
-                                                <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer">
+                                                <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer" width="100%">
                                                     <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom">
                                                         <customData>
                                                             <core:CustomData key="selectedClass" value="{= ${accessModel>selected} ? 'true' : 'false' }" writeToDom="true" />
@@ -1592,74 +1592,70 @@
                                                 width="100%" />
                                         </VBox>
 
-                                        <!-- Right Sub-Panel: Team Name & Persona (Matches media_1790767316133.png) -->
-                                        <VBox width="59%" class="kyraAdminClassDetailSubPanel">
-                                            <!-- TEAM NAME Header Label -->
-                                            <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                                <Text text="TEAM NAME" class="kyraAdminFormLabel" />
-                                                <Text text="*" class="kyraAdminRequiredStar" />
-                                            </HBox>
+                                        <!-- Right Sub-Panel: Team Details & Personas -->
+                                        <VBox width="51%" class="kyraAdminClassDetailSubPanel" justifyContent="SpaceBetween">
+                                            <VBox width="100%">
+                                                <!-- Selected Team Header Card -->
+                                                <VBox class="kyraAdminSelectedTeamCard sapUiSmallMarginBottom">
+                                                    <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
+                                                        <Text text="SELECTED TEAM" class="kyraAdminMiniLabel" />
+                                                        <HBox alignItems="Center" class="kyraAdminTeamActionBtns">
+                                                            <Button
+                                                                icon="sap-icon://edit"
+                                                                press=".onEditSelectedAdminTeam"
+                                                                class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
+                                                                tooltip="Edit Team" />
+                                                            <Button
+                                                                icon="sap-icon://delete"
+                                                                press=".onDeleteSelectedAdminTeam"
+                                                                class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                                tooltip="Delete Team" />
+                                                        </HBox>
+                                                    </HBox>
+                                                    <Text
+                                                        text="{= ${accessModel>/selectedAdminClassification/name} || 'Select a Team' }"
+                                                        class="kyraAdminSelectedTeamName"
+                                                        wrapping="true"
+                                                        tooltip="{accessModel>/selectedAdminClassification/name}" />
+                                                </VBox>
 
-                                            <!-- Full-Width Team Name Input Box -->
-                                            <Input
-                                                id="adminTeamNameInput"
-                                                value="{accessModel>/selectedAdminClassification/name}"
-                                                editable="false"
-                                                tooltip="{accessModel>/selectedAdminClassification/name}"
-                                                class="kyraAdminSubClassInput kyraAdminReadOnlyInput"
-                                                width="100%" />
+                                                <!-- Persona List Header -->
+                                                <Text
+                                                    text="{= 'Persona (' + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
+                                                    class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
 
-                                            <!-- Right-Aligned Edit & Delete Action Buttons directly below Team Name Input -->
-                                            <HBox width="100%" justifyContent="End" alignItems="Center" class="sapUiTinyMarginTop sapUiSmallMarginBottom">
-                                                <Button
-                                                    icon="sap-icon://edit"
-                                                    press=".onEditSelectedAdminTeam"
-                                                    class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
-                                                    tooltip="Edit Team" />
-                                                <Button
-                                                    icon="sap-icon://delete"
-                                                    press=".onDeleteSelectedAdminTeam"
-                                                    class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
-                                                    tooltip="Delete Team" />
-                                            </HBox>
-
-                                            <!-- Persona (2) Title -->
-                                            <Text
-                                                text="{= 'Persona (' + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
-                                                class="kyraAdminSubPanelTitle kyraAdminSubClassHeader sapUiTinyMarginBottom" />
-
-                                            <!-- Persona List: Full-Width Input on Left + Edit & Delete on Right -->
-                                            <VBox items="{accessModel>/selectedAdminClassification/subClassifications}" class="kyraAdminSubClassListContainer" width="100%">
-                                                <HBox alignItems="Center" class="kyraAdminSubClassRow sapUiTinyMarginBottom" width="100%">
-                                                    <Input
-                                                        value="{accessModel>name}"
-                                                        editable="false"
-                                                        tooltip="{accessModel>name}"
-                                                        class="kyraAdminSubClassInput kyraAdminReadOnlyInput"
-                                                        width="100%" />
-                                                    <Button
-                                                        icon="sap-icon://edit"
-                                                        press=".onEditAdminSubClassification"
-                                                        class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
-                                                        tooltip="Edit Persona" />
-                                                    <Button
-                                                        icon="sap-icon://delete"
-                                                        press=".onDeleteAdminSubClassification"
-                                                        class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
-                                                        tooltip="Delete Persona" />
-                                                </HBox>
+                                                <!-- Persona Items List -->
+                                                <VBox items="{accessModel>/selectedAdminClassification/subClassifications}" class="kyraAdminSubClassListContainer" width="100%">
+                                                    <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminPersonaItemRow sapUiTinyMarginBottom" width="100%">
+                                                        <HBox alignItems="Center" class="kyraAdminPersonaLeft">
+                                                            <core:Icon src="sap-icon://person-placeholder" size="13px" color="#008C9C" class="sapUiTinyMarginEnd" />
+                                                            <Text text="{accessModel>name}" class="kyraAdminPersonaNameText" wrapping="true" tooltip="{accessModel>name}" />
+                                                        </HBox>
+                                                        <HBox alignItems="Center" class="kyraAdminPersonaActions">
+                                                            <Button
+                                                                icon="sap-icon://edit"
+                                                                press=".onEditAdminSubClassification"
+                                                                class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
+                                                                tooltip="Edit Persona" />
+                                                            <Button
+                                                                icon="sap-icon://delete"
+                                                                press=".onDeleteAdminSubClassification"
+                                                                class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                                tooltip="Delete Persona" />
+                                                        </HBox>
+                                                    </HBox>
+                                                </VBox>
                                             </VBox>
 
-                                            <!-- +Add Persona Dashed Outline Full-Width Button -->
+                                            <!-- + Add Persona Button -->
                                             <Button
-                                                text="+Add Persona"
+                                                text="+ Add Persona"
                                                 press=".onAddAdminSubClassification"
-                                                class="kyraAdminSubAddBtn kyraAdminAddSubClassBtn sapUiTinyMarginTop"
+                                                class="kyraAdminSubAddBtn sapUiTinyMarginTop"
                                                 width="100%" />
                                         </VBox>
                                     </HBox>
                                 </VBox>
-
 
                                 <!-- Bottom Right Footer Buttons: Cancel &amp; Save -->
                                 <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminServiceDetailsFooter">
@@ -1703,7 +1699,7 @@
                                 width="100%"
                                 class="kyraAdminConflictSlideContainer sapUiSmallMarginBottom fioriSlideDownAnim">
                                 <HBox width="100%" justifyContent="SpaceBetween" alignItems="Start" class="kyraAdminConflictBuilderBox">
-                                    <VBox width="23.5%">
+                                    <VBox width="32%">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                             <Text text="TARGET SYSTEM" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
@@ -1718,7 +1714,7 @@
                                         </Select>
                                     </VBox>
 
-                                    <VBox width="24%">
+                                    <VBox width="32%">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                             <Text text="PRIMARY TEAM / PERSONA" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
@@ -1733,7 +1729,7 @@
                                         </Select>
                                     </VBox>
 
-                                    <VBox width="24%">
+                                    <VBox width="32%">
                                         <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                             <Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminFormLabel" />
                                             <Text text="*" class="kyraAdminRequiredStar" />
@@ -1747,19 +1743,22 @@
                                             <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </Select>
                                     </VBox>
-
-                                    <VBox width="26%">
-                                        <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                            <Text text="CONFLICT REASON" class="kyraAdminFormLabel" />
-                                            <Text text="*" class="kyraAdminRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/newConflictDraft/description}"
-                                            placeholder="Enter conflict description..."
-                                            width="100%"
-                                            class="kyraAdminFormInput kyraAdminBuilderInput" />
-                                    </VBox>
                                 </HBox>
+
+                                <!-- Conflict Reason Multi-Line Typing Box Shown Down -->
+                                <VBox width="100%" class="kyraAdminConflictReasonDownRow sapUiSmallMarginTop">
+                                    <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
+                                        <Text text="CONFLICT REASON" class="kyraAdminFormLabel" />
+                                        <Text text="*" class="kyraAdminRequiredStar" />
+                                    </HBox>
+                                    <TextArea
+                                        value="{accessModel>/newConflictDraft/description}"
+                                        placeholder="Enter conflict description..."
+                                        rows="2"
+                                        growing="false"
+                                        width="100%"
+                                        class="kyraAdminFormInput kyraAdminBuilderTextArea" />
+                                </VBox>
 
                                 <!-- Conflict Slide Footer Bar: Cancel &amp; Save -->
                                 <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminConflictEditFooterBar sapUiSmallMarginTop">

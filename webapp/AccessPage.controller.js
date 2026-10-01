@@ -10370,6 +10370,7 @@ sap.ui.define([
                 oDialog.open();
 
                 setTimeout(() => {
+                    that._enhanceModalDropdowns(oDialog.getDomRef());
                     const closeFn = () => oDialog.close();
                     const closeX = document.getElementById("kyra_modal_profile_close_x");
                     if (closeX) closeX.onclick = closeFn;
@@ -11463,6 +11464,87 @@ sap.ui.define([
             });
         },
 
+        
+        _enhanceModalDropdowns(oDomRef) {
+            if (!oDomRef) return;
+            const aSelects = oDomRef.querySelectorAll("select.kyra-system-modal-select");
+            aSelects.forEach(function(select) {
+                if (select.dataset.enhanced === "true") return;
+                select.dataset.enhanced = "true";
+                select.style.display = "none";
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "kyra-custom-dropdown-wrapper";
+                wrapper.style.position = "relative";
+                wrapper.style.width = "100%";
+
+                const trigger = document.createElement("div");
+                trigger.className = "kyra-custom-dropdown-trigger";
+                const selectedOpt = select.options[select.selectedIndex] || select.options[0];
+                trigger.innerHTML = '<span class="kyra-custom-dropdown-text">' + (selectedOpt ? selectedOpt.text : "") + '</span>' +
+                    '<svg class="kyra-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<polyline points="6 9 12 15 18 9"></polyline>' +
+                    '</svg>';
+                wrapper.appendChild(trigger);
+
+                const menu = document.createElement("div");
+                menu.className = "kyra-custom-dropdown-menu";
+                menu.style.display = "none";
+
+                Array.from(select.options).forEach(function(opt, idx) {
+                    const item = document.createElement("div");
+                    item.className = "kyra-custom-dropdown-item" + (idx === select.selectedIndex ? " selected" : "");
+                    item.textContent = opt.text;
+                    item.dataset.value = opt.value;
+                    item.onclick = function(e) {
+                        e.stopPropagation();
+                        select.value = opt.value;
+                        const textSpan = trigger.querySelector(".kyra-custom-dropdown-text");
+                        if (textSpan) textSpan.textContent = opt.text;
+                        menu.querySelectorAll(".kyra-custom-dropdown-item").forEach(function(it) {
+                            it.classList.remove("selected");
+                        });
+                        item.classList.add("selected");
+                        menu.style.display = "none";
+                        trigger.classList.remove("open");
+                        select.dispatchEvent(new Event("change", { bubbles: true }));
+                    };
+                    menu.appendChild(item);
+                });
+
+                wrapper.appendChild(menu);
+
+                trigger.onclick = function(e) {
+                    e.stopPropagation();
+                    const isOpen = menu.style.display === "block";
+                    oDomRef.querySelectorAll(".kyra-custom-dropdown-menu").forEach(function(m) {
+                        m.style.display = "none";
+                    });
+                    oDomRef.querySelectorAll(".kyra-custom-dropdown-trigger").forEach(function(t) {
+                        t.classList.remove("open");
+                    });
+                    if (!isOpen) {
+                        menu.style.display = "block";
+                        trigger.classList.add("open");
+                    }
+                };
+
+                select.parentNode.insertBefore(wrapper, select.nextSibling);
+            });
+
+            const closeHandler = function() {
+                if (oDomRef) {
+                    oDomRef.querySelectorAll(".kyra-custom-dropdown-menu").forEach(function(m) {
+                        m.style.display = "none";
+                    });
+                    oDomRef.querySelectorAll(".kyra-custom-dropdown-trigger").forEach(function(t) {
+                        t.classList.remove("open");
+                    });
+                }
+            };
+            oDomRef.addEventListener("click", closeHandler);
+        },
+
         onAddAdminSystem() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -11548,6 +11630,7 @@ sap.ui.define([
                 oDialog.open();
 
                 setTimeout(() => {
+                    that._enhanceModalDropdowns(oDialog.getDomRef());
                     const closeFn = () => oDialog.close();
                     const closeX = document.getElementById("kyra_sys_add_close_x");
                     if (closeX) closeX.onclick = closeFn;
@@ -11688,6 +11771,7 @@ sap.ui.define([
                 oDialog.open();
 
                 setTimeout(() => {
+                    that._enhanceModalDropdowns(oDialog.getDomRef());
                     const closeFn = () => oDialog.close();
                     const closeX = document.getElementById("kyra_sys_edit_close_x");
                     if (closeX) closeX.onclick = closeFn;
@@ -12504,6 +12588,7 @@ sap.ui.define([
                 oDialog.open();
 
                 setTimeout(() => {
+                    that._enhanceModalDropdowns(oDialog.getDomRef());
                     const closeFn = () => oDialog.close();
                     const closeX = document.getElementById("kyra_team_add_close_x");
                     if (closeX) closeX.onclick = closeFn;
@@ -13242,6 +13327,7 @@ sap.ui.define([
                 oDialog.open();
 
                 setTimeout(() => {
+                    that._enhanceModalDropdowns(oDialog.getDomRef());
                     const closeFn = () => oDialog.close();
                     const closeX = document.getElementById("kyra_conflict_edit_close_x");
                     if (closeX) closeX.onclick = closeFn;

@@ -45814,9 +45814,9 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraDeptUsersTable th:first-child,
 .kyraDeptUsersTable td:first-child {
     padding: 0 4px !important;
-    width: 52px !important;
-    min-width: 52px !important;
-    max-width: 52px !important;
+    width: 68px !important;
+    min-width: 68px !important;
+    max-width: 68px !important;
     text-align: center !important;
     vertical-align: middle !important;
 }
@@ -45946,9 +45946,9 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraDeptUsersTable th:first-child,
 .kyraDeptUsersTable td:first-child {
     padding: 0 !important;
-    width: 52px !important;
-    min-width: 52px !important;
-    max-width: 52px !important;
+    width: 68px !important;
+    min-width: 68px !important;
+    max-width: 68px !important;
     text-align: center !important;
     vertical-align: middle !important;
 }
@@ -46060,3 +46060,562 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     visibility: visible !important;
     opacity: 1 !important;
 }
+
+
+/* ========================================================================== */
+/* SERVICE DETAILS: SIMPLE, CLEAN & BALANCED MASTER-DETAIL REDESIGN          */
+/* ========================================================================== */
+
+/* Fix Service Table Selected Row Multi-Border glitch */
+.kyraAdminServiceTable tr[data-selectedservice="true"],
+.kyraAdminServiceTable tr[data-selectedservice="true"] > td {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border-left: none !important;
+}
+
+.kyraAdminServiceTable tr[data-selectedservice="true"] > td:first-child {
+    border-left: 3.5px solid #008C9C !important;
+}
+
+/* Outer Bottom Split Row */
+.kyraAdminBottomSplitRow {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 16px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminBottomSplitRow > .kyraAdminWhiteCard:first-child {
+    width: 44% !important;
+    flex: 0 0 44% !important;
+    max-width: 44% !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminBottomSplitRow > .kyraAdminWhiteCard:last-child {
+    width: 54.5% !important;
+    flex: 0 0 54.5% !important;
+    max-width: 54.5% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* Service Details Inner Split Container */
+.kyraAdminServiceDetailsSplitBox {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 14px !important;
+    box-sizing: border-box !important;
+}
+
+/* Left Subpanel: Teams List */
+.kyraAdminClassificationsSubPanel {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 16px 14px !important;
+    box-sizing: border-box !important;
+    width: 46% !important;
+    flex: 0 0 46% !important;
+    max-width: 46% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+/* Right Subpanel: Team & Persona Details */
+.kyraAdminClassDetailSubPanel {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 16px 14px !important;
+    box-sizing: border-box !important;
+    width: 51% !important;
+    flex: 0 0 51% !important;
+    max-width: 51% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+}
+
+/* Team Card Item */
+.kyraAdminClassItemCard,
+.sapMFlexBox.kyraAdminClassItemCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraAdminClassItemCard:hover {
+    border-color: #008C9C !important;
+    background: #F8FAFC !important;
+}
+
+.kyraAdminClassItemCard[data-selectedclass="true"],
+.sapMFlexBox.kyraAdminClassItemCard[data-selectedclass="true"] {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #008C9C !important;
+    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.1) !important;
+}
+
+.kyraAdminTeamLeftContent {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding-right: 6px !important;
+}
+
+.kyraAdminClassItemLink {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1E293B !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    text-decoration: none !important;
+}
+
+.kyraAdminClassItemCard[data-selectedclass="true"] .kyraAdminClassItemLink {
+    color: #007684 !important;
+    font-weight: 700 !important;
+}
+
+/* Selected Team Card Banner on Right Subpanel */
+.kyraAdminSelectedTeamCard {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+.kyraAdminMiniLabel {
+    font-size: 10.5px !important;
+    font-weight: 700 !important;
+    color: #64748B !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+}
+
+.kyraAdminSelectedTeamName {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin-top: 4px !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
+}
+
+/* Persona Item Row */
+.kyraAdminPersonaItemRow {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraAdminPersonaItemRow:hover {
+    background: #F0FDFA !important;
+    border-color: #99F6E4 !important;
+}
+
+.kyraAdminPersonaLeft {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding-right: 8px !important;
+}
+
+.kyraAdminPersonaNameText {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1E293B !important;
+    line-height: 1.35 !important;
+    word-break: break-word !important;
+}
+
+.kyraAdminPersonaActions,
+.kyraAdminTeamActionBtns {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* + Add Team & + Add Persona Buttons: Uniform, Clean Design */
+.kyraAdminSubAddBtn,
+.kyraAdminSubAddBtn.sapMBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    margin-top: 10px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraAdminSubAddBtn .sapMBtnInner {
+    height: 36px !important;
+    line-height: 34px !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px dashed #008C9C !important;
+    border-radius: 8px !important;
+    color: #008C9C !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraAdminSubAddBtn:hover .sapMBtnInner {
+    background: #CCFBF1 !important;
+    background-color: #CCFBF1 !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+}
+
+
+/* ========================================================================== */
+/* CUSTOM CONFLICT SLIDE: TWO-ROW BALANCED LAYOUT & TEXTAREA                 */
+/* ========================================================================== */
+.kyraAdminConflictDropdownsRow {
+    gap: 16px !important;
+    width: 100% !important;
+}
+
+.kyraAdminConflictReasonDownRow {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+}
+
+.kyraAdminBuilderTextArea {
+    min-height: 56px !important;
+    height: 56px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    resize: none !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminBuilderTextArea .sapMTextAreaInner {
+    height: 56px !important;
+    min-height: 56px !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    color: #0F172A !important;
+    line-height: 1.4 !important;
+    resize: none !important;
+    box-sizing: border-box !important;
+    background: #FFFFFF !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraAdminBuilderTextArea .sapMTextAreaInner:focus {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+/* ========================================================================== */
+/* CUSTOM MODAL DROPDOWNS: PURE PROJECT TEAL, ZERO BLUE                      */
+/* ========================================================================== */
+.kyra-custom-dropdown-wrapper {
+    position: relative !important;
+    width: 100% !important;
+}
+
+.kyra-custom-dropdown-trigger {
+    width: 100% !important;
+    height: 40px !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    padding: 0 14px !important;
+    font-size: 13.5px !important;
+    color: #0F172A !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    user-select: none !important;
+}
+
+.kyra-custom-dropdown-trigger:hover {
+    border-color: #008C9C !important;
+}
+
+.kyra-custom-dropdown-trigger.open {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyra-custom-dropdown-trigger .kyra-custom-dropdown-arrow {
+    transition: transform 0.2s ease !important;
+    stroke: #008C9C !important;
+    flex-shrink: 0 !important;
+}
+
+.kyra-custom-dropdown-trigger.open .kyra-custom-dropdown-arrow {
+    transform: rotate(180deg) !important;
+}
+
+.kyra-custom-dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + 4px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    z-index: 10000 !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+}
+
+.kyra-custom-dropdown-item {
+    padding: 8px 12px !important;
+    font-size: 13.5px !important;
+    color: #0F172A !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.12s ease !important;
+    user-select: none !important;
+}
+
+.kyra-custom-dropdown-item:hover {
+    background: #F0FDFA !important;
+    color: #008C9C !important;
+    font-weight: 600 !important;
+}
+
+.kyra-custom-dropdown-item.selected {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+/* ========================================================================== */
+/* ELIMINATE ALL BLUE HIGHLIGHTS ACROSS ADMIN PAGE, DIALOGS & POPOVERS        */
+/* ========================================================================== */
+.kyraSystemModalDialog,
+.kyraSystemModalDialog *,
+.kyraAdminContent,
+.kyraAdminContent *,
+.kyraAdminPageWrapper,
+.kyraAdminPageWrapper * {
+    accent-color: #008C9C !important;
+}
+
+/* Force native select and options to teal */
+select.kyra-system-modal-select,
+.kyra-system-modal-select option {
+    accent-color: #008C9C !important;
+}
+
+.kyra-system-modal-select option:checked,
+.kyra-system-modal-select option:focus,
+.kyra-system-modal-select option:hover {
+    background-color: #008C9C !important;
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+}
+
+/* SAP UI5 Select / ComboBox Pickers: Replace all default SAP blue with KYRA Teal */
+.sapMSltPicker .sapMLIB.sapMLIBSelected,
+.sapMSltPicker .sapMSLI[aria-selected="true"],
+.sapMSltPicker .sapMSLISelected,
+.sapMComboBoxPicker .sapMLIB.sapMLIBSelected,
+.sapMComboBoxPicker .sapMSLI[aria-selected="true"],
+.sapMComboBoxPicker .sapMSLISelected,
+.sapMMultiComboBoxPicker .sapMLIB.sapMLIBSelected,
+.sapMMultiComboBoxPicker .sapMSLI[aria-selected="true"],
+.sapMMultiComboBoxPicker .sapMSLISelected {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    color: #008C9C !important;
+}
+
+.sapMSltPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMSltPicker .sapMSLISelected .sapMSLITitle,
+.sapMComboBoxPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.sapMComboBoxPicker .sapMSLISelected .sapMSLITitle {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+}
+
+.sapMSltPicker .sapMLIB.sapMLIBSelected:hover,
+.sapMComboBoxPicker .sapMLIB.sapMLIBSelected:hover {
+    background: #E6F7F8 !important;
+}
+
+
+
+/* ========================================================================== */
+/* DEPARTMENT USERS TABLE: CLEAN, BEAUTIFUL, PROPER TICK CHECKBOX             */
+/* ========================================================================== */
+.kyraDeptUsersTable th.kyraAdminCheckCol,
+.kyraDeptUsersTable th:first-child,
+.kyraDeptUsersTable td:first-child {
+    padding: 0 !important;
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent,
+.kyraDeptUsersTable td:first-child {
+    display: table-cell !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.kyraDeptUsersTable .sapMCb,
+.kyraDeptUsersTable .kyraAdminTableCheckbox {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
+    position: relative !important;
+}
+
+/* UNCHECKED Checkbox: Crisp white background, clean teal border */
+.kyraDeptUsersTable .sapMCbBg,
+.kyraDeptUsersTable .sapMCb[aria-checked="false"] .sapMCbBg,
+.kyraDeptUsersTable .sapMCb:not(.sapMCbChecked) .sapMCbBg,
+.kyraDeptUsersTable .sapMCbBg:not(.sapMCbMarkChecked) {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    border-radius: 6px !important;
+    border: 2px solid #008C9C !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraDeptUsersTable .sapMCb:hover .sapMCbBg {
+    background-color: #F0FDFA !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+/* CHECKED Checkbox: Solid Deep Teal Background */
+.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked,
+.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbBg,
+.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbBg,
+.kyraDeptUsersTable .sapMCbChecked .sapMCbBg,
+.kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbBg,
+.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbBg,
+.kyraDeptUsersTable tr .sapMCbBg.sapMCbMarkChecked {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 2px solid #008C9C !important;
+    border-color: #008C9C !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.3) !important;
+}
+
+/* Checkmark Tick Icon: Bold Pure White Visible Mark */
+.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked .sapMCbMark,
+.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbMark,
+.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbMark,
+.kyraDeptUsersTable .sapMCbChecked .sapMCbMark,
+.kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbMark,
+.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbMark {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+}
+
+.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked::before,
+.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbBg::before,
+.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbBg::before,
+.kyraDeptUsersTable .sapMCbChecked .sapMCbBg::before {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+}
+
+.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked svg,
+.kyraDeptUsersTable .sapMCb.sapMCbChecked svg,
+.kyraDeptUsersTable .sapMCb[aria-checked="true"] svg {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    stroke-width: 1.5px !important;
+    width: 14px !important;
+    height: 14px !important;
+    margin: auto !important;
+}
+
+.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked svg path,
+.kyraDeptUsersTable .sapMCb.sapMCbChecked svg path,
+.kyraDeptUsersTable .sapMCb[aria-checked="true"] svg path {
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
