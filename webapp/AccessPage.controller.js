@@ -5175,6 +5175,7 @@ sap.ui.define([
                     });
                 }
 
+                let cleanupDropdown = null;
                 const sHtmlContent = `
                     <div class="kyra-notif-box-card">
                         <!-- Top Header matching Image 2 -->
@@ -8849,7 +8850,10 @@ sap.ui.define([
                         text: "Cancel",
                         press: () => oDialog.close()
                     }),
-                    afterClose: () => oDialog.destroy()
+                    afterClose: () => {
+                        if (typeof cleanupDropdown === "function") cleanupDropdown();
+                        oDialog.destroy();
+                    }
                 });
 
                 oDialog.open();
@@ -9289,7 +9293,10 @@ sap.ui.define([
                     content: [
                         new HTML({ content: sHtmlContent })
                     ],
-                    afterClose: () => oDialog.destroy()
+                    afterClose: () => {
+                        if (typeof cleanupDropdown === "function") cleanupDropdown();
+                        oDialog.destroy();
+                    }
                 });
 
                 this.getView().addDependent(oDialog);
@@ -11925,13 +11932,35 @@ sap.ui.define([
                         t.classList.remove("open");
                     });
                     oDomRef.querySelectorAll(".kyra-custom-dropdown-wrapper").forEach(function(w) {
+                        w.classList.remove("open");
                         w.style.zIndex = "";
+                    });
+                    oDomRef.querySelectorAll(".kyra-system-modal-body").forEach(function(b) {
+                        b.style.zIndex = "";
                     });
 
                     if (!isOpen) {
                         menu.style.display = "block";
                         trigger.classList.add("open");
-                        wrapper.style.zIndex = "10000";
+                        wrapper.classList.add("open");
+                        wrapper.style.zIndex = "99999";
+                        const modalBody = wrapper.closest(".kyra-system-modal-body");
+                        if (modalBody) {
+                            modalBody.style.zIndex = "1000";
+                            modalBody.style.overflow = "visible";
+                        }
+                        const card = wrapper.closest(".kyra-system-modal-card");
+                        if (card) {
+                            card.style.overflow = "visible";
+                        }
+                        const section = wrapper.closest(".sapMDialogSection");
+                        if (section) {
+                            section.style.overflow = "visible";
+                        }
+                        const dialogEl = wrapper.closest(".sapMDialog");
+                        if (dialogEl) {
+                            dialogEl.style.overflow = "visible";
+                        }
 
                         // Always open downward below the box (no upbox)
                         menu.style.top = "calc(100% + 6px)";
@@ -11955,7 +11984,11 @@ sap.ui.define([
                         t.classList.remove("open");
                     });
                     oDomRef.querySelectorAll(".kyra-custom-dropdown-wrapper").forEach(function(w) {
+                        w.classList.remove("open");
                         w.style.zIndex = "";
+                    });
+                    oDomRef.querySelectorAll(".kyra-system-modal-body").forEach(function(b) {
+                        b.style.zIndex = "";
                     });
                 }
             };
@@ -12036,12 +12069,12 @@ sap.ui.define([
                     contentWidth: "520px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
-                    class: "kyraSystemModalDialog",
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
                     afterClose: () => oDialog.destroy()
                 });
+                oDialog.addStyleClass("kyraSystemModalDialog");
 
                 that.getView().addDependent(oDialog);
                 oDialog.open();
@@ -12110,6 +12143,7 @@ sap.ui.define([
             const sCurrentStatus = oObj.status || "Active";
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sDropdownHtml = that._createCustomStatusDropdownHtml(sCurrentStatus, "kyra_edit_sys_status");
                 const sHtmlContent = `
                     <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
@@ -12122,10 +12156,10 @@ sap.ui.define([
                                 </div>
                                 <div>
                                     <div class="kyra-system-modal-title">Edit System</div>
-                                    <div class="kyra-system-modal-subtitle">Modify system parameters, threshold limit, and active status</div>
+                                    <div class="kyra-system-modal-subtitle">Modify system parameters and active status</div>
                                 </div>
                             </div>
-                            <button type="button" class="kyra-system-modal-close-x" id="kyra_sys_edit_close_x" title="Close">
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -12139,101 +12173,102 @@ sap.ui.define([
                                 <input type="text" id="kyra_edit_sys_name" class="kyra-system-modal-input" placeholder="Enter system name" value="${sOldName}" autocomplete="off" />
                             </div>
                             
-                            <div class="kyra-system-modal-row">
-                                <div class="kyra-system-modal-form-group" style="flex:1;">
-                                    <label class="kyra-system-modal-label" for="kyra_edit_sys_threshold">THRESHOLD LIMIT</label>
-                                    <select id="kyra_edit_sys_threshold" class="kyra-system-modal-select">
-                                        <option value="1" ${sCurrentThreshold === "1" ? "selected" : ""}>1</option>
-                                        <option value="2" ${sCurrentThreshold === "2" ? "selected" : ""}>2</option>
-                                        <option value="3" ${sCurrentThreshold === "3" ? "selected" : ""}>3</option>
-                                        <option value="4" ${sCurrentThreshold === "4" ? "selected" : ""}>4</option>
-                                        <option value="5" ${sCurrentThreshold === "5" || sCurrentThreshold === "90" || sCurrentThreshold === "90%" ? "selected" : ""}>5</option>
-                                        <option value="6" ${sCurrentThreshold === "6" ? "selected" : ""}>6</option>
-                                        <option value="7" ${sCurrentThreshold === "7" ? "selected" : ""}>7</option>
-                                        <option value="8" ${sCurrentThreshold === "8" || sCurrentThreshold === "95" || sCurrentThreshold === "95%" ? "selected" : ""}>8</option>
-                                        <option value="9" ${sCurrentThreshold === "9" ? "selected" : ""}>9</option>
-                                        <option value="10" ${sCurrentThreshold === "10" || sCurrentThreshold === "100" || sCurrentThreshold === "100%" ? "selected" : ""}>10</option>
-                                    </select>
-                                </div>
-                                <div class="kyra-system-modal-form-group" style="flex:1;">
-                                    <label class="kyra-system-modal-label" for="kyra_edit_sys_status">STATUS</label>
-                                    <select id="kyra_edit_sys_status" class="kyra-system-modal-select">
-                                        <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                        <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
-                                    </select>
-                                </div>
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_sys_threshold">THRESHOLD LIMIT</label>
+                                <select id="kyra_edit_sys_threshold" class="kyra-system-modal-select">
+                                    <option value="1" ${sCurrentThreshold === "1" ? "selected" : ""}>1</option>
+                                    <option value="2" ${sCurrentThreshold === "2" ? "selected" : ""}>2</option>
+                                    <option value="3" ${sCurrentThreshold === "3" ? "selected" : ""}>3</option>
+                                    <option value="4" ${sCurrentThreshold === "4" ? "selected" : ""}>4</option>
+                                    <option value="5" ${sCurrentThreshold === "5" || sCurrentThreshold === "90" || sCurrentThreshold === "90%" ? "selected" : ""}>5</option>
+                                    <option value="6" ${sCurrentThreshold === "6" ? "selected" : ""}>6</option>
+                                    <option value="7" ${sCurrentThreshold === "7" ? "selected" : ""}>7</option>
+                                    <option value="8" ${sCurrentThreshold === "8" || sCurrentThreshold === "95" || sCurrentThreshold === "95%" ? "selected" : ""}>8</option>
+                                    <option value="9" ${sCurrentThreshold === "9" ? "selected" : ""}>9</option>
+                                    <option value="10" ${sCurrentThreshold === "10" || sCurrentThreshold === "100" || sCurrentThreshold === "100%" ? "selected" : ""}>10</option>
+                                </select>
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label">STATUS</label>
+                                ${sDropdownHtml}
                             </div>
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_sys_cancel_btn">Cancel</button>
-                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_sys_submit_btn">Save Changes</button>
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
                 `;
 
                 const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "520px",
+                    contentWidth: "480px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
-                    class: "kyraSystemModalDialog",
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oDialog.destroy()
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_edit_sys_status");
+
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_edit_sys_name");
+                        if (nameInput) {
+                            nameInput.focus();
+                            nameInput.select();
+                        }
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sNewName = (nameInput ? nameInput.value : "").trim();
+                                if (!sNewName) {
+                                    if (nameInput) {
+                                        nameInput.style.borderColor = "#EF4444";
+                                        nameInput.focus();
+                                    }
+                                    MessageToast.show("System Name cannot be empty.");
+                                    return;
+                                }
+                                const threshSelect = oDom.querySelector("#kyra_edit_sys_threshold");
+                                const sNewThreshold = threshSelect ? threshSelect.value : sCurrentThreshold;
+                                const statusInput = oDom.querySelector("#kyra_edit_sys_status_input");
+                                const sNewStatus = statusInput ? statusInput.value : sCurrentStatus;
+
+                                const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
+                                    item.systemName === sOldName ? Object.assign({}, item, {
+                                        systemName: sNewName,
+                                        thresholdLimit: sNewThreshold,
+                                        status: sNewStatus
+                                    }) : item
+                                );
+                                oModel.setProperty("/adminSystemsAll", aAll);
+                                oModel.setProperty("/adminSystems", aAll.slice());
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._showSlideNotification("System Updated", "System '" + sNewName + "' updated successfully.");
+                                MessageToast.show("System '" + sNewName + "' updated successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => {
+                        if (typeof cleanupDropdown === "function") cleanupDropdown();
+                        oDialog.destroy();
+                    }
                 });
+                oDialog.addStyleClass("kyraSystemModalDialog");
 
                 that.getView().addDependent(oDialog);
                 oDialog.open();
-
-                setTimeout(() => {
-                    that._enhanceModalDropdowns(oDialog.getDomRef());
-                    const closeFn = () => oDialog.close();
-                    const closeX = document.getElementById("kyra_sys_edit_close_x");
-                    if (closeX) closeX.onclick = closeFn;
-                    const cancelBtn = document.getElementById("kyra_edit_sys_cancel_btn");
-                    if (cancelBtn) cancelBtn.onclick = closeFn;
-
-                    const nameInput = document.getElementById("kyra_edit_sys_name");
-                    if (nameInput) {
-                        nameInput.focus();
-                        nameInput.select();
-                    }
-
-                    const submitBtn = document.getElementById("kyra_edit_sys_submit_btn");
-                    if (submitBtn) {
-                        submitBtn.onclick = () => {
-                            const sNewName = (nameInput ? nameInput.value : "").trim();
-                            if (!sNewName) {
-                                if (nameInput) {
-                                    nameInput.style.borderColor = "#EF4444";
-                                    nameInput.focus();
-                                }
-                                MessageToast.show("System Name cannot be empty.");
-                                return;
-                            }
-                            const threshSelect = document.getElementById("kyra_edit_sys_threshold");
-                            const sNewThreshold = threshSelect ? threshSelect.value : sCurrentThreshold;
-                            const statusSelect = document.getElementById("kyra_edit_sys_status");
-                            const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
-
-                            const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
-                                item.systemName === sOldName ? Object.assign({}, item, {
-                                    systemName: sNewName,
-                                    thresholdLimit: sNewThreshold,
-                                    status: sNewStatus
-                                }) : item
-                            );
-                            oModel.setProperty("/adminSystemsAll", aAll);
-                            oModel.setProperty("/adminSystems", aAll.slice());
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("System Updated", "System '" + sNewName + "' updated successfully.");
-                            MessageToast.show("System '" + sNewName + "' updated successfully.");
-                            closeFn();
-                        };
-                    }
-                }, 50);
             });
         },
 
@@ -12742,6 +12777,7 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sDropdownHtml = that._createCustomStatusDropdownHtml(sCurrentStatus, "kyra_edit_team_status");
                 const sHtmlContent = `
                     <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
@@ -12772,11 +12808,8 @@ sap.ui.define([
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label" for="kyra_edit_team_status">STATUS</label>
-                                <select id="kyra_edit_team_status" class="kyra-system-modal-select">
-                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
-                                </select>
+                                <label class="kyra-system-modal-label">STATUS</label>
+                                ${sDropdownHtml}
                             </div>
                         </div>
                         
@@ -12798,7 +12831,7 @@ sap.ui.define([
                     afterOpen: () => {
                         const oDom = oDialog.getDomRef();
                         if (!oDom) return;
-                        that._enhanceModalDropdowns(oDom);
+                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_edit_team_status");
 
                         const closeFn = () => oDialog.close();
                         const closeX = oDom.querySelector(".kyra-modal-close-btn");
@@ -12824,8 +12857,8 @@ sap.ui.define([
                                     MessageToast.show("Team Name cannot be empty.");
                                     return;
                                 }
-                                const statusSelect = oDom.querySelector("#kyra_edit_team_status");
-                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                const statusInput = oDom.querySelector("#kyra_edit_team_status_input");
+                                const sNewStatus = statusInput ? statusInput.value : sCurrentStatus;
 
                                 const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
                                     item.name === sOldName ? Object.assign({}, item, {
@@ -13217,6 +13250,8 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sDropdownHtml = that._createCustomStatusDropdownHtml(sCurrentStatus, "kyra_edit_persona_status");
+                let cleanupDropdown = null;
                 const sHtmlContent = `
                     <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
@@ -13247,11 +13282,8 @@ sap.ui.define([
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label" for="kyra_edit_persona_status">STATUS</label>
-                                <select id="kyra_edit_persona_status" class="kyra-system-modal-select">
-                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
-                                </select>
+                                <label class="kyra-system-modal-label">STATUS</label>
+                                ${sDropdownHtml}
                             </div>
                         </div>
                         
@@ -13273,7 +13305,7 @@ sap.ui.define([
                     afterOpen: () => {
                         const oDom = oDialog.getDomRef();
                         if (!oDom) return;
-                        that._enhanceModalDropdowns(oDom);
+                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_edit_persona_status");
 
                         const closeFn = () => oDialog.close();
                         const closeX = oDom.querySelector(".kyra-modal-close-btn");
@@ -13299,8 +13331,8 @@ sap.ui.define([
                                     MessageToast.show("Persona Name cannot be empty.");
                                     return;
                                 }
-                                const statusSelect = oDom.querySelector("#kyra_edit_persona_status");
-                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                const statusInput = oDom.querySelector("#kyra_edit_persona_status_input");
+                                const sNewStatus = statusInput ? statusInput.value : sCurrentStatus;
 
                                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p =>
                                     p.name === sOldName ? Object.assign({}, p, { name: sNewName, status: sNewStatus }) : p
@@ -13795,20 +13827,6 @@ sap.ui.define([
             const oRule = oCtx.getObject();
             if (!oRule) return;
 
-            const aConflicts = oModel.getProperty("/adminCustomConflicts") || [];
-            const iIdx = aConflicts.indexOf(oRule);
-            oModel.setProperty("/newConflictDraft", {
-                system: oRule.system || "",
-                service: oRule.service || "System Administrator",
-                role1: oRule.role1 || "",
-                role2: oRule.role2 || "",
-                description: oRule.description || "",
-                _editingIndex: iIdx
-            });
-            this._refreshCustomConflictOptions(oModel);
-            oModel.setProperty("/showCustomConflictSlide", true);
-            MessageToast.show("Editing conflict in slide panel above.");
-
             const that = this;
             const sSystem = oRule.system || "SAP BTP Cloud Platform";
             const sRole1 = oRule.role1 || "";
@@ -13842,6 +13860,8 @@ sap.ui.define([
             const aUniquePersonas = [...new Set(aPersonaOptions)];
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sDropdownHtml = that._createCustomStatusDropdownHtml(sCurrentStatus, "kyra_edit_conflict_status");
+
                 const sSystemOptions = aUniqueSystems.map(sys =>
                     `<option value="${sys}" ${sys === sSystem ? "selected" : ""}>${sys}</option>`
                 ).join("");
@@ -13855,7 +13875,7 @@ sap.ui.define([
                 ).join("");
 
                 const sHtmlContent = `
-                    <div class="kyra-system-modal-card kyra-conflict-edit-modal-card">
+                    <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
                             <div class="kyra-system-modal-header-left">
                                 <div class="kyra-system-modal-icon-badge">
@@ -13870,7 +13890,7 @@ sap.ui.define([
                                     <div class="kyra-system-modal-subtitle">Modify target system, conflicting roles, reason, and status</div>
                                 </div>
                             </div>
-                            <button type="button" class="kyra-system-modal-close-x" id="kyra_conflict_edit_close_x" title="Close">
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -13878,7 +13898,7 @@ sap.ui.define([
                             </button>
                         </div>
                         
-                        <div class="kyra-system-modal-body kyra-conflict-edit-modal-body">
+                        <div class="kyra-system-modal-body">
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_conflict_system">TARGET SYSTEM <span style="color:#EF4444">*</span></label>
                                 <select id="kyra_edit_conflict_system" class="kyra-system-modal-select">
@@ -13902,25 +13922,23 @@ sap.ui.define([
 
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_conflict_desc">CONFLICT REASON</label>
-                                <textarea id="kyra_edit_conflict_desc" class="kyra-system-modal-textarea" rows="2" placeholder="Describe the segregation of duties conflict risk">${sDesc}</textarea>
+                                <textarea id="kyra_edit_conflict_desc" class="kyra-system-modal-input" style="height: 60px; padding: 8px 12px; resize: vertical;" rows="2" placeholder="Describe the segregation of duties conflict risk">${sDesc}</textarea>
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label" for="kyra_edit_conflict_status">STATUS</label>
-                                <select id="kyra_edit_conflict_status" class="kyra-system-modal-select">
-                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
-                                </select>
+                                <label class="kyra-system-modal-label">STATUS</label>
+                                ${sDropdownHtml}
                             </div>
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_conflict_cancel_btn">Cancel</button>
-                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_conflict_submit_btn">Save Changes</button>
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
                 `;
 
+                let cleanupDropdown = null;
                 const oDialog = new Dialog({
                     showHeader: false,
                     contentWidth: "520px",
@@ -13929,74 +13947,77 @@ sap.ui.define([
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oDialog.destroy()
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_edit_conflict_status");
+
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sysSelect = oDom.querySelector("#kyra_edit_conflict_system");
+                                const role1Select = oDom.querySelector("#kyra_edit_conflict_role1");
+                                const role2Select = oDom.querySelector("#kyra_edit_conflict_role2");
+                                const descInput = oDom.querySelector("#kyra_edit_conflict_desc");
+                                const statusInput = oDom.querySelector("#kyra_edit_conflict_status_input");
+
+                                const newSys = sysSelect ? sysSelect.value : sSystem;
+                                const newR1 = (role1Select ? role1Select.value : "").trim();
+                                const newR2 = (role2Select ? role2Select.value : "").trim();
+                                const newDesc = (descInput ? descInput.value : "").trim() || "Segregation of Duties conflict between selected privileges.";
+                                const newStat = statusInput ? statusInput.value : sCurrentStatus;
+
+                                if (!newR1 || !newR2) {
+                                    MessageToast.show("Both Primary and Conflicting personas are required.");
+                                    return;
+                                }
+
+                                const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+                                const iIdx = aAll.findIndex(c =>
+                                    c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
+                                );
+
+                                const updatedRule = {
+                                    system: newSys,
+                                    service: oRule.service || "System Administrator",
+                                    role1: newR1,
+                                    role2: newR2,
+                                    description: newDesc,
+                                    status: newStat
+                                };
+
+                                if (iIdx >= 0) {
+                                    aAll[iIdx] = updatedRule;
+                                } else {
+                                    aAll.push(updatedRule);
+                                }
+
+                                oModel.setProperty("/adminCustomConflictsAll", aAll);
+                                oModel.setProperty("/adminCustomConflicts", aAll.slice());
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistConflictsToDb(oModel, "✅ Conflict Rule updated in database successfully.");
+
+                                that._showSlideNotification("Conflict Rule Updated", "Conflict rule for " + newSys + " updated successfully.");
+                                MessageToast.show("Conflict rule updated successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => {
+                        if (typeof cleanupDropdown === "function") cleanupDropdown();
+                        oDialog.destroy();
+                    }
                 });
                 oDialog.addStyleClass("kyraSystemModalDialog");
-                oDialog.addStyleClass("kyraConflictEditModalDialog");
 
                 that.getView().addDependent(oDialog);
                 oDialog.open();
-
-                setTimeout(() => {
-                    that._enhanceModalDropdowns(oDialog.getDomRef());
-                    const closeFn = () => oDialog.close();
-                    const closeX = document.getElementById("kyra_conflict_edit_close_x");
-                    if (closeX) closeX.onclick = closeFn;
-                    const cancelBtn = document.getElementById("kyra_edit_conflict_cancel_btn");
-                    if (cancelBtn) cancelBtn.onclick = closeFn;
-
-                    const role1Input = document.getElementById("kyra_edit_conflict_role1");
-                    const role2Input = document.getElementById("kyra_edit_conflict_role2");
-                    const descInput = document.getElementById("kyra_edit_conflict_desc");
-                    const sysSelect = document.getElementById("kyra_edit_conflict_system");
-                    const statusSelect = document.getElementById("kyra_edit_conflict_status");
-
-                    if (role1Input) role1Input.focus();
-
-                    const submitBtn = document.getElementById("kyra_edit_conflict_submit_btn");
-                    if (submitBtn) {
-                        submitBtn.onclick = () => {
-                            const newSys = sysSelect ? sysSelect.value : sSystem;
-                            const newR1 = (role1Input ? role1Input.value : "").trim();
-                            const newR2 = (role2Input ? role2Input.value : "").trim();
-                            const newDesc = (descInput ? descInput.value : "").trim() || "Segregation of Duties conflict between selected privileges.";
-                            const newStat = statusSelect ? statusSelect.value : sCurrentStatus;
-
-                            if (!newR1 || !newR2) {
-                                MessageToast.show("Both Primary and Conflicting personas are required.");
-                                return;
-                            }
-
-                            const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-                            const iIdx = aAll.findIndex(c =>
-                                c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
-                            );
-
-                            const updatedRule = {
-                                system: newSys,
-                                service: oRule.service || "System Administrator",
-                                role1: newR1,
-                                role2: newR2,
-                                description: newDesc,
-                                status: newStat
-                            };
-
-                            if (iIdx >= 0) {
-                                aAll[iIdx] = updatedRule;
-                            } else {
-                                aAll.push(updatedRule);
-                            }
-
-                            oModel.setProperty("/adminCustomConflictsAll", aAll);
-                            oModel.setProperty("/adminCustomConflicts", aAll.slice());
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._persistConflictsToDb(oModel, "✅ Conflict Rule updated in database successfully.");
-
-                            that._showSlideNotification("Conflict Rule Updated", "Conflict rule for " + newSys + " updated successfully.");
-                            closeFn();
-                        };
-                    }
-                }, 50);
             });
         },
 

@@ -1228,7 +1228,9 @@
                                                 <Text text="{accessModel>services}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>team}" class="kyraAdminCellBold" />
                                                 <HBox alignItems="Center" class="kyraDeptPersonaBadge">
-                                                    <core:Icon src="sap-icon://role" />
+                                                    <HBox class="kyraPersonaAvatarCircle" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://role" class="kyraPersonaBadgeIcon" />
+                                                    </HBox>
                                                     <Text text="{accessModel>persona}" class="kyraPersonaBadgeText" />
                                                 </HBox>
                                                 <HBox alignItems="Center" class="kyraAdminStatusPill">
@@ -1383,7 +1385,9 @@
                                                 <Text text="{accessModel>email}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>department}" class="kyraAdminCellText" />
                                                 <HBox alignItems="Center" class="{= 'kyraDeptPersonaBadge ' + (${accessModel>personaBadgeClass} || 'kyraPersonaRequester') }">
-                                                    <core:Icon src="{= ${accessModel>personaIcon} || 'sap-icon://person-placeholder' }" size="13px" class="sapUiTinyMarginEnd" />
+                                                    <HBox class="kyraPersonaAvatarCircle" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="{= ${accessModel>personaIcon} || 'sap-icon://person-placeholder' }" class="kyraPersonaBadgeIcon" />
+                                                    </HBox>
                                                     <Text text="{= ${accessModel>displayedPersona} || ${accessModel>currentPersona} || 'Requester' }" class="kyraPersonaBadgeText" />
                                                 </HBox>
                                             </cells>
@@ -1777,14 +1781,14 @@
                                         class="kyraAdminFormInput kyraAdminBuilderTextArea" />
                                 </VBox>
 
-                                <!-- Conflict Slide Footer Bar: Cancel &amp; Save -->
+                                <!-- Conflict Slide Footer Bar: Cancel & Save -->
                                 <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminConflictEditFooterBar sapUiSmallMarginTop">
                                     <Button
                                         text="Cancel"
                                         press=".onCancelCustomConflictDraft"
                                         class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
                                     <Button
-                                        text="Save Changes"
+                                        text="Save"
                                         type="Emphasized"
                                         press=".onSaveCustomConflictDraft"
                                         class="kyraAdminSaveBtn" />
