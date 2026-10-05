@@ -3226,16 +3226,15 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea *::after {
 .kyraJustificationTextArea:hover,
 .kyraJustificationTextArea.sapMTextArea:hover,
 #inPageJustificationArea:hover,
-.kyraSideJustificationTextArea:hover,
-.kyraSideJustificationTextArea.sapMTextArea:hover,
 .kyraJustificationTextArea.sapMFocus,
 .kyraJustificationTextArea:focus-within,
 #inPageJustificationArea.sapMFocus,
 #inPageJustificationArea:focus-within,
+[id$="inPageJustificationArea"].sapMFocus,
+[id$="inPageJustificationArea"]:focus-within,
 .kyraSideJustificationTextArea.sapMFocus,
 .kyraSideJustificationTextArea:focus-within {
     border-color: #008C9C !important;
-    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -32230,7 +32229,8 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 /* Single-click active selection styling on hover and focus */
 .kyraSideJustificationTextArea:hover,
 .kyraSideJustificationTextArea.sapMTextArea:hover,
-#inPageJustificationArea:hover {
+#inPageJustificationArea:hover,
+[id$="inPageJustificationArea"]:hover {
     border: 1.5px solid #007380 !important;
 }
 
@@ -32244,7 +32244,12 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 #inPageJustificationArea:focus-within,
 #inPageJustificationArea.sapMFocus,
 #inPageJustificationArea.sapMInputBaseFocused,
-#inPageJustificationArea.kyraJustificationFocused {
+#inPageJustificationArea.kyraJustificationFocused,
+[id$="inPageJustificationArea"]:focus,
+[id$="inPageJustificationArea"]:focus-within,
+[id$="inPageJustificationArea"].sapMFocus,
+[id$="inPageJustificationArea"].sapMInputBaseFocused,
+[id$="inPageJustificationArea"].kyraJustificationFocused {
     border: 2px solid #008C9C !important;
     border-color: #008C9C !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.25) !important;
@@ -32254,7 +32259,9 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 
 /* Inner SAP content wrapper — NO border (prevents double border) */
 .kyraSideJustificationTextArea .sapMInputBaseContentWrapper,
-.kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper {
+.kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper,
+#inPageJustificationArea .sapMInputBaseContentWrapper,
+[id$="inPageJustificationArea"] .sapMInputBaseContentWrapper {
     border: none !important;
     border-radius: 0 !important;
     background: transparent !important;
@@ -32268,14 +32275,22 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     display: block !important;
     position: relative !important;
     box-sizing: border-box !important;
+    cursor: text !important;
+    pointer-events: auto !important;
 }
 
 /* Native textarea element — pinned to top-left, 16px padding, full 140px box click and touch area */
 .kyraSideJustificationTextArea textarea,
-.kyraSideJustificationTextArea .sapMTextAreaInner {
+.kyraSideJustificationTextArea .sapMTextAreaInner,
+#inPageJustificationArea textarea,
+#inPageJustificationArea .sapMTextAreaInner,
+#inPageJustificationArea-inner,
+[id$="inPageJustificationArea"] textarea,
+[id$="inPageJustificationArea"] .sapMTextAreaInner,
+[id$="inPageJustificationArea-inner"] {
     position: relative !important;
     display: block !important;
-    z-index: 5 !important;
+    z-index: 10 !important;
     border: none !important;
     outline: none !important;
     background: transparent !important;
@@ -32295,6 +32310,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     user-select: text !important;
     -webkit-user-select: text !important;
     -webkit-tap-highlight-color: transparent !important;
+    pointer-events: auto !important;
     /* Placeholder position: top-left */
     vertical-align: top !important;
     text-align: left !important;
@@ -45735,316 +45751,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     box-shadow: 0 2px 4px rgba(244, 63, 94, 0.15) !important;
 }
 
-/* Department Users Table Checkbox Specific Alignment */
-.kyraDeptUsersTable th.kyraAdminCheckCol,
-.kyraDeptUsersTable th:first-child,
-.kyraDeptUsersTable td:first-child {
-    padding: 0 !important;
-    width: 46px !important;
-    min-width: 46px !important;
-    max-width: 46px !important;
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    text-align: center !important;
-}
-
-.kyraDeptUsersTable th:nth-child(2),
-.kyraDeptUsersTable td:nth-child(2) {
-    padding-left: 14px !important;
-}
-
-.kyraDeptUsersTable .kyraAdminTableCheckbox,
-.kyraDeptUsersTable .sapMCb {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    height: 22px !important;
-    min-height: 22px !important;
-    width: 22px !important;
-    min-width: 22px !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg {
-    width: 18px !important;
-    height: 18px !important;
-    border-radius: 4px !important;
-    border: 1.5px solid #94A3B8 !important;
-    transition: all 0.15s ease !important;
-}
-
-.kyraDeptUsersTable .sapMCb:hover .sapMCbBg {
-    border-color: #008C9C !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked {
-    background-color: #008C9C !important;
-    border-color: #008C9C !important;
-}
-
-
-/* ========================================================================== */
-/* DEPARTMENT USERS TABLE: COMPREHENSIVE CHECKBOX VISIBILITY & DESIGN FIX     */
-/* ========================================================================== */
-.kyraDeptUsersTable th.kyraAdminCheckCol,
-.kyraDeptUsersTable th:first-child,
-.kyraDeptUsersTable td:first-child {
-    padding: 0 4px !important;
-    width: 68px !important;
-    min-width: 68px !important;
-    max-width: 68px !important;
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    text-align: center !important;
-}
-
-.kyraDeptUsersTable th:nth-child(2),
-.kyraDeptUsersTable td:nth-child(2) {
-    padding-left: 16px !important;
-}
-
-.kyraDeptUsersTable .kyraAdminTableCheckbox,
-.kyraDeptUsersTable .sapMCb {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    height: 22px !important;
-    min-height: 22px !important;
-    width: 22px !important;
-    min-width: 22px !important;
-    cursor: pointer !important;
-}
-
-/* Base Checkbox Box (Unchecked state: Clean white with crisp teal border) */
-.kyraDeptUsersTable .sapMCbBg {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    border-radius: 5px !important;
-    border: 1.8px solid #008C9C !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.15s ease !important;
-}
-
-/* Checked state: Deep Teal background with exact solid fill */
-.kyraDeptUsersTable [aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable .sapMCbMarkChecked .sapMCbBg,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable .sapMLIB [aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable .sapMLIB .sapMCbMarkChecked .sapMCbBg,
-.kyraDeptUsersTable .sapMLIB .sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCb[aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCb.sapMCbMarkChecked .sapMCbBg,
-.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbBg {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border-color: #008C9C !important;
-}
-
-/* Checkmark Tick Icon: Bold Pure White Checkmark */
-.kyraDeptUsersTable [aria-checked="true"] .sapMCbMark,
-.kyraDeptUsersTable .sapMCbMarkChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMLIB [aria-checked="true"] .sapMCbMark,
-.kyraDeptUsersTable .sapMLIB .sapMCbMarkChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMLIB .sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbMark {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #FFFFFF !important;
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* In Horizon theme SVG checkmark */
-.kyraDeptUsersTable [aria-checked="true"] svg,
-.kyraDeptUsersTable .sapMCbMarkChecked svg,
-.kyraDeptUsersTable .sapMCbChecked svg,
-.kyraDeptUsersTable .sapMLIB [aria-checked="true"] svg,
-.kyraDeptUsersTable .sapMLIB .sapMCbMarkChecked svg,
-.kyraDeptUsersTable tr [aria-checked="true"] svg {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    fill: #FFFFFF !important;
-    color: #FFFFFF !important;
-}
-
-.kyraDeptUsersTable [aria-checked="true"] svg path,
-.kyraDeptUsersTable .sapMCbMarkChecked svg path,
-.kyraDeptUsersTable .sapMLIB [aria-checked="true"] svg path {
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Pseudo element font icon checkmarks */
-.kyraDeptUsersTable [aria-checked="true"] .sapMCbBg::before,
-.kyraDeptUsersTable [aria-checked="true"] .sapMCbMark::before,
-.kyraDeptUsersTable .sapMCbMarkChecked .sapMCbBg::before,
-.kyraDeptUsersTable .sapMCbMarkChecked .sapMCbMark::before,
-.kyraDeptUsersTable .sapMLIB [aria-checked="true"] .sapMCbBg::before,
-.kyraDeptUsersTable .sapMLIB [aria-checked="true"] .sapMCbMark::before,
-.kyraDeptUsersTable .sapMLIB .sapMCbMarkChecked .sapMCbBg::before,
-.kyraDeptUsersTable .sapMLIB .sapMCbMarkChecked .sapMCbMark::before {
-    display: inline-block !important;
-    color: #FFFFFF !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-
-/* ========================================================================== */
-/* DEPARTMENT USERS TABLE: BULLETPROOF CHECKBOX VISIBILITY & TOGGLE FIX       */
-/* ========================================================================== */
-.kyraDeptUsersTable th.kyraAdminCheckCol,
-.kyraDeptUsersTable th:first-child,
-.kyraDeptUsersTable td:first-child {
-    padding: 0 !important;
-    width: 68px !important;
-    min-width: 68px !important;
-    max-width: 68px !important;
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    text-align: center !important;
-}
-
-.kyraDeptUsersTable th:nth-child(2),
-.kyraDeptUsersTable td:nth-child(2) {
-    padding-left: 16px !important;
-}
-
-.kyraDeptUsersTable .kyraAdminTableCheckbox,
-.kyraDeptUsersTable .sapMCb {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    height: 24px !important;
-    min-height: 24px !important;
-    width: 24px !important;
-    min-width: 24px !important;
-    cursor: pointer !important;
-}
-
-/* UNCHECKED Checkbox: Crisp white background, clean teal border */
-.kyraDeptUsersTable .sapMCbBg,
-.kyraDeptUsersTable .sapMCb[aria-checked="false"] .sapMCbBg,
-.kyraDeptUsersTable .sapMCb:not(.sapMCbChecked) .sapMCbBg,
-.kyraDeptUsersTable .sapMCbBg:not(.sapMCbMarkChecked) {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    border-radius: 5px !important;
-    border: 1.8px solid #008C9C !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transition: all 0.15s ease !important;
-}
-
-/* CHECKED Checkbox: Solid Deep Teal Background */
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCbBg.sapMCbMarkChecked {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 1.8px solid #008C9C !important;
-    border-color: #008C9C !important;
-}
-
-/* Checkmark Icon: Bold Pure White Visible Mark */
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbMark,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbMark {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #FFFFFF !important;
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked::before,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbBg::before,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbBg::before,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbBg::before {
-    color: #FFFFFF !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked svg,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked svg,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] svg {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    fill: #FFFFFF !important;
-    color: #FFFFFF !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked svg path,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked svg path,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] svg path {
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
+/* Obsolete checkbox rules removed - consolidated in unified table design system */
 
 /* ========================================================================== */
 /* SERVICE DETAILS: SIMPLE, CLEAN & BALANCED MASTER-DETAIL REDESIGN          */
@@ -46546,153 +46253,28 @@ select.kyra-system-modal-select,
 
 
 /* ========================================================================== */
-/* DEPARTMENT USERS TABLE: CLEAN, BEAUTIFUL, PROPER TICK CHECKBOX             */
-/* ========================================================================== */
-.kyraDeptUsersTable th.kyraAdminCheckCol,
-.kyraDeptUsersTable th:first-child,
-.kyraDeptUsersTable td:first-child {
-    padding: 0 !important;
-    width: 48px !important;
-    min-width: 48px !important;
-    max-width: 48px !important;
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent,
-.kyraDeptUsersTable td:first-child {
-    display: table-cell !important;
-    text-align: center !important;
-    vertical-align: middle !important;
-}
-
-.kyraDeptUsersTable .sapMCb,
-.kyraDeptUsersTable .kyraAdminTableCheckbox {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    height: 24px !important;
-    min-height: 24px !important;
-    width: 24px !important;
-    min-width: 24px !important;
-    cursor: pointer !important;
-    vertical-align: middle !important;
-    position: relative !important;
-}
-
-/* UNCHECKED Checkbox: Crisp white background, clean teal border */
-.kyraDeptUsersTable .sapMCbBg,
-.kyraDeptUsersTable .sapMCb[aria-checked="false"] .sapMCbBg,
-.kyraDeptUsersTable .sapMCb:not(.sapMCbChecked) .sapMCbBg,
-.kyraDeptUsersTable .sapMCbBg:not(.sapMCbMarkChecked) {
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    border-radius: 6px !important;
-    border: 2px solid #008C9C !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    transition: all 0.15s ease !important;
-}
-
-.kyraDeptUsersTable .sapMCb:hover .sapMCbBg {
-    background-color: #F0FDFA !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
-}
-
-/* CHECKED Checkbox: Solid Deep Teal Background */
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbBg,
-.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCbBg.sapMCbMarkChecked {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 2px solid #008C9C !important;
-    border-color: #008C9C !important;
-    border-radius: 6px !important;
-    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.3) !important;
-}
-
-/* Checkmark Tick Icon: Bold Pure White Visible Mark */
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbMark,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbMark,
-.kyraDeptUsersTable tr [aria-checked="true"] .sapMCbMark {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    color: #FFFFFF !important;
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    -webkit-text-fill-color: #FFFFFF !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    font-size: 14px !important;
-    font-weight: 900 !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked::before,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked .sapMCbBg::before,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] .sapMCbBg::before,
-.kyraDeptUsersTable .sapMCbChecked .sapMCbBg::before {
-    color: #FFFFFF !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    font-size: 14px !important;
-    font-weight: 900 !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked svg,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked svg,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] svg {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    stroke-width: 1.5px !important;
-    width: 14px !important;
-    height: 14px !important;
-    margin: auto !important;
-}
-
-.kyraDeptUsersTable .sapMCbBg.sapMCbMarkChecked svg path,
-.kyraDeptUsersTable .sapMCb.sapMCbChecked svg path,
-.kyraDeptUsersTable .sapMCb[aria-checked="true"] svg path {
-    fill: #FFFFFF !important;
-    stroke: #FFFFFF !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* ========================================================================== */
-/* KYRA UNIFIED TABLE SYSTEM: CLEAN, PROFESSIONAL & CONSISTENT ACROSS PROJECT */
+/* KYRA ENTERPRISE UNIFIED TABLE DESIGN SYSTEM                                */
+/* Clean, professional, and consistent layout across all project tables       */
 /* ========================================================================== */
 
-/* 1. Base Table Container - Clean White Background, Subtle Light-Gray Border */
+/* 1. UNIVERSAL TABLE CONTAINER & CARD ADAPTATION */
 .kyraDeptUsersTable,
 .kyraAdminCleanTable,
 .kyraActiveEntitlementsTable,
+.kyraApproverTable,
 .kyraHistoryTable,
 .kyraPendingRequestsTable,
 .kyraValTable,
 .kyraSummaryTable,
 .kyraStep2CleanTable,
-.fioriTableCard .sapMList {
+.kyraAdminServiceTable,
+.fioriTableCard .sapMList,
+.sapMListTbl.kyraAdminCleanTable,
+.sapMListTbl.kyraDeptUsersTable,
+.sapMListTbl.kyraActiveEntitlementsTable,
+.sapMListTbl.kyraApproverTable,
+.sapMListTbl.kyraHistoryTable,
+.sapMListTbl.kyraPendingRequestsTable {
     width: 100% !important;
     border-collapse: separate !important;
     border-spacing: 0 !important;
@@ -46702,17 +46284,73 @@ select.kyra-system-modal-select,
     border-radius: 8px !important;
     overflow: hidden !important;
     box-shadow: none !important;
+    box-sizing: border-box !important;
 }
 
-/* 2. Header Row: Equal 44px Height, Subtle Background, Bold Headings */
+/* Card wrappers containing tables to support responsive horizontal scrolling without clipping */
+.kyraAdminWhiteCard:has(.sapMListTbl),
+.fioriTableCard:has(.sapMListTbl),
+.kyraDeptUsersTableWrapper {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. STRICT ELIMINATION OF SAP UI5 INTERNAL HIGHLIGHT / NAVIGATED / SELECTION DUMMY COLUMNS */
+.sapMListTblHighlightCol,
+.sapMListTblHighlightCell,
+.sapMListTblNavigatedCol,
+.sapMListTblNavigatedCell,
+.sapMListTblCellNavigated,
+.sapMLIBHighlight,
+.kyraDeptUsersTable col.sapMListTblHighlightCol,
+.kyraDeptUsersTable col.sapMListTblNavigatedCol,
+.kyraDeptUsersTable th.sapMListTblHighlightCol,
+.kyraDeptUsersTable td.sapMListTblHighlightCell,
+.kyraAdminCleanTable col.sapMListTblHighlightCol,
+.kyraAdminCleanTable col.sapMListTblNavigatedCol,
+.kyraAdminCleanTable th.sapMListTblHighlightCol,
+.kyraAdminCleanTable td.sapMListTblHighlightCell,
+.kyraActiveEntitlementsTable th.sapMListTblHighlightCol,
+.kyraActiveEntitlementsTable td.sapMListTblHighlightCell,
+.kyraApproverTable th.sapMListTblHighlightCol,
+.kyraApproverTable td.sapMListTblHighlightCell,
+.kyraHistoryTable th.sapMListTblHighlightCol,
+.kyraHistoryTable td.sapMListTblHighlightCell,
+.kyraPendingRequestsTable th.sapMListTblHighlightCol,
+.kyraPendingRequestsTable td.sapMListTblHighlightCell,
+.sapMListTbl colgroup col.sapMListTblHighlightCol,
+.sapMListTbl colgroup col.sapMListTblNavigatedCol,
+.sapMListTbl th.sapMListTblHighlightCol,
+.sapMListTbl td.sapMListTblHighlightCell {
+    display: none !important;
+    width: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* 3. TABLE HEADER ROW: EQUAL 44px HEIGHT, SUBTLE BACKGROUND, BOLD HEADINGS */
 .kyraDeptUsersTable .sapMListTblHeader,
 .kyraAdminCleanTable .sapMListTblHeader,
 .kyraActiveEntitlementsTable .sapMListTblHeader,
+.kyraApproverTable .sapMListTblHeader,
 .kyraHistoryTable .sapMListTblHeader,
 .kyraPendingRequestsTable .sapMListTblHeader,
 .kyraValTable .sapMListTblHeader,
 .kyraSummaryTable .sapMListTblHeader,
-.kyraStep2CleanTable .sapMListTblHeader {
+.kyraStep2CleanTable .sapMListTblHeader,
+.kyraAdminServiceTable .sapMListTblHeader {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
     border-bottom: 1.5px solid #E2E8F0 !important;
@@ -46726,6 +46364,8 @@ select.kyra-system-modal-select,
 .kyraAdminCleanTable .sapMListTblHeaderCell,
 .kyraActiveEntitlementsTable th,
 .kyraActiveEntitlementsTable .sapMListTblHeaderCell,
+.kyraApproverTable th,
+.kyraApproverTable .sapMListTblHeaderCell,
 .kyraHistoryTable th,
 .kyraHistoryTable .sapMListTblHeaderCell,
 .kyraPendingRequestsTable th,
@@ -46735,114 +46375,167 @@ select.kyra-system-modal-select,
 .kyraSummaryTable th,
 .kyraSummaryTable .sapMListTblHeaderCell,
 .kyraStep2CleanTable th,
-.kyraStep2CleanTable .sapMListTblHeaderCell {
+.kyraStep2CleanTable .sapMListTblHeaderCell,
+.kyraAdminServiceTable th,
+.kyraAdminServiceTable .sapMListTblHeaderCell {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
-    padding: 12px 18px !important;
+    padding: 10px 16px !important;
     border-top: none !important;
     border-left: none !important;
-    border-right: none !important; /* NO heavy vertical borders - subtle clean layout */
-    border-bottom: 1.5px solid #E2E8F0 !important; /* Subtle horizontal divider */
+    border-right: none !important;
+    border-bottom: 1.5px solid #E2E8F0 !important;
     vertical-align: middle !important;
     color: #475569 !important;
     font-size: 11.5px !important;
-    font-weight: 700 !important; /* Bold column headings */
+    font-weight: 700 !important;
     letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
     box-sizing: border-box !important;
-    text-align: left !important;
 }
 
-/* 3. Data Rows: Equal 52px Height, Subtle Horizontal Dividers, Normal Text */
+/* Header Text elements */
+.kyraDeptUsersTable th .sapMText,
+.kyraAdminCleanTable th .sapMText,
+.kyraActiveEntitlementsTable th .sapMText,
+.kyraApproverTable th .sapMText,
+.kyraHistoryTable th .sapMText,
+.kyraPendingRequestsTable th .sapMText,
+.kyraAdminColHeader,
+.kyraEntitlementColHeader,
+.kyraHistHeader {
+    font-weight: 700 !important;
+    color: #475569 !important;
+    font-size: 11.5px !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    vertical-align: middle !important;
+}
+
+/* 4. TABLE DATA ROWS: EQUAL 52px HEIGHT, SUBTLE HORIZONTAL DIVIDERS, NORMAL TEXT */
 .kyraDeptUsersTable tr.sapMLIB,
 .kyraAdminCleanTable tr.sapMLIB,
 .kyraActiveEntitlementsTable tr.sapMLIB,
+.kyraApproverTable tr.sapMLIB,
 .kyraHistoryTable tr.sapMLIB,
 .kyraPendingRequestsTable tr.sapMLIB,
 .kyraValTable tr.sapMLIB,
 .kyraSummaryTable tr.sapMLIB,
 .kyraStep2CleanTable tr.sapMLIB,
+.kyraAdminServiceTable tr.sapMLIB,
 .kyraDeptUsersTable tr.kyraDeptUserRow {
     height: 52px !important;
     min-height: 52px !important;
-    border-bottom: 1px solid #F1F5F9 !important; /* Subtle horizontal divider */
+    border-bottom: 1px solid #F1F5F9 !important;
     border-top: none !important;
     border-left: none !important;
     border-right: none !important;
+    background: #FFFFFF !important;
     transition: background-color 0.15s ease !important;
 }
 
-.kyraDeptUsersTable td,
-.kyraDeptUsersTable .sapMListTblCell,
-.kyraAdminCleanTable td,
-.kyraAdminCleanTable .sapMListTblCell,
-.kyraActiveEntitlementsTable td,
-.kyraActiveEntitlementsTable .sapMListTblCell,
-.kyraHistoryTable td,
-.kyraHistoryTable .sapMListTblCell,
-.kyraPendingRequestsTable td,
-.kyraPendingRequestsTable .sapMListTblCell,
-.kyraValTable td,
-.kyraValTable .sapMListTblCell,
-.kyraSummaryTable td,
-.kyraSummaryTable .sapMListTblCell,
-.kyraStep2CleanTable td,
-.kyraStep2CleanTable .sapMListTblCell {
-    padding: 12px 18px !important;
+.kyraDeptUsersTable td.sapMListTblCell,
+.kyraAdminCleanTable td.sapMListTblCell,
+.kyraActiveEntitlementsTable td.sapMListTblCell,
+.kyraApproverTable td.sapMListTblCell,
+.kyraHistoryTable td.sapMListTblCell,
+.kyraPendingRequestsTable td.sapMListTblCell,
+.kyraValTable td.sapMListTblCell,
+.kyraSummaryTable td.sapMListTblCell,
+.kyraStep2CleanTable td.sapMListTblCell,
+.kyraAdminServiceTable td.sapMListTblCell {
+    padding: 12px 16px !important;
     border-top: none !important;
     border-left: none !important;
-    border-right: none !important; /* NO heavy vertical borders */
-    border-bottom: 1px solid #F1F5F9 !important; /* Subtle horizontal divider */
-    vertical-align: middle !important; /* Vertically center all text */
+    border-right: none !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    vertical-align: middle !important;
     color: #334155 !important;
     font-size: 13.5px !important;
-    font-weight: 400 !important; /* Normal data text */
+    font-weight: 400 !important;
     box-sizing: border-box !important;
-    text-align: left !important;
 }
 
-/* Cell Typography Consistency */
+/* Typography Consistency */
 .kyraAdminCellBold {
     font-weight: 600 !important;
     color: #0F172A !important;
     font-size: 13.5px !important;
+    vertical-align: middle !important;
 }
 
-.kyraAdminCellText {
+.kyraAdminCellText,
+.kyraCellText {
     font-weight: 400 !important;
     color: #475569 !important;
     font-size: 13.5px !important;
+    vertical-align: middle !important;
 }
 
-/* 4. Subtle Row Hover Effect Across All Tables */
+.kyraAdminCellMuted {
+    color: #94A3B8 !important;
+    font-size: 13.5px !important;
+    font-style: italic !important;
+    font-weight: 500 !important;
+    vertical-align: middle !important;
+}
+
+/* 5. SUBTLE ROW HOVER EFFECT */
 .kyraDeptUsersTable tr.sapMLIB:hover td,
 .kyraAdminCleanTable tr.sapMLIB:hover td,
 .kyraActiveEntitlementsTable tr.sapMLIB:hover td,
+.kyraApproverTable tr.sapMLIB:hover td,
 .kyraHistoryTable tr.sapMLIB:hover td,
 .kyraPendingRequestsTable tr.sapMLIB:hover td,
 .kyraValTable tr.sapMLIB:hover td,
 .kyraSummaryTable tr.sapMLIB:hover td,
 .kyraStep2CleanTable tr.sapMLIB:hover td,
+.kyraAdminServiceTable tr.sapMLIB:hover td,
 .kyraDeptUsersTable tr.kyraDeptUserRow:hover td {
     background-color: #F8FAFC !important;
 }
 
-/* 5. Narrow and Consistently Aligned Checkbox Column */
+/* Selected Row Highlighting (KYRA Brand Soft Mint) */
+.kyraDeptUsersTable tr.kyraDeptUserRowSelected td,
+.kyraDeptUsersTable tr.kyraDeptUserRow.sapMLIBSelected td,
+.kyraDeptUsersTable tr.kyraDeptUserRow[aria-selected="true"] td,
+.kyraDeptUsersTable tr.sapMLIBSelected td {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+}
+
+.kyraDeptUsersTable tr.kyraDeptUserRowSelected:hover td,
+.kyraDeptUsersTable tr.kyraDeptUserRow.sapMLIBSelected:hover td,
+.kyraDeptUsersTable tr.kyraDeptUserRow[aria-selected="true"]:hover td,
+.kyraDeptUsersTable tr.sapMLIBSelected:hover td {
+    background-color: #E6F7F8 !important;
+    background: #E6F7F8 !important;
+}
+
+/* 6. CHECKBOX COLUMN: NARROW, PRECISELY ALIGNED & KYRA BRAND COLORED */
 .kyraDeptUsersTable th.kyraDeptCheckCol,
-.kyraDeptUsersTable th:first-child,
-.kyraDeptUsersTable td:first-child,
-.kyraDeptUsersTable .kyraDeptCheckCol {
-    width: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
+.kyraDeptUsersTable th.kyraTableCheckCol,
+.kyraAdminCleanTable th.kyraTableCheckCol,
+.kyraAdminCleanTable th.kyraDeptCheckCol,
+.kyraDeptUsersTable td.sapMListTblCell:has(.sapMCb),
+.kyraDeptUsersTable td.sapMListTblCell:has(.kyraAdminTableCheckbox),
+.kyraAdminCleanTable td.sapMListTblCell:has(.kyraAdminTableCheckbox),
+.kyraAdminCleanTable td.sapMListTblCell:has(.sapMCb),
+.kyraDeptUsersTable td.kyraTableCheckCell,
+.kyraAdminCleanTable td.kyraTableCheckCell {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
     padding: 0 !important;
     text-align: center !important;
     vertical-align: middle !important;
     cursor: pointer !important;
 }
 
-.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent,
-.kyraDeptUsersTable td:first-child .sapMCb {
+.kyraDeptUsersTable th.kyraDeptCheckCol .sapMColumnHeaderContent,
+.kyraDeptUsersTable th.kyraTableCheckCol .sapMColumnHeaderContent,
+.kyraAdminCleanTable th.kyraTableCheckCol .sapMColumnHeaderContent,
+.kyraAdminCleanTable th.kyraDeptCheckCol .sapMColumnHeaderContent {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -46850,12 +46543,13 @@ select.kyra-system-modal-select,
     height: 100% !important;
     margin: 0 auto !important;
     padding: 0 !important;
-    cursor: pointer !important;
+    text-align: center !important;
 }
 
-/* Checkbox Base: 18px Clean Square */
 .kyraDeptUsersTable .sapMCb,
-.kyraDeptUsersTable .kyraAdminTableCheckbox {
+.kyraDeptUsersTable .kyraAdminTableCheckbox,
+.kyraAdminCleanTable .sapMCb,
+.kyraAdminCleanTable .kyraAdminTableCheckbox {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -46874,7 +46568,11 @@ select.kyra-system-modal-select,
 .kyraDeptUsersTable .sapMCbBg,
 .kyraDeptUsersTable .sapMCb[aria-checked="false"] .sapMCbBg,
 .kyraDeptUsersTable .sapMCb:not(.sapMCbChecked) .sapMCbBg,
-.kyraDeptUsersTable .sapMCbBg:not(.sapMCbMarkChecked) {
+.kyraDeptUsersTable .sapMCbBg:not(.sapMCbMarkChecked),
+.kyraAdminCleanTable .sapMCbBg,
+.kyraAdminCleanTable .sapMCb[aria-checked="false"] .sapMCbBg,
+.kyraAdminCleanTable .sapMCb:not(.sapMCbChecked) .sapMCbBg,
+.kyraAdminCleanTable .sapMCbBg:not(.sapMCbMarkChecked) {
     width: 18px !important;
     height: 18px !important;
     min-width: 18px !important;
@@ -46892,7 +46590,8 @@ select.kyra-system-modal-select,
     transition: all 0.15s ease !important;
 }
 
-.kyraDeptUsersTable .sapMCb:hover .sapMCbBg {
+.kyraDeptUsersTable .sapMCb:hover .sapMCbBg,
+.kyraAdminCleanTable .sapMCb:hover .sapMCbBg {
     border-color: #007684 !important;
     background-color: #F0FDFA !important;
 }
@@ -46904,7 +46603,14 @@ select.kyra-system-modal-select,
 .kyraDeptUsersTable .sapMCbChecked .sapMCbBg,
 .kyraDeptUsersTable tr .sapMCb.sapMCbChecked .sapMCbBg,
 .kyraDeptUsersTable tr [aria-checked="true"] .sapMCbBg,
-.kyraDeptUsersTable tr .sapMCbBg.sapMCbMarkChecked {
+.kyraDeptUsersTable tr .sapMCbBg.sapMCbMarkChecked,
+.kyraAdminCleanTable .sapMCbBg.sapMCbMarkChecked,
+.kyraAdminCleanTable .sapMCb.sapMCbChecked .sapMCbBg,
+.kyraAdminCleanTable .sapMCb[aria-checked="true"] .sapMCbBg,
+.kyraAdminCleanTable .sapMCbChecked .sapMCbBg,
+.kyraAdminCleanTable tr .sapMCb.sapMCbChecked .sapMCbBg,
+.kyraAdminCleanTable tr [aria-checked="true"] .sapMCbBg,
+.kyraAdminCleanTable tr .sapMCbBg.sapMCbMarkChecked {
     background-color: #008C9C !important;
     background: #008C9C !important;
     border: 1.5px solid #008C9C !important;
@@ -46921,32 +46627,24 @@ select.kyra-system-modal-select,
 .kyraDeptUsersTable .sapMCbMark::before,
 .kyraDeptUsersTable .sapMCbBg::before,
 .kyraDeptUsersTable .sapMCbMark::after,
-.kyraDeptUsersTable .sapMCbBg::after {
+.kyraDeptUsersTable .sapMCbBg::after,
+.kyraAdminCleanTable .sapMCbMark::before,
+.kyraAdminCleanTable .sapMCbBg::before,
+.kyraAdminCleanTable .sapMCbMark::after,
+.kyraAdminCleanTable .sapMCbBg::after {
     display: none !important;
     content: none !important;
 }
 .kyraDeptUsersTable .sapMCbMark svg,
-.kyraDeptUsersTable .sapMCb svg {
+.kyraDeptUsersTable .sapMCb svg,
+.kyraAdminCleanTable .sapMCbMark svg,
+.kyraAdminCleanTable .sapMCb svg {
     display: none !important;
 }
 
-/* 6. Selected Row Highlight (KYRA Signature Soft Mint Tint) */
-.kyraDeptUsersTable tr.kyraDeptUserRowSelected td,
-.kyraDeptUsersTable tr.kyraDeptUserRow.sapMLIBSelected td,
-.kyraDeptUsersTable tr.kyraDeptUserRow[aria-selected="true"] td {
-    background-color: #F0FDFA !important;
-    background: #F0FDFA !important;
-}
-
-.kyraDeptUsersTable tr.kyraDeptUserRowSelected:hover td,
-.kyraDeptUsersTable tr.kyraDeptUserRow.sapMLIBSelected:hover td,
-.kyraDeptUsersTable tr.kyraDeptUserRow[aria-selected="true"]:hover td {
-    background-color: #E6F7F8 !important;
-    background: #E6F7F8 !important;
-}
-
-/* 7. Persona Badge Alignment and Centering (Fixes 4th image empty persona) */
-.kyraDeptUsersTable .kyraDeptPersonaBadge {
+/* 7. PERSONA BADGE ALIGNMENT AND CENTERING */
+.kyraDeptPersonaBadge,
+.kyraAdminCleanTable .kyraDeptPersonaBadge {
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -46967,7 +46665,8 @@ select.kyra-system-modal-select,
     vertical-align: middle !important;
 }
 
-.kyraDeptUsersTable .kyraDeptPersonaBadge .kyraPersonaBadgeText {
+.kyraDeptPersonaBadge .kyraPersonaBadgeText,
+.kyraAdminCleanTable .kyraDeptPersonaBadge .kyraPersonaBadgeText {
     font-size: 12.5px !important;
     font-weight: 600 !important;
     letter-spacing: 0.1px !important;
@@ -46979,7 +46678,8 @@ select.kyra-system-modal-select,
     opacity: 1 !important;
 }
 
-.kyraDeptUsersTable .kyraDeptPersonaBadge .sapUiIcon {
+.kyraDeptPersonaBadge .sapUiIcon,
+.kyraAdminCleanTable .kyraDeptPersonaBadge .sapUiIcon {
     font-size: 13px !important;
     color: #0D9488 !important;
     flex-shrink: 0 !important;
@@ -46990,44 +46690,43 @@ select.kyra-system-modal-select,
     opacity: 1 !important;
 }
 
-/* Dedicated subtle variations */
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaRequester {
+.kyraDeptPersonaBadge.kyraPersonaRequester {
     background: #EBF9F5 !important;
     background-color: #EBF9F5 !important;
     border: 1px solid #D1FAE5 !important;
 }
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaRequester .kyraPersonaBadgeText {
+.kyraDeptPersonaBadge.kyraPersonaRequester .kyraPersonaBadgeText {
     color: #0F766E !important;
 }
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaRequester .sapUiIcon {
+.kyraDeptPersonaBadge.kyraPersonaRequester .sapUiIcon {
     color: #0D9488 !important;
 }
 
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaApprover {
+.kyraDeptPersonaBadge.kyraPersonaApprover {
     background: #ECFDF5 !important;
     background-color: #ECFDF5 !important;
     border: 1px solid #A7F3D0 !important;
 }
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaApprover .kyraPersonaBadgeText {
+.kyraDeptPersonaBadge.kyraPersonaApprover .kyraPersonaBadgeText {
     color: #047857 !important;
 }
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaApprover .sapUiIcon {
+.kyraDeptPersonaBadge.kyraPersonaApprover .sapUiIcon {
     color: #059669 !important;
 }
 
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaCompliance {
+.kyraDeptPersonaBadge.kyraPersonaCompliance {
     background: #EFF6FF !important;
     background-color: #EFF6FF !important;
     border: 1px solid #BFDBFE !important;
 }
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaCompliance .kyraPersonaBadgeText {
+.kyraDeptPersonaBadge.kyraPersonaCompliance .kyraPersonaBadgeText {
     color: #1D4ED8 !important;
 }
-.kyraDeptUsersTable .kyraDeptPersonaBadge.kyraPersonaCompliance .sapUiIcon {
+.kyraDeptPersonaBadge.kyraPersonaCompliance .sapUiIcon {
     color: #2563EB !important;
 }
 
-/* Top Bar: Select All Button & 0 / 15 Selected Badge */
+/* 8. TOP BAR: SELECT ALL BUTTON & SELECTION BADGE */
 .kyraDeptSelectAllBtn {
     border: 1.5px solid #10B981 !important;
     border-radius: 8px !important;

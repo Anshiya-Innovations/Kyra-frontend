@@ -1124,7 +1124,7 @@
                                     </HBox>
 
                                     <HBox alignItems="End" class="kyraPersonaDropdownActionBar">
-                                        <VBox width="230px">
+                                        <VBox width="275px">
                                             <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
                                                 <Text text="Assigned Persona" class="kyraAdminFormLabel" />
                                                 <Text text="*" class="kyraAdminRequiredStar" />
@@ -1184,7 +1184,7 @@
                                     </VBox>
                                     <VBox width="24%">
                                         <Text text="TARGET PERSONA" class="kyraAdminColHeader" />
-                                        <Text text="{accessModel>/personaLookupUser/selectedPersona}" class="kyraAdminCellBold sapUiTinyMarginTop" />
+                                        <Text text="{= ${accessModel>/personaLookupUser/selectedPersona} ? ${accessModel>/personaLookupUser/selectedPersona} : '— Not Selected —' }" class="{= ${accessModel>/personaLookupUser/selectedPersona} ? 'kyraAdminCellBold' : 'kyraAdminCellMuted' } sapUiTinyMarginTop" />
                                     </VBox>
                                     <VBox width="26%">
                                         <Text text="ACTIVE DATABASE TABLE" class="kyraAdminColHeader" />
@@ -1192,13 +1192,12 @@
                                     </VBox>
                                     <VBox width="24%">
                                         <Text text="ACCOUNT STATUS" class="kyraAdminColHeader" />
-                                        <HBox alignItems="Center" class="kyraAdminStatusCell sapUiTinyMarginTop">
-                                            <core:Icon
-                                                src="sap-icon://circle-task-2"
-                                                class="{= ${accessModel>/personaLookupUser/status} === 'Inactive' ? 'kyraAdminDotInactive' : 'kyraAdminDotActive' }" />
-                                            <Text
-                                                text="{= ${accessModel>/personaLookupUser/status} || 'Active' }"
-                                                class="{= ${accessModel>/personaLookupUser/status} === 'Inactive' ? 'kyraAdminStatusInactiveText' : 'kyraAdminStatusActiveText' }" />
+                                        <HBox alignItems="Center" class="kyraAdminStatusPill sapUiTinyMarginTop">
+                                            <customData>
+                                                <core:CustomData key="status" value="{= ${accessModel>/personaLookupUser/status} || 'Active' }" writeToDom="true" />
+                                            </customData>
+                                            <HBox class="kyraAdminPillDot" />
+                                            <Text text="{= ${accessModel>/personaLookupUser/status} || 'Active' }" class="kyraAdminPillText" />
                                         </HBox>
                                     </VBox>
                                 </HBox>
@@ -1206,6 +1205,15 @@
                                 <!-- Employee Active Entitlements Table -->
                                 <Title text="{= 'User Active Entitlements (' + (${accessModel>/personaLookupUser/entitlements} ? ${accessModel>/personaLookupUser/entitlements}.length : 0) + ')' }" level="H5" class="kyraAdminCardTitle sapUiTinyMarginBottom" />
                                 <Table items="{accessModel>/personaLookupUser/entitlements}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable">
+                                    <noData>
+                                        <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                                            <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                                <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
+                                            </HBox>
+                                            <Title text="No active entitlements found" level="H4" class="kyraTableEmptyTitle" />
+                                            <Text text="This user currently has no active entitlements or roles assigned." class="fioriDescriptionText sapUiTinyMarginTop" />
+                                        </VBox>
+                                    </noData>
                                     <columns>
                                         <Column width="24%"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
                                         <Column width="22%"><Text text="SERVICES" class="kyraAdminColHeader" /></Column>
@@ -1219,10 +1227,16 @@
                                                 <Text text="{accessModel>system}" class="kyraAdminCellBold" />
                                                 <Text text="{accessModel>services}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>team}" class="kyraAdminCellBold" />
-                                                <Text text="{accessModel>persona}" class="kyraAdminCellText" />
-                                                <HBox alignItems="Center" class="kyraAdminStatusCell">
-                                                    <core:Icon src="sap-icon://circle-task-2" class="kyraAdminDotActive" />
-                                                    <Text text="{accessModel>status}" class="kyraAdminStatusActiveText" />
+                                                <HBox alignItems="Center" class="kyraDeptPersonaBadge">
+                                                    <core:Icon src="sap-icon://role" />
+                                                    <Text text="{accessModel>persona}" class="kyraPersonaBadgeText" />
+                                                </HBox>
+                                                <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                    <customData>
+                                                        <core:CustomData key="status" value="{= ${accessModel>status} || 'Active' }" writeToDom="true" />
+                                                    </customData>
+                                                    <HBox class="kyraAdminPillDot" />
+                                                    <Text text="{= ${accessModel>status} || 'Active' }" class="kyraAdminPillText" />
                                                 </HBox>
                                             </cells>
                                         </ColumnListItem>
@@ -1343,7 +1357,7 @@
 
                                 <Table id="deptPersonaUsersTable" items="{accessModel>/departmentPersonaUsers}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable kyraDeptUsersTable">
                                     <columns>
-                                        <Column width="44px" hAlign="Center" class="kyraDeptCheckCol">
+                                        <Column width="48px" hAlign="Center" class="kyraTableCheckCol kyraDeptCheckCol">
                                             <CheckBox
                                                 id="masterDeptCheckbox"
                                                 selected="{accessModel>/departmentPersonaAllSelected}"
@@ -1351,14 +1365,14 @@
                                                 class="kyraAdminTableCheckbox"
                                                 tooltip="Select or Deselect All" />
                                         </Column>
-                                        <Column width="15%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
+                                        <Column width="16%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
                                         <Column width="22%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
-                                        <Column width="25%" hAlign="Begin"><Text text="EMAIL ADDRESS" class="kyraAdminColHeader" /></Column>
+                                        <Column width="26%" hAlign="Begin"><Text text="EMAIL ADDRESS" class="kyraAdminColHeader" /></Column>
                                         <Column width="20%" hAlign="Begin"><Text text="DEPARTMENT" class="kyraAdminColHeader" /></Column>
-                                        <Column width="18%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
+                                        <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
                                     </columns>
                                     <items>
-                                        <ColumnListItem vAlign="Middle" type="Active" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
+                                        <ColumnListItem vAlign="Middle" type="Active" highlight="None" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
                                             <cells>
                                                 <CheckBox
                                                     selected="{accessModel>selected}"
