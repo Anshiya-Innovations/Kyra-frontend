@@ -98,7 +98,12 @@ sap.ui.define([
     return Controller.extend("kyra001.pages.Approver.Approver", {
 
         onInit() {
-            const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
+            const oComp = this.getOwnerComponent();
+            const oSharedModel = oComp && oComp.getModel("accessModel");
+            if (oSharedModel) {
+                this.getView().setModel(oSharedModel, "accessModel");
+            }
+            const oRouter = oComp && oComp.getRouter();
             if (oRouter) {
                 ["AccessPage", "UserDashboard", "AdminDashboard"].forEach(routeName => {
                     const r = oRouter.getRoute(routeName);
@@ -263,7 +268,7 @@ sap.ui.define([
         },
 
         _updateDisplayedHistoryRequests() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (!oModel) return;
             const bIsCompliance = !!oModel.getProperty("/isCompliance");
             if (bIsCompliance) {
@@ -274,6 +279,10 @@ sap.ui.define([
                 const aAccess = oModel.getProperty("/historyAccessRequests") || oModel.getProperty("/processedAccessRequests") || [];
                 const aRevoke = oModel.getProperty("/historyRevokeRequests") || oModel.getProperty("/processedRevokeRequests") || [];
                 this._setSmartProperty(oModel, "/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
+            }
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                this._setSmartProperty(oCompModel, "/displayedHistoryRequests", oModel.getProperty("/displayedHistoryRequests"));
             }
             if (this._sCurrentSearchQuery) {
                 this._applySearchFilter(this._sCurrentSearchQuery);
@@ -1042,7 +1051,7 @@ sap.ui.define([
                                 (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
                     if (dec) {
                         const sDecStatus = (dec.status || "").toUpperCase();
-                        if (dec.role === "compliance" || isCompliance) {
+                        if (dec.role === "compliance" || dec.isCompliance || (dec.actorRole && dec.actorRole.toLowerCase().includes("compliance")) || isCompliance) {
                             r.compliance_status = sDecStatus;
                             r.compliance_decision_status = sDecStatus;
                             r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
@@ -1527,11 +1536,21 @@ sap.ui.define([
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        const bExistsInDb = aProcessed.some(p => {
+                        const existingIdx = aProcessed.findIndex(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
                         });
-                        if (!bExistsInDb) {
+                        if (existingIdx >= 0) {
+                            const existing = aProcessed[existingIdx];
+                            if (sp.status && sp.status !== "Pending" && sp.status !== "Revoke Pending") {
+                                existing.status = sp.status;
+                                existing.statusState = sp.statusState;
+                                existing.statusIcon = sp.statusIcon;
+                                existing.decisionDate = sp.decisionDate || existing.decisionDate;
+                                existing.updatedAtRaw = sp.updatedAtRaw || existing.updatedAtRaw;
+                                existing.updated_at = sp.updated_at || existing.updated_at;
+                            }
+                        } else {
                             if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
                             if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
                             aProcessed.unshift(sp);
@@ -1563,7 +1582,15 @@ sap.ui.define([
                 aPending = aPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
-                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+                    if (processedBaseIds.has(pId) || processedBaseIds.has(pBase)) return false;
+                    if (p.entitlements && p.entitlements.some(e => {
+                        const eId = String(e.requestId || "").trim().toUpperCase();
+                        const eBase = getBaseReqId(eId).toUpperCase();
+                        return processedBaseIds.has(eId) || (eBase && processedBaseIds.has(eBase));
+                    })) {
+                        return false;
+                    }
+                    return true;
                 });
             } catch(eProc) {}
 
@@ -1635,7 +1662,34 @@ sap.ui.define([
 
             this._setSmartProperty(oModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
             this._setSmartProperty(oModel, "/processedRequests", aProcessed);
+            const bShowHistory = sessionStorage.getItem("kyra_show_approval_history") === "true";
+            if (bShowHistory) {
+                this._setSmartProperty(oModel, "/showApprovalHistory", true);
+            }
             this._updateDisplayedHistoryRequests();
+
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                this._setSmartProperty(oCompModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
+                this._setSmartProperty(oCompModel, "/pendingAccessRequests", aAccessPending);
+                this._setSmartProperty(oCompModel, "/pendingRevokeRequests", aRevokePending);
+                this._setSmartProperty(oCompModel, "/pendingAccessCount", aAccessPending.length);
+                this._setSmartProperty(oCompModel, "/pendingRevokeCount", aRevokePending.length);
+                this._setSmartProperty(oCompModel, "/processedRequests", aProcessed);
+                this._setSmartProperty(oCompModel, "/processedAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/processedRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/processedAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oCompModel, "/processedRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oCompModel, "/processedCount", aProcessed.length);
+                this._setSmartProperty(oCompModel, "/historyAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/historyRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/historyAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oCompModel, "/historyRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oCompModel, "/displayedHistoryRequests", oModel.getProperty("/displayedHistoryRequests"));
+                if (bShowHistory) {
+                    this._setSmartProperty(oCompModel, "/showApprovalHistory", true);
+                }
+            }
         },
 
         async _reloadAllRequests(oModel) {
@@ -1710,7 +1764,7 @@ sap.ui.define([
                             const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
                             if (dec) {
                                 const sDecStatus = (dec.status || "").toUpperCase();
-                                if (dec.isCompliance || isCompliance) {
+                                if (dec.isCompliance || (dec.actorRole && dec.actorRole.toLowerCase().includes("compliance")) || isCompliance) {
                                     r.compliance_status = sDecStatus;
                                     r.compliance_decision_status = sDecStatus;
                                     r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";

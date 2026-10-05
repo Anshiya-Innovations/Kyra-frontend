@@ -28,6 +28,15 @@ sap.ui.define([
         return p;
     }
 
+    function getBaseReqId(num) {
+        if (!num) return "";
+        const str = String(num).trim();
+        const parts = str.split("-");
+        if (parts.length >= 3) {
+            return parts.slice(0, 3).join("-");
+        }
+        return str;
+    }
 
     function calculateExpiryDays(durationStr, grantedDateInput) {
         const rawDur = String(durationStr || "").trim();
@@ -1806,16 +1815,23 @@ sap.ui.define([
                     oModel.setProperty("/approverPendingTab", "accessRequests");
                 }
                 
-                if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
-                    oModel.setProperty("/showApprovalHistory", true);
+                const bShowApprovalHist = sessionStorage.getItem("kyra_show_approval_history") === "true";
+                oModel.setProperty("/showApprovalHistory", bShowApprovalHist);
+                const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+                if (oCompModel && oCompModel !== oModel) {
+                    oCompModel.setProperty("/showApprovalHistory", bShowApprovalHist);
+                }
+                if (bShowApprovalHist) {
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
-                    // Preserve kyra_show_approval_history across route navigation
+                    if (oCompModel && oCompModel !== oModel) {
+                        oCompModel.setProperty("/selectedTabKey", "myAccess");
+                        oCompModel.setProperty("/showRequestDetailsPage", false);
+                    }
                     this._loadSubmittedRequests(oModel, true);
                 } else {
-                    oModel.setProperty("/showApprovalHistory", false);
                     this._loadSubmittedRequests(oModel, true);
                 }
             }
@@ -1998,11 +2014,12 @@ sap.ui.define([
 
             const getBaseReqId = (num) => {
                 if (!num) return "";
-                const lastDash = num.lastIndexOf('-');
-                if (lastDash > 0 && lastDash >= num.length - 4) {
-                    return num.slice(0, lastDash);
+                const str = String(num).trim();
+                const parts = str.split("-");
+                if (parts.length >= 3) {
+                    return parts.slice(0, 3).join("-");
                 }
-                return num;
+                return str;
             };
 
             const aSortedRecords = (aRawRecords || []).slice().sort((a, b) => {
@@ -2032,7 +2049,7 @@ sap.ui.define([
                                 (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
                     if (dec) {
                         const sDecStatus = (dec.status || "").toUpperCase();
-                        if (dec.role === "compliance" || isCompliance) {
+                        if (dec.isCompliance || (dec.actorRole && dec.actorRole.toLowerCase().includes("compliance")) || dec.role === "compliance" || isCompliance) {
                             r.compliance_status = sDecStatus;
                             r.compliance_decision_status = sDecStatus;
                             r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
@@ -2421,7 +2438,15 @@ sap.ui.define([
             const aApproverPending = Object.values(oPendingGrouped).filter(p => {
                 const pId = String(p.requestId || p.request_number || "").toUpperCase();
                 const pBase = getBaseReqId(pId).toUpperCase();
-                return !processedBaseIdsInner.has(pId) && !processedBaseIdsInner.has(pBase);
+                if (processedBaseIdsInner.has(pId) || processedBaseIdsInner.has(pBase)) return false;
+                if (p.entitlements && p.entitlements.some(e => {
+                    const eId = String(e.requestId || "").trim().toUpperCase();
+                    const eBase = getBaseReqId(eId).toUpperCase();
+                    return processedBaseIdsInner.has(eId) || (eBase && processedBaseIdsInner.has(eBase));
+                })) {
+                    return false;
+                }
+                return true;
             });
             const getPendingTimeAccess = (r) => {
                 const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
@@ -2474,9 +2499,15 @@ sap.ui.define([
             this._bNeedsFollowUpReload = false;
             const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
 
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const sRoleLower = (sActiveRole || "").toLowerCase();
+            const isCompliancePersona = sRoleLower.includes("compliance");
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
+            const isReviewerRole = bIsApprover || isCompliancePersona;
+
             const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
-            const sRoleCheck = (sessionStorage.getItem("kyra_active_role") || "").toLowerCase();
-            const bIsReviewerCheck = sRoleCheck.includes("compliance") || sRoleCheck.includes("approver");
+            const bIsReviewerCheck = isReviewerRole;
 
             if (!bSilent && !bHasWarmCache && !bIsReviewerCheck) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
@@ -2618,12 +2649,6 @@ sap.ui.define([
                 return;
             }
 
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-            const sRoleLower = (sActiveRole || "").toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
-            const isReviewerRole = bIsApprover || isCompliancePersona;
             oModel.setProperty("/activeRole", sActiveRole);
             oModel.setProperty("/isApproverPersona", bIsApprover);
             oModel.setProperty("/isCompliance", isCompliancePersona);
@@ -3312,11 +3337,12 @@ sap.ui.define([
 
             const getBaseReqId = (num) => {
                 if (!num) return "";
-                const lastDash = num.lastIndexOf('-');
-                if (lastDash > 0 && lastDash >= num.length - 4) {
-                    return num.slice(0, lastDash);
+                const str = String(num).trim();
+                const parts = str.split("-");
+                if (parts.length >= 3) {
+                    return parts.slice(0, 3).join("-");
                 }
-                return num;
+                return str;
             };
 
             const oApproverData = this._buildApproverHistoryAndPending(aRawDbRequests);
@@ -3344,11 +3370,21 @@ sap.ui.define([
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        const bExistsInDb = aFinalProcessed.some(p => {
+                        const existingIdx = aFinalProcessed.findIndex(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
                         });
-                        if (!bExistsInDb) {
+                        if (existingIdx >= 0) {
+                            const existing = aFinalProcessed[existingIdx];
+                            if (sp.status && sp.status !== "Pending" && sp.status !== "Revoke Pending") {
+                                existing.status = sp.status;
+                                existing.statusState = sp.statusState;
+                                existing.statusIcon = sp.statusIcon;
+                                existing.decisionDate = sp.decisionDate || existing.decisionDate;
+                                existing.updatedAtRaw = sp.updatedAtRaw || existing.updatedAtRaw;
+                                existing.updated_at = sp.updated_at || existing.updated_at;
+                            }
+                        } else {
                             if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
                             if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
                             aFinalProcessed.unshift(sp);
@@ -3381,7 +3417,15 @@ sap.ui.define([
                 aApprPending = aApprPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
-                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+                    if (processedBaseIds.has(pId) || processedBaseIds.has(pBase)) return false;
+                    if (p.entitlements && p.entitlements.some(e => {
+                        const eId = String(e.requestId || "").trim().toUpperCase();
+                        const eBase = getBaseReqId(eId).toUpperCase();
+                        return processedBaseIds.has(eId) || (eBase && processedBaseIds.has(eBase));
+                    })) {
+                        return false;
+                    }
+                    return true;
                 });
             } catch(e) {}
 
@@ -3425,6 +3469,34 @@ sap.ui.define([
 
             const sCurrentHistTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
             this._setSmartProperty(oModel, "/displayedHistoryRequests", isCompliancePersona ? aFinalProcessed : (sCurrentHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+
+            if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
+                this._setSmartProperty(oModel, "/showApprovalHistory", true);
+            }
+
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                this._setSmartProperty(oCompModel, "/pendingRequests", isCompliancePersona ? aApprPendingAccess : aApprPending);
+                this._setSmartProperty(oCompModel, "/pendingAccessRequests", aApprPendingAccess);
+                this._setSmartProperty(oCompModel, "/pendingRevokeRequests", aApprPendingRevoke);
+                this._setSmartProperty(oCompModel, "/pendingAccessCount", aApprPendingAccess.length);
+                this._setSmartProperty(oCompModel, "/pendingRevokeCount", aApprPendingRevoke.length);
+                this._setSmartProperty(oCompModel, "/isCompliance", isCompliancePersona);
+                this._setSmartProperty(oCompModel, "/isComplianceReviewer", isCompliancePersona);
+                this._setSmartProperty(oCompModel, "/isCompliancePersona", isCompliancePersona);
+                this._setSmartProperty(oCompModel, "/processedRequests", aFinalProcessed);
+                this._setSmartProperty(oCompModel, "/processedAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/processedRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/historyAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/historyRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/historyAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oCompModel, "/historyRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oCompModel, "/processedCount", aFinalProcessed.length);
+                this._setSmartProperty(oCompModel, "/displayedHistoryRequests", isCompliancePersona ? aFinalProcessed : (sCurrentHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+                if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
+                    this._setSmartProperty(oCompModel, "/showApprovalHistory", true);
+                }
+            }
 
             this._cachedDbRequests = aRawDbRequests;
             this._loadNotifications(oModel, aRawDbRequests);
