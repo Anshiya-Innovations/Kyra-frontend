@@ -1365,11 +1365,11 @@
                                                 class="kyraAdminTableCheckbox"
                                                 tooltip="Select or Deselect All" />
                                         </Column>
-                                        <Column width="16%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
-                                        <Column width="22%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
+                                        <Column width="15%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
+                                        <Column width="21%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
                                         <Column width="26%" hAlign="Begin"><Text text="EMAIL ADDRESS" class="kyraAdminColHeader" /></Column>
                                         <Column width="20%" hAlign="Begin"><Text text="DEPARTMENT" class="kyraAdminColHeader" /></Column>
-                                        <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
+                                        <Column width="18%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
                                     </columns>
                                     <items>
                                         <ColumnListItem vAlign="Middle" type="Active" highlight="None" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
@@ -1571,13 +1571,13 @@
                                                 <Text text="{= 'Team (' + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
 
                                                 <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer" width="100%">
-                                                    <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom">
+                                                    <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom" press=".onSelectAdminClassification">
                                                         <customData>
                                                             <core:CustomData key="selectedClass" value="{= ${accessModel>selected} ? 'true' : 'false' }" writeToDom="true" />
                                                             <core:CustomData key="status" value="{= ${accessModel>status} || 'Active' }" writeToDom="true" />
                                                         </customData>
                                                         <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminTeamNameBox" width="100%">
-                                                            <HBox alignItems="Center" class="kyraAdminTeamLeftContent">
+                                                            <HBox alignItems="Center" class="kyraAdminTeamLeftContent" press=".onSelectAdminClassification">
                                                                 <HBox class="kyraAdminVectorDot" />
                                                                 <Link
                                                                     text="{accessModel>name}"
@@ -1784,7 +1784,7 @@
                                         press=".onCancelCustomConflictDraft"
                                         class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
                                     <Button
-                                        text="Save"
+                                        text="Save Changes"
                                         type="Emphasized"
                                         press=".onSaveCustomConflictDraft"
                                         class="kyraAdminSaveBtn" />

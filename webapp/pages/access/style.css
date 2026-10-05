@@ -46137,8 +46137,10 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     box-sizing: border-box !important;
 }
 
-.kyra-custom-dropdown-menu.open-upward {
-    box-shadow: 0 -12px 30px -4px rgba(0, 0, 0, 0.18), 0 -6px 12px -2px rgba(0, 0, 0, 0.08) !important;
+.kyra-custom-dropdown-menu.open-upward,
+.kyra-custom-dropdown-menu {
+    top: calc(100% + 6px) !important;
+    bottom: auto !important;
 }
 
 .kyra-custom-dropdown-menu::-webkit-scrollbar {
@@ -46766,3 +46768,211 @@ select.kyra-system-modal-select,
     color: #065F46 !important;
     font-size: 12px !important;
 }
+
+/* ========================================================================== */
+/* COMPLETELY REMOVE ALL SCROLLBARS FROM MODAL DIALOGS (Zero scrollbar)     */
+/* ========================================================================== */
+
+.kyraSystemModalDialog,
+.kyraSystemModalDialog.sapMDialog,
+.kyraSystemModalDialog .sapMDialogSection,
+.kyraSystemModalDialog .sapMDialogScroll,
+.kyraSystemModalDialog .sapMDialogScrollCont,
+.kyraSystemModalDialog .kyra-system-modal-card,
+.kyraSystemModalDialog .kyra-system-modal-body,
+.kyra-system-modal-card,
+.kyra-system-modal-body {
+    overflow: visible !important;
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.kyraSystemModalDialog::-webkit-scrollbar,
+.kyraSystemModalDialog *::-webkit-scrollbar,
+.kyra-system-modal-card::-webkit-scrollbar,
+.kyra-system-modal-card *::-webkit-scrollbar,
+.kyra-system-modal-body::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Ensure all dropdown boxes always open downward below the box (no upbox) */
+.kyra-custom-dropdown-menu,
+.kyra-custom-dropdown-menu.open-upward {
+    position: absolute !important;
+    top: calc(100% + 6px) !important;
+    bottom: auto !important;
+    left: 0 !important;
+    right: 0 !important;
+    box-shadow: 0 12px 30px -4px rgba(0, 140, 156, 0.22), 0 6px 14px -2px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Conflict Reason multi-line 2-line comfortable typing area */
+.kyra-system-modal-textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    min-height: 64px !important;
+    height: 68px !important;
+    padding: 10px 14px !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    font-size: 13.5px !important;
+    color: #1E293B !important;
+    font-family: inherit !important;
+    line-height: 1.45 !important;
+    resize: vertical !important;
+    outline: none !important;
+    background: #FFFFFF !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.kyra-system-modal-textarea:focus {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+/* Ensure Custom Conflict Slide Footer Bar has clear Cancel and Save Changes buttons */
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar {
+    display: flex !important;
+    width: 100% !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    margin-top: 16px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid #E2E8F0 !important;
+    gap: 12px !important;
+}
+
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar .kyraAdminCancelBtn {
+    margin: 0 !important;
+    display: inline-flex !important;
+}
+
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar .kyraAdminCancelBtn .sapMBtnInner {
+    height: 38px !important;
+    line-height: 36px !important;
+    padding: 0 20px !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    color: #334155 !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar .kyraAdminCancelBtn:hover .sapMBtnInner {
+    background: #F8FAFC !important;
+    border-color: #94A3B8 !important;
+    color: #0F172A !important;
+}
+
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar .kyraAdminSaveBtn {
+    margin: 0 !important;
+    display: inline-flex !important;
+}
+
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar .kyraAdminSaveBtn .sapMBtnInner {
+    height: 38px !important;
+    line-height: 36px !important;
+    padding: 0 24px !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1.5px solid #007684 !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.25) !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar .kyraAdminSaveBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #005A65 !important;
+}
+
+/* Full Team Card Clickable Everywhere & Cursor Pointer */
+.kyraAdminClassItemCard,
+.kyraAdminClassItemCard *,
+.kyraAdminTeamNameBox,
+.kyraAdminTeamLeftContent {
+    cursor: pointer !important;
+}
+
+.kyraAdminClassItemCard {
+    user-select: none !important;
+}
+
+.kyraAdminClassItemLink {
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+/* Edit Conflict Rule Modal Body: sleek side scrollbar on THIS place ONLY */
+.kyra-conflict-edit-modal-card .kyra-conflict-edit-modal-body,
+.kyraConflictEditModalDialog .kyra-conflict-edit-modal-body,
+.kyra-conflict-edit-modal-body {
+    max-height: 340px !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    padding-right: 12px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #008C9C #E2E8F0 !important;
+    -ms-overflow-style: auto !important;
+}
+
+.kyra-conflict-edit-modal-card .kyra-conflict-edit-modal-body::-webkit-scrollbar,
+.kyraConflictEditModalDialog .kyra-conflict-edit-modal-body::-webkit-scrollbar,
+.kyra-conflict-edit-modal-body::-webkit-scrollbar {
+    display: block !important;
+    width: 6px !important;
+    height: auto !important;
+}
+
+.kyra-conflict-edit-modal-card .kyra-conflict-edit-modal-body::-webkit-scrollbar-track,
+.kyraConflictEditModalDialog .kyra-conflict-edit-modal-body::-webkit-scrollbar-track,
+.kyra-conflict-edit-modal-body::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
+    border-radius: 4px !important;
+}
+
+.kyra-conflict-edit-modal-card .kyra-conflict-edit-modal-body::-webkit-scrollbar-thumb,
+.kyraConflictEditModalDialog .kyra-conflict-edit-modal-body::-webkit-scrollbar-thumb,
+.kyra-conflict-edit-modal-body::-webkit-scrollbar-thumb {
+    background: #008C9C !important;
+    border-radius: 4px !important;
+}
+
+.kyra-conflict-edit-modal-card .kyra-conflict-edit-modal-body::-webkit-scrollbar-thumb:hover,
+.kyraConflictEditModalDialog .kyra-conflict-edit-modal-body::-webkit-scrollbar-thumb:hover,
+.kyra-conflict-edit-modal-body::-webkit-scrollbar-thumb:hover {
+    background: #007684 !important;
+}
+
+/* Dropdown trigger icon box and smooth chevron */
+.kyra-custom-dropdown-arrow-box {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.kyra-custom-dropdown-trigger .kyra-custom-dropdown-arrow {
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    stroke: #008C9C !important;
+}
+
+.kyra-custom-dropdown-trigger.open .kyra-custom-dropdown-arrow {
+    transform: rotate(180deg) !important;
+}
+
