@@ -3468,6 +3468,7 @@
                                     text="Submit Access Request"
                                     type="Emphasized"
                                     press=".onFinalSubmitInPageAddAccess"
+                                    enabled="{= !${accessModel>/isSubmittingAccessRequest} }"
                                     class="kyraPrimaryBtn" />
                             </HBox>
                         </HBox>

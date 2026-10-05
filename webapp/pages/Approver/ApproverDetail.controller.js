@@ -360,7 +360,19 @@ sap.ui.define([
                     };
 
                     if (oRequest.entitlements && oRequest.entitlements.length > 0) {
+                        const seenEntKeys = new Set();
                         oRequest.entitlements.forEach(ent => {
+                            const sItemReqId = ent.requestId || oRequest.requestId || "";
+                            const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
+                            const sService = getCleanServiceTopic(ent) || getCleanServiceTopic(oRequest);
+                            const sTeam = cleanRole(sRawRole);
+                            const sPersona = cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "");
+                            const sSys = ent.system || oRequest.system || "SAP System";
+
+                            const sEntUniqueKey = `${sItemReqId}:::${sSys}:::${sTeam}:::${sPersona}`;
+                            if (seenEntKeys.has(sEntUniqueKey)) return;
+                            seenEntKeys.add(sEntUniqueKey);
+
                             const sInitStatus = (ent.status === "Approved" || ent.status === "Rejected") ? ent.status : "Pending";
                             const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
                             const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
@@ -370,14 +382,9 @@ sap.ui.define([
                                 sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
                             }
 
-                            const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
-                            const sService = getCleanServiceTopic(ent) || getCleanServiceTopic(oRequest);
-                            const sTeam = cleanRole(sRawRole);
-                            const sPersona = cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "");
-
                             aEntList.push({
-                                requestId: ent.requestId || oRequest.requestId,
-                                system: ent.system || oRequest.system || "SAP System",
+                                requestId: sItemReqId,
+                                system: sSys,
                                 services: sService,
                                 serviceTopic: sService,
                                 service: sService,
@@ -600,8 +607,13 @@ sap.ui.define([
                     };
 
                     const oGroupedMap = {};
+                    const seenTableItems = new Set();
                     aEntList.forEach(item => {
                         const sSys = item.system || "SAP System";
+                        const sItemKey = `${item.requestId}:::${sSys}:::${item.team || item.roleName}:::${item.selectedPersona || item.persona}`;
+                        if (seenTableItems.has(sItemKey)) return;
+                        seenTableItems.add(sItemKey);
+
                         if (!oGroupedMap[sSys]) {
                             oGroupedMap[sSys] = {
                                 systemName: sSys,
@@ -1008,15 +1020,29 @@ sap.ui.define([
                         if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
                             const sCleanRoleA = cleanPersonaName(sRoleA);
                             const sCleanRoleB = cleanPersonaName(sRoleB);
+                            const sCleanPersonaA = cleanPersonaName(sPersonaA) || sCleanRoleA;
+                            const sCleanPersonaB = cleanPersonaName(sPersonaB) || sCleanRoleB;
 
-                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sSysB}:::${sCleanRoleB}`;
-                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sSysA}:::${sCleanRoleA}`;
+                            const sRoleKeyA = `${sSysA}:::${sCleanRoleA}`;
+                            const sRoleKeyB = `${sSysB}:::${sCleanRoleB}`;
 
-                            let targetKey = sKey;
+                            let targetKey;
                             let bIsReverse = false;
-                            if (batchConflictMap.has(sReverseKey)) {
-                                targetKey = sReverseKey;
-                                bIsReverse = true;
+
+                            if (sRoleKeyA === sRoleKeyB) {
+                                const pPair = [sCleanPersonaA, sCleanPersonaB].sort().join(" <-> ");
+                                targetKey = `${sRoleKeyA}:::SAME_ROLE:::${pPair}`;
+                            } else {
+                                const sKeyDirect = `${sRoleKeyA} <===> ${sRoleKeyB}`;
+                                const sKeyReverse = `${sRoleKeyB} <===> ${sRoleKeyA}`;
+
+                                if (batchConflictMap.has(sKeyReverse)) {
+                                    targetKey = sKeyReverse;
+                                    bIsReverse = true;
+                                } else {
+                                    targetKey = sKeyDirect;
+                                    bIsReverse = false;
+                                }
                             }
 
                             if (!batchConflictMap.has(targetKey)) {
@@ -1028,46 +1054,27 @@ sap.ui.define([
                                     cleanRoleB: sCleanRoleB,
                                     personasA: new Set(),
                                     personasB: new Set(),
-                                    conflictTitle: "Batch Selection SoD Conflict",
+                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
 
                             const entry = batchConflictMap.get(targetKey);
                             if (!bIsReverse) {
-                                if (sPersonaA) entry.personasA.add(cleanPersonaName(sPersonaA));
-                                if (sPersonaB) entry.personasB.add(cleanPersonaName(sPersonaB));
+                                if (sCleanPersonaA) entry.personasA.add(sCleanPersonaA);
+                                if (sCleanPersonaB) entry.personasB.add(sCleanPersonaB);
                             } else {
-                                if (sPersonaA) entry.personasB.add(cleanPersonaName(sPersonaA));
-                                if (sPersonaB) entry.personasA.add(cleanPersonaName(sPersonaB));
+                                if (sCleanPersonaA) entry.personasB.add(sCleanPersonaA);
+                                if (sCleanPersonaB) entry.personasA.add(sCleanPersonaB);
                             }
                         }
                     });
                 }
             }
 
-            // Also ensure any matching items in the batch are collected for these conflicted roles
             batchConflictMap.forEach(entry => {
-                aItemsToCheck.forEach(item => {
-                    const itemSys = item.system || item.target_system || "Enterprise System";
-                    if (!isSameSystem(itemSys, entry.system)) return;
-                    const itemRole = cleanPersonaName(item.roleName || item.role_name || item.roleTitle || "");
-                    const itemPersona = cleanPersonaName(item.selectedPersona || item.selected_persona || item.persona || "");
-                    if (!itemPersona) return;
-
-                    const arch = getFunctionalArchetype(itemRole, itemPersona);
-                    const archA = getFunctionalArchetype(entry.cleanRoleA, entry.cleanRoleA);
-                    const archB = getFunctionalArchetype(entry.cleanRoleB, entry.cleanRoleB);
-
-                    if (itemRole === entry.cleanRoleA || arch === archA) {
-                        entry.personasA.add(itemPersona);
-                    } else if (itemRole === entry.cleanRoleB || arch === archB) {
-                        entry.personasB.add(itemPersona);
-                    }
-                });
-
-                const sPersonaA = Array.from(entry.personasA).join("\n");
-                const sPersonaB = Array.from(entry.personasB).join("\n");
+                const sPersonaA = Array.from(entry.personasA).filter(Boolean).join("\n");
+                const sPersonaB = Array.from(entry.personasB).filter(Boolean).join("\n");
 
                 aBatchConflicts.push({
                     system: entry.system,
@@ -1079,7 +1086,7 @@ sap.ui.define([
                     existingPersona: sPersonaA,
                     newRole: entry.roleB,
                     newPersona: sPersonaB,
-                    conflictTitle: "Batch Selection SoD Conflict",
+                    conflictTitle: entry.conflictTitle || "Segregation of Duties (SoD) Conflict",
                     conflictDesc: entry.conflictDesc
                 });
             });
@@ -1252,7 +1259,14 @@ sap.ui.define([
         },
 
         _showDecisionSummarySlide(oData, bReadOnly) {
-            const aEntitlements = oData.entitlements || [];
+            const rawEntitlements = oData.entitlements || [];
+            const seenEntSummary = new Set();
+            const aEntitlements = rawEntitlements.filter(e => {
+                const sKey = `${e.requestId || oData.requestId || ''}:::${e.system || oData.system || ''}:::${e.team || e.roleName || ''}:::${e.selectedPersona || e.persona || ''}`;
+                if (seenEntSummary.has(sKey)) return false;
+                seenEntSummary.add(sKey);
+                return true;
+            });
 
             // Separate items based on explicit approved / rejected status
             const aApprovedItems = aEntitlements.filter(e => {

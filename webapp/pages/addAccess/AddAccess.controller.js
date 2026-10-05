@@ -667,10 +667,16 @@ sap.ui.define([
         },
 
         async onFinalSubmitRequest() {
+            if (this._bIsSubmitting) {
+                console.warn("Access request submission is already in flight. Ignoring duplicate click.");
+                return;
+            }
+            this._bIsSubmitting = true;
             const oModel = this.getView().getModel("addAccessModel");
-            const aSummaryItems = oModel.getProperty("/summaryItems") || [];
+            const aSummaryItems = oModel ? (oModel.getProperty("/summaryItems") || []) : [];
 
             if (aSummaryItems.length === 0) {
+                this._bIsSubmitting = false;
                 MessageBox.error("No access items remaining in your summary list.");
                 return;
             }
@@ -761,6 +767,7 @@ sap.ui.define([
                 MessageBox.error("Failed to connect to database: " + err.message);
                 return;
             } finally {
+                this._bIsSubmitting = false;
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
                 } else if (window.hideKyraLoading) {

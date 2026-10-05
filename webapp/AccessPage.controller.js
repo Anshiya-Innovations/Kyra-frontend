@@ -2551,7 +2551,14 @@ sap.ui.define([
 
             let aRawDbRequests = [];
             if (window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
-                aRawDbRequests = window._kyraCachedGovRequests.slice();
+                const seenCachedReqs = new Set();
+                aRawDbRequests = window._kyraCachedGovRequests.filter(r => {
+                    const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                    if (!sNum) return true;
+                    if (seenCachedReqs.has(sNum)) return false;
+                    seenCachedReqs.add(sNum);
+                    return true;
+                });
             }
 
             try {
@@ -2583,7 +2590,15 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value) {
-                    aRawDbRequests = data.value.slice();
+                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const seenRawReqs = new Set();
+                    aRawDbRequests = rawList.filter(r => {
+                        const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                        if (!sNum) return true;
+                        if (seenRawReqs.has(sNum)) return false;
+                        seenRawReqs.add(sNum);
+                        return true;
+                    });
                     let oDecidedMap = window._kyraDecidedRequestsMap || {};
                     try {
                         const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
@@ -3041,22 +3056,29 @@ sap.ui.define([
                     };
                 }
 
-                oGrouped[sGroupKey].entitlements.push({
-                    requestId: r.request_number,
-                    system: r.target_system,
-                    roleName: r.role_name,
-                    team: r.role_name,
-                    services: sServiceTopic,
-                    serviceTopic: sServiceTopic,
-                    service: sServiceTopic,
-                    selectedPersona: r.selected_persona || "User",
-                    persona: r.selected_persona || "User",
-                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "",
-                    expiryDate: r.access_duration,
-                    status: isPendingForRole ? (isRevocationReq ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
-                    statusState: sState,
-                    statusIcon: sIcon
-                });
+                if (!oGrouped[sGroupKey]._seenEnts) {
+                    oGrouped[sGroupKey]._seenEnts = new Set();
+                }
+                const sEntUniqueKey = (r.request_number || "") + ":::" + (r.target_system || "") + ":::" + (r.role_name || "") + ":::" + (r.selected_persona || "");
+                if (!oGrouped[sGroupKey]._seenEnts.has(sEntUniqueKey)) {
+                    oGrouped[sGroupKey]._seenEnts.add(sEntUniqueKey);
+                    oGrouped[sGroupKey].entitlements.push({
+                        requestId: r.request_number,
+                        system: r.target_system,
+                        roleName: r.role_name,
+                        team: r.role_name,
+                        services: sServiceTopic,
+                        serviceTopic: sServiceTopic,
+                        service: sServiceTopic,
+                        selectedPersona: r.selected_persona || "User",
+                        persona: r.selected_persona || "User",
+                        grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "",
+                        expiryDate: r.access_duration,
+                        status: isPendingForRole ? (isRevocationReq ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
+                        statusState: sState,
+                        statusIcon: sIcon
+                    });
+                }
             });
 
             if (this._localInFlightRevocations) {
@@ -3255,31 +3277,42 @@ sap.ui.define([
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
-            const oReqCountsPending = {};
-            aMyPending.forEach(p => { oReqCountsPending[p.requestId] = (oReqCountsPending[p.requestId] || 0) + 1; });
-            const oReqIndexPending = {};
+            const seenPendingReqIds = new Set();
+            const aDeduplicatedMyPending = [];
             aMyPending.forEach(p => {
-                if (oReqCountsPending[p.requestId] > 1) {
-                    oReqIndexPending[p.requestId] = (oReqIndexPending[p.requestId] || 0) + 1;
-                    const sPad = String(oReqIndexPending[p.requestId]).padStart(2, "0");
-                    p.requestId = `${p.requestId}-${sPad}`;
+                const sId = (p.requestId || p.request_number || "").trim();
+                const sItemKey = sId || `${p.system}:::${p.roleName}:::${p.selectedPersona}`;
+                if (!seenPendingReqIds.has(sItemKey)) {
+                    seenPendingReqIds.add(sItemKey);
+                    aDeduplicatedMyPending.push(p);
                 }
             });
 
-            const oReqCountsHist = {};
-            aMyHistory.forEach(h => { oReqCountsHist[h.requestId] = (oReqCountsHist[h.requestId] || 0) + 1; });
-            const oReqIndexHist = {};
+            const seenHistReqIds = new Set();
+            const aDeduplicatedMyHistory = [];
             aMyHistory.forEach(h => {
-                if (oReqCountsHist[h.requestId] > 1) {
-                    oReqIndexHist[h.requestId] = (oReqIndexHist[h.requestId] || 0) + 1;
-                    const sPad = String(oReqIndexHist[h.requestId]).padStart(2, "0");
-                    h.requestId = `${h.requestId}-${sPad}`;
+                const sId = (h.requestId || h.request_number || "").trim();
+                const sItemKey = sId || `${h.system}:::${h.roleName}:::${h.selectedPersona}`;
+                if (!seenHistReqIds.has(sItemKey)) {
+                    seenHistReqIds.add(sItemKey);
+                    aDeduplicatedMyHistory.push(h);
                 }
             });
 
-            this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
-            this._setSmartProperty(oModel, "/myApprovedRequests", aMyApproved);
-            this._masterMyHistoryRequests = [].concat(aMyHistory || []);
+            const seenAppReqIds = new Set();
+            const aDeduplicatedMyApproved = [];
+            aMyApproved.forEach(a => {
+                const sId = (a.requestId || a.request_number || "").trim();
+                const sItemKey = sId || `${a.system}:::${a.roleName}:::${a.selectedPersona}`;
+                if (!seenAppReqIds.has(sItemKey)) {
+                    seenAppReqIds.add(sItemKey);
+                    aDeduplicatedMyApproved.push(a);
+                }
+            });
+
+            this._setSmartProperty(oModel, "/myPendingRequests", aDeduplicatedMyPending);
+            this._setSmartProperty(oModel, "/myApprovedRequests", aDeduplicatedMyApproved);
+            this._masterMyHistoryRequests = [].concat(aDeduplicatedMyHistory || []);
             const aDisplayedHistory = (typeof this._currentHistoryFilterMatchesItem === "function")
                 ? this._masterMyHistoryRequests.filter(this._currentHistoryFilterMatchesItem)
                 : this._masterMyHistoryRequests;
@@ -7210,30 +7243,35 @@ sap.ui.define([
                             const sCleanNewRole = cleanPersonaName(sNewRoleName);
                             const sCleanActivePersona = cleanPersonaName(sActivePersona) || sCleanActiveRole;
                             const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
-                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sCleanActivePersona}:::${sNewSys}:::${sCleanNewRole}:::${sCleanNewPersona}`;
+                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sNewSys}:::${sCleanNewRole}`;
                             if (!activeConflictMap.has(sKey)) {
                                 activeConflictMap.set(sKey, {
                                     system: sNewSys,
                                     existingRole: `${sActiveSys} — ${sCleanActiveRole}`,
-                                    existingPersona: sCleanActivePersona,
+                                    existingPersonas: new Set(),
                                     newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    newPersona: sCleanNewPersona,
+                                    newPersonas: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
+                            const entry = activeConflictMap.get(sKey);
+                            if (sCleanActivePersona) entry.existingPersonas.add(sCleanActivePersona);
+                            if (sCleanNewPersona) entry.newPersonas.add(sCleanNewPersona);
                         }
                     });
                 });
             });
 
             activeConflictMap.forEach(entry => {
+                const sExisting = Array.from(entry.existingPersonas).filter(Boolean).join("\n");
+                const sNew = Array.from(entry.newPersonas).filter(Boolean).join("\n");
                 aActiveConflicts.push({
                     system: entry.system,
                     existingRole: entry.existingRole,
-                    existingPersona: entry.existingPersona,
+                    existingPersona: sExisting,
                     newRole: entry.newRole,
-                    newPersona: entry.newPersona,
+                    newPersona: sNew,
                     conflictTitle: entry.conflictTitle,
                     conflictDesc: entry.conflictDesc
                 });
@@ -7263,30 +7301,35 @@ sap.ui.define([
                             const sCleanNewRole = cleanPersonaName(sNewRoleName);
                             const sCleanPendingPersona = cleanPersonaName(sPendingPersona) || sCleanPendingRole;
                             const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
-                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sCleanPendingPersona}:::${sNewSys}:::${sCleanNewRole}:::${sCleanNewPersona}`;
+                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sNewSys}:::${sCleanNewRole}`;
                             if (!pendingConflictMap.has(sKey)) {
                                 pendingConflictMap.set(sKey, {
                                     system: sNewSys,
                                     existingRole: `${sPendingSys} — ${sCleanPendingRole}`,
-                                    existingPersona: sCleanPendingPersona,
+                                    existingPersonas: new Set(),
                                     newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    newPersona: sCleanNewPersona,
+                                    newPersonas: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
+                            const entry = pendingConflictMap.get(sKey);
+                            if (sCleanPendingPersona) entry.existingPersonas.add(sCleanPendingPersona);
+                            if (sCleanNewPersona) entry.newPersonas.add(sCleanNewPersona);
                         }
                     });
                 });
             });
 
             pendingConflictMap.forEach(entry => {
+                const sExisting = Array.from(entry.existingPersonas).filter(Boolean).join("\n");
+                const sNew = Array.from(entry.newPersonas).filter(Boolean).join("\n");
                 aPendingConflicts.push({
                     system: entry.system,
                     existingRole: entry.existingRole,
-                    existingPersona: entry.existingPersona,
+                    existingPersona: sExisting,
                     newRole: entry.newRole,
-                    newPersona: entry.newPersona,
+                    newPersona: sNew,
                     conflictTitle: entry.conflictTitle,
                     conflictDesc: entry.conflictDesc
                 });
@@ -7319,12 +7362,26 @@ sap.ui.define([
                             const sCleanPersonaA = cleanPersonaName(sPersonaA) || sCleanRoleA;
                             const sCleanPersonaB = cleanPersonaName(sPersonaB) || sCleanRoleB;
 
-                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sCleanPersonaA}:::${sSysB}:::${sCleanRoleB}:::${sCleanPersonaB}`;
-                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sCleanPersonaB}:::${sSysA}:::${sCleanRoleA}:::${sCleanPersonaA}`;
+                            const sRoleKeyA = `${sSysA}:::${sCleanRoleA}`;
+                            const sRoleKeyB = `${sSysB}:::${sCleanRoleB}`;
 
-                            let targetKey = sKey;
-                            if (batchConflictMap.has(sReverseKey)) {
-                                targetKey = sReverseKey;
+                            let targetKey;
+                            let bIsReverse = false;
+
+                            if (sRoleKeyA === sRoleKeyB) {
+                                const pPair = [sCleanPersonaA, sCleanPersonaB].sort().join(" <-> ");
+                                targetKey = `${sRoleKeyA}:::SAME_ROLE:::${pPair}`;
+                            } else {
+                                const sKeyDirect = `${sRoleKeyA} <===> ${sRoleKeyB}`;
+                                const sKeyReverse = `${sRoleKeyB} <===> ${sRoleKeyA}`;
+
+                                if (batchConflictMap.has(sKeyReverse)) {
+                                    targetKey = sKeyReverse;
+                                    bIsReverse = true;
+                                } else {
+                                    targetKey = sKeyDirect;
+                                    bIsReverse = false;
+                                }
                             }
 
                             if (!batchConflictMap.has(targetKey)) {
@@ -7334,11 +7391,20 @@ sap.ui.define([
                                     roleB: `${sSysB} — ${sCleanRoleB}`,
                                     cleanRoleA: sCleanRoleA,
                                     cleanRoleB: sCleanRoleB,
-                                    personaA: sCleanPersonaA,
-                                    personaB: sCleanPersonaB,
+                                    personasA: new Set(),
+                                    personasB: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
+                            }
+
+                            const entry = batchConflictMap.get(targetKey);
+                            if (!bIsReverse) {
+                                if (sCleanPersonaA) entry.personasA.add(sCleanPersonaA);
+                                if (sCleanPersonaB) entry.personasB.add(sCleanPersonaB);
+                            } else {
+                                if (sCleanPersonaA) entry.personasB.add(sCleanPersonaA);
+                                if (sCleanPersonaB) entry.personasA.add(sCleanPersonaB);
                             }
                         }
                     });
@@ -7346,16 +7412,18 @@ sap.ui.define([
             }
 
             batchConflictMap.forEach(entry => {
+                const sPersonaA = Array.from(entry.personasA).filter(Boolean).join("\n");
+                const sPersonaB = Array.from(entry.personasB).filter(Boolean).join("\n");
                 aBatchConflicts.push({
                     system: entry.system,
                     roleA: entry.roleA,
-                    personaA: entry.personaA,
+                    personaA: sPersonaA,
                     roleB: entry.roleB,
-                    personaB: entry.personaB,
+                    personaB: sPersonaB,
                     existingRole: entry.roleA,
-                    existingPersona: entry.personaA,
+                    existingPersona: sPersonaA,
                     newRole: entry.roleB,
-                    newPersona: entry.personaB,
+                    newPersona: sPersonaB,
                     conflictTitle: entry.conflictTitle || "Segregation of Duties (SoD) Conflict",
                     conflictDesc: entry.conflictDesc
                 });
@@ -7647,10 +7715,20 @@ sap.ui.define([
         },
 
         async onFinalSubmitInPageAddAccess() {
+            if (this._bIsSubmittingInPage) {
+                console.warn("Access request submission is already in flight. Ignoring duplicate click.");
+                return;
+            }
+            this._bIsSubmittingInPage = true;
             const oModel = this.getView().getModel("accessModel");
-            const aSummaryItems = oModel.getProperty("/addAccessSummaryItems") || [];
+            if (oModel) {
+                oModel.setProperty("/isSubmittingAccessRequest", true);
+            }
+            const aSummaryItems = oModel ? (oModel.getProperty("/addAccessSummaryItems") || []) : [];
 
             if (aSummaryItems.length === 0) {
+                this._bIsSubmittingInPage = false;
+                if (oModel) oModel.setProperty("/isSubmittingAccessRequest", false);
                 MessageBox.error("No access items configured to submit.");
                 return;
             }
@@ -7788,6 +7866,10 @@ sap.ui.define([
                 MessageBox.error("Failed to connect to database: " + err.message);
                 return;
             } finally {
+                this._bIsSubmittingInPage = false;
+                if (oModel) {
+                    oModel.setProperty("/isSubmittingAccessRequest", false);
+                }
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
                 } else if (window.hideKyraLoading) {
