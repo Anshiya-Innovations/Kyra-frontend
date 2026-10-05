@@ -673,7 +673,7 @@ sap.ui.define([
                 personaConversionMode: "single",
                 departmentPersona: {
                     departmentName: "",
-                    targetPersona: "Requester",
+                    targetPersona: "",
                     status: "Active"
                 },
                 allAvailableDepartments: [
@@ -11723,6 +11723,7 @@ sap.ui.define([
                         item.classList.add("selected");
                         menu.style.display = "none";
                         trigger.classList.remove("open");
+                        wrapper.style.zIndex = "";
                         select.dispatchEvent(new Event("change", { bubbles: true }));
                     };
                     menu.appendChild(item);
@@ -11739,9 +11740,38 @@ sap.ui.define([
                     oDomRef.querySelectorAll(".kyra-custom-dropdown-trigger").forEach(function(t) {
                         t.classList.remove("open");
                     });
+                    oDomRef.querySelectorAll(".kyra-custom-dropdown-wrapper").forEach(function(w) {
+                        w.style.zIndex = "";
+                    });
+
                     if (!isOpen) {
                         menu.style.display = "block";
                         trigger.classList.add("open");
+                        wrapper.style.zIndex = "10000";
+
+                        // Calculate available space below trigger vs above trigger
+                        const triggerRect = trigger.getBoundingClientRect();
+                        const modalBody = oDomRef.querySelector(".kyra-system-modal-body") || oDomRef;
+                        const modalRect = modalBody.getBoundingClientRect();
+                        const spaceBelow = modalRect.bottom - triggerRect.bottom;
+                        const spaceAbove = triggerRect.top - modalRect.top;
+
+                        // Threshold limit is in the bottom row; open upward if space below is limited
+                        if (spaceBelow < 200 && spaceAbove > 130) {
+                            menu.style.top = "auto";
+                            menu.style.bottom = "calc(100% + 6px)";
+                            menu.classList.add("open-upward");
+                        } else {
+                            menu.style.top = "calc(100% + 6px)";
+                            menu.style.bottom = "auto";
+                            menu.classList.remove("open-upward");
+                        }
+
+                        // Scroll selected item into view so user sees it clearly
+                        const selectedItem = menu.querySelector(".kyra-custom-dropdown-item.selected");
+                        if (selectedItem) {
+                            selectedItem.scrollIntoView({ block: "nearest" });
+                        }
                     }
                 };
 
@@ -11755,6 +11785,9 @@ sap.ui.define([
                     });
                     oDomRef.querySelectorAll(".kyra-custom-dropdown-trigger").forEach(function(t) {
                         t.classList.remove("open");
+                    });
+                    oDomRef.querySelectorAll(".kyra-custom-dropdown-wrapper").forEach(function(w) {
+                        w.style.zIndex = "";
                     });
                 }
             };
@@ -14354,8 +14387,9 @@ sap.ui.define([
                         email: oUser.email || (sCanonicalId.toLowerCase() + "@kyra.com"),
                         department: oUser.department || "Enterprise Business Operations",
                         currentPersona: sNormalizedPersona,
-                        selectedPersona: sNormalizedPersona,
-                        targetPersona: sNormalizedPersona,
+                        selectedPersona: "",
+                        selectedPersonaText: "",
+                        targetPersona: "",
                         sourceTable: sTable,
                         status: oUser.status || "Active",
                         entitlementsCount: aEntitlements.length,
@@ -14379,7 +14413,8 @@ sap.ui.define([
                             }
                         }
                         if (typeof oSelectCtrl.setSelectedKey === "function") {
-                            oSelectCtrl.setSelectedKey(sNormalizedPersona);
+                            if (typeof oSelectCtrl.setSelectedKey === "function") { oSelectCtrl.setSelectedKey(""); }
+                        if (typeof oSelectCtrl.setValue === "function") { oSelectCtrl.setValue(""); }
                         }
                     }
 
@@ -14422,8 +14457,9 @@ sap.ui.define([
                 email: sLower + "@kyra.com",
                 department: sFallbackDept,
                 currentPersona: sFallbackPersona,
-                selectedPersona: sFallbackPersona,
-                targetPersona: sFallbackPersona,
+                selectedPersona: "",
+                selectedPersonaText: "",
+                targetPersona: "",
                 sourceTable: sFallbackTable,
                 status: "Active",
                 entitlementsCount: 0,
@@ -14446,7 +14482,8 @@ sap.ui.define([
                     }
                 }
                 if (typeof oSelectCtrl.setSelectedKey === "function") {
-                    oSelectCtrl.setSelectedKey(sFallbackPersona);
+                    if (typeof oSelectCtrl.setSelectedKey === "function") { oSelectCtrl.setSelectedKey(""); }
+                if (typeof oSelectCtrl.setValue === "function") { oSelectCtrl.setValue(""); }
                 }
             }
 
@@ -14456,10 +14493,12 @@ sap.ui.define([
         onAdminPersonaDropdownChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const sSelected = (oEvent && oEvent.getParameter("selectedItem")) ? oEvent.getParameter("selectedItem").getKey() : "";
-            const sKey = sSelected || oModel.getProperty("/personaLookupUser/selectedPersona") || "Requester";
-            oModel.setProperty("/personaLookupUser/selectedPersona", sKey);
-            oModel.setProperty("/personaLookupUser/targetPersona", sKey);
+            const oItem = oEvent && typeof oEvent.getParameter === "function" ? oEvent.getParameter("selectedItem") : null;
+            const sKey = oItem ? oItem.getKey() : (oEvent && typeof oEvent.getParameter === "function" ? (oEvent.getParameter("value") || "") : "");
+            const sClean = (sKey || "").trim();
+            oModel.setProperty("/personaLookupUser/selectedPersona", sClean);
+            oModel.setProperty("/personaLookupUser/targetPersona", sClean);
+            oModel.setProperty("/personaLookupUser/selectedPersonaText", sClean);
         },
 
         onToggleLookupUserStatus() {
@@ -14601,6 +14640,24 @@ sap.ui.define([
             }
         },
 
+        _formatDeptUser(u, sTargetPersona) {
+            const aValid = ["Requester", "Approver", "Compliance Reviewer"];
+            const sCur = aValid.indexOf(u.currentPersona) !== -1 ? u.currentPersona : "Requester";
+            const bSel = !!u.selected;
+            const sTgt = bSel && sTargetPersona && aValid.indexOf(sTargetPersona) !== -1 ? sTargetPersona : (u.targetPersona && aValid.indexOf(u.targetPersona) !== -1 && bSel ? u.targetPersona : sCur);
+            const sDisplay = bSel ? sTgt : sCur;
+            const sClass = sDisplay === "Approver" ? "kyraPersonaApprover" : (sDisplay === "Compliance Reviewer" ? "kyraPersonaCompliance" : "kyraPersonaRequester");
+            const sIcon = sDisplay === "Approver" ? "sap-icon://employee-approvals" : (sDisplay === "Compliance Reviewer" ? "sap-icon://shield" : "sap-icon://person-placeholder");
+            return Object.assign({}, u, {
+                selected: bSel,
+                currentPersona: sCur,
+                targetPersona: sTgt,
+                displayedPersona: sDisplay,
+                personaBadgeClass: sClass,
+                personaIcon: sIcon
+            });
+        },
+
         async onPreviewDepartmentUsers(sExplicitDept) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -14690,7 +14747,37 @@ sap.ui.define([
             oModel.refresh(true);
         },
 
+        onDeptUserRowPress(oEvent) {
+            if (this._bCheckboxJustClicked) {
+                return;
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const oSource = oEvent && oEvent.getSource ? oEvent.getSource() : null;
+            const oCtx = oSource && oSource.getBindingContext ? oSource.getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+
+            const oUser = oModel.getProperty(oCtx.getPath());
+            if (!oUser) return;
+
+            const bNewSelected = !oUser.selected;
+            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
+            const oUpdated = this._formatDeptUser(Object.assign({}, oUser, { selected: bNewSelected }), sTargetPersona);
+            oModel.setProperty(oCtx.getPath(), oUpdated);
+
+            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
+            const nSelected = aUsers.filter(function(u) { return !!u.selected; }).length;
+            const bAllSelected = aUsers.length > 0 && nSelected === aUsers.length;
+
+            oModel.setProperty("/departmentPersonaSelectedCount", nSelected);
+            oModel.setProperty("/departmentPersonaAllSelected", bAllSelected);
+            oModel.refresh(true);
+        },
+
         onDeptUserCheckboxToggle(oEvent) {
+            this._bCheckboxJustClicked = true;
+            setTimeout(() => { this._bCheckboxJustClicked = false; }, 300);
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -14731,7 +14818,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/departmentPersona/departmentName", "");
-            oModel.setProperty("/departmentPersona/targetPersona", "Requester");
+            oModel.setProperty("/departmentPersona/targetPersona", "");
             oModel.setProperty("/departmentPersonaUsers", []);
             oModel.setProperty("/departmentPersonaAllSelected", false);
             oModel.setProperty("/departmentPersonaSelectedCount", 0);
