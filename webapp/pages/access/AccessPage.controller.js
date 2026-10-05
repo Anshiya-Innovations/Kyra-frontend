@@ -2320,23 +2320,30 @@ sap.ui.define([
                             oPendingGrouped[sPendKey].conflicting_role = r.conflicting_role;
                         }
                     }
-                    oPendingGrouped[sPendKey].entitlements.push({
-                        requestId: r.request_number,
-                        system: r.target_system,
-                        roleName: r.role_name,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: "Pending",
-                        statusState: "Warning",
-                        statusIcon: "sap-icon://pending",
-                        comment: r.reviewer_comment || r.comments || "",
-                        hasConflict: hasConflict,
-                        has_conflict: hasConflict,
-                        conflictingRole: r.conflicting_role || "",
-                        conflicting_role: r.conflicting_role || ""
-                    });
+                    if (!oPendingGrouped[sPendKey]._seenEnts) {
+                        oPendingGrouped[sPendKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oPendingGrouped[sPendKey]._seenEnts.has(sEntUnique)) {
+                        oPendingGrouped[sPendKey]._seenEnts.add(sEntUnique);
+                        oPendingGrouped[sPendKey].entitlements.push({
+                            requestId: r.request_number,
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: "Pending",
+                            statusState: "Warning",
+                            statusIcon: "sap-icon://pending",
+                            comment: r.reviewer_comment || r.comments || "",
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || ""
+                        });
+                    }
                     return;
                 }
 
@@ -2400,19 +2407,26 @@ sap.ui.define([
                             oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
                         }
                     }
-                    oGrouped[sGroupKey].entitlements.push({
-                        requestId: r.request_number,
-                        system: r.target_system,
-                        roleName: r.role_name,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: bRoleApproved ? "Approved" : "Rejected",
-                        statusState: bRoleApproved ? "Success" : "Error",
-                        statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
-                        comment: r.approver_comment || r.reviewer_comment || r.comments || ""
-                    });
+                    if (!oGrouped[sGroupKey]._seenEnts) {
+                        oGrouped[sGroupKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oGrouped[sGroupKey]._seenEnts.has(sEntUnique)) {
+                        oGrouped[sGroupKey]._seenEnts.add(sEntUnique);
+                        oGrouped[sGroupKey].entitlements.push({
+                            requestId: r.request_number,
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: bRoleApproved ? "Approved" : "Rejected",
+                            statusState: bRoleApproved ? "Success" : "Error",
+                            statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
+                            comment: r.approver_comment || r.reviewer_comment || r.comments || ""
+                        });
+                    }
                 }
             });
 

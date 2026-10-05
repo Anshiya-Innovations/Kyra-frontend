@@ -1542,7 +1542,16 @@ sap.ui.define([
             const sUi5State = (sOverallStatus === "Approved") ? "Success" : ((sOverallStatus === "Rejected") ? "Error" : "Warning");
             const sUi5Icon = (sOverallStatus === "Approved") ? "sap-icon://sys-enter-2" : ((sOverallStatus === "Rejected") ? "sap-icon://error" : "sap-icon://alert");
 
-            let aEntitlementsFormatted = (oData.entitlements || []).map(e => {
+            const rawDetailEnts = oData.entitlements || [];
+            const seenDetailEnts = new Set();
+            const aDedupedDetailEnts = rawDetailEnts.filter(e => {
+                const sKey = `${e.requestId || oData.requestId || ''}:::${e.system || oData.system || ''}:::${e.roleName || e.team || ''}:::${e.selectedPersona || e.persona || ''}`;
+                if (seenDetailEnts.has(sKey)) return false;
+                seenDetailEnts.add(sKey);
+                return true;
+            });
+
+            let aEntitlementsFormatted = aDedupedDetailEnts.map(e => {
                 const isRej = (e.status || "").toLowerCase().includes("reject");
                 return {
                     requestId: e.requestId || oData.requestId,
@@ -1915,7 +1924,15 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value && data.value.length > 0) {
-                    const aRawData = data.value.slice();
+                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const seenRawReqs = new Set();
+                    const aRawData = rawList.filter(r => {
+                        const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                        if (!sNum) return true;
+                        if (seenRawReqs.has(sNum)) return false;
+                        seenRawReqs.add(sNum);
+                        return true;
+                    });
                     let oDecidedMap = window._kyraDecidedRequestsMap || {};
                     try {
                         const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");

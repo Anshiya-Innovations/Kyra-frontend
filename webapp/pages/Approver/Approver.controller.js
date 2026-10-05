@@ -398,13 +398,33 @@ sap.ui.define([
 
         _showDecisionSummarySlide(oData, bReadOnly) {
             const oModel = this.getView().getModel("accessModel");
-            const aEntitlements = oData.entitlements || [];
+            const rawEntitlements = oData.entitlements || [];
+            const seenEntSummary = new Set();
+            const aEntitlements = rawEntitlements.filter(e => {
+                const sReq = (e.requestId || e.request_number || e.requestNumber || '').trim();
+                const sSys = (e.system || oData.system || '').trim();
+                const sRole = (e.roleName || e.role_name || e.team || '').trim();
+                const sPersona = (e.selectedPersona || e.selected_persona || e.persona || oData.persona || '').trim();
+                const sKey = sReq ? `${sReq}:::${sSys}:::${sRole}:::${sPersona}` : `${sSys}:::${sRole}:::${sPersona}`;
+                if (seenEntSummary.has(sKey)) return false;
+                seenEntSummary.add(sKey);
+                return true;
+            });
 
-            const aApprovedItems = aEntitlements.filter(e => e.status === "Approved");
-            const aRejectedItems = aEntitlements.filter(e => e.status === "Rejected");
-            const aPendingItems = aEntitlements.filter(e => e.status !== "Approved" && e.status !== "Rejected");
+            const aApprovedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "approved" || s.includes("approved") || s === "success";
+            });
+            const aRejectedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "rejected" || s.includes("reject") || s === "error";
+            });
+            const aPendingItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return !s.includes("approved") && !s.includes("reject") && s !== "success" && s !== "error";
+            });
 
-            const aFinalApproved = aApprovedItems.concat(aPendingItems);
+            const aFinalApproved = bReadOnly ? aApprovedItems : aApprovedItems.concat(aPendingItems);
 
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
             const sOverallBadgeClass = aRejectedItems.length === 0 ? "kyra-badge-approved" : (aFinalApproved.length === 0 ? "kyra-badge-rejected" : "kyra-badge-partial");
@@ -772,6 +792,15 @@ sap.ui.define([
             const sDate = new Date().toISOString().split("T")[0];
             const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
 
+            const rawSubmitEnts = oData.entitlements || [];
+            const seenSubmitEnts = new Set();
+            const aDedupedSubmitEnts = rawSubmitEnts.filter(e => {
+                const sKey = `${e.requestId || oData.requestId || ''}:::${e.system || oData.system || ''}:::${e.roleName || e.team || ''}:::${e.selectedPersona || e.persona || ''}`;
+                if (seenSubmitEnts.has(sKey)) return false;
+                seenSubmitEnts.add(sKey);
+                return true;
+            });
+
             const oProcessedItem = Object.assign({}, oData, {
                 requesterName: "Requester",
                 persona: "Requester",
@@ -779,15 +808,19 @@ sap.ui.define([
                 statusState: sOverallState,
                 statusIcon: sStatusIcon,
                 decisionDate: sDate,
-                entitlements: (oData.entitlements || []).map(e => ({
+                entitlements: aDedupedSubmitEnts.map(e => ({
+                    requestId: e.requestId || oData.requestId,
                     system: e.system,
                     roleName: e.roleName,
                     team: e.team,
+                    selectedPersona: e.selectedPersona || oData.selectedPersona || oData.persona || "",
+                    persona: e.persona || oData.persona || "",
                     grantedDate: e.grantedDate,
                     expiryDate: e.expiryDate,
                     status: e.status === "Rejected" ? "Rejected" : "Approved",
                     statusState: e.status === "Rejected" ? "Error" : "Success",
-                    statusIcon: e.status === "Rejected" ? "sap-icon://error" : "sap-icon://sys-enter-2"
+                    statusIcon: e.status === "Rejected" ? "sap-icon://error" : "sap-icon://sys-enter-2",
+                    comment: e.comment || ""
                 }))
             });
 
@@ -1296,24 +1329,31 @@ sap.ui.define([
                             oPendingGrouped[sPendKey].conflicting_role = r.conflicting_role;
                         }
                     }
-                    oPendingGrouped[sPendKey].entitlements.push({
-                        requestId: r.request_number || r.requestId,
-                        system: r.target_system || r.system,
-                        roleName: r.role_name || r.roleName,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: "Pending",
-                        statusState: "Warning",
-                        statusIcon: "sap-icon://pending",
-                        approverRemark: r.approver_comment || r.approverRemark || "",
-                        comment: r.reviewer_comment || r.comments || "",
-                        hasConflict: hasConflict,
-                        has_conflict: hasConflict,
-                        conflictingRole: r.conflicting_role || "",
-                        conflicting_role: r.conflicting_role || ""
-                    });
+                    if (!oPendingGrouped[sPendKey]._seenEnts) {
+                        oPendingGrouped[sPendKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oPendingGrouped[sPendKey]._seenEnts.has(sEntUnique)) {
+                        oPendingGrouped[sPendKey]._seenEnts.add(sEntUnique);
+                        oPendingGrouped[sPendKey].entitlements.push({
+                            requestId: r.request_number || r.requestId,
+                            system: r.target_system || r.system,
+                            roleName: r.role_name || r.roleName,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: "Pending",
+                            statusState: "Warning",
+                            statusIcon: "sap-icon://pending",
+                            approverRemark: r.approver_comment || r.approverRemark || "",
+                            comment: r.reviewer_comment || r.comments || "",
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || ""
+                        });
+                    }
                     return;
                 }
 
@@ -1377,19 +1417,26 @@ sap.ui.define([
                             oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
                         }
                     }
-                    oGrouped[sGroupKey].entitlements.push({
-                        requestId: r.request_number || r.requestId,
-                        system: r.target_system || r.system,
-                        roleName: r.role_name || r.roleName,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: bRoleApproved ? "Approved" : "Rejected",
-                        statusState: bRoleApproved ? "Success" : "Error",
-                        statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
-                        comment: r.approver_comment || r.reviewer_comment || r.comments || ""
-                    });
+                    if (!oGrouped[sGroupKey]._seenEnts) {
+                        oGrouped[sGroupKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oGrouped[sGroupKey]._seenEnts.has(sEntUnique)) {
+                        oGrouped[sGroupKey]._seenEnts.add(sEntUnique);
+                        oGrouped[sGroupKey].entitlements.push({
+                            requestId: r.request_number || r.requestId,
+                            system: r.target_system || r.system,
+                            roleName: r.role_name || r.roleName,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: bRoleApproved ? "Approved" : "Rejected",
+                            statusState: bRoleApproved ? "Success" : "Error",
+                            statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
+                            comment: r.approver_comment || r.reviewer_comment || r.comments || ""
+                        });
+                    }
                 }
             });
 
@@ -1550,9 +1597,27 @@ sap.ui.define([
                                 existing.updatedAtRaw = sp.updatedAtRaw || existing.updatedAtRaw;
                                 existing.updated_at = sp.updated_at || existing.updated_at;
                             }
+                            if (existing.entitlements && existing.entitlements.length > 0) {
+                                const seenE = new Set();
+                                existing.entitlements = existing.entitlements.filter(e => {
+                                    const sKey = `${e.requestId || ''}:::${e.system || ''}:::${e.roleName || ''}:::${e.selectedPersona || ''}`;
+                                    if (seenE.has(sKey)) return false;
+                                    seenE.add(sKey);
+                                    return true;
+                                });
+                            }
                         } else {
                             if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
                             if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
+                            if (sp.entitlements && sp.entitlements.length > 0) {
+                                const seenE = new Set();
+                                sp.entitlements = sp.entitlements.filter(e => {
+                                    const sKey = `${e.requestId || ''}:::${e.system || ''}:::${e.roleName || ''}:::${e.selectedPersona || ''}`;
+                                    if (seenE.has(sKey)) return false;
+                                    seenE.add(sKey);
+                                    return true;
+                                });
+                            }
                             aProcessed.unshift(sp);
                         }
                     }
@@ -1718,7 +1783,15 @@ sap.ui.define([
                 } catch(e) {}
             }
             if (aInitialData && aInitialData.length > 0) {
-                this._applyLoadedApproverData(oModel, aInitialData.slice(), isCompliance);
+                const seenInit = new Set();
+                const aDedupedInit = aInitialData.filter(r => {
+                    const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                    if (!sNum) return true;
+                    if (seenInit.has(sNum)) return false;
+                    seenInit.add(sNum);
+                    return true;
+                });
+                this._applyLoadedApproverData(oModel, aDedupedInit, isCompliance);
             }
 
             // ── STEP 2: BACKGROUND REVALIDATION WITH SINGLE-FLIGHT COALESCING ────
@@ -1751,7 +1824,15 @@ sap.ui.define([
                 }
 
                 if (data && data.value && data.value.length > 0) {
-                    const aRawData = data.value.slice();
+                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const seenRawReqs = new Set();
+                    const aRawData = rawList.filter(r => {
+                        const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                        if (!sNum) return true;
+                        if (seenRawReqs.has(sNum)) return false;
+                        seenRawReqs.add(sNum);
+                        return true;
+                    });
                     let oDecidedMap = window._kyraDecidedRequestsMap || {};
                     try {
                         const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
