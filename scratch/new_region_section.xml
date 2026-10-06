@@ -1,0 +1,40 @@
+<VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                <HBox alignItems="Center">
+                                    <core:Icon src="sap-icon://locate-me" size="18px" color="#008C9C" class="sapUiTinyMarginEnd" />
+                                    <Title text="{= 'Region (' + (${accessModel>/adminRegions} ? ${accessModel>/adminRegions}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
+                                </HBox>
+                            </HBox>
+
+                            <Table id="adminRegionsTable"
+                                items="{accessModel>/adminRegions}"
+                                fixedLayout="true"
+                                class="sapUiNoMargin kyraAdminCleanTable">
+                                <columns>
+                                    <Column width="50%" hAlign="Begin"><Text text="REGION" class="kyraAdminColHeader" /></Column>
+                                    <Column width="30%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="20%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
+                                        <cells>
+                                            <Text text="{accessModel>regionName}" class="kyraAdminCellBold" />
+                                            <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                <customData>
+                                                    <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
+                                                </customData>
+                                                <HBox class="kyraAdminVectorDot" />
+                                                <Text text="{accessModel>status}" class="kyraAdminPillText" />
+                                            </HBox>
+                                            <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                                <Button
+                                                    icon="sap-icon://edit"
+                                                    press=".onEditAdminRegion"
+                                                    class="kyraAdminSystemEditBtn"
+                                                    tooltip="Edit Region" />
+                                            </HBox>
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>

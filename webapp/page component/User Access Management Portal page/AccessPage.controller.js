@@ -28,6 +28,15 @@ sap.ui.define([
         return p;
     }
 
+    function getBaseReqId(num) {
+        if (!num) return "";
+        const str = String(num).trim();
+        const parts = str.split("-");
+        if (parts.length >= 3) {
+            return parts.slice(0, 3).join("-");
+        }
+        return str;
+    }
 
     function calculateExpiryDays(durationStr, grantedDateInput) {
         const rawDur = String(durationStr || "").trim();
@@ -393,6 +402,60 @@ sap.ui.define([
                     { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "8", status: "Active", createdDate: "2025-02-14" },
                     { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-03-01" }
                 ],
+                adminBusinessSectorsAll: [
+                    { sectorName: "Technology", status: "Active", selected: false },
+                    { sectorName: "Finance", status: "Active", selected: true },
+                    { sectorName: "Operations", status: "Active", selected: false }
+                ],
+                adminBusinessSectors: [
+                    { sectorName: "Technology", status: "Active", selected: false },
+                    { sectorName: "Finance", status: "Active", selected: true },
+                    { sectorName: "Operations", status: "Active", selected: false }
+                ],
+                selectedAdminBusinessSectorName: "Finance",
+                adminBusinessFunctions: [
+                    { name: "Financial Planning & Analysis" },
+                    { name: "Accounts Payable" },
+                    { name: "Accounts Receivable" },
+                    { name: "Treasury Management" }
+                ],
+                adminBusinessFunctionsMap: {
+                    "Technology": [
+                        { name: "Cloud Infrastructure" },
+                        { name: "Application Architecture" },
+                        { name: "Data Engineering" },
+                        { name: "Security & Compliance" }
+                    ],
+                    "Finance": [
+                        { name: "Financial Planning & Analysis" },
+                        { name: "Accounts Payable" },
+                        { name: "Accounts Receivable" },
+                        { name: "Treasury Management" }
+                    ],
+                    "Operations": [
+                        { name: "Supply Chain Logistics" },
+                        { name: "Facilities Management" },
+                        { name: "Procurement & Sourcing" }
+                    ]
+                },
+                adminRegionsAll: [
+                    { regionName: "APAC", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "EMEA", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "Americas", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "LATAM", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "US-East", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "US-West", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "EU-Central", status: "Active", creationDate: "2025-01-15" }
+                ],
+                adminRegions: [
+                    { regionName: "APAC", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "EMEA", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "Americas", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "LATAM", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "US-East", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "US-West", status: "Active", creationDate: "2025-01-15" },
+                    { regionName: "EU-Central", status: "Active", creationDate: "2025-01-15" }
+                ],
                 adminSystems: [
                     { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" },
                     { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "8", status: "Active", createdDate: "2025-01-12" },
@@ -753,6 +816,34 @@ sap.ui.define([
                     requestNumber: sReqId
                 });
             };
+
+            // Ensure clicking anywhere inside a Team card triggers team selection
+            if (!this._bTeamCardClickBound) {
+                this._bTeamCardClickBound = true;
+                document.addEventListener("click", (e) => {
+                    const cardEl = e.target.closest(".kyraAdminClassItemCard");
+                    if (!cardEl) return;
+                    if (e.target.closest(".kyraAdminTeamStatusPill")) return;
+
+                    const oControl = sap.ui.getCore().byId(cardEl.id);
+                    if (oControl && oControl.getBindingContext) {
+                        const oCtx = oControl.getBindingContext("accessModel");
+                        if (oCtx && oCtx.getObject()) {
+                            this.onSelectAdminClassification({
+                                getSource: () => oControl
+                            });
+                            return;
+                        }
+                    }
+                    const linkEl = cardEl.querySelector(".kyraAdminClassItemLink");
+                    const oLinkCtrl = linkEl ? sap.ui.getCore().byId(linkEl.id) : null;
+                    if (oLinkCtrl) {
+                        this.onSelectAdminClassification({
+                            getSource: () => oLinkCtrl
+                        });
+                    }
+                }, true);
+            }
         },
 
         _notifyDatabaseMutation() {
@@ -1809,16 +1900,23 @@ sap.ui.define([
                     oModel.setProperty("/approverPendingTab", "accessRequests");
                 }
                 
-                if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
-                    oModel.setProperty("/showApprovalHistory", true);
+                const bShowApprovalHist = sessionStorage.getItem("kyra_show_approval_history") === "true";
+                oModel.setProperty("/showApprovalHistory", bShowApprovalHist);
+                const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+                if (oCompModel && oCompModel !== oModel) {
+                    oCompModel.setProperty("/showApprovalHistory", bShowApprovalHist);
+                }
+                if (bShowApprovalHist) {
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
-                    // Preserve kyra_show_approval_history across route navigation
+                    if (oCompModel && oCompModel !== oModel) {
+                        oCompModel.setProperty("/selectedTabKey", "myAccess");
+                        oCompModel.setProperty("/showRequestDetailsPage", false);
+                    }
                     this._loadSubmittedRequests(oModel, true);
                 } else {
-                    oModel.setProperty("/showApprovalHistory", false);
                     this._loadSubmittedRequests(oModel, true);
                 }
             }
@@ -2001,11 +2099,12 @@ sap.ui.define([
 
             const getBaseReqId = (num) => {
                 if (!num) return "";
-                const lastDash = num.lastIndexOf('-');
-                if (lastDash > 0 && lastDash >= num.length - 4) {
-                    return num.slice(0, lastDash);
+                const str = String(num).trim();
+                const parts = str.split("-");
+                if (parts.length >= 3) {
+                    return parts.slice(0, 3).join("-");
                 }
-                return num;
+                return str;
             };
 
             const aSortedRecords = (aRawRecords || []).slice().sort((a, b) => {
@@ -2035,7 +2134,7 @@ sap.ui.define([
                                 (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
                     if (dec) {
                         const sDecStatus = (dec.status || "").toUpperCase();
-                        if (dec.role === "compliance" || isCompliance) {
+                        if (dec.isCompliance || (dec.actorRole && dec.actorRole.toLowerCase().includes("compliance")) || dec.role === "compliance" || isCompliance) {
                             r.compliance_status = sDecStatus;
                             r.compliance_decision_status = sDecStatus;
                             r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
@@ -2278,23 +2377,30 @@ sap.ui.define([
                             oPendingGrouped[sPendKey].conflicting_role = r.conflicting_role;
                         }
                     }
-                    oPendingGrouped[sPendKey].entitlements.push({
-                        requestId: r.request_number,
-                        system: r.target_system,
-                        roleName: r.role_name,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: "Pending",
-                        statusState: "Warning",
-                        statusIcon: "sap-icon://pending",
-                        comment: r.reviewer_comment || r.comments || "",
-                        hasConflict: hasConflict,
-                        has_conflict: hasConflict,
-                        conflictingRole: r.conflicting_role || "",
-                        conflicting_role: r.conflicting_role || ""
-                    });
+                    if (!oPendingGrouped[sPendKey]._seenEnts) {
+                        oPendingGrouped[sPendKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oPendingGrouped[sPendKey]._seenEnts.has(sEntUnique)) {
+                        oPendingGrouped[sPendKey]._seenEnts.add(sEntUnique);
+                        oPendingGrouped[sPendKey].entitlements.push({
+                            requestId: r.request_number,
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: "Pending",
+                            statusState: "Warning",
+                            statusIcon: "sap-icon://pending",
+                            comment: r.reviewer_comment || r.comments || "",
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || ""
+                        });
+                    }
                     return;
                 }
 
@@ -2358,19 +2464,26 @@ sap.ui.define([
                             oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
                         }
                     }
-                    oGrouped[sGroupKey].entitlements.push({
-                        requestId: r.request_number,
-                        system: r.target_system,
-                        roleName: r.role_name,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: bRoleApproved ? "Approved" : "Rejected",
-                        statusState: bRoleApproved ? "Success" : "Error",
-                        statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
-                        comment: r.approver_comment || r.reviewer_comment || r.comments || ""
-                    });
+                    if (!oGrouped[sGroupKey]._seenEnts) {
+                        oGrouped[sGroupKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oGrouped[sGroupKey]._seenEnts.has(sEntUnique)) {
+                        oGrouped[sGroupKey]._seenEnts.add(sEntUnique);
+                        oGrouped[sGroupKey].entitlements.push({
+                            requestId: r.request_number,
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: bRoleApproved ? "Approved" : "Rejected",
+                            statusState: bRoleApproved ? "Success" : "Error",
+                            statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
+                            comment: r.approver_comment || r.reviewer_comment || r.comments || ""
+                        });
+                    }
                 }
             });
 
@@ -2424,7 +2537,15 @@ sap.ui.define([
             const aApproverPending = Object.values(oPendingGrouped).filter(p => {
                 const pId = String(p.requestId || p.request_number || "").toUpperCase();
                 const pBase = getBaseReqId(pId).toUpperCase();
-                return !processedBaseIdsInner.has(pId) && !processedBaseIdsInner.has(pBase);
+                if (processedBaseIdsInner.has(pId) || processedBaseIdsInner.has(pBase)) return false;
+                if (p.entitlements && p.entitlements.some(e => {
+                    const eId = String(e.requestId || "").trim().toUpperCase();
+                    const eBase = getBaseReqId(eId).toUpperCase();
+                    return processedBaseIdsInner.has(eId) || (eBase && processedBaseIdsInner.has(eBase));
+                })) {
+                    return false;
+                }
+                return true;
             });
             const getPendingTimeAccess = (r) => {
                 const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
@@ -2477,9 +2598,15 @@ sap.ui.define([
             this._bNeedsFollowUpReload = false;
             const iStartEpoch = window._kyraDecisionMutationEpoch || 0;
 
+            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
+            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
+            const sRoleLower = (sActiveRole || "").toLowerCase();
+            const isCompliancePersona = sRoleLower.includes("compliance");
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
+            const isReviewerRole = bIsApprover || isCompliancePersona;
+
             const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
-            const sRoleCheck = (sessionStorage.getItem("kyra_active_role") || "").toLowerCase();
-            const bIsReviewerCheck = sRoleCheck.includes("compliance") || sRoleCheck.includes("approver");
+            const bIsReviewerCheck = isReviewerRole;
 
             if (!bSilent && !bHasWarmCache && !bIsReviewerCheck) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
@@ -2495,7 +2622,14 @@ sap.ui.define([
 
             let aRawDbRequests = [];
             if (window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
-                aRawDbRequests = window._kyraCachedGovRequests.slice();
+                const seenCachedReqs = new Set();
+                aRawDbRequests = window._kyraCachedGovRequests.filter(r => {
+                    const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                    if (!sNum) return true;
+                    if (seenCachedReqs.has(sNum)) return false;
+                    seenCachedReqs.add(sNum);
+                    return true;
+                });
             }
 
             try {
@@ -2527,7 +2661,15 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value) {
-                    aRawDbRequests = data.value.slice();
+                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const seenRawReqs = new Set();
+                    aRawDbRequests = rawList.filter(r => {
+                        const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                        if (!sNum) return true;
+                        if (seenRawReqs.has(sNum)) return false;
+                        seenRawReqs.add(sNum);
+                        return true;
+                    });
                     let oDecidedMap = window._kyraDecidedRequestsMap || {};
                     try {
                         const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
@@ -2621,12 +2763,6 @@ sap.ui.define([
                 return;
             }
 
-            const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
-            const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
-            const sRoleLower = (sActiveRole || "").toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
-            const isReviewerRole = bIsApprover || isCompliancePersona;
             oModel.setProperty("/activeRole", sActiveRole);
             oModel.setProperty("/isApproverPersona", bIsApprover);
             oModel.setProperty("/isCompliance", isCompliancePersona);
@@ -2991,22 +3127,29 @@ sap.ui.define([
                     };
                 }
 
-                oGrouped[sGroupKey].entitlements.push({
-                    requestId: r.request_number,
-                    system: r.target_system,
-                    roleName: r.role_name,
-                    team: r.role_name,
-                    services: sServiceTopic,
-                    serviceTopic: sServiceTopic,
-                    service: sServiceTopic,
-                    selectedPersona: r.selected_persona || "User",
-                    persona: r.selected_persona || "User",
-                    grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "",
-                    expiryDate: r.access_duration,
-                    status: isPendingForRole ? (isRevocationReq ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
-                    statusState: sState,
-                    statusIcon: sIcon
-                });
+                if (!oGrouped[sGroupKey]._seenEnts) {
+                    oGrouped[sGroupKey]._seenEnts = new Set();
+                }
+                const sEntUniqueKey = (r.request_number || "") + ":::" + (r.target_system || "") + ":::" + (r.role_name || "") + ":::" + (r.selected_persona || "");
+                if (!oGrouped[sGroupKey]._seenEnts.has(sEntUniqueKey)) {
+                    oGrouped[sGroupKey]._seenEnts.add(sEntUniqueKey);
+                    oGrouped[sGroupKey].entitlements.push({
+                        requestId: r.request_number,
+                        system: r.target_system,
+                        roleName: r.role_name,
+                        team: r.role_name,
+                        services: sServiceTopic,
+                        serviceTopic: sServiceTopic,
+                        service: sServiceTopic,
+                        selectedPersona: r.selected_persona || "User",
+                        persona: r.selected_persona || "User",
+                        grantedDate: r.granted_date || (r.created_at ? r.created_at.split("T")[0] : null) || r.submissionDate || "",
+                        expiryDate: r.access_duration,
+                        status: isPendingForRole ? (isRevocationReq ? "Revoke Pending" : "Pending") : (bRoleApproved ? "Approved" : "Rejected"),
+                        statusState: sState,
+                        statusIcon: sIcon
+                    });
+                }
             });
 
             if (this._localInFlightRevocations) {
@@ -3205,31 +3348,42 @@ sap.ui.define([
                 return (b.requestId || "").localeCompare(a.requestId || "");
             });
 
-            const oReqCountsPending = {};
-            aMyPending.forEach(p => { oReqCountsPending[p.requestId] = (oReqCountsPending[p.requestId] || 0) + 1; });
-            const oReqIndexPending = {};
+            const seenPendingReqIds = new Set();
+            const aDeduplicatedMyPending = [];
             aMyPending.forEach(p => {
-                if (oReqCountsPending[p.requestId] > 1) {
-                    oReqIndexPending[p.requestId] = (oReqIndexPending[p.requestId] || 0) + 1;
-                    const sPad = String(oReqIndexPending[p.requestId]).padStart(2, "0");
-                    p.requestId = `${p.requestId}-${sPad}`;
+                const sId = (p.requestId || p.request_number || "").trim();
+                const sItemKey = sId || `${p.system}:::${p.roleName}:::${p.selectedPersona}`;
+                if (!seenPendingReqIds.has(sItemKey)) {
+                    seenPendingReqIds.add(sItemKey);
+                    aDeduplicatedMyPending.push(p);
                 }
             });
 
-            const oReqCountsHist = {};
-            aMyHistory.forEach(h => { oReqCountsHist[h.requestId] = (oReqCountsHist[h.requestId] || 0) + 1; });
-            const oReqIndexHist = {};
+            const seenHistReqIds = new Set();
+            const aDeduplicatedMyHistory = [];
             aMyHistory.forEach(h => {
-                if (oReqCountsHist[h.requestId] > 1) {
-                    oReqIndexHist[h.requestId] = (oReqIndexHist[h.requestId] || 0) + 1;
-                    const sPad = String(oReqIndexHist[h.requestId]).padStart(2, "0");
-                    h.requestId = `${h.requestId}-${sPad}`;
+                const sId = (h.requestId || h.request_number || "").trim();
+                const sItemKey = sId || `${h.system}:::${h.roleName}:::${h.selectedPersona}`;
+                if (!seenHistReqIds.has(sItemKey)) {
+                    seenHistReqIds.add(sItemKey);
+                    aDeduplicatedMyHistory.push(h);
                 }
             });
 
-            this._setSmartProperty(oModel, "/myPendingRequests", aMyPending);
-            this._setSmartProperty(oModel, "/myApprovedRequests", aMyApproved);
-            this._masterMyHistoryRequests = [].concat(aMyHistory || []);
+            const seenAppReqIds = new Set();
+            const aDeduplicatedMyApproved = [];
+            aMyApproved.forEach(a => {
+                const sId = (a.requestId || a.request_number || "").trim();
+                const sItemKey = sId || `${a.system}:::${a.roleName}:::${a.selectedPersona}`;
+                if (!seenAppReqIds.has(sItemKey)) {
+                    seenAppReqIds.add(sItemKey);
+                    aDeduplicatedMyApproved.push(a);
+                }
+            });
+
+            this._setSmartProperty(oModel, "/myPendingRequests", aDeduplicatedMyPending);
+            this._setSmartProperty(oModel, "/myApprovedRequests", aDeduplicatedMyApproved);
+            this._masterMyHistoryRequests = [].concat(aDeduplicatedMyHistory || []);
             const aDisplayedHistory = (typeof this._currentHistoryFilterMatchesItem === "function")
                 ? this._masterMyHistoryRequests.filter(this._currentHistoryFilterMatchesItem)
                 : this._masterMyHistoryRequests;
@@ -3315,11 +3469,12 @@ sap.ui.define([
 
             const getBaseReqId = (num) => {
                 if (!num) return "";
-                const lastDash = num.lastIndexOf('-');
-                if (lastDash > 0 && lastDash >= num.length - 4) {
-                    return num.slice(0, lastDash);
+                const str = String(num).trim();
+                const parts = str.split("-");
+                if (parts.length >= 3) {
+                    return parts.slice(0, 3).join("-");
                 }
-                return num;
+                return str;
             };
 
             const oApproverData = this._buildApproverHistoryAndPending(aRawDbRequests);
@@ -3347,11 +3502,21 @@ sap.ui.define([
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        const bExistsInDb = aFinalProcessed.some(p => {
+                        const existingIdx = aFinalProcessed.findIndex(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
                         });
-                        if (!bExistsInDb) {
+                        if (existingIdx >= 0) {
+                            const existing = aFinalProcessed[existingIdx];
+                            if (sp.status && sp.status !== "Pending" && sp.status !== "Revoke Pending") {
+                                existing.status = sp.status;
+                                existing.statusState = sp.statusState;
+                                existing.statusIcon = sp.statusIcon;
+                                existing.decisionDate = sp.decisionDate || existing.decisionDate;
+                                existing.updatedAtRaw = sp.updatedAtRaw || existing.updatedAtRaw;
+                                existing.updated_at = sp.updated_at || existing.updated_at;
+                            }
+                        } else {
                             if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
                             if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
                             aFinalProcessed.unshift(sp);
@@ -3384,7 +3549,15 @@ sap.ui.define([
                 aApprPending = aApprPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
-                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+                    if (processedBaseIds.has(pId) || processedBaseIds.has(pBase)) return false;
+                    if (p.entitlements && p.entitlements.some(e => {
+                        const eId = String(e.requestId || "").trim().toUpperCase();
+                        const eBase = getBaseReqId(eId).toUpperCase();
+                        return processedBaseIds.has(eId) || (eBase && processedBaseIds.has(eBase));
+                    })) {
+                        return false;
+                    }
+                    return true;
                 });
             } catch(e) {}
 
@@ -3428,6 +3601,34 @@ sap.ui.define([
 
             const sCurrentHistTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
             this._setSmartProperty(oModel, "/displayedHistoryRequests", isCompliancePersona ? aFinalProcessed : (sCurrentHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+
+            if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
+                this._setSmartProperty(oModel, "/showApprovalHistory", true);
+            }
+
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                this._setSmartProperty(oCompModel, "/pendingRequests", isCompliancePersona ? aApprPendingAccess : aApprPending);
+                this._setSmartProperty(oCompModel, "/pendingAccessRequests", aApprPendingAccess);
+                this._setSmartProperty(oCompModel, "/pendingRevokeRequests", aApprPendingRevoke);
+                this._setSmartProperty(oCompModel, "/pendingAccessCount", aApprPendingAccess.length);
+                this._setSmartProperty(oCompModel, "/pendingRevokeCount", aApprPendingRevoke.length);
+                this._setSmartProperty(oCompModel, "/isCompliance", isCompliancePersona);
+                this._setSmartProperty(oCompModel, "/isComplianceReviewer", isCompliancePersona);
+                this._setSmartProperty(oCompModel, "/isCompliancePersona", isCompliancePersona);
+                this._setSmartProperty(oCompModel, "/processedRequests", aFinalProcessed);
+                this._setSmartProperty(oCompModel, "/processedAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/processedRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/historyAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/historyRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/historyAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oCompModel, "/historyRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oCompModel, "/processedCount", aFinalProcessed.length);
+                this._setSmartProperty(oCompModel, "/displayedHistoryRequests", isCompliancePersona ? aFinalProcessed : (sCurrentHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
+                if (sessionStorage.getItem("kyra_show_approval_history") === "true") {
+                    this._setSmartProperty(oCompModel, "/showApprovalHistory", true);
+                }
+            }
 
             this._cachedDbRequests = aRawDbRequests;
             this._loadNotifications(oModel, aRawDbRequests);
@@ -5045,6 +5246,7 @@ sap.ui.define([
                     });
                 }
 
+                let cleanupDropdown = null;
                 const sHtmlContent = `
                     <div class="kyra-notif-box-card">
                         <!-- Top Header matching Image 2 -->
@@ -7113,30 +7315,35 @@ sap.ui.define([
                             const sCleanNewRole = cleanPersonaName(sNewRoleName);
                             const sCleanActivePersona = cleanPersonaName(sActivePersona) || sCleanActiveRole;
                             const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
-                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sCleanActivePersona}:::${sNewSys}:::${sCleanNewRole}:::${sCleanNewPersona}`;
+                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sNewSys}:::${sCleanNewRole}`;
                             if (!activeConflictMap.has(sKey)) {
                                 activeConflictMap.set(sKey, {
                                     system: sNewSys,
                                     existingRole: `${sActiveSys} — ${sCleanActiveRole}`,
-                                    existingPersona: sCleanActivePersona,
+                                    existingPersonas: new Set(),
                                     newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    newPersona: sCleanNewPersona,
+                                    newPersonas: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
+                            const entry = activeConflictMap.get(sKey);
+                            if (sCleanActivePersona) entry.existingPersonas.add(sCleanActivePersona);
+                            if (sCleanNewPersona) entry.newPersonas.add(sCleanNewPersona);
                         }
                     });
                 });
             });
 
             activeConflictMap.forEach(entry => {
+                const sExisting = Array.from(entry.existingPersonas).filter(Boolean).join("\n");
+                const sNew = Array.from(entry.newPersonas).filter(Boolean).join("\n");
                 aActiveConflicts.push({
                     system: entry.system,
                     existingRole: entry.existingRole,
-                    existingPersona: entry.existingPersona,
+                    existingPersona: sExisting,
                     newRole: entry.newRole,
-                    newPersona: entry.newPersona,
+                    newPersona: sNew,
                     conflictTitle: entry.conflictTitle,
                     conflictDesc: entry.conflictDesc
                 });
@@ -7166,30 +7373,35 @@ sap.ui.define([
                             const sCleanNewRole = cleanPersonaName(sNewRoleName);
                             const sCleanPendingPersona = cleanPersonaName(sPendingPersona) || sCleanPendingRole;
                             const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
-                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sCleanPendingPersona}:::${sNewSys}:::${sCleanNewRole}:::${sCleanNewPersona}`;
+                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sNewSys}:::${sCleanNewRole}`;
                             if (!pendingConflictMap.has(sKey)) {
                                 pendingConflictMap.set(sKey, {
                                     system: sNewSys,
                                     existingRole: `${sPendingSys} — ${sCleanPendingRole}`,
-                                    existingPersona: sCleanPendingPersona,
+                                    existingPersonas: new Set(),
                                     newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    newPersona: sCleanNewPersona,
+                                    newPersonas: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
                             }
+                            const entry = pendingConflictMap.get(sKey);
+                            if (sCleanPendingPersona) entry.existingPersonas.add(sCleanPendingPersona);
+                            if (sCleanNewPersona) entry.newPersonas.add(sCleanNewPersona);
                         }
                     });
                 });
             });
 
             pendingConflictMap.forEach(entry => {
+                const sExisting = Array.from(entry.existingPersonas).filter(Boolean).join("\n");
+                const sNew = Array.from(entry.newPersonas).filter(Boolean).join("\n");
                 aPendingConflicts.push({
                     system: entry.system,
                     existingRole: entry.existingRole,
-                    existingPersona: entry.existingPersona,
+                    existingPersona: sExisting,
                     newRole: entry.newRole,
-                    newPersona: entry.newPersona,
+                    newPersona: sNew,
                     conflictTitle: entry.conflictTitle,
                     conflictDesc: entry.conflictDesc
                 });
@@ -7222,12 +7434,26 @@ sap.ui.define([
                             const sCleanPersonaA = cleanPersonaName(sPersonaA) || sCleanRoleA;
                             const sCleanPersonaB = cleanPersonaName(sPersonaB) || sCleanRoleB;
 
-                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sCleanPersonaA}:::${sSysB}:::${sCleanRoleB}:::${sCleanPersonaB}`;
-                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sCleanPersonaB}:::${sSysA}:::${sCleanRoleA}:::${sCleanPersonaA}`;
+                            const sRoleKeyA = `${sSysA}:::${sCleanRoleA}`;
+                            const sRoleKeyB = `${sSysB}:::${sCleanRoleB}`;
 
-                            let targetKey = sKey;
-                            if (batchConflictMap.has(sReverseKey)) {
-                                targetKey = sReverseKey;
+                            let targetKey;
+                            let bIsReverse = false;
+
+                            if (sRoleKeyA === sRoleKeyB) {
+                                const pPair = [sCleanPersonaA, sCleanPersonaB].sort().join(" <-> ");
+                                targetKey = `${sRoleKeyA}:::SAME_ROLE:::${pPair}`;
+                            } else {
+                                const sKeyDirect = `${sRoleKeyA} <===> ${sRoleKeyB}`;
+                                const sKeyReverse = `${sRoleKeyB} <===> ${sRoleKeyA}`;
+
+                                if (batchConflictMap.has(sKeyReverse)) {
+                                    targetKey = sKeyReverse;
+                                    bIsReverse = true;
+                                } else {
+                                    targetKey = sKeyDirect;
+                                    bIsReverse = false;
+                                }
                             }
 
                             if (!batchConflictMap.has(targetKey)) {
@@ -7237,11 +7463,20 @@ sap.ui.define([
                                     roleB: `${sSysB} — ${sCleanRoleB}`,
                                     cleanRoleA: sCleanRoleA,
                                     cleanRoleB: sCleanRoleB,
-                                    personaA: sCleanPersonaA,
-                                    personaB: sCleanPersonaB,
+                                    personasA: new Set(),
+                                    personasB: new Set(),
                                     conflictTitle: "Segregation of Duties (SoD) Conflict",
                                     conflictDesc: sDesc
                                 });
+                            }
+
+                            const entry = batchConflictMap.get(targetKey);
+                            if (!bIsReverse) {
+                                if (sCleanPersonaA) entry.personasA.add(sCleanPersonaA);
+                                if (sCleanPersonaB) entry.personasB.add(sCleanPersonaB);
+                            } else {
+                                if (sCleanPersonaA) entry.personasB.add(sCleanPersonaA);
+                                if (sCleanPersonaB) entry.personasA.add(sCleanPersonaB);
                             }
                         }
                     });
@@ -7249,16 +7484,18 @@ sap.ui.define([
             }
 
             batchConflictMap.forEach(entry => {
+                const sPersonaA = Array.from(entry.personasA).filter(Boolean).join("\n");
+                const sPersonaB = Array.from(entry.personasB).filter(Boolean).join("\n");
                 aBatchConflicts.push({
                     system: entry.system,
                     roleA: entry.roleA,
-                    personaA: entry.personaA,
+                    personaA: sPersonaA,
                     roleB: entry.roleB,
-                    personaB: entry.personaB,
+                    personaB: sPersonaB,
                     existingRole: entry.roleA,
-                    existingPersona: entry.personaA,
+                    existingPersona: sPersonaA,
                     newRole: entry.roleB,
-                    newPersona: entry.personaB,
+                    newPersona: sPersonaB,
                     conflictTitle: entry.conflictTitle || "Segregation of Duties (SoD) Conflict",
                     conflictDesc: entry.conflictDesc
                 });
@@ -7550,10 +7787,20 @@ sap.ui.define([
         },
 
         async onFinalSubmitInPageAddAccess() {
+            if (this._bIsSubmittingInPage) {
+                console.warn("Access request submission is already in flight. Ignoring duplicate click.");
+                return;
+            }
+            this._bIsSubmittingInPage = true;
             const oModel = this.getView().getModel("accessModel");
-            const aSummaryItems = oModel.getProperty("/addAccessSummaryItems") || [];
+            if (oModel) {
+                oModel.setProperty("/isSubmittingAccessRequest", true);
+            }
+            const aSummaryItems = oModel ? (oModel.getProperty("/addAccessSummaryItems") || []) : [];
 
             if (aSummaryItems.length === 0) {
+                this._bIsSubmittingInPage = false;
+                if (oModel) oModel.setProperty("/isSubmittingAccessRequest", false);
                 MessageBox.error("No access items configured to submit.");
                 return;
             }
@@ -7691,6 +7938,10 @@ sap.ui.define([
                 MessageBox.error("Failed to connect to database: " + err.message);
                 return;
             } finally {
+                this._bIsSubmittingInPage = false;
+                if (oModel) {
+                    oModel.setProperty("/isSubmittingAccessRequest", false);
+                }
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
                 } else if (window.hideKyraLoading) {
@@ -8086,6 +8337,7 @@ sap.ui.define([
                 oModel.setProperty("/selectedTabKey", "myRequests");
                 oModel.setProperty("/showHistorySection", true);
                 oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -8127,6 +8379,7 @@ sap.ui.define([
                 oModel.setProperty("/selectedTabKey", "myAccess");
                 oModel.setProperty("/showHistorySection", false);
                 oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -8670,7 +8923,10 @@ sap.ui.define([
                         text: "Cancel",
                         press: () => oDialog.close()
                     }),
-                    afterClose: () => oDialog.destroy()
+                    afterClose: () => {
+                        if (typeof cleanupDropdown === "function") cleanupDropdown();
+                        oDialog.destroy();
+                    }
                 });
 
                 oDialog.open();
@@ -9110,7 +9366,10 @@ sap.ui.define([
                     content: [
                         new HTML({ content: sHtmlContent })
                     ],
-                    afterClose: () => oDialog.destroy()
+                    afterClose: () => {
+                        if (typeof cleanupDropdown === "function") cleanupDropdown();
+                        oDialog.destroy();
+                    }
                 });
 
                 this.getView().addDependent(oDialog);
@@ -11701,9 +11960,11 @@ sap.ui.define([
                 trigger.className = "kyra-custom-dropdown-trigger";
                 const selectedOpt = select.options[select.selectedIndex] || select.options[0];
                 trigger.innerHTML = '<span class="kyra-custom-dropdown-text">' + (selectedOpt ? selectedOpt.text : "") + '</span>' +
-                    '<svg class="kyra-custom-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">' +
+                    '<span class="kyra-custom-dropdown-arrow-box">' +
+                    '<svg class="kyra-custom-dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
                     '<polyline points="6 9 12 15 18 9"></polyline>' +
-                    '</svg>';
+                    '</svg>' +
+                    '</span>';
                 wrapper.appendChild(trigger);
 
                 const menu = document.createElement("div");
@@ -11744,36 +12005,49 @@ sap.ui.define([
                         t.classList.remove("open");
                     });
                     oDomRef.querySelectorAll(".kyra-custom-dropdown-wrapper").forEach(function(w) {
+                        w.classList.remove("open");
                         w.style.zIndex = "";
+                    });
+                    oDomRef.querySelectorAll(".kyra-system-modal-body").forEach(function(b) {
+                        b.style.zIndex = "";
                     });
 
                     if (!isOpen) {
                         menu.style.display = "block";
                         trigger.classList.add("open");
-                        wrapper.style.zIndex = "10000";
-
-                        // Calculate available space below trigger vs above trigger
-                        const triggerRect = trigger.getBoundingClientRect();
-                        const modalBody = oDomRef.querySelector(".kyra-system-modal-body") || oDomRef;
-                        const modalRect = modalBody.getBoundingClientRect();
-                        const spaceBelow = modalRect.bottom - triggerRect.bottom;
-                        const spaceAbove = triggerRect.top - modalRect.top;
-
-                        // Threshold limit is in the bottom row; open upward if space below is limited
-                        if (spaceBelow < 200 && spaceAbove > 130) {
-                            menu.style.top = "auto";
-                            menu.style.bottom = "calc(100% + 6px)";
-                            menu.classList.add("open-upward");
-                        } else {
-                            menu.style.top = "calc(100% + 6px)";
-                            menu.style.bottom = "auto";
-                            menu.classList.remove("open-upward");
+                        wrapper.classList.add("open");
+                        wrapper.style.zIndex = "99999";
+                        const modalBody = wrapper.closest(".kyra-system-modal-body");
+                        if (modalBody) {
+                            modalBody.style.zIndex = "1000";
+                            modalBody.style.overflow = "visible";
+                        }
+                        const card = wrapper.closest(".kyra-system-modal-card");
+                        if (card) {
+                            card.style.overflow = "visible";
+                        }
+                        const section = wrapper.closest(".sapMDialogSection");
+                        if (section) {
+                            section.style.overflow = "visible";
+                        }
+                        const dialogEl = wrapper.closest(".sapMDialog");
+                        if (dialogEl) {
+                            dialogEl.style.overflow = "visible";
                         }
 
-                        // Scroll selected item into view so user sees it clearly
-                        const selectedItem = menu.querySelector(".kyra-custom-dropdown-item.selected");
-                        if (selectedItem) {
-                            selectedItem.scrollIntoView({ block: "nearest" });
+                        // Always open downward below the box (no upbox)
+                        menu.style.top = "calc(100% + 6px)";
+                        menu.style.bottom = "auto";
+                        menu.classList.remove("open-upward");
+
+                        // Start dropdown cleanly at top - never auto-scroll down to bottom
+                        const selItem = menu.querySelector(".kyra-custom-dropdown-item.selected");
+                        if (selItem) {
+                            setTimeout(() => {
+                                selItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                            }, 20);
+                        } else {
+                            menu.scrollTop = 0;
                         }
                     }
                 };
@@ -11790,7 +12064,11 @@ sap.ui.define([
                         t.classList.remove("open");
                     });
                     oDomRef.querySelectorAll(".kyra-custom-dropdown-wrapper").forEach(function(w) {
+                        w.classList.remove("open");
                         w.style.zIndex = "";
+                    });
+                    oDomRef.querySelectorAll(".kyra-system-modal-body").forEach(function(b) {
+                        b.style.zIndex = "";
                     });
                 }
             };
@@ -12187,7 +12465,6 @@ sap.ui.define([
 
             const that = this;
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
-                const sDropdownHtml = that._createCustomStatusDropdownHtml("Active", "kyra_add_svc_status");
                 const sHtmlContent = `
                     <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
@@ -12218,8 +12495,11 @@ sap.ui.define([
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label">STATUS</label>
-                                ${sDropdownHtml}
+                                <label class="kyra-system-modal-label" for="kyra_add_svc_status">STATUS</label>
+                                <select id="kyra_add_svc_status" class="kyra-system-modal-select">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
                             </div>
                         </div>
                         
@@ -12230,7 +12510,6 @@ sap.ui.define([
                     </div>
                 `;
 
-                let cleanupDropdown = null;
                 const oDialog = new Dialog({
                     showHeader: false,
                     contentWidth: "480px",
@@ -12242,7 +12521,7 @@ sap.ui.define([
                     afterOpen: () => {
                         const oDom = oDialog.getDomRef();
                         if (!oDom) return;
-                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_add_svc_status");
+                        that._enhanceModalDropdowns(oDom);
 
                         const closeFn = () => oDialog.close();
                         const closeX = oDom.querySelector(".kyra-modal-close-btn");
@@ -12265,8 +12544,8 @@ sap.ui.define([
                                     MessageToast.show("Please enter a Service name.");
                                     return;
                                 }
-                                const statusInput = oDom.querySelector("#kyra_add_svc_status_input");
-                                const sStatus = statusInput ? statusInput.value : "Active";
+                                const statusSelect = oDom.querySelector("#kyra_add_svc_status");
+                                const sStatus = statusSelect ? statusSelect.value : "Active";
 
                                 const aAll = (oModel.getProperty("/adminServicesAll") || []).slice();
                                 aAll.push({
@@ -12290,7 +12569,6 @@ sap.ui.define([
                         }
                     },
                     afterClose: () => {
-                        if (typeof cleanupDropdown === "function") cleanupDropdown();
                         oDialog.destroy();
                     }
                 });
@@ -12313,7 +12591,6 @@ sap.ui.define([
             const sCurrentStatus = oObj.status || "Active";
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
-                const sDropdownHtml = that._createCustomStatusDropdownHtml(sCurrentStatus, "kyra_edit_svc_status");
                 const sHtmlContent = `
                     <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
@@ -12344,8 +12621,11 @@ sap.ui.define([
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label">STATUS</label>
-                                ${sDropdownHtml}
+                                <label class="kyra-system-modal-label" for="kyra_edit_svc_status">STATUS</label>
+                                <select id="kyra_edit_svc_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
                             </div>
                         </div>
                         
@@ -12356,7 +12636,6 @@ sap.ui.define([
                     </div>
                 `;
 
-                let cleanupDropdown = null;
                 const oDialog = new Dialog({
                     showHeader: false,
                     contentWidth: "480px",
@@ -12368,7 +12647,7 @@ sap.ui.define([
                     afterOpen: () => {
                         const oDom = oDialog.getDomRef();
                         if (!oDom) return;
-                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_edit_svc_status");
+                        that._enhanceModalDropdowns(oDom);
 
                         const closeFn = () => oDialog.close();
                         const closeX = oDom.querySelector(".kyra-modal-close-btn");
@@ -12394,8 +12673,8 @@ sap.ui.define([
                                     MessageToast.show("Service Name cannot be empty.");
                                     return;
                                 }
-                                const statusInput = oDom.querySelector("#kyra_edit_svc_status_input");
-                                const sNewStatus = statusInput ? statusInput.value : sCurrentStatus;
+                                const statusSelect = oDom.querySelector("#kyra_edit_svc_status");
+                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
 
                                 const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
                                     item.serviceName === sOldName ? Object.assign({}, item, {
@@ -12425,7 +12704,6 @@ sap.ui.define([
                         }
                     },
                     afterClose: () => {
-                        if (typeof cleanupDropdown === "function") cleanupDropdown();
                         oDialog.destroy();
                     }
                 });
@@ -12572,7 +12850,6 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
-                const sDropdownHtml = that._createCustomStatusDropdownHtml(sCurrentStatus, "kyra_edit_team_status");
                 const sHtmlContent = `
                     <div class="kyra-system-modal-card">
                         <div class="kyra-system-modal-header">
@@ -12603,8 +12880,11 @@ sap.ui.define([
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label">STATUS</label>
-                                ${sDropdownHtml}
+                                <label class="kyra-system-modal-label" for="kyra_edit_team_status">STATUS</label>
+                                <select id="kyra_edit_team_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
                             </div>
                         </div>
                         
@@ -12615,7 +12895,6 @@ sap.ui.define([
                     </div>
                 `;
 
-                let cleanupDropdown = null;
                 const oDialog = new Dialog({
                     showHeader: false,
                     contentWidth: "480px",
@@ -12627,7 +12906,7 @@ sap.ui.define([
                     afterOpen: () => {
                         const oDom = oDialog.getDomRef();
                         if (!oDom) return;
-                        cleanupDropdown = that._initCustomStatusDropdown(oDom, "kyra_edit_team_status");
+                        that._enhanceModalDropdowns(oDom);
 
                         const closeFn = () => oDialog.close();
                         const closeX = oDom.querySelector(".kyra-modal-close-btn");
@@ -12653,8 +12932,8 @@ sap.ui.define([
                                     MessageToast.show("Team Name cannot be empty.");
                                     return;
                                 }
-                                const statusInput = oDom.querySelector("#kyra_edit_team_status_input");
-                                const sNewStatus = statusInput ? statusInput.value : sCurrentStatus;
+                                const statusSelect = oDom.querySelector("#kyra_edit_team_status");
+                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
 
                                 const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
                                     item.name === sOldName ? Object.assign({}, item, {
@@ -12682,10 +12961,7 @@ sap.ui.define([
                             };
                         }
                     },
-                    afterClose: () => {
-                        if (typeof cleanupDropdown === "function") cleanupDropdown();
-                        oDialog.destroy();
-                    }
+                    afterClose: () => oDialog.destroy()
                 });
 
                 oDialog.addStyleClass("kyraSystemModalDialog");
@@ -12955,6 +13231,22 @@ sap.ui.define([
                                 <label class="kyra-system-modal-label" for="kyra_add_persona_name">PERSONA NAME <span style="color:#EF4444">*</span></label>
                                 <input type="text" id="kyra_add_persona_name" class="kyra-system-modal-input" placeholder="e.g. Lead Cloud Architect" autocomplete="off" />
                             </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_persona_status">STATUS</label>
+                                <select id="kyra_add_persona_status" class="kyra-system-modal-select">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_persona_restricted">RESTRICTED</label>
+                                <select id="kyra_add_persona_restricted" class="kyra-system-modal-select">
+                                    <option value="Not restricted" selected>Not restricted</option>
+                                    <option value="Restricted">Restricted</option>
+                                </select>
+                            </div>
                         </div>
                         
                         <div class="kyra-system-modal-footer">
@@ -13030,6 +13322,181 @@ sap.ui.define([
                 oDialog.addStyleClass("kyraSystemModalDialog");
                 that.getView().addDependent(oDialog);
                 oDialog.open();
+            });
+        },
+
+        onEditAdminSubClassification(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oPersona = oCtx.getObject();
+            if (!oPersona) return;
+
+            const that = this;
+            const sOldName = oPersona.name || "";
+            const sCurrentStatus = oPersona.status || "Active";
+            const sCurrentRestricted = oPersona.restricted || oPersona.accessPrivilege || "Not restricted";
+            const sCurrentTeam = oModel.getProperty("/selectedAdminClassification/name") || "IT Developers";
+            const sShortTeam = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Persona</div>
+                                    <div class="kyra-system-modal-subtitle">Modify persona parameters under ${sShortTeam}</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_persona_name">PERSONA NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_persona_name" class="kyra-system-modal-input" placeholder="Enter persona name" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_persona_status">STATUS</label>
+                                <select id="kyra_edit_persona_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_persona_restricted">RESTRICTED</label>
+                                <select id="kyra_edit_persona_restricted" class="kyra-system-modal-select">
+                                    <option value="Not restricted" ${sCurrentRestricted === "Not restricted" ? "selected" : ""}>Not restricted</option>
+                                    <option value="Restricted" ${sCurrentRestricted === "Restricted" ? "selected" : ""}>Restricted</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [
+                        new HTML({ content: sHtmlContent, preferDOM: false })
+                    ],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        that._enhanceModalDropdowns(oDom);
+
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_edit_persona_name");
+                        if (nameInput) {
+                            nameInput.focus();
+                            nameInput.select();
+                        }
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sNewName = (nameInput ? nameInput.value : "").trim();
+                                if (!sNewName) {
+                                    if (nameInput) {
+                                        nameInput.style.borderColor = "#EF4444";
+                                        nameInput.focus();
+                                    }
+                                    MessageToast.show("Persona Name cannot be empty.");
+                                    return;
+                                }
+                                const statusSelect = oDom.querySelector("#kyra_edit_persona_status");
+                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p =>
+                                    p.name === sOldName ? Object.assign({}, p, { name: sNewName, status: sNewStatus }) : p
+                                );
+                                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                                const oSelected = oModel.getProperty("/selectedAdminClassification");
+                                if (oSelected) {
+                                    oSelected.subClassifications = aSubs;
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        item.name === oSelected.name ? Object.assign({}, oSelected, { selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
+                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                }
+                                that._ensureAdminSnapshots(oModel);
+
+                                that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated (Draft). Click Save to apply.");
+                                MessageToast.show("Persona '" + sNewName + "' updated (Draft). Click Save to apply.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onDeleteAdminSubClassification(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oPersona = oCtx.getObject();
+            if (!oPersona) return;
+            const sName = oPersona.name || "";
+            const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "System Administrator";
+            const that = this;
+
+            this._confirmDelete("Delete Persona", sName, "Persona", () => {
+                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).filter(p => p.name !== sName);
+                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                const oSelected = oModel.getProperty("/selectedAdminClassification");
+                if (oSelected) {
+                    oSelected.subClassifications = aSubs;
+                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                        item.name === oSelected.name ? Object.assign({}, oSelected, { selected: true }) : item
+                    );
+                    oModel.setProperty("/adminClassifications", aList);
+                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                }
+                that._ensureAdminSnapshots(oModel);
+                that._showSlideNotification("Persona Deleted", "Persona '" + sName + "' removed (Draft). Click Save to apply.", "delete");
+                sap.m.MessageToast.show("Persona '" + sName + "' removed (Draft). Click Save to apply.");
             });
         },
 
@@ -13117,6 +13584,768 @@ sap.ui.define([
 
             this._showSlideNotification("Changes Cancelled", "Service Details draft changes reverted.");
             MessageToast.show("Service Details changes reverted to last saved state.");
+        },
+
+        
+        // =========================================================================
+        // BUSINESS SECTORS & BUSINESS FUNCTIONS MANAGEMENT (Image 2)
+        // =========================================================================
+        onSearchAdminBusinessSectors(oEvent) {
+            const sQuery = (oEvent.getParameter("newValue") || oEvent.getParameter("query") || "").toLowerCase().trim();
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const aAll = oModel.getProperty("/adminBusinessSectorsAll") || oModel.getProperty("/adminBusinessSectors") || [];
+            if (!sQuery) {
+                oModel.setProperty("/adminBusinessSectors", aAll.slice());
+            } else {
+                oModel.setProperty("/adminBusinessSectors", aAll.filter(s => (s.sectorName || "").toLowerCase().includes(sQuery)));
+            }
+        },
+
+        onSelectAdminBusinessSectorRow(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oModel || !oCtx) return;
+            const oObj = oCtx.getObject();
+            if (!oObj) return;
+
+            const sSectorName = oObj.sectorName;
+            const aSectors = (oModel.getProperty("/adminBusinessSectors") || []).map(s => {
+                return Object.assign({}, s, { selected: s.sectorName === sSectorName });
+            });
+            oModel.setProperty("/adminBusinessSectors", aSectors);
+            const aAll = (oModel.getProperty("/adminBusinessSectorsAll") || []).map(s => {
+                return Object.assign({}, s, { selected: s.sectorName === sSectorName });
+            });
+            oModel.setProperty("/adminBusinessSectorsAll", aAll);
+            oModel.setProperty("/selectedAdminBusinessSectorName", sSectorName);
+
+            const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+            const aFuncs = oMap[sSectorName] || [
+                { name: "General Administration" },
+                { name: "Operations Oversight" }
+            ];
+            oModel.setProperty("/adminBusinessFunctions", aFuncs);
+        },
+
+        onAddAdminBusinessSector() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add Business Sector</div>
+                                    <div class="kyra-system-modal-subtitle">Define enterprise business sector</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_sector_name">BUSINESS SECTOR NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_sector_name" class="kyra-system-modal-input" placeholder="e.g. Technology, Finance, Operations" autocomplete="off" />
+                            </div>
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_sector_status">STATUS</label>
+                                <select id="kyra_add_sector_status" class="kyra-system-modal-select">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Add Business Sector</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [new HTML({ content: sHtmlContent, preferDOM: false })],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        that._enhanceModalDropdowns(oDom);
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_add_sector_name");
+                        if (nameInput) nameInput.focus();
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sName = (nameInput ? nameInput.value : "").trim();
+                                if (!sName) {
+                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
+                                    MessageToast.show("Please enter a Sector name.");
+                                    return;
+                                }
+                                const statusSelect = oDom.querySelector("#kyra_add_sector_status");
+                                const sStatus = statusSelect ? statusSelect.value : "Active";
+
+                                const aAll = (oModel.getProperty("/adminBusinessSectorsAll") || []).slice();
+                                aAll.push({ sectorName: sName, status: sStatus, selected: false });
+                                oModel.setProperty("/adminBusinessSectorsAll", aAll);
+                                oModel.setProperty("/adminBusinessSectors", aAll.slice());
+
+                                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                                oMap[sName] = [];
+                                oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+
+                                that._showSlideNotification("Business Sector Added", "Sector '" + sName + "' created.");
+                                MessageToast.show("Sector '" + sName + "' added successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onEditAdminBusinessSector(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oSector = oCtx.getObject();
+            if (!oSector) return;
+
+            const that = this;
+            const sOldName = oSector.sectorName;
+            const sCurrentStatus = oSector.status || "Active";
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Business Sector</div>
+                                    <div class="kyra-system-modal-subtitle">Modify business sector parameters</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_sector_name">BUSINESS SECTOR NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_sector_name" class="kyra-system-modal-input" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_sector_status">STATUS</label>
+                                <select id="kyra_edit_sector_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [new HTML({ content: sHtmlContent, preferDOM: false })],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        that._enhanceModalDropdowns(oDom);
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_edit_sector_name");
+                        if (nameInput) { nameInput.focus(); nameInput.select(); }
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sNewName = (nameInput ? nameInput.value : "").trim();
+                                if (!sNewName) {
+                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
+                                    MessageToast.show("Sector name cannot be empty.");
+                                    return;
+                                }
+                                const statusSelect = oDom.querySelector("#kyra_edit_sector_status");
+                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                                const aAll = (oModel.getProperty("/adminBusinessSectorsAll") || []).map(s => {
+                                    return s.sectorName === sOldName ? Object.assign({}, s, { sectorName: sNewName, status: sNewStatus }) : s;
+                                });
+                                oModel.setProperty("/adminBusinessSectorsAll", aAll);
+                                const aCur = (oModel.getProperty("/adminBusinessSectors") || []).map(s => {
+                                    return s.sectorName === sOldName ? Object.assign({}, s, { sectorName: sNewName, status: sNewStatus }) : s;
+                                });
+                                oModel.setProperty("/adminBusinessSectors", aCur);
+
+                                if (oModel.getProperty("/selectedAdminBusinessSectorName") === sOldName) {
+                                    oModel.setProperty("/selectedAdminBusinessSectorName", sNewName);
+                                    const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                                    if (oMap[sOldName] && sOldName !== sNewName) {
+                                        oMap[sNewName] = oMap[sOldName];
+                                        delete oMap[sOldName];
+                                        oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+                                    }
+                                }
+
+                                that._showSlideNotification("Business Sector Updated", "Sector '" + sNewName + "' updated.");
+                                MessageToast.show("Sector '" + sNewName + "' updated successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onDeleteAdminBusinessSector(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oSector = oCtx.getObject();
+            if (!oSector) return;
+            const sSectorName = oSector.sectorName;
+            const that = this;
+
+            this._confirmDelete("Delete Business Sector", sSectorName, "Business Sector", () => {
+                const aAll = (oModel.getProperty("/adminBusinessSectorsAll") || []).filter(s => s.sectorName !== sSectorName);
+                oModel.setProperty("/adminBusinessSectorsAll", aAll);
+                const aCur = (oModel.getProperty("/adminBusinessSectors") || []).filter(s => s.sectorName !== sSectorName);
+                oModel.setProperty("/adminBusinessSectors", aCur);
+
+                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                delete oMap[sSectorName];
+                oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+
+                if (oModel.getProperty("/selectedAdminBusinessSectorName") === sSectorName) {
+                    if (aCur.length > 0) {
+                        aCur[0].selected = true;
+                        oModel.setProperty("/selectedAdminBusinessSectorName", aCur[0].sectorName);
+                        oModel.setProperty("/adminBusinessFunctions", oMap[aCur[0].sectorName] || []);
+                    } else {
+                        oModel.setProperty("/selectedAdminBusinessSectorName", "");
+                        oModel.setProperty("/adminBusinessFunctions", []);
+                    }
+                }
+
+                that._showSlideNotification("Sector Deleted", "Sector '" + sSectorName + "' removed.", "delete");
+                sap.m.MessageToast.show("Sector '" + sSectorName + "' deleted.");
+            });
+        },
+
+        onAddAdminBusinessFunction() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sCurrentSector = oModel.getProperty("/selectedAdminBusinessSectorName") || "Finance";
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add Business Function</div>
+                                    <div class="kyra-system-modal-subtitle">Add function under ${sCurrentSector}</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_func_name">BUSINESS FUNCTION NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_func_name" class="kyra-system-modal-input" placeholder="e.g. Treasury Operations, Billing" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Add Business Function</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [new HTML({ content: sHtmlContent, preferDOM: false })],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_add_func_name");
+                        if (nameInput) nameInput.focus();
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sName = (nameInput ? nameInput.value : "").trim();
+                                if (!sName) {
+                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
+                                    MessageToast.show("Please enter a Function name.");
+                                    return;
+                                }
+
+                                const aFuncs = (oModel.getProperty("/adminBusinessFunctions") || []).slice();
+                                aFuncs.push({ name: sName });
+                                oModel.setProperty("/adminBusinessFunctions", aFuncs);
+
+                                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                                oMap[sCurrentSector] = aFuncs;
+                                oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+
+                                that._showSlideNotification("Function Added", "Function '" + sName + "' added under " + sCurrentSector);
+                                MessageToast.show("Function '" + sName + "' added.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onEditAdminBusinessFunction(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oFunc = oCtx.getObject();
+            if (!oFunc) return;
+            const sOldName = oFunc.name;
+            const sCurrentSector = oModel.getProperty("/selectedAdminBusinessSectorName") || "Finance";
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Business Function</div>
+                                    <div class="kyra-system-modal-subtitle">Modify function name</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_func_name">BUSINESS FUNCTION NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_func_name" class="kyra-system-modal-input" value="${sOldName}" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [new HTML({ content: sHtmlContent, preferDOM: false })],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_edit_func_name");
+                        if (nameInput) { nameInput.focus(); nameInput.select(); }
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sNewName = (nameInput ? nameInput.value : "").trim();
+                                if (!sNewName) {
+                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
+                                    MessageToast.show("Function name cannot be empty.");
+                                    return;
+                                }
+
+                                const aFuncs = (oModel.getProperty("/adminBusinessFunctions") || []).map(f => {
+                                    return f.name === sOldName ? { name: sNewName } : f;
+                                });
+                                oModel.setProperty("/adminBusinessFunctions", aFuncs);
+
+                                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                                oMap[sCurrentSector] = aFuncs;
+                                oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+
+                                that._showSlideNotification("Function Updated", "Function updated to '" + sNewName + "'");
+                                MessageToast.show("Function updated.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onDeleteAdminBusinessFunction(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oFunc = oCtx.getObject();
+            if (!oFunc) return;
+            const sName = oFunc.name;
+            const sCurrentSector = oModel.getProperty("/selectedAdminBusinessSectorName") || "Finance";
+            const that = this;
+
+            this._confirmDelete("Delete Business Function", sName, "Business Function", () => {
+                const aFuncs = (oModel.getProperty("/adminBusinessFunctions") || []).filter(f => f.name !== sName);
+                oModel.setProperty("/adminBusinessFunctions", aFuncs);
+
+                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                oMap[sCurrentSector] = aFuncs;
+                oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+
+                that._showSlideNotification("Function Deleted", "Function '" + sName + "' removed.", "delete");
+                sap.m.MessageToast.show("Function deleted.");
+            });
+        },
+
+        // =========================================================================
+        // REGION MANAGEMENT (Image 3)
+        // =========================================================================
+        onSearchAdminRegions(oEvent) {
+            const sQuery = (oEvent.getParameter("newValue") || oEvent.getParameter("query") || "").toLowerCase().trim();
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const aAll = oModel.getProperty("/adminRegionsAll") || oModel.getProperty("/adminRegions") || [];
+            if (!sQuery) {
+                oModel.setProperty("/adminRegions", aAll.slice());
+            } else {
+                oModel.setProperty("/adminRegions", aAll.filter(r => (r.regionName || "").toLowerCase().includes(sQuery)));
+            }
+        },
+
+        onAddAdminRegion() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Add Region</div>
+                                    <div class="kyra-system-modal-subtitle">Define operational global region</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_region_name">REGION NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_add_region_name" class="kyra-system-modal-input" placeholder="e.g. APAC, EMEA, Americas" autocomplete="off" />
+                            </div>
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_add_region_status">STATUS</label>
+                                <select id="kyra_add_region_status" class="kyra-system-modal-select">
+                                    <option value="Active" selected>Active</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Add Region</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [new HTML({ content: sHtmlContent, preferDOM: false })],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        that._enhanceModalDropdowns(oDom);
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_add_region_name");
+                        if (nameInput) nameInput.focus();
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sName = (nameInput ? nameInput.value : "").trim();
+                                if (!sName) {
+                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
+                                    MessageToast.show("Please enter a Region name.");
+                                    return;
+                                }
+                                const statusSelect = oDom.querySelector("#kyra_add_region_status");
+                                const sStatus = statusSelect ? statusSelect.value : "Active";
+                                const sDate = new Date().toISOString().split("T")[0];
+
+                                const aAll = (oModel.getProperty("/adminRegionsAll") || []).slice();
+                                aAll.push({ regionName: sName, status: sStatus, creationDate: sDate });
+                                oModel.setProperty("/adminRegionsAll", aAll);
+                                oModel.setProperty("/adminRegions", aAll.slice());
+
+                                that._showSlideNotification("Region Added", "Region '" + sName + "' created.");
+                                MessageToast.show("Region '" + sName + "' added successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onEditAdminRegion(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oReg = oCtx.getObject();
+            if (!oReg) return;
+            const sOldName = oReg.regionName;
+            const sCurrentStatus = oReg.status || "Active";
+            const that = this;
+
+            sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
+                const sHtmlContent = `
+                    <div class="kyra-system-modal-card">
+                        <div class="kyra-system-modal-header">
+                            <div class="kyra-system-modal-header-left">
+                                <div class="kyra-system-modal-icon-badge">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="kyra-system-modal-title">Edit Region</div>
+                                    <div class="kyra-system-modal-subtitle">Modify region parameters</div>
+                                </div>
+                            </div>
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="kyra-system-modal-body">
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_region_name">REGION NAME <span style="color:#EF4444">*</span></label>
+                                <input type="text" id="kyra_edit_region_name" class="kyra-system-modal-input" value="${sOldName}" autocomplete="off" />
+                            </div>
+                            <div class="kyra-system-modal-form-group">
+                                <label class="kyra-system-modal-label" for="kyra_edit_region_status">STATUS</label>
+                                <select id="kyra_edit_region_status" class="kyra-system-modal-select">
+                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
+                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="kyra-system-modal-footer">
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
+                        </div>
+                    </div>
+                `;
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    horizontalScrolling: false,
+                    verticalScrolling: false,
+                    content: [new HTML({ content: sHtmlContent, preferDOM: false })],
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        that._enhanceModalDropdowns(oDom);
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const nameInput = oDom.querySelector("#kyra_edit_region_name");
+                        if (nameInput) { nameInput.focus(); nameInput.select(); }
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sNewName = (nameInput ? nameInput.value : "").trim();
+                                if (!sNewName) {
+                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
+                                    MessageToast.show("Region name cannot be empty.");
+                                    return;
+                                }
+                                const statusSelect = oDom.querySelector("#kyra_edit_region_status");
+                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                                const aAll = (oModel.getProperty("/adminRegionsAll") || []).map(r => {
+                                    return r.regionName === sOldName ? Object.assign({}, r, { regionName: sNewName, status: sNewStatus }) : r;
+                                });
+                                oModel.setProperty("/adminRegionsAll", aAll);
+                                const aCur = (oModel.getProperty("/adminRegions") || []).map(r => {
+                                    return r.regionName === sOldName ? Object.assign({}, r, { regionName: sNewName, status: sNewStatus }) : r;
+                                });
+                                oModel.setProperty("/adminRegions", aCur);
+
+                                that._showSlideNotification("Region Updated", "Region '" + sNewName + "' updated.");
+                                MessageToast.show("Region '" + sNewName + "' updated successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => oDialog.destroy()
+                });
+
+                oDialog.addStyleClass("kyraSystemModalDialog");
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        onDeleteAdminRegion(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oReg = oCtx.getObject();
+            if (!oReg) return;
+            const sName = oReg.regionName;
+            const that = this;
+
+            this._confirmDelete("Delete Region", sName, "Region", () => {
+                const aAll = (oModel.getProperty("/adminRegionsAll") || []).filter(r => r.regionName !== sName);
+                oModel.setProperty("/adminRegionsAll", aAll);
+                const aCur = (oModel.getProperty("/adminRegions") || []).filter(r => r.regionName !== sName);
+                oModel.setProperty("/adminRegions", aCur);
+
+                that._showSlideNotification("Region Deleted", "Region '" + sName + "' removed.", "delete");
+                sap.m.MessageToast.show("Region '" + sName + "' deleted.");
+            });
         },
 
         // ── Custom Conflict Section Handlers ──────────────────────────────────────
@@ -13461,20 +14690,6 @@ sap.ui.define([
             const oRule = oCtx.getObject();
             if (!oRule) return;
 
-            const aConflicts = oModel.getProperty("/adminCustomConflicts") || [];
-            const iIdx = aConflicts.indexOf(oRule);
-            oModel.setProperty("/newConflictDraft", {
-                system: oRule.system || "",
-                service: oRule.service || "System Administrator",
-                role1: oRule.role1 || "",
-                role2: oRule.role2 || "",
-                description: oRule.description || "",
-                _editingIndex: iIdx
-            });
-            this._refreshCustomConflictOptions(oModel);
-            oModel.setProperty("/showCustomConflictSlide", true);
-            MessageToast.show("Editing conflict in slide panel above.");
-
             const that = this;
             const sSystem = oRule.system || "SAP BTP Cloud Platform";
             const sRole1 = oRule.role1 || "";
@@ -13491,9 +14706,33 @@ sap.ui.define([
             if (!aSystems.includes("SAP Ariba Supply Network")) aSystems.push("SAP Ariba Supply Network");
             const aUniqueSystems = [...new Set(aSystems)];
 
+            // Extract configured personas for dropdown selection
+            const aPersonaOptions = (oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || []).map(p => p.key).filter(Boolean);
+            if (sRole1 && !aPersonaOptions.includes(sRole1)) aPersonaOptions.unshift(sRole1);
+            if (sRole2 && !aPersonaOptions.includes(sRole2)) aPersonaOptions.push(sRole2);
+            if (aPersonaOptions.length === 0) {
+                aPersonaOptions.push(
+                    "Cloud Infrastructure Administrator Persona",
+                    "Frontend & UI Developer Persona",
+                    "Lead Cloud Architect",
+                    "Senior Full-Stack Engineer",
+                    "Security Compliance Auditor",
+                    "Data Pipeline Engineer"
+                );
+            }
+            const aUniquePersonas = [...new Set(aPersonaOptions)];
+
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
                 const sSystemOptions = aUniqueSystems.map(sys =>
                     `<option value="${sys}" ${sys === sSystem ? "selected" : ""}>${sys}</option>`
+                ).join("");
+
+                const sRole1Options = aUniquePersonas.map(r =>
+                    `<option value="${r}" ${r === sRole1 ? "selected" : ""}>${r}</option>`
+                ).join("");
+
+                const sRole2Options = aUniquePersonas.map(r =>
+                    `<option value="${r}" ${r === sRole2 ? "selected" : ""}>${r}</option>`
                 ).join("");
 
                 const sHtmlContent = `
@@ -13512,7 +14751,7 @@ sap.ui.define([
                                     <div class="kyra-system-modal-subtitle">Modify target system, conflicting roles, reason, and status</div>
                                 </div>
                             </div>
-                            <button type="button" class="kyra-system-modal-close-x" id="kyra_conflict_edit_close_x" title="Close">
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" title="Close">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -13530,17 +14769,21 @@ sap.ui.define([
 
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_conflict_role1">PRIMARY TEAM / PERSONA <span style="color:#EF4444">*</span></label>
-                                <input type="text" id="kyra_edit_conflict_role1" class="kyra-system-modal-input" placeholder="e.g. Cloud Infrastructure Administrator Persona" value="${sRole1}" autocomplete="off" />
+                                <select id="kyra_edit_conflict_role1" class="kyra-system-modal-select">
+                                    ${sRole1Options}
+                                </select>
                             </div>
 
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_conflict_role2">CONFLICTING TEAM / PERSONA <span style="color:#EF4444">*</span></label>
-                                <input type="text" id="kyra_edit_conflict_role2" class="kyra-system-modal-input" placeholder="e.g. Frontend &amp; UI Developer Persona" value="${sRole2}" autocomplete="off" />
+                                <select id="kyra_edit_conflict_role2" class="kyra-system-modal-select">
+                                    ${sRole2Options}
+                                </select>
                             </div>
 
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_conflict_desc">CONFLICT REASON</label>
-                                <input type="text" id="kyra_edit_conflict_desc" class="kyra-system-modal-input" placeholder="Describe the segregation of duties conflict risk" value="${sDesc}" autocomplete="off" />
+                                <textarea id="kyra_edit_conflict_desc" class="kyra-system-modal-input" style="height: 60px; padding: 8px 12px; resize: vertical;" rows="2" placeholder="Describe the segregation of duties conflict risk">${sDesc}</textarea>
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
@@ -13553,8 +14796,8 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_conflict_cancel_btn">Cancel</button>
-                            <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_conflict_submit_btn">Save Changes</button>
+                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
                 `;
@@ -13564,76 +14807,79 @@ sap.ui.define([
                     contentWidth: "520px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
-                    class: "kyraSystemModalDialog",
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oDialog.destroy()
+                    afterOpen: () => {
+                        const oDom = oDialog.getDomRef();
+                        if (!oDom) return;
+                        that._enhanceModalDropdowns(oDom);
+
+                        const closeFn = () => oDialog.close();
+                        const closeX = oDom.querySelector(".kyra-modal-close-btn");
+                        if (closeX) closeX.onclick = closeFn;
+                        const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
+                        if (cancelBtn) cancelBtn.onclick = closeFn;
+
+                        const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
+                        if (submitBtn) {
+                            submitBtn.onclick = () => {
+                                const sysSelect = oDom.querySelector("#kyra_edit_conflict_system");
+                                const role1Select = oDom.querySelector("#kyra_edit_conflict_role1");
+                                const role2Select = oDom.querySelector("#kyra_edit_conflict_role2");
+                                const descInput = oDom.querySelector("#kyra_edit_conflict_desc");
+                                const statusSelect = oDom.querySelector("#kyra_edit_conflict_status");
+
+                                const newSys = sysSelect ? sysSelect.value : sSystem;
+                                const newR1 = (role1Select ? role1Select.value : "").trim();
+                                const newR2 = (role2Select ? role2Select.value : "").trim();
+                                const newDesc = (descInput ? descInput.value : "").trim() || "Segregation of Duties conflict between selected privileges.";
+                                const newStat = statusSelect ? statusSelect.value : sCurrentStatus;
+
+                                if (!newR1 || !newR2) {
+                                    MessageToast.show("Both Primary and Conflicting personas are required.");
+                                    return;
+                                }
+
+                                const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+                                const iIdx = aAll.findIndex(c =>
+                                    c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
+                                );
+
+                                const updatedRule = {
+                                    system: newSys,
+                                    service: oRule.service || "System Administrator",
+                                    role1: newR1,
+                                    role2: newR2,
+                                    description: newDesc,
+                                    status: newStat
+                                };
+
+                                if (iIdx >= 0) {
+                                    aAll[iIdx] = updatedRule;
+                                } else {
+                                    aAll.push(updatedRule);
+                                }
+
+                                oModel.setProperty("/adminCustomConflictsAll", aAll);
+                                oModel.setProperty("/adminCustomConflicts", aAll.slice());
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistConflictsToDb(oModel, "✅ Conflict Rule updated in database successfully.");
+
+                                that._showSlideNotification("Conflict Rule Updated", "Conflict rule for " + newSys + " updated successfully.");
+                                MessageToast.show("Conflict rule updated successfully.");
+                                closeFn();
+                            };
+                        }
+                    },
+                    afterClose: () => {
+                        oDialog.destroy();
+                    }
                 });
+                oDialog.addStyleClass("kyraSystemModalDialog");
 
                 that.getView().addDependent(oDialog);
                 oDialog.open();
-
-                setTimeout(() => {
-                    that._enhanceModalDropdowns(oDialog.getDomRef());
-                    const closeFn = () => oDialog.close();
-                    const closeX = document.getElementById("kyra_conflict_edit_close_x");
-                    if (closeX) closeX.onclick = closeFn;
-                    const cancelBtn = document.getElementById("kyra_edit_conflict_cancel_btn");
-                    if (cancelBtn) cancelBtn.onclick = closeFn;
-
-                    const role1Input = document.getElementById("kyra_edit_conflict_role1");
-                    const role2Input = document.getElementById("kyra_edit_conflict_role2");
-                    const descInput = document.getElementById("kyra_edit_conflict_desc");
-                    const sysSelect = document.getElementById("kyra_edit_conflict_system");
-                    const statusSelect = document.getElementById("kyra_edit_conflict_status");
-
-                    if (role1Input) role1Input.focus();
-
-                    const submitBtn = document.getElementById("kyra_edit_conflict_submit_btn");
-                    if (submitBtn) {
-                        submitBtn.onclick = () => {
-                            const newSys = sysSelect ? sysSelect.value : sSystem;
-                            const newR1 = (role1Input ? role1Input.value : "").trim();
-                            const newR2 = (role2Input ? role2Input.value : "").trim();
-                            const newDesc = (descInput ? descInput.value : "").trim() || "Segregation of Duties conflict between selected privileges.";
-                            const newStat = statusSelect ? statusSelect.value : sCurrentStatus;
-
-                            if (!newR1 || !newR2) {
-                                MessageToast.show("Both Primary and Conflicting personas are required.");
-                                return;
-                            }
-
-                            const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-                            const iIdx = aAll.findIndex(c =>
-                                c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
-                            );
-
-                            const updatedRule = {
-                                system: newSys,
-                                service: oRule.service || "System Administrator",
-                                role1: newR1,
-                                role2: newR2,
-                                description: newDesc,
-                                status: newStat
-                            };
-
-                            if (iIdx >= 0) {
-                                aAll[iIdx] = updatedRule;
-                            } else {
-                                aAll.push(updatedRule);
-                            }
-
-                            oModel.setProperty("/adminCustomConflictsAll", aAll);
-                            oModel.setProperty("/adminCustomConflicts", aAll.slice());
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._persistConflictsToDb(oModel, "✅ Conflict Rule updated in database successfully.");
-
-                            that._showSlideNotification("Conflict Rule Updated", "Conflict rule for " + newSys + " updated successfully.");
-                            closeFn();
-                        };
-                    }
-                }, 50);
             });
         },
 
@@ -14682,15 +15928,15 @@ sap.ui.define([
                     try { aUsers = JSON.parse(oResult.usersJson); } catch (e) {}
                 }
 
-                const aFormattedUsers = aUsers.map(function(u) {
-                    return Object.assign({}, u, { selected: true });
+                const sTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "Requester").trim();
+                const aFormattedUsers = aUsers.map((u) => {
+                    return this._formatDeptUser(Object.assign({}, u, { selected: false }), sTarget);
                 });
                 oModel.setProperty("/departmentPersonaUsers", aFormattedUsers);
-                oModel.setProperty("/departmentPersonaAllSelected", aUsers.length > 0);
-                oModel.setProperty("/departmentPersonaSelectedCount", aUsers.length);
+                oModel.setProperty("/departmentPersonaAllSelected", false);
+                oModel.setProperty("/departmentPersonaSelectedCount", 0);
 
                 if (aUsers.length > 0) {
-                    const sTarget = (oModel.getProperty("/departmentPersona/targetPersona") || "Requester").trim();
                     oModel.setProperty("/departmentPersonaResult", {
                         message: "Found " + aUsers.length + " user(s) in department '" + sDept + "'. Select the user IDs to convert, select a Target Persona, and click Save Changes.",
                         state: "Information"
@@ -14729,15 +15975,25 @@ sap.ui.define([
             const sVal = oItem ? oItem.getKey() : ((oEvent && typeof oEvent.getParameter === "function") ? oEvent.getParameter("value") : (oEvent && oEvent.getSource ? (oEvent.getSource().getSelectedKey() || oEvent.getSource().getValue()) : ""));
             const sClean = (sVal || "").trim();
             oModel.setProperty("/departmentPersona/targetPersona", sClean);
+
+            const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
+            if (aUsers.length > 0) {
+                const aUpdated = aUsers.map((u) => {
+                    return this._formatDeptUser(u, sClean);
+                });
+                oModel.setProperty("/departmentPersonaUsers", aUpdated);
+                oModel.refresh(true);
+            }
         },
 
-                onToggleMasterDeptCheckbox(oEvent) {
+        onToggleMasterDeptCheckbox(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const bSelected = oEvent && typeof oEvent.getParameter === "function" ? !!oEvent.getParameter("selected") : !oModel.getProperty("/departmentPersonaAllSelected");
             const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
-            const aNewUsers = aUsers.map(function(u) {
-                return Object.assign({}, u, { selected: bSelected });
+            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
+            const aNewUsers = aUsers.map((u) => {
+                return this._formatDeptUser(Object.assign({}, u, { selected: bSelected }), sTargetPersona);
             });
             oModel.setProperty("/departmentPersonaUsers", aNewUsers);
             oModel.setProperty("/departmentPersonaAllSelected", bSelected);
@@ -14784,7 +16040,10 @@ sap.ui.define([
             const oCtx = oSource && oSource.getBindingContext ? oSource.getBindingContext("accessModel") : null;
 
             if (oCtx) {
-                oModel.setProperty(oCtx.getPath() + "/selected", bSelected);
+                const oUser = oModel.getProperty(oCtx.getPath());
+                const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
+                const oUpdated = this._formatDeptUser(Object.assign({}, oUser, { selected: bSelected }), sTargetPersona);
+                oModel.setProperty(oCtx.getPath(), oUpdated);
             }
 
             const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
@@ -14800,16 +16059,16 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const aUsers = oModel.getProperty("/departmentPersonaUsers") || [];
-            const bAllSelected = !!oModel.getProperty("/departmentPersonaAllSelected");
-            const bNewState = !bAllSelected;
-            const aNewUsers = aUsers.map(function(u) {
-                return Object.assign({}, u, { selected: bNewState });
+            const bAllSelected = !oModel.getProperty("/departmentPersonaAllSelected");
+            const sTargetPersona = (oModel.getProperty("/departmentPersona/targetPersona") || "").trim();
+            const aNewUsers = aUsers.map((u) => {
+                return this._formatDeptUser(Object.assign({}, u, { selected: bAllSelected }), sTargetPersona);
             });
             oModel.setProperty("/departmentPersonaUsers", aNewUsers);
-            oModel.setProperty("/departmentPersonaAllSelected", bNewState);
-            oModel.setProperty("/departmentPersonaSelectedCount", bNewState ? aNewUsers.length : 0);
+            oModel.setProperty("/departmentPersonaAllSelected", bAllSelected);
+            oModel.setProperty("/departmentPersonaSelectedCount", bAllSelected ? aNewUsers.length : 0);
             oModel.refresh(true);
-            sap.m.MessageToast.show(bNewState ? ("Selected all " + aNewUsers.length + " user(s).") : "Deselected all users.");
+            sap.m.MessageToast.show(bAllSelected ? ("Selected all " + aNewUsers.length + " user(s).") : "Deselected all users.");
         },
 
         onCancelDepartmentPersona() {

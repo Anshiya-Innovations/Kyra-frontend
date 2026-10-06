@@ -1228,7 +1228,9 @@
                                                 <Text text="{accessModel>services}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>team}" class="kyraAdminCellBold" />
                                                 <HBox alignItems="Center" class="kyraDeptPersonaBadge">
-                                                    <core:Icon src="sap-icon://role" />
+                                                    <HBox class="kyraPersonaAvatarCircle" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://role" class="kyraPersonaBadgeIcon" />
+                                                    </HBox>
                                                     <Text text="{accessModel>persona}" class="kyraPersonaBadgeText" />
                                                 </HBox>
                                                 <HBox alignItems="Center" class="kyraAdminStatusPill">
@@ -1365,11 +1367,11 @@
                                                 class="kyraAdminTableCheckbox"
                                                 tooltip="Select or Deselect All" />
                                         </Column>
-                                        <Column width="16%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
-                                        <Column width="22%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
+                                        <Column width="15%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
+                                        <Column width="21%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
                                         <Column width="26%" hAlign="Begin"><Text text="EMAIL ADDRESS" class="kyraAdminColHeader" /></Column>
                                         <Column width="20%" hAlign="Begin"><Text text="DEPARTMENT" class="kyraAdminColHeader" /></Column>
-                                        <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
+                                        <Column width="18%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
                                     </columns>
                                     <items>
                                         <ColumnListItem vAlign="Middle" type="Active" highlight="None" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
@@ -1383,7 +1385,9 @@
                                                 <Text text="{accessModel>email}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>department}" class="kyraAdminCellText" />
                                                 <HBox alignItems="Center" class="{= 'kyraDeptPersonaBadge ' + (${accessModel>personaBadgeClass} || 'kyraPersonaRequester') }">
-                                                    <core:Icon src="{= ${accessModel>personaIcon} || 'sap-icon://person-placeholder' }" size="13px" class="sapUiTinyMarginEnd" />
+                                                    <HBox class="kyraPersonaAvatarCircle" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="{= ${accessModel>personaIcon} || 'sap-icon://person-placeholder' }" class="kyraPersonaBadgeIcon" />
+                                                    </HBox>
                                                     <Text text="{= ${accessModel>displayedPersona} || ${accessModel>currentPersona} || 'Requester' }" class="kyraPersonaBadgeText" />
                                                 </HBox>
                                             </cells>
@@ -1402,6 +1406,159 @@
                         class="kyraAdminAccessCustomizationWrapper fioriSlideDownAnim"
                         width="100%">
 
+                        <!-- ============================================================== -->
+                        <!-- NEW SECTION: BUSINESS SECTORS & BUSINESS FUNCTION DETAILS (Image 2) -->
+                        <!-- ============================================================== -->
+                        <HBox width="100%" class="sapUiSmallMarginBottom kyraAdminMiddleRowFlex" wrap="Wrap" justifyContent="SpaceBetween">
+                            <!-- Left Card: Business Sectors -->
+                            <VBox class="kyraAdminWhiteCard kyraAdminServicesCard sapUiSmallMarginEnd" width="49%">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                    <Title text="Business Sectors" level="H4" class="kyraAdminCardTitle" />
+                                    <HBox alignItems="Center" class="kyraAdminHeaderActions">
+                                        <SearchField
+                                            placeholder="Search Sectors..."
+                                            width="170px"
+                                            liveChange=".onSearchAdminBusinessSectors"
+                                            class="kyraAdminSearchField" />
+                                        <Button
+                                            text="Add Business Sector"
+                                            icon="sap-icon://add"
+                                            press=".onAddAdminBusinessSector"
+                                            type="Emphasized"
+                                            class="kyraAdminAddBlueBtn" />
+                                    </HBox>
+                                </HBox>
+
+                                <Table id="adminBusinessSectorsTable"
+                                    items="{accessModel>/adminBusinessSectors}"
+                                    fixedLayout="true"
+                                    class="sapUiNoMargin kyraAdminCleanTable">
+                                    <columns>
+                                        <Column width="40%" hAlign="Begin"><Text text="BUSINESS SECTORS" class="kyraAdminColHeader" /></Column>
+                                        <Column width="30%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                        <Column width="30%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem
+                                            vAlign="Middle"
+                                            type="Active"
+                                            press=".onSelectAdminBusinessSectorRow"
+                                            class="{= 'kyraAdminTableRow ' + (${accessModel>selected} ? 'kyraAdminSelectedRowHighlight' : '') }">
+                                            <cells>
+                                                <Text text="{accessModel>sectorName}" class="{= 'kyraAdminCellBold ' + (${accessModel>selected} ? 'kyraAdminSectorSelectedText' : '') }" />
+                                                <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                    <customData>
+                                                        <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
+                                                    </customData>
+                                                    <HBox class="kyraAdminVectorDot" />
+                                                    <Text text="{accessModel>status}" class="kyraAdminPillText" />
+                                                </HBox>
+                                                <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                                    <Button
+                                                        icon="sap-icon://edit"
+                                                        press=".onEditAdminBusinessSector"
+                                                        class="kyraAdminSystemEditBtn"
+                                                        tooltip="Edit Business Sector" />
+                                                    <Button
+                                                        icon="sap-icon://delete"
+                                                        press=".onDeleteAdminBusinessSector"
+                                                        class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
+                                                        tooltip="Delete Business Sector" />
+                                                </HBox>
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </VBox>
+
+                            <!-- Right Card: Business Function Details -->
+                            <VBox class="kyraAdminWhiteCard kyraAdminServiceDetailsCard" width="49%">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                    <Title text="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" level="H4" class="kyraAdminCardTitle" />
+                                    <HBox alignItems="Center" class="kyraAdminHeaderActions">
+                                        <Button
+                                            text="Add Business Function"
+                                            icon="sap-icon://add"
+                                            press=".onAddAdminBusinessFunction"
+                                            type="Emphasized"
+                                            class="kyraAdminAddBlueBtn" />
+                                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
+                                    </HBox>
+                                </HBox>
+
+                                <VBox class="sapUiSmallMarginTop" width="100%">
+                                    <Text
+                                        text="{= 'Business Functions (' + (${accessModel>/adminBusinessFunctions} ? ${accessModel>/adminBusinessFunctions}.length : 0) + ')' }"
+                                        class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
+
+                                    <VBox items="{accessModel>/adminBusinessFunctions}" width="100%">
+                                        <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminBusinessFunctionItemCard" width="100%">
+                                            <HBox alignItems="Center">
+                                                <HBox class="kyraVectorTealDot sapUiSmallMarginEnd" />
+                                                <Text text="{accessModel>name}" class="kyraAdminBusinessFunctionName" />
+                                            </HBox>
+                                            <HBox alignItems="Center">
+                                                <Button
+                                                    icon="sap-icon://edit"
+                                                    press=".onEditAdminBusinessFunction"
+                                                    class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
+                                                    tooltip="Edit Function" />
+                                                <Button
+                                                    icon="sap-icon://delete"
+                                                    press=".onDeleteAdminBusinessFunction"
+                                                    class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                    tooltip="Delete Function" />
+                                            </HBox>
+                                        </HBox>
+                                    </VBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+
+                        <!-- ============================================================== -->
+                        <!-- NEW SECTION: REGION FULL-WIDTH TABLE (Image 3)                 -->
+                        <VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                <HBox alignItems="Center">
+                                    <core:Icon src="sap-icon://locate-me" size="18px" color="#008C9C" class="sapUiTinyMarginEnd" />
+                                    <Title text="{= 'Region (' + (${accessModel>/adminRegions} ? ${accessModel>/adminRegions}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
+                                </HBox>
+                            </HBox>
+
+                            <Table id="adminRegionsTable"
+                                items="{accessModel>/adminRegions}"
+                                fixedLayout="true"
+                                class="sapUiNoMargin kyraAdminCleanTable">
+                                <columns>
+                                    <Column width="50%" hAlign="Begin"><Text text="REGION" class="kyraAdminColHeader" /></Column>
+                                    <Column width="30%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="20%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                </columns>
+                                <items>
+                                    <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
+                                        <cells>
+                                            <Text text="{accessModel>regionName}" class="kyraAdminCellBold" />
+                                            <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                <customData>
+                                                    <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
+                                                </customData>
+                                                <HBox class="kyraAdminVectorDot" />
+                                                <Text text="{accessModel>status}" class="kyraAdminPillText" />
+                                            </HBox>
+                                            <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                                <Button
+                                                    icon="sap-icon://edit"
+                                                    press=".onEditAdminRegion"
+                                                    class="kyraAdminSystemEditBtn"
+                                                    tooltip="Edit Region" />
+                                            </HBox>
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                        </VBox>
+
+
                         <!-- 1. TOP FULL-WIDTH CARD: SYSTEM (6) -->
                         <VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%">
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
@@ -1409,7 +1566,7 @@
                                 <HBox alignItems="Center" class="kyraAdminHeaderActions">
                                     <SearchField
                                         placeholder="Search systems..."
-                                        width="210px"
+                                        width="230px"
                                         liveChange=".onSearchAdminSystems"
                                         class="kyraAdminSearchField" />
                                     <Button
@@ -1418,7 +1575,7 @@
                                         type="Emphasized"
                                         press=".onAddAdminSystem"
                                         class="kyraAdminAddBlueBtn" />
-                                    <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn sapUiTinyMarginBegin" />
+                                    <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                                 </HBox>
                             </HBox>
 
@@ -1496,6 +1653,9 @@
                                         </HBox>
                                     </HBox>
 
+                                    
+
+
                                     <Table
                                         id="adminServicesTable"
                                         items="{accessModel>/adminServices}"
@@ -1567,18 +1727,18 @@
                                     <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminServiceDetailsSplitBox">
 
                                         <!-- Left Sub-Panel: Team (live Team Roles for selected Service) -->
-                                        <VBox width="46%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
+                                        <VBox width="43%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
                                             <VBox width="100%">
                                                 <Text text="{= 'Team (' + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
 
                                                 <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer" width="100%">
-                                                    <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom">
+                                                    <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom" press=".onSelectAdminClassification">
                                                         <customData>
                                                             <core:CustomData key="selectedClass" value="{= ${accessModel>selected} ? 'true' : 'false' }" writeToDom="true" />
                                                             <core:CustomData key="status" value="{= ${accessModel>status} || 'Active' }" writeToDom="true" />
                                                         </customData>
                                                         <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminTeamNameBox" width="100%">
-                                                            <HBox alignItems="Center" class="kyraAdminTeamLeftContent">
+                                                            <HBox alignItems="Center" class="kyraAdminTeamLeftContent" press=".onSelectAdminClassification">
                                                                 <HBox class="kyraAdminVectorDot" />
                                                                 <Link
                                                                     text="{accessModel>name}"
@@ -1611,12 +1771,17 @@
                                         </VBox>
 
                                         <!-- Right Sub-Panel: Team Details & Personas -->
-                                        <VBox width="51%" class="kyraAdminClassDetailSubPanel" justifyContent="SpaceBetween">
+                                        <VBox width="55%" class="kyraAdminClassDetailSubPanel" justifyContent="SpaceBetween">
                                             <VBox width="100%">
                                                 <!-- Selected Team Header Card -->
                                                 <VBox class="kyraAdminSelectedTeamCard sapUiSmallMarginBottom">
-                                                    <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                                        <Text text="SELECTED TEAM" class="kyraAdminMiniLabel" />
+                                                    <Text text="SELECTED TEAM" class="kyraAdminMiniLabel sapUiTinyMarginBottom" />
+                                                    <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraAdminSelectedTeamNameRow">
+                                                        <Text
+                                                            text="{= ${accessModel>/selectedAdminClassification/name} || 'Select a Team' }"
+                                                            class="kyraAdminSelectedTeamName"
+                                                            wrapping="true"
+                                                            tooltip="{accessModel>/selectedAdminClassification/name}" />
                                                         <HBox alignItems="Center" class="kyraAdminTeamActionBtns">
                                                             <Button
                                                                 icon="sap-icon://edit"
@@ -1630,11 +1795,6 @@
                                                                 tooltip="Delete Team" />
                                                         </HBox>
                                                     </HBox>
-                                                    <Text
-                                                        text="{= ${accessModel>/selectedAdminClassification/name} || 'Select a Team' }"
-                                                        class="kyraAdminSelectedTeamName"
-                                                        wrapping="true"
-                                                        tooltip="{accessModel>/selectedAdminClassification/name}" />
                                                 </VBox>
 
                                                 <!-- Persona List Header -->
@@ -1646,7 +1806,9 @@
                                                 <VBox items="{accessModel>/selectedAdminClassification/subClassifications}" class="kyraAdminSubClassListContainer" width="100%">
                                                     <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminPersonaItemRow sapUiTinyMarginBottom" width="100%">
                                                         <HBox alignItems="Center" class="kyraAdminPersonaLeft">
-                                                            <core:Icon src="sap-icon://person-placeholder" size="13px" color="#008C9C" class="sapUiTinyMarginEnd" />
+                                                            <HBox alignItems="Center" justifyContent="Center" class="kyraAdminPersonaIconBadge">
+                                                                <core:Icon src="sap-icon://person-placeholder" size="13px" color="#008C9C" />
+                                                            </HBox>
                                                             <Text text="{accessModel>name}" class="kyraAdminPersonaNameText" wrapping="true" tooltip="{accessModel>name}" />
                                                         </HBox>
                                                         <HBox alignItems="Center" class="kyraAdminPersonaActions">
@@ -1690,7 +1852,7 @@
                             </VBox>
                         </HBox>
 
-                        <!-- 3. BOTTOM FULL-WIDTH CARD: CUSTOM CONFLICT SECTION (Configure Conflicts from Systems, Services, Teams &amp; Personas above) -->
+                                                <!-- 3. BOTTOM FULL-WIDTH CARD: CUSTOM CONFLICT SECTION (Configure Conflicts from Systems, Services, Teams &amp; Personas above) -->
                         <VBox class="kyraAdminWhiteCard sapUiSmallMarginTop" width="100%">
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                 <VBox>
@@ -1775,20 +1937,20 @@
                                         rows="2"
                                         growing="false"
                                         width="100%"
-                                        class="kyraAdminFormInput kyraAdminBuilderTextArea" />
+                                        class="kyraAdminBuilderTextArea" />
                                 </VBox>
 
-                                <!-- Conflict Slide Footer Bar: Cancel &amp; Save -->
+                                <!-- Conflict Slide Footer Bar: Cancel & Save -->
                                 <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminConflictEditFooterBar sapUiSmallMarginTop">
                                     <Button
                                         text="Cancel"
                                         press=".onCancelCustomConflictDraft"
-                                        class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                        class="kyraAdminCancelBtn kyraAdminConflictCancelBtn" />
                                     <Button
                                         text="Save"
                                         type="Emphasized"
                                         press=".onSaveCustomConflictDraft"
-                                        class="kyraAdminSaveBtn" />
+                                        class="kyraAdminSaveBtn kyraAdminConflictSaveBtn sapUiSmallMarginBegin" />
                                 </HBox>
                             </VBox>
 
@@ -3469,6 +3631,7 @@
                                     text="Submit Access Request"
                                     type="Emphasized"
                                     press=".onFinalSubmitInPageAddAccess"
+                                    enabled="{= !${accessModel>/isSubmittingAccessRequest} }"
                                     class="kyraPrimaryBtn" />
                             </HBox>
                         </HBox>
@@ -3547,11 +3710,11 @@
                     </Table>
                 </VBox>
 
-                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver or Compliance Review and on My Access tab and Add Access is NOT active) -->
+                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver or Compliance Review and on My Access tab and none of the 3 action cards are active) -->
                 <mvc:XMLView 
                     id="approverSectionView"
                     viewName="kyra001.pages.Approver.Approver"
-                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; (${accessModel>/activeRole} === 'Engineering &amp; Developer' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
+                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; (${accessModel>/activeRole} === 'Engineering &amp; Developer' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
             </VBox>
 
             <!-- DEDICATED REQUEST TRACKING PAGE (Opened on clicking any row in Pending List) -->

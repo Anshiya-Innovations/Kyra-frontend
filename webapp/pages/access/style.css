@@ -32419,18 +32419,42 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     letter-spacing: -0.015em !important;
 }
 
+/* ========================================================================== */
+/* ADMIN HEADER ACTIONS: SEARCH BAR, ADD BUTTON, AND CLOSE ICON (MATCHING IMAGE) */
+/* ========================================================================== */
+
 .kyraAdminHeaderActions {
-    gap: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
 }
 
-/* 2. Form Inputs & Search Fields */
-.kyraAdminSearchField .sapMSFF {
-    border-radius: 8px !important;
-    border: 1px solid #CBD5E1 !important;
-    background: #FFFFFF !important;
+.kyraAdminHeaderActions .kyraCloseIconBtn {
+    margin-left: 4px !important;
+}
+
+/* 2. Form Inputs & Search Fields - Pixel-Perfect KYRA Admin Style */
+.kyraAdminSearchField,
+.kyraAdminSearchField.sapMSF {
     height: 36px !important;
-    line-height: 34px !important;
-    transition: all 0.2s ease !important;
+    background: transparent !important;
+}
+
+.kyraAdminSearchField form,
+.kyraAdminSearchField .sapMSFF {
+    height: 36px !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    background: #FFFFFF !important;
+    position: relative !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    box-sizing: border-box !important;
 }
 
 .kyraAdminSearchField .sapMSFF:hover {
@@ -32441,36 +32465,129 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
 .kyraAdminSearchField .sapMSFF:focus-within {
     border-color: #008C9C !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+    outline: none !important;
 }
 
+.kyraAdminSearchField .sapMSFInner,
+.kyraAdminSearchField .sapMSFR {
+    height: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    position: relative !important;
+}
+
+.kyraAdminSearchField input.sapMSFI,
+.kyraAdminSearchField input.sapMSFInput,
 .kyraAdminSearchField .sapMSFI {
-    font-size: 13px !important;
-    color: #0F172A !important;
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    left: 0 !important;
+    width: calc(100% - 36px) !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    font-size: 13.5px !important;
+    color: #1E293B !important;
+    padding-left: 14px !important;
+    padding-right: 4px !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    font-style: italic !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminSearchField input.sapMSFI::placeholder,
+.kyraAdminSearchField input.sapMSFInput::placeholder,
+.kyraAdminSearchField .sapMSFI::placeholder {
+    color: #64748B !important;
+    font-style: italic !important;
+    font-size: 13.5px !important;
+    line-height: 32px !important;
+    opacity: 0.95 !important;
+}
+
+.kyraAdminSearchField .sapMSFB {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    right: 0 !important;
+    height: 32px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.kyraAdminSearchField .sapMSFB .sapUiIcon,
+.kyraAdminSearchField .sapMSFSI {
+    color: #334155 !important;
+    font-size: 15px !important;
+    border: none !important;
+    outline: none !important;
+    transition: color 0.15s ease !important;
+}
+
+.kyraAdminSearchField .sapMSFB:hover .sapUiIcon,
+.kyraAdminSearchField .sapMSFB:hover .sapMSFSI {
+    color: #008C9C !important;
 }
 
 /* 3. Primary Action Buttons (Add System, Add Service, Add Conflict, Enter, Save) - KYRA Brand Teal */
+.kyraAdminAddBlueBtn,
+.kyraAdminAddBlueBtn.sapMBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    vertical-align: middle !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .kyraAdminAddBlueBtn .sapMBtnInner,
 .kyraAdminSaveBtn .sapMBtnInner {
-    background: linear-gradient(135deg, #008C9C 0%, #007684 100%) !important;
+    background: #008C9C !important;
     background-color: #008C9C !important;
     border: 1px solid #007684 !important;
     border-radius: 8px !important;
     color: #FFFFFF !important;
     font-weight: 600 !important;
-    font-size: 13px !important;
+    font-size: 13.5px !important;
     height: 36px !important;
     line-height: 34px !important;
-    padding: 0 18px !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    padding: 0 16px !important;
+    box-shadow: 0 2px 5px rgba(0, 140, 156, 0.25) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
 }
 
 .kyraAdminAddBlueBtn:hover .sapMBtnInner,
 .kyraAdminSaveBtn:hover .sapMBtnInner {
-    background: linear-gradient(135deg, #007684 0%, #005F6B 100%) !important;
+    background: #007684 !important;
     background-color: #007684 !important;
     border-color: #005F6B !important;
-    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
+    box-shadow: 0 4px 10px rgba(0, 140, 156, 0.35) !important;
     transform: translateY(-1px) !important;
 }
 
@@ -32480,19 +32597,79 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     box-shadow: 0 1px 3px rgba(0, 140, 156, 0.2) !important;
 }
 
-.kyraAdminAddBlueBtn .sapMBtnIcon,
+.kyraAdminAddBlueBtn .sapMBtnIcon {
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    margin-right: 6px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
 .kyraAdminAddBlueBtn .sapMBtnContent,
 .kyraAdminAddBlueBtn bdi,
 .kyraAdminSaveBtn .sapMBtnContent,
-.kyraAdminSaveBtn .sapMBtnIcon,
 .kyraAdminSaveBtn bdi {
     color: #FFFFFF !important;
     font-weight: 600 !important;
+    font-size: 13.5px !important;
+    line-height: 1 !important;
 }
 
 .kyraAdminSaveBtn .sapMBtnIcon {
     margin-right: 6px !important;
     font-size: 14px !important;
+}
+
+/* Close Icon Button - Clean Crisp Cross (Matching Image) */
+.kyraCloseIconBtn,
+.kyraCloseIconBtn.sapMBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    vertical-align: middle !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraCloseIconBtn .sapMBtnInner {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 8px !important;
+    height: 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: all 0.18s ease !important;
+}
+
+.kyraCloseIconBtn .sapMBtnIcon {
+    color: #64748B !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    transition: color 0.15s ease !important;
+}
+
+.kyraCloseIconBtn:hover .sapMBtnInner {
+    background: #F1F5F9 !important;
+    border: none !important;
+}
+
+.kyraCloseIconBtn:hover .sapMBtnIcon {
+    color: #0F172A !important;
 }
 
 /* Secondary Cancel Buttons */
@@ -48449,4 +48626,48 @@ select option:hover,
     background: #007684 !important;
     background-color: #007684 !important;
     box-shadow: 0 4px 12px rgba(0, 140, 156, 0.38) !important;
+}
+
+
+/* Business Sectors & Functions styles (Image 2) */
+.kyraAdminBusinessFunctionItemCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraAdminBusinessFunctionItemCard:hover {
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.08) !important;
+}
+
+.kyraAdminBusinessFunctionName {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #1E293B !important;
+}
+
+.kyraAdminSelectedRowHighlight {
+    background-color: #E0F7FA !important;
+    border-left: 3px solid #008C9C !important;
+}
+
+.kyraAdminSectorSelectedText {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+}
+
+.kyraVectorTealDot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background-color: #008C9C !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
 }
