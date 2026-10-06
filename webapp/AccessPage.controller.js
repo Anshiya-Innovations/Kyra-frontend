@@ -7118,20 +7118,13 @@ sap.ui.define([
             aModelSod.forEach(addRuleToMap);
             aCustomAll.forEach(addRuleToMap);
 
-            if (ruleMap.size === 0) {
-                [
-                    { role1: "IT Admin", role2: "IT Developer", status: "Active", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                    { role1: "IT Admin", role2: "IT Security", status: "Active", description: "System Administrator conflicts with Security Governance." },
-                    { role1: "IT Admin", role2: "Compliance Manager", status: "Active", description: "System Administrator conflicts with Compliance Manager oversight." },
-                    { role1: "IT Security", role2: "IT Developer", status: "Active", description: "Developer access conflicts with IT Security audit authority." },
-                    { role1: "Lead Engineer", role2: "IT Admin", status: "Active", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                    { role1: "Security", role2: "Compliance Manager", status: "Active", description: "Compliance Manager conflicts with Security Operational access." },
-                    { role1: "Security Audit", role2: "IT Developer", status: "Active", description: "Security Audit oversight conflicts with Developer operational access." },
-                    { role1: "System Administrator", role2: "Security Audit", status: "Active", description: "System Administrator conflicts with Security Audit role." }
-                ].forEach(addRuleToMap);
-            }
-
             const aSodRules = Array.from(ruleMap.values());
+            if (aSodRules.length === 0) {
+                oModel.setProperty("/activeSodConflictsList", []);
+                oModel.setProperty("/pendingOnlySodConflictsList", []);
+                oModel.setProperty("/batchSodConflictsList", []);
+                return;
+            }
 
             const normalizeSystemName = (sys) => {
                 if (!sys) return "";

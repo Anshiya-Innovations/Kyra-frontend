@@ -735,16 +735,7 @@ sap.ui.define([
             }
 
             if (!aSodRules || aSodRules.length === 0) {
-                aSodRules = oModel.getProperty("/sodMatrix") || [
-                    { role1: "IT Admin", role2: "IT Developer", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                    { role1: "IT Admin", role2: "IT Security", description: "System Administrator conflicts with Security Governance." },
-                    { role1: "IT Admin", role2: "Compliance Manager", description: "System Administrator conflicts with Compliance Manager oversight." },
-                    { role1: "IT Security", role2: "IT Developer", description: "Developer access conflicts with IT Security audit authority." },
-                    { role1: "Lead Engineer", role2: "IT Admin", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                    { role1: "Security", role2: "Compliance Manager", description: "Compliance Manager conflicts with Security Operational access." },
-                    { role1: "Security Audit", role2: "IT Developer", description: "Security Audit oversight conflicts with Developer operational access." },
-                    { role1: "System Administrator", role2: "Security Audit", description: "System Administrator conflicts with Security Audit role." }
-                ];
+                aSodRules = oModel.getProperty("/sodMatrix") || [];
             }
 
             // 1. Requester's LIVE active accesses (Approved and not revoked)
