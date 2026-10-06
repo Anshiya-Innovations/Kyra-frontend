@@ -7071,11 +7071,8 @@ sap.ui.define([
                         
                         oModel.setProperty("/sodMatrix", aRules.filter(r => r.status !== "Inactive"));
                         
-                        const iLastSave = this._lastConflictSaveTs || 0;
-                        if (Date.now() - iLastSave > 3000) {
-                            oModel.setProperty("/adminCustomConflictsAll", aRules);
-                            oModel.setProperty("/adminCustomConflicts", aRules.slice());
-                        }
+                        // Note: Custom admin conflicts are managed via admin_customization_config and getAdminCustomization.
+                        // _loadBackendSoDMatrix only updates /sodMatrix for live request evaluation and must NOT overwrite adminCustomConflicts.
 
                         const aCart = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/summaryItems") || oModel.getProperty("/addedRoles") || [];
                         if (aCart.length > 0 && typeof this._evaluateSodConflicts === "function") {
@@ -11309,6 +11306,15 @@ sap.ui.define([
                 oModel.setProperty("/adminCustomConflictsAll", aConf);
                 oModel.setProperty("/adminCustomConflicts", aConf.slice());
                 oModel.setProperty("/sodMatrix", aConf.filter(c => c.status !== "Inactive"));
+                try {
+                    localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aConf));
+                    const sSavedCfg = localStorage.getItem("kyra_custom_access_config");
+                    if (sSavedCfg) {
+                        const oSavedCfg = JSON.parse(sSavedCfg);
+                        oSavedCfg.adminCustomConflictsAll = aConf;
+                        localStorage.setItem("kyra_custom_access_config", JSON.stringify(oSavedCfg));
+                    }
+                } catch (e) {}
             }
             if (Array.isArray(oParsed.adminDatabaseSchemas) && oParsed.adminDatabaseSchemas.length > 0) {
                 oModel.setProperty("/adminDatabaseSchemas", oParsed.adminDatabaseSchemas);
@@ -11322,32 +11328,35 @@ sap.ui.define([
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            try {
-                const sSavedConfig = localStorage.getItem("kyra_custom_access_config");
-                if (sSavedConfig) {
-                    const oParsed = JSON.parse(sSavedConfig);
-                    this._applyParsedAdminConfigToModel(oModel, oParsed);
-                }
-            } catch (e) {
-                console.warn("Load custom access config error:", e);
-            }
-
-            try {
-                const sSavedConflicts = localStorage.getItem("kyra_custom_sod_matrix");
-                if (sSavedConflicts) {
-                    const aParsedConflicts = JSON.parse(sSavedConflicts);
-                    if (Array.isArray(aParsedConflicts)) {
-                        const aNormalized = aParsedConflicts.map(c => Object.assign({ status: c.status || "Active" }, c, {
-                            role1: this._normalizeRoleToPersonaName(c.role1),
-                            role2: this._normalizeRoleToPersonaName(c.role2)
-                        }));
-                        oModel.setProperty("/adminCustomConflictsAll", aNormalized);
-                        oModel.setProperty("/adminCustomConflicts", aNormalized.slice());
-                        oModel.setProperty("/sodMatrix", aNormalized.filter(c => c.status !== "Inactive"));
+            // Only read localStorage on cold boot before backend has ever responded in this session
+            if (!this._hasLoadedAdminConfigFromBackend) {
+                try {
+                    const sSavedConfig = localStorage.getItem("kyra_custom_access_config");
+                    if (sSavedConfig) {
+                        const oParsed = JSON.parse(sSavedConfig);
+                        this._applyParsedAdminConfigToModel(oModel, oParsed);
                     }
+                } catch (e) {
+                    console.warn("Load custom access config error:", e);
                 }
-            } catch (e) {
-                console.warn("Load custom conflicts error:", e);
+
+                try {
+                    const sSavedConflicts = localStorage.getItem("kyra_custom_sod_matrix");
+                    if (sSavedConflicts) {
+                        const aParsedConflicts = JSON.parse(sSavedConflicts);
+                        if (Array.isArray(aParsedConflicts)) {
+                            const aNormalized = aParsedConflicts.map(c => Object.assign({ status: c.status || "Active" }, c, {
+                                role1: this._normalizeRoleToPersonaName(c.role1),
+                                role2: this._normalizeRoleToPersonaName(c.role2)
+                            }));
+                            oModel.setProperty("/adminCustomConflictsAll", aNormalized);
+                            oModel.setProperty("/adminCustomConflicts", aNormalized.slice());
+                            oModel.setProperty("/sodMatrix", aNormalized.filter(c => c.status !== "Inactive"));
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Load custom conflicts error:", e);
+                }
             }
 
             this._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
@@ -11381,6 +11390,7 @@ sap.ui.define([
                         try {
                             const oParsed = JSON.parse(sJson);
                             if (oParsed && typeof oParsed === "object") {
+                                that._hasLoadedAdminConfigFromBackend = true;
                                 // Don't overwrite if admin made a conflict change more recently than this load started
                                 const iLastSave = that._lastConflictSaveTs || 0;
                                 if (iLastSave > iLoadTs) {
@@ -14908,11 +14918,24 @@ sap.ui.define([
             const sTitle = oRule.description || "Conflict Rule";
 
             this._confirmDelete(sTitle, () => {
-                const aRemaining = (oModel.getProperty("/adminCustomConflictsAll") || []).filter(item =>
-                    !(item.role1 === oRule.role1 && item.role2 === oRule.role2 && item.system === oRule.system)
-                );
+                const aRemaining = (oModel.getProperty("/adminCustomConflictsAll") || []).filter(item => {
+                    if (item.id && oRule.id && item.id === oRule.id) return false;
+                    const bSameSys = (item.system || "All Systems").trim().toLowerCase() === (oRule.system || "All Systems").trim().toLowerCase();
+                    const r1 = (item.role1 || "").trim().toLowerCase();
+                    const r2 = (item.role2 || "").trim().toLowerCase();
+                    const target1 = (oRule.role1 || "").trim().toLowerCase();
+                    const target2 = (oRule.role2 || "").trim().toLowerCase();
+                    if (bSameSys && ((r1 === target1 && r2 === target2) || (r1 === target2 && r2 === target1))) {
+                        return false;
+                    }
+                    return true;
+                });
                 oModel.setProperty("/adminCustomConflictsAll", aRemaining);
                 oModel.setProperty("/adminCustomConflicts", aRemaining.slice());
+                oModel.setProperty("/sodMatrix", aRemaining.filter(c => c && c.status !== "Inactive"));
+                try {
+                    localStorage.setItem("kyra_custom_sod_matrix", JSON.stringify(aRemaining));
+                } catch(e) {}
                 this._syncAdminConfigToLiveAddAccess(oModel);
                 this._persistConflictsToDb(oModel, "✅ Conflict Rule deleted from database successfully.");
                 this._showSlideNotification("Conflict Rule Deleted", `"${sTitle}" has been deleted.`, "delete");
