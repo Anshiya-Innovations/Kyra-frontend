@@ -117,22 +117,16 @@ sap.ui.define([
 
     function deriveServiceTopicFromRole(roleStr, rawService) {
         const cleanRaw = rawService ? String(rawService).replace(/\s*\([^)]*\)/g, "").trim() : "";
-        if (cleanRaw === "System Administrator" || cleanRaw === "System Owners" || cleanRaw === "Stakeholders") {
+        if (cleanRaw && cleanRaw !== "Corporate Governance" && cleanRaw !== "Finance" && cleanRaw !== "Logistics" && cleanRaw !== "Supply Chain") {
             return cleanRaw;
         }
         const rStr = String(roleStr || "");
         const match = rStr.match(/\((.*?)\)/);
         if (match && match[1]) {
-            const m = match[1].trim();
-            if (m.includes("Administrator")) return "System Administrator";
-            if (m.includes("Owner") && !m.includes("Stakeholders")) return "System Owners";
-            if (m.includes("Stakeholder")) return "Stakeholders";
+            return match[1].trim();
         }
         const rLower = rStr.toLowerCase();
-        if (rLower.includes("developer") || rLower.includes("administrator") || rLower.includes("lead engineer") || rLower.includes("security")) {
-            return "System Administrator";
-        }
-        if (rLower.includes("product group") || rLower.includes("technical product owner")) {
+        if (rLower.includes("product group") || rLower.includes("technical product owner") || rLower.includes("system owner")) {
             return "System Owners";
         }
         if (rLower.includes("stakeholder") || rLower.includes("line manager") || rLower.includes("compliance") || rLower.includes("isrm") || rLower.includes("grc") || rLower.includes("role owner")) {
@@ -12695,18 +12689,35 @@ sap.ui.define([
 
                                 const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                                 if (sOldName !== sNewName && oDetailsMap[sOldName]) {
-                                    oDetailsMap[sNewName] = oDetailsMap[sOldName];
+                                    oDetailsMap[sNewName] = oDetailsMap[sOldName].map(t => {
+                                        let tName = t.name || t.teamName || "";
+                                        if (tName.includes(`(${sOldName})`)) {
+                                            tName = tName.replace(`(${sOldName})`, `(${sNewName})`);
+                                        }
+                                        return Object.assign({}, t, { name: tName, teamName: tName });
+                                    });
                                     delete oDetailsMap[sOldName];
                                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                                 }
+
+                                const aConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => {
+                                    if (c.service === sOldName) {
+                                        return Object.assign({}, c, { service: sNewName });
+                                    }
+                                    return c;
+                                });
+                                oModel.setProperty("/adminCustomConflictsAll", aConflicts);
+                                oModel.setProperty("/adminCustomConflicts", aConflicts.slice());
 
                                 if (oModel.getProperty("/selectedAdminServiceName") === sOldName) {
                                     oModel.setProperty("/selectedAdminServiceName", sNewName);
                                 }
 
+                                that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' updated and saved to database.");
                                 that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' updated (Draft: " + sNewStatus + "). Click Save to apply.");
-                                MessageToast.show("Service '" + sNewName + "' updated (Draft). Click Save to apply.");
+                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' updated and saved to database.");
+                                MessageToast.show("Service '" + sNewName + "' updated and saved to database.");
                                 closeFn();
                             };
                         }
@@ -13459,10 +13470,12 @@ sap.ui.define([
                                     oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
                                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                                 }
+                                that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                that._persistAllCustomizationsToDb(oModel, "Persona '" + sNewName + "' updated and saved to database.");
                                 that._ensureAdminSnapshots(oModel);
 
-                                that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated (Draft). Click Save to apply.");
-                                MessageToast.show("Persona '" + sNewName + "' updated (Draft). Click Save to apply.");
+                                that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated and saved to database.");
+                                MessageToast.show("Persona '" + sNewName + "' updated and saved to database.");
                                 closeFn();
                             };
                         }

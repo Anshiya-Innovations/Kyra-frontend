@@ -35,20 +35,22 @@ sap.ui.define([
 
     function deriveServiceTopicFromRole(roleStr, rawService) {
         const sRawService = String(rawService || "").replace(/\s*\([^)]*\)/g, "").trim();
-        if (sRawService === "System Administrator" || sRawService === "System Owners" || sRawService === "Stakeholders") {
+        if (sRawService && sRawService !== "Corporate Governance" && sRawService !== "Finance" && sRawService !== "Logistics" && sRawService !== "Supply Chain") {
             return sRawService;
         }
-        const rLower = String(roleStr || "").toLowerCase();
-        if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
-            return "";
+        const rStr = String(roleStr || "");
+        const match = rStr.match(/\((.*?)\)/);
+        if (match && match[1]) {
+            return match[1].trim();
         }
+        const rLower = rStr.toLowerCase();
         if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
             return "System Owners";
         }
         if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
             return "Stakeholders";
         }
-        return "";
+        return sRawService || "";
     }
 
     function getBaseReqId(num) {
@@ -345,18 +347,16 @@ sap.ui.define([
 
                     const cleanRole = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").trim();
                     const getCleanServiceTopic = (req) => {
-                        let s = req.serviceTopic || req.service_topic || req.service || req.team;
+                        let s = req.serviceTopic || req.service_topic || req.service;
                         if (!s || s === req.function || s === req.business_function || s.includes("Governance") || s.includes("Finance") || s.includes("Logistics") || s.includes("Supply Chain")) {
                             const roleStr = (req.roleName || req.role_name || req.selectedPersona || req.selected_persona || "").toLowerCase();
                             if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("analyst")) {
                                 return "System Owners";
                             } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
                                 return "Stakeholders";
-                            } else {
-                                return "";
                             }
                         }
-                        return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
+                        return String(s || "").replace(/\s*\([^)]*\)/g, "").trim();
                     };
 
                     if (oRequest.entitlements && oRequest.entitlements.length > 0) {
@@ -571,18 +571,18 @@ sap.ui.define([
                             }
                             // Clean fallback safeguards so wrong placeholder data is never displayed
                             if (!item.services || item.services.toLowerCase().includes("revocation")) {
-                                item.services = "System Administrator";
-                                item.serviceTopic = "System Administrator";
-                                item.service = "System Administrator";
+                                item.services = (matchingApproved && matchingApproved.service_topic) || (matchingApproved && matchingApproved.service) || item.serviceTopic || item.service || "";
+                                item.serviceTopic = item.services;
+                                item.service = item.services;
                             }
-                            if (!item.team || item.team.toLowerCase().includes("administrator")) {
-                                item.team = "IT Developers";
-                                item.teamName = "IT Developers";
-                                item.roleName = "IT Developers";
+                            if (!item.team) {
+                                item.team = (matchingApproved && matchingApproved.role_name) || item.teamName || item.roleName || "";
+                                item.teamName = item.team;
+                                item.roleName = item.team;
                             }
                             if (!item.selectedPersona || item.selectedPersona.toLowerCase() === "requester" || item.selectedPersona.toLowerCase() === "user") {
-                                item.selectedPersona = "Frontend & UI Developer";
-                                item.persona = "Frontend & UI Developer";
+                                item.selectedPersona = (matchingApproved && matchingApproved.selected_persona) || item.persona || "";
+                                item.persona = item.selectedPersona;
                             }
                             if (!item.grantedDate) {
                                 item.grantedDate = "2026-09-17";
@@ -2088,13 +2088,17 @@ sap.ui.define([
             };
 
             const deriveCleanService = (r) => {
+                const sDirect = (r.service_topic || r.serviceTopic || r.service || "").trim();
+                if (sDirect && sDirect !== "Corporate Governance" && sDirect !== "Finance" && sDirect !== "Logistics" && sDirect !== "Supply Chain") {
+                    return sDirect.replace(/\s*\([^)]*\)/g, "").trim();
+                }
                 const roleStr = (r.role_name || r.roleName || r.selected_persona || r.selectedPersona || r.requester_persona || r.persona || "").toLowerCase();
                 if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("lead") || roleStr.includes("product manager")) {
                     return "System Owners";
                 } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("isrm")) {
                     return "Stakeholders";
                 } else {
-                    return "";
+                    return sDirect || "";
                 }
             };
 
