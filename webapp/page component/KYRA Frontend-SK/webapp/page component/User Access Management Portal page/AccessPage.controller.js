@@ -401,6 +401,9 @@ sap.ui.define([
                     { systemName: "SAP SuccessFactors", environment: "Cloud", thresholdLimit: "8", status: "Active", createdDate: "2025-02-14" },
                     { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-03-01" }
                 ],
+                showAdminSystemSlide: true,
+                adminSystemSlideMode: "edit",
+                adminSystemDraft: { systemName: "SAP BTP Cloud Platform", thresholdLimit: "7", status: "Active" },
                 adminServicesAll: [
                     { serviceName: "System Administrator", status: "Active", selected: false },
                     { serviceName: "System Owners", status: "Active", selected: true },
@@ -11794,6 +11797,11 @@ sap.ui.define([
             oDomRef.addEventListener("click", closeHandler);
         },
 
+        
+        onToggleAdminSystemSlide() {
+            this.onAddAdminSystem();
+        },
+
         onAddAdminSystem() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -11827,7 +11835,7 @@ sap.ui.define([
                         <div class="kyra-system-modal-body">
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_add_sys_name">SYSTEM NAME <span style="color:#EF4444">*</span></label>
-                                <input type="text" id="kyra_add_sys_name" class="kyra-system-modal-input" placeholder="e.g. SAP Analytics Cloud" value="" autocomplete="off" />
+                                <input type="text" id="kyra_add_sys_name" class="kyra-system-modal-input" placeholder="e.g. SAP BTP Cloud Platform" value="" autocomplete="off" />
                             </div>
                             
                             <div class="kyra-system-modal-row">
@@ -11868,12 +11876,12 @@ sap.ui.define([
                     contentWidth: "520px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
-                    class: "kyraSystemModalDialog",
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
                     afterClose: () => oDialog.destroy()
                 });
+                oDialog.addStyleClass("kyraSystemModalDialog");
 
                 that.getView().addDependent(oDialog);
                 oDialog.open();
@@ -11894,10 +11902,6 @@ sap.ui.define([
                         submitBtn.onclick = () => {
                             const sName = (nameInput ? nameInput.value : "").trim();
                             if (!sName) {
-                                if (nameInput) {
-                                    nameInput.style.borderColor = "#EF4444";
-                                    nameInput.focus();
-                                }
                                 MessageToast.show("Please enter a valid System Name.");
                                 return;
                             }
@@ -11919,8 +11923,12 @@ sap.ui.define([
                             aAll.push(oNew);
                             oModel.setProperty("/adminSystemsAll", aAll);
                             oModel.setProperty("/adminSystems", aAll.slice());
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("System Added", "System '" + oNew.systemName + "' added successfully.");
+                            if (that._syncAdminConfigToLiveAddAccess) {
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                            }
+                            if (that._showSlideNotification) {
+                                that._showSlideNotification("System Added", "System '" + oNew.systemName + "' added successfully.");
+                            }
                             MessageToast.show("System '" + oNew.systemName + "' added successfully.");
                             closeFn();
                         };
@@ -11957,7 +11965,7 @@ sap.ui.define([
                                     <div class="kyra-system-modal-subtitle">Modify system parameters, threshold limit, and active status</div>
                                 </div>
                             </div>
-                            <button type="button" class="kyra-system-modal-close-x" id="kyra_sys_edit_close_x" title="Close">
+                            <button type="button" class="kyra-system-modal-close-x kyra-modal-close-btn" id="kyra_sys_edit_close_x" title="Close">
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
                                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -11975,23 +11983,14 @@ sap.ui.define([
                                 <div class="kyra-system-modal-form-group" style="flex:1;">
                                     <label class="kyra-system-modal-label" for="kyra_edit_sys_threshold">THRESHOLD LIMIT</label>
                                     <select id="kyra_edit_sys_threshold" class="kyra-system-modal-select">
-                                        <option value="1" ${sCurrentThreshold === "1" ? "selected" : ""}>1</option>
-                                        <option value="2" ${sCurrentThreshold === "2" ? "selected" : ""}>2</option>
-                                        <option value="3" ${sCurrentThreshold === "3" ? "selected" : ""}>3</option>
-                                        <option value="4" ${sCurrentThreshold === "4" ? "selected" : ""}>4</option>
-                                        <option value="5" ${sCurrentThreshold === "5" || sCurrentThreshold === "90" || sCurrentThreshold === "90%" ? "selected" : ""}>5</option>
-                                        <option value="6" ${sCurrentThreshold === "6" ? "selected" : ""}>6</option>
-                                        <option value="7" ${sCurrentThreshold === "7" ? "selected" : ""}>7</option>
-                                        <option value="8" ${sCurrentThreshold === "8" || sCurrentThreshold === "95" || sCurrentThreshold === "95%" ? "selected" : ""}>8</option>
-                                        <option value="9" ${sCurrentThreshold === "9" ? "selected" : ""}>9</option>
-                                        <option value="10" ${sCurrentThreshold === "10" || sCurrentThreshold === "100" || sCurrentThreshold === "100%" ? "selected" : ""}>10</option>
+                                        ${[1,2,3,4,5,6,7,8,9,10].map(v => `<option value="${v}" ${String(v) === String(sCurrentThreshold) ? 'selected' : ''}>${v}</option>`).join('')}
                                     </select>
                                 </div>
                                 <div class="kyra-system-modal-form-group" style="flex:1;">
                                     <label class="kyra-system-modal-label" for="kyra_edit_sys_status">STATUS</label>
                                     <select id="kyra_edit_sys_status" class="kyra-system-modal-select">
-                                        <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                        <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                        <option value="Active" ${sCurrentStatus === 'Active' ? 'selected' : ''}>Active</option>
+                                        <option value="Inactive" ${sCurrentStatus === 'Inactive' ? 'selected' : ''}>Inactive</option>
                                     </select>
                                 </div>
                             </div>
@@ -12009,12 +12008,12 @@ sap.ui.define([
                     contentWidth: "520px",
                     horizontalScrolling: false,
                     verticalScrolling: false,
-                    class: "kyraSystemModalDialog",
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
                     afterClose: () => oDialog.destroy()
                 });
+                oDialog.addStyleClass("kyraSystemModalDialog");
 
                 that.getView().addDependent(oDialog);
                 oDialog.open();
@@ -12028,21 +12027,14 @@ sap.ui.define([
                     if (cancelBtn) cancelBtn.onclick = closeFn;
 
                     const nameInput = document.getElementById("kyra_edit_sys_name");
-                    if (nameInput) {
-                        nameInput.focus();
-                        nameInput.select();
-                    }
+                    if (nameInput) nameInput.focus();
 
                     const submitBtn = document.getElementById("kyra_edit_sys_submit_btn");
                     if (submitBtn) {
                         submitBtn.onclick = () => {
                             const sNewName = (nameInput ? nameInput.value : "").trim();
                             if (!sNewName) {
-                                if (nameInput) {
-                                    nameInput.style.borderColor = "#EF4444";
-                                    nameInput.focus();
-                                }
-                                MessageToast.show("System Name cannot be empty.");
+                                MessageToast.show("Please enter a valid System Name.");
                                 return;
                             }
                             const threshSelect = document.getElementById("kyra_edit_sys_threshold");
@@ -12050,18 +12042,24 @@ sap.ui.define([
                             const statusSelect = document.getElementById("kyra_edit_sys_status");
                             const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
 
-                            const aAll = (oModel.getProperty("/adminSystemsAll") || []).map(item =>
-                                item.systemName === sOldName ? Object.assign({}, item, {
+                            const aAll = (oModel.getProperty("/adminSystemsAll") || []).slice();
+                            const idx = aAll.findIndex(s => s.systemName === sOldName);
+                            if (idx >= 0) {
+                                aAll[idx] = Object.assign({}, aAll[idx], {
                                     systemName: sNewName,
                                     thresholdLimit: sNewThreshold,
                                     status: sNewStatus
-                                }) : item
-                            );
-                            oModel.setProperty("/adminSystemsAll", aAll);
-                            oModel.setProperty("/adminSystems", aAll.slice());
-                            that._syncAdminConfigToLiveAddAccess(oModel);
-                            that._showSlideNotification("System Updated", "System '" + sNewName + "' updated successfully.");
-                            MessageToast.show("System '" + sNewName + "' updated successfully.");
+                                });
+                                oModel.setProperty("/adminSystemsAll", aAll);
+                                oModel.setProperty("/adminSystems", aAll.slice());
+                                if (that._syncAdminConfigToLiveAddAccess) {
+                                    that._syncAdminConfigToLiveAddAccess(oModel);
+                                }
+                                if (that._showSlideNotification) {
+                                    that._showSlideNotification("System Updated", "System '" + sNewName + "' updated successfully.");
+                                }
+                                MessageToast.show("System '" + sNewName + "' updated successfully.");
+                            }
                             closeFn();
                         };
                     }
