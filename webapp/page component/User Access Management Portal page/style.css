@@ -45728,31 +45728,44 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 }
 
 /* ========================================================================== */
-/* USER FIX 4: BUSINESS FUNCTION DETAILS HEADER & ADD BUTTON (Image 4)       */
+/* USER FIX 2: BUSINESS FUNCTION DETAILS HEADER & ADD BUTTON (Image 2)       */
 /* ========================================================================== */
-.kyraAdminCardHeaderRow {
+.kyraAdminCardHeaderRow,
+.kyraAdminHeaderFlexRow {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     gap: 12px !important;
     width: 100% !important;
+    min-width: 0 !important;
     box-sizing: border-box !important;
+    overflow: visible !important;
 }
 
-.kyraAdminCardHeaderRow .kyraAdminCardTitle,
-.kyraAdminCardHeaderRow .kyraAdminCardTitle.sapMTitle {
+.kyraAdminHeaderTitleCol {
     flex: 1 1 auto !important;
     min-width: 0 !important;
-    font-size: 16px !important;
+    overflow: hidden !important;
+}
+
+.kyraAdminHeaderTitleCol .kyraAdminCardTitle,
+.kyraAdminHeaderTitleCol .sapMTitle,
+.kyraAdminCardHeaderRow .kyraAdminCardTitle,
+.kyraAdminCardHeaderRow .sapMTitle.kyraAdminCardTitle {
+    display: block !important;
+    width: 100% !important;
+    font-size: 15px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
+    min-width: 0 !important;
 }
 
 .kyraAdminHeaderActions {
     flex-shrink: 0 !important;
+    margin-left: auto !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
@@ -45762,19 +45775,19 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraAdminAddBlueBtn.sapMBtn {
     white-space: nowrap !important;
     flex-shrink: 0 !important;
+    min-width: max-content !important;
     height: 36px !important;
     min-height: 36px !important;
 }
 
 .kyraAdminAddBlueBtn .sapMBtnInner {
     white-space: nowrap !important;
-    padding: 0 16px !important;
+    padding: 0 14px !important;
     border-radius: 8px !important;
 }
 
 /* ========================================================================== */
-/* USER FIX 5: IMAGE 5 ROUNDED-RECTANGLE DESIGN ONLY FOR "VIEW ALL" BUTTON   */
-/* (Applied to Requester, Approver, and Compliance Reviewer View All)        */
+/* USER FIX 1: "VIEW ALL" BUTTON WITH CYAN GLOW HOVER ACTION (Image 1)       */
 /* ========================================================================== */
 .kyraViewAllBtn,
 .kyraViewAllBtn.sapMBtn {
@@ -45797,13 +45810,13 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInne
     padding: 0 20px !important;
     background: #008C9C !important;
     background-color: #008C9C !important;
-    border: 1px solid #008C9C !important;
+    border: 1.5px solid #008C9C !important;
     border-radius: 8px !important;
     color: #FFFFFF !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     box-shadow: 0 2px 6px rgba(0, 140, 156, 0.22) !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -45824,18 +45837,18 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border-color: #007684 !important;
-    box-shadow: 0 4px 10px rgba(0, 140, 156, 0.32) !important;
-    transform: translateY(-1px) !important;
+    border-color: #00E5FF !important;
+    box-shadow: 0 0 16px 3px rgba(0, 229, 255, 0.72), 0 0 6px rgba(0, 229, 255, 0.88) !important;
+    transform: translateY(0) !important;
 }
 
 .kyraViewAllBtn:active .sapMBtnInner,
 .kyraViewAllBtn.sapMBtn:active .sapMBtnInner {
     transform: translateY(0) !important;
-    box-shadow: 0 1px 4px rgba(0, 140, 156, 0.2) !important;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.5) !important;
 }
 
-/* History Filter Button (distinct from View All) */
+/* History Filter Button */
 .kyraHistoryFilterBtn,
 .kyraHistoryFilterBtn.sapMBtn {
     height: 36px !important;
@@ -45864,7 +45877,19 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 }
 
 /* ========================================================================== */
-/* USER FIX 1: BIG PROMINENT SLIDE NOTIFICATION POPUP                        */
+/* USER FIX 3: READONLY MODAL INPUT STYLING (Image 3)                        */
+/* ========================================================================== */
+.kyra-system-modal-readonly {
+    background: #F8FAFC !important;
+    color: #64748B !important;
+    border-color: #E2E8F0 !important;
+    cursor: not-allowed !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+/* ========================================================================== */
+/* BIG PROMINENT SLIDE NOTIFICATION POPUP                                    */
 /* ========================================================================== */
 .kyra-slide-notification {
     position: fixed !important;

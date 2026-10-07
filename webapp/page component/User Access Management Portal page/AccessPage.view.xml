@@ -1473,8 +1473,10 @@
 
                             <!-- Right Card: Business Function Details -->
                             <VBox class="kyraAdminWhiteCard kyraAdminServiceDetailsCard" width="49.5%">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
-                                    <Title text="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" level="H4" class="kyraAdminCardTitle" />
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow kyraAdminHeaderFlexRow" width="100%">
+                                    <VBox class="kyraAdminHeaderTitleCol">
+                                        <Title text="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" level="H4" class="kyraAdminCardTitle" tooltip="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" wrapping="false" />
+                                    </VBox>
                                     <HBox alignItems="Center" class="kyraAdminHeaderActions">
                                         <Button
                                             text="Add Business Function"

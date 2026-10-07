@@ -13026,6 +13026,7 @@ sap.ui.define([
 
             const that = this;
             const sOldName = oSelected.name;
+            const sCleanTeamName = (sOldName || "").replace(/\s*\([^)]*\)$/, "").trim();
             const sCurrentStatus = oSelected.status || "Active";
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
 
@@ -13061,7 +13062,7 @@ sap.ui.define([
                             
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_team_name">TEAM NAME <span style="color:#EF4444">*</span></label>
-                                <input type="text" id="kyra_edit_team_name" class="kyra-system-modal-input" placeholder="Enter team name" value="${sOldName}" autocomplete="off" />
+                                <input type="text" id="kyra_edit_team_name" class="kyra-system-modal-input" placeholder="Enter team name" value="${sCleanTeamName}" autocomplete="off" />
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
@@ -13120,7 +13121,8 @@ sap.ui.define([
                                 }
                                 const statusSelect = oDom.querySelector("#kyra_edit_team_status");
                                 const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
-                                const sFinalTeamName = (sServiceName && !sNewName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sNewName} (${sServiceName})` : sNewName;
+                                const sCleanNewName = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
+                                const sFinalTeamName = sServiceName ? `${sCleanNewName} (${sServiceName})` : sCleanNewName;
 
                                 const oUpdated = Object.assign({}, oSelected, {
                                     name: sFinalTeamName,
@@ -13566,10 +13568,13 @@ sap.ui.define([
 
             const that = this;
             const sOldName = oPersona.name || "";
+            const sCleanPersonaName = (sOldName || "").replace(/\s*\([^)]*\)$/, "").trim();
             const sCurrentStatus = oPersona.status || "Active";
             const sCurrentPrivilege = oPersona.accessPrivilege || "Not restricted";
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
             const oSelectedTeam = oModel.getProperty("/selectedAdminClassification");
+            const sTeamRaw = (oSelectedTeam && oSelectedTeam.name) || "";
+            const sCleanTeamDisplay = sTeamRaw.replace(/\s*\([^)]*\)$/, "").trim();
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
                 const sHtmlContent = `
@@ -13598,12 +13603,12 @@ sap.ui.define([
                         <div class="kyra-system-modal-body">
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label">TEAM NAME</label>
-                                <input type="text" class="kyra-system-modal-input kyra-system-modal-readonly" value="${(oSelectedTeam && oSelectedTeam.name) || ''}" readonly disabled />
+                                <input type="text" class="kyra-system-modal-input kyra-system-modal-readonly" value="${sCleanTeamDisplay}" readonly disabled />
                             </div>
 
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_persona_name">PERSONA NAME <span style="color:#EF4444">*</span></label>
-                                <input type="text" id="kyra_edit_persona_name" class="kyra-system-modal-input" placeholder="Enter persona name" value="${sOldName}" autocomplete="off" />
+                                <input type="text" id="kyra_edit_persona_name" class="kyra-system-modal-input" placeholder="Enter persona name" value="${sCleanPersonaName}" autocomplete="off" />
                             </div>
 
                             <div class="kyra-system-modal-form-group">
@@ -13674,9 +13679,8 @@ sap.ui.define([
                                 const restrictedSelect = oDom.querySelector("#kyra_edit_persona_restricted");
                                 const sNewPrivilege = restrictedSelect ? restrictedSelect.value : sCurrentPrivilege;
 
-                                const sTeamRaw = (oSelectedTeam && oSelectedTeam.name) || "";
-                                const sTeamShort = sTeamRaw.replace(/\s*\([^)]*\)/g, "").trim();
-                                const sFinalPersonaName = (sTeamShort && !sNewName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sNewName} (${sTeamShort})` : sNewName;
+                                const sCleanNewPersona = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
+                                const sFinalPersonaName = sTeamShort ? `${sCleanNewPersona} (${sTeamShort})` : sCleanNewPersona;
 
                                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p => {
                                     if (p.name === sOldName) {
