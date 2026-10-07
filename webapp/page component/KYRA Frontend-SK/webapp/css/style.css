@@ -1,4 +1,4 @@
-/* KYRA Enterprise 2026 - Master SAP Fiori Horizon LIGHT THEME Design System */
+﻿/* KYRA Enterprise 2026 - Master SAP Fiori Horizon LIGHT THEME Design System */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -1719,7 +1719,7 @@ html body .sapUiTheme-sap_horizon .fioriCellActionBtn:hover .sapMBtnIcon {
     font-weight: 600 !important;
 }
 
-/* PROMINENT LARGE ENTERPRISE ACTION CONTROLS: ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“ APPROVE & ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢ REJECT */
+/* PROMINENT LARGE ENTERPRISE ACTION CONTROLS: ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ APPROVE & ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ REJECT */
 .fioriRowActionBtnBox {
     display: flex !important;
     align-items: center !important;
@@ -3168,7 +3168,7 @@ html body .kyraJustificationTextArea {
     position: relative !important;
 }
 
-/* #inPageJustificationArea — teal border via ID (140px height, compact, top-left aligned) */
+/* #inPageJustificationArea â€” teal border via ID (140px height, compact, top-left aligned) */
 #inPageJustificationArea,
 #inPageJustificationArea.sapMTextArea,
 html body #inPageJustificationArea,
@@ -3391,7 +3391,7 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMTextAreaInner {
     display: block !important;
 }
 
-/* Hover state — no border on inner textarea (border is on outer wrapper only) */
+/* Hover state â€” no border on inner textarea (border is on outer wrapper only) */
 .kyraJustificationTextArea:hover,
 .kyraJustificationTextArea.sapMTextArea:hover,
 #inPageJustificationArea:hover,
@@ -3411,7 +3411,7 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMTextAreaInner:ho
     outline: none !important;
 }
 
-/* Focus state — no border on inner textarea (teal border glow comes from outer wrapper) */
+/* Focus state â€” no border on inner textarea (teal border glow comes from outer wrapper) */
 .kyraJustificationTextArea .sapMTextAreaInner:focus,
 .kyraJustificationTextArea .sapMTextAreaInner.sapMFocus,
 .kyraJustificationTextArea textarea:focus,
@@ -5219,7 +5219,7 @@ html body .sapMBtn.kyraSodFooterCancelBtn:hover .sapMBtnContent > bdi {
     color: #008B95 !important;
 }
 
-/* 5. DESTRUCTIVE / REMOVE BUTTON — On-brand teal ghost, danger hint on hover */
+/* 5. DESTRUCTIVE / REMOVE BUTTON â€” On-brand teal ghost, danger hint on hover */
 .kyraDestructiveBtn,
 .kyraDestructiveBtn.sapMBtn {
     height: 36px !important;
@@ -5621,7 +5621,7 @@ html body .sapUiTheme-sap_horizon .kyraNavPillBtn .sapMBtnInner:focus {
     box-shadow: none !important;
 }
 
-/* ── 1. INACTIVE / UNSELECTED STATE (White card, slate border, dark slate text/icon) ── */
+/* â”€â”€ 1. INACTIVE / UNSELECTED STATE (White card, slate border, dark slate text/icon) â”€â”€ */
 html body .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized) .sapMBtnInner,
 html body .kyraNavPillBtn.sapMBtnTransparent:not(.sapMBtnInverted) .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized) .sapMBtnInner,
@@ -5686,7 +5686,7 @@ html body .kyraNavPillBtn.sapMBtnTransparent:not(.sapMBtnInverted):hover .sapMBt
     color: #0F172A !important;
 }
 
-/* ── 2. ACTIVE / SELECTED STATE (Solid Kyra Teal #008C9C, pure white text & icon) ── */
+/* â”€â”€ 2. ACTIVE / SELECTED STATE (Solid Kyra Teal #008C9C, pure white text & icon) â”€â”€ */
 html body .kyraNavPillBtn.sapMBtnInverted .sapMBtnInner,
 html body .kyraNavPillBtn.sapMBtnEmphasized .sapMBtnInner,
 html body .kyraNavPillBtn.sapMBtnInverted.sapMBtn .sapMBtnInner,
@@ -8668,7 +8668,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     width: 100% !important;
 }
 
-/* Green Icon-Only ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“ Approve Button */
+/* Green Icon-Only ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ Approve Button */
 .kyraDecisionIconBtnApprove {
     background: transparent !important;
     border: none !important;
@@ -8709,7 +8709,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     font-size: 14px !important;
 }
 
-/* Red Icon-Only ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¢ Reject Button */
+/* Red Icon-Only ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Reject Button */
 .kyraDecisionIconBtnReject {
     background: transparent !important;
     border: none !important;
@@ -19309,7 +19309,7 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
     visibility: hidden !important;
 }
 
-/* SELECTED CHECKBOX: GREEN BACKGROUND WITH A CLEAR WHITE ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“ TICK SYMBOL CENTERED INSIDE */
+/* SELECTED CHECKBOX: GREEN BACKGROUND WITH A CLEAR WHITE ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ TICK SYMBOL CENTERED INSIDE */
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMCbBg,
 .sapMMultiComboBoxPopup .sapMLIB[aria-selected="true"] .sapMCbBg,
 .sapMMultiComboBoxItems .sapMLIBSelected .sapMCbBg,
@@ -20965,7 +20965,7 @@ td.sapMListNoDataCell,
 }
 
 .map-pin-container.active .pin-label::before {
-    content: "✓ " !important;
+    content: "âœ“ " !important;
     font-weight: 900 !important;
     color: #FFFFFF !important;
 }
@@ -25241,7 +25241,7 @@ html body .sapUiTheme-sap_horizon .kyraHistIcon_darkteal .sapUiIcon {
     fill: #007684 !important;
 }
 
-/* Addition: KYRA Teal (matches brand — new access is positive/teal action) */
+/* Addition: KYRA Teal (matches brand â€” new access is positive/teal action) */
 .kyraHistIcon_addition,
 html body .kyraHistIcon_addition,
 html body .sapUiTheme-sap_horizon .kyraHistIcon_addition {
@@ -25261,7 +25261,7 @@ html body .sapUiTheme-sap_horizon .kyraHistIcon_addition .sapUiIcon {
     fill: #008C9C !important;
 }
 
-/* Revoke: Warm slate-rose — subtle removal signal without harsh red clash */
+/* Revoke: Warm slate-rose â€” subtle removal signal without harsh red clash */
 .kyraHistIcon_revoke,
 html body .kyraHistIcon_revoke,
 html body .sapUiTheme-sap_horizon .kyraHistIcon_revoke {
@@ -26048,7 +26048,7 @@ html body .sapMMultiComboBox[aria-disabled="true"] * {
    DROPDOWN POPOVERS: EXACTLY ONE SLEEK SIDE SCROLLBAR ACROSS ALL DROPDOWNS
    ========================================================================= */
 
-/* Strictly hide all scrollbar buttons globally so ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â² - ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â¼ - ÃƒÂ¢Ã¢â‚¬â€Ã¢â€šÂ¬ - ÃƒÂ¢Ã¢â‚¬â€œÃ‚Â¶ never appears anywhere */
+/* Strictly hide all scrollbar buttons globally so ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â² - ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¼ - ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ - ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶ never appears anywhere */
 ::-webkit-scrollbar-button,
 *::-webkit-scrollbar-button,
 ::-webkit-scrollbar-button:single-button,
@@ -26661,7 +26661,7 @@ html body .kyraHelpTopicDialog .sapMBtn.kyraDialogCloseBtn:hover .sapMBtnInner {
     box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
 }
 
-/* Force button text width — SAPUI5 clips bdi/sapMBtnContent with overflow:hidden */
+/* Force button text width â€” SAPUI5 clips bdi/sapMBtnContent with overflow:hidden */
 html body .sapMDialog.kyraHelpTopicDialog .sapMBarRight .sapMBtn .sapMBtnInner,
 html body .kyraHelpTopicDialog .sapMIBar .sapMBtn .sapMBtnInner,
 html body .kyraHelpTopicDialog .sapMDialogFooter .sapMBtn .sapMBtnInner {
@@ -28855,7 +28855,7 @@ html body .sapMBtn.kyraBatchDialogConfirmRejectBtn .sapMBtnInner {
     box-sizing: border-box !important;
 }
 
-/* Bottom bar inner HBox ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â flex row, no wrap, full height */
+/* Bottom bar inner HBox ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â flex row, no wrap, full height */
 .kyraGovCard.kyraGovBottomCard > div,
 .kyraGovCard.kyraGovBottomCard .sapMHBox {
     display: flex !important;
@@ -30462,7 +30462,7 @@ html body .kyraNavPillBtn.sapMBtnEmphasized .sapMBtnIcon {
 }
 
 /* =========================================================================
-   KYRA BRAND: REPLACE BROWSER BLUE WITH TEAL — TEXT SELECTION & HIGHLIGHTS
+   KYRA BRAND: REPLACE BROWSER BLUE WITH TEAL â€” TEXT SELECTION & HIGHLIGHTS
    Fixes the blue selected-text highlight in all dropdowns, inputs, comboboxes
    ========================================================================= */
 
@@ -30551,11 +30551,11 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
 }
 
 /* =========================================================================
-   DROPDOWN GLITCH FIX: Safe GPU compositing — NO position/transform override
+   DROPDOWN GLITCH FIX: Safe GPU compositing â€” NO position/transform override
    SAPUI5 sets top/left via JavaScript; overriding with CSS !important = glitch
    ========================================================================= */
 
-/* 7. Promote popover to own GPU compositing layer — flicker-free rendering */
+/* 7. Promote popover to own GPU compositing layer â€” flicker-free rendering */
 .sapMPopover,
 .sapMComboBoxPopup,
 .sapMMultiComboBoxPopup,
@@ -30565,7 +30565,7 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
     z-index: 100000 !important;
-    /* NO position:fixed / transform:translateZ / contain:layout here —
+    /* NO position:fixed / transform:translateZ / contain:layout here â€”
        those override SAPUI5's JS top/left calculation and cause the glitch */
 }
 
@@ -30585,7 +30585,7 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
     height: 0 !important;
 }
 
-/* 9. Hide popover arrow/caret — prevents the 1px position jump on open */
+/* 9. Hide popover arrow/caret â€” prevents the 1px position jump on open */
 .sapMPopoverArr,
 .sapMComboBoxPopup .sapMPopoverArr,
 .sapMMultiComboBoxPopup .sapMPopoverArr,
@@ -32153,7 +32153,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     margin-left: 3px !important;
 }
 
-/* Duration ComboBox — outer SAP shell: no border, just sizing */
+/* Duration ComboBox â€” outer SAP shell: no border, just sizing */
 .kyraSideDurationSelect,
 .kyraSideDurationSelect.sapMComboBox,
 .kyraSideDurationSelect.fioriFormSelect {
@@ -32167,7 +32167,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     outline: none !important;
 }
 
-/* Duration ComboBox — single clean teal border on the inner wrapper only */
+/* Duration ComboBox â€” single clean teal border on the inner wrapper only */
 .kyraSideDurationSelect .sapMInputBaseContentWrapper,
 .kyraSideDurationSelect.sapMComboBox .sapMInputBaseContentWrapper {
     border: 1.5px solid #008C9C !important;
@@ -32183,7 +32183,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     transition: none !important;
 }
 
-/* Duration ComboBox — no hover/focus border change (static teal) */
+/* Duration ComboBox â€” no hover/focus border change (static teal) */
 .kyraSideDurationSelect .sapMInputBaseContentWrapper:hover,
 .kyraSideDurationSelect.sapMInputBaseFocused .sapMInputBaseContentWrapper,
 .kyraSideDurationSelect.sapMComboBox .sapMInputBaseContentWrapper:hover,
@@ -32206,7 +32206,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     box-shadow: none !important;
 }
 
-/* Justification TextArea — single clean teal border, compact 140px height */
+/* Justification TextArea â€” single clean teal border, compact 140px height */
 .kyraSideJustificationTextArea,
 .kyraSideJustificationTextArea.sapMTextArea {
     border-radius: 8px !important;
@@ -32257,7 +32257,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     background-color: #FFFFFF !important;
 }
 
-/* Inner SAP content wrapper — NO border (prevents double border) */
+/* Inner SAP content wrapper â€” NO border (prevents double border) */
 .kyraSideJustificationTextArea .sapMInputBaseContentWrapper,
 .kyraSideJustificationTextArea.sapMTextArea .sapMInputBaseContentWrapper,
 #inPageJustificationArea .sapMInputBaseContentWrapper,
@@ -32279,7 +32279,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     pointer-events: auto !important;
 }
 
-/* Native textarea element — pinned to top-left, 16px padding, full 140px box click and touch area */
+/* Native textarea element â€” pinned to top-left, 16px padding, full 140px box click and touch area */
 .kyraSideJustificationTextArea textarea,
 .kyraSideJustificationTextArea .sapMTextAreaInner,
 #inPageJustificationArea textarea,
@@ -32604,7 +32604,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     transition: color 0.15s ease !important;
 }
 
-/* Reset / Clear Button (Cancel '✕') */
+/* Reset / Clear Button (Cancel 'âœ•') */
 .kyraAdminSearchField .sapMSFR {
     display: none !important;
     color: #94A3B8 !important;
@@ -36841,7 +36841,7 @@ div.kyraStratCardThemedSelected {
     border-color: #2563EB !important;
 }
 
-/* Test Connection Button (⚡ Test Source Connection) */
+/* Test Connection Button (âš¡ Test Source Connection) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
     background: #15223D !important;
@@ -37280,7 +37280,7 @@ div.kyraStratCardThemedSelected {
     color: #FFFFFF !important;
 }
 
-/* Test Connection Button (⚡ Test Source Connection - KYRA Teal Mint Outline) */
+/* Test Connection Button (âš¡ Test Source Connection - KYRA Teal Mint Outline) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
     background: #F0FDFA !important;
@@ -38323,7 +38323,7 @@ div.kyraStratCardThemedSelected {
     line-height: 1.4 !important;
 }
 
-/* Button ▷▷ Migrate Data → */
+/* Button â–·â–· Migrate Data â†’ */
 .kyraStep2MigrateBtn.sapMBtn,
 .kyraStep2MigrateBtn.sapMBtn .sapMBtnInner {
     background: #008C9C !important;
@@ -39892,7 +39892,7 @@ div.kyraStratCardThemedSelected {
     color: #FFFFFF !important;
 }
 
-/* Test Connection Button (⚡ Test Source Connection - KYRA Teal Mint Outline) */
+/* Test Connection Button (âš¡ Test Source Connection - KYRA Teal Mint Outline) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
     background: #F0FDFA !important;
@@ -48982,4 +48982,237 @@ select option:hover,
 .fioriFormSelect .sapMInputBaseIconContainer {
     cursor: pointer !important;
     pointer-events: auto !important;
+}
+
+
+/* ========================================================================== */
+/* USER FIX 1 & 2: MODAL DROPDOWN CHEVRON STATIC DESIGN (Images 1 & 2)       */
+/* ========================================================================== */
+.kyra-custom-dropdown-trigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+.kyra-custom-dropdown-arrow-box {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    pointer-events: none !important;
+}
+
+.kyra-custom-dropdown-arrow {
+    stroke: #008C9C !important;
+    transition: none !important;
+    transform: none !important;
+    pointer-events: none !important;
+}
+
+.kyra-custom-dropdown-trigger.open .kyra-custom-dropdown-arrow,
+.kyra-custom-dropdown-wrapper.open .kyra-custom-dropdown-arrow {
+    transform: none !important;
+    transition: none !important;
+}
+
+/* ========================================================================== */
+/* USER FIX 4: BUSINESS FUNCTION DETAILS HEADER & ADD BUTTON (Image 4)       */
+/* ========================================================================== */
+.kyraAdminCardHeaderRow {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdminCardHeaderRow .kyraAdminCardTitle,
+.kyraAdminCardHeaderRow .kyraAdminCardTitle.sapMTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.kyraAdminHeaderActions {
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.kyraAdminAddBlueBtn,
+.kyraAdminAddBlueBtn.sapMBtn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    height: 36px !important;
+    min-height: 36px !important;
+}
+
+.kyraAdminAddBlueBtn .sapMBtnInner {
+    white-space: nowrap !important;
+    padding: 0 16px !important;
+    border-radius: 8px !important;
+}
+
+/* ========================================================================== */
+/* USER FIX 5: IMAGE 5 ROUNDED-RECTANGLE DESIGN ONLY FOR "VIEW ALL" BUTTON   */
+/* (Applied to Requester, Approver, and Compliance Reviewer View All)        */
+/* ========================================================================== */
+.kyraViewAllBtn,
+.kyraViewAllBtn.sapMBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.kyraViewAllBtn .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInner {
+    height: 38px !important;
+    min-height: 38px !important;
+    line-height: 36px !important;
+    padding: 0 20px !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #008C9C !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.22) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+.kyraViewAllBtn .sapMBtnContent,
+.kyraViewAllBtn bdi,
+.kyraViewAllBtn .sapMBtnIcon,
+.kyraViewAllBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+.kyraViewAllBtn:hover .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    box-shadow: 0 4px 10px rgba(0, 140, 156, 0.32) !important;
+    transform: translateY(-1px) !important;
+}
+
+.kyraViewAllBtn:active .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn:active .sapMBtnInner {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 4px rgba(0, 140, 156, 0.2) !important;
+}
+
+/* History Filter Button (distinct from View All) */
+.kyraHistoryFilterBtn,
+.kyraHistoryFilterBtn.sapMBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraHistoryFilterBtn .sapMBtnInner {
+    height: 36px !important;
+    line-height: 34px !important;
+    padding: 0 16px !important;
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    color: #1E293B !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+
+.kyraHistoryFilterBtn:hover .sapMBtnInner {
+    background: #F8FAFC !important;
+    border-color: #008C9C !important;
+    color: #008C9C !important;
+}
+
+/* ========================================================================== */
+/* USER FIX 1: BIG PROMINENT SLIDE NOTIFICATION POPUP                        */
+/* ========================================================================== */
+.kyra-slide-notification {
+    position: fixed !important;
+    top: 28px !important;
+    right: 28px !important;
+    z-index: 9999999 !important;
+    background: #FFFFFF !important;
+    border-left: 5px solid #008C9C !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 45px -8px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    padding: 16px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    max-width: 480px !important;
+    min-width: 340px !important;
+    box-sizing: border-box !important;
+    opacity: 0 !important;
+    transform: translateX(120%) !important;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.kyra-slide-notification.kyra-slide-notification-active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+}
+
+.kyra-slide-notification-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #E6F7F7 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.kyra-slide-notification-body {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.kyra-slide-notification-title {
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin-bottom: 3px !important;
+}
+
+.kyra-slide-notification-text {
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    line-height: 1.4 !important;
 }

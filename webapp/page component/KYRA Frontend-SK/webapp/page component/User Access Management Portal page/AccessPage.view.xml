@@ -1482,7 +1482,6 @@
                                             press=".onAddAdminBusinessFunction"
                                             type="Emphasized"
                                             class="kyraAdminAddBlueBtn" />
-                                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                                     </HBox>
                                 </HBox>
 
@@ -1523,6 +1522,19 @@
                                     <core:Icon src="sap-icon://locate-me" size="18px" color="#008C9C" class="sapUiTinyMarginEnd" />
                                     <Title text="{= 'Region (' + (${accessModel>/adminRegions} ? ${accessModel>/adminRegions}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
                                 </HBox>
+                                <HBox alignItems="Center" class="kyraAdminHeaderActions">
+                                    <SearchField
+                                        placeholder="Search regions..."
+                                        width="200px"
+                                        liveChange=".onSearchAdminRegions"
+                                        class="kyraAdminSearchField" />
+                                    <Button
+                                        text="Add Region"
+                                        icon="sap-icon://add"
+                                        type="Emphasized"
+                                        press=".onAddAdminRegion"
+                                        class="kyraAdminAddBlueBtn" />
+                                </HBox>
                             </HBox>
 
                             <Table id="adminRegionsTable"
@@ -1538,7 +1550,7 @@
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
                                         <cells>
                                             <Text text="{accessModel>regionName}" class="kyraAdminCellBold" />
-                                            <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                            <HBox alignItems="Center" class="kyraAdminStatusPill" press=".onToggleAdminRegionStatus" tooltip="Click to toggle Active / Inactive status">
                                                 <customData>
                                                     <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                 </customData>
@@ -1575,7 +1587,6 @@
                                         type="Emphasized"
                                         press=".onAddAdminSystem"
                                         class="kyraAdminAddBlueBtn" />
-                                    <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                                 </HBox>
                             </HBox>
 
@@ -2210,7 +2221,7 @@
                                 type="Emphasized"
                                 press=".onFilterHistoryDialog"
                                 tooltip="Filter History by Status &amp; Duration"
-                                class="kyraViewAllBtn" />
+                                class="kyraHistoryFilterBtn" />
 
                             <Button
                                 icon="sap-icon://excel-attachment"
@@ -2736,12 +2747,9 @@
                                         change=".onInPageSectorChange"
                                         placeholder="Select Business Sector..."
                                         width="100%"
-                                        class="fioriFormSelect kyraModernSelectField fioriSelectGlow">
-                                        <core:Item key="Finance &amp; Enterprise Performance" text="Finance &amp; Enterprise Performance" />
-                                        <core:Item key="Global Supply Chain &amp; Logistics" text="Global Supply Chain &amp; Logistics" />
-                                        <core:Item key="Human Capital Management (HCM)" text="Human Capital Management (HCM)" />
-                                        <core:Item key="Information Technology &amp; Security" text="Information Technology &amp; Security" />
-                                        <core:Item key="Customer Operations &amp; Sales" text="Customer Operations &amp; Sales" />
+                                        class="fioriFormSelect kyraModernSelectField fioriSelectGlow"
+                                        items="{accessModel>/activeBusinessSectors}">
+                                        <core:Item key="{accessModel>sectorName}" text="{accessModel>sectorName}" />
                                     </ComboBox>
                                 </VBox>
 

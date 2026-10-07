@@ -11753,7 +11753,7 @@ sap.ui.define([
             oModel.setProperty("/adminSystems", aFiltered);
         },
 
-        _showSlideNotification(sTitle, sMessage) {
+        _showSlideNotification(sTitle, sMessage, sType) {
             try {
                 let oSlide = document.getElementById("kyra_global_slide_notification");
                 if (!oSlide) {
@@ -11762,12 +11762,39 @@ sap.ui.define([
                     oSlide.className = "kyra-slide-notification";
                     document.body.appendChild(oSlide);
                 }
+
+                let sBorderColor = "#008C9C";
+                let sIconBg = "#E6F7F7";
+                let sSvgIcon = `
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>`;
+
+                if (sType === "warning" || sType === "error") {
+                    sBorderColor = "#F59E0B";
+                    sIconBg = "#FEF3C7";
+                    sSvgIcon = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>`;
+                } else if (sType === "delete") {
+                    sBorderColor = "#EF4444";
+                    sIconBg = "#FEE2E2";
+                    sSvgIcon = `
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>`;
+                }
+
+                oSlide.style.borderLeftColor = sBorderColor;
+
                 oSlide.innerHTML = `
-                    <div class="kyra-slide-notification-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#008C9C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
+                    <div class="kyra-slide-notification-icon" style="background: ${sIconBg};">
+                        ${sSvgIcon}
                     </div>
                     <div class="kyra-slide-notification-body">
                         <div class="kyra-slide-notification-title">${sTitle || "Notification"}</div>
@@ -11789,7 +11816,7 @@ sap.ui.define([
                 }
                 this._slideNotifTimer = setTimeout(() => {
                     if (oSlide) oSlide.classList.remove("kyra-slide-notification-active");
-                }, 3800);
+                }, 4500);
             } catch (err) {
                 // Fallback
             }
@@ -12835,6 +12862,24 @@ sap.ui.define([
             }
 
             const sCurrentSelected = oModel.getProperty("/selectedAdminServiceName") || aAll[0].serviceName;
+            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const aCurrentTeams = oModel.getProperty("/adminClassifications") || oDetailsMap[sCurrentSelected] || [];
+
+            // If the selected service is in Draft mode, require full service details before saving
+            const bCurrentIsDraft = !!oModel.getProperty("/isCurrentServiceUnsaved") ||
+                                    aAll.some(s => s.serviceName === sCurrentSelected && (s.isUnsaved || s.status === "Draft"));
+
+            if (bCurrentIsDraft) {
+                if (!aCurrentTeams || aCurrentTeams.length === 0) {
+                    this._showSlideNotification("Service Details Incomplete", "First fill service details fully after save this.", "warning");
+                    return;
+                }
+                const bHasMissingPersona = aCurrentTeams.some(t => !t.subClassifications || t.subClassifications.length === 0);
+                if (bHasMissingPersona) {
+                    this._showSlideNotification("Service Details Incomplete", "First fill service details fully after save this.", "warning");
+                    return;
+                }
+            }
 
             // Clear isUnsaved on all services and ensure status is Active if Draft
             const aCleanAll = aAll.map(item => {
@@ -12849,8 +12894,6 @@ sap.ui.define([
             oModel.setProperty("/adminServices", aCleanAll.slice());
             oModel.setProperty("/isCurrentServiceUnsaved", false);
             this._pendingNewServiceName = null;
-
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
 
             // Commit snapshot
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(aCleanAll));
@@ -13077,9 +13120,10 @@ sap.ui.define([
                                 }
                                 const statusSelect = oDom.querySelector("#kyra_edit_team_status");
                                 const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                const sFinalTeamName = (sServiceName && !sNewName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sNewName} (${sServiceName})` : sNewName;
 
                                 const oUpdated = Object.assign({}, oSelected, {
-                                    name: sNewName,
+                                    name: sFinalTeamName,
                                     status: sNewStatus
                                 });
                                 oModel.setProperty("/selectedAdminClassification", oUpdated);
@@ -13095,8 +13139,8 @@ sap.ui.define([
                                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                                 }
                                 that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Team Updated", "Team '" + sNewName + "' updated.");
-                                MessageToast.show("Team '" + sNewName + "' updated.");
+                                that._showSlideNotification("Team Updated", "Team '" + sFinalTeamName + "' updated.");
+                                MessageToast.show("Team '" + sFinalTeamName + "' updated.");
                                 closeFn();
                             };
                         }
@@ -13301,8 +13345,9 @@ sap.ui.define([
                                 const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
                                     selected: false
                                 }));
+                                const sFinalTeamName = (sServiceName && !sName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sName} (${sServiceName})` : sName;
                                 const oNewTeam = {
-                                    name: sName,
+                                    name: sFinalTeamName,
                                     status: sStatus,
                                     selected: true,
                                     subClassifications: []
@@ -13472,8 +13517,10 @@ sap.ui.define([
                                 const sPrivilege = restrictedSelect ? restrictedSelect.value : "Not restricted";
 
                                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
+                                const sTeamShort = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
+                                const sFinalPersonaName = (sTeamShort && !sName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sName} (${sTeamShort})` : sName;
                                 aSubs.push({
-                                    name: sName,
+                                    name: sFinalPersonaName,
                                     status: sStatus,
                                     accessPrivilege: sPrivilege
                                 });
@@ -13627,10 +13674,14 @@ sap.ui.define([
                                 const restrictedSelect = oDom.querySelector("#kyra_edit_persona_restricted");
                                 const sNewPrivilege = restrictedSelect ? restrictedSelect.value : sCurrentPrivilege;
 
+                                const sTeamRaw = (oSelectedTeam && oSelectedTeam.name) || "";
+                                const sTeamShort = sTeamRaw.replace(/\s*\([^)]*\)/g, "").trim();
+                                const sFinalPersonaName = (sTeamShort && !sNewName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sNewName} (${sTeamShort})` : sNewName;
+
                                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p => {
                                     if (p.name === sOldName) {
                                         return Object.assign({}, p, {
-                                            name: sNewName,
+                                            name: sFinalPersonaName,
                                             status: sNewStatus,
                                             accessPrivilege: sNewPrivilege
                                         });
@@ -13718,6 +13769,23 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
 
             const aList = (oModel.getProperty("/adminClassifications") || []).slice();
+
+            // If the service is in Draft mode or is unsaved, require full service details before saving
+            const bIsDraft = !!oModel.getProperty("/isCurrentServiceUnsaved") || 
+                             (oModel.getProperty("/adminServicesAll") || []).some(s => s.serviceName === sServiceName && (s.isUnsaved || s.status === "Draft"));
+
+            if (bIsDraft) {
+                if (!aList || aList.length === 0) {
+                    this._showSlideNotification("Service Details Incomplete", "First fill service details fully after save this.", "warning");
+                    return;
+                }
+                const bHasMissingPersona = aList.some(t => !t.subClassifications || t.subClassifications.length === 0);
+                if (bHasMissingPersona) {
+                    this._showSlideNotification("Service Details Incomplete", "First fill service details fully after save this.", "warning");
+                    return;
+                }
+            }
+
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
             if (sServiceName) {
                 oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
@@ -14460,8 +14528,8 @@ sap.ui.define([
                         </div>
                         <div class="kyra-system-modal-body">
                             <div class="kyra-system-modal-form-group">
-                                <label class="kyra-system-modal-label" for="kyra_edit_region_name">REGION NAME <span style="color:#EF4444">*</span></label>
-                                <input type="text" id="kyra_edit_region_name" class="kyra-system-modal-input" value="${sOldName}" autocomplete="off" />
+                                <label class="kyra-system-modal-label" for="kyra_edit_region_name">REGION NAME</label>
+                                <input type="text" id="kyra_edit_region_name" class="kyra-system-modal-input kyra-system-modal-readonly" value="${sOldName}" readonly disabled autocomplete="off" />
                             </div>
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_region_status">STATUS</label>
@@ -14494,34 +14562,25 @@ sap.ui.define([
                         const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
                         if (cancelBtn) cancelBtn.onclick = closeFn;
 
-                        const nameInput = oDom.querySelector("#kyra_edit_region_name");
-                        if (nameInput) { nameInput.focus(); nameInput.select(); }
-
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sNewName = (nameInput ? nameInput.value : "").trim();
-                                if (!sNewName) {
-                                    if (nameInput) nameInput.style.borderColor = "#EF4444";
-                                    MessageToast.show("Region name cannot be empty.");
-                                    return;
-                                }
                                 const statusSelect = oDom.querySelector("#kyra_edit_region_status");
                                 const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
 
                                 const aAll = (oModel.getProperty("/adminRegionsAll") || []).map(r => {
-                                    return r.regionName === sOldName ? Object.assign({}, r, { regionName: sNewName, status: sNewStatus }) : r;
+                                    return r.regionName === sOldName ? Object.assign({}, r, { status: sNewStatus }) : r;
                                 });
                                 oModel.setProperty("/adminRegionsAll", aAll);
                                 const aCur = (oModel.getProperty("/adminRegions") || []).map(r => {
-                                    return r.regionName === sOldName ? Object.assign({}, r, { regionName: sNewName, status: sNewStatus }) : r;
+                                    return r.regionName === sOldName ? Object.assign({}, r, { status: sNewStatus }) : r;
                                 });
                                 oModel.setProperty("/adminRegions", aCur);
 
                                 that._syncAdminConfigToLiveAddAccess(oModel);
-                                that._persistAllCustomizationsToDb(oModel, "Region '" + sNewName + "' updated in database.");
-                                that._showSlideNotification("Region Updated", "Region '" + sNewName + "' updated.");
-                                MessageToast.show("Region '" + sNewName + "' updated successfully.");
+                                that._persistAllCustomizationsToDb(oModel, "Region '" + sOldName + "' status updated to " + sNewStatus + ".");
+                                that._showSlideNotification("Region Updated", "Region '" + sOldName + "' status updated to " + sNewStatus + ".");
+                                MessageToast.show("Region '" + sOldName + "' status updated successfully.");
                                 closeFn();
                             };
                         }
@@ -14533,6 +14592,30 @@ sap.ui.define([
                 that.getView().addDependent(oDialog);
                 oDialog.open();
             });
+        },
+
+        onToggleAdminRegionStatus(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCtx = oEvent && oEvent.getSource ? oEvent.getSource().getBindingContext("accessModel") : null;
+            if (!oCtx) return;
+            const oReg = oCtx.getObject();
+            if (!oReg) return;
+            const sName = oReg.regionName;
+            const sNextStatus = (oReg.status === "Inactive" || oReg.status === "Deactive") ? "Active" : "Inactive";
+
+            const aAll = (oModel.getProperty("/adminRegionsAll") || []).map(r => {
+                return r.regionName === sName ? Object.assign({}, r, { status: sNextStatus }) : r;
+            });
+            oModel.setProperty("/adminRegionsAll", aAll);
+            const aCur = (oModel.getProperty("/adminRegions") || []).map(r => {
+                return r.regionName === sName ? Object.assign({}, r, { status: sNextStatus }) : r;
+            });
+            oModel.setProperty("/adminRegions", aCur);
+
+            this._syncAdminConfigToLiveAddAccess(oModel);
+            this._persistAllCustomizationsToDb(oModel, "Region '" + sName + "' status toggled to " + sNextStatus + ".");
+            sap.m.MessageToast.show("Region '" + sName + "' is now " + sNextStatus + ".");
         },
 
         onDeleteAdminRegion(oEvent) {

@@ -1482,7 +1482,6 @@
                                             press=".onAddAdminBusinessFunction"
                                             type="Emphasized"
                                             class="kyraAdminAddBlueBtn" />
-                                        <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                                     </HBox>
                                 </HBox>
 
@@ -1535,7 +1534,6 @@
                                         type="Emphasized"
                                         press=".onAddAdminRegion"
                                         class="kyraAdminAddBlueBtn" />
-                                    <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                                 </HBox>
                             </HBox>
 
@@ -1552,7 +1550,7 @@
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
                                         <cells>
                                             <Text text="{accessModel>regionName}" class="kyraAdminCellBold" />
-                                            <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                            <HBox alignItems="Center" class="kyraAdminStatusPill" press=".onToggleAdminRegionStatus" tooltip="Click to toggle Active / Inactive status">
                                                 <customData>
                                                     <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                 </customData>
@@ -1565,11 +1563,6 @@
                                                     press=".onEditAdminRegion"
                                                     class="kyraAdminSystemEditBtn"
                                                     tooltip="Edit Region" />
-                                                <Button
-                                                    icon="sap-icon://delete"
-                                                    press=".onDeleteAdminRegion"
-                                                    class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
-                                                    tooltip="Delete Region" />
                                             </HBox>
                                         </cells>
                                     </ColumnListItem>
@@ -1594,7 +1587,6 @@
                                         type="Emphasized"
                                         press=".onAddAdminSystem"
                                         class="kyraAdminAddBlueBtn" />
-                                    <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                                 </HBox>
                             </HBox>
 
@@ -2229,7 +2221,7 @@
                                 type="Emphasized"
                                 press=".onFilterHistoryDialog"
                                 tooltip="Filter History by Status &amp; Duration"
-                                class="kyraViewAllBtn" />
+                                class="kyraHistoryFilterBtn" />
 
                             <Button
                                 icon="sap-icon://excel-attachment"
