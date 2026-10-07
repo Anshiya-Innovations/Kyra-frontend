@@ -438,58 +438,76 @@ sap.ui.define([
                     { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-03-01" }
                 ],
                 adminBusinessSectorsAll: [
-                    { sectorName: "Technology", status: "Active", selected: false },
-                    { sectorName: "Finance", status: "Active", selected: true },
-                    { sectorName: "Operations", status: "Active", selected: false }
+                    { sectorName: "Finance & Enterprise Performance", status: "Active", selected: true },
+                    { sectorName: "Global Supply Chain & Logistics", status: "Active", selected: false },
+                    { sectorName: "Human Capital Management (HCM)", status: "Active", selected: false },
+                    { sectorName: "Information Technology & Security", status: "Active", selected: false },
+                    { sectorName: "Customer Operations & Sales", status: "Active", selected: false }
                 ],
                 adminBusinessSectors: [
-                    { sectorName: "Technology", status: "Active", selected: false },
-                    { sectorName: "Finance", status: "Active", selected: true },
-                    { sectorName: "Operations", status: "Active", selected: false }
+                    { sectorName: "Finance & Enterprise Performance", status: "Active", selected: true },
+                    { sectorName: "Global Supply Chain & Logistics", status: "Active", selected: false },
+                    { sectorName: "Human Capital Management (HCM)", status: "Active", selected: false },
+                    { sectorName: "Information Technology & Security", status: "Active", selected: false },
+                    { sectorName: "Customer Operations & Sales", status: "Active", selected: false }
                 ],
-                selectedAdminBusinessSectorName: "Finance",
+                activeBusinessSectors: [
+                    { sectorName: "Finance & Enterprise Performance" },
+                    { sectorName: "Global Supply Chain & Logistics" },
+                    { sectorName: "Human Capital Management (HCM)" },
+                    { sectorName: "Information Technology & Security" },
+                    { sectorName: "Customer Operations & Sales" }
+                ],
+                selectedAdminBusinessSectorName: "Finance & Enterprise Performance",
                 adminBusinessFunctions: [
-                    { name: "Financial Planning & Analysis" },
-                    { name: "Accounts Payable" },
-                    { name: "Accounts Receivable" },
-                    { name: "Treasury Management" }
+                    { name: "Financial Auditing", key: "Financial Auditing", text: "Financial Auditing", status: "Active" },
+                    { name: "Corporate Accounting", key: "Corporate Accounting", text: "Corporate Accounting", status: "Active" },
+                    { name: "FP&A Governance", key: "FP&A Governance", text: "FP&A Governance", status: "Active" }
                 ],
                 adminBusinessFunctionsMap: {
-                    "Technology": [
-                        { name: "Cloud Infrastructure" },
-                        { name: "Application Architecture" },
-                        { name: "Data Engineering" },
-                        { name: "Security & Compliance" }
+                    "Finance & Enterprise Performance": [
+                        { name: "Financial Auditing", key: "Financial Auditing", text: "Financial Auditing", status: "Active" },
+                        { name: "Corporate Accounting", key: "Corporate Accounting", text: "Corporate Accounting", status: "Active" },
+                        { name: "FP&A Governance", key: "FP&A Governance", text: "FP&A Governance", status: "Active" }
                     ],
-                    "Finance": [
-                        { name: "Financial Planning & Analysis" },
-                        { name: "Accounts Payable" },
-                        { name: "Accounts Receivable" },
-                        { name: "Treasury Management" }
+                    "Global Supply Chain & Logistics": [
+                        { name: "Supply Operations", key: "Supply Operations", text: "Supply Operations", status: "Active" },
+                        { name: "Inventory Governance", key: "Inventory Governance", text: "Inventory Governance", status: "Active" },
+                        { name: "Procurement Audit", key: "Procurement Audit", text: "Procurement Audit", status: "Active" }
                     ],
-                    "Operations": [
-                        { name: "Supply Chain Logistics" },
-                        { name: "Facilities Management" },
-                        { name: "Procurement & Sourcing" }
+                    "Human Capital Management (HCM)": [
+                        { name: "HR Operations", key: "HR Operations", text: "HR Operations", status: "Active" },
+                        { name: "Payroll Governance", key: "Payroll Governance", text: "Payroll Governance", status: "Active" },
+                        { name: "Talent Compliance", key: "Talent Compliance", text: "Talent Compliance", status: "Active" }
+                    ],
+                    "Information Technology & Security": [
+                        { name: "Identity & Access Governance", key: "Identity & Access Governance", text: "Identity & Access Governance", status: "Active" },
+                        { name: "Lead Security Engineering", key: "Lead Security Engineering", text: "Lead Security Engineering", status: "Active" },
+                        { name: "Cloud Platform Admin", key: "Cloud Platform Admin", text: "Cloud Platform Admin", status: "Active" }
+                    ],
+                    "Customer Operations & Sales": [
+                        { name: "CRM Governance", key: "CRM Governance", text: "CRM Governance", status: "Active" },
+                        { name: "Sales Operations Audit", key: "Sales Operations Audit", text: "Sales Operations Audit", status: "Active" },
+                        { name: "Customer Success Mgmt", key: "Customer Success Mgmt", text: "Customer Success Mgmt", status: "Active" }
                     ]
                 },
                 adminRegionsAll: [
-                    { regionName: "APAC", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "EMEA", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "Americas", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "LATAM", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "US-East", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "US-West", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "EU-Central", status: "Active", creationDate: "2025-01-15" }
+                    { regionCode: "NA", regionName: "North America", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "LATAM", regionName: "Latin America", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "EU", regionName: "Europe", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "ME", regionName: "Middle East", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "AF", regionName: "Africa", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "AS", regionName: "Asia", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "OC", regionName: "Oceania / Australia", status: "Active", creationDate: "2025-01-15" }
                 ],
                 adminRegions: [
-                    { regionName: "APAC", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "EMEA", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "Americas", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "LATAM", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "US-East", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "US-West", status: "Active", creationDate: "2025-01-15" },
-                    { regionName: "EU-Central", status: "Active", creationDate: "2025-01-15" }
+                    { regionCode: "NA", regionName: "North America", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "LATAM", regionName: "Latin America", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "EU", regionName: "Europe", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "ME", regionName: "Middle East", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "AF", regionName: "Africa", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "AS", regionName: "Asia", status: "Active", creationDate: "2025-01-15" },
+                    { regionCode: "OC", regionName: "Oceania / Australia", status: "Active", creationDate: "2025-01-15" }
                 ],
                 adminSystems: [
                     { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" },
@@ -5483,35 +5501,52 @@ sap.ui.define([
 
             oModel.setProperty("/selectedSector", sSectorKey);
 
-            const oFunctionsMap = {
-                "Finance & Enterprise Performance": [
-                    { key: "Financial Auditing", text: "Financial Auditing", icon: "sap-icon://money-bills" },
-                    { key: "Corporate Accounting", text: "Corporate Accounting", icon: "sap-icon://accounting-document-verification" },
-                    { key: "FP&A Governance", text: "FP&A Governance", icon: "sap-icon://lead" }
-                ],
-                "Global Supply Chain & Logistics": [
-                    { key: "Supply Operations", text: "Supply Operations", icon: "sap-icon://shipping-status" },
-                    { key: "Inventory Governance", text: "Inventory Governance", icon: "sap-icon://product" },
-                    { key: "Procurement Audit", text: "Procurement Audit", icon: "sap-icon://supplier" }
-                ],
-                "Human Capital Management (HCM)": [
-                    { key: "HR Operations", text: "HR Operations", icon: "sap-icon://group" },
-                    { key: "Payroll Governance", text: "Payroll Governance", icon: "sap-icon://payroll" },
-                    { key: "Talent Compliance", text: "Talent Compliance", icon: "sap-icon://employee" }
-                ],
-                "Information Technology & Security": [
-                    { key: "Identity & Access Governance", text: "Identity & Access Governance", icon: "sap-icon://shield" },
-                    { key: "Lead Security Engineering", text: "Lead Security Engineering", icon: "sap-icon://shield-check" },
-                    { key: "Cloud Platform Admin", text: "Cloud Platform Admin", icon: "sap-icon://cloud" }
-                ],
-                "Customer Operations & Sales": [
-                    { key: "CRM Governance", text: "CRM Governance", icon: "sap-icon://customer-briefing" },
-                    { key: "Sales Operations Audit", text: "Sales Operations Audit", icon: "sap-icon://sales-order" },
-                    { key: "Customer Success Mgmt", text: "Customer Success Mgmt", icon: "sap-icon://manager" }
-                ]
-            };
+            const oDynamicMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+            let aRaw = oDynamicMap[sSectorKey];
 
-            const aFuncs = oFunctionsMap[sSectorKey] || [];
+            if (!aRaw || !Array.isArray(aRaw) || aRaw.length === 0) {
+                const oFallbackMap = {
+                    "Finance & Enterprise Performance": [
+                        { key: "Financial Auditing", text: "Financial Auditing", icon: "sap-icon://money-bills" },
+                        { key: "Corporate Accounting", text: "Corporate Accounting", icon: "sap-icon://accounting-document-verification" },
+                        { key: "FP&A Governance", text: "FP&A Governance", icon: "sap-icon://lead" }
+                    ],
+                    "Global Supply Chain & Logistics": [
+                        { key: "Supply Operations", text: "Supply Operations", icon: "sap-icon://shipping-status" },
+                        { key: "Inventory Governance", text: "Inventory Governance", icon: "sap-icon://product" },
+                        { key: "Procurement Audit", text: "Procurement Audit", icon: "sap-icon://supplier" }
+                    ],
+                    "Human Capital Management (HCM)": [
+                        { key: "HR Operations", text: "HR Operations", icon: "sap-icon://group" },
+                        { key: "Payroll Governance", text: "Payroll Governance", icon: "sap-icon://payroll" },
+                        { key: "Talent Compliance", text: "Talent Compliance", icon: "sap-icon://employee" }
+                    ],
+                    "Information Technology & Security": [
+                        { key: "Identity & Access Governance", text: "Identity & Access Governance", icon: "sap-icon://shield" },
+                        { key: "Lead Security Engineering", text: "Lead Security Engineering", icon: "sap-icon://shield-check" },
+                        { key: "Cloud Platform Admin", text: "Cloud Platform Admin", icon: "sap-icon://cloud" }
+                    ],
+                    "Customer Operations & Sales": [
+                        { key: "CRM Governance", text: "CRM Governance", icon: "sap-icon://customer-briefing" },
+                        { key: "Sales Operations Audit", text: "Sales Operations Audit", icon: "sap-icon://sales-order" },
+                        { key: "Customer Success Mgmt", text: "Customer Success Mgmt", icon: "sap-icon://manager" }
+                    ]
+                };
+                aRaw = oFallbackMap[sSectorKey] || [];
+            }
+
+            const aFuncs = aRaw
+                .filter(f => !f || f.status !== "Inactive")
+                .map(f => {
+                    const sName = (typeof f === "string") ? f : (f.name || f.text || f.key || "");
+                    return {
+                        key: sName,
+                        text: sName,
+                        name: sName,
+                        icon: f.icon || "sap-icon://circle-task-2"
+                    };
+                });
+
             oModel.setProperty("/availableFunctions", aFuncs);
             oModel.setProperty("/selectedFunction", "");
         },
@@ -11237,6 +11272,22 @@ sap.ui.define([
             if (Array.isArray(oParsed.adminPersonaUsers) && oParsed.adminPersonaUsers.length > 0) {
                 oModel.setProperty("/adminPersonaUsers", oParsed.adminPersonaUsers);
             }
+            if (Array.isArray(oParsed.adminBusinessSectorsAll) && oParsed.adminBusinessSectorsAll.length > 0) {
+                oModel.setProperty("/adminBusinessSectorsAll", oParsed.adminBusinessSectorsAll);
+                oModel.setProperty("/adminBusinessSectors", oParsed.adminBusinessSectorsAll.slice());
+                const aActiveSecs = oParsed.adminBusinessSectorsAll.filter(s => s && s.status !== "Inactive");
+                oModel.setProperty("/activeBusinessSectors", aActiveSecs);
+            }
+            if (oParsed.adminBusinessFunctionsMap && typeof oParsed.adminBusinessFunctionsMap === "object" && Object.keys(oParsed.adminBusinessFunctionsMap).length > 0) {
+                oModel.setProperty("/adminBusinessFunctionsMap", oParsed.adminBusinessFunctionsMap);
+                const sCurSector = oModel.getProperty("/selectedAdminBusinessSectorName") || "Finance & Enterprise Performance";
+                const aFuncs = oParsed.adminBusinessFunctionsMap[sCurSector] || [];
+                oModel.setProperty("/adminBusinessFunctions", aFuncs);
+            }
+            if (Array.isArray(oParsed.adminRegionsAll) && oParsed.adminRegionsAll.length > 0) {
+                oModel.setProperty("/adminRegionsAll", oParsed.adminRegionsAll);
+                oModel.setProperty("/adminRegions", oParsed.adminRegionsAll.slice());
+            }
         },
 
         _loadCustomAccessAndConflictConfig(oModel, bForce = false) {
@@ -11479,13 +11530,66 @@ sap.ui.define([
             // Sync active SoD conflicts
             oModel.setProperty("/sodMatrix", aConflicts.filter(c => c && c.status !== "Inactive"));
 
+            // Sync Active Business Sectors for Add Access Step 1
+            const aAllSectors = oModel.getProperty("/adminBusinessSectorsAll") || [];
+            const aActiveSectors = aAllSectors.filter(s => s && s.status !== "Inactive");
+            oModel.setProperty("/activeBusinessSectors", aActiveSectors);
+
+            // Sync Active Regions and World Map List for Add Access Step 2
+            const aAllRegions = oModel.getProperty("/adminRegionsAll") || [];
+            const aActiveRegions = aAllRegions.filter(r => r && r.status !== "Inactive");
+            const oCoordMap = {
+                "north america": { id: "na", left: "21.5%", top: "32%" },
+                "latin america": { id: "latam", left: "33%", top: "60%" },
+                "europe": { id: "eu", left: "50%", top: "26%" },
+                "middle east": { id: "me", left: "63%", top: "39%" },
+                "africa": { id: "af", left: "52%", top: "57%" },
+                "asia": { id: "as", left: "74%", top: "34%" },
+                "oceania / australia": { id: "apac", left: "83%", top: "65%" },
+                "oceania": { id: "apac", left: "83%", top: "65%" },
+                "australia": { id: "apac", left: "83%", top: "65%" },
+                "apac": { id: "apac", left: "83%", top: "65%" },
+                "emea": { id: "eu", left: "50%", top: "26%" },
+                "americas": { id: "na", left: "21.5%", top: "32%" }
+            };
+
+            const aMapRegions = aActiveRegions.map((reg, idx) => {
+                const sName = (reg.regionName || reg.name || "").trim();
+                const sLower = sName.toLowerCase();
+                const oMatch = oCoordMap[sLower] || {
+                    id: "reg_" + idx,
+                    left: (20 + (idx * 10) % 70) + "%",
+                    top: (25 + (idx * 8) % 55) + "%"
+                };
+                return {
+                    id: oMatch.id || ("reg_" + idx),
+                    name: sName,
+                    left: oMatch.left,
+                    top: oMatch.top
+                };
+            });
+
+            if (aMapRegions.length > 0) {
+                oModel.setProperty("/mapRegionList", aMapRegions);
+                if (typeof this._renderPins === "function") {
+                    this._renderPins();
+                }
+            }
+
+            const aSectorsPayload = oModel.getProperty("/adminBusinessSectorsAll") || [];
+            const oFuncsPayload = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+            const aRegionsPayload = oModel.getProperty("/adminRegionsAll") || [];
+
             const oPayload = {
                 adminSystemsAll: aSystems,
                 adminServicesAll: aServices,
                 adminServiceDetailsMap: oDetailsMap,
                 adminCustomConflictsAll: aConflicts,
                 adminDatabaseSchemas: aDbSchemas,
-                adminPersonaUsers: aPersonaUsers
+                adminPersonaUsers: aPersonaUsers,
+                adminBusinessSectorsAll: aSectorsPayload,
+                adminBusinessFunctionsMap: oFuncsPayload,
+                adminRegionsAll: aRegionsPayload
             };
 
             if (!bSkipBackendSave) {
@@ -11503,7 +11607,7 @@ sap.ui.define([
         },
 
         /**
-         * Persists all three sections (Systems, Services/Teams/Personas, and Custom Conflicts)
+         * Persists all sections (Systems, Services, Conflicts, Sectors, Functions, Regions)
          * to the PostgreSQL database tables.
          */
         _persistAllCustomizationsToDb(oModel, sSuccessMsg) {
@@ -11516,6 +11620,9 @@ sap.ui.define([
             const aConflicts = oModel.getProperty("/adminCustomConflictsAll") || [];
             const aDbSchemas = oModel.getProperty("/adminDatabaseSchemas") || [];
             const aPersonaUsers = oModel.getProperty("/adminPersonaUsers") || [];
+            const aSectorsPayload = oModel.getProperty("/adminBusinessSectorsAll") || [];
+            const oFuncsPayload = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+            const aRegionsPayload = oModel.getProperty("/adminRegionsAll") || [];
 
             const oPayload = {
                 adminSystemsAll: aSystems,
@@ -11523,7 +11630,10 @@ sap.ui.define([
                 adminServiceDetailsMap: oDetailsMap,
                 adminCustomConflictsAll: aConflicts,
                 adminDatabaseSchemas: aDbSchemas,
-                adminPersonaUsers: aPersonaUsers
+                adminPersonaUsers: aPersonaUsers,
+                adminBusinessSectorsAll: aSectorsPayload,
+                adminBusinessFunctionsMap: oFuncsPayload,
+                adminRegionsAll: aRegionsPayload
             };
 
             try {
@@ -11540,7 +11650,8 @@ sap.ui.define([
             })
                 .then(res => res.ok ? res.json() : Promise.reject(res.status))
                 .then(oRes => {
-                    if (oRes && oRes.ok) {
+                    const bOk = !!(oRes && (oRes.ok === true || (oRes.value && oRes.value.ok === true)));
+                    if (bOk) {
                         MessageToast.show(sSuccessMsg || "Customization saved to database successfully.");
                         try {
                             localStorage.setItem("kyra_last_admin_config_mutation", String(Date.now()));
@@ -11560,7 +11671,8 @@ sap.ui.define([
                         MessageToast.show("⚠ Saved locally, but database sync returned an error.");
                     }
                 })
-                .catch(() => {
+                .catch((err) => {
+                    console.warn("[_persistAllCustomizationsToDb Network/Fetch Error]", err);
                     MessageToast.show("⚠ Saved locally. Will retry synchronizing with database on next update.");
                 });
         },
@@ -13704,10 +13816,7 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminBusinessSectorName", sSectorName);
 
             const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
-            const aFuncs = oMap[sSectorName] || [
-                { name: "General Administration" },
-                { name: "Operations Oversight" }
-            ];
+            const aFuncs = oMap[sSectorName] || [];
             oModel.setProperty("/adminBusinessFunctions", aFuncs);
         },
 
@@ -13799,6 +13908,8 @@ sap.ui.define([
                                 oMap[sName] = [];
                                 oModel.setProperty("/adminBusinessFunctionsMap", oMap);
 
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistAllCustomizationsToDb(oModel, "Sector '" + sName + "' saved to database.");
                                 that._showSlideNotification("Business Sector Added", "Sector '" + sName + "' created.");
                                 MessageToast.show("Sector '" + sName + "' added successfully.");
                                 closeFn();
@@ -13909,16 +14020,18 @@ sap.ui.define([
                                 });
                                 oModel.setProperty("/adminBusinessSectors", aCur);
 
+                                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                                if (oMap[sOldName] && sOldName !== sNewName) {
+                                    oMap[sNewName] = oMap[sOldName];
+                                    delete oMap[sOldName];
+                                    oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+                                }
                                 if (oModel.getProperty("/selectedAdminBusinessSectorName") === sOldName) {
                                     oModel.setProperty("/selectedAdminBusinessSectorName", sNewName);
-                                    const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
-                                    if (oMap[sOldName] && sOldName !== sNewName) {
-                                        oMap[sNewName] = oMap[sOldName];
-                                        delete oMap[sOldName];
-                                        oModel.setProperty("/adminBusinessFunctionsMap", oMap);
-                                    }
                                 }
 
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistAllCustomizationsToDb(oModel, "Sector '" + sNewName + "' updated in database.");
                                 that._showSlideNotification("Business Sector Updated", "Sector '" + sNewName + "' updated.");
                                 MessageToast.show("Sector '" + sNewName + "' updated successfully.");
                                 closeFn();
@@ -13965,6 +14078,8 @@ sap.ui.define([
                     }
                 }
 
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._persistAllCustomizationsToDb(oModel, "Sector '" + sSectorName + "' deleted from database.");
                 that._showSlideNotification("Sector Deleted", "Sector '" + sSectorName + "' removed.", "delete");
                 sap.m.MessageToast.show("Sector '" + sSectorName + "' deleted.");
             });
@@ -14041,13 +14156,15 @@ sap.ui.define([
                                 }
 
                                 const aFuncs = (oModel.getProperty("/adminBusinessFunctions") || []).slice();
-                                aFuncs.push({ name: sName });
+                                aFuncs.push({ name: sName, key: sName, text: sName, status: "Active" });
                                 oModel.setProperty("/adminBusinessFunctions", aFuncs);
 
                                 const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
                                 oMap[sCurrentSector] = aFuncs;
                                 oModel.setProperty("/adminBusinessFunctionsMap", oMap);
 
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistAllCustomizationsToDb(oModel, "Function '" + sName + "' saved to database.");
                                 that._showSlideNotification("Function Added", "Function '" + sName + "' added under " + sCurrentSector);
                                 MessageToast.show("Function '" + sName + "' added.");
                                 closeFn();
@@ -14139,7 +14256,7 @@ sap.ui.define([
                                 }
 
                                 const aFuncs = (oModel.getProperty("/adminBusinessFunctions") || []).map(f => {
-                                    return f.name === sOldName ? { name: sNewName } : f;
+                                    return f.name === sOldName ? Object.assign({}, f, { name: sNewName, key: sNewName, text: sNewName }) : f;
                                 });
                                 oModel.setProperty("/adminBusinessFunctions", aFuncs);
 
@@ -14147,6 +14264,8 @@ sap.ui.define([
                                 oMap[sCurrentSector] = aFuncs;
                                 oModel.setProperty("/adminBusinessFunctionsMap", oMap);
 
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistAllCustomizationsToDb(oModel, "Function updated in database.");
                                 that._showSlideNotification("Function Updated", "Function updated to '" + sNewName + "'");
                                 MessageToast.show("Function updated.");
                                 closeFn();
@@ -14181,6 +14300,8 @@ sap.ui.define([
                 oMap[sCurrentSector] = aFuncs;
                 oModel.setProperty("/adminBusinessFunctionsMap", oMap);
 
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._persistAllCustomizationsToDb(oModel, "Function '" + sName + "' deleted from database.");
                 that._showSlideNotification("Function Deleted", "Function '" + sName + "' removed.", "delete");
                 sap.m.MessageToast.show("Function deleted.");
             });
@@ -14286,6 +14407,8 @@ sap.ui.define([
                                 oModel.setProperty("/adminRegionsAll", aAll);
                                 oModel.setProperty("/adminRegions", aAll.slice());
 
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistAllCustomizationsToDb(oModel, "Region '" + sName + "' saved to database.");
                                 that._showSlideNotification("Region Added", "Region '" + sName + "' created.");
                                 MessageToast.show("Region '" + sName + "' added successfully.");
                                 closeFn();
@@ -14395,6 +14518,8 @@ sap.ui.define([
                                 });
                                 oModel.setProperty("/adminRegions", aCur);
 
+                                that._syncAdminConfigToLiveAddAccess(oModel);
+                                that._persistAllCustomizationsToDb(oModel, "Region '" + sNewName + "' updated in database.");
                                 that._showSlideNotification("Region Updated", "Region '" + sNewName + "' updated.");
                                 MessageToast.show("Region '" + sNewName + "' updated successfully.");
                                 closeFn();
@@ -14426,6 +14551,8 @@ sap.ui.define([
                 const aCur = (oModel.getProperty("/adminRegions") || []).filter(r => r.regionName !== sName);
                 oModel.setProperty("/adminRegions", aCur);
 
+                that._syncAdminConfigToLiveAddAccess(oModel);
+                that._persistAllCustomizationsToDb(oModel, "Region '" + sName + "' deleted from database.");
                 that._showSlideNotification("Region Deleted", "Region '" + sName + "' removed.", "delete");
                 sap.m.MessageToast.show("Region '" + sName + "' deleted.");
             });
@@ -14727,6 +14854,7 @@ sap.ui.define([
             const sDesc = (oDraft.description || "").trim() || this._generateDefaultConflictReason(sSystem, sRole1, sRole2) || ("Custom SoD Conflict between " + sRole1 + " and " + sRole2 + ".");
 
             const oSavedConflict = {
+                id: (oDraft.id && oDraft.id.length === 36) ? oDraft.id : ((typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : undefined),
                 system: sSystem,
                 service: sService || "System Administrator",
                 role1: sRole1,
@@ -14737,12 +14865,14 @@ sap.ui.define([
 
             const aAll = (oModel.getProperty("/adminCustomConflictsAll") || []).slice();
             if (iEditIdx >= 0 && iEditIdx < aAll.length) {
+                oSavedConflict.id = aAll[iEditIdx].id || oSavedConflict.id;
                 aAll[iEditIdx] = oSavedConflict;
             } else {
                 const iExistingIdx = aAll.findIndex(c =>
                     c.system === sSystem && c.role1 === sRole1 && c.role2 === sRole2
                 );
                 if (iExistingIdx >= 0) {
+                    oSavedConflict.id = aAll[iExistingIdx].id || oSavedConflict.id;
                     aAll[iExistingIdx] = oSavedConflict;
                 } else {
                     aAll.unshift(oSavedConflict);
