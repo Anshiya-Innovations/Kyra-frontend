@@ -1411,13 +1411,13 @@
                         <!-- ============================================================== -->
                         <HBox width="100%" class="sapUiSmallMarginBottom kyraAdminMiddleRowFlex" wrap="Wrap" justifyContent="SpaceBetween">
                             <!-- Left Card: Business Sectors -->
-                            <VBox class="kyraAdminWhiteCard kyraAdminServicesCard sapUiSmallMarginEnd" width="49%">
+                            <VBox class="kyraAdminWhiteCard kyraAdminServicesCard" width="49.5%">
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                     <Title text="Business Sectors" level="H4" class="kyraAdminCardTitle" />
                                     <HBox alignItems="Center" class="kyraAdminHeaderActions">
                                         <SearchField
                                             placeholder="Search Sectors..."
-                                            width="170px"
+                                            width="160px"
                                             liveChange=".onSearchAdminBusinessSectors"
                                             class="kyraAdminSearchField" />
                                         <Button
@@ -1472,7 +1472,7 @@
                             </VBox>
 
                             <!-- Right Card: Business Function Details -->
-                            <VBox class="kyraAdminWhiteCard kyraAdminServiceDetailsCard" width="49%">
+                            <VBox class="kyraAdminWhiteCard kyraAdminServiceDetailsCard" width="49.5%">
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                     <Title text="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" level="H4" class="kyraAdminCardTitle" />
                                     <HBox alignItems="Center" class="kyraAdminHeaderActions">
@@ -1602,9 +1602,7 @@
                                                     <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                 </customData>
                                                 <HBox class="kyraAdminVectorDot" />
-                                                <Text
-                                                    text="{accessModel>status}"
-                                                    class="kyraAdminPillText" />
+                                                <Text text="{accessModel>status}" class="kyraAdminPillText" />
                                             </HBox>
                                             <Text text="{accessModel>createdDate}" class="kyraAdminCellText" />
                                             <HBox alignItems="Center" class="kyraAdminRowActionGroup">
@@ -1623,7 +1621,12 @@
                                     </ColumnListItem>
                                 </items>
                             </Table>
-                            <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminServiceDetailsFooter">
+                            <HBox
+                                    visible="true"
+                                    width="100%"
+                                    justifyContent="End"
+                                    alignItems="Center"
+                                    class="kyraAdminServiceDetailsFooter">
                                 <Button
                                     text="Cancel"
                                     press=".onCancelAdminSystemsSection"
@@ -1656,8 +1659,8 @@
                                     
 
 
-                                    <Table
-                                        id="adminServicesTable"
+                                    <Table id="adminServicesTable"
+                                        noDataText="No services created yet. Click '+ Add Service' to create one."
                                         items="{accessModel>/adminServices}"
                                         fixedLayout="true"
                                         class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
@@ -1679,12 +1682,10 @@
                                                     <Text text="{accessModel>serviceName}" class="kyraAdminCellBold" />
                                                     <HBox alignItems="Center" class="kyraAdminStatusPill">
                                                         <customData>
-                                                            <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
+                                                            <core:CustomData key="status" value="{= ${accessModel>isUnsaved} ? 'Draft' : ${accessModel>status} }" writeToDom="true" />
                                                         </customData>
                                                         <HBox class="kyraAdminVectorDot" />
-                                                        <Text
-                                                            text="{accessModel>status}"
-                                                            class="kyraAdminPillText" />
+                                                        <Text text="{= ${accessModel>isUnsaved} ? 'Draft' : ${accessModel>status} }" class="kyraAdminPillText" />
                                                     </HBox>
                                                     <HBox alignItems="Center" class="kyraAdminRowActionGroup">
                                                         <Button
@@ -1703,7 +1704,12 @@
                                         </items>
                                     </Table>
                                 </VBox>
-                                <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminServiceDetailsFooter">
+                                <HBox
+                                    visible="true"
+                                    width="100%"
+                                    justifyContent="End"
+                                    alignItems="Center"
+                                    class="kyraAdminServiceDetailsFooter">
                                     <Button
                                         text="Cancel"
                                         press=".onCancelAdminServicesSection"
@@ -1720,17 +1726,47 @@
                             <VBox width="55.5%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
                                 <VBox width="100%">
                                     <HBox alignItems="Center" class="kyraAdminCardHeaderRow">
-                                        <Title text="{= 'Service Details - ' + (${accessModel>/selectedAdminServiceName} || 'System Administrator') }" level="H4" class="kyraAdminCardTitle" />
+                                        <Title text="{= 'Service Details' + (${accessModel>/selectedAdminServiceName} ? ' - ' + ${accessModel>/selectedAdminServiceName} : '') }" level="H4" class="kyraAdminCardTitle" />
                                     </HBox>
 
+                                    <!-- When newly created service is unsaved, show clean notice banner at top -->
+                                    <HBox
+                                        visible="{= !!${accessModel>/isCurrentServiceUnsaved} }"
+                                        alignItems="Center"
+                                        gap="10px"
+                                        class="kyraAdminNoticeBanner sapUiSmallMarginBottom">
+                                        <core:Icon src="sap-icon://information" color="#008C9C" size="16px" />
+                                        <Text text="{= 'Service \'' + (${accessModel>/selectedAdminServiceName} || '') + '\' is in Draft mode. You can add Teams and Personas below, then click \'Save\' to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
+                                    </HBox>
+
+                                    <!-- Clean Empty State when no Service is selected -->
+                                    <VBox
+                                        visible="{= !${accessModel>/selectedAdminServiceName} }"
+                                        alignItems="Center"
+                                        justifyContent="Center"
+                                        class="kyraAdminNoServicePlaceholder sapUiLargeMarginTop sapUiLargeMarginBottom"
+                                        width="100%">
+                                        <core:Icon src="sap-icon://customer-and-supplier" size="44px" color="#94A3B8" class="sapUiSmallMarginBottom" />
+                                        <Text text="No Service Selected" class="kyraAdminPlaceholderTitle sapUiTinyMarginBottom" />
+                                        <Text text="Select a service from the left list to view or configure details, or click '+ Add Service' to create a new one." class="kyraAdminPlaceholderSubtitle" />
+                                    </VBox>
+
                                     <!-- Inner 2-Column Panel: Team on Left | Persona Details on Right -->
-                                    <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminServiceDetailsSplitBox">
+                                    <HBox
+                                        visible="{= !!${accessModel>/selectedAdminServiceName} }"
+                                        width="100%"
+                                        justifyContent="SpaceBetween"
+                                        alignItems="Stretch"
+                                        class="kyraAdminServiceDetailsSplitBox">
 
                                         <!-- Left Sub-Panel: Team (live Team Roles for selected Service) -->
                                         <VBox width="43%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
                                             <VBox width="100%">
                                                 <Text text="{= 'Team (' + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
 
+                                                <Text text="No teams added yet. Click '+ Add Team' below."
+                                                      visible="{= !${accessModel>/adminClassifications} || ${accessModel>/adminClassifications}.length === 0 }"
+                                                      class="kyraAdminEmptyPlaceholderText sapUiSmallMarginBottom" />
                                                 <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer" width="100%">
                                                     <VBox class="kyraAdminClassItemCard sapUiTinyMarginBottom" press=".onSelectAdminClassification">
                                                         <customData>
@@ -1778,7 +1814,7 @@
                                                     <Text text="SELECTED TEAM" class="kyraAdminMiniLabel sapUiTinyMarginBottom" />
                                                     <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraAdminSelectedTeamNameRow">
                                                         <Text
-                                                            text="{= ${accessModel>/selectedAdminClassification/name} || 'Select a Team' }"
+                                                            text="{= ${accessModel>/selectedAdminClassification/name} || 'No Team Selected' }"
                                                             class="kyraAdminSelectedTeamName"
                                                             wrapping="true"
                                                             tooltip="{accessModel>/selectedAdminClassification/name}" />
@@ -1802,6 +1838,9 @@
                                                     text="{= 'Persona (' + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
                                                     class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
 
+                                                <Text text="No personas added yet. Click '+ Add Persona' below."
+                                                      visible="{= !${accessModel>/selectedAdminClassification/subClassifications} || ${accessModel>/selectedAdminClassification/subClassifications}.length === 0 }"
+                                                      class="kyraAdminEmptyPlaceholderText sapUiTinyMarginBottom" />
                                                 <!-- Persona Items List -->
                                                 <VBox items="{accessModel>/selectedAdminClassification/subClassifications}" class="kyraAdminSubClassListContainer" width="100%">
                                                     <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminPersonaItemRow sapUiTinyMarginBottom" width="100%">
@@ -1837,8 +1876,8 @@
                                     </HBox>
                                 </VBox>
 
-                                <!-- Bottom Right Footer Buttons: Cancel &amp; Save -->
-                                <HBox width="100%" justifyContent="End" alignItems="Center" class="kyraAdminServiceDetailsFooter">
+                                <!-- Bottom Right Footer Buttons: Cancel & Save -->
+                                <HBox visible="{= !!${accessModel>/selectedAdminServiceName} }" width="100%" justifyContent="End" alignItems="Center" class="kyraAdminServiceDetailsFooter">
                                     <Button
                                         text="Cancel"
                                         press=".onCancelAdminServiceDetails"
@@ -1852,7 +1891,7 @@
                             </VBox>
                         </HBox>
 
-                                                <!-- 3. BOTTOM FULL-WIDTH CARD: CUSTOM CONFLICT SECTION (Configure Conflicts from Systems, Services, Teams &amp; Personas above) -->
+                        <!-- 3. BOTTOM FULL-WIDTH CARD: CUSTOM CONFLICT SECTION (Configure Conflicts from Systems, Services, Teams &amp; Personas above) -->
                         <VBox class="kyraAdminWhiteCard sapUiSmallMarginTop" width="100%">
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                 <VBox>
@@ -3710,11 +3749,11 @@
                     </Table>
                 </VBox>
 
-                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver or Compliance Review and on My Access tab and Add Access is NOT active) -->
+                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver or Compliance Review and on My Access tab and none of the 3 action cards are active) -->
                 <mvc:XMLView 
                     id="approverSectionView"
                     viewName="kyra001.pages.Approver.Approver"
-                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; (${accessModel>/activeRole} === 'Engineering &amp; Developer' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
+                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; (${accessModel>/activeRole} === 'Engineering &amp; Developer' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
             </VBox>
 
             <!-- DEDICATED REQUEST TRACKING PAGE (Opened on clicking any row in Pending List) -->

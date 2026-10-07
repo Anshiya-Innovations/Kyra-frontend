@@ -45648,3 +45648,46 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     align-items: center !important;
     gap: 10px !important;
 }
+
+
+/* Global Add Access & Governance Dropdown Box Full-Area Clickability */
+#inPageBusinessSectorSelect,
+#inPageBusinessFunctionSelect,
+.kyraScopeFieldCol .sapMComboBox,
+.kyraScopeFieldCol .fioriFormSelect,
+.fioriFormSelect.sapMComboBox,
+.fioriFormSelect.sapMMultiComboBox,
+.fioriFormSelect.sapMSlt {
+    cursor: pointer !important;
+}
+
+#inPageBusinessSectorSelect .sapMInputBaseContentWrapper,
+#inPageBusinessFunctionSelect .sapMInputBaseContentWrapper,
+.kyraScopeFieldCol .sapMComboBox .sapMInputBaseContentWrapper,
+.kyraScopeFieldCol .fioriFormSelect .sapMInputBaseContentWrapper,
+.fioriFormSelect .sapMInputBaseContentWrapper {
+    cursor: pointer !important;
+}
+
+#inPageBusinessSectorSelect .sapMInputBaseInner,
+#inPageBusinessSectorSelect input.sapMInputBaseInner,
+#inPageBusinessFunctionSelect .sapMInputBaseInner,
+#inPageBusinessFunctionSelect input.sapMInputBaseInner,
+.kyraScopeFieldCol .sapMComboBox .sapMInputBaseInner,
+.kyraScopeFieldCol .sapMComboBox input.sapMInputBaseInner,
+.kyraScopeFieldCol .fioriFormSelect .sapMInputBaseInner,
+.kyraScopeFieldCol .fioriFormSelect input.sapMInputBaseInner {
+    cursor: pointer !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+#inPageBusinessSectorSelect .sapMInputBaseIconContainer,
+#inPageBusinessFunctionSelect .sapMInputBaseIconContainer,
+.kyraScopeFieldCol .sapMComboBox .sapMInputBaseIconContainer,
+.kyraScopeFieldCol .fioriFormSelect .sapMInputBaseIconContainer,
+.fioriFormSelect .sapMInputBaseIconContainer {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
