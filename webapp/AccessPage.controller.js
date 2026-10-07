@@ -12409,13 +12409,14 @@ sap.ui.define([
             const oObj = oCtx.getObject();
             const that = this;
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Target System", oObj.systemName, "System", () => {
                 const aAll = (oModel.getProperty("/adminSystemsAll") || []).filter(item => item.systemName !== oObj.systemName);
                 oModel.setProperty("/adminSystemsAll", aAll);
                 oModel.setProperty("/adminSystems", aAll.slice());
-                that._syncAdminConfigToLiveAddAccess(oModel);
-                that._showSlideNotification("System Deleted", "System '" + oObj.systemName + "' has been deleted.", "delete");
-                sap.m.MessageToast.show("System '" + oObj.systemName + "' deleted.");
+                that._showSlideNotification("System Deleted", "System '" + oObj.systemName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("System '" + oObj.systemName + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -12711,15 +12712,35 @@ sap.ui.define([
                                 oModel.setProperty("/adminServices", aAll.slice());
 
                                 const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                if (sOldName !== sNewName && oDetailsMap[sOldName]) {
-                                    oDetailsMap[sNewName] = oDetailsMap[sOldName].map(t => {
-                                        let tName = t.name || t.teamName || "";
-                                        if (tName.includes(`(${sOldName})`)) {
-                                            tName = tName.replace(`(${sOldName})`, `(${sNewName})`);
-                                        }
-                                        return Object.assign({}, t, { name: tName, teamName: tName });
+                                let aExistingTeams = oDetailsMap[sOldName];
+                                if (!aExistingTeams || aExistingTeams.length === 0) {
+                                    if (oModel.getProperty("/selectedAdminServiceName") === sOldName) {
+                                        aExistingTeams = oModel.getProperty("/adminClassifications") || [];
+                                    }
+                                }
+                                if (!aExistingTeams || aExistingTeams.length === 0) {
+                                    if (that._savedAdminServiceDetailsMap && that._savedAdminServiceDetailsMap[sOldName]) {
+                                        aExistingTeams = that._savedAdminServiceDetailsMap[sOldName];
+                                    }
+                                }
+                                if (!aExistingTeams) aExistingTeams = [];
+
+                                let aUpdatedTeams = JSON.parse(JSON.stringify(aExistingTeams));
+                                if (sOldName !== sNewName) {
+                                    aUpdatedTeams = aUpdatedTeams.map(t => {
+                                        let sRawName = t.name || t.teamName || "";
+                                        let sCleanTeam = sRawName.replace(/\s*\([^)]*\)$/, "").trim();
+                                        let sNewTeamName = sCleanTeam ? `${sCleanTeam} (${sNewName})` : sNewName;
+                                        return Object.assign({}, t, {
+                                            name: sNewTeamName,
+                                            teamName: sNewTeamName
+                                        });
                                     });
+                                    oDetailsMap[sNewName] = aUpdatedTeams;
                                     delete oDetailsMap[sOldName];
+                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                } else {
+                                    oDetailsMap[sNewName] = aUpdatedTeams;
                                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                                 }
 
@@ -12732,15 +12753,43 @@ sap.ui.define([
                                 oModel.setProperty("/adminCustomConflictsAll", aConflicts);
                                 oModel.setProperty("/adminCustomConflicts", aConflicts.slice());
 
-                                if (oModel.getProperty("/selectedAdminServiceName") === sOldName) {
+                                const bIsCurrent = (oModel.getProperty("/selectedAdminServiceName") === sOldName || oModel.getProperty("/selectedAdminServiceName") === sNewName);
+                                if (bIsCurrent) {
                                     oModel.setProperty("/selectedAdminServiceName", sNewName);
+
+                                    // Refresh right-hand service details panel (Teams & Personas)
+                                    const oCurrentSelTeam = oModel.getProperty("/selectedAdminClassification");
+                                    const sCurrentSelClean = oCurrentSelTeam ? (oCurrentSelTeam.name || "").replace(/\s*\([^)]*\)$/, "").trim() : "";
+
+                                    const aTeamsToSet = aUpdatedTeams.map((t, idx) => {
+                                        const sTClean = (t.name || "").replace(/\s*\([^)]*\)$/, "").trim();
+                                        const bSel = sCurrentSelClean ? (sTClean === sCurrentSelClean) : (idx === 0);
+                                        return Object.assign({}, t, {
+                                            status: t.status || "Active",
+                                            selected: bSel
+                                        });
+                                    });
+                                    const oNewSelectedTeam = aTeamsToSet.find(t => t.selected) || (aTeamsToSet.length > 0 ? aTeamsToSet[0] : null);
+
+                                    oModel.setProperty("/adminClassifications", aTeamsToSet);
+                                    oModel.setProperty("/selectedAdminClassification", oNewSelectedTeam ? JSON.parse(JSON.stringify(oNewSelectedTeam)) : null);
+                                }
+
+                                if (that._savedAdminServicesAll) {
+                                    that._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
+                                }
+                                if (that._savedAdminServiceDetailsMap) {
+                                    that._savedAdminServiceDetailsMap[sNewName] = JSON.parse(JSON.stringify(aUpdatedTeams));
+                                    if (sOldName !== sNewName) {
+                                        delete that._savedAdminServiceDetailsMap[sOldName];
+                                    }
                                 }
 
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
-                                that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' updated and saved to database.");
+                                that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' and teams updated.");
                                 that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' updated and saved to database.");
-                                MessageToast.show("Service '" + sNewName + "' updated and saved to database.");
+                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' and teams updated.");
+                                MessageToast.show("Service '" + sNewName + "' and teams updated.");
                                 closeFn();
                             };
                         }
@@ -12770,6 +12819,9 @@ sap.ui.define([
             const oRestoredMap = JSON.parse(JSON.stringify(this._savedAdminServiceDetailsMap || {}));
             oModel.setProperty("/adminServiceDetailsMap", oRestoredMap);
 
+            oModel.setProperty("/isCurrentServiceUnsaved", false);
+            this._pendingNewServiceName = null;
+
             // Ensure valid selected service
             let sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
             const bStillExists = aRestoredServices.some(s => s.serviceName === sSelectedSrv);
@@ -12786,6 +12838,7 @@ sap.ui.define([
             oModel.setProperty("/adminClassifications", aTeamsCopy);
             oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
 
+            this._showSlideNotification("Changes Cancelled", "Service changes cancelled and reverted.");
             sap.m.MessageToast.show("Service changes cancelled and reverted.");
         },
 
@@ -12829,8 +12882,14 @@ sap.ui.define([
                 return copy;
             });
 
+            // Make sure currently displayed teams in adminClassifications are saved into details map
+            if (sCurrentSelected) {
+                oDetailsMap[sCurrentSelected] = JSON.parse(JSON.stringify(oModel.getProperty("/adminClassifications") || []));
+            }
+
             oModel.setProperty("/adminServicesAll", aCleanAll);
             oModel.setProperty("/adminServices", aCleanAll.slice());
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             oModel.setProperty("/isCurrentServiceUnsaved", false);
             this._pendingNewServiceName = null;
 
@@ -12858,6 +12917,8 @@ sap.ui.define([
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
             const that = this;
+
+            this._ensureAdminSnapshots(oModel);
 
             this._confirmDelete("Delete Service", oObj.serviceName, "Service", () => {
                 const aAll = (oModel.getProperty("/adminServicesAll") || []).filter(item => item.serviceName !== oObj.serviceName);
@@ -12889,12 +12950,8 @@ sap.ui.define([
                     oModel.setProperty("/selectedAdminClassification", null);
                 }
 
-                that._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
-                that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oDetailsMap));
-                that._syncAdminConfigToLiveAddAccess(oModel, true);
-                that._persistAllCustomizationsToDb(oModel, "Service '" + oObj.serviceName + "' deleted.");
-                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' permanently removed.", "delete");
-                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' deleted successfully.");
+                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -13049,40 +13106,67 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sNewName = (nameInput ? nameInput.value : "").trim();
-                                if (!sNewName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sNewName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sNewName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a valid Team Name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a valid Team Name.");
-                                    return;
+                                    const statusSelect = oDom.querySelector("#kyra_edit_team_status");
+                                    const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                    const sCleanNewName = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
+                                    const sFinalTeamName = sServiceName ? `${sCleanNewName} (${sServiceName})` : sCleanNewName;
+
+                                    const sOldTeamClean = (sOldName || "").replace(/\s*\([^)]*\)$/, "").trim();
+                                    const aUpdatedSubs = (oSelected.subClassifications || []).map(p => {
+                                        let pName = p.name || "";
+                                        if (sOldTeamClean && pName.includes(`(${sOldTeamClean})`)) {
+                                            pName = pName.replace(`(${sOldTeamClean})`, `(${sCleanNewName})`);
+                                        }
+                                        return Object.assign({}, p, { name: pName });
+                                    });
+
+                                    oSelected.name = sFinalTeamName;
+                                    oSelected.status = sNewStatus;
+                                    oSelected.subClassifications = aUpdatedSubs;
+
+                                    const oUpdated = Object.assign({}, oSelected, {
+                                        name: sFinalTeamName,
+                                        status: sNewStatus,
+                                        subClassifications: aUpdatedSubs
+                                    });
+                                    oModel.setProperty("/selectedAdminClassification", oUpdated);
+
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        (item === oSelected || item.name === sOldName) ? Object.assign({}, item, oUpdated, { selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
+
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Team '" + sFinalTeamName + "' updated.");
+                                    }
+
+                                    that._showSlideNotification("Team Updated", "Team '" + sFinalTeamName + "' updated.");
+                                    MessageToast.show("Team '" + sFinalTeamName + "' updated.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Edit Team Error]", e);
+                                    MessageToast.show("Failed to update Team: " + (e.message || "Unknown error"));
                                 }
-                                const statusSelect = oDom.querySelector("#kyra_edit_team_status");
-                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
-                                const sCleanNewName = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
-                                const sFinalTeamName = sServiceName ? `${sCleanNewName} (${sServiceName})` : sCleanNewName;
-
-                                const oUpdated = Object.assign({}, oSelected, {
-                                    name: sFinalTeamName,
-                                    status: sNewStatus
-                                });
-                                oModel.setProperty("/selectedAdminClassification", oUpdated);
-
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
-                                    item.name === sOldName ? Object.assign({}, oUpdated, { selected: true }) : item
-                                );
-                                oModel.setProperty("/adminClassifications", aList);
-
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                                }
-                                that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Team Updated", "Team '" + sFinalTeamName + "' updated.");
-                                MessageToast.show("Team '" + sFinalTeamName + "' updated.");
-                                closeFn();
                             };
                         }
                     },
@@ -13115,6 +13199,8 @@ sap.ui.define([
             const sName = oSelected.name;
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Team", sName, "Team", () => {
                 const aList = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== sName);
                 if (aList.length > 0) {
@@ -13131,11 +13217,8 @@ sap.ui.define([
                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                 }
 
-                that._ensureAdminSnapshots(oModel);
-                that._syncAdminConfigToLiveAddAccess(oModel, true);
-                that._persistAllCustomizationsToDb(oModel, "Team '" + sName + "' deleted.");
-                that._showSlideNotification("Team Deleted", "Team '" + sName + "' removed.", "delete");
-                sap.m.MessageToast.show("Team '" + sName + "' removed.");
+                that._showSlideNotification("Team Deleted", "Team '" + sName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Team '" + sName + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -13271,41 +13354,54 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sName = (nameInput ? nameInput.value : "").trim();
-                                if (!sName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a valid Team Name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a valid Team Name.");
-                                    return;
-                                }
-                                const statusSelect = oDom.querySelector("#kyra_add_team_status");
-                                const sStatus = statusSelect ? statusSelect.value : "Active";
+                                    const statusSelect = oDom.querySelector("#kyra_add_team_status");
+                                    const sStatus = statusSelect ? statusSelect.value : "Active";
 
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
-                                    selected: false
-                                }));
-                                const sFinalTeamName = (sServiceName && !sName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sName} (${sServiceName})` : sName;
-                                const oNewTeam = {
-                                    name: sFinalTeamName,
-                                    status: sStatus,
-                                    selected: true,
-                                    subClassifications: []
-                                };
-                                aList.push(oNewTeam);
-                                oModel.setProperty("/adminClassifications", aList);
-                                oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oNewTeam)));
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
+                                        selected: false
+                                    }));
+                                    const sFinalTeamName = (sServiceName && !sName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sName} (${sServiceName})` : sName;
+                                    const oNewTeam = {
+                                        name: sFinalTeamName,
+                                        status: sStatus,
+                                        selected: true,
+                                        subClassifications: []
+                                    };
+                                    aList.push(oNewTeam);
+                                    oModel.setProperty("/adminClassifications", aList);
+                                    oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oNewTeam)));
 
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Team '" + oNewTeam.name + "' created.");
+                                    }
+
+                                    that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' created. You can now add Personas.");
+                                    MessageToast.show("Team '" + oNewTeam.name + "' created. You can now add Personas.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Add Team Error]", e);
+                                    MessageToast.show("Failed to create Team: " + (e.message || "Unknown error"));
                                 }
-                                that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' created. You can now add Personas.");
-                                MessageToast.show("Team '" + oNewTeam.name + "' created. You can now add Personas.");
-                                closeFn();
                             };
                         }
                     },
@@ -13325,6 +13421,8 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
             const that = this;
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Team", oObj.name, "Team", () => {
                 const aRemaining = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== oObj.name);
                 if (aRemaining.length > 0 && !aRemaining.some(c => c.selected)) {
@@ -13339,9 +13437,8 @@ sap.ui.define([
                     oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aRemaining));
                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                 }
-                that._ensureAdminSnapshots(oModel);
-                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' removed.", "delete");
-                sap.m.MessageToast.show("Team '" + oObj.name + "' removed.");
+                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Team '" + oObj.name + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -13442,50 +13539,62 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sName = (nameInput ? nameInput.value : "").trim();
-                                if (!sName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a Persona name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a Persona name.");
-                                    return;
+
+                                    const statusSelect = oDom.querySelector("#kyra_add_persona_status");
+                                    const sStatus = statusSelect ? statusSelect.value : "Active";
+                                    const restrictedSelect = oDom.querySelector("#kyra_add_persona_restricted");
+                                    const sPrivilege = restrictedSelect ? restrictedSelect.value : "Not restricted";
+
+                                    const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
+                                    const sTeamShort = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
+                                    const sFinalPersonaName = (sTeamShort && !sName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sName} (${sTeamShort})` : sName;
+                                    aSubs.push({
+                                        name: sFinalPersonaName,
+                                        status: sStatus,
+                                        accessPrivilege: sPrivilege
+                                    });
+                                    oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                                    const oSelected = oModel.getProperty("/selectedAdminClassification");
+                                    if (oSelected) {
+                                        oSelected.subClassifications = aSubs;
+                                    }
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        item.name === (oSelected && oSelected.name) ? Object.assign({}, oSelected, { selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
+
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Persona '" + sName + "' created under " + sCurrentTeam + ".");
+                                    }
+
+                                    that._showSlideNotification("Persona Created", "Persona '" + sName + "' created under " + sCurrentTeam + ".");
+                                    MessageToast.show("Persona '" + sName + "' added successfully.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Add Persona Error]", e);
+                                    MessageToast.show("Failed to create Persona: " + (e.message || "Unknown error"));
                                 }
-
-                                const statusSelect = oDom.querySelector("#kyra_add_persona_status");
-                                const sStatus = statusSelect ? statusSelect.value : "Active";
-                                const restrictedSelect = oDom.querySelector("#kyra_add_persona_restricted");
-                                const sPrivilege = restrictedSelect ? restrictedSelect.value : "Not restricted";
-
-                                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
-                                const sTeamShort = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
-                                const sFinalPersonaName = (sTeamShort && !sName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sName} (${sTeamShort})` : sName;
-                                aSubs.push({
-                                    name: sFinalPersonaName,
-                                    status: sStatus,
-                                    accessPrivilege: sPrivilege
-                                });
-                                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
-
-                                const oSelected = oModel.getProperty("/selectedAdminClassification");
-                                if (oSelected) {
-                                    oSelected.subClassifications = aSubs;
-                                }
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
-                                    item.name === (oSelected && oSelected.name) ? Object.assign({}, oSelected, { selected: true }) : item
-                                );
-                                oModel.setProperty("/adminClassifications", aList);
-
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                                }
-                                that._ensureAdminSnapshots(oModel);
-
-                                that._showSlideNotification("Persona Created", "Persona '" + sName + "' created under " + sCurrentTeam + ".");
-                                MessageToast.show("Persona '" + sName + "' added successfully.");
-                                closeFn();
                             };
                         }
                     },
@@ -13514,6 +13623,7 @@ sap.ui.define([
             const oSelectedTeam = oModel.getProperty("/selectedAdminClassification");
             const sTeamRaw = (oSelectedTeam && oSelectedTeam.name) || "";
             const sCleanTeamDisplay = sTeamRaw.replace(/\s*\([^)]*\)$/, "").trim();
+            const sTeamShort = sCleanTeamDisplay;
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
                 const sHtmlContent = `
@@ -13603,54 +13713,70 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sNewName = (nameInput ? nameInput.value : "").trim();
-                                if (!sNewName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sNewName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sNewName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a Persona name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a Persona name.");
-                                    return;
-                                }
 
-                                const statusSelect = oDom.querySelector("#kyra_edit_persona_status");
-                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
-                                const restrictedSelect = oDom.querySelector("#kyra_edit_persona_restricted");
-                                const sNewPrivilege = restrictedSelect ? restrictedSelect.value : sCurrentPrivilege;
+                                    const statusSelect = oDom.querySelector("#kyra_edit_persona_status");
+                                    const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                    const restrictedSelect = oDom.querySelector("#kyra_edit_persona_restricted");
+                                    const sNewPrivilege = restrictedSelect ? restrictedSelect.value : sCurrentPrivilege;
 
-                                const sCleanNewPersona = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
-                                const sFinalPersonaName = sTeamShort ? `${sCleanNewPersona} (${sTeamShort})` : sCleanNewPersona;
+                                    const sCleanNewPersona = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
+                                    const sFinalPersonaName = sTeamShort ? `${sCleanNewPersona} (${sTeamShort})` : sCleanNewPersona;
 
-                                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p => {
-                                    if (p.name === sOldName) {
-                                        return Object.assign({}, p, {
-                                            name: sFinalPersonaName,
-                                            status: sNewStatus,
-                                            accessPrivilege: sNewPrivilege
-                                        });
+                                    oPersona.name = sFinalPersonaName;
+                                    oPersona.status = sNewStatus;
+                                    oPersona.accessPrivilege = sNewPrivilege;
+
+                                    const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p => {
+                                        if (p === oPersona || p.name === sOldName || (p.name && sOldName && p.name.trim() === sOldName.trim())) {
+                                            return Object.assign({}, p, {
+                                                name: sFinalPersonaName,
+                                                status: sNewStatus,
+                                                accessPrivilege: sNewPrivilege
+                                            });
+                                        }
+                                        return p;
+                                    });
+                                    oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                                    if (oSelectedTeam) {
+                                        oSelectedTeam.subClassifications = aSubs;
                                     }
-                                    return p;
-                                });
-                                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        (item === oSelectedTeam || (item.name && oSelectedTeam && item.name === oSelectedTeam.name)) ? Object.assign({}, item, { subClassifications: aSubs, selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
 
-                                if (oSelectedTeam) {
-                                    oSelectedTeam.subClassifications = aSubs;
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Persona '" + sCleanNewPersona + "' updated.");
+                                    }
+
+                                    that._showSlideNotification("Persona Updated", "Persona '" + sCleanNewPersona + "' updated.");
+                                    MessageToast.show("Persona '" + sCleanNewPersona + "' updated.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Edit Persona Error]", e);
+                                    MessageToast.show("Failed to update Persona: " + (e.message || "Unknown error"));
                                 }
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
-                                    item.name === (oSelectedTeam && oSelectedTeam.name) ? Object.assign({}, oSelectedTeam, { selected: true }) : item
-                                );
-                                oModel.setProperty("/adminClassifications", aList);
-
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                                }
-                                that._ensureAdminSnapshots(oModel);
-
-                                that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated.");
-                                MessageToast.show("Persona '" + sNewName + "' updated.");
-                                closeFn();
                             };
                         }
                     },
@@ -13681,6 +13807,8 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
             const that = this;
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Persona", sName, "Persona", () => {
                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).filter(p => p.name !== sName);
                 oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
@@ -13698,11 +13826,9 @@ sap.ui.define([
                         oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                     }
                 }
-                that._ensureAdminSnapshots(oModel);
-                that._syncAdminConfigToLiveAddAccess(oModel, true);
-                that._persistAllCustomizationsToDb(oModel, "Persona '" + sName + "' deleted.");
-                that._showSlideNotification("Persona Deleted", "Persona '" + sName + "' removed.", "delete");
-                sap.m.MessageToast.show("Persona '" + sName + "' removed.");
+
+                that._showSlideNotification("Persona Deleted", "Persona '" + sName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Persona '" + sName + "' removed. Click Save to apply changes.");
             });
         },
 

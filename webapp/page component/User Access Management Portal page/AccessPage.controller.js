@@ -7174,19 +7174,19 @@ sap.ui.define([
             const ruleMap = new Map();
             const addRuleToMap = (r) => {
                 if (!r || r.status === "Inactive") return;
-                const r1 = String(r.role1 || r.roleA || r.role_a || "").trim().toLowerCase();
-                const r2 = String(r.role2 || r.roleB || r.role_b || "").trim().toLowerCase();
-                const sys = String(r.system || "All Systems").trim().toLowerCase();
+                const r1 = String(r.role1 || r.roleA || r.role_a || "").trim();
+                const r2 = String(r.role2 || r.roleB || r.role_b || "").trim();
+                const sys = String(r.system || "All Systems").trim();
                 if (!r1 || !r2) return;
-                const key1 = `${sys}::${r1}::${r2}`;
-                const key2 = `${sys}::${r2}::${r1}`;
+                const key1 = `${sys}::${r1}::${r2}`.toLowerCase();
+                const key2 = `${sys}::${r2}::${r1}`.toLowerCase();
                 if (!ruleMap.has(key1) && !ruleMap.has(key2)) {
                     ruleMap.set(key1, {
                         id: r.id,
-                        system: r.system || "All Systems",
+                        system: sys,
                         service: r.service || "System Administrator",
-                        role1: r.role1 || r.roleA || r.role_a,
-                        role2: r.role2 || r.roleB || r.role_b,
+                        role1: r1,
+                        role2: r2,
                         status: r.status || "Active",
                         description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
                     });
@@ -7204,6 +7204,14 @@ sap.ui.define([
                 return;
             }
 
+            const cleanPersonaName = (s) => {
+                if (!s) return "";
+                let str = String(s).trim();
+                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                str = str.replace(/\s+persona$/i, "").trim();
+                return str || s;
+            };
+
             const normalizeSystemName = (sys) => {
                 if (!sys) return "";
                 let s = String(sys).trim().toLowerCase();
@@ -7213,6 +7221,7 @@ sap.ui.define([
                 if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
                 if (s.includes("concur")) return "concur";
                 if (s.includes("analytics")) return "analytics";
+                if (s.includes("kyra") || s.includes("central governance")) return "kyra";
                 return s;
             };
 
@@ -7223,12 +7232,14 @@ sap.ui.define([
                 return normA === normB || normA.includes(normB) || normB.includes(normA);
             };
 
-            const cleanPersonaName = (s) => {
-                if (!s) return "";
-                let str = String(s).trim();
-                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
-                str = str.replace(/\s+persona$/i, "").trim();
-                return str || s;
+            const normalizeForMatching = (str) => {
+                if (!str) return "";
+                return String(str)
+                    .replace(/persona/gi, "")
+                    .replace(/[^\w\s]/gi, " ")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .toLowerCase();
             };
 
             const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
@@ -7240,14 +7251,13 @@ sap.ui.define([
 
                 const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
                 const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
+                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.team || itemA.roleTitle || "");
+                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.team || itemB.roleTitle || "");
 
                 if (persA && persB) {
                     const pA = persA.replace(/persona/g, "").trim();
                     const pB = persB.replace(/persona/g, "").trim();
                     if (persA === persB || (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA)))) return true;
-                    // If both items define personas and they are distinct, they are DIFFERENT entitlements!
                     return false;
                 }
                 if (roleA && roleB) {
@@ -7256,310 +7266,239 @@ sap.ui.define([
                 return false;
             };
 
-            const getFunctionalArchetype = (roleStr, personaStr) => {
-                const cleanR = cleanStr(roleStr);
-                const cleanP = cleanStr(personaStr);
-
-                if (cleanR.includes("developer") || cleanP.includes("developer")) return "developer";
-                if (cleanR.includes("administrator") || cleanR.includes("it admin") || cleanP.includes("cloud infrastructure") || cleanP.includes("database & iam") || cleanR.includes("admin")) return "admin";
-                if (cleanR.includes("security") || cleanP.includes("security") || cleanP.includes("cybersecurity") || cleanR.includes("isrm") || cleanP.includes("isrm") || cleanR.includes("audit") || cleanP.includes("audit")) return "security";
-                if (cleanR.includes("lead engineer") || cleanP.includes("principal systems") || cleanP.includes("devops & platform") || cleanR.includes("engineer")) return "engineer";
-                if (cleanR.includes("compliance") || cleanP.includes("compliance") || cleanP.includes("auditor") || cleanP.includes("privacy")) return "compliance";
-                if (cleanR.includes("product owner") || cleanP.includes("solution architecture") || cleanP.includes("product manager")) return "owner";
-                if (cleanR.includes("product group engineer") || cleanP.includes("integration engineering") || cleanP.includes("product suite")) return "product_group";
-                if (cleanR.includes("line manager") || cleanP.includes("people operations") || cleanP.includes("resource manager")) return "manager";
-                if (cleanR.includes("role owner") || cleanP.includes("role custodian") || cleanP.includes("access governance approver")) return "role_owner";
-                return cleanR;
+            const parseRuleTarget = (targetStr) => {
+                if (!targetStr) return { persona: "", team: "", raw: "" };
+                const str = String(targetStr).trim();
+                const match = str.match(/^(.*?)\s*\((.*?)\)$/);
+                if (match) {
+                    return {
+                        persona: match[1].trim(),
+                        team: match[2].trim(),
+                        raw: str
+                    };
+                }
+                return {
+                    persona: str,
+                    team: "",
+                    raw: str
+                };
             };
 
-            const getRuleArchetype = (ruleStr) => {
-                const s = String(ruleStr || "").toLowerCase().trim();
-                if (s.includes("developer") || s.includes("dev")) return "developer";
-                if (s.includes("admin") || s.includes("system administrator")) return "admin";
-                if (s.includes("security") || s.includes("audit") || s.includes("isrm")) return "security";
-                if (s.includes("engineer")) return "engineer";
-                if (s.includes("compliance")) return "compliance";
-                if (s.includes("owner")) return "owner";
-                if (s.includes("manager")) return "manager";
-                return s;
-            };
+            const itemMatchesRuleTarget = (item, parsedTarget) => {
+                if (!item || !parsedTarget) return false;
 
-            const matchesRoleOrPersona = (role, persona, ruleTarget) => {
-                if (!ruleTarget) return false;
-                const sRule = String(ruleTarget).trim().toLowerCase();
-                const cRule = cleanStr(ruleTarget);
-                
-                const sRole = String(role || "").trim().toLowerCase();
-                const cRole = cleanStr(role);
-                
-                const sPersona = String(persona || "").trim().toLowerCase();
-                const cPersona = cleanStr(persona);
+                const itemPersona = cleanPersonaName(item.persona || item.selectedPersona || item.selected_persona || "");
+                const itemRole = cleanPersonaName(item.roleName || item.role_name || item.team || item.teamName || item.roleTitle || "");
 
-                // 1. Exact matches (cleaned or raw)
-                if (sPersona && (sPersona === sRule || cPersona === cRule)) return true;
-                if (sRole && (sRole === sRule || cRole === cRule)) return true;
+                const normItemPers = normalizeForMatching(itemPersona);
+                const normItemRole = normalizeForMatching(itemRole);
+                const normTargetPers = normalizeForMatching(parsedTarget.persona);
+                const normTargetTeam = normalizeForMatching(parsedTarget.team);
+                const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-                // 2. Substring inclusions in either direction
-                if (cPersona && cRule && (cPersona.includes(cRule) || cRule.includes(cPersona))) return true;
-                if (sPersona && sRule && (sPersona.includes(sRule) || sRule.includes(sPersona))) return true;
-                if (cRole && cRule && (cRole.includes(cRule) || cRule.includes(cRole))) return true;
-                if (sRole && sRule && (sRole.includes(sRule) || sRule.includes(sRole))) return true;
+                // Case 1: Target specifically designates a Persona with Team (e.g. "Backend & Systems Developer (IT Developers)")
+                if (parsedTarget.team && parsedTarget.persona !== parsedTarget.team) {
+                    const bPersMatch = (normItemPers === normTargetPers) ||
+                        (normItemPers && normTargetPers && (normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers)));
+                    if (!bPersMatch) return false;
 
-                // 3. Parenthetical team matching in rule target
-                const mRuleTeam = sRule.match(/\(([^)]+)\)/);
-                if (mRuleTeam) {
-                    const ruleTeam = cleanStr(mRuleTeam[1]);
-                    if (cPersona === cRule && (cRole.includes(ruleTeam) || sPersona.includes(ruleTeam))) {
-                        return true;
+                    if (normTargetTeam && normItemRole) {
+                        const bTeamMatch = (normItemRole === normTargetTeam) ||
+                            (normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole));
+                        if (!bTeamMatch) return false;
                     }
+                    return true;
+                }
+
+                // Case 2: Target is just a Persona or Role Name without parentheses
+                if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
+                    return true;
+                }
+                if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
+                    return true;
+                }
+                if (normTargetRaw && (
+                    (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) ||
+                    (normItemRole && (normItemRole === normTargetRaw || normItemRole.includes(normTargetRaw) || normTargetRaw.includes(normItemRole)))
+                )) {
+                    return true;
                 }
 
                 return false;
             };
 
-            const checkConflictMatch = (roleA, personaA, roleB, personaB, rule) => {
-                const sR1 = String(rule.role1 || rule.role_a || rule.roleA || "").toLowerCase().trim();
-                const sR2 = String(rule.role2 || rule.role_b || rule.roleB || "").toLowerCase().trim();
-                const cRA = cleanStr(roleA);
-                const cRB = cleanStr(roleB);
-                const cPA = cleanStr(personaA);
-                const cPB = cleanStr(personaB);
+            const checkPairMatchesRule = (itemA, itemB, rule) => {
+                if (!rule || rule.status === "Inactive") return null;
 
-                // Duplicate access check
-                if (cRA === cRB && (!cPA || !cPB || cPA === cPB)) {
-                    return false;
+                const sSysA = itemA.system || itemA.target_system || itemA.targetSystem || "";
+                const sSysB = itemB.system || itemB.target_system || itemB.targetSystem || "";
+
+                if (!isSameSystem(sSysA, sSysB)) return null;
+
+                const sRuleSys = rule.system || "";
+                if (sRuleSys && sRuleSys !== "All Systems") {
+                    if (!isSameSystem(sRuleSys, sSysA) || !isSameSystem(sRuleSys, sSysB)) {
+                        return null;
+                    }
                 }
 
-                // 1. Direct symmetric matching
-                const directMatch1 = matchesRoleOrPersona(roleA, personaA, sR1) && matchesRoleOrPersona(roleB, personaB, sR2);
-                const directMatch2 = matchesRoleOrPersona(roleA, personaA, sR2) && matchesRoleOrPersona(roleB, personaB, sR1);
-                if (directMatch1 || directMatch2) return true;
+                if (isSameAccess(itemA, itemB)) return null;
 
-                // 2. Functional Archetype fallback
-                const archA = getFunctionalArchetype(roleA, personaA);
-                const archB = getFunctionalArchetype(roleB, personaB);
-                if (archA === archB) return false;
+                const target1 = parseRuleTarget(rule.role1 || rule.role_a || rule.roleA);
+                const target2 = parseRuleTarget(rule.role2 || rule.role_b || rule.roleB);
 
-                const r1 = getRuleArchetype(sR1);
-                const r2 = getRuleArchetype(sR2);
+                const matchDirect = itemMatchesRuleTarget(itemA, target1) && itemMatchesRuleTarget(itemB, target2);
+                const matchReverse = itemMatchesRuleTarget(itemA, target2) && itemMatchesRuleTarget(itemB, target1);
 
-                return (archA === r1 && archB === r2) || (archA === r2 && archB === r1);
+                if (matchDirect) {
+                    return { item1: itemA, item2: itemB, rule: rule };
+                }
+                if (matchReverse) {
+                    return { item1: itemB, item2: itemA, rule: rule };
+                }
+
+                return null;
+            };
+
+            const makeConflictKey = (card) => {
+                const k1 = `${normalizeSystemName(card.system)}:::${normalizeForMatching(card.roleA || card.existingRole)}:::${normalizeForMatching(card.personaA || card.existingPersona)}`;
+                const k2 = `${normalizeSystemName(card.system)}:::${normalizeForMatching(card.roleB || card.newRole)}:::${normalizeForMatching(card.personaB || card.newPersona)}`;
+                return [k1, k2].sort().join(" <===> ");
             };
 
             const aActiveConflicts = [];
             const aPendingConflicts = [];
             const aBatchConflicts = [];
 
-            const aItemsToCheck = (aSummaryItems || []).slice();
-            aItemsToCheck.sort((a, b) => String(a.requestId || a.request_number || a.id || "").localeCompare(String(b.requestId || b.request_number || b.id || ""), undefined, { numeric: true }));
+            const seenBatchKeys = new Set();
+            const seenActiveKeys = new Set();
+            const seenPendingKeys = new Set();
 
-            // 1. Check conflicts against Active Database Entitlements
-            const activeConflictMap = new Map();
-            aItemsToCheck.forEach(newItem => {
-                const sNewSys = newItem.system || "";
-                const sNewRoleName = newItem.roleName || newItem.roleTitle || newItem.persona || "Requested Role";
-                const sNewPersona = newItem.persona || newItem.selectedPersona || newItem.selected_persona || sNewRoleName;
-
-                aUserActiveRoles.forEach(activeRole => {
-                    const sActiveSys = activeRole.target_system || activeRole.system || "";
-                    if (!isSameSystem(sActiveSys, sNewSys)) return;
-                    if (isSameAccess(activeRole, newItem)) return;
-
-                    const sActiveRoleName = activeRole.role_name || activeRole.roleName || activeRole.roleTitle || activeRole.persona || "Active Role";
-                    const sActivePersona = activeRole.selected_persona || activeRole.persona || activeRole.selectedPersona || sActiveRoleName;
-
-                    aSodRules.forEach(rule => {
-                        if (rule.system && rule.system !== "All Systems" && !isSameSystem(rule.system, sNewSys)) return;
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and newly requested access.";
-
-                        if (checkConflictMatch(sNewRoleName, sNewPersona, sActiveRoleName, sActivePersona, rule)) {
-                            const sCleanActiveRole = cleanPersonaName(sActiveRoleName);
-                            const sCleanNewRole = cleanPersonaName(sNewRoleName);
-                            const sCleanActivePersona = cleanPersonaName(sActivePersona) || sCleanActiveRole;
-                            const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
-                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sNewSys}:::${sCleanNewRole}`;
-                            if (!activeConflictMap.has(sKey)) {
-                                activeConflictMap.set(sKey, {
-                                    system: sNewSys,
-                                    existingRole: `${sActiveSys} — ${sCleanActiveRole}`,
-                                    existingPersonas: new Set(),
-                                    newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    newPersonas: new Set(),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                            const entry = activeConflictMap.get(sKey);
-                            if (sCleanActivePersona) entry.existingPersonas.add(sCleanActivePersona);
-                            if (sCleanNewPersona) entry.newPersonas.add(sCleanNewPersona);
-                        }
-                    });
-                });
+            // Prepare unique items in cart
+            const seenItemKeys = new Set();
+            const aItemsToCheck = [];
+            (aSummaryItems || []).forEach(item => {
+                const k = `${item.system || ""}:::${item.roleName || item.team || ""}:::${item.persona || item.selectedPersona || ""}`;
+                if (!seenItemKeys.has(k)) {
+                    seenItemKeys.add(k);
+                    aItemsToCheck.push(item);
+                }
             });
 
-            activeConflictMap.forEach(entry => {
-                const sExisting = Array.from(entry.existingPersonas).filter(Boolean).join("\n");
-                const sNew = Array.from(entry.newPersonas).filter(Boolean).join("\n");
-                aActiveConflicts.push({
-                    system: entry.system,
-                    existingRole: entry.existingRole,
-                    existingPersona: sExisting,
-                    newRole: entry.newRole,
-                    newPersona: sNew,
-                    conflictTitle: entry.conflictTitle,
-                    conflictDesc: entry.conflictDesc
-                });
-            });
-
-            // 2. Check conflicts against Pending In-Flight Requests
-            const pendingConflictMap = new Map();
-            aItemsToCheck.forEach(newItem => {
-                const sNewSys = newItem.system || "";
-                const sNewRoleName = newItem.roleName || newItem.roleTitle || newItem.persona || "Requested Role";
-                const sNewPersona = newItem.persona || newItem.selectedPersona || newItem.selected_persona || sNewRoleName;
-
-                aUserPendingRequests.forEach(pendingReq => {
-                    const sPendingSys = pendingReq.targetSystem || pendingReq.system || pendingReq.target_system || "";
-                    if (!isSameSystem(sPendingSys, sNewSys)) return;
-                    if (isSameAccess(pendingReq, newItem)) return;
-
-                    const sPendingRoleName = pendingReq.roleName || pendingReq.roleTitle || pendingReq.persona || "Pending Role";
-                    const sPendingPersona = pendingReq.selected_persona || pendingReq.persona || pendingReq.selectedPersona || sPendingRoleName;
-
-                    aSodRules.forEach(rule => {
-                        if (rule.system && rule.system !== "All Systems" && !isSameSystem(rule.system, sNewSys)) return;
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between pending request and newly requested access.";
-
-                        if (checkConflictMatch(sNewRoleName, sNewPersona, sPendingRoleName, sPendingPersona, rule)) {
-                            const sCleanPendingRole = cleanPersonaName(sPendingRoleName);
-                            const sCleanNewRole = cleanPersonaName(sNewRoleName);
-                            const sCleanPendingPersona = cleanPersonaName(sPendingPersona) || sCleanPendingRole;
-                            const sCleanNewPersona = cleanPersonaName(sNewPersona) || sCleanNewRole;
-                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sNewSys}:::${sCleanNewRole}`;
-                            if (!pendingConflictMap.has(sKey)) {
-                                pendingConflictMap.set(sKey, {
-                                    system: sNewSys,
-                                    existingRole: `${sPendingSys} — ${sCleanPendingRole}`,
-                                    existingPersonas: new Set(),
-                                    newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    newPersonas: new Set(),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                            const entry = pendingConflictMap.get(sKey);
-                            if (sCleanPendingPersona) entry.existingPersonas.add(sCleanPendingPersona);
-                            if (sCleanNewPersona) entry.newPersonas.add(sCleanNewPersona);
-                        }
-                    });
-                });
-            });
-
-            pendingConflictMap.forEach(entry => {
-                const sExisting = Array.from(entry.existingPersonas).filter(Boolean).join("\n");
-                const sNew = Array.from(entry.newPersonas).filter(Boolean).join("\n");
-                aPendingConflicts.push({
-                    system: entry.system,
-                    existingRole: entry.existingRole,
-                    existingPersona: sExisting,
-                    newRole: entry.newRole,
-                    newPersona: sNew,
-                    conflictTitle: entry.conflictTitle,
-                    conflictDesc: entry.conflictDesc
-                });
-            });
-
-            // 3. Check batch intra-role conflicts
-            const batchConflictMap = new Map();
+            // 1. Check Batch Intra-Role Conflicts (within requested items)
             for (let i = 0; i < aItemsToCheck.length; i++) {
                 for (let j = i + 1; j < aItemsToCheck.length; j++) {
                     const itemA = aItemsToCheck[i];
                     const itemB = aItemsToCheck[j];
-                    const sSysA = itemA.system || "";
-                    const sSysB = itemB.system || "";
-
-                    if (!isSameSystem(sSysA, sSysB)) continue;
-                    if (isSameAccess(itemA, itemB)) continue;
-
-                    const sRoleA = itemA.roleName || itemA.roleTitle || itemA.persona || "Role A";
-                    const sPersonaA = itemA.persona || itemA.selectedPersona || itemA.selected_persona || sRoleA;
-                    const sRoleB = itemB.roleName || itemB.roleTitle || itemB.persona || "Role B";
-                    const sPersonaB = itemB.persona || itemB.selectedPersona || itemB.selected_persona || sRoleB;
 
                     aSodRules.forEach(rule => {
-                        if (rule.system && rule.system !== "All Systems" && !isSameSystem(rule.system, sSysA)) return;
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between multiple roles selected in this request.";
+                        const match = checkPairMatchesRule(itemA, itemB, rule);
+                        if (match) {
+                            const sys = match.item1.system || match.item2.system || rule.system || "Enterprise System";
+                            const role1 = cleanPersonaName(match.item1.roleName || match.item1.role_name || match.item1.team || match.item1.teamName || "Role A");
+                            const role2 = cleanPersonaName(match.item2.roleName || match.item2.role_name || match.item2.team || match.item2.teamName || "Role B");
+                            const pers1 = cleanPersonaName(match.item1.persona || match.item1.selectedPersona || match.item1.selected_persona || role1);
+                            const pers2 = cleanPersonaName(match.item2.persona || match.item2.selectedPersona || match.item2.selected_persona || role2);
+                            const desc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between requested roles.";
 
-                        if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
-                            const sCleanRoleA = cleanPersonaName(sRoleA);
-                            const sCleanRoleB = cleanPersonaName(sRoleB);
-                            const sCleanPersonaA = cleanPersonaName(sPersonaA) || sCleanRoleA;
-                            const sCleanPersonaB = cleanPersonaName(sPersonaB) || sCleanRoleB;
+                            const card = {
+                                system: sys,
+                                roleA: `${sys} — ${role1}`,
+                                personaA: pers1,
+                                roleB: `${sys} — ${role2}`,
+                                personaB: pers2,
+                                existingRole: `${sys} — ${role1}`,
+                                existingPersona: pers1,
+                                newRole: `${sys} — ${role2}`,
+                                newPersona: pers2,
+                                conflictTitle: "Segregation of Duties (SoD) Conflict",
+                                conflictDesc: desc
+                            };
 
-                            const sRoleKeyA = `${sSysA}:::${sCleanRoleA}`;
-                            const sRoleKeyB = `${sSysB}:::${sCleanRoleB}`;
-
-                            let targetKey;
-                            let bIsReverse = false;
-
-                            if (sRoleKeyA === sRoleKeyB) {
-                                const pPair = [sCleanPersonaA, sCleanPersonaB].sort().join(" <-> ");
-                                targetKey = `${sRoleKeyA}:::SAME_ROLE:::${pPair}`;
-                            } else {
-                                const sKeyDirect = `${sRoleKeyA} <===> ${sRoleKeyB}`;
-                                const sKeyReverse = `${sRoleKeyB} <===> ${sRoleKeyA}`;
-
-                                if (batchConflictMap.has(sKeyReverse)) {
-                                    targetKey = sKeyReverse;
-                                    bIsReverse = true;
-                                } else {
-                                    targetKey = sKeyDirect;
-                                    bIsReverse = false;
-                                }
-                            }
-
-                            if (!batchConflictMap.has(targetKey)) {
-                                batchConflictMap.set(targetKey, {
-                                    system: sSysA,
-                                    roleA: `${sSysA} — ${sCleanRoleA}`,
-                                    roleB: `${sSysB} — ${sCleanRoleB}`,
-                                    cleanRoleA: sCleanRoleA,
-                                    cleanRoleB: sCleanRoleB,
-                                    personasA: new Set(),
-                                    personasB: new Set(),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-
-                            const entry = batchConflictMap.get(targetKey);
-                            if (!bIsReverse) {
-                                if (sCleanPersonaA) entry.personasA.add(sCleanPersonaA);
-                                if (sCleanPersonaB) entry.personasB.add(sCleanPersonaB);
-                            } else {
-                                if (sCleanPersonaA) entry.personasB.add(sCleanPersonaA);
-                                if (sCleanPersonaB) entry.personasA.add(sCleanPersonaB);
+                            const key = makeConflictKey(card);
+                            if (!seenBatchKeys.has(key)) {
+                                seenBatchKeys.add(key);
+                                aBatchConflicts.push(card);
                             }
                         }
                     });
                 }
             }
 
-            batchConflictMap.forEach(entry => {
-                const sPersonaA = Array.from(entry.personasA).filter(Boolean).join("\n");
-                const sPersonaB = Array.from(entry.personasB).filter(Boolean).join("\n");
-                aBatchConflicts.push({
-                    system: entry.system,
-                    roleA: entry.roleA,
-                    personaA: sPersonaA,
-                    roleB: entry.roleB,
-                    personaB: sPersonaB,
-                    existingRole: entry.roleA,
-                    existingPersona: sPersonaA,
-                    newRole: entry.roleB,
-                    newPersona: sPersonaB,
-                    conflictTitle: entry.conflictTitle || "Segregation of Duties (SoD) Conflict",
-                    conflictDesc: entry.conflictDesc
+            // 2. Check Conflicts against Active Entitlements
+            aItemsToCheck.forEach(newItem => {
+                aUserActiveRoles.forEach(activeRole => {
+                    aSodRules.forEach(rule => {
+                        const match = checkPairMatchesRule(newItem, activeRole, rule);
+                        if (match) {
+                            const sys = newItem.system || activeRole.system || rule.system || "Enterprise System";
+                            const actRoleName = cleanPersonaName(activeRole.role_name || activeRole.roleName || activeRole.team || "Active Role");
+                            const actPersName = cleanPersonaName(activeRole.selected_persona || activeRole.persona || actRoleName);
+                            const newRoleName = cleanPersonaName(newItem.roleName || newItem.role_name || newItem.team || "Requested Role");
+                            const newPersName = cleanPersonaName(newItem.persona || newItem.selectedPersona || newRoleName);
+                            const desc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and requested access.";
+
+                            const card = {
+                                system: sys,
+                                roleA: `${sys} — ${actRoleName}`,
+                                personaA: actPersName,
+                                roleB: `${sys} — ${newRoleName}`,
+                                personaB: newPersName,
+                                existingRole: `${sys} — ${actRoleName}`,
+                                existingPersona: actPersName,
+                                newRole: `${sys} — ${newRoleName}`,
+                                newPersona: newPersName,
+                                conflictTitle: "Segregation of Duties (SoD) Conflict",
+                                conflictDesc: desc
+                            };
+
+                            const key = makeConflictKey(card);
+
+                            // Avoid duplicating a conflict that is already shown in the batch conflicts
+                            if (!seenBatchKeys.has(key) && !seenActiveKeys.has(key)) {
+                                seenActiveKeys.add(key);
+                                aActiveConflicts.push(card);
+                            }
+                        }
+                    });
+                });
+            });
+
+            // 3. Check Conflicts against Pending In-Flight Requests
+            aItemsToCheck.forEach(newItem => {
+                aUserPendingRequests.forEach(pendingReq => {
+                    aSodRules.forEach(rule => {
+                        const match = checkPairMatchesRule(newItem, pendingReq, rule);
+                        if (match) {
+                            const sys = newItem.system || pendingReq.system || pendingReq.target_system || rule.system || "Enterprise System";
+                            const pendRoleName = cleanPersonaName(pendingReq.role_name || pendingReq.roleName || pendingReq.team || "Pending Role");
+                            const pendPersName = cleanPersonaName(pendingReq.selected_persona || pendingReq.persona || pendRoleName);
+                            const newRoleName = cleanPersonaName(newItem.roleName || newItem.role_name || newItem.team || "Requested Role");
+                            const newPersName = cleanPersonaName(newItem.persona || newItem.selectedPersona || newRoleName);
+                            const desc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between pending request and requested access.";
+
+                            const card = {
+                                system: sys,
+                                roleA: `${sys} — ${pendRoleName}`,
+                                personaA: pendPersName,
+                                roleB: `${sys} — ${newRoleName}`,
+                                personaB: newPersName,
+                                existingRole: `${sys} — ${pendRoleName}`,
+                                existingPersona: pendPersName,
+                                newRole: `${sys} — ${newRoleName}`,
+                                newPersona: newPersName,
+                                conflictTitle: "Segregation of Duties (SoD) Conflict",
+                                conflictDesc: desc
+                            };
+
+                            const key = makeConflictKey(card);
+
+                            if (!seenBatchKeys.has(key) && !seenActiveKeys.has(key) && !seenPendingKeys.has(key)) {
+                                seenPendingKeys.add(key);
+                                aPendingConflicts.push(card);
+                            }
+                        }
+                    });
                 });
             });
 
@@ -12470,13 +12409,14 @@ sap.ui.define([
             const oObj = oCtx.getObject();
             const that = this;
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Target System", oObj.systemName, "System", () => {
                 const aAll = (oModel.getProperty("/adminSystemsAll") || []).filter(item => item.systemName !== oObj.systemName);
                 oModel.setProperty("/adminSystemsAll", aAll);
                 oModel.setProperty("/adminSystems", aAll.slice());
-                that._syncAdminConfigToLiveAddAccess(oModel);
-                that._showSlideNotification("System Deleted", "System '" + oObj.systemName + "' has been deleted.", "delete");
-                sap.m.MessageToast.show("System '" + oObj.systemName + "' deleted.");
+                that._showSlideNotification("System Deleted", "System '" + oObj.systemName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("System '" + oObj.systemName + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -12772,15 +12712,35 @@ sap.ui.define([
                                 oModel.setProperty("/adminServices", aAll.slice());
 
                                 const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                if (sOldName !== sNewName && oDetailsMap[sOldName]) {
-                                    oDetailsMap[sNewName] = oDetailsMap[sOldName].map(t => {
-                                        let tName = t.name || t.teamName || "";
-                                        if (tName.includes(`(${sOldName})`)) {
-                                            tName = tName.replace(`(${sOldName})`, `(${sNewName})`);
-                                        }
-                                        return Object.assign({}, t, { name: tName, teamName: tName });
+                                let aExistingTeams = oDetailsMap[sOldName];
+                                if (!aExistingTeams || aExistingTeams.length === 0) {
+                                    if (oModel.getProperty("/selectedAdminServiceName") === sOldName) {
+                                        aExistingTeams = oModel.getProperty("/adminClassifications") || [];
+                                    }
+                                }
+                                if (!aExistingTeams || aExistingTeams.length === 0) {
+                                    if (that._savedAdminServiceDetailsMap && that._savedAdminServiceDetailsMap[sOldName]) {
+                                        aExistingTeams = that._savedAdminServiceDetailsMap[sOldName];
+                                    }
+                                }
+                                if (!aExistingTeams) aExistingTeams = [];
+
+                                let aUpdatedTeams = JSON.parse(JSON.stringify(aExistingTeams));
+                                if (sOldName !== sNewName) {
+                                    aUpdatedTeams = aUpdatedTeams.map(t => {
+                                        let sRawName = t.name || t.teamName || "";
+                                        let sCleanTeam = sRawName.replace(/\s*\([^)]*\)$/, "").trim();
+                                        let sNewTeamName = sCleanTeam ? `${sCleanTeam} (${sNewName})` : sNewName;
+                                        return Object.assign({}, t, {
+                                            name: sNewTeamName,
+                                            teamName: sNewTeamName
+                                        });
                                     });
+                                    oDetailsMap[sNewName] = aUpdatedTeams;
                                     delete oDetailsMap[sOldName];
+                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                } else {
+                                    oDetailsMap[sNewName] = aUpdatedTeams;
                                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                                 }
 
@@ -12793,15 +12753,43 @@ sap.ui.define([
                                 oModel.setProperty("/adminCustomConflictsAll", aConflicts);
                                 oModel.setProperty("/adminCustomConflicts", aConflicts.slice());
 
-                                if (oModel.getProperty("/selectedAdminServiceName") === sOldName) {
+                                const bIsCurrent = (oModel.getProperty("/selectedAdminServiceName") === sOldName || oModel.getProperty("/selectedAdminServiceName") === sNewName);
+                                if (bIsCurrent) {
                                     oModel.setProperty("/selectedAdminServiceName", sNewName);
+
+                                    // Refresh right-hand service details panel (Teams & Personas)
+                                    const oCurrentSelTeam = oModel.getProperty("/selectedAdminClassification");
+                                    const sCurrentSelClean = oCurrentSelTeam ? (oCurrentSelTeam.name || "").replace(/\s*\([^)]*\)$/, "").trim() : "";
+
+                                    const aTeamsToSet = aUpdatedTeams.map((t, idx) => {
+                                        const sTClean = (t.name || "").replace(/\s*\([^)]*\)$/, "").trim();
+                                        const bSel = sCurrentSelClean ? (sTClean === sCurrentSelClean) : (idx === 0);
+                                        return Object.assign({}, t, {
+                                            status: t.status || "Active",
+                                            selected: bSel
+                                        });
+                                    });
+                                    const oNewSelectedTeam = aTeamsToSet.find(t => t.selected) || (aTeamsToSet.length > 0 ? aTeamsToSet[0] : null);
+
+                                    oModel.setProperty("/adminClassifications", aTeamsToSet);
+                                    oModel.setProperty("/selectedAdminClassification", oNewSelectedTeam ? JSON.parse(JSON.stringify(oNewSelectedTeam)) : null);
+                                }
+
+                                if (that._savedAdminServicesAll) {
+                                    that._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
+                                }
+                                if (that._savedAdminServiceDetailsMap) {
+                                    that._savedAdminServiceDetailsMap[sNewName] = JSON.parse(JSON.stringify(aUpdatedTeams));
+                                    if (sOldName !== sNewName) {
+                                        delete that._savedAdminServiceDetailsMap[sOldName];
+                                    }
                                 }
 
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
-                                that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' updated and saved to database.");
+                                that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' and teams updated.");
                                 that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' updated and saved to database.");
-                                MessageToast.show("Service '" + sNewName + "' updated and saved to database.");
+                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' and teams updated.");
+                                MessageToast.show("Service '" + sNewName + "' and teams updated.");
                                 closeFn();
                             };
                         }
@@ -12831,6 +12819,9 @@ sap.ui.define([
             const oRestoredMap = JSON.parse(JSON.stringify(this._savedAdminServiceDetailsMap || {}));
             oModel.setProperty("/adminServiceDetailsMap", oRestoredMap);
 
+            oModel.setProperty("/isCurrentServiceUnsaved", false);
+            this._pendingNewServiceName = null;
+
             // Ensure valid selected service
             let sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
             const bStillExists = aRestoredServices.some(s => s.serviceName === sSelectedSrv);
@@ -12847,6 +12838,7 @@ sap.ui.define([
             oModel.setProperty("/adminClassifications", aTeamsCopy);
             oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
 
+            this._showSlideNotification("Changes Cancelled", "Service changes cancelled and reverted.");
             sap.m.MessageToast.show("Service changes cancelled and reverted.");
         },
 
@@ -12890,8 +12882,14 @@ sap.ui.define([
                 return copy;
             });
 
+            // Make sure currently displayed teams in adminClassifications are saved into details map
+            if (sCurrentSelected) {
+                oDetailsMap[sCurrentSelected] = JSON.parse(JSON.stringify(oModel.getProperty("/adminClassifications") || []));
+            }
+
             oModel.setProperty("/adminServicesAll", aCleanAll);
             oModel.setProperty("/adminServices", aCleanAll.slice());
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             oModel.setProperty("/isCurrentServiceUnsaved", false);
             this._pendingNewServiceName = null;
 
@@ -12919,6 +12917,8 @@ sap.ui.define([
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
             const that = this;
+
+            this._ensureAdminSnapshots(oModel);
 
             this._confirmDelete("Delete Service", oObj.serviceName, "Service", () => {
                 const aAll = (oModel.getProperty("/adminServicesAll") || []).filter(item => item.serviceName !== oObj.serviceName);
@@ -12950,12 +12950,8 @@ sap.ui.define([
                     oModel.setProperty("/selectedAdminClassification", null);
                 }
 
-                that._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
-                that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oDetailsMap));
-                that._syncAdminConfigToLiveAddAccess(oModel, true);
-                that._persistAllCustomizationsToDb(oModel, "Service '" + oObj.serviceName + "' deleted.");
-                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' permanently removed.", "delete");
-                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' deleted successfully.");
+                that._showSlideNotification("Service Deleted", "Service '" + oObj.serviceName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Service '" + oObj.serviceName + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -13110,40 +13106,67 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sNewName = (nameInput ? nameInput.value : "").trim();
-                                if (!sNewName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sNewName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sNewName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a valid Team Name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a valid Team Name.");
-                                    return;
+                                    const statusSelect = oDom.querySelector("#kyra_edit_team_status");
+                                    const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                    const sCleanNewName = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
+                                    const sFinalTeamName = sServiceName ? `${sCleanNewName} (${sServiceName})` : sCleanNewName;
+
+                                    const sOldTeamClean = (sOldName || "").replace(/\s*\([^)]*\)$/, "").trim();
+                                    const aUpdatedSubs = (oSelected.subClassifications || []).map(p => {
+                                        let pName = p.name || "";
+                                        if (sOldTeamClean && pName.includes(`(${sOldTeamClean})`)) {
+                                            pName = pName.replace(`(${sOldTeamClean})`, `(${sCleanNewName})`);
+                                        }
+                                        return Object.assign({}, p, { name: pName });
+                                    });
+
+                                    oSelected.name = sFinalTeamName;
+                                    oSelected.status = sNewStatus;
+                                    oSelected.subClassifications = aUpdatedSubs;
+
+                                    const oUpdated = Object.assign({}, oSelected, {
+                                        name: sFinalTeamName,
+                                        status: sNewStatus,
+                                        subClassifications: aUpdatedSubs
+                                    });
+                                    oModel.setProperty("/selectedAdminClassification", oUpdated);
+
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        (item === oSelected || item.name === sOldName) ? Object.assign({}, item, oUpdated, { selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
+
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Team '" + sFinalTeamName + "' updated.");
+                                    }
+
+                                    that._showSlideNotification("Team Updated", "Team '" + sFinalTeamName + "' updated.");
+                                    MessageToast.show("Team '" + sFinalTeamName + "' updated.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Edit Team Error]", e);
+                                    MessageToast.show("Failed to update Team: " + (e.message || "Unknown error"));
                                 }
-                                const statusSelect = oDom.querySelector("#kyra_edit_team_status");
-                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
-                                const sCleanNewName = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
-                                const sFinalTeamName = sServiceName ? `${sCleanNewName} (${sServiceName})` : sCleanNewName;
-
-                                const oUpdated = Object.assign({}, oSelected, {
-                                    name: sFinalTeamName,
-                                    status: sNewStatus
-                                });
-                                oModel.setProperty("/selectedAdminClassification", oUpdated);
-
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
-                                    item.name === sOldName ? Object.assign({}, oUpdated, { selected: true }) : item
-                                );
-                                oModel.setProperty("/adminClassifications", aList);
-
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                                }
-                                that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Team Updated", "Team '" + sFinalTeamName + "' updated.");
-                                MessageToast.show("Team '" + sFinalTeamName + "' updated.");
-                                closeFn();
                             };
                         }
                     },
@@ -13176,6 +13199,8 @@ sap.ui.define([
             const sName = oSelected.name;
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Team", sName, "Team", () => {
                 const aList = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== sName);
                 if (aList.length > 0) {
@@ -13192,11 +13217,8 @@ sap.ui.define([
                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                 }
 
-                that._ensureAdminSnapshots(oModel);
-                that._syncAdminConfigToLiveAddAccess(oModel, true);
-                that._persistAllCustomizationsToDb(oModel, "Team '" + sName + "' deleted.");
-                that._showSlideNotification("Team Deleted", "Team '" + sName + "' removed.", "delete");
-                sap.m.MessageToast.show("Team '" + sName + "' removed.");
+                that._showSlideNotification("Team Deleted", "Team '" + sName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Team '" + sName + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -13332,41 +13354,54 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sName = (nameInput ? nameInput.value : "").trim();
-                                if (!sName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a valid Team Name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a valid Team Name.");
-                                    return;
-                                }
-                                const statusSelect = oDom.querySelector("#kyra_add_team_status");
-                                const sStatus = statusSelect ? statusSelect.value : "Active";
+                                    const statusSelect = oDom.querySelector("#kyra_add_team_status");
+                                    const sStatus = statusSelect ? statusSelect.value : "Active";
 
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
-                                    selected: false
-                                }));
-                                const sFinalTeamName = (sServiceName && !sName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sName} (${sServiceName})` : sName;
-                                const oNewTeam = {
-                                    name: sFinalTeamName,
-                                    status: sStatus,
-                                    selected: true,
-                                    subClassifications: []
-                                };
-                                aList.push(oNewTeam);
-                                oModel.setProperty("/adminClassifications", aList);
-                                oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oNewTeam)));
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item => Object.assign({}, item, {
+                                        selected: false
+                                    }));
+                                    const sFinalTeamName = (sServiceName && !sName.toLowerCase().includes(`(${sServiceName.toLowerCase()})`)) ? `${sName} (${sServiceName})` : sName;
+                                    const oNewTeam = {
+                                        name: sFinalTeamName,
+                                        status: sStatus,
+                                        selected: true,
+                                        subClassifications: []
+                                    };
+                                    aList.push(oNewTeam);
+                                    oModel.setProperty("/adminClassifications", aList);
+                                    oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oNewTeam)));
 
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Team '" + oNewTeam.name + "' created.");
+                                    }
+
+                                    that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' created. You can now add Personas.");
+                                    MessageToast.show("Team '" + oNewTeam.name + "' created. You can now add Personas.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Add Team Error]", e);
+                                    MessageToast.show("Failed to create Team: " + (e.message || "Unknown error"));
                                 }
-                                that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Team Created", "Team '" + oNewTeam.name + "' created. You can now add Personas.");
-                                MessageToast.show("Team '" + oNewTeam.name + "' created. You can now add Personas.");
-                                closeFn();
                             };
                         }
                     },
@@ -13386,6 +13421,8 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
             const that = this;
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Team", oObj.name, "Team", () => {
                 const aRemaining = (oModel.getProperty("/adminClassifications") || []).filter(item => item.name !== oObj.name);
                 if (aRemaining.length > 0 && !aRemaining.some(c => c.selected)) {
@@ -13400,9 +13437,8 @@ sap.ui.define([
                     oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aRemaining));
                     oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                 }
-                that._ensureAdminSnapshots(oModel);
-                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' removed.", "delete");
-                sap.m.MessageToast.show("Team '" + oObj.name + "' removed.");
+                that._showSlideNotification("Team Deleted", "Team '" + oObj.name + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Team '" + oObj.name + "' removed. Click Save to apply changes.");
             });
         },
 
@@ -13503,50 +13539,62 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sName = (nameInput ? nameInput.value : "").trim();
-                                if (!sName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a Persona name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a Persona name.");
-                                    return;
+
+                                    const statusSelect = oDom.querySelector("#kyra_add_persona_status");
+                                    const sStatus = statusSelect ? statusSelect.value : "Active";
+                                    const restrictedSelect = oDom.querySelector("#kyra_add_persona_restricted");
+                                    const sPrivilege = restrictedSelect ? restrictedSelect.value : "Not restricted";
+
+                                    const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
+                                    const sTeamShort = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
+                                    const sFinalPersonaName = (sTeamShort && !sName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sName} (${sTeamShort})` : sName;
+                                    aSubs.push({
+                                        name: sFinalPersonaName,
+                                        status: sStatus,
+                                        accessPrivilege: sPrivilege
+                                    });
+                                    oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                                    const oSelected = oModel.getProperty("/selectedAdminClassification");
+                                    if (oSelected) {
+                                        oSelected.subClassifications = aSubs;
+                                    }
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        item.name === (oSelected && oSelected.name) ? Object.assign({}, oSelected, { selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
+
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Persona '" + sName + "' created under " + sCurrentTeam + ".");
+                                    }
+
+                                    that._showSlideNotification("Persona Created", "Persona '" + sName + "' created under " + sCurrentTeam + ".");
+                                    MessageToast.show("Persona '" + sName + "' added successfully.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Add Persona Error]", e);
+                                    MessageToast.show("Failed to create Persona: " + (e.message || "Unknown error"));
                                 }
-
-                                const statusSelect = oDom.querySelector("#kyra_add_persona_status");
-                                const sStatus = statusSelect ? statusSelect.value : "Active";
-                                const restrictedSelect = oDom.querySelector("#kyra_add_persona_restricted");
-                                const sPrivilege = restrictedSelect ? restrictedSelect.value : "Not restricted";
-
-                                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).slice();
-                                const sTeamShort = sCurrentTeam.replace(/\s*\([^)]*\)/g, "").trim();
-                                const sFinalPersonaName = (sTeamShort && !sName.toLowerCase().includes(`(${sTeamShort.toLowerCase()})`)) ? `${sName} (${sTeamShort})` : sName;
-                                aSubs.push({
-                                    name: sFinalPersonaName,
-                                    status: sStatus,
-                                    accessPrivilege: sPrivilege
-                                });
-                                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
-
-                                const oSelected = oModel.getProperty("/selectedAdminClassification");
-                                if (oSelected) {
-                                    oSelected.subClassifications = aSubs;
-                                }
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
-                                    item.name === (oSelected && oSelected.name) ? Object.assign({}, oSelected, { selected: true }) : item
-                                );
-                                oModel.setProperty("/adminClassifications", aList);
-
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                                }
-                                that._ensureAdminSnapshots(oModel);
-
-                                that._showSlideNotification("Persona Created", "Persona '" + sName + "' created under " + sCurrentTeam + ".");
-                                MessageToast.show("Persona '" + sName + "' added successfully.");
-                                closeFn();
                             };
                         }
                     },
@@ -13575,6 +13623,7 @@ sap.ui.define([
             const oSelectedTeam = oModel.getProperty("/selectedAdminClassification");
             const sTeamRaw = (oSelectedTeam && oSelectedTeam.name) || "";
             const sCleanTeamDisplay = sTeamRaw.replace(/\s*\([^)]*\)$/, "").trim();
+            const sTeamShort = sCleanTeamDisplay;
 
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
                 const sHtmlContent = `
@@ -13664,54 +13713,70 @@ sap.ui.define([
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sNewName = (nameInput ? nameInput.value : "").trim();
-                                if (!sNewName) {
-                                    if (nameInput) {
-                                        nameInput.style.borderColor = "#EF4444";
-                                        nameInput.focus();
+                                try {
+                                    const sNewName = (nameInput ? nameInput.value : "").trim();
+                                    if (!sNewName) {
+                                        if (nameInput) {
+                                            nameInput.style.borderColor = "#EF4444";
+                                            nameInput.focus();
+                                        }
+                                        MessageToast.show("Please enter a Persona name.");
+                                        return;
                                     }
-                                    MessageToast.show("Please enter a Persona name.");
-                                    return;
-                                }
 
-                                const statusSelect = oDom.querySelector("#kyra_edit_persona_status");
-                                const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
-                                const restrictedSelect = oDom.querySelector("#kyra_edit_persona_restricted");
-                                const sNewPrivilege = restrictedSelect ? restrictedSelect.value : sCurrentPrivilege;
+                                    const statusSelect = oDom.querySelector("#kyra_edit_persona_status");
+                                    const sNewStatus = statusSelect ? statusSelect.value : sCurrentStatus;
+                                    const restrictedSelect = oDom.querySelector("#kyra_edit_persona_restricted");
+                                    const sNewPrivilege = restrictedSelect ? restrictedSelect.value : sCurrentPrivilege;
 
-                                const sCleanNewPersona = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
-                                const sFinalPersonaName = sTeamShort ? `${sCleanNewPersona} (${sTeamShort})` : sCleanNewPersona;
+                                    const sCleanNewPersona = sNewName.replace(/\s*\([^)]*\)$/, "").trim();
+                                    const sFinalPersonaName = sTeamShort ? `${sCleanNewPersona} (${sTeamShort})` : sCleanNewPersona;
 
-                                const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p => {
-                                    if (p.name === sOldName) {
-                                        return Object.assign({}, p, {
-                                            name: sFinalPersonaName,
-                                            status: sNewStatus,
-                                            accessPrivilege: sNewPrivilege
-                                        });
+                                    oPersona.name = sFinalPersonaName;
+                                    oPersona.status = sNewStatus;
+                                    oPersona.accessPrivilege = sNewPrivilege;
+
+                                    const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).map(p => {
+                                        if (p === oPersona || p.name === sOldName || (p.name && sOldName && p.name.trim() === sOldName.trim())) {
+                                            return Object.assign({}, p, {
+                                                name: sFinalPersonaName,
+                                                status: sNewStatus,
+                                                accessPrivilege: sNewPrivilege
+                                            });
+                                        }
+                                        return p;
+                                    });
+                                    oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+
+                                    if (oSelectedTeam) {
+                                        oSelectedTeam.subClassifications = aSubs;
                                     }
-                                    return p;
-                                });
-                                oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
+                                    const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
+                                        (item === oSelectedTeam || (item.name && oSelectedTeam && item.name === oSelectedTeam.name)) ? Object.assign({}, item, { subClassifications: aSubs, selected: true }) : item
+                                    );
+                                    oModel.setProperty("/adminClassifications", aList);
 
-                                if (oSelectedTeam) {
-                                    oSelectedTeam.subClassifications = aSubs;
+                                    if (sServiceName) {
+                                        const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                                        oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
+                                        oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+                                    }
+                                    that._ensureAdminSnapshots(oModel);
+
+                                    if (that._syncAdminConfigToLiveAddAccess) {
+                                        that._syncAdminConfigToLiveAddAccess(oModel, true);
+                                    }
+                                    if (that._persistAllCustomizationsToDb) {
+                                        that._persistAllCustomizationsToDb(oModel, "Persona '" + sCleanNewPersona + "' updated.");
+                                    }
+
+                                    that._showSlideNotification("Persona Updated", "Persona '" + sCleanNewPersona + "' updated.");
+                                    MessageToast.show("Persona '" + sCleanNewPersona + "' updated.");
+                                    closeFn();
+                                } catch (e) {
+                                    console.error("[Edit Persona Error]", e);
+                                    MessageToast.show("Failed to update Persona: " + (e.message || "Unknown error"));
                                 }
-                                const aList = (oModel.getProperty("/adminClassifications") || []).map(item =>
-                                    item.name === (oSelectedTeam && oSelectedTeam.name) ? Object.assign({}, oSelectedTeam, { selected: true }) : item
-                                );
-                                oModel.setProperty("/adminClassifications", aList);
-
-                                if (sServiceName) {
-                                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-                                    oDetailsMap[sServiceName] = JSON.parse(JSON.stringify(aList));
-                                    oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-                                }
-                                that._ensureAdminSnapshots(oModel);
-
-                                that._showSlideNotification("Persona Updated", "Persona '" + sNewName + "' updated.");
-                                MessageToast.show("Persona '" + sNewName + "' updated.");
-                                closeFn();
                             };
                         }
                     },
@@ -13742,6 +13807,8 @@ sap.ui.define([
             const sServiceName = oModel.getProperty("/selectedAdminServiceName") || "";
             const that = this;
 
+            this._ensureAdminSnapshots(oModel);
+
             this._confirmDelete("Delete Persona", sName, "Persona", () => {
                 const aSubs = (oModel.getProperty("/selectedAdminClassification/subClassifications") || []).filter(p => p.name !== sName);
                 oModel.setProperty("/selectedAdminClassification/subClassifications", aSubs);
@@ -13759,11 +13826,9 @@ sap.ui.define([
                         oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
                     }
                 }
-                that._ensureAdminSnapshots(oModel);
-                that._syncAdminConfigToLiveAddAccess(oModel, true);
-                that._persistAllCustomizationsToDb(oModel, "Persona '" + sName + "' deleted.");
-                that._showSlideNotification("Persona Deleted", "Persona '" + sName + "' removed.", "delete");
-                sap.m.MessageToast.show("Persona '" + sName + "' removed.");
+
+                that._showSlideNotification("Persona Deleted", "Persona '" + sName + "' removed. Click Save to apply changes.", "delete");
+                sap.m.MessageToast.show("Persona '" + sName + "' removed. Click Save to apply changes.");
             });
         },
 
