@@ -2060,14 +2060,14 @@
                                 id="adminCustomConflictsTable"
                                 items="{accessModel>/adminCustomConflicts}"
                                 fixedLayout="true"
-                                class="sapUiNoMargin kyraAdminCleanTable">
+                                class="sapUiNoMargin kyraAdminCleanTable kyraAdminConflictTable">
                                 <columns>
-                                    <Column width="18%" hAlign="Begin"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="20%" hAlign="Begin"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
-                                    <Column width="10%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="8%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="13%" hAlign="Center"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
+                                    <Column width="23%" hAlign="Center"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="23%" hAlign="Center"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="23%" hAlign="Center"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
+                                    <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="9%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
@@ -2076,7 +2076,7 @@
                                             <Text text="{accessModel>role1}" class="kyraAdminCellBold" />
                                             <Text text="{accessModel>role2}" class="kyraAdminCellBold" />
                                             <Text text="{accessModel>description}" class="kyraAdminCellText" />
-                                            <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                            <HBox alignItems="Center" class="kyraAdminStatusPill" press=".onToggleAdminConflictStatus" tooltip="Click to toggle Active / Inactive status">
                                                 <customData>
                                                     <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                 </customData>
@@ -2094,7 +2094,7 @@
                                                 <Button
                                                     icon="sap-icon://delete"
                                                     press=".onDeleteAdminConflictRule"
-                                                    class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
+                                                    class="kyraAdminSystemDeleteBtn"
                                                     tooltip="Delete Conflict Rule" />
                                             </HBox>
                                         </cells>

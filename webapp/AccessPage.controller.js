@@ -15469,6 +15469,24 @@ sap.ui.define([
             });
         },
 
+        formatConflictPersonaName(sRole) {
+            if (!sRole) return "";
+            const sStr = String(sRole).trim();
+            const iIdx = sStr.indexOf("(");
+            return iIdx > 0 ? sStr.substring(0, iIdx).trim() : sStr;
+        },
+
+        formatConflictTeamName(sRole) {
+            if (!sRole) return "";
+            const sStr = String(sRole).trim();
+            const iStart = sStr.indexOf("(");
+            const iEnd = sStr.lastIndexOf(")");
+            if (iStart >= 0 && iEnd > iStart) {
+                return "(" + sStr.substring(iStart + 1, iEnd).trim() + ")";
+            }
+            return "";
+        },
+
         onToggleAdminConflictStatus(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
