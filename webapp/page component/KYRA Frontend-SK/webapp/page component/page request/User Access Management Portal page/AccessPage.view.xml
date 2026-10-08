@@ -2104,7 +2104,7 @@
                                 placeholder="Search entitlements..."
                                 width="270px"
                                 liveChange=".onSearchMyAccess"
-                                class="kyraEntitlementsSearchField" />
+                                class="kyraAdminSearchField kyraEntitlementsSearchField" />
                             <Button
                                 text="View All"
                                 icon="sap-icon://grid"
@@ -2232,7 +2232,7 @@
                                 placeholder="Search request ID or role..."
                                 width="230px"
                                 liveChange=".onSearchRequests"
-                                class="kyraEntitlementsSearchField" />
+                                class="kyraAdminSearchField kyraEntitlementsSearchField" />
                             
 
                             <!-- FILTER BOX -->
@@ -2349,7 +2349,7 @@
                                 placeholder="Search all entitlements..."
                                 width="230px"
                                 liveChange=".onSearchMasterAccess"
-                                class="kyraEntitlementsSearchField" />
+                                class="kyraAdminSearchField kyraEntitlementsSearchField" />
 
                             <Button
                                 icon="sap-icon://filter"

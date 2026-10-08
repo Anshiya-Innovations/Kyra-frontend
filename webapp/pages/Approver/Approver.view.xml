@@ -69,7 +69,7 @@
                         placeholder="Search request ID, role, or user..."
                         width="260px"
                         liveChange=".onSearchApprovalTable"
-                        class="kyraEntitlementsSearchField" />
+                        class="kyraAdminSearchField kyraEntitlementsSearchField" />
                     
                     <Button
                         icon="sap-icon://filter"
