@@ -438,14 +438,14 @@ sap.ui.define([
                     { systemName: "SAP Ariba Supply Network", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-03-01" }
                 ],
                 adminBusinessSectorsAll: [
-                    { sectorName: "Finance & Enterprise Performance", status: "Active", selected: true },
+                    { sectorName: "Finance & Enterprise Performance", status: "Active", selected: false },
                     { sectorName: "Global Supply Chain & Logistics", status: "Active", selected: false },
                     { sectorName: "Human Capital Management (HCM)", status: "Active", selected: false },
                     { sectorName: "Information Technology & Security", status: "Active", selected: false },
                     { sectorName: "Customer Operations & Sales", status: "Active", selected: false }
                 ],
                 adminBusinessSectors: [
-                    { sectorName: "Finance & Enterprise Performance", status: "Active", selected: true },
+                    { sectorName: "Finance & Enterprise Performance", status: "Active", selected: false },
                     { sectorName: "Global Supply Chain & Logistics", status: "Active", selected: false },
                     { sectorName: "Human Capital Management (HCM)", status: "Active", selected: false },
                     { sectorName: "Information Technology & Security", status: "Active", selected: false },
@@ -458,12 +458,8 @@ sap.ui.define([
                     { sectorName: "Information Technology & Security" },
                     { sectorName: "Customer Operations & Sales" }
                 ],
-                selectedAdminBusinessSectorName: "Finance & Enterprise Performance",
-                adminBusinessFunctions: [
-                    { name: "Financial Auditing", key: "Financial Auditing", text: "Financial Auditing", status: "Active" },
-                    { name: "Corporate Accounting", key: "Corporate Accounting", text: "Corporate Accounting", status: "Active" },
-                    { name: "FP&A Governance", key: "FP&A Governance", text: "FP&A Governance", status: "Active" }
-                ],
+                selectedAdminBusinessSectorName: "",
+                adminBusinessFunctions: [],
                 adminBusinessFunctionsMap: {
                     "Finance & Enterprise Performance": [
                         { name: "Financial Auditing", key: "Financial Auditing", text: "Financial Auditing", status: "Active" },
@@ -945,7 +941,21 @@ sap.ui.define([
             // 4. Tab Focus Visibility Change Sync
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
-                    if (!document.hidden) {
+                    if (document.hidden) {
+                        if (oModel) {
+                            oModel.setProperty("/selectedAdminServiceName", "");
+                            const aServices = oModel.getProperty("/adminServices") || [];
+                            aServices.forEach(s => s.selected = false);
+                            oModel.setProperty("/adminServices", aServices.slice());
+                            oModel.setProperty("/adminServiceDetails", []);
+
+                            oModel.setProperty("/selectedAdminBusinessSectorName", "");
+                            const aSectors = oModel.getProperty("/adminBusinessSectors") || [];
+                            aSectors.forEach(s => s.selected = false);
+                            oModel.setProperty("/adminBusinessSectors", aSectors.slice());
+                            oModel.setProperty("/adminBusinessFunctions", []);
+                        }
+                    } else {
                         this._loadSubmittedRequests(oModel, true);
                         this._loadCustomAccessAndConflictConfig(oModel);
                         this._loadBackendSoDMatrix();
@@ -11133,6 +11143,12 @@ sap.ui.define([
             if (!this._savedAdminServiceDetailsMap) {
                 this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
             }
+            if (!this._savedAdminBusinessSectorsAll) {
+                this._savedAdminBusinessSectorsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminBusinessSectorsAll") || []));
+            }
+            if (!this._savedAdminBusinessFunctionsMap) {
+                this._savedAdminBusinessFunctionsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminBusinessFunctionsMap") || {}));
+            }
         },
 
         _getDefaultAdminServiceDetailsMap() {
@@ -11163,7 +11179,10 @@ sap.ui.define([
                 oModel.setProperty("/adminSystems", aSys.slice());
             }
             if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length > 0) {
-                const aSrv = oParsed.adminServicesAll.map(s => Object.assign({ status: "Active" }, s));
+                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
+                const aSrv = oParsed.adminServicesAll.map(s => Object.assign({ status: "Active" }, s, {
+                    selected: sSelectedSrv ? (s.serviceName === sSelectedSrv) : false
+                }));
                 oModel.setProperty("/adminServicesAll", aSrv);
                 oModel.setProperty("/adminServices", aSrv.slice());
             }
@@ -11180,11 +11199,15 @@ sap.ui.define([
                 });
                 oModel.setProperty("/adminServiceDetailsMap", oMap);
                 const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
-                const aTeams = oMap[sSelectedSrv] || [];
-                if (aTeams.length > 0) {
-                    oModel.setProperty("/adminClassifications", JSON.parse(JSON.stringify(aTeams)));
-                    const oActiveTeam = aTeams.find(t => t.selected) || aTeams[0];
-                    oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oActiveTeam)));
+                if (sSelectedSrv && oMap[sSelectedSrv]) {
+                    const aTeams = oMap[sSelectedSrv] || [];
+                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams));
+                    oModel.setProperty("/adminClassifications", aTeamsCopy);
+                    const oActiveTeam = aTeamsCopy.find(t => t.selected) || (aTeamsCopy.length > 0 ? aTeamsCopy[0] : null);
+                    oModel.setProperty("/selectedAdminClassification", oActiveTeam ? JSON.parse(JSON.stringify(oActiveTeam)) : null);
+                } else if (!sSelectedSrv) {
+                    oModel.setProperty("/adminClassifications", []);
+                    oModel.setProperty("/selectedAdminClassification", null);
                 }
             }
             if (Array.isArray(oParsed.adminCustomConflictsAll)) {
@@ -11212,16 +11235,30 @@ sap.ui.define([
                 oModel.setProperty("/adminPersonaUsers", oParsed.adminPersonaUsers);
             }
             if (Array.isArray(oParsed.adminBusinessSectorsAll) && oParsed.adminBusinessSectorsAll.length > 0) {
-                oModel.setProperty("/adminBusinessSectorsAll", oParsed.adminBusinessSectorsAll);
-                oModel.setProperty("/adminBusinessSectors", oParsed.adminBusinessSectorsAll.slice());
-                const aActiveSecs = oParsed.adminBusinessSectorsAll.filter(s => s && s.status !== "Inactive");
+                const sSelectedSec = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
+                const aSec = oParsed.adminBusinessSectorsAll.map(s => Object.assign({ status: "Active" }, s, {
+                    selected: sSelectedSec ? (s.sectorName === sSelectedSec) : false
+                }));
+                oModel.setProperty("/adminBusinessSectorsAll", aSec);
+                oModel.setProperty("/adminBusinessSectors", aSec.slice());
+                const aActiveSecs = aSec.filter(s => s && s.status !== "Inactive");
                 oModel.setProperty("/activeBusinessSectors", aActiveSecs);
+                if (sSelectedSec) {
+                    const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                    oModel.setProperty("/adminBusinessFunctions", oMap[sSelectedSec] || []);
+                } else {
+                    oModel.setProperty("/adminBusinessFunctions", []);
+                }
             }
             if (oParsed.adminBusinessFunctionsMap && typeof oParsed.adminBusinessFunctionsMap === "object" && Object.keys(oParsed.adminBusinessFunctionsMap).length > 0) {
                 oModel.setProperty("/adminBusinessFunctionsMap", oParsed.adminBusinessFunctionsMap);
-                const sCurSector = oModel.getProperty("/selectedAdminBusinessSectorName") || "Finance & Enterprise Performance";
-                const aFuncs = oParsed.adminBusinessFunctionsMap[sCurSector] || [];
-                oModel.setProperty("/adminBusinessFunctions", aFuncs);
+                const sCurSector = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
+                if (sCurSector) {
+                    const aFuncs = oParsed.adminBusinessFunctionsMap[sCurSector] || [];
+                    oModel.setProperty("/adminBusinessFunctions", aFuncs);
+                } else {
+                    oModel.setProperty("/adminBusinessFunctions", []);
+                }
             }
             if (Array.isArray(oParsed.adminRegionsAll) && oParsed.adminRegionsAll.length > 0) {
                 oModel.setProperty("/adminRegionsAll", oParsed.adminRegionsAll);
@@ -11267,6 +11304,8 @@ sap.ui.define([
             this._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
             this._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
             this._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
+            this._savedAdminBusinessSectorsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminBusinessSectorsAll") || []));
+            this._savedAdminBusinessFunctionsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminBusinessFunctionsMap") || {}));
 
             this._syncAdminConfigToLiveAddAccess(oModel, true);
 
@@ -11306,6 +11345,8 @@ sap.ui.define([
                                 that._savedAdminSystemsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminSystemsAll") || []));
                                 that._savedAdminServicesAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminServicesAll") || []));
                                 that._savedAdminServiceDetailsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminServiceDetailsMap") || {}));
+                                that._savedAdminBusinessSectorsAll = JSON.parse(JSON.stringify(oModel.getProperty("/adminBusinessSectorsAll") || []));
+                                that._savedAdminBusinessFunctionsMap = JSON.parse(JSON.stringify(oModel.getProperty("/adminBusinessFunctionsMap") || {}));
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
                             }
                         } catch (e) {}
@@ -11565,7 +11606,7 @@ sap.ui.define([
 
             const oPayload = {
                 adminSystemsAll: aSystems,
-                adminServicesAll: aServices,
+                adminServicesAll: aServices.map(s => Object.assign({}, s, { selected: false })),
                 adminServiceDetailsMap: oDetailsMap,
                 adminCustomConflictsAll: aConflicts,
                 adminDatabaseSchemas: aDbSchemas,
@@ -12451,6 +12492,25 @@ sap.ui.define([
             if (!oSelectedObj) return;
 
             const sServiceName = oSelectedObj.serviceName;
+            const bAlreadySelected = oModel.getProperty("/selectedAdminServiceName") === sServiceName;
+
+            if (bAlreadySelected) {
+                // Toggling off: return to clean normal unselected state
+                const aServices = (oModel.getProperty("/adminServices") || []).map(item => Object.assign({}, item, {
+                    selected: false
+                }));
+                const aServicesAll = (oModel.getProperty("/adminServicesAll") || []).map(item => Object.assign({}, item, {
+                    selected: false
+                }));
+                oModel.setProperty("/adminServices", aServices);
+                oModel.setProperty("/adminServicesAll", aServicesAll);
+                oModel.setProperty("/selectedAdminServiceName", "");
+                oModel.setProperty("/isCurrentServiceUnsaved", false);
+                oModel.setProperty("/adminClassifications", []);
+                oModel.setProperty("/selectedAdminClassification", null);
+                return;
+            }
+
             const bIsUnsaved = !!oSelectedObj.isUnsaved || (this._pendingNewServiceName === sServiceName);
 
             const aServices = (oModel.getProperty("/adminServices") || []).map(item => Object.assign({}, item, {
@@ -12824,19 +12884,30 @@ sap.ui.define([
 
             // Ensure valid selected service
             let sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
-            const bStillExists = aRestoredServices.some(s => s.serviceName === sSelectedSrv);
-            if (!bStillExists && aRestoredServices.length > 0) {
-                sSelectedSrv = aRestoredServices[0].serviceName;
-                oModel.setProperty("/selectedAdminServiceName", sSelectedSrv);
+            const bStillExists = sSelectedSrv && aRestoredServices.some(s => s.serviceName === sSelectedSrv);
+            if (!bStillExists) {
+                sSelectedSrv = "";
+                oModel.setProperty("/selectedAdminServiceName", "");
             }
 
-            // Refresh right-hand service details panel
-            const aTeams = oRestoredMap[sSelectedSrv] || [];
-            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: "Active" }, t, {
-                selected: idx === 0
+            const aCleanRestored = aRestoredServices.map(s => Object.assign({}, s, {
+                selected: sSelectedSrv ? (s.serviceName === sSelectedSrv) : false
             }));
-            oModel.setProperty("/adminClassifications", aTeamsCopy);
-            oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+            oModel.setProperty("/adminServicesAll", aCleanRestored);
+            oModel.setProperty("/adminServices", aCleanRestored.slice());
+
+            // Refresh right-hand service details panel
+            if (sSelectedSrv) {
+                const aTeams = oRestoredMap[sSelectedSrv] || [];
+                const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: "Active" }, t, {
+                    selected: idx === 0
+                }));
+                oModel.setProperty("/adminClassifications", aTeamsCopy);
+                oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+            } else {
+                oModel.setProperty("/adminClassifications", []);
+                oModel.setProperty("/selectedAdminClassification", null);
+            }
 
             this._showSlideNotification("Changes Cancelled", "Service changes cancelled and reverted.");
             sap.m.MessageToast.show("Service changes cancelled and reverted.");
@@ -12853,13 +12924,15 @@ sap.ui.define([
                 return;
             }
 
-            const sCurrentSelected = oModel.getProperty("/selectedAdminServiceName") || aAll[0].serviceName;
+            const sCurrentSelected = oModel.getProperty("/selectedAdminServiceName") || "";
             const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            const aCurrentTeams = oModel.getProperty("/adminClassifications") || oDetailsMap[sCurrentSelected] || [];
+            const aCurrentTeams = sCurrentSelected ? (oModel.getProperty("/adminClassifications") || oDetailsMap[sCurrentSelected] || []) : [];
 
             // If the selected service is in Draft mode, require full service details before saving
-            const bCurrentIsDraft = !!oModel.getProperty("/isCurrentServiceUnsaved") ||
-                                    aAll.some(s => s.serviceName === sCurrentSelected && (s.isUnsaved || s.status === "Draft"));
+            const bCurrentIsDraft = sCurrentSelected && (
+                !!oModel.getProperty("/isCurrentServiceUnsaved") ||
+                aAll.some(s => s.serviceName === sCurrentSelected && (s.isUnsaved || s.status === "Draft"))
+            );
 
             if (bCurrentIsDraft) {
                 if (!aCurrentTeams || aCurrentTeams.length === 0) {
@@ -12878,7 +12951,7 @@ sap.ui.define([
                 const copy = Object.assign({}, item);
                 delete copy.isUnsaved;
                 if (copy.status === "Draft") copy.status = "Active";
-                copy.selected = (copy.serviceName === sCurrentSelected);
+                copy.selected = sCurrentSelected ? (copy.serviceName === sCurrentSelected) : false;
                 return copy;
             });
 
@@ -12967,7 +13040,6 @@ sap.ui.define([
             }));
             oModel.setProperty("/adminClassifications", aList);
             oModel.setProperty("/selectedAdminClassification", JSON.parse(JSON.stringify(oClicked)));
-            sap.m.MessageToast.show("Selected Team: " + oClicked.name);
         },
 
         onLiveChangeSelectedTeamName(oEvent) {
@@ -13935,13 +14007,33 @@ sap.ui.define([
         },
 
         onSelectAdminBusinessSectorRow(oEvent) {
+            if (oEvent) {
+                const oDomEv = oEvent.getParameter && oEvent.getParameter("domEvent");
+                if (oDomEv && oDomEv.target && oDomEv.target.closest && oDomEv.target.closest(".kyraAdminRowActionGroup")) {
+                    return;
+                }
+            }
             const oModel = this.getView().getModel("accessModel");
-            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            const oSource = oEvent.getSource();
+            const oCtx = oSource ? oSource.getBindingContext("accessModel") : null;
             if (!oModel || !oCtx) return;
             const oObj = oCtx.getObject();
             if (!oObj) return;
 
             const sSectorName = oObj.sectorName;
+            const bAlreadySelected = oModel.getProperty("/selectedAdminBusinessSectorName") === sSectorName;
+
+            if (bAlreadySelected) {
+                // Toggling off: return to clean normal unselected state
+                const aSectors = (oModel.getProperty("/adminBusinessSectors") || []).map(s => Object.assign({}, s, { selected: false }));
+                const aAll = (oModel.getProperty("/adminBusinessSectorsAll") || []).map(s => Object.assign({}, s, { selected: false }));
+                oModel.setProperty("/adminBusinessSectors", aSectors);
+                oModel.setProperty("/adminBusinessSectorsAll", aAll);
+                oModel.setProperty("/selectedAdminBusinessSectorName", "");
+                oModel.setProperty("/adminBusinessFunctions", []);
+                return;
+            }
+
             const aSectors = (oModel.getProperty("/adminBusinessSectors") || []).map(s => {
                 return Object.assign({}, s, { selected: s.sectorName === sSectorName });
             });
@@ -13953,8 +14045,60 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminBusinessSectorName", sSectorName);
 
             const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
-            const aFuncs = oMap[sSectorName] || [];
+            const aFuncs = (oMap[sSectorName] || []).slice();
             oModel.setProperty("/adminBusinessFunctions", aFuncs);
+        },
+
+        onSaveAdminBusinessSectors() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const aAllSectors = oModel.getProperty("/adminBusinessSectorsAll") || [];
+            this._savedAdminBusinessSectorsAll = JSON.parse(JSON.stringify(aAllSectors));
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Business Sectors saved successfully.");
+            this._showSlideNotification("Business Sectors Saved", "Business Sectors configuration saved to database and activated.");
+            sap.m.MessageToast.show("Business Sectors saved successfully.");
+        },
+
+        onCancelAdminBusinessSectors() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            this._ensureAdminSnapshots(oModel);
+            if (this._savedAdminBusinessSectorsAll) {
+                const aRestored = JSON.parse(JSON.stringify(this._savedAdminBusinessSectorsAll));
+                const sCur = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
+                const aMapped = aRestored.map(s => Object.assign({}, s, { selected: sCur ? s.sectorName === sCur : false }));
+                oModel.setProperty("/adminBusinessSectorsAll", aRestored);
+                oModel.setProperty("/adminBusinessSectors", aMapped);
+            }
+            sap.m.MessageToast.show("Business Sectors reverted to last saved state.");
+        },
+
+        onSaveAdminBusinessFunctions() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sSectorName = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
+            const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+            this._savedAdminBusinessFunctionsMap = JSON.parse(JSON.stringify(oMap));
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Business Functions for '" + sSectorName + "' saved.");
+            this._showSlideNotification("Business Functions Saved", "Functions for '" + sSectorName + "' saved and activated.");
+            sap.m.MessageToast.show("Business Functions saved successfully.");
+        },
+
+        onCancelAdminBusinessFunctions() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sSectorName = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
+            this._ensureAdminSnapshots(oModel);
+            if (this._savedAdminBusinessFunctionsMap && this._savedAdminBusinessFunctionsMap[sSectorName]) {
+                const aRestored = JSON.parse(JSON.stringify(this._savedAdminBusinessFunctionsMap[sSectorName]));
+                oModel.setProperty("/adminBusinessFunctions", aRestored);
+                const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
+                oMap[sSectorName] = JSON.parse(JSON.stringify(aRestored));
+                oModel.setProperty("/adminBusinessFunctionsMap", oMap);
+            }
+            sap.m.MessageToast.show("Business Functions reverted to last saved state.");
         },
 
         onAddAdminBusinessSector() {
@@ -15062,14 +15206,16 @@ sap.ui.define([
             const sDesc = oRule.description || "";
             const sCurrentStatus = oRule.status || "Active";
 
-            const aSystems = (oModel.getProperty("/adminSystems") || []).map(s => s.systemName);
-            if (!aSystems.includes("SAP BTP Cloud Platform")) aSystems.unshift("SAP BTP Cloud Platform");
+            const aSystems = (oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [])
+                .map(s => s.systemName)
+                .filter(Boolean);
+            if (!aSystems.includes("SAP BTP Cloud Platform")) aSystems.push("SAP BTP Cloud Platform");
             if (!aSystems.includes("SAP S/4HANA Enterprise")) aSystems.push("SAP S/4HANA Enterprise");
             if (!aSystems.includes("KYRA Central Governance")) aSystems.push("KYRA Central Governance");
             if (!aSystems.includes("Active Directory / IAM")) aSystems.push("Active Directory / IAM");
             if (!aSystems.includes("SAP SuccessFactors")) aSystems.push("SAP SuccessFactors");
             if (!aSystems.includes("SAP Ariba Supply Network")) aSystems.push("SAP Ariba Supply Network");
-            const aUniqueSystems = [...new Set(aSystems)];
+            const aUniqueSystems = ["All Systems", ...new Set(aSystems.filter(s => s !== "All Systems"))];
 
             // Extract configured personas for dropdown selection
             const aPersonaOptions = (oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || []).map(p => p.key).filter(Boolean);
@@ -15087,6 +15233,13 @@ sap.ui.define([
             }
             const aUniquePersonas = [...new Set(aPersonaOptions)];
 
+            // Filter out sRole1 from conflicting personas initially so primary persona is not shown in conflict dropdown
+            const aInitialConflictingPersonas = aUniquePersonas.filter(r => r !== sRole1);
+            let sInitialRole2 = sRole2;
+            if (sInitialRole2 === sRole1 || !aInitialConflictingPersonas.includes(sInitialRole2)) {
+                sInitialRole2 = aInitialConflictingPersonas[0] || "";
+            }
+
             sap.ui.require(["sap/m/Dialog", "sap/ui/core/HTML", "sap/m/MessageToast"], (Dialog, HTML, MessageToast) => {
                 const sSystemOptions = aUniqueSystems.map(sys =>
                     `<option value="${sys}" ${sys === sSystem ? "selected" : ""}>${sys}</option>`
@@ -15096,8 +15249,8 @@ sap.ui.define([
                     `<option value="${r}" ${r === sRole1 ? "selected" : ""}>${r}</option>`
                 ).join("");
 
-                const sRole2Options = aUniquePersonas.map(r =>
-                    `<option value="${r}" ${r === sRole2 ? "selected" : ""}>${r}</option>`
+                const sRole2Options = aInitialConflictingPersonas.map(r =>
+                    `<option value="${r}" ${r === sInitialRole2 ? "selected" : ""}>${r}</option>`
                 ).join("");
 
                 const sHtmlContent = `
@@ -15186,19 +15339,79 @@ sap.ui.define([
                         const cancelBtn = oDom.querySelector(".kyra-modal-cancel-btn");
                         if (cancelBtn) cancelBtn.onclick = closeFn;
 
+                        const sysSelect = oDom.querySelector("#kyra_edit_conflict_system");
+                        const role1Select = oDom.querySelector("#kyra_edit_conflict_role1");
+                        const role2Select = oDom.querySelector("#kyra_edit_conflict_role2");
+                        const descInput = oDom.querySelector("#kyra_edit_conflict_desc");
+                        const statusSelect = oDom.querySelector("#kyra_edit_conflict_status");
+
+                        const updateConflictReason = () => {
+                            if (descInput) {
+                                const curSys = sysSelect ? sysSelect.value : "";
+                                const curR1 = role1Select ? role1Select.value : "";
+                                const curR2 = role2Select ? role2Select.value : "";
+                                const autoDesc = that._generateDefaultConflictReason(curSys, curR1, curR2);
+                                if (autoDesc) {
+                                    descInput.value = autoDesc;
+                                }
+                            }
+                        };
+
+                        const rebindRole2Dropdown = () => {
+                            if (!role1Select || !role2Select) return;
+                            const curR1 = role1Select.value;
+                            let curR2 = role2Select.value;
+                            const aFilteredR2 = aUniquePersonas.filter(r => r !== curR1);
+                            if (!aFilteredR2.includes(curR2)) {
+                                curR2 = aFilteredR2[0] || "";
+                            }
+
+                            // Remove previously rendered custom dropdown wrapper for role2
+                            const existingWrapper = role2Select.nextElementSibling;
+                            if (existingWrapper && existingWrapper.classList.contains("kyra-custom-dropdown-wrapper")) {
+                                existingWrapper.remove();
+                            }
+                            delete role2Select.dataset.enhanced;
+
+                            role2Select.innerHTML = aFilteredR2.map(r =>
+                                `<option value="${r}" ${r === curR2 ? "selected" : ""}>${r}</option>`
+                            ).join("");
+                            role2Select.value = curR2;
+
+                            // Re-enhance role2 dropdown cleanly
+                            that._enhanceModalDropdowns(role2Select.parentElement || oDom);
+
+                            // Re-bind change on role2 to update reason
+                            role2Select.onchange = () => {
+                                updateConflictReason();
+                            };
+
+                            updateConflictReason();
+                        };
+
+                        if (role1Select) {
+                            role1Select.addEventListener("change", () => {
+                                rebindRole2Dropdown();
+                            });
+                        }
+                        if (role2Select) {
+                            role2Select.addEventListener("change", () => {
+                                updateConflictReason();
+                            });
+                        }
+                        if (sysSelect) {
+                            sysSelect.addEventListener("change", () => {
+                                updateConflictReason();
+                            });
+                        }
+
                         const submitBtn = oDom.querySelector(".kyra-modal-submit-btn");
                         if (submitBtn) {
                             submitBtn.onclick = () => {
-                                const sysSelect = oDom.querySelector("#kyra_edit_conflict_system");
-                                const role1Select = oDom.querySelector("#kyra_edit_conflict_role1");
-                                const role2Select = oDom.querySelector("#kyra_edit_conflict_role2");
-                                const descInput = oDom.querySelector("#kyra_edit_conflict_desc");
-                                const statusSelect = oDom.querySelector("#kyra_edit_conflict_status");
-
                                 const newSys = sysSelect ? sysSelect.value : sSystem;
                                 const newR1 = (role1Select ? role1Select.value : "").trim();
                                 const newR2 = (role2Select ? role2Select.value : "").trim();
-                                const newDesc = (descInput ? descInput.value : "").trim() || "Segregation of Duties conflict between selected privileges.";
+                                const newDesc = (descInput ? descInput.value : "").trim() || that._generateDefaultConflictReason(newSys, newR1, newR2) || "Segregation of Duties conflict between selected privileges.";
                                 const newStat = statusSelect ? statusSelect.value : sCurrentStatus;
 
                                 if (!newR1 || !newR2) {
@@ -15206,12 +15419,19 @@ sap.ui.define([
                                     return;
                                 }
 
-                                const aAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+                                if (newR1 === newR2) {
+                                    MessageToast.show("Primary and Conflicting personas cannot be the same.");
+                                    return;
+                                }
+
+                                const aAll = (oModel.getProperty("/adminCustomConflictsAll") || []).slice();
                                 const iIdx = aAll.findIndex(c =>
-                                    c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system
+                                    (oRule.id && c.id === oRule.id) ||
+                                    (c.role1 === oRule.role1 && c.role2 === oRule.role2 && c.system === oRule.system)
                                 );
 
                                 const updatedRule = {
+                                    id: oRule.id || ((typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : undefined),
                                     system: newSys,
                                     service: oRule.service || "System Administrator",
                                     role1: newR1,
@@ -15226,6 +15446,7 @@ sap.ui.define([
                                     aAll.push(updatedRule);
                                 }
 
+                                Object.assign(oRule, updatedRule);
                                 oModel.setProperty("/adminCustomConflictsAll", aAll);
                                 oModel.setProperty("/adminCustomConflicts", aAll.slice());
                                 that._syncAdminConfigToLiveAddAccess(oModel);

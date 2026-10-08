@@ -1407,112 +1407,162 @@
                         width="100%">
 
                         <!-- ============================================================== -->
-                        <!-- NEW SECTION: BUSINESS SECTORS & BUSINESS FUNCTION DETAILS (Image 2) -->
+                        <!-- 2. SPLIT ROW: BUSINESS SECTORS [LEFT] & BUSINESS FUNCTION DETAILS [RIGHT] -->
+                        <!-- Matches Services & Service Details exact proportions, alignment, gap, & design -->
                         <!-- ============================================================== -->
-                        <HBox width="100%" class="sapUiSmallMarginBottom kyraAdminMiddleRowFlex" wrap="Wrap" justifyContent="SpaceBetween">
+                        <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow sapUiSmallMarginBottom">
                             <!-- Left Card: Business Sectors -->
-                            <VBox class="kyraAdminWhiteCard kyraAdminServicesCard" width="49.5%">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
-                                    <Title text="Business Sectors" level="H4" class="kyraAdminCardTitle" />
-                                    <HBox alignItems="Center" class="kyraAdminHeaderActions">
-                                        <SearchField
-                                            placeholder="Search Sectors..."
-                                            width="160px"
-                                            liveChange=".onSearchAdminBusinessSectors"
-                                            class="kyraAdminSearchField" />
-                                        <Button
-                                            text="Add Business Sector"
-                                            icon="sap-icon://add"
-                                            press=".onAddAdminBusinessSector"
-                                            type="Emphasized"
-                                            class="kyraAdminAddBlueBtn" />
+                            <VBox width="43%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
+                                <VBox width="100%">
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                        <Title text="{= 'Business Sectors (' + (${accessModel>/adminBusinessSectors} ? ${accessModel>/adminBusinessSectors}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
+                                        <HBox alignItems="Center" class="kyraAdminHeaderActions">
+                                            <SearchField
+                                                placeholder="Search Sectors..."
+                                                width="170px"
+                                                liveChange=".onSearchAdminBusinessSectors"
+                                                class="kyraAdminSearchField" />
+                                            <Button
+                                                text="+ Add Business Sector"
+                                                press=".onAddAdminBusinessSector"
+                                                class="kyraAdminAddServiceTopBtn" />
+                                        </HBox>
                                     </HBox>
-                                </HBox>
 
-                                <Table id="adminBusinessSectorsTable"
-                                    items="{accessModel>/adminBusinessSectors}"
-                                    fixedLayout="true"
-                                    class="sapUiNoMargin kyraAdminCleanTable">
-                                    <columns>
-                                        <Column width="40%" hAlign="Begin"><Text text="BUSINESS SECTORS" class="kyraAdminColHeader" /></Column>
-                                        <Column width="30%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                        <Column width="30%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
-                                    </columns>
-                                    <items>
-                                        <ColumnListItem
-                                            vAlign="Middle"
-                                            type="Active"
-                                            press=".onSelectAdminBusinessSectorRow"
-                                            class="{= 'kyraAdminTableRow ' + (${accessModel>selected} ? 'kyraAdminSelectedRowHighlight' : '') }">
-                                            <cells>
-                                                <Text text="{accessModel>sectorName}" class="{= 'kyraAdminCellBold ' + (${accessModel>selected} ? 'kyraAdminSectorSelectedText' : '') }" />
-                                                <HBox alignItems="Center" class="kyraAdminStatusPill">
-                                                    <customData>
-                                                        <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
-                                                    </customData>
-                                                    <HBox class="kyraAdminVectorDot" />
-                                                    <Text text="{accessModel>status}" class="kyraAdminPillText" />
+                                    <Table id="adminBusinessSectorsTable"
+                                        noDataText="No business sectors created yet. Click '+ Add Business Sector' to create one."
+                                        items="{accessModel>/adminBusinessSectors}"
+                                        fixedLayout="true"
+                                        class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
+                                        <columns>
+                                            <Column width="46%" hAlign="Begin"><Text text="BUSINESS SECTORS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="27%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="27%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                        </columns>
+                                        <items>
+                                            <ColumnListItem
+                                                vAlign="Middle"
+                                                type="Active"
+                                                press=".onSelectAdminBusinessSectorRow"
+                                                class="kyraAdminTableRow kyraAdminClickableRow">
+                                                <customData>
+                                                    <core:CustomData key="selectedService" value="{= ${accessModel>selected} ? 'true' : 'false' }" writeToDom="true" />
+                                                    <core:CustomData key="selectedSector" value="{= ${accessModel>selected} ? 'true' : 'false' }" writeToDom="true" />
+                                                </customData>
+                                                <cells>
+                                                    <Text text="{accessModel>sectorName}" class="kyraAdminCellBold" />
+                                                    <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                        <customData>
+                                                            <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
+                                                        </customData>
+                                                        <HBox class="kyraAdminVectorDot" />
+                                                        <Text text="{accessModel>status}" class="kyraAdminPillText" />
+                                                    </HBox>
+                                                    <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                                        <Button
+                                                            icon="sap-icon://edit"
+                                                            press=".onEditAdminBusinessSector"
+                                                            class="kyraAdminSystemEditBtn"
+                                                            tooltip="Edit Business Sector" />
+                                                        <Button
+                                                            icon="sap-icon://delete"
+                                                            press=".onDeleteAdminBusinessSector"
+                                                            class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
+                                                            tooltip="Delete Business Sector" />
+                                                    </HBox>
+                                                </cells>
+                                            </ColumnListItem>
+                                        </items>
+                                    </Table>
+                                </VBox>
+
+                                <HBox
+                                    visible="true"
+                                    width="100%"
+                                    justifyContent="End"
+                                    alignItems="Center"
+                                    class="kyraAdminServiceDetailsFooter">
+                                    <Button
+                                        text="Cancel"
+                                        press=".onCancelAdminBusinessSectors"
+                                        class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                    <Button
+                                        text="Save"
+                                        type="Emphasized"
+                                        press=".onSaveAdminBusinessSectors"
+                                        class="kyraAdminSaveBtn" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- Right Card: Business Function Details -->
+                            <VBox width="55.5%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
+                                <VBox width="100%">
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow" width="100%">
+                                        <Title text="{= 'Business Function Details' + (${accessModel>/selectedAdminBusinessSectorName} ? ' - ' + ${accessModel>/selectedAdminBusinessSectorName} : '') }" level="H4" class="kyraAdminCardTitle" wrapping="true" />
+                                        <Button
+                                            visible="{= !!${accessModel>/selectedAdminBusinessSectorName} }"
+                                            text="+ Add Business Function"
+                                            press=".onAddAdminBusinessFunction"
+                                            class="kyraAdminAddServiceTopBtn" />
+                                    </HBox>
+
+                                    <!-- Clean Empty State when no Business Sector is selected (Exact match to Services) -->
+                                    <VBox
+                                        visible="{= !${accessModel>/selectedAdminBusinessSectorName} }"
+                                        alignItems="Center"
+                                        justifyContent="Center"
+                                        class="kyraAdminNoServicePlaceholder sapUiLargeMarginTop sapUiLargeMarginBottom"
+                                        width="100%">
+                                        <core:Icon src="sap-icon://business-objects-experience" size="44px" color="#94A3B8" class="sapUiSmallMarginBottom" />
+                                        <Text text="No Business Sector Selected" class="kyraAdminPlaceholderTitle sapUiTinyMarginBottom" />
+                                        <Text text="Select a business sector from the left list to view or configure details, or click '+ Add Business Sector' to create a new one." class="kyraAdminPlaceholderSubtitle" />
+                                    </VBox>
+
+                                    <!-- Inner Content: Visible ONLY when a Sector is selected -->
+                                    <VBox visible="{= !!${accessModel>/selectedAdminBusinessSectorName} }" width="100%" class="sapUiSmallMarginTop">
+                                        <Text
+                                            text="{= 'Business Functions (' + (${accessModel>/adminBusinessFunctions} ? ${accessModel>/adminBusinessFunctions}.length : 0) + ')' }"
+                                            class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
+
+                                        <Text text="No business functions added yet. Click '+ Add Business Function' above."
+                                              visible="{= !${accessModel>/adminBusinessFunctions} || ${accessModel>/adminBusinessFunctions}.length === 0 }"
+                                              class="kyraAdminEmptyPlaceholderText sapUiSmallMarginBottom" />
+
+                                        <VBox items="{accessModel>/adminBusinessFunctions}" class="kyraAdminBusinessFunctionListContainer" width="100%">
+                                            <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminBusinessFunctionItemCard sapUiTinyMarginBottom" width="100%">
+                                                <HBox alignItems="Center">
+                                                    <HBox class="kyraVectorTealDot sapUiSmallMarginEnd" />
+                                                    <Text text="{accessModel>name}" class="kyraAdminBusinessFunctionName" />
                                                 </HBox>
                                                 <HBox alignItems="Center" class="kyraAdminRowActionGroup">
                                                     <Button
                                                         icon="sap-icon://edit"
-                                                        press=".onEditAdminBusinessSector"
-                                                        class="kyraAdminSystemEditBtn"
-                                                        tooltip="Edit Business Sector" />
+                                                        press=".onEditAdminBusinessFunction"
+                                                        class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
+                                                        tooltip="Edit Function" />
                                                     <Button
                                                         icon="sap-icon://delete"
-                                                        press=".onDeleteAdminBusinessSector"
-                                                        class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
-                                                        tooltip="Delete Business Sector" />
+                                                        press=".onDeleteAdminBusinessFunction"
+                                                        class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
+                                                        tooltip="Delete Function" />
                                                 </HBox>
-                                            </cells>
-                                        </ColumnListItem>
-                                    </items>
-                                </Table>
-                            </VBox>
-
-                            <!-- Right Card: Business Function Details -->
-                            <VBox class="kyraAdminWhiteCard kyraAdminServiceDetailsCard" width="49.5%">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow kyraAdminHeaderFlexRow" width="100%">
-                                    <VBox class="kyraAdminHeaderTitleCol">
-                                        <Title text="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" level="H4" class="kyraAdminCardTitle" tooltip="{= 'Business Function Details - ' + (${accessModel>/selectedAdminBusinessSectorName} || 'Finance') }" wrapping="false" />
-                                    </VBox>
-                                    <HBox alignItems="Center" class="kyraAdminHeaderActions">
-                                        <Button
-                                            text="Add Business Function"
-                                            icon="sap-icon://add"
-                                            press=".onAddAdminBusinessFunction"
-                                            type="Emphasized"
-                                            class="kyraAdminAddBlueBtn" />
-                                    </HBox>
-                                </HBox>
-
-                                <VBox class="sapUiSmallMarginTop" width="100%">
-                                    <Text
-                                        text="{= 'Business Functions (' + (${accessModel>/adminBusinessFunctions} ? ${accessModel>/adminBusinessFunctions}.length : 0) + ')' }"
-                                        class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
-
-                                    <VBox items="{accessModel>/adminBusinessFunctions}" width="100%">
-                                        <HBox alignItems="Center" justifyContent="SpaceBetween" class="kyraAdminBusinessFunctionItemCard" width="100%">
-                                            <HBox alignItems="Center">
-                                                <HBox class="kyraVectorTealDot sapUiSmallMarginEnd" />
-                                                <Text text="{accessModel>name}" class="kyraAdminBusinessFunctionName" />
                                             </HBox>
-                                            <HBox alignItems="Center">
-                                                <Button
-                                                    icon="sap-icon://edit"
-                                                    press=".onEditAdminBusinessFunction"
-                                                    class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
-                                                    tooltip="Edit Function" />
-                                                <Button
-                                                    icon="sap-icon://delete"
-                                                    press=".onDeleteAdminBusinessFunction"
-                                                    class="kyraAdminSystemDeleteBtn kyraAdminMiniActionBtn sapUiTinyMarginBegin"
-                                                    tooltip="Delete Function" />
-                                            </HBox>
-                                        </HBox>
+                                        </VBox>
                                     </VBox>
                                 </VBox>
+
+                                <!-- Bottom Right Footer Buttons: Cancel & Save -->
+                                <HBox visible="{= !!${accessModel>/selectedAdminBusinessSectorName} }" width="100%" justifyContent="End" alignItems="Center" class="kyraAdminServiceDetailsFooter">
+                                    <Button
+                                        text="Cancel"
+                                        press=".onCancelAdminBusinessFunctions"
+                                        class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                    <Button
+                                        text="Save"
+                                        type="Emphasized"
+                                        press=".onSaveAdminBusinessFunctions"
+                                        class="kyraAdminSaveBtn" />
+                                </HBox>
                             </VBox>
                         </HBox>
 
