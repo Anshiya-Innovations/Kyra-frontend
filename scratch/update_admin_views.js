@@ -1,52 +1,60 @@
 const fs = require('fs');
+const path = require('path');
 
-const viewFiles = [
-  'webapp/pages/access/AccessPage.view.xml',
-  'webapp/AccessPage.view.xml',
-  'webapp/page component/KYRA Frontend-SK/webapp/page component/User Access Management Portal page/AccessPage.view.xml',
-  'webapp/page component/KYRA Frontend-SK/webapp/page component/page request/User Access Management Portal page/AccessPage.view.xml',
-  'webapp/page component/User Access Management Portal page/AccessPage.view.xml',
-  'webapp/page component/page request/User Access Management Portal page/AccessPage.view.xml'
-];
+function walk(dir) {
+    let results = [];
+    const list = fs.readdirSync(dir);
+    list.forEach(file => {
+        const full = path.join(dir, file);
+        const stat = fs.statSync(full);
+        if (stat && stat.isDirectory()) {
+            if (file !== 'node_modules' && file !== '.git' && file !== 'dist') {
+                results = results.concat(walk(full));
+            }
+        } else if (file === 'AccessPage.view.xml') {
+            results.push(full);
+        }
+    });
+    return results;
+}
 
-viewFiles.forEach(file => {
-  if (!fs.existsSync(file)) return;
-  let content = fs.readFileSync(file, 'utf8');
+const viewFiles = walk('webapp');
 
-  // Update System Card Header Actions
-  const oldSysHeaderRegex = /<SearchField\s+placeholder="Search systems\.\.\."\s+width="210px"\s+liveChange="\.onSearchAdminSystems"\s+class="kyraAdminSearchField"\s*\/>\s*<Button\s+text="Add System"\s+icon="sap-icon:\/\/add"\s+type="Emphasized"\s+press="\.onAddAdminSystem"\s+class="kyraAdminAddBlueBtn"\s*\/>\s*<Button\s+icon="sap-icon:\/\/decline"\s+type="Transparent"\s+press="\.onCloseAdminSection"\s+tooltip="Close Section"\s+class="kyraCloseIconBtn sapUiTinyMarginBegin"\s*\/>/;
+for (const f of viewFiles) {
+    let content = fs.readFileSync(f, 'utf8');
+    let modified = false;
 
-  const newSysHeader = `<SearchField
-                                        placeholder="Search systems..."
-                                        width="230px"
-                                        liveChange=".onSearchAdminSystems"
-                                        class="kyraAdminSearchField" />
-                                    <Button
-                                        text="Add System"
-                                        icon="sap-icon://add"
-                                        type="Emphasized"
-                                        press=".onAddAdminSystem"
-                                        class="kyraAdminAddBlueBtn" />
-                                    <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />`;
+    // 1. Add press=".onSelectAdminDatabaseConfig" to arrowAdminDatabaseConfig if not present
+    if (content.includes('id="arrowAdminDatabaseConfig"') && !content.includes('id="arrowAdminDatabaseConfig"\r\n                                        press=".onSelectAdminDatabaseConfig"') && !content.includes('id="arrowAdminDatabaseConfig"\n                                        press=".onSelectAdminDatabaseConfig"')) {
+        content = content.replace(
+            /(id="arrowAdminDatabaseConfig"[\r\n\s]+src="[^"]+")([\r\n\s]+class="kyraArrowIcon")/g,
+            '$1\r\n                                        press=".onSelectAdminDatabaseConfig"$2'
+        );
+        modified = true;
+    }
 
-  if (oldSysHeaderRegex.test(content)) {
-    content = content.replace(oldSysHeaderRegex, newSysHeader);
-    console.log('Replaced System Header in', file);
-  } else {
-    console.log('Regex did not match directly in', file);
-  }
+    // 2. Add press=".onSelectAdminPersonaConversion" to arrowAdminPersonaConversion if not present
+    if (content.includes('id="arrowAdminPersonaConversion"') && !content.includes('id="arrowAdminPersonaConversion"\r\n                                        press=".onSelectAdminPersonaConversion"') && !content.includes('id="arrowAdminPersonaConversion"\n                                        press=".onSelectAdminPersonaConversion"')) {
+        content = content.replace(
+            /(id="arrowAdminPersonaConversion"[\r\n\s]+src="[^"]+")([\r\n\s]+class="kyraArrowIcon")/g,
+            '$1\r\n                                        press=".onSelectAdminPersonaConversion"$2'
+        );
+        modified = true;
+    }
 
-  // Update Service Card button to use standard icon="sap-icon://add"
-  content = content.replace(
-    /<Button\s+text="\+ Add Service"\s+press="\.onAddAdminService"\s+type="Emphasized"\s+class="kyraAdminAddBlueBtn"\s*\/>/,
-    `<Button
-                                                text="Add Service"
-                                                icon="sap-icon://add"
-                                                press=".onAddAdminService"
-                                                type="Emphasized"
-                                                class="kyraAdminAddBlueBtn" />`
-  );
+    // 3. Add press=".onSelectAdminAccessCustomization" to arrowAdminAccessCustomization if not present
+    if (content.includes('id="arrowAdminAccessCustomization"') && !content.includes('id="arrowAdminAccessCustomization"\r\n                                        press=".onSelectAdminAccessCustomization"') && !content.includes('id="arrowAdminAccessCustomization"\n                                        press=".onSelectAdminAccessCustomization"')) {
+        content = content.replace(
+            /(id="arrowAdminAccessCustomization"[\r\n\s]+src="[^"]+")([\r\n\s]+class="kyraArrowIcon")/g,
+            '$1\r\n                                        press=".onSelectAdminAccessCustomization"$2'
+        );
+        modified = true;
+    }
 
-  fs.writeFileSync(file, content, 'utf8');
-});
-console.log('Done view updates');
+    if (modified) {
+        fs.writeFileSync(f, content, 'utf8');
+        console.log('Updated view:', f);
+    } else {
+        console.log('Already updated or no change:', f);
+    }
+}

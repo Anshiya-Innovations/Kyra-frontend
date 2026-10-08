@@ -117,6 +117,7 @@
                                     <core:Icon
                                         id="arrowAdminDatabaseConfig"
                                         src="{= ${accessModel>/adminSelectedSection} === 'databaseConfig' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        press=".onSelectAdminDatabaseConfig"
                                         class="kyraArrowIcon" />
                                 </HBox>
                             </HBox>
@@ -145,6 +146,7 @@
                                     <core:Icon
                                         id="arrowAdminPersonaConversion"
                                         src="{= ${accessModel>/adminSelectedSection} === 'personaConversion' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        press=".onSelectAdminPersonaConversion"
                                         class="kyraArrowIcon" />
                                 </HBox>
                             </HBox>
@@ -173,6 +175,7 @@
                                     <core:Icon
                                         id="arrowAdminAccessCustomization"
                                         src="{= ${accessModel>/adminSelectedSection} === 'accessCustomization' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        press=".onSelectAdminAccessCustomization"
                                         class="kyraArrowIcon" />
                                 </HBox>
                             </HBox>

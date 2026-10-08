@@ -824,6 +824,58 @@
                 });
             };
 
+            // Ensure clicking anywhere inside any Admin card or Top Action card toggles cleanly across view renders
+            if (!this._bActionCardsGlobalClickBound) {
+                this._bActionCardsGlobalClickBound = true;
+                document.addEventListener("click", (e) => {
+                    const cardDb = e.target.closest("#cardAdminDatabaseConfig, [id$='cardAdminDatabaseConfig']");
+                    if (cardDb) {
+                        this.onSelectAdminDatabaseConfig();
+                        return;
+                    }
+                    const cardPersona = e.target.closest("#cardAdminPersonaConversion, [id$='cardAdminPersonaConversion']");
+                    if (cardPersona) {
+                        this.onSelectAdminPersonaConversion();
+                        return;
+                    }
+                    const cardCustom = e.target.closest("#cardAdminAccessCustomization, [id$='cardAdminAccessCustomization']");
+                    if (cardCustom) {
+                        this.onSelectAdminAccessCustomization();
+                        return;
+                    }
+                    const cardPending = e.target.closest("#cardPendingRequests, [id$='cardPendingRequests']");
+                    if (cardPending) {
+                        this.onNavToPendingRequests();
+                        return;
+                    }
+                    const cardApproved = e.target.closest("#cardApprovedRequests, [id$='cardApprovedRequests']");
+                    if (cardApproved) {
+                        this.onNavToApprovedRequests();
+                        return;
+                    }
+                    const cardAdd = e.target.closest("#cardAddAccess, [id$='cardAddAccess']");
+                    if (cardAdd) {
+                        this.onNavToAddAccess();
+                        return;
+                    }
+                    const cardRemove = e.target.closest("#cardRemoveAccess, [id$='cardRemoveAccess']");
+                    if (cardRemove) {
+                        this.onNavToRemoveAccess();
+                        return;
+                    }
+                    const cardKyraStrat = e.target.closest("#stratCardKyra, [id$='stratCardKyra']");
+                    if (cardKyraStrat && !e.target.closest("#btnKyraStrat, [id$='btnKyraStrat']")) {
+                        this.onSelectKyraMode();
+                        return;
+                    }
+                    const cardCustomStrat = e.target.closest("#stratCardCustom, [id$='stratCardCustom']");
+                    if (cardCustomStrat && !e.target.closest("#btnCustomStrat, [id$='btnCustomStrat']")) {
+                        this.onSelectCustomMode();
+                        return;
+                    }
+                }, true);
+            }
+
             // Ensure clicking anywhere inside a Team card triggers team selection
             if (!this._bTeamCardClickBound) {
                 this._bTeamCardClickBound = true;
@@ -5504,6 +5556,58 @@
             const oCardRemove = this.byId("cardRemoveAccess");
             if (oCardRemove && oCardRemove.getDomRef()) {
                 oCardRemove.getDomRef().classList.toggle("kyraCardExpanded", bRemove);
+            }
+
+            const sAdminSec = oModel.getProperty("/adminSelectedSection") || "";
+            const bAdminDb = sAdminSec === "databaseConfig";
+            const bAdminPersona = sAdminSec === "personaConversion";
+            const bAdminCustom = sAdminSec === "accessCustomization";
+
+            const oArrowDb = this.byId("arrowAdminDatabaseConfig");
+            if (oArrowDb) {
+                oArrowDb.setSrc(bAdminDb ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                const oDom = oArrowDb.getDomRef();
+                if (oDom) {
+                    const oParent = oDom.closest(".kyraCardCircleArrow");
+                    if (oParent) {
+                        oParent.setAttribute("data-expanded", bAdminDb ? "true" : "false");
+                    }
+                }
+            }
+            const oArrowPersona = this.byId("arrowAdminPersonaConversion");
+            if (oArrowPersona) {
+                oArrowPersona.setSrc(bAdminPersona ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                const oDom = oArrowPersona.getDomRef();
+                if (oDom) {
+                    const oParent = oDom.closest(".kyraCardCircleArrow");
+                    if (oParent) {
+                        oParent.setAttribute("data-expanded", bAdminPersona ? "true" : "false");
+                    }
+                }
+            }
+            const oArrowCustom = this.byId("arrowAdminAccessCustomization");
+            if (oArrowCustom) {
+                oArrowCustom.setSrc(bAdminCustom ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                const oDom = oArrowCustom.getDomRef();
+                if (oDom) {
+                    const oParent = oDom.closest(".kyraCardCircleArrow");
+                    if (oParent) {
+                        oParent.setAttribute("data-expanded", bAdminCustom ? "true" : "false");
+                    }
+                }
+            }
+
+            const oCardDb = this.byId("cardAdminDatabaseConfig");
+            if (oCardDb && oCardDb.getDomRef()) {
+                oCardDb.getDomRef().classList.toggle("kyraCardExpanded", bAdminDb);
+            }
+            const oCardPersona = this.byId("cardAdminPersonaConversion");
+            if (oCardPersona && oCardPersona.getDomRef()) {
+                oCardPersona.getDomRef().classList.toggle("kyraCardExpanded", bAdminPersona);
+            }
+            const oCardCustom = this.byId("cardAdminAccessCustomization");
+            if (oCardCustom && oCardCustom.getDomRef()) {
+                oCardCustom.getDomRef().classList.toggle("kyraCardExpanded", bAdminCustom);
             }
         },
 
@@ -12759,6 +12863,12 @@
 
 
         onSelectAdminDatabaseConfig() {
+            const now = Date.now();
+            if (this._lastAdminNavClick && (now - this._lastAdminNavClick < 250)) {
+                return;
+            }
+            this._lastAdminNavClick = now;
+
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
@@ -12774,18 +12884,42 @@
                 setTimeout(() => {
                     this._attachCardClickEvents();
                     this._updateStrategyCardStyles(sMode);
+                    this._smoothScrollTo("adminDatabaseConfigSection", 40);
                 }, 80);
             }
+            this._updateActionCardArrows(oModel);
         },
 
         onSelectAdminPersonaConversion() {
+            const now = Date.now();
+            if (this._lastAdminNavClick && (now - this._lastAdminNavClick < 250)) {
+                return;
+            }
+            this._lastAdminNavClick = now;
+
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
-            oModel.setProperty("/adminSelectedSection", sCurrent === "personaConversion" ? "" : "personaConversion");
+            const sNext = sCurrent === "personaConversion" ? "" : "personaConversion";
+            oModel.setProperty("/adminSelectedSection", sNext);
+            if (sNext === "personaConversion") {
+                if (typeof this._loadAvailableDepartments === "function") {
+                    this._loadAvailableDepartments();
+                }
+                setTimeout(() => {
+                    this._smoothScrollTo("adminPersonaConversionSection", 40);
+                }, 80);
+            }
+            this._updateActionCardArrows(oModel);
         },
 
         onSelectAdminAccessCustomization() {
+            const now = Date.now();
+            if (this._lastAdminNavClick && (now - this._lastAdminNavClick < 250)) {
+                return;
+            }
+            this._lastAdminNavClick = now;
+
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
@@ -12795,13 +12929,18 @@
                 this._ensureAdminSnapshots(oModel);
                 this._refreshCustomConflictOptions(oModel);
                 this._loadCustomAccessAndConflictConfig(oModel);
+                setTimeout(() => {
+                    this._smoothScrollTo("adminAccessCustomizationSection", 40);
+                }, 80);
             }
+            this._updateActionCardArrows(oModel);
         },
 
         onCloseAdminSection() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/adminSelectedSection", "");
+                this._updateActionCardArrows(oModel);
             }
         },
 
