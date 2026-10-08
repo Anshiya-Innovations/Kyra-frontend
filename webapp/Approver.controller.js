@@ -1983,9 +1983,323 @@ sap.ui.define([
             this._applySearchFilter(sQuery);
         },
 
-        onExportApprovals() {
-            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
-                MessageToast.show("Approval audit log exported successfully.");
+                onExportApprovals() {
+            this._openExportDialog({
+                title: "Export Approvals Audit Log",
+                subtitle: "Select file format and download filtered approval records",
+                icon: "sap-icon://excel-attachment",
+                filename: "Kyra_Approvals_Filtered_" + new Date().toISOString().slice(0, 10),
+                getData: () => {
+                    const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+                    const bHistory = oModel ? !!oModel.getProperty("/showApprovalHistory") : false;
+                    const sTab = oModel ? (oModel.getProperty("/approverPendingTab") || "accessRequests") : "accessRequests";
+                    const sActiveTableId = bHistory ? "approvalHistoryTable" : (sTab === "revokeRequests" ? "approvalRevokeTable" : "approvalAccessTable");
+                    const oTable = this.byId(sActiveTableId);
+                    let aFilteredItems = [];
+                    if (oTable) {
+                        const oBinding = oTable.getBinding("items");
+                        if (oBinding) {
+                            const aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
+                            if (aContexts && aContexts.length > 0) {
+                                aFilteredItems = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                            } else {
+                                const aAllContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 1000) : [];
+                                if (aAllContexts && aAllContexts.length > 0) {
+                                    aFilteredItems = aAllContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                                }
+                            }
+                        }
+                    }
+                    if (!aFilteredItems || aFilteredItems.length === 0) {
+                        if (oModel) {
+                            if (bHistory) aFilteredItems = oModel.getProperty("/approvalHistory") || [];
+                            else if (sTab === "revokeRequests") aFilteredItems = oModel.getProperty("/pendingRevokeRequests") || [];
+                            else aFilteredItems = oModel.getProperty("/pendingAccessRequests") || [];
+                        }
+                    }
+                    return (aFilteredItems || []).map(item => ({
+                        "REQUESTER / USER ID": item.requesterId || item.userId || item.requestId || "",
+                        "BUSINESS SECTOR": item.businessSector || item.sector || "Information Technology & Security",
+                        "BUSINESS FUNCTION": item.businessFunction || item.function || "Corporate Governance",
+                        "DURATION": item.duration || item.accessDuration || "Permanent",
+                        "SUBMISSION DATE": item.submissionDate || item.submittedDate || "",
+                        "APPROVAL STATUS": item.status || "Pending",
+                        "SYSTEM": item.system || "",
+                        "ROLE / PERMISSION": item.roleName || item.role || item.requestedRole || ""
+                    }));
+                }
+            });
+        },
+
+        _openExportDialog(oConfig) {
+            sap.ui.require([
+                "sap/m/Dialog",
+                "sap/m/VBox",
+                "sap/m/HBox",
+                "sap/m/Avatar",
+                "sap/m/Title",
+                "sap/m/Text",
+                "sap/m/Button",
+                "sap/m/MessageToast"
+            ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
+                let sSelectedFormat = "XLSX";
+                let bIncludeTimestamps = true;
+
+                // 1. Header
+                const oHeader = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Avatar({
+                                    src: oConfig.icon || "sap-icon://excel-attachment",
+                                    displaySize: "S"
+                                }).addStyleClass("kyraHistFilterAvatar sapUiSmallMarginEnd"),
+                                new VBox({
+                                    items: [
+                                        new Title({
+                                            text: oConfig.title || "Export Approvals Audit Log",
+                                            level: "H4"
+                                        }).addStyleClass("kyraHistDialogTitle"),
+                                        new Text({
+                                            text: oConfig.subtitle || "Select file format and download filtered approval records"
+                                        }).addStyleClass("kyraHistDialogSubtitle")
+                                    ]
+                                })
+                            ]
+                        }),
+                        new Button({
+                            icon: "sap-icon://decline",
+                            type: "Transparent",
+                            tooltip: "Close",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraHistDialogCloseBtn")
+                    ]
+                }).addStyleClass("kyraHistDialogHeader");
+
+                // 2. Format options
+                const aFormats = [
+                    {
+                        key: "XLSX",
+                        title: "Excel Spreadsheet (.xlsx)",
+                        desc: "Structured tabular format with styled columns & filters",
+                        icon: "sap-icon://excel-attachment",
+                        colorClass: "kyraHistIcon_emerald"
+                    },
+                    {
+                        key: "CSV",
+                        title: "Comma-Separated Values (.csv)",
+                        desc: "Standard CSV delimiter format for databases & analytics",
+                        icon: "sap-icon://document-text",
+                        colorClass: "kyraHistIcon_teal"
+                    },
+                    {
+                        key: "PDF",
+                        title: "Audit Summary Report (.pdf)",
+                        desc: "Enterprise compliance printable summary document",
+                        icon: "sap-icon://pdf-attachment",
+                        colorClass: "kyraHistIcon_amber"
+                    }
+                ];
+
+                const oFormatSectionTitle = new Text({
+                    text: "EXPORT FORMAT"
+                }).addStyleClass("kyraHistSectionTitle sapUiSmallMarginTop sapUiTinyMarginBottom");
+
+                const aFormatRows = [];
+                const oFormatContainer = new VBox({ items: [] });
+
+                const updateFormatSelection = () => {
+                    aFormatRows.forEach(item => {
+                        const bActive = item.key === sSelectedFormat;
+                        if (bActive) {
+                            item.card.addStyleClass("kyraHistMultiRowSelected");
+                            item.checkbox.addStyleClass("kyraCheckMark");
+                        } else {
+                            item.card.removeStyleClass("kyraHistMultiRowSelected");
+                            item.checkbox.removeStyleClass("kyraCheckMark");
+                        }
+                    });
+                };
+
+                aFormats.forEach(fmt => {
+                    const oCheckSquare = new HBox().addStyleClass("kyraCheckboxSquare");
+                    const oRowCard = new HBox({
+                        justifyContent: "SpaceBetween",
+                        alignItems: "Center",
+                        items: [
+                            new HBox({
+                                alignItems: "Center",
+                                items: [
+                                    new Avatar({
+                                        src: fmt.icon,
+                                        displaySize: "S"
+                                    }).addStyleClass("kyraHistRowAvatar " + fmt.colorClass + " sapUiSmallMarginEnd"),
+                                    new VBox({
+                                        items: [
+                                            new Title({ text: fmt.title, level: "H5" }).addStyleClass("kyraHistRowTitle"),
+                                            new Text({ text: fmt.desc }).addStyleClass("kyraHistRowSubtitle")
+                                        ]
+                                    })
+                                ]
+                            }),
+                            oCheckSquare
+                        ]
+                    }).addStyleClass("kyraHistMultiSelectRow sapUiTinyMarginBottom");
+
+                    oRowCard.attachBrowserEvent("click", () => {
+                        sSelectedFormat = fmt.key;
+                        updateFormatSelection();
+                    });
+
+                    aFormatRows.push({ key: fmt.key, card: oRowCard, checkbox: oCheckSquare });
+                    oFormatContainer.addItem(oRowCard);
+                });
+                updateFormatSelection();
+
+                // 3. Options Section (Only relevant metadata options, NO full list)
+                const oOptionsSectionTitle = new Text({
+                    text: "EXPORT OPTIONS"
+                }).addStyleClass("kyraHistSectionTitle sapUiSmallMarginTop sapUiTinyMarginBottom");
+
+                const oOptTimestampCheck = new HBox().addStyleClass("kyraCheckboxSquare kyraCheckMark");
+                const oOptTimestampCard = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Avatar({
+                                    src: "sap-icon://history",
+                                    displaySize: "S"
+                                }).addStyleClass("kyraHistRowAvatar kyraHistIcon_emerald sapUiSmallMarginEnd"),
+                                new VBox({
+                                    items: [
+                                        new Title({ text: "Include Approver Remarks & Timestamp", level: "H5" }).addStyleClass("kyraHistRowTitle"),
+                                        new Text({ text: "Append approval timestamps and audit reviewer trace" }).addStyleClass("kyraHistRowSubtitle")
+                                    ]
+                                })
+                            ]
+                        }),
+                        oOptTimestampCheck
+                    ]
+                }).addStyleClass("kyraHistMultiSelectRow kyraHistMultiRowSelected sapUiTinyMarginBottom");
+                oOptTimestampCard.attachBrowserEvent("click", () => {
+                    bIncludeTimestamps = !bIncludeTimestamps;
+                    if (bIncludeTimestamps) {
+                        oOptTimestampCard.addStyleClass("kyraHistMultiRowSelected");
+                        oOptTimestampCheck.addStyleClass("kyraCheckMark");
+                    } else {
+                        oOptTimestampCard.removeStyleClass("kyraHistMultiRowSelected");
+                        oOptTimestampCheck.removeStyleClass("kyraCheckMark");
+                    }
+                });
+
+                // 4. Download Execution Handler
+                const handleDownload = () => {
+                    const aData = (typeof oConfig.getData === "function") ? oConfig.getData() : [];
+                    if (!aData || aData.length === 0) {
+                        MessageToast.show("No records available to export for current filter.");
+                        oDialog.close();
+                        return;
+                    }
+
+                    const sFilename = (oConfig.filename || "Kyra_Approvals_Export") + (sSelectedFormat === "XLSX" ? ".xlsx" : sSelectedFormat === "CSV" ? ".csv" : ".pdf");
+                    const aHeaders = Object.keys(aData[0]);
+                    const sDelim = sSelectedFormat === "XLSX" ? "\t" : ",";
+                    let sContent = aHeaders.join(sDelim) + "\r\n";
+                    aData.forEach(row => {
+                        const aVals = aHeaders.map(h => {
+                            let val = (row[h] || "").toString();
+                            if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+                                val = '"' + val.replace(/"/g, '""') + '"';
+                            }
+                            return val;
+                        });
+                        sContent += aVals.join(sDelim) + "\r\n";
+                    });
+
+                    if (bIncludeTimestamps) {
+                        sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
+                    }
+
+                    const blobMime = (sSelectedFormat === "XLSX") ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : (sSelectedFormat === "PDF" ? "application/pdf" : "text/csv;charset=utf-8;");
+                    const oBlob = new Blob([sContent], { type: blobMime });
+                    const sUrl = URL.createObjectURL(oBlob);
+                    const oLink = document.createElement("a");
+                    oLink.href = sUrl;
+                    oLink.download = sFilename;
+                    document.body.appendChild(oLink);
+                    oLink.click();
+                    document.body.removeChild(oLink);
+                    URL.revokeObjectURL(sUrl);
+
+                    MessageToast.show(sFilename + " exported and downloaded successfully!");
+                    oDialog.close();
+                };
+
+                // 5. Footer
+                const oFooter = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new Button({
+                            text: "Reset",
+                            icon: "sap-icon://refresh",
+                            type: "Transparent",
+                            press: () => {
+                                sSelectedFormat = "XLSX";
+                                bIncludeTimestamps = true;
+                                updateFormatSelection();
+                                oOptTimestampCard.addStyleClass("kyraHistMultiRowSelected");
+                                oOptTimestampCheck.addStyleClass("kyraCheckMark");
+                            }
+                        }).addStyleClass("kyraHistResetBtn"),
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Button({
+                                    text: "Cancel",
+                                    press: () => oDialog.close()
+                                }).addStyleClass("kyraHistCancelBtn sapUiTinyMarginEnd"),
+                                new Button({
+                                    text: "Export & Download",
+                                    icon: "sap-icon://download",
+                                    type: "Emphasized",
+                                    press: handleDownload
+                                }).addStyleClass("kyraHistApplyBtn")
+                            ]
+                        })
+                    ]
+                }).addStyleClass("kyraHistDialogFooter sapUiSmallMarginTop");
+
+                // 6. Assemble Dialog
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "450px",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
+                    resizable: false,
+                    content: [
+                        new VBox({
+                            items: [
+                                oHeader,
+                                oFormatSectionTitle,
+                                oFormatContainer,
+                                oOptionsSectionTitle,
+                                oOptTimestampCard,
+                                oFooter
+                            ]
+                        }).addStyleClass("sapUiNoMargin")
+                    ],
+                    afterClose: () => oDialog.destroy()
+                }).addStyleClass("kyraModernHistoryFilterDialog kyraExportModernDialog");
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
             });
         },
 

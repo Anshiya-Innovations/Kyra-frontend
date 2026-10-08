@@ -2270,7 +2270,7 @@
                             <Button
                                 icon="sap-icon://filter"
                                 text="Filter"
-                                type="Emphasized"
+                                type="Default"
                                 press=".onFilterHistoryDialog"
                                 tooltip="Filter History by Status &amp; Duration"
                                 class="kyraHistoryFilterBtn" />
@@ -2378,11 +2378,30 @@
                         <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
                             <SearchField
                                 placeholder="Search all entitlements..."
-                                width="240px"
+                                width="230px"
                                 liveChange=".onSearchMasterAccess"
-                                class="kyraEntitlementsSearchField sapUiSmallMarginEnd" />
-                            <Button icon="sap-icon://excel-attachment" text="Export Audit Log" type="Transparent" press=".onExportAccess" class="sapUiTinyMarginEnd fioriExportLinkBtn kyraTextBtn" />
-                            <Button icon="sap-icon://decline" text="Close View" type="Transparent" press=".onCloseMyAccessMasterSection" class="fioriCloseLinkBtn kyraTextBtn" />
+                                class="kyraEntitlementsSearchField" />
+
+                            <Button
+                                icon="sap-icon://filter"
+                                text="Filter"
+                                type="Default"
+                                press=".onFilterMasterAccessDialog"
+                                tooltip="Filter Entitlements"
+                                class="kyraHistoryFilterBtn" />
+
+                            <Button
+                                icon="sap-icon://excel-attachment"
+                                press=".onExportAccess"
+                                tooltip="Export Audit Log"
+                                class="kyraHistoryExportBtn" />
+
+                            <Button
+                                icon="sap-icon://decline"
+                                type="Transparent"
+                                press=".onCloseMyAccessMasterSection"
+                                tooltip="Close View"
+                                class="kyraCloseIconBtn" />
                         </HBox>
                     </HBox>
 

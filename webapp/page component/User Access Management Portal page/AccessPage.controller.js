@@ -9045,6 +9045,712 @@ sap.ui.define([
             }
         },
 
+        onFilterMasterAccessDialog() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            sap.ui.require([
+                "sap/m/Dialog",
+                "sap/m/DatePicker",
+                "sap/m/VBox",
+                "sap/m/HBox",
+                "sap/m/Label",
+                "sap/m/Avatar",
+                "sap/m/Text",
+                "sap/m/Title",
+                "sap/m/Button",
+                "sap/ui/model/Filter",
+                "sap/ui/model/FilterOperator",
+                "sap/m/MessageToast"
+            ], (Dialog, DatePicker, VBox, HBox, Label, Avatar, Text, Title, Button, Filter, FilterOperator, MessageToast) => {
+                const aOptions = [
+                    {
+                        key: "PERMANENT",
+                        title: "Permanent",
+                        desc: "Standard continuous access requests",
+                        icon: "sap-icon://shield",
+                        colorClass: "kyraHistIcon_emerald"
+                    },
+                    {
+                        key: "30DAYS",
+                        title: "30 Days",
+                        desc: "Temporary 30-day access requests",
+                        icon: "sap-icon://appointment-2",
+                        colorClass: "kyraHistIcon_amber"
+                    },
+                    {
+                        key: "90DAYS",
+                        title: "90 Days",
+                        desc: "Project-based 90-day access requests",
+                        icon: "sap-icon://calendar",
+                        colorClass: "kyraHistIcon_teal"
+                    },
+                    {
+                        key: "CUSTOM",
+                        title: "Custom Date Range",
+                        desc: "Filter by specific start & end dates",
+                        icon: "sap-icon://date-time",
+                        colorClass: "kyraHistIcon_teal"
+                    }
+                ];
+
+                // Multiple selection state
+                const oSelectionState = Object.assign({
+                    PERMANENT: false,
+                    "30DAYS": false,
+                    "90DAYS": false,
+                    CUSTOM: false
+                }, this._activeMasterTimelineFilter || {});
+
+                const oStartDatePicker = new DatePicker({
+                    placeholder: "dd-MM-yyyy",
+                    displayFormat: "dd-MM-yyyy",
+                    valueFormat: "yyyy-MM-dd",
+                    value: this._masterCustomDateStart ? undefined : "",
+                    dateValue: this._masterCustomDateStart ? new Date(this._masterCustomDateStart) : null,
+                    width: "100%"
+                }).addStyleClass("kyraHistDatePicker");
+
+                const oEndDatePicker = new DatePicker({
+                    placeholder: "dd-MM-yyyy",
+                    displayFormat: "dd-MM-yyyy",
+                    valueFormat: "yyyy-MM-dd",
+                    value: this._masterCustomDateEnd ? undefined : "",
+                    dateValue: this._masterCustomDateEnd ? new Date(this._masterCustomDateEnd) : null,
+                    width: "100%"
+                }).addStyleClass("kyraHistDatePicker");
+
+                if (this._masterCustomDateStart) {
+                    oStartDatePicker.setDateValue(new Date(this._masterCustomDateStart));
+                }
+                if (this._masterCustomDateEnd) {
+                    oEndDatePicker.setDateValue(new Date(this._masterCustomDateEnd));
+                }
+
+                const oCustomDateSection = new VBox({
+                    visible: !!oSelectionState.CUSTOM,
+                    items: [
+                        new HBox({
+                            justifyContent: "SpaceBetween",
+                            gap: "14px",
+                            items: [
+                                new VBox({
+                                    width: "48%",
+                                    items: [
+                                        new Label({ text: "Start Date", required: true }).addStyleClass("kyraHistFieldLabel"),
+                                        oStartDatePicker
+                                    ]
+                                }),
+                                new VBox({
+                                    width: "48%",
+                                    items: [
+                                        new Label({ text: "End Date", required: true }).addStyleClass("kyraHistFieldLabel"),
+                                        oEndDatePicker
+                                    ]
+                                })
+                            ]
+                        })
+                    ]
+                }).addStyleClass("kyraHistCustomDateWrapper sapUiSmallMarginTop");
+
+                const aRowItems = [];
+                const aContainerItems = [];
+
+                aContainerItems.push(
+                    new Text({ text: "DURATION & TIMELINE" }).addStyleClass("kyraHistSectionLabel")
+                );
+
+                const updateUI = () => {
+                    aRowItems.forEach(item => {
+                        const bSelected = !!oSelectionState[item.key];
+                        if (bSelected) {
+                            item.row.addStyleClass("kyraHistMultiRowSelected");
+                        } else {
+                            item.row.removeStyleClass("kyraHistMultiRowSelected");
+                        }
+                    });
+                    oCustomDateSection.setVisible(!!oSelectionState.CUSTOM);
+                };
+
+                const toggleKey = (sKey) => {
+                    oSelectionState[sKey] = !oSelectionState[sKey];
+                    updateUI();
+                };
+
+                aOptions.forEach(opt => {
+                    const oCheckIndicator = new sap.ui.core.HTML({
+                        content: '<div class="kyraCheckboxSquare"><span class="kyraCheckMark">✓</span></div>'
+                    });
+
+                    const oIconAvatar = new Avatar({
+                        src: opt.icon,
+                        displaySize: "XS"
+                    }).addStyleClass("kyraHistIconAvatar " + opt.colorClass);
+
+                    const oTitle = new Text({
+                        text: opt.title
+                    }).addStyleClass("kyraHistRowTitle");
+
+                    const oSubtitle = new Text({
+                        text: opt.desc
+                    }).addStyleClass("kyraHistRowSubtitle");
+
+                    const oTextCol = new VBox({
+                        items: [oTitle, oSubtitle]
+                    }).addStyleClass("kyraHistRowTextCol");
+
+                    const oLeftBox = new HBox({
+                        alignItems: "Center",
+                        gap: "14px",
+                        items: [oIconAvatar, oTextCol]
+                    }).addStyleClass("kyraHistRowLeft");
+
+                    const oRow = new HBox({
+                        alignItems: "Center",
+                        justifyContent: "SpaceBetween",
+                        items: [oLeftBox, oCheckIndicator]
+                    }).addStyleClass("kyraHistMultiRow");
+
+                    if (oSelectionState[opt.key]) {
+                        oRow.addStyleClass("kyraHistMultiRowSelected");
+                    }
+
+                    oRow.addEventDelegate({
+                        onclick: () => toggleKey(opt.key)
+                    });
+
+                    aRowItems.push({
+                        key: opt.key,
+                        row: oRow
+                    });
+
+                    aContainerItems.push(oRow);
+                });
+
+                const oListContainer = new VBox({
+                    items: aContainerItems
+                }).addStyleClass("kyraHistMultiList");
+
+                const applySelectedFilter = () => {
+                    this._activeMasterTimelineFilter = Object.assign({}, oSelectionState);
+                    this._masterCustomDateStart = oStartDatePicker.getDateValue();
+                    this._masterCustomDateEnd = oEndDatePicker.getDateValue();
+
+                    const aSelectedLabels = [];
+                    const aFilterConditions = [];
+
+                    if (oSelectionState.PERMANENT) {
+                        aSelectedLabels.push("Permanent");
+                        aFilterConditions.push(new Filter({
+                            path: "duration",
+                            test: (v) => {
+                                const s = String(v || "").toLowerCase();
+                                return s.includes("perm") || s.includes("def") || s === "";
+                            }
+                        }));
+                    }
+                    if (oSelectionState["30DAYS"]) {
+                        aSelectedLabels.push("30 Days");
+                        aFilterConditions.push(new Filter({
+                            path: "duration",
+                            test: (v) => String(v || "").includes("30")
+                        }));
+                    }
+                    if (oSelectionState["90DAYS"]) {
+                        aSelectedLabels.push("90 Days");
+                        aFilterConditions.push(new Filter({
+                            path: "duration",
+                            test: (v) => String(v || "").includes("90")
+                        }));
+                    }
+                    if (oSelectionState.CUSTOM) {
+                        const dStart = oStartDatePicker.getDateValue();
+                        const dEnd = oEndDatePicker.getDateValue() || dStart;
+                        if (dStart) {
+                            aSelectedLabels.push(dStart.toLocaleDateString() + " - " + dEnd.toLocaleDateString());
+                            const tStart = new Date(dStart).setHours(0, 0, 0, 0);
+                            const tEnd = new Date(dEnd).setHours(23, 59, 59, 999);
+                            aFilterConditions.push(new Filter({
+                                path: "expiryDate",
+                                test: (v) => {
+                                    if (!v) return true;
+                                    const d = new Date(v).getTime();
+                                    return !isNaN(d) && d >= tStart && d <= tEnd;
+                                }
+                            }));
+                        }
+                    }
+
+                    const oTable = this.byId("myAccessMasterSectionTable");
+                    if (oTable) {
+                        const oBinding = oTable.getBinding("items");
+                        if (oBinding) {
+                            if (aFilterConditions.length === 0) {
+                                oBinding.filter([]);
+                                MessageToast.show("Showing all active entitlements.");
+                            } else {
+                                oBinding.filter([
+                                    new Filter({
+                                        filters: aFilterConditions,
+                                        and: false
+                                    })
+                                ]);
+                                MessageToast.show("Filter applied: " + aSelectedLabels.join(", "));
+                            }
+                        }
+                    }
+                    oDialog.close();
+                };
+
+                // Header
+                const oHeader = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Avatar({
+                                    src: "sap-icon://filter",
+                                    displaySize: "S"
+                                }).addStyleClass("kyraHistHeaderAvatar sapUiSmallMarginEnd"),
+                                new VBox({
+                                    items: [
+                                        new Title({ text: "Filter Active Entitlements", level: "H4" }).addStyleClass("kyraHistHeaderTitle"),
+                                        new Text({ text: "Filter active entitlements by duration timeline and custom date range" }).addStyleClass("kyraHistHeaderSubtitle")
+                                    ]
+                                })
+                            ]
+                        }),
+                        new Button({
+                            icon: "sap-icon://decline",
+                            type: "Transparent",
+                            press: () => oDialog.close(),
+                            tooltip: "Close"
+                        }).addStyleClass("kyraHistCloseBtn")
+                    ]
+                }).addStyleClass("kyraHistDialogHeader sapUiSmallMarginBottom");
+
+                // Footer
+                const oFooter = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new Button({
+                            text: "Reset",
+                            icon: "sap-icon://refresh",
+                            type: "Transparent",
+                            press: () => {
+                                oSelectionState.PERMANENT = false;
+                                oSelectionState["30DAYS"] = false;
+                                oSelectionState["90DAYS"] = false;
+                                oSelectionState.CUSTOM = false;
+                                oStartDatePicker.setDateValue(null);
+                                oStartDatePicker.setValue("");
+                                oEndDatePicker.setDateValue(null);
+                                oEndDatePicker.setValue("");
+                                this._historyCustomDateStart = null;
+                                this._historyCustomDateEnd = null;
+                                this._activeMasterTimelineFilter = null;
+                                this._masterCustomDateStart = null;
+                                this._masterCustomDateEnd = null;
+                                updateUI();
+                                const oTable = this.byId("myAccessMasterSectionTable");
+                                if (oTable && oTable.getBinding("items")) {
+                                    oTable.getBinding("items").filter([]);
+                                    MessageToast.show("Filters reset to all entitlements.");
+                                }
+                            }
+                        }).addStyleClass("kyraHistResetBtn"),
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Button({
+                                    text: "Cancel",
+                                    press: () => oDialog.close()
+                                }).addStyleClass("kyraHistCancelBtn sapUiTinyMarginEnd"),
+                                new Button({
+                                    text: "Apply Filter",
+                                    type: "Emphasized",
+                                    press: applySelectedFilter
+                                }).addStyleClass("kyraHistApplyBtn")
+                            ]
+                        }).addStyleClass("kyraHistFooterRight")
+                    ]
+                }).addStyleClass("kyraHistDialogFooter sapUiSmallMarginTop");
+
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "480px",
+                    content: [
+                        new VBox({
+                            items: [
+                                oHeader,
+                                oListContainer,
+                                oCustomDateSection,
+                                oFooter
+                            ]
+                        }).addStyleClass("sapUiNoMargin")
+                    ],
+                    afterClose: () => oDialog.destroy()
+                }).addStyleClass("kyraModernHistoryFilterDialog");
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+                onExportAccess() {
+            this._openExportDialog({
+                title: "Export Active Entitlements",
+                subtitle: "Select file format and download filtered active records",
+                icon: "sap-icon://excel-attachment",
+                filename: "Kyra_Active_Entitlements_Filtered_" + new Date().toISOString().slice(0, 10),
+                getData: () => {
+                    const oTable = this.byId("myAccessMasterSectionTable");
+                    let aList = [];
+                    if (oTable) {
+                        const oBinding = oTable.getBinding("items");
+                        if (oBinding) {
+                            const aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
+                            if (aContexts && aContexts.length > 0) {
+                                aList = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                            } else {
+                                const aAllContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 1000) : [];
+                                if (aAllContexts && aAllContexts.length > 0) {
+                                    aList = aAllContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                                }
+                            }
+                        }
+                    }
+                    if (!aList || aList.length === 0) {
+                        const oModel = this.getView().getModel("accessModel");
+                        aList = (oModel && oModel.getProperty("/userAccessList")) || [];
+                    }
+                    return (aList || []).map(item => ({
+                        "SYSTEM": item.system || "",
+                        "SERVICES": item.services || item.serviceTopic || "",
+                        "TEAM / ROLE": item.teamRole || item.roleName || item.team || "",
+                        "PERSONA": item.persona || "",
+                        "EXPIRY DATE": item.expiryDate || "",
+                        "STATUS": item.status || "Active"
+                    }));
+                }
+            });
+        },
+
+        onExportRequests() {
+            this._openExportDialog({
+                title: "Export Request History",
+                subtitle: "Select file format and download filtered request audit log",
+                icon: "sap-icon://excel-attachment",
+                filename: "Kyra_Request_History_Filtered_" + new Date().toISOString().slice(0, 10),
+                getData: () => {
+                    const oTable = this.byId("myRequestsUnifiedTable");
+                    let aList = [];
+                    if (oTable) {
+                        const oBinding = oTable.getBinding("items");
+                        if (oBinding) {
+                            const aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
+                            if (aContexts && aContexts.length > 0) {
+                                aList = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                            } else {
+                                const aAllContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 1000) : [];
+                                if (aAllContexts && aAllContexts.length > 0) {
+                                    aList = aAllContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                                }
+                            }
+                        }
+                    }
+                    if (!aList || aList.length === 0) {
+                        const oModel = this.getView().getModel("accessModel");
+                        aList = (oModel && oModel.getProperty("/allSubmittedRequests")) || (oModel && oModel.getProperty("/requestHistory")) || [];
+                    }
+                    return (aList || []).map(item => ({
+                        "REQUEST ID": item.requestId || item.id || "",
+                        "SYSTEM": item.system || "",
+                        "ROLE / PERMISSION": item.roleName || item.role || "",
+                        "PERSONA": item.persona || "",
+                        "DURATION": item.duration || "",
+                        "SUBMITTED DATE": item.submittedDate || item.date || "",
+                        "STATUS": item.status || ""
+                    }));
+                }
+            });
+        },
+
+        _openExportDialog(oConfig) {
+            sap.ui.require([
+                "sap/m/Dialog",
+                "sap/m/VBox",
+                "sap/m/HBox",
+                "sap/m/Avatar",
+                "sap/m/Title",
+                "sap/m/Text",
+                "sap/m/Button",
+                "sap/m/MessageToast"
+            ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
+                let sSelectedFormat = "XLSX";
+                let bIncludeTimestamps = true;
+
+                // 1. Header
+                const oHeader = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Avatar({
+                                    src: oConfig.icon || "sap-icon://excel-attachment",
+                                    displaySize: "S"
+                                }).addStyleClass("kyraHistFilterAvatar sapUiSmallMarginEnd"),
+                                new VBox({
+                                    items: [
+                                        new Title({
+                                            text: oConfig.title || "Export Data",
+                                            level: "H4"
+                                        }).addStyleClass("kyraHistDialogTitle"),
+                                        new Text({
+                                            text: oConfig.subtitle || "Select file format and download filtered report"
+                                        }).addStyleClass("kyraHistDialogSubtitle")
+                                    ]
+                                })
+                            ]
+                        }),
+                        new Button({
+                            icon: "sap-icon://decline",
+                            type: "Transparent",
+                            tooltip: "Close",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraHistDialogCloseBtn")
+                    ]
+                }).addStyleClass("kyraHistDialogHeader");
+
+                // 2. Format options
+                const aFormats = [
+                    {
+                        key: "XLSX",
+                        title: "Excel Spreadsheet (.xlsx)",
+                        desc: "Structured tabular format with styled columns & filters",
+                        icon: "sap-icon://excel-attachment",
+                        colorClass: "kyraHistIcon_emerald"
+                    },
+                    {
+                        key: "CSV",
+                        title: "Comma-Separated Values (.csv)",
+                        desc: "Standard CSV delimiter format for databases & analytics",
+                        icon: "sap-icon://document-text",
+                        colorClass: "kyraHistIcon_teal"
+                    },
+                    {
+                        key: "PDF",
+                        title: "Audit Summary Report (.pdf)",
+                        desc: "Enterprise compliance printable summary document",
+                        icon: "sap-icon://pdf-attachment",
+                        colorClass: "kyraHistIcon_amber"
+                    }
+                ];
+
+                const oFormatSectionTitle = new Text({
+                    text: "EXPORT FORMAT"
+                }).addStyleClass("kyraHistSectionTitle sapUiSmallMarginTop sapUiTinyMarginBottom");
+
+                const aFormatRows = [];
+                const oFormatContainer = new VBox({ items: [] });
+
+                const updateFormatSelection = () => {
+                    aFormatRows.forEach(item => {
+                        const bActive = item.key === sSelectedFormat;
+                        if (bActive) {
+                            item.card.addStyleClass("kyraHistMultiRowSelected");
+                            item.checkbox.addStyleClass("kyraCheckMark");
+                        } else {
+                            item.card.removeStyleClass("kyraHistMultiRowSelected");
+                            item.checkbox.removeStyleClass("kyraCheckMark");
+                        }
+                    });
+                };
+
+                aFormats.forEach(fmt => {
+                    const oCheckSquare = new HBox().addStyleClass("kyraCheckboxSquare");
+                    const oRowCard = new HBox({
+                        justifyContent: "SpaceBetween",
+                        alignItems: "Center",
+                        items: [
+                            new HBox({
+                                alignItems: "Center",
+                                items: [
+                                    new Avatar({
+                                        src: fmt.icon,
+                                        displaySize: "S"
+                                    }).addStyleClass("kyraHistRowAvatar " + fmt.colorClass + " sapUiSmallMarginEnd"),
+                                    new VBox({
+                                        items: [
+                                            new Title({ text: fmt.title, level: "H5" }).addStyleClass("kyraHistRowTitle"),
+                                            new Text({ text: fmt.desc }).addStyleClass("kyraHistRowSubtitle")
+                                        ]
+                                    })
+                                ]
+                            }),
+                            oCheckSquare
+                        ]
+                    }).addStyleClass("kyraHistMultiSelectRow sapUiTinyMarginBottom");
+
+                    oRowCard.attachBrowserEvent("click", () => {
+                        sSelectedFormat = fmt.key;
+                        updateFormatSelection();
+                    });
+
+                    aFormatRows.push({ key: fmt.key, card: oRowCard, checkbox: oCheckSquare });
+                    oFormatContainer.addItem(oRowCard);
+                });
+                updateFormatSelection();
+
+                // 3. Options Section (Only metadata options, NO full list)
+                const oOptionsSectionTitle = new Text({
+                    text: "EXPORT OPTIONS"
+                }).addStyleClass("kyraHistSectionTitle sapUiSmallMarginTop sapUiTinyMarginBottom");
+
+                const oOptTimestampCheck = new HBox().addStyleClass("kyraCheckboxSquare kyraCheckMark");
+                const oOptTimestampCard = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Avatar({
+                                    src: "sap-icon://history",
+                                    displaySize: "S"
+                                }).addStyleClass("kyraHistRowAvatar kyraHistIcon_emerald sapUiSmallMarginEnd"),
+                                new VBox({
+                                    items: [
+                                        new Title({ text: "Include Audit Metadata & Timestamp", level: "H5" }).addStyleClass("kyraHistRowTitle"),
+                                        new Text({ text: "Append generation timestamp and user session context" }).addStyleClass("kyraHistRowSubtitle")
+                                    ]
+                                })
+                            ]
+                        }),
+                        oOptTimestampCheck
+                    ]
+                }).addStyleClass("kyraHistMultiSelectRow kyraHistMultiRowSelected sapUiTinyMarginBottom");
+                oOptTimestampCard.attachBrowserEvent("click", () => {
+                    bIncludeTimestamps = !bIncludeTimestamps;
+                    if (bIncludeTimestamps) {
+                        oOptTimestampCard.addStyleClass("kyraHistMultiRowSelected");
+                        oOptTimestampCheck.addStyleClass("kyraCheckMark");
+                    } else {
+                        oOptTimestampCard.removeStyleClass("kyraHistMultiRowSelected");
+                        oOptTimestampCheck.removeStyleClass("kyraCheckMark");
+                    }
+                });
+
+                // 4. Download Execution Handler
+                const handleDownload = () => {
+                    const aData = (typeof oConfig.getData === "function") ? oConfig.getData() : [];
+                    if (!aData || aData.length === 0) {
+                        MessageToast.show("No records available to export for current filter.");
+                        oDialog.close();
+                        return;
+                    }
+
+                    const sFilename = (oConfig.filename || "Kyra_Export") + (sSelectedFormat === "XLSX" ? ".xlsx" : sSelectedFormat === "CSV" ? ".csv" : ".pdf");
+                    const aHeaders = Object.keys(aData[0]);
+                    const sDelim = sSelectedFormat === "XLSX" ? "\t" : ",";
+                    let sContent = aHeaders.join(sDelim) + "\r\n";
+                    aData.forEach(row => {
+                        const aVals = aHeaders.map(h => {
+                            let val = (row[h] || "").toString();
+                            if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+                                val = '"' + val.replace(/"/g, '""') + '"';
+                            }
+                            return val;
+                        });
+                        sContent += aVals.join(sDelim) + "\r\n";
+                    });
+
+                    if (bIncludeTimestamps) {
+                        sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
+                    }
+
+                    const blobMime = (sSelectedFormat === "XLSX") ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : (sSelectedFormat === "PDF" ? "application/pdf" : "text/csv;charset=utf-8;");
+                    const oBlob = new Blob([sContent], { type: blobMime });
+                    const sUrl = URL.createObjectURL(oBlob);
+                    const oLink = document.createElement("a");
+                    oLink.href = sUrl;
+                    oLink.download = sFilename;
+                    document.body.appendChild(oLink);
+                    oLink.click();
+                    document.body.removeChild(oLink);
+                    URL.revokeObjectURL(sUrl);
+
+                    MessageToast.show(sFilename + " exported and downloaded successfully!");
+                    oDialog.close();
+                };
+
+                // 5. Footer
+                const oFooter = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    items: [
+                        new Button({
+                            text: "Reset",
+                            icon: "sap-icon://refresh",
+                            type: "Transparent",
+                            press: () => {
+                                sSelectedFormat = "XLSX";
+                                bIncludeTimestamps = true;
+                                updateFormatSelection();
+                                oOptTimestampCard.addStyleClass("kyraHistMultiRowSelected");
+                                oOptTimestampCheck.addStyleClass("kyraCheckMark");
+                            }
+                        }).addStyleClass("kyraHistResetBtn"),
+                        new HBox({
+                            alignItems: "Center",
+                            items: [
+                                new Button({
+                                    text: "Cancel",
+                                    press: () => oDialog.close()
+                                }).addStyleClass("kyraHistCancelBtn sapUiTinyMarginEnd"),
+                                new Button({
+                                    text: "Export & Download",
+                                    icon: "sap-icon://download",
+                                    type: "Emphasized",
+                                    press: handleDownload
+                                }).addStyleClass("kyraHistApplyBtn")
+                            ]
+                        })
+                    ]
+                }).addStyleClass("kyraHistDialogFooter sapUiSmallMarginTop");
+
+                // 6. Assemble Dialog
+                const oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "450px",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
+                    resizable: false,
+                    content: [
+                        new VBox({
+                            items: [
+                                oHeader,
+                                oFormatSectionTitle,
+                                oFormatContainer,
+                                oOptionsSectionTitle,
+                                oOptTimestampCard,
+                                oFooter
+                            ]
+                        }).addStyleClass("sapUiNoMargin")
+                    ],
+                    afterClose: () => oDialog.destroy()
+                }).addStyleClass("kyraModernHistoryFilterDialog kyraExportModernDialog");
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
         onNavToRemoveAccess() {
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
@@ -9810,6 +10516,8 @@ sap.ui.define([
                     placeholder: "dd-MM-yyyy",
                     displayFormat: "dd-MM-yyyy",
                     valueFormat: "yyyy-MM-dd",
+                    value: this._historyCustomDateStart ? undefined : "",
+                    dateValue: this._historyCustomDateStart ? new Date(this._historyCustomDateStart) : null,
                     width: "100%"
                 }).addStyleClass("kyraHistDatePicker");
 
@@ -9817,8 +10525,17 @@ sap.ui.define([
                     placeholder: "dd-MM-yyyy",
                     displayFormat: "dd-MM-yyyy",
                     valueFormat: "yyyy-MM-dd",
+                    value: this._historyCustomDateEnd ? undefined : "",
+                    dateValue: this._historyCustomDateEnd ? new Date(this._historyCustomDateEnd) : null,
                     width: "100%"
                 }).addStyleClass("kyraHistDatePicker");
+
+                if (this._historyCustomDateStart) {
+                    oStartDatePicker.setDateValue(new Date(this._historyCustomDateStart));
+                }
+                if (this._historyCustomDateEnd) {
+                    oEndDatePicker.setDateValue(new Date(this._historyCustomDateEnd));
+                }
 
                 const oCustomDateSection = new VBox({
                     visible: false,
@@ -9981,6 +10698,8 @@ sap.ui.define([
                             MessageToast.show("Please select a Start Date.");
                             return;
                         }
+                        this._historyCustomDateStart = dStart;
+                        this._historyCustomDateEnd = dEnd;
                         dFrom = new Date(dStart);
                         dFrom.setHours(0, 0, 0, 0);
                         dTo = new Date(dEnd);
