@@ -332,12 +332,10 @@ sap.ui.define([
                 // Update loader slide text to indicate pre-loading dashboard data
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
-                        title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                        duration: 15000
+                        title: "Loading Governance Dashboard...", subtitle: "Setting up user workspace and retrieving access records..."
                     });
                 } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 15000);
+                    window.showKyraLoading("Loading Governance Dashboard...", "Setting up user workspace and retrieving access records...");
                 }
                 oModel.setProperty("/isBusy", false);
 
@@ -442,7 +440,13 @@ sap.ui.define([
                     if (oApp) {
                         const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
                         if (oInnerApp && typeof oInnerApp.to === "function") {
-                            oInnerApp.to("AccessPage");
+                            try {
+                                const sPageId = (this.getOwnerComponent() && typeof this.getOwnerComponent().createId === "function")
+                                    ? this.getOwnerComponent().createId("AccessPage") : "AccessPage";
+                                if (typeof oInnerApp.getPage === "function" && oInnerApp.getPage(sPageId)) {
+                                    oInnerApp.to(sPageId);
+                                }
+                            } catch(e) {}
                         }
                     }
                 } catch(e) {

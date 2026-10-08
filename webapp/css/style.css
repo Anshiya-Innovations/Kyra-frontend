@@ -46341,66 +46341,13 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     width: 100% !important;
 }
 
+/* Conflict Reason Textarea Down Row */
 .kyraAdminConflictReasonDownRow {
     width: 100% !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
-}
-
-.kyraAdminConflictReasonDownRow .sapMTextArea,
-.kyraAdminConflictReasonDownRow .kyraAdminBuilderTextArea,
-.kyraAdminBuilderTextArea,
-.kyraAdminBuilderTextArea.sapMTextArea {
-    min-height: 52px !important;
-    height: 52px !important;
-    max-height: 52px !important;
-    border-radius: 8px !important;
-    border: none !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper,
-.kyraAdminBuilderTextArea .sapMInputBaseContentWrapper {
-    min-height: 52px !important;
-    height: 52px !important;
-    max-height: 52px !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
-    background: #FFFFFF !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    box-shadow: none !important;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
-}
-
-.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:focus-within,
-.kyraAdminConflictReasonDownRow .sapMTextArea.sapMFocus .sapMInputBaseContentWrapper,
-.kyraAdminBuilderTextArea.sapMFocus .sapMInputBaseContentWrapper,
-.kyraAdminBuilderTextArea .sapMInputBaseContentWrapper:focus-within {
-    border-color: #008C9C !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
-}
-
-.kyraAdminConflictReasonDownRow .sapMTextAreaInner,
-.kyraAdminBuilderTextArea .sapMTextAreaInner {
-    height: 48px !important;
-    min-height: 48px !important;
-    max-height: 48px !important;
-    line-height: 20px !important;
-    padding: 5px 12px !important;
-    font-size: 13.5px !important;
-    color: #0F172A !important;
-    resize: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-    box-sizing: border-box !important;
-    background: transparent !important;
-    font-family: inherit !important;
+    gap: 7px !important;
+    margin-bottom: 6px !important;
 }
 
 .kyraAdminBuilderTextArea .sapMTextAreaInner:focus {
@@ -50764,11 +50711,24 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField input,
 }
 
 /* ==========================================================================
-   CONFLICT REASON TEXTAREA: PIXEL-PERFECT CLEAN BORDER & HOVER
+   CONFLICT REASON TEXTAREA: PIXEL-PERFECT SPACIOUS, CLEAN BORDER & HOVER
    ========================================================================== */
+.kyraAdminConflictReasonDownRow,
+.kyraAdminConflictSlideContainer .kyraAdminConflictReasonDownRow {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    margin-bottom: 8px !important;
+    overflow: visible !important;
+}
+
 .kyraAdminBuilderTextArea,
 .kyraAdminBuilderTextArea.sapMTextArea,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea {
+.kyraAdminConflictReasonDownRow .sapMTextArea,
+.kyraAdminConflictReasonDownRow .kyraAdminBuilderTextArea,
+html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextArea {
     border: none !important;
     background: transparent !important;
     background-color: transparent !important;
@@ -50777,14 +50737,18 @@ html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea {
     margin: 0 !important;
     overflow: visible !important;
     width: 100% !important;
-    min-height: 64px !important;
+    min-height: 72px !important;
     height: auto !important;
+    max-height: none !important;
 }
 
 .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper {
-    min-height: 64px !important;
-    height: auto !important;
+.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper {
+    min-height: 72px !important;
+    height: 72px !important;
+    max-height: none !important;
     width: 100% !important;
     border: 1.5px solid #CBD5E1 !important;
     border-radius: 8px !important;
@@ -50800,6 +50764,8 @@ html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseConten
 
 .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::before,
 .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::after,
+.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper::before,
+.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper::after,
 html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::before,
 html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::after {
     display: none !important;
@@ -50809,7 +50775,9 @@ html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseConten
 
 .kyraAdminBuilderTextArea:hover .sapMInputBaseContentWrapper,
 .kyraAdminBuilderTextArea.sapMTextArea:hover .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea:hover .sapMInputBaseContentWrapper {
+.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:hover,
+html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea:hover .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:hover {
     border-color: #008C9C !important;
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
@@ -50818,8 +50786,11 @@ html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea:hover .sapMInputBase
 
 .kyraAdminBuilderTextArea.sapMFocus .sapMInputBaseContentWrapper,
 .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper:focus-within,
+.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:focus-within,
+.kyraAdminConflictReasonDownRow .sapMTextArea.sapMFocus .sapMInputBaseContentWrapper,
 html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea.sapMFocus .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper:focus-within {
+html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper:focus-within,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:focus-within {
     border-color: #008C9C !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
@@ -50828,7 +50799,9 @@ html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseConten
 }
 
 .kyraAdminBuilderTextArea .sapMTextAreaInner,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMTextAreaInner {
+.kyraAdminConflictReasonDownRow .sapMTextAreaInner,
+html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMTextAreaInner,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextAreaInner {
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
@@ -50842,15 +50815,26 @@ html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMTextAreaInner {
     box-sizing: border-box !important;
     width: 100% !important;
     height: 100% !important;
-    min-height: 60px !important;
+    min-height: 68px !important;
+    max-height: none !important;
     font-family: inherit !important;
 }
 
-.kyraAdminBuilderTextArea .sapMTextAreaInner::placeholder {
+.kyraAdminBuilderTextArea .sapMTextAreaInner::placeholder,
+.kyraAdminConflictReasonDownRow .sapMTextAreaInner::placeholder,
+html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMTextAreaInner::placeholder {
     color: #94A3B8 !important;
-    font-size: 13px !important;
+    font-size: 13.5px !important;
     font-weight: 400 !important;
     opacity: 1 !important;
+}
+
+/* Conflict Slide Footer Bar: Cancel & Save Buttons Margin separation */
+.kyraAdminConflictSlideContainer .kyraAdminConflictEditFooterBar,
+.kyraAdminConflictEditFooterBar {
+    margin-top: 16px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid #E2E8F0 !important;
 }
 
 /* ==========================================================================

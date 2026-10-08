@@ -1,4 +1,4 @@
-<mvc:View
+﻿<mvc:View
     controllerName="kyra001.pages.access.AccessPage"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -2005,7 +2005,7 @@
                                     <TextArea
                                         value="{accessModel>/newConflictDraft/description}"
                                         placeholder="Enter conflict description..."
-                                        rows="2"
+                                        rows="3"
                                         growing="false"
                                         width="100%"
                                         class="kyraAdminBuilderTextArea" />
@@ -2460,6 +2460,7 @@
                                 <core:Icon
                                     id="arrowPendingRequests"
                                     src="{= ${accessModel>/showPendingSection} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    press=".onNavToPendingRequests"
                                     class="kyraArrowIcon" />
                             </HBox>
                         </HBox>
@@ -2486,6 +2487,7 @@
                                 <core:Icon
                                     id="arrowAddAccess"
                                     src="{= ${accessModel>/showAddAccessSector} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    press=".onNavToAddAccess"
                                     class="kyraArrowIcon" />
                             </HBox>
                         </HBox>
@@ -2512,6 +2514,7 @@
                                 <core:Icon
                                     id="arrowRemoveAccess"
                                     src="{= ${accessModel>/showRemoveAccessSector} ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                    press=".onNavToRemoveAccess"
                                     class="kyraArrowIcon" />
                             </HBox>
                         </HBox>
@@ -3801,7 +3804,7 @@
                 <mvc:XMLView 
                     id="approverSectionView"
                     viewName="kyra001.pages.Approver.Approver"
-                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; (${accessModel>/activeRole} === 'Engineering &amp; Developer' || ${accessModel>/activeRole} === 'Compliance Review' || ${accessModel>/activeRole} === 'Compliance Approver' || ${accessModel>/isApproverPersona}) &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" />
+                    visible="{= !!${accessModel>/showApproverSection} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showHistorySection} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }" />
             </VBox>
 
             <!-- DEDICATED REQUEST TRACKING PAGE (Opened on clicking any row in Pending List) -->

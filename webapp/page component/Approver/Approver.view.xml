@@ -97,6 +97,9 @@
                     visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' }"
                     items="{accessModel>/pendingAccessRequests}"
                     fixedLayout="true"
+                    growing="true"
+                    growingThreshold="100"
+                    growingScrollToLoad="true"
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
                     <noData>
@@ -147,6 +150,9 @@
                     visible="{= !${accessModel>/isCompliance} &amp;&amp; ${accessModel>/approverPendingTab} === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
                     fixedLayout="true"
+                    growing="true"
+                    growingThreshold="100"
+                    growingScrollToLoad="true"
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
                     <noData>
@@ -198,6 +204,9 @@
                 visible="{= ${accessModel>/showApprovalHistory} === true }"
                 items="{accessModel>/displayedHistoryRequests}"
                 fixedLayout="true"
+                growing="true"
+                growingThreshold="100"
+                growingScrollToLoad="true"
                 popinLayout="GridSmall"
                 class="sapUiNoMargin kyraApproverTable">
                 <noData>

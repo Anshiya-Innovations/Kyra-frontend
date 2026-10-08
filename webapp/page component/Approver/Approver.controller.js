@@ -41,8 +41,8 @@ sap.ui.define([
         if (!num) return "";
         const str = String(num).trim();
         const parts = str.split("-");
-        if (parts.length >= 3) {
-            return parts.slice(0, 3).join("-");
+        if (parts.length >= 4 && /^\d{1,2}$/.test(parts[parts.length - 1])) {
+            return parts.slice(0, -1).join("-");
         }
         return str;
     }
@@ -183,11 +183,32 @@ sap.ui.define([
         _syncModelAndRequests() {
             const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
-                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
-                const isCompliance = sActiveRole.includes("compliance");
+                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").trim();
+                const sRoleLower = sActiveRole.toLowerCase();
+                const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester");
+                const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator");
+                const isCompliance = !bIsRequester && !bIsAdmin && sRoleLower.includes("compliance");
+                const isApprover = !bIsRequester && !bIsAdmin && (sRoleLower.includes("approver") || isCompliance);
+                const bShowApproverSection = !bIsRequester && !bIsAdmin && isApprover;
+
                 oModel.setProperty("/isCompliance", isCompliance);
                 oModel.setProperty("/isComplianceReviewer", isCompliance);
                 oModel.setProperty("/isCompliancePersona", isCompliance);
+                oModel.setProperty("/isApproverPersona", isApprover);
+                oModel.setProperty("/showApproverSection", bShowApproverSection);
+
+                const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+                if (oCompModel && oCompModel !== oModel) {
+                    oCompModel.setProperty("/isCompliance", isCompliance);
+                    oCompModel.setProperty("/isComplianceReviewer", isCompliance);
+                    oCompModel.setProperty("/isCompliancePersona", isCompliance);
+                    oCompModel.setProperty("/isApproverPersona", isApprover);
+                    oCompModel.setProperty("/showApproverSection", bShowApproverSection);
+                }
+
+                if (!bShowApproverSection) {
+                    return;
+                }
 
                 if (!oModel.getProperty("/approverPendingTab") || isCompliance) {
                     oModel.setProperty("/approverPendingTab", "accessRequests");
@@ -1198,7 +1219,7 @@ sap.ui.define([
                 const sDbStatus = (r.db_status || r.status || "PENDING").toUpperCase();
                 if (sDbStatus === "EXPIRED") return;
                 const sReqUser = (r.requester_username || r.requesterId || r.requesterUsername || "").trim().toLowerCase();
-                if (sActiveUser && sReqUser === sActiveUser) return;
+                // Allow all submitted requests to appear in Approver / Reviewer queue without self-suppression
 
                 const sBaseId = getBaseReqId(r.request_number || r.requestId || r.id);
                 const info = mBaseInfo[sBaseId] || {
@@ -1229,7 +1250,7 @@ sap.ui.define([
                         if (info.hasComplianceDecided) {
                             isProcessedForRole = true;
                             bRoleApproved = !info.hasComplianceRejected;
-                        } else if (info.hasApproverDecided && (info.statuses.has("PENDING_COMPLIANCE") || !info.statuses.has("PENDING"))) {
+                        } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
                             isPendingForRole = true;
                         }
                     }
@@ -1238,10 +1259,10 @@ sap.ui.define([
                     if (info.hasIam1Decided) {
                         isProcessedForRole = true;
                         bRoleApproved = (r.iam_approver_1_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
-                    } else if (info.statuses.has("PENDING_IAM_1") || 
+                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED" && (info.statuses.has("PENDING_IAM_1") || 
                               (isRevocation && info.hasApproverDecided) ||
                               (!hasConflict && info.hasApproverDecided) ||
-                              (hasConflict && info.hasComplianceDecided)) {
+                              (hasConflict && info.hasComplianceDecided))) {
                         isPendingForRole = true;
                     }
                 } else if (isIam2) {
@@ -1249,7 +1270,7 @@ sap.ui.define([
                     if (info.hasIam2Decided) {
                         isProcessedForRole = true;
                         bRoleApproved = (r.iam_approver_2_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
-                    } else if (info.statuses.has("PENDING_IAM_2") || info.hasIam1Decided) {
+                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED" && (info.statuses.has("PENDING_IAM_2") || info.hasIam1Decided)) {
                         isPendingForRole = true;
                     }
                 } else {
@@ -1258,7 +1279,7 @@ sap.ui.define([
                     if (info.hasApproverDecided) {
                         isProcessedForRole = true;
                         bRoleApproved = !info.hasApproverRejected;
-                    } else if (info.statuses.has("PENDING") || info.statuses.has("PENDING_APPROVER") || info.statuses.has("REVOKE_PENDING") || info.statuses.has("REVOCATION_PENDING") || info.statuses.has("SUBMITTED") || isRevocation) {
+                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
                         isPendingForRole = true;
                     }
                 }
@@ -1770,7 +1791,15 @@ sap.ui.define([
             }
         },
 
-        async _reloadAllRequests(oModel) {
+        async _reloadAllRequests(oModel, bSilent = false) {
+            if (!bSilent) {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading Governance Review...",
+                        subtitle: "Retrieving pending approvals and compliance records..."
+                    });
+                }
+            }
             if (!oModel) return;
 
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
@@ -1881,6 +1910,16 @@ sap.ui.define([
                     this._applyLoadedApproverData(oModel, aRawData, isCompliance);
                 }
             } catch (err) {
+                console.error("Error refreshing OData requests:", err);
+            } finally {
+                if (!bSilent) {
+                    setTimeout(() => {
+                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide();
+                        }
+                    }, 250);
+                }
+            
                 console.error("Error refreshing OData requests:", err);
             }
         },

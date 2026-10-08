@@ -55,11 +55,12 @@ sap.ui.define([
 
     function getBaseReqId(num) {
         if (!num) return "";
-        const parts = String(num).trim().split("-");
-        if (parts.length >= 3) {
-            return parts.slice(0, 3).join("-");
+        const str = String(num).trim();
+        const parts = str.split("-");
+        if (parts.length >= 4 && /^\d{1,2}$/.test(parts[parts.length - 1])) {
+            return parts.slice(0, -1).join("-");
         }
-        return String(num).trim();
+        return str;
     }
 
     function formatArDuration(r, matchingApproved) {
@@ -190,7 +191,10 @@ sap.ui.define([
             if (!this._pollInterval) {
                 this._pollInterval = setInterval(() => {
                     if (!document.hidden && this._bIsDetailViewActive && this.getView() && this.getView().getModel("accessModel")) {
-                        this._reloadAllRequests(oModel);
+                        window._kyraSilentBackgroundSync = true;
+                        Promise.resolve(this._reloadAllRequests(oModel)).finally(() => {
+                            setTimeout(() => { window._kyraSilentBackgroundSync = false; }, 500);
+                        });
                     }
                 }, 10000);
             }

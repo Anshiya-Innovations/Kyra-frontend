@@ -5,20 +5,34 @@ sap.ui.define([], function() {
     let startTime = 0;
     let isVisible = false;
     let iActiveCount = 0;
+    let isBusyIndicatorHooked = false;
+    let isFetchHooked = false;
+    let pageLoadTimestamp = Date.now();
+    let lastUserActionTimestamp = Date.now();
+
+    if (typeof window !== "undefined") {
+        const markAction = () => { lastUserActionTimestamp = Date.now(); };
+        ["pointerdown", "keydown", "click", "touchstart"].forEach(evt => {
+            window.addEventListener(evt, markAction, { passive: true, capture: true });
+        });
+        window.addEventListener("hashchange", markAction, { passive: true });
+        window.addEventListener("popstate", markAction, { passive: true });
+    }
 
     const KyraLoader = {
         /**
-         * Shows or updates the global KYRA loading overlay.
-         * Supports reference counting: multiple concurrent calls increment the counter.
-         * @param {Object|string} options Options object or title string
+         * Shows or updates the global KYRA project-themed loading popup slide.
+         * Only displayed on explicit user actions or explicit calls.
+         * Never triggered by background polling intervals.
+         * @param {Object|string} options
          */
         show(options) {
             if (typeof options === "string") {
                 options = { title: options };
             }
             options = options || {};
-            const sTitle = options.title || "Loading KYRA...";
-            const sSubtitle = options.subtitle || "Please wait a moment...";
+            const sTitle = options.title || "Loading Data...";
+            const sSubtitle = options.subtitle || "Please wait a moment while Kyra retrieves the latest information...";
             const iDuration = options.duration;
             const fnComplete = options.onComplete || (() => {});
 
@@ -26,7 +40,7 @@ sap.ui.define([], function() {
                 iActiveCount = 1;
                 startTime = Date.now();
             } else {
-                iActiveCount = 1;
+                iActiveCount++;
             }
 
             if (dismissTimer) {
@@ -51,7 +65,6 @@ sap.ui.define([], function() {
                 }
             }
 
-            // If card already exists in DOM, smoothly update text without tearing down spinner animation
             const oExistingTitle = overlay.querySelector(".kyraLoadingTitle");
             const oExistingSubtitle = overlay.querySelector(".kyraLoadingSubtitle");
             if (oExistingTitle && oExistingSubtitle) {
@@ -60,7 +73,7 @@ sap.ui.define([], function() {
             } else {
                 overlay.innerHTML = `
                     <div class="kyraLoadingSlideCard">
-                        <div class="kyraSimpleCircleSpinner"></div>
+                        <div class="kyraSimpleSpinner"></div>
                         <div class="kyraLoadingTitle">${sTitle}</div>
                         <div class="kyraLoadingSubtitle">${sSubtitle}</div>
                     </div>
@@ -72,20 +85,24 @@ sap.ui.define([], function() {
             overlay.style.setProperty("opacity", "1", "important");
             overlay.style.setProperty("pointer-events", "all", "important");
 
-            // Safety timeout: auto-hide after duration or default 5s so application never hangs indefinitely
-            const iEffectiveDuration = (typeof iDuration === "number" && iDuration > 0) ? iDuration : 5000;
+            // Safety timeout: auto-hide after duration or default 6s so app never hangs
+            const iEffectiveDuration = (typeof iDuration === "number" && iDuration > 0) ? iDuration : 6000;
             dismissTimer = setTimeout(() => {
                 this.forceHide(fnComplete);
             }, iEffectiveDuration);
         },
 
         /**
-         * Hides the global KYRA loading overlay immediately and safely.
-         * @param {Function} [callback] Optional callback invoked after removal
-         * @param {number} [minDisplayTime=0] Minimum milliseconds to keep loader displayed
-         * @param {boolean} [bForce=false] If true, resets active counter and forces immediate dismissal
+         * Gracefully hides the global KYRA loading popup slide.
+         * @param {Function} [callback]
+         * @param {number} [minDisplayTime=0]
+         * @param {boolean} [bForce=false]
          */
         hide(callback, minDisplayTime = 0, bForce = false) {
+            if (!bForce && iActiveCount > 1) {
+                iActiveCount--;
+                return;
+            }
             iActiveCount = 0;
 
             if (dismissTimer) {
@@ -135,7 +152,7 @@ sap.ui.define([], function() {
         },
 
         /**
-         * Forcibly hides the loader immediately, resetting all pending request counts.
+         * Forcibly hides the loader immediately.
          * @param {Function} [callback]
          */
         forceHide(callback) {
@@ -151,20 +168,24 @@ sap.ui.define([], function() {
             return iActiveCount;
         },
 
+        /**
+         * Embeds the modern Kyra project design, colour, and theme styles.
+         */
         _ensureStyles() {
             if (typeof document === "undefined") return;
             if (!document.getElementById("kyra_loading_placement_styles")) {
                 const style = document.createElement("style");
                 style.id = "kyra_loading_placement_styles";
                 style.textContent = `
+                    /* Backdrop Overlay with smooth frosted blur */
                     .kyraLoadingSlideOverlay {
                         position: fixed !important;
                         top: 0 !important;
                         left: 0 !important;
                         right: 0 !important;
                         bottom: 0 !important;
-                        width: 100% !important;
-                        height: 100% !important;
+                        width: 100vw !important;
+                        height: 100vh !important;
                         background: rgba(15, 23, 42, 0.45) !important;
                         backdrop-filter: blur(6px) !important;
                         -webkit-backdrop-filter: blur(6px) !important;
@@ -172,14 +193,14 @@ sap.ui.define([], function() {
                         align-items: center !important;
                         justify-content: center !important;
                         margin: 0 !important;
-                        padding: 0 !important;
+                        padding: 16px !important;
                         box-sizing: border-box !important;
-                        z-index: 999999 !important;
+                        z-index: 9999999 !important;
                         opacity: 0 !important;
                         pointer-events: none !important;
                         user-select: none !important;
                         -webkit-user-select: none !important;
-                        transition: opacity 0.22s ease !important;
+                        transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
                         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
                     }
                     .kyraLoadingSlideOverlay.kyra-active {
@@ -187,13 +208,16 @@ sap.ui.define([], function() {
                         opacity: 1 !important;
                         pointer-events: all !important;
                     }
+
+                    /* Floating Popup Slide Card - Simple Clean Design from screenshot */
                     .kyraLoadingSlideCard {
                         background: #FFFFFF !important;
-                        width: 380px !important;
-                        max-width: calc(100vw - 48px) !important;
+                        width: 400px !important;
+                        max-width: calc(100vw - 36px) !important;
                         border-radius: 22px !important;
-                        box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.85) !important;
-                        padding: 32px 28px 32px 28px !important;
+                        border: 1px solid rgba(226, 232, 240, 0.85) !important;
+                        box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.16), 0 8px 18px -4px rgba(15, 23, 42, 0.08) !important;
+                        padding: 38px 32px 34px 32px !important;
                         margin: 0 auto !important;
                         text-align: center !important;
                         position: relative !important;
@@ -202,59 +226,194 @@ sap.ui.define([], function() {
                         align-items: center !important;
                         justify-content: center !important;
                         box-sizing: border-box !important;
-                        transform: translateY(14px) scale(0.97) !important;
+                        transform: translateY(12px) scale(0.97) !important;
                         transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
                     }
                     .kyraLoadingSlideOverlay.kyra-active .kyraLoadingSlideCard {
                         transform: translateY(0) scale(1) !important;
                     }
-                    .kyraSimpleCircleSpinner {
+
+                    /* Simple Circular Ring Spinner */
+                    .kyraSimpleSpinner {
                         width: 52px !important;
                         height: 52px !important;
-                        display: block !important;
-                        flex-shrink: 0 !important;
-                        margin: 0 auto 18px auto !important;
                         border-radius: 50% !important;
                         border: 4px solid #E2E8F0 !important;
                         border-top-color: #008C9C !important;
-                        border-right-color: #008C9C !important;
-                        transform-origin: center center !important;
                         animation: kyraSimpleSpin 0.85s linear infinite !important;
+                        margin: 0 auto 22px auto !important;
                         box-sizing: border-box !important;
                     }
                     @keyframes kyraSimpleSpin {
                         0% { transform: rotate(0deg); }
                         100% { transform: rotate(360deg); }
                     }
+
+                    /* Title: Bold & Centered */
                     .kyraLoadingTitle {
                         width: 100% !important;
-                        max-width: 100% !important;
                         text-align: center !important;
-                        font-size: 17px !important;
+                        font-size: 19px !important;
                         font-weight: 700 !important;
                         color: #0F172A !important;
-                        margin: 0 0 8px 0 !important;
+                        margin: 0 0 10px 0 !important;
                         padding: 0 !important;
                         line-height: 1.35 !important;
-                        letter-spacing: -0.01em !important;
-                        box-sizing: border-box !important;
-                        word-break: break-word !important;
+                        letter-spacing: -0.015em !important;
                     }
+
+                    /* Subtitle: Clean Slate & Centered */
                     .kyraLoadingSubtitle {
                         width: 100% !important;
-                        max-width: 324px !important;
+                        max-width: 320px !important;
                         text-align: center !important;
                         font-size: 13.5px !important;
                         font-weight: 400 !important;
                         color: #64748B !important;
-                        line-height: 1.45 !important;
+                        line-height: 1.5 !important;
                         margin: 0 auto !important;
                         padding: 0 !important;
-                        box-sizing: border-box !important;
-                        word-break: break-word !important;
+                    }
+
+                    /* Suppress standard UI5 busy indicator dots so only Kyra's loading slide appears */
+                    .sapUiBusy,
+                    .sapUiBLDay,
+                    .sapUiLocalBusyIndicator {
+                        opacity: 0 !important;
                     }
                 `;
                 document.head.appendChild(style);
+            }
+        },
+
+        /**
+         * Sets up universal hooks for sap.ui.core.BusyIndicator and intelligent fetch interception.
+         * Only triggers on actual user data-running time (navigation, submission, approval, queries)
+         * and NEVER during silent background polling intervals or idle time.
+         */
+        setupGlobalHooks() {
+            if (typeof window === "undefined") return;
+
+            // 1. Hook sap.ui.core.BusyIndicator
+            if (!isBusyIndicatorHooked && typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                isBusyIndicatorHooked = true;
+                const self = this;
+                const origShow = sap.ui.core.BusyIndicator.show;
+                const origHide = sap.ui.core.BusyIndicator.hide;
+
+                sap.ui.core.BusyIndicator.show = function(iDelay) {
+                    self.show({
+                        title: "Processing Request...",
+                        subtitle: "Verifying and synchronizing governance data..."
+                    });
+                    if (typeof origShow === "function") {
+                        origShow.call(this, 999999); // Suppress default dots
+                    }
+                };
+
+                sap.ui.core.BusyIndicator.hide = function() {
+                    self.hide();
+                    if (typeof origHide === "function") {
+                        origHide.apply(this, arguments);
+                    }
+                };
+            }
+
+            // 2. Intelligent Fetch Interceptor for Data-Running Time
+            if (!isFetchHooked && typeof window.fetch === "function") {
+                isFetchHooked = true;
+                const self = this;
+                const origFetch = window.fetch;
+
+                window.fetch = function(...args) {
+                    const resource = args[0];
+                    const init = args[1] || {};
+                    const sUrl = (typeof resource === "string") ? resource : (resource && resource.url ? resource.url : "");
+                    const sMethod = ((init.method) || (resource && resource.method) || "GET").toUpperCase();
+
+                    // Skip static resources (files, assets, html, css, js, json models, icons)
+                    const isStaticAsset = /\.(png|jpg|jpeg|gif|svg|webp|css|js|properties|xml|html)(\?.*)?$/i.test(sUrl);
+                    const isSilentHeader = init.headers && (
+                        init.headers["X-Kyra-Silent"] === "true" || 
+                        (typeof init.headers.get === "function" && init.headers.get("X-Kyra-Silent") === "true")
+                    );
+
+                    // NEVER show during silent background polling or idle "no action time"
+                    const isSilentBackground = window._kyraSilentBackgroundSync === true;
+                    const now = Date.now();
+                    const isRecentUserAction = (now - lastUserActionTimestamp < 4500);
+                    const isInitialPageLoad = (now - pageLoadTimestamp < 6000);
+                    const isDataMutation = (sMethod === "POST" || sMethod === "PUT" || sMethod === "DELETE" || sMethod === "PATCH");
+                    const isDataEndpoint = sUrl.includes("/odata/v4/") || sUrl.includes("/api/") || sUrl.includes("/GovernanceHistory") || sUrl.includes("/SoDMatrix");
+
+                    const shouldShowLoader = !isStaticAsset && !isSilentHeader && !isSilentBackground && isDataEndpoint && (isDataMutation || isRecentUserAction || isInitialPageLoad);
+
+                    if (!shouldShowLoader) {
+                        return origFetch.apply(this, args);
+                    }
+
+                    // Contextual title & subtitle for the Kyra Loading Slide
+                    let sTitle = "Loading Data...";
+                    let sSubtitle = "Retrieving records from Kyra Governance database...";
+
+                    if (sUrl.includes("/submitAccessRequest")) {
+                        sTitle = "Submitting Access Request...";
+                        sSubtitle = "Recording requested entitlements and routing to approvers...";
+                    } else if (sUrl.includes("/submitAccessDecision")) {
+                        sTitle = "Recording Decision...";
+                        sSubtitle = "Saving governance decision and updating audit trail...";
+                    } else if (sUrl.includes("/GovernanceHistory")) {
+                        sTitle = "Loading Governance Records...";
+                        sSubtitle = "Synchronizing active roles, pending requests, and history...";
+                    } else if (sUrl.includes("/SoDMatrix")) {
+                        sTitle = "Analyzing Conflicts...";
+                        sSubtitle = "Evaluating Segregation of Duties (SoD) risk rules...";
+                    } else if (sUrl.includes("/convertUserPersona") || sUrl.includes("/convertDepartmentPersona")) {
+                        sTitle = "Converting Persona...";
+                        sSubtitle = "Updating user persona classifications in database...";
+                    } else if (sUrl.includes("/saveAdminCustomization")) {
+                        sTitle = "Saving Configuration...";
+                        sSubtitle = "Persisting governance customization settings...";
+                    } else if (sUrl.includes("/testConnection") || sUrl.includes("/testKyraConnection")) {
+                        sTitle = "Testing Database Connection...";
+                        sSubtitle = "Verifying connectivity and schema authorization...";
+                    } else if (sUrl.includes("/migrateData")) {
+                        sTitle = "Migrating Governance Data...";
+                        sSubtitle = "Updating database records and structural tables...";
+                    } else if (sUrl.includes("/login")) {
+                        sTitle = "Authenticating User...";
+                        sSubtitle = "Verifying credentials and security permissions...";
+                    }
+
+                    let showTimer = null;
+                    let bShown = false;
+
+                    if (isDataMutation) {
+                        bShown = true;
+                        self.show({ title: sTitle, subtitle: sSubtitle });
+                    } else {
+                        showTimer = setTimeout(() => {
+                            bShown = true;
+                            self.show({ title: sTitle, subtitle: sSubtitle });
+                        }, 100);
+                    }
+
+                    return origFetch.apply(this, args)
+                        .then(res => {
+                            if (showTimer) clearTimeout(showTimer);
+                            if (bShown) {
+                                self.hide(null, 320);
+                            }
+                            return res;
+                        })
+                        .catch(err => {
+                            if (showTimer) clearTimeout(showTimer);
+                            if (bShown) {
+                                self.hide(null, 320);
+                            }
+                            throw err;
+                        });
+                };
             }
         },
 
@@ -288,6 +447,10 @@ sap.ui.define([], function() {
         window.forceHideKyraLoading = (callback) => {
             return KyraLoader.forceHide(callback);
         };
+
+        // Automatically initialize hooks and styles
+        KyraLoader._ensureStyles();
+        KyraLoader.setupGlobalHooks();
     }
 
     return KyraLoader;

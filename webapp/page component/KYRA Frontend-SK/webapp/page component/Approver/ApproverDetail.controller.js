@@ -35,29 +35,32 @@ sap.ui.define([
 
     function deriveServiceTopicFromRole(roleStr, rawService) {
         const sRawService = String(rawService || "").replace(/\s*\([^)]*\)/g, "").trim();
-        if (sRawService === "System Administrator" || sRawService === "System Owners" || sRawService === "Stakeholders") {
+        if (sRawService && sRawService !== "Corporate Governance" && sRawService !== "Finance" && sRawService !== "Logistics" && sRawService !== "Supply Chain") {
             return sRawService;
         }
-        const rLower = String(roleStr || "").toLowerCase();
-        if (rLower.includes("system admin") || rLower.includes("it developer") || rLower.includes("developer") || rLower.includes("it admin") || rLower.includes("it security") || rLower.includes("security")) {
-            return "";
+        const rStr = String(roleStr || "");
+        const match = rStr.match(/\((.*?)\)/);
+        if (match && match[1]) {
+            return match[1].trim();
         }
+        const rLower = rStr.toLowerCase();
         if (rLower.includes("system owner") || rLower.includes("product group engineer") || rLower.includes("technical product owner") || rLower.includes("engineer") || rLower.includes("owner")) {
             return "System Owners";
         }
         if (rLower.includes("stakeholder") || rLower.includes("isrm") || rLower.includes("line manager") || rLower.includes("compliance manager") || rLower.includes("compliance")) {
             return "Stakeholders";
         }
-        return "";
+        return sRawService || "";
     }
 
     function getBaseReqId(num) {
         if (!num) return "";
-        const parts = String(num).trim().split("-");
-        if (parts.length >= 3) {
-            return parts.slice(0, 3).join("-");
+        const str = String(num).trim();
+        const parts = str.split("-");
+        if (parts.length >= 4 && /^\d{1,2}$/.test(parts[parts.length - 1])) {
+            return parts.slice(0, -1).join("-");
         }
-        return String(num).trim();
+        return str;
     }
 
     function formatArDuration(r, matchingApproved) {
@@ -107,6 +110,7 @@ sap.ui.define([
 
             const oModel = this.getOwnerComponent().getModel("accessModel");
             if (oModel) {
+                this.getView().setModel(oModel, "accessModel");
                 this._setupRealtimeSync(oModel);
             }
         },
@@ -187,7 +191,10 @@ sap.ui.define([
             if (!this._pollInterval) {
                 this._pollInterval = setInterval(() => {
                     if (!document.hidden && this._bIsDetailViewActive && this.getView() && this.getView().getModel("accessModel")) {
-                        this._reloadAllRequests(oModel);
+                        window._kyraSilentBackgroundSync = true;
+                        Promise.resolve(this._reloadAllRequests(oModel)).finally(() => {
+                            setTimeout(() => { window._kyraSilentBackgroundSync = false; }, 500);
+                        });
                     }
                 }, 10000);
             }
@@ -344,22 +351,32 @@ sap.ui.define([
 
                     const cleanRole = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").trim();
                     const getCleanServiceTopic = (req) => {
-                        let s = req.serviceTopic || req.service_topic || req.service || req.team;
+                        let s = req.serviceTopic || req.service_topic || req.service;
                         if (!s || s === req.function || s === req.business_function || s.includes("Governance") || s.includes("Finance") || s.includes("Logistics") || s.includes("Supply Chain")) {
                             const roleStr = (req.roleName || req.role_name || req.selectedPersona || req.selected_persona || "").toLowerCase();
                             if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("analyst")) {
                                 return "System Owners";
                             } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("manager") || roleStr.includes("grc") || roleStr.includes("audit") || roleStr.includes("security")) {
                                 return "Stakeholders";
-                            } else {
-                                return "";
                             }
                         }
-                        return String(s).replace(/\s*\([^)]*\)/g, "").trim() || "System Administrator";
+                        return String(s || "").replace(/\s*\([^)]*\)/g, "").trim();
                     };
 
                     if (oRequest.entitlements && oRequest.entitlements.length > 0) {
+                        const seenEntKeys = new Set();
                         oRequest.entitlements.forEach(ent => {
+                            const sItemReqId = ent.requestId || oRequest.requestId || "";
+                            const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
+                            const sService = getCleanServiceTopic(ent) || getCleanServiceTopic(oRequest);
+                            const sTeam = cleanRole(sRawRole);
+                            const sPersona = cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "");
+                            const sSys = ent.system || oRequest.system || "SAP System";
+
+                            const sEntUniqueKey = `${sItemReqId}:::${sSys}:::${sTeam}:::${sPersona}`;
+                            if (seenEntKeys.has(sEntUniqueKey)) return;
+                            seenEntKeys.add(sEntUniqueKey);
+
                             const sInitStatus = (ent.status === "Approved" || ent.status === "Rejected") ? ent.status : "Pending";
                             const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
                             const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
@@ -369,14 +386,9 @@ sap.ui.define([
                                 sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
                             }
 
-                            const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
-                            const sService = getCleanServiceTopic(ent) || getCleanServiceTopic(oRequest);
-                            const sTeam = cleanRole(sRawRole);
-                            const sPersona = cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "");
-
                             aEntList.push({
-                                requestId: ent.requestId || oRequest.requestId,
-                                system: ent.system || oRequest.system || "SAP System",
+                                requestId: sItemReqId,
+                                system: sSys,
                                 services: sService,
                                 serviceTopic: sService,
                                 service: sService,
@@ -563,18 +575,18 @@ sap.ui.define([
                             }
                             // Clean fallback safeguards so wrong placeholder data is never displayed
                             if (!item.services || item.services.toLowerCase().includes("revocation")) {
-                                item.services = "System Administrator";
-                                item.serviceTopic = "System Administrator";
-                                item.service = "System Administrator";
+                                item.services = (matchingApproved && matchingApproved.service_topic) || (matchingApproved && matchingApproved.service) || item.serviceTopic || item.service || "";
+                                item.serviceTopic = item.services;
+                                item.service = item.services;
                             }
-                            if (!item.team || item.team.toLowerCase().includes("administrator")) {
-                                item.team = "IT Developers";
-                                item.teamName = "IT Developers";
-                                item.roleName = "IT Developers";
+                            if (!item.team) {
+                                item.team = (matchingApproved && matchingApproved.role_name) || item.teamName || item.roleName || "";
+                                item.teamName = item.team;
+                                item.roleName = item.team;
                             }
                             if (!item.selectedPersona || item.selectedPersona.toLowerCase() === "requester" || item.selectedPersona.toLowerCase() === "user") {
-                                item.selectedPersona = "Frontend & UI Developer";
-                                item.persona = "Frontend & UI Developer";
+                                item.selectedPersona = (matchingApproved && matchingApproved.selected_persona) || item.persona || "";
+                                item.persona = item.selectedPersona;
                             }
                             if (!item.grantedDate) {
                                 item.grantedDate = "2026-09-17";
@@ -599,8 +611,13 @@ sap.ui.define([
                     };
 
                     const oGroupedMap = {};
+                    const seenTableItems = new Set();
                     aEntList.forEach(item => {
                         const sSys = item.system || "SAP System";
+                        const sItemKey = `${item.requestId}:::${sSys}:::${item.team || item.roleName}:::${item.selectedPersona || item.persona}`;
+                        if (seenTableItems.has(sItemKey)) return;
+                        seenTableItems.add(sItemKey);
+
                         if (!oGroupedMap[sSys]) {
                             oGroupedMap[sSys] = {
                                 systemName: sSys,
@@ -1378,7 +1395,14 @@ sap.ui.define([
         },
 
         _showDecisionSummarySlide(oData, bReadOnly) {
-            const aEntitlements = oData.entitlements || [];
+            const rawEntitlements = oData.entitlements || [];
+            const seenEntSummary = new Set();
+            const aEntitlements = rawEntitlements.filter(e => {
+                const sKey = `${e.requestId || oData.requestId || ''}:::${e.system || oData.system || ''}:::${e.team || e.roleName || ''}:::${e.selectedPersona || e.persona || ''}`;
+                if (seenEntSummary.has(sKey)) return false;
+                seenEntSummary.add(sKey);
+                return true;
+            });
 
             // Separate items based on explicit approved / rejected status
             const aApprovedItems = aEntitlements.filter(e => {
@@ -1607,11 +1631,15 @@ sap.ui.define([
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
             window._kyraDecisionInFlight = true;
             window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
-            const oModel = this.getView().getModel("accessModel");
-            if (!oModel) {
+            window._kyraGovFetchPromise = null;
+
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (!oModel && !oCompModel) {
                 return;
             }
 
+            // Immediately display the submitting loader
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                 window.KyraLoader.show({
                     title: "Submitting Access Decision...",
@@ -1625,13 +1653,282 @@ sap.ui.define([
             }
 
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
-            const bIsComplianceApprover = (sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Compliance Review");
+            const sActiveRoleLower = sActiveRole.toLowerCase();
+            const bIsComplianceApprover = (sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Compliance Review" || sActiveRoleLower.includes("compliance"));
+            const isReqRevocation = !!(oData.isRevocation || oData.type === "Revocation" || (oData.accessType && String(oData.accessType).toUpperCase().includes("REV")) || String(oData.requestId || "").startsWith("REV-"));
 
+            const sReqIdNorm = String(oData.requestId || "").trim().toUpperCase();
+            const sSubTargetBase = getBaseReqId(sReqIdNorm).toUpperCase();
+
+            // ═══════════════════════════════════════════════════════════════════════
+            // STEP 1: INSTANT OPTIMISTIC MOVE TO HISTORY WHILE LOADING IS HAPPENING
+            // ═══════════════════════════════════════════════════════════════════════
+            const sNowIso = new Date().toISOString();
+            const sTodayStr = sNowIso.split("T")[0];
+            const sSec = oData.businessSector || oData.sector || "Information Technology & Security";
+            const sFunc = oData.businessFunction || oData.function || "Corporate Governance";
+            const sDur = oData.duration || oData.accessDuration || "Permanent (Default)";
+
+            const isSubTargetReq = (id) => {
+                if (!id) return false;
+                const s = String(id).trim().toUpperCase();
+                return s === sReqIdNorm || s === sSubTargetBase || getBaseReqId(s).toUpperCase() === sSubTargetBase;
+            };
+
+            const sUi5State = (sOverallStatus === "Approved") ? "Success" : ((sOverallStatus === "Rejected") ? "Error" : "Warning");
+            const sUi5Icon = (sOverallStatus === "Approved") ? "sap-icon://sys-enter-2" : ((sOverallStatus === "Rejected") ? "sap-icon://error" : "sap-icon://alert");
+
+            const rawDetailEnts = oData.entitlements || [];
+            const seenDetailEnts = new Set();
+            const aDedupedDetailEnts = rawDetailEnts.filter(e => {
+                const sKey = `${e.requestId || oData.requestId || ''}:::${e.system || oData.system || ''}:::${e.roleName || e.team || ''}:::${e.selectedPersona || e.persona || ''}`;
+                if (seenDetailEnts.has(sKey)) return false;
+                seenDetailEnts.add(sKey);
+                return true;
+            });
+
+            let aEntitlementsFormatted = aDedupedDetailEnts.map(e => {
+                const isRej = (e.status || "").toLowerCase().includes("reject");
+                return {
+                    requestId: e.requestId || oData.requestId,
+                    system: e.system,
+                    roleName: e.roleName,
+                    team: oData.team || oData.roleName || oData.serviceTopic || "",
+                    serviceTopic: oData.serviceTopic || "",
+                    selectedPersona: cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || ""),
+                    persona: cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || ""),
+                    status: isRej ? "Rejected" : "Approved",
+                    statusState: isRej ? "Error" : "Success",
+                    statusIcon: isRej ? "sap-icon://error" : "sap-icon://sys-enter-2",
+                    comment: e.comment || e.comments || ""
+                };
+            });
+
+            if (!aEntitlementsFormatted || aEntitlementsFormatted.length === 0) {
+                const isRej = (sOverallStatus || "").toLowerCase().includes("reject");
+                aEntitlementsFormatted = [{
+                    requestId: oData.requestId,
+                    system: oData.system || "SAP System",
+                    roleName: oData.roleName || oData.serviceAndRole || "System Entitlement",
+                    team: oData.team || oData.serviceTopic || "",
+                    serviceTopic: oData.serviceTopic || "",
+                    selectedPersona: cleanPersonaName(oData.selectedPersona || oData.persona || "User"),
+                    persona: cleanPersonaName(oData.selectedPersona || oData.persona || "User"),
+                    status: isRej ? "Rejected" : "Approved",
+                    statusState: isRej ? "Error" : "Success",
+                    statusIcon: isRej ? "sap-icon://error" : "sap-icon://sys-enter-2",
+                    comment: isRej ? "Rejected by Approver" : "Approved by Approver"
+                }];
+            }
+
+            const oNewProcessedItem = {
+                requestId: sSubTargetBase || oData.requestId,
+                requesterId: oData.requesterId || oData.requesterUsername || "User",
+                requesterUsername: oData.requesterId || oData.requesterUsername || "User",
+                selectedPersona: oData.selectedPersona || oData.persona || "User",
+                persona: oData.persona || oData.selectedPersona || "User",
+                sector: sSec,
+                businessSector: sSec,
+                function: sFunc,
+                businessFunction: sFunc,
+                duration: sDur,
+                accessDuration: sDur,
+                region: oData.region || oData.operatingRegion || "Global Enterprise (ALL)",
+                operatingRegion: oData.operatingRegion || oData.region || "Global Enterprise (ALL)",
+                justification: oData.justification || "",
+                type: isReqRevocation ? "Revocation" : (oData.type || "Addition"),
+                serviceTopic: oData.serviceTopic || "",
+                decisionDate: sTodayStr,
+                submissionDate: oData.submissionDate || (oData.created_at ? String(oData.created_at).split("T")[0] : sTodayStr),
+                createdAtRaw: oData.createdAtRaw || oData.created_at || sNowIso,
+                created_at: oData.created_at || oData.createdAtRaw || sNowIso,
+                updatedAtRaw: sNowIso,
+                updated_at: sNowIso,
+                status: sOverallStatus,
+                statusState: sUi5State,
+                statusIcon: sUi5Icon,
+                isRevocation: isReqRevocation,
+                _isPendingForRole: false,
+                entitlements: aEntitlementsFormatted
+            };
+
+            // Remove from pending
+            let aCurrentPending = (oModel && oModel.getProperty("/pendingRequests")) || [];
+            let aCurrentProcessed = (oModel && oModel.getProperty("/processedRequests")) || [];
+
+            aCurrentPending = aCurrentPending.filter(req => {
+                if (isSubTargetReq(req.requestId) || isSubTargetReq(req.request_number)) return false;
+                if (req.entitlements && req.entitlements.some(e => isSubTargetReq(e.requestId))) return false;
+                return true;
+            });
+            const isRevH = (p) => !!(p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-") || String(p.accessType || '').toUpperCase().includes("REV"));
+            const aAccessPending = aCurrentPending.filter(p => !isRevH(p));
+            const aRevokePending = aCurrentPending.filter(p => isRevH(p));
+
+            // Prepend to processed
+            aCurrentProcessed = aCurrentProcessed.filter(p => !isSubTargetReq(p.requestId) && !isSubTargetReq(p.request_number));
+            aCurrentProcessed.unshift(oNewProcessedItem);
+
+            const aAccessProcessed = aCurrentProcessed.filter(p => !isRevH(p));
+            const aRevokeProcessed = aCurrentProcessed.filter(p => isRevH(p));
+
+            const sHistTab = isReqRevocation ? "revokeRequests" : "accessRequests";
+            const aDispHist = bIsComplianceApprover ? aAccessProcessed : (sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed);
+
+            // Synchronously update BOTH local view model and OwnerComponent model
+            [oModel, oCompModel].forEach(m => {
+                if (!m) return;
+                m.setProperty("/pendingRequests", bIsComplianceApprover ? aAccessPending : aCurrentPending);
+                m.setProperty("/pendingAccessRequests", aAccessPending);
+                m.setProperty("/pendingRevokeRequests", aRevokePending);
+                m.setProperty("/pendingAccessCount", aAccessPending.length);
+                m.setProperty("/pendingRevokeCount", aRevokePending.length);
+                m.setProperty("/processedRequests", aCurrentProcessed);
+                m.setProperty("/processedAccessRequests", aAccessProcessed);
+                m.setProperty("/processedRevokeRequests", aRevokeProcessed);
+                m.setProperty("/processedAccessCount", aAccessProcessed.length);
+                m.setProperty("/processedRevokeCount", aRevokeProcessed.length);
+                m.setProperty("/processedCount", aCurrentProcessed.length);
+                m.setProperty("/historyAccessRequests", aAccessProcessed);
+                m.setProperty("/historyRevokeRequests", aRevokeProcessed);
+                m.setProperty("/historyAccessCount", aAccessProcessed.length);
+                m.setProperty("/historyRevokeCount", aRevokeProcessed.length);
+                m.setProperty("/displayedHistoryRequests", aDispHist);
+                m.setProperty("/showApprovalHistory", true);
+                m.setProperty("/approverHistoryTab", sHistTab);
+                m.setProperty("/selectedTabKey", "myAccess");
+                m.setProperty("/showRequestDetailsPage", false);
+                m.setProperty("/showAddAccessSector", false);
+                m.setProperty("/showRemoveAccessSector", false);
+            });
+
+            // Synchronously register in decided map
+            window._kyraLastDecisionSubmitTime = Date.now();
+            window._kyraLastDecidedReqId = sSubTargetBase;
+
+            let oDecidedMap = {};
             try {
-                // Evaluate if this request has ANY conflicts in the SoD tables or request data
-                const aActiveConflicts = oModel.getProperty("/selectedRequestSodActiveConflicts") || [];
-                const aPendingConflicts = oModel.getProperty("/selectedRequestSodPendingConflicts") || [];
-                const aBatchConflicts = oModel.getProperty("/selectedRequestSodBatchConflicts") || [];
+                oDecidedMap = JSON.parse(sessionStorage.getItem("kyra_decided_requests_map") || "{}");
+            } catch(e) {}
+            if (!window._kyraDecidedRequestsMap) window._kyraDecidedRequestsMap = {};
+
+            const oDecidedRecord = {
+                requestId: sReqIdNorm,
+                baseRequestId: sSubTargetBase,
+                status: sOverallStatus,
+                actorRole: sActiveRole,
+                isCompliance: bIsComplianceApprover,
+                timestamp: Date.now()
+            };
+            window._kyraDecidedRequestsMap[sReqIdNorm] = oDecidedRecord;
+            window._kyraDecidedRequestsMap[sSubTargetBase] = oDecidedRecord;
+            oDecidedMap[sReqIdNorm] = oDecidedRecord;
+            oDecidedMap[sSubTargetBase] = oDecidedRecord;
+            (oData.entitlements || []).forEach(e => {
+                if (e.requestId) {
+                    const eNorm = String(e.requestId).trim().toUpperCase();
+                    window._kyraDecidedRequestsMap[eNorm] = oDecidedRecord;
+                    oDecidedMap[eNorm] = oDecidedRecord;
+                    const eBase = getBaseReqId(eNorm).toUpperCase();
+                    if (eBase) {
+                        window._kyraDecidedRequestsMap[eBase] = oDecidedRecord;
+                        oDecidedMap[eBase] = oDecidedRecord;
+                    }
+                }
+            });
+            try {
+                sessionStorage.setItem("kyra_decided_requests_map", JSON.stringify(oDecidedMap));
+            } catch(e) {}
+
+            // Synchronously mutate in-memory & cached governance requests
+            let aGovCache = window._kyraCachedGovRequests;
+            if (!aGovCache || !Array.isArray(aGovCache) || !aGovCache.length) {
+                try {
+                    const sGov = sessionStorage.getItem("kyra_cached_gov_requests") || localStorage.getItem("kyra_cached_gov_requests");
+                    if (sGov) aGovCache = JSON.parse(sGov);
+                } catch(eG) {}
+            }
+            if (aGovCache && Array.isArray(aGovCache)) {
+                aGovCache.forEach(r => {
+                    const rId = String(r.request_number || r.requestId || r.id || "").trim().toUpperCase();
+                    const rBase = getBaseReqId(rId).toUpperCase();
+                    if (isSubTargetReq(rId) || isSubTargetReq(rBase)) {
+                        if (bIsComplianceApprover) {
+                            r.compliance_status = sOverallStatus.toUpperCase();
+                            r.compliance_decision_status = sOverallStatus.toUpperCase();
+                            r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
+                            r.db_status = r.status;
+                        } else {
+                            r.approver_status = sOverallStatus.toUpperCase();
+                            r.approver_decision_status = sOverallStatus.toUpperCase();
+                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
+                            r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                            r.db_status = r.status;
+                        }
+                        r.updated_at = sNowIso;
+                    }
+                });
+                window._kyraCachedGovRequests = aGovCache;
+                try {
+                    sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aGovCache));
+                    localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(aGovCache));
+                } catch(e) {}
+            }
+
+            // Synchronously persist storage keys
+            try {
+                sessionStorage.setItem("kyra_show_approval_history", "true");
+                sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
+                sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
+                sessionStorage.setItem("kyra_select_tab", "myAccess");
+                sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
+                if (isReqRevocation || sOverallStatus === "Approved" || sOverallStatus === "Rejected") {
+                    const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => !isSubTargetReq(item.requestId))));
+                    const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
+                    localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => !isSubTargetReq(item.requestId))));
+                }
+            } catch(eStorage) {
+                console.warn("Storage warning:", eStorage);
+            }
+
+            // Requester user notification
+            try {
+                const sTargetRequester = (oData.requesterId || oData.requesterUsername || "").trim().toLowerCase();
+                if (sTargetRequester) {
+                    const sReqStorageKey = "kyra_user_notifications_" + sTargetRequester;
+                    const aUserNotifications = JSON.parse(sessionStorage.getItem(sReqStorageKey) || "[]");
+                    const sOverallComment = (oData.entitlements || []).map(e => e.comment || e.comments).filter(Boolean).join("; ") || (sOverallStatus === "Approved" ? "Access approved for this requester." : (sOverallStatus === "Rejected" ? "Access rejected." : "Decision updated."));
+                    let sNotifDesc = "Your access request (" + oData.requestId + ") for " + sSec + " has been " + sOverallStatus.toLowerCase() + " by the " + sActiveRole + ".";
+                    if (sOverallComment) {
+                        sNotifDesc += ' Approver Remark: "' + sOverallComment + '"';
+                    }
+                    aUserNotifications.unshift({
+                        id: "NOTIF-" + Date.now(),
+                        scope: "my",
+                        requesterId: oData.requesterId || oData.requesterUsername || "",
+                        requestId: oData.requestId,
+                        title: sOverallStatus === "Approved" ? ("Access Request Approved: " + oData.requestId) : (sOverallStatus === "Rejected" ? ("Access Request Rejected: " + oData.requestId) : ("Access Request Partially Approved: " + oData.requestId)),
+                        description: sNotifDesc,
+                        approverComment: sOverallComment,
+                        type: sOverallStatus === "Approved" ? "approved" : (sOverallStatus === "Rejected" ? "rejected" : "approved"),
+                        category: "Access Decisions",
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", " + new Date().toLocaleDateString(),
+                        state: sUi5State,
+                        icon: sUi5Icon,
+                        unread: true
+                    });
+                    sessionStorage.setItem(sReqStorageKey, JSON.stringify(aUserNotifications));
+                }
+            } catch(eNotif) {}
+
+            // ═══════════════════════════════════════════════════════════════════════
+            // STEP 2: PERSIST TO BACKEND DATABASE WHILE LOADER REMAINS VISIBLE
+            // ═══════════════════════════════════════════════════════════════════════
+            try {
+                const aActiveConflicts = (oModel && oModel.getProperty("/selectedRequestSodActiveConflicts")) || [];
+                const aPendingConflicts = (oModel && oModel.getProperty("/selectedRequestSodPendingConflicts")) || [];
+                const aBatchConflicts = (oModel && oModel.getProperty("/selectedRequestSodBatchConflicts")) || [];
                 const bHasConflict = (
                     aActiveConflicts.length > 0 ||
                     aPendingConflicts.length > 0 ||
@@ -1643,14 +1940,10 @@ sap.ui.define([
                     (oData.entitlements || []).some(e => e.hasConflict === true || e.has_conflict === true || !!e.conflictingRole || !!e.conflicting_role)
                 );
 
-                const isReqRevocation = !!(oData.isRevocation || oData.type === "Revocation" || (oData.accessType && String(oData.accessType).toUpperCase().includes("REV")) || String(oData.requestId || "").startsWith("REV-"));
-
-                // Build decisions payload for backend persistence with approver comments
                 let aDecisionsPayload = (oData.entitlements || []).map(e => {
                     const isRejected = (e.status || "").toLowerCase().includes("reject");
                     let sStatus = isRejected ? "REJECTED" : "APPROVED";
                     let sComment = e.comment || e.comments || (isRejected ? "Rejected by Approver" : "Approved by Approver");
-
                     return {
                         requestNumber: e.requestId || oData.requestId,
                         targetSystem: e.system || oData.system,
@@ -1679,7 +1972,6 @@ sap.ui.define([
                     }];
                 }
 
-                // 1. AWAIT backend persistence FIRST so DB is 100% updated BEFORE updating local model/storage
                 const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "emp081";
                 const oResp = await fetch("/odata/v4/auth/submitAccessDecision", {
                     method: "POST",
@@ -1706,248 +1998,14 @@ sap.ui.define([
                 const respData = await oResp.json().catch(() => ({}));
                 console.log("Decision persisted into database successfully:", respData);
 
-                // 2. Immediately update pending queue and counts in model
-                let aCurrentPending = oModel.getProperty("/pendingRequests") || [];
-                let aCurrentProcessed = oModel.getProperty("/processedRequests") || [];
-
-                const sSubTargetBase = getBaseReqId(oData.requestId).toUpperCase();
-                const isSubTargetReq = (id) => {
-                    if (!id) return false;
-                    const s = String(id).trim().toUpperCase();
-                    return s === sSubTargetBase || getBaseReqId(s).toUpperCase() === sSubTargetBase;
-                };
-                aCurrentPending = aCurrentPending.filter(req => !isSubTargetReq(req.requestId) && !isSubTargetReq(req.request_number));
-                const isRevH = (p) => !!(p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-") || String(p.accessType || '').toUpperCase().includes("REV"));
-                const aAccessPending = aCurrentPending.filter(p => !isRevH(p));
-                const aRevokePending = aCurrentPending.filter(p => isRevH(p));
-
-                const sortAscSub = (a, b) => {
-                    const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || 0).getTime();
-                    const tB = new Date(b.createdAtRaw || b.created_at || b.createdAt || b.submissionDate || 0).getTime();
-                    if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tA - tB;
-                    return (a.requestId || "").localeCompare(b.requestId || "");
-                };
-                aCurrentPending.sort(sortAscSub);
-                aAccessPending.sort(sortAscSub);
-                aRevokePending.sort(sortAscSub);
-
-                oModel.setProperty("/pendingRequests", aCurrentPending);
-                oModel.setProperty("/pendingAccessRequests", aAccessPending);
-                oModel.setProperty("/pendingRevokeRequests", aRevokePending);
-                oModel.setProperty("/pendingAccessCount", aAccessPending.length);
-                oModel.setProperty("/pendingRevokeCount", aRevokePending.length);
-
-                const sSec = oData.businessSector || oData.sector || "Information Technology & Security";
-                const sFunc = oData.businessFunction || oData.function || "Corporate Governance";
-                const sDur = oData.duration || "Permanent (Default)";
-
-                // 3. Build newly processed history item with authoritative timestamps so it never flickers or mis-sorts
-                const sNowIso = new Date().toISOString();
-                const sTodayStr = sNowIso.split("T")[0];
-                const oNewProcessedItem = {
-                    requestId: sSubTargetBase || oData.requestId,
-                    requesterId: oData.requesterId || oData.requesterUsername || "User",
-                    requesterUsername: oData.requesterId || oData.requesterUsername || "User",
-                    selectedPersona: oData.selectedPersona || oData.persona || "User",
-                    persona: oData.persona || oData.selectedPersona || "User",
-                    sector: sSec,
-                    businessSector: sSec,
-                    function: sFunc,
-                    businessFunction: sFunc,
-                    duration: sDur,
-                    accessDuration: sDur,
-                    region: oData.region || oData.operatingRegion || "Global Enterprise (ALL)",
-                    operatingRegion: oData.operatingRegion || oData.region || "Global Enterprise (ALL)",
-                    justification: oData.justification || "",
-                    type: isReqRevocation ? "Revocation" : (oData.type || "Addition"),
-                    serviceTopic: oData.serviceTopic || "",
-                    decisionDate: sTodayStr,
-                    submissionDate: oData.submissionDate || (oData.created_at ? String(oData.created_at).split("T")[0] : sTodayStr),
-                    createdAtRaw: oData.createdAtRaw || oData.created_at || sNowIso,
-                    created_at: oData.created_at || oData.createdAtRaw || sNowIso,
-                    updatedAtRaw: sNowIso,
-                    updated_at: sNowIso,
-                    status: sOverallStatus,
-                    statusState: sOverallState,
-                    statusIcon: sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert"),
-                    isRevocation: isReqRevocation,
-                    _isPendingForRole: false,
-                    entitlements: (oData.entitlements || []).map(e => ({
-                        requestId: e.requestId || oData.requestId,
-                        system: e.system,
-                        roleName: e.roleName,
-                        team: oData.team || oData.roleName || oData.serviceTopic || "",
-                        serviceTopic: oData.serviceTopic || "",
-                        selectedPersona: cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || ""),
-                        persona: cleanPersonaName(e.selectedPersona || oData.selectedPersona || e.persona || oData.persona || ""),
-                        status: (e.status || "").toLowerCase().includes("reject") ? "Rejected" : "Approved",
-                        statusState: (e.status || "").toLowerCase().includes("reject") ? "Error" : "Success",
-                        statusIcon: (e.status || "").toLowerCase().includes("reject") ? "sap-icon://error" : "sap-icon://sys-enter-2",
-                        comment: e.comment || e.comments || ""
-                    }))
-                };
-
-                // 4. Immediately prepend to processed list and partitioned history arrays
-                aCurrentProcessed = aCurrentProcessed.filter(p => !isSubTargetReq(p.requestId) && !isSubTargetReq(p.request_number));
-                aCurrentProcessed.unshift(oNewProcessedItem);
-                const sortDescSub = (a, b) => {
-                    const tA = new Date(a.updatedAtRaw || a.updated_at || a.decisionDate || a.createdAtRaw || a.created_at || a.submissionDate || 0).getTime();
-                    const tB = new Date(b.updatedAtRaw || b.updated_at || b.decisionDate || b.createdAtRaw || b.created_at || b.submissionDate || 0).getTime();
-                    if (tA !== tB && !isNaN(tA) && !isNaN(tB)) return tB - tA;
-                    return (b.requestId || "").localeCompare(a.requestId || "");
-                };
-                aCurrentProcessed.sort(sortDescSub);
-
-                const bIsCompliance = !!oModel.getProperty("/isCompliance") || (sActiveRole || "").toLowerCase().includes("compliance");
-                const aAccessProcessed = aCurrentProcessed.filter(p => !p.isRevocation && p.type !== "Revocation" && !String(p.requestId || '').startsWith("REV-"));
-                const aRevokeProcessed = aCurrentProcessed.filter(p => p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-"));
-
-                oModel.setProperty("/processedRequests", aCurrentProcessed);
-                oModel.setProperty("/processedAccessRequests", aAccessProcessed);
-                oModel.setProperty("/processedRevokeRequests", aRevokeProcessed);
-                oModel.setProperty("/processedAccessCount", aAccessProcessed.length);
-                oModel.setProperty("/processedRevokeCount", aRevokeProcessed.length);
-                oModel.setProperty("/processedCount", aCurrentProcessed.length);
-                oModel.setProperty("/historyAccessRequests", aAccessProcessed);
-                oModel.setProperty("/historyRevokeRequests", aRevokeProcessed);
-                oModel.setProperty("/historyAccessCount", aAccessProcessed.length);
-                oModel.setProperty("/historyRevokeCount", aRevokeProcessed.length);
-
-                const sHistTab = oModel.getProperty("/approverHistoryTab") || (isReqRevocation ? "revokeRequests" : "accessRequests");
-                if (isReqRevocation) {
-                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
-                }
-                oModel.setProperty("/displayedHistoryRequests", bIsCompliance ? aAccessProcessed : (sHistTab === "revokeRequests" ? aRevokeProcessed : aAccessProcessed));
-                oModel.setProperty("/showApprovalHistory", true);
-
-                window._kyraGovFetchPromise = null;
-                window._kyraLastDecisionSubmitTime = Date.now();
-                window._kyraLastDecidedReqId = sSubTargetBase;
-
-                // Record decided request IDs in a shared map and sessionStorage
-                const sReqIdNorm = String(oData.requestId || "").trim().toUpperCase();
-                const sReqBaseNorm = getBaseReqId(sReqIdNorm).toUpperCase();
-                let oDecidedMap = {};
-                try {
-                    oDecidedMap = JSON.parse(sessionStorage.getItem("kyra_decided_requests_map") || "{}");
-                } catch(e) {}
-                if (!window._kyraDecidedRequestsMap) window._kyraDecidedRequestsMap = {};
-                
-                const oDecidedRecord = {
-                    requestId: sReqIdNorm,
-                    baseRequestId: sReqBaseNorm,
-                    status: sOverallStatus,
-                    actorRole: sActiveRole,
-                    isCompliance: bIsCompliance,
-                    timestamp: Date.now()
-                };
-                window._kyraDecidedRequestsMap[sReqIdNorm] = oDecidedRecord;
-                window._kyraDecidedRequestsMap[sReqBaseNorm] = oDecidedRecord;
-                oDecidedMap[sReqIdNorm] = oDecidedRecord;
-                oDecidedMap[sReqBaseNorm] = oDecidedRecord;
-                (oData.entitlements || []).forEach(e => {
-                    if (e.requestId) {
-                        const eNorm = String(e.requestId).trim().toUpperCase();
-                        window._kyraDecidedRequestsMap[eNorm] = oDecidedRecord;
-                        oDecidedMap[eNorm] = oDecidedRecord;
-                    }
-                });
-                try {
-                    sessionStorage.setItem("kyra_decided_requests_map", JSON.stringify(oDecidedMap));
-                } catch(e) {}
-
-                // Immediately update in-memory and persisted cached requests
-                if (window._kyraCachedGovRequests && Array.isArray(window._kyraCachedGovRequests)) {
-                    window._kyraCachedGovRequests.forEach(r => {
-                        const rId = String(r.request_number || r.requestId || r.id || "").trim().toUpperCase();
-                        const rBase = getBaseReqId(rId).toUpperCase();
-                        if (rId === sReqIdNorm || rBase === sReqBaseNorm || rId === sReqBaseNorm || rBase === sReqIdNorm) {
-                            if (bIsCompliance) {
-                                r.compliance_status = sOverallStatus.toUpperCase();
-                                r.compliance_decision_status = sOverallStatus.toUpperCase();
-                                r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
-                                r.db_status = r.status;
-                            } else {
-                                r.approver_status = sOverallStatus.toUpperCase();
-                                r.approver_decision_status = sOverallStatus.toUpperCase();
-                                const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                                r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                                r.db_status = r.status;
-                            }
-                            r.updated_at = sNowIso;
-                        }
-                    });
-                    try {
-                        sessionStorage.setItem("kyra_cached_gov_requests", JSON.stringify(window._kyraCachedGovRequests));
-                        localStorage.setItem("kyra_cached_gov_requests", JSON.stringify(window._kyraCachedGovRequests));
-                    } catch(e) {}
-                }
-
-                try {
-                    sessionStorage.setItem("kyra_show_approval_history", "true");
-                    sessionStorage.setItem("kyra_processed_requests", JSON.stringify(aCurrentProcessed));
-                    sessionStorage.setItem("kyra_pending_requests", JSON.stringify(aCurrentPending));
-                    if (isReqRevocation || sOverallStatus === "Approved" || sOverallStatus === "Rejected") {
-                        const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
-                        sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => item.requestId !== oData.requestId)));
-                        const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
-                        localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== oData.requestId)));
-                    }
-                } catch(eStorage) {
-                    console.warn("Storage warning:", eStorage);
-                }
-
                 window._kyraDecisionInFlight = false;
                 window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
-                window._kyraLastDecisionSubmitTime = Date.now();
-                await this._reloadAllRequests(oModel);
                 this._notifyDatabaseMutation();
-
-                // 5. Create user notification for requester
-                const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://alert");
-                const sOverallComment = (oData.entitlements || []).map(e => e.comment || e.comments).filter(Boolean).join("; ") || (sOverallStatus === "Approved" ? "Access approved for this requester." : (sOverallStatus === "Rejected" ? "Access rejected." : "Decision updated."));
-                let sNotifDesc = "Your access request (" + oData.requestId + ") for " + sSec + " has been " + sOverallStatus.toLowerCase() + " by the " + sActiveRole + ".";
-                if (sOverallComment) {
-                    sNotifDesc += ' Approver Remark: "' + sOverallComment + '"';
-                }
-
-                try {
-                    const sTargetRequester = (oData.requesterId || oData.requesterUsername || "").trim().toLowerCase();
-                    if (sTargetRequester) {
-                        const sReqStorageKey = "kyra_user_notifications_" + sTargetRequester;
-                        const aUserNotifications = JSON.parse(sessionStorage.getItem(sReqStorageKey) || "[]");
-                        aUserNotifications.unshift({
-                            id: "NOTIF-" + Date.now(),
-                            scope: "my",
-                            requesterId: oData.requesterId || oData.requesterUsername || "",
-                            requestId: oData.requestId,
-                            title: sOverallStatus === "Approved" ? ("Access Request Approved: " + oData.requestId) : (sOverallStatus === "Rejected" ? ("Access Request Rejected: " + oData.requestId) : ("Access Request Partially Approved: " + oData.requestId)),
-                            description: sNotifDesc,
-                            approverComment: sOverallComment,
-                            type: sOverallStatus === "Approved" ? "approved" : (sOverallStatus === "Rejected" ? "rejected" : "approved"),
-                            category: "Access Decisions",
-                            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", " + new Date().toLocaleDateString(),
-                            state: sOverallState,
-                            icon: sStatusIcon,
-                            unread: true
-                        });
-                        sessionStorage.setItem(sReqStorageKey, JSON.stringify(aUserNotifications));
-                    }
-                } catch(eNotif) {}
-
-                sessionStorage.setItem("kyra_show_approval_history", "true");
-                sessionStorage.setItem("kyra_select_tab", "myAccess");
-                sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
-                oModel.setProperty("/showApprovalHistory", true);
-                oModel.setProperty("/selectedTabKey", "myAccess");
-                oModel.setProperty("/showRequestDetailsPage", false);
-                oModel.setProperty("/showAddAccessSector", false);
-                oModel.setProperty("/showRemoveAccessSector", false);
-
                 MessageToast.show("Decision submitted for Request Id " + oData.requestId);
             } catch (err) {
                 console.error("Critical error in _executeFinalSubmission:", err);
             } finally {
+                window._kyraDecisionInFlight = false;
                 // Ensure ALL loaders and overlays are completely dismissed immediately
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
@@ -2002,7 +2060,15 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value && data.value.length > 0) {
-                    const aRawData = data.value.slice();
+                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const seenRawReqs = new Set();
+                    const aRawData = rawList.filter(r => {
+                        const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                        if (!sNum) return true;
+                        if (seenRawReqs.has(sNum)) return false;
+                        seenRawReqs.add(sNum);
+                        return true;
+                    });
                     let oDecidedMap = window._kyraDecidedRequestsMap || {};
                     try {
                         const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
@@ -2158,13 +2224,17 @@ sap.ui.define([
             };
 
             const deriveCleanService = (r) => {
+                const sDirect = (r.service_topic || r.serviceTopic || r.service || "").trim();
+                if (sDirect && sDirect !== "Corporate Governance" && sDirect !== "Finance" && sDirect !== "Logistics" && sDirect !== "Supply Chain") {
+                    return sDirect.replace(/\s*\([^)]*\)/g, "").trim();
+                }
                 const roleStr = (r.role_name || r.roleName || r.selected_persona || r.selectedPersona || r.requester_persona || r.persona || "").toLowerCase();
                 if (roleStr.includes("owner") || roleStr.includes("architect") || roleStr.includes("lead") || roleStr.includes("product manager")) {
                     return "System Owners";
                 } else if (roleStr.includes("stakeholder") || roleStr.includes("compliance") || roleStr.includes("isrm")) {
                     return "Stakeholders";
                 } else {
-                    return "";
+                    return sDirect || "";
                 }
             };
 
@@ -2516,13 +2586,31 @@ sap.ui.define([
             });
 
             const processedBaseIds = new Set(Object.keys(oGrouped).map(k => getBaseReqId(k).toUpperCase()).filter(Boolean));
+            if (oDecidedMap) {
+                Object.keys(oDecidedMap).forEach(k => {
+                    const sK = String(k).trim().toUpperCase();
+                    processedBaseIds.add(sK);
+                    const bK = getBaseReqId(sK).toUpperCase();
+                    if (bK) processedBaseIds.add(bK);
+                });
+            }
+            if (window._kyraLastDecidedReqId) {
+                const sL = String(window._kyraLastDecidedReqId).trim().toUpperCase();
+                processedBaseIds.add(sL);
+                const bL = getBaseReqId(sL).toUpperCase();
+                if (bL) processedBaseIds.add(bL);
+            }
             Object.keys(oPendingGrouped).forEach(k => {
                 const bId = getBaseReqId(k).toUpperCase();
-                if (processedBaseIds.has(bId)) {
+                if (processedBaseIds.has(bId) || processedBaseIds.has(k.toUpperCase())) {
                     delete oPendingGrouped[k];
                 }
             });
-            const aPending = Object.values(oPendingGrouped).filter(p => !processedBaseIds.has(getBaseReqId(p.requestId || p.request_number || "").toUpperCase()));
+            const aPending = Object.values(oPendingGrouped).filter(p => {
+                const pId = String(p.requestId || p.request_number || "").toUpperCase();
+                const pBase = getBaseReqId(pId).toUpperCase();
+                return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+            });
             const getPendingTime = (r) => {
                 const raw = r.createdAtRaw || r.created_at || r.createdAt || r.submissionDate || "";
                 if (!raw) return 0;

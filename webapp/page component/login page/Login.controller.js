@@ -355,8 +355,10 @@ sap.ui.define([
                 }
 
                 const bIsAdmin = (sEffectiveTitle === "Admin" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "admin"));
-                const bIsApprover = !bIsAdmin && (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance"))));
-                const isCompliance = typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance");
+                const bIsRequester = (sEffectiveTitle === "Requester" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "requester"));
+                const bIsApprover = !bIsRequester && !bIsAdmin && (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance"))));
+                const isCompliance = !bIsRequester && !bIsAdmin && (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance"));
+                const bShowApproverSection = !bIsRequester && !bIsAdmin && (bIsApprover || isCompliance);
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
@@ -418,6 +420,7 @@ sap.ui.define([
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
                     oAccessModel.setProperty("/isCompliancePersona", isCompliance);
+                    oAccessModel.setProperty("/showApproverSection", bShowApproverSection);
                     oAccessModel.setProperty("/approverPendingTab", "accessRequests");
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }
@@ -446,7 +449,13 @@ sap.ui.define([
                     if (oApp) {
                         const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
                         if (oInnerApp && typeof oInnerApp.to === "function") {
-                            oInnerApp.to("AccessPage");
+                            try {
+                                const sPageId = (this.getOwnerComponent() && typeof this.getOwnerComponent().createId === "function")
+                                    ? this.getOwnerComponent().createId("AccessPage") : "AccessPage";
+                                if (typeof oInnerApp.getPage === "function" && oInnerApp.getPage(sPageId)) {
+                                    oInnerApp.to(sPageId);
+                                }
+                            } catch(e) {}
                         }
                     }
                 } catch(e) {

@@ -1,4 +1,4 @@
-sap.ui.define([
+﻿sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
@@ -32,8 +32,8 @@ sap.ui.define([
         if (!num) return "";
         const str = String(num).trim();
         const parts = str.split("-");
-        if (parts.length >= 3) {
-            return parts.slice(0, 3).join("-");
+        if (parts.length >= 4 && /^\d{1,2}$/.test(parts[parts.length - 1])) {
+            return parts.slice(0, -1).join("-");
         }
         return str;
     }
@@ -237,35 +237,18 @@ sap.ui.define([
                 localStorage.removeItem("kyra_pending_revocations");
                 sessionStorage.removeItem("kyra_pending_revocations");
             } catch(e) {}
-            const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
-            if (!bAuthenticated) {
-                const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
-                if (oRouter) {
-                    oRouter.navTo("Login", {}, true);
-                    if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
-                        oRouter.getTargets().display("TargetLogin");
-                    }
-                }
-                try {
-                    const oApp = (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
-                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
-                    if (oApp) {
-                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
-                        if (oInnerApp && typeof oInnerApp.to === "function") {
-                            oInnerApp.to("Login");
-                        }
-                    }
-                } catch(e) {}
-                return;
-            }
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
             const sActiveUser = (oAuthInfo.userId || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || "").trim().toLowerCase();
             sessionStorage.setItem("kyra_active_user", sActiveUser);
             sessionStorage.setItem("kyra_user_id", sActiveUser);
             const sActiveRole = oAuthInfo.role || sessionStorage.getItem("kyra_active_role") || "Requester";
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
-            const isCompliance = sActiveRole.toLowerCase().includes("compliance");
+            const sRoleLowerInit = (sActiveRole || "").toLowerCase();
+            const bIsRequester = (sActiveRole === "Requester" || sRoleLowerInit === "requester");
+            const isAdminInit = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLowerInit === "admin" || sRoleLowerInit === "administrator");
+            const bIsApprover = !bIsRequester && !isAdminInit && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Compliance Review" || sRoleLowerInit.includes("approver") || sRoleLowerInit.includes("compliance"));
+            const isCompliance = !bIsRequester && !isAdminInit && sRoleLowerInit.includes("compliance");
             const isReviewerRole = bIsApprover || isCompliance;
+            const bShowApproverSection = !bIsRequester && !isAdminInit && (bIsApprover || isCompliance);
             let sBrandLogoUrl = "images/kyra_k_logo.png";
             let sShieldFocusUrl = "images/kyra_shield_focus.svg";
             try {
@@ -285,6 +268,7 @@ sap.ui.define([
                 isComplianceReviewer: isCompliance,
                 isCompliancePersona: isCompliance,
                 isReviewerRole: isReviewerRole,
+                showApproverSection: bShowApproverSection,
                 notifScope: "my",
                 myNotificationsCount: 0,
                 myUnreadNotificationsCount: 0,
@@ -986,8 +970,13 @@ sap.ui.define([
                     if (!document.hidden && this.getView() && this.getView().getModel("accessModel")) {
                         const oM = this.getView().getModel("accessModel");
                         if (oM && !oM.getProperty("/showRequestDetailsPage")) {
-                            this._loadSubmittedRequests(oM, true);
-                            this._loadBackendSoDMatrix();
+                            window._kyraSilentBackgroundSync = true;
+                            Promise.all([
+                                Promise.resolve(this._loadSubmittedRequests(oM, true)),
+                                Promise.resolve(this._loadBackendSoDMatrix())
+                            ]).finally(() => {
+                                setTimeout(() => { window._kyraSilentBackgroundSync = false; }, 500);
+                            });
                         }
                     }
                 }, 15000);
@@ -1038,11 +1027,18 @@ sap.ui.define([
         onAfterRendering() {
             const bindClick = (sId, fnHandler) => {
                 const oCard = this.byId(sId);
-                if (oCard && !oCard._bBoundClick) {
-                    oCard._bBoundClick = true;
-                    oCard.addEventDelegate({
-                        onclick: () => fnHandler.call(this)
-                    });
+                if (oCard) {
+                    if (!oCard._bBoundClick) {
+                        oCard._bBoundClick = true;
+                        oCard.addEventDelegate({
+                            onclick: () => fnHandler.call(this)
+                        });
+                    }
+                    const oDom = oCard.getDomRef();
+                    if (oDom) {
+                        oDom.style.cursor = "pointer";
+                        oDom.onclick = () => fnHandler.call(this);
+                    }
                 }
             };
 
@@ -1905,10 +1901,12 @@ sap.ui.define([
 
             if (oModel) {
                 const sRoleLower = (sActiveRole || "").toLowerCase();
+                const bIsReqSync = (sActiveRole === "Requester" || sRoleLower === "requester");
                 const isAdminPersona = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator");
-                const isCompliancePersona = !isAdminPersona && sRoleLower.includes("compliance");
-                const bIsApprover = !isAdminPersona && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
+                const isCompliancePersona = !bIsReqSync && !isAdminPersona && sRoleLower.includes("compliance");
+                const bIsApprover = !bIsReqSync && !isAdminPersona && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
                 const isReviewerRole = bIsApprover || isCompliancePersona;
+                const bShowApproverSection = !bIsReqSync && !isAdminPersona && (bIsApprover || isCompliancePersona);
 
                 // ── Reset ALL page/section UI state to clean defaults ──────────────
                 const sPrevUser = oModel.getProperty("/activeUser") || "";
@@ -1923,6 +1921,7 @@ sap.ui.define([
                 oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
                 oModel.setProperty("/isCompliancePersona", isCompliancePersona);
                 oModel.setProperty("/isReviewerRole", isReviewerRole);
+                            oModel.setProperty("/showApproverSection", bShowApproverSection);
                 oModel.setProperty("/adminSelectedSection", "");
                 this._loadCustomAccessAndConflictConfig(oModel);
 
@@ -1984,6 +1983,31 @@ sap.ui.define([
                 if (oCompModel && oCompModel !== oModel) {
                     oCompModel.setProperty("/showApprovalHistory", bShowApprovalHist);
                 }
+                if (oCompModel && oCompModel !== oModel) {
+                    oCompModel.setProperty("/activeRole", sActiveRole);
+                    oCompModel.setProperty("/isAdminPersona", isAdminPersona);
+                    oCompModel.setProperty("/isApproverPersona", bIsApprover);
+                    oCompModel.setProperty("/isCompliance", isCompliancePersona);
+                    oCompModel.setProperty("/isComplianceReviewer", isCompliancePersona);
+                    oCompModel.setProperty("/isCompliancePersona", isCompliancePersona);
+                    oCompModel.setProperty("/isReviewerRole", isReviewerRole);
+                    oCompModel.setProperty("/showApproverSection", bShowApproverSection);
+                }
+
+                if (bShowApproverSection) {
+                    setTimeout(() => {
+                        try {
+                            const oApproverView = this.byId("approverSectionView");
+                            if (oApproverView) {
+                                const oApproverCtrl = oApproverView.getController();
+                                if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
+                                    oApproverCtrl._syncModelAndRequests();
+                                }
+                            }
+                        } catch(e) {}
+                    }, 50);
+                }
+
                 if (bShowApprovalHist) {
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     oModel.setProperty("/showRequestDetailsPage", false);
@@ -2679,22 +2703,22 @@ sap.ui.define([
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const sRoleLower = (sActiveRole || "").toLowerCase();
-            const isCompliancePersona = sRoleLower.includes("compliance");
-            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
+            const bIsReqRole = (sActiveRole === "Requester" || sRoleLower === "requester");
+            const isCompliancePersona = !bIsReqRole && sRoleLower.includes("compliance");
+            const bIsApprover = !bIsReqRole && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
             const isReviewerRole = bIsApprover || isCompliancePersona;
 
             const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
             const bIsReviewerCheck = isReviewerRole;
 
-            if (!bSilent && !bHasWarmCache && !bIsReviewerCheck) {
+            if (!bSilent) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
-                        title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                        duration: 3000
+                        title: "Loading Governance Records...",
+                        subtitle: "Retrieving active roles, entitlements, and access data..."
                     });
                 } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...", 3000);
+                    window.showKyraLoading("Loading Governance Records...", "Retrieving active roles, entitlements, and access data...");
                 }
             }
 
@@ -3135,7 +3159,7 @@ sap.ui.define([
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
                     if (isApproverDecided) {
                         isProcessedForRole = true;
-                    } else if (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || sDbStatus === "SUBMITTED" || (isRevocationReq && sDbStatus.includes("PENDING"))) {
+                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
                         isPendingForRole = true;
                     }
                 } else if (isCompliancePersona) {
@@ -3143,10 +3167,10 @@ sap.ui.define([
                         isPendingForRole = false;
                         isProcessedForRole = false;
                     } else {
-                        if (sDbStatus === "PENDING_COMPLIANCE" && sComplianceStatus !== "APPROVED" && sComplianceStatus !== "REJECTED") {
-                            isPendingForRole = true;
-                        } else if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                        if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
                             isProcessedForRole = true;
+                        } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
+                            isPendingForRole = true;
                         }
                     }
                 } else if (isIamApp1Persona) {
@@ -3171,7 +3195,7 @@ sap.ui.define([
                     isProcessedForRole = !isOverallPending;
                 }
 
-                if (isAnyReviewerPersona && (bIsUserMatch || (!isPendingForRole && !isProcessedForRole))) {
+                if (isAnyReviewerPersona && !isPendingForRole && !isProcessedForRole) {
                     return;
                 }
 
@@ -5468,9 +5492,29 @@ sap.ui.define([
                     }
                 }
             }
+
+            const oCardPending = this.byId("cardPendingRequests");
+            if (oCardPending && oCardPending.getDomRef()) {
+                oCardPending.getDomRef().classList.toggle("kyraCardExpanded", bPending);
+            }
+            const oCardAdd = this.byId("cardAddAccess");
+            if (oCardAdd && oCardAdd.getDomRef()) {
+                oCardAdd.getDomRef().classList.toggle("kyraCardExpanded", bAdd);
+            }
+            const oCardRemove = this.byId("cardRemoveAccess");
+            if (oCardRemove && oCardRemove.getDomRef()) {
+                oCardRemove.getDomRef().classList.toggle("kyraCardExpanded", bRemove);
+            }
         },
 
         onNavToAddAccess() {
+            const now = Date.now();
+            if (this._lastAddNavClick && (now - this._lastAddNavClick < 350)) {
+                return;
+            }
+            this._lastAddNavClick = now;
+
+            
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -5498,7 +5542,9 @@ sap.ui.define([
             oModel.setProperty("/showPendingSection", false);
             oModel.setProperty("/showApprovedSection", false);
             oModel.setProperty("/showRemoveAccessSector", false);
+            oModel.setProperty("/showMyAccessMasterSection", false);
             oModel.setProperty("/showRequestDetailsPage", false);
+            oModel.setProperty("/selectedTabKey", "myAccess");
             this._updateActionCardArrows(oModel);
 
             this._setupStep1SelectFields();
@@ -8570,6 +8616,13 @@ sap.ui.define([
         },
 
         onNavToPendingRequests() {
+            const now = Date.now();
+            if (this._lastPendingNavClick && (now - this._lastPendingNavClick < 350)) {
+                return;
+            }
+            this._lastPendingNavClick = now;
+
+            
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
@@ -8583,7 +8636,9 @@ sap.ui.define([
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
+                    oModel.setProperty("/showMyAccessMasterSection", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
+                    oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
                     
                     setTimeout(() => {
@@ -8620,6 +8675,32 @@ sap.ui.define([
                     this._smoothScrollTo("approvedSectionContainer", 64);
                 }
             });
+        },
+
+        async onRefreshAccess() {
+            const oModel = this.getView().getModel("accessModel");
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Refreshing Governance Data",
+                    subtitle: "Synchronizing latest entitlements and request audit logs..."
+                });
+            }
+            try {
+                if (typeof this._loadSubmittedRequests === "function") {
+                    await this._loadSubmittedRequests(oModel, true);
+                }
+                if (typeof this._fetchGovernanceHistory === "function") {
+                    await this._fetchGovernanceHistory(oModel, true);
+                }
+                await new Promise(r => setTimeout(r, 650));
+                sap.m.MessageToast.show("Data refreshed successfully.");
+            } catch (err) {
+                console.warn("Refresh error:", err);
+            } finally {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+            }
         },
 
         async onRefreshPendingRequests() {
@@ -9916,15 +9997,132 @@ sap.ui.define([
             });
         },
 
-        _openExportDialog(oConfig) {
-            if (oConfig && oConfig.filename && oConfig.filename.includes("Active_Entitlements")) {
-                this.onExportAccess();
-            } else {
-                this.onExportRequests();
-            }
+                _openExportDialog(oConfig) {
+            sap.ui.require([
+                "sap/m/Dialog",
+                "sap/m/VBox",
+                "sap/m/HBox",
+                "sap/m/Avatar",
+                "sap/m/Title",
+                "sap/m/Text",
+                "sap/m/Button",
+                "sap/m/MessageToast"
+            ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
+                let oDialog;
+                // Notification Modal Header with Close button
+                const oTopBar = new HBox({
+                    justifyContent: "End",
+                    items: [
+                        new Button({
+                            icon: "sap-icon://decline",
+                            type: "Transparent",
+                            tooltip: "Close",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraExportNotifCloseBtn")
+                    ]
+                }).addStyleClass("kyraExportNotifTopBar");
+
+                // Excel Icon Circle
+                const oIconCircle = new HBox({
+                    justifyContent: "Center",
+                    items: [
+                        new Avatar({
+                            src: "sap-icon://excel-attachment",
+                            displaySize: "M"
+                        })
+                    ]
+                }).addStyleClass("kyraExportNotifIconCircle");
+
+                // Title & Subtitle
+                const oTitle = new Title({
+                    text: oConfig.title || "Export to Excel",
+                    level: "H3",
+                    textAlign: "Center",
+                    width: "100%"
+                }).addStyleClass("kyraExportNotifTitle");
+
+                const oDesc = new Text({
+                    text: oConfig.subtitle || "Download the active filtered records as an Excel spreadsheet (.xlsx).",
+                    textAlign: "Center",
+                    width: "100%"
+                }).addStyleClass("kyraExportNotifDesc");
+
+                // File info card (Excel .xlsx only)
+                const oFileCard = new HBox({
+                    alignItems: "Center",
+                    items: [
+                        new Text({ text: ".XLSX" }).addStyleClass("kyraExportNotifFormatPill"),
+                        new VBox({
+                            items: [
+                                new Title({ text: "Excel Spreadsheet (.xlsx)", level: "H5" }).addStyleClass("kyraExportNotifCardTitle"),
+                                new Text({ text: "Formatted tabular workbook with audit columns" }).addStyleClass("kyraExportNotifCardSubtitle")
+                            ]
+                        }).addStyleClass("kyraExportNotifCardInfo")
+                    ]
+                }).addStyleClass("kyraExportNotifFileCard");
+
+                // Download Handler
+                const handleDownload = async () => {
+                    oDialog.close();
+                    if (typeof oConfig.onConfirmDownload === "function") {
+                        await oConfig.onConfirmDownload();
+                    }
+                };
+
+                // ONLY 2 BUTTONS: Cancel & Download
+                const oFooter = new HBox({
+                    justifyContent: "End",
+                    alignItems: "Center",
+                    items: [
+                        new Button({
+                            text: "Cancel",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraExportNotifCancelBtn"),
+                        new Button({
+                            text: "Download",
+                            icon: "sap-icon://download",
+                            type: "Emphasized",
+                            press: handleDownload
+                        }).addStyleClass("kyraExportNotifDownloadBtn")
+                    ]
+                }).addStyleClass("kyraExportNotifFooter");
+
+                // Assemble Dialog
+                oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "420px",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
+                    resizable: false,
+                    content: [
+                        new VBox({
+                            alignItems: "Stretch",
+                            items: [
+                                oTopBar,
+                                oIconCircle,
+                                oTitle,
+                                oDesc,
+                                oFileCard,
+                                oFooter
+                            ]
+                        }).addStyleClass("sapUiNoMargin")
+                    ],
+                    afterClose: () => oDialog.destroy()
+                }).addStyleClass("kyraModernExportNotificationDialog");
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
+            });
         },
 
         onNavToRemoveAccess() {
+            const now = Date.now();
+            if (this._lastRemoveNavClick && (now - this._lastRemoveNavClick < 350)) {
+                return;
+            }
+            this._lastRemoveNavClick = now;
+
+            
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
@@ -9944,6 +10142,7 @@ sap.ui.define([
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
+                    oModel.setProperty("/showMyAccessMasterSection", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);

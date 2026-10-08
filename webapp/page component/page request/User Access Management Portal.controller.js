@@ -1,4 +1,4 @@
-﻿sap.ui.define([
+sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
@@ -32,8 +32,8 @@
         if (!num) return "";
         const str = String(num).trim();
         const parts = str.split("-");
-        if (parts.length >= 4 && /^\d{1,2}$/.test(parts[parts.length - 1])) {
-            return parts.slice(0, -1).join("-");
+        if (parts.length >= 3) {
+            return parts.slice(0, 3).join("-");
         }
         return str;
     }
@@ -242,13 +242,9 @@
             sessionStorage.setItem("kyra_active_user", sActiveUser);
             sessionStorage.setItem("kyra_user_id", sActiveUser);
             const sActiveRole = oAuthInfo.role || sessionStorage.getItem("kyra_active_role") || "Requester";
-            const sRoleLowerInit = (sActiveRole || "").toLowerCase();
-            const bIsRequester = (sActiveRole === "Requester" || sRoleLowerInit === "requester");
-            const isAdminInit = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLowerInit === "admin" || sRoleLowerInit === "administrator");
-            const bIsApprover = !bIsRequester && !isAdminInit && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Compliance Review" || sRoleLowerInit.includes("approver") || sRoleLowerInit.includes("compliance"));
-            const isCompliance = !bIsRequester && !isAdminInit && sRoleLowerInit.includes("compliance");
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || (typeof sActiveRole === "string" && (sActiveRole.toLowerCase().includes("approver") || sActiveRole.toLowerCase().includes("compliance"))));
+            const isCompliance = sActiveRole.toLowerCase().includes("compliance");
             const isReviewerRole = bIsApprover || isCompliance;
-            const bShowApproverSection = !bIsRequester && !isAdminInit && (bIsApprover || isCompliance);
             let sBrandLogoUrl = "images/kyra_k_logo.png";
             let sShieldFocusUrl = "images/kyra_shield_focus.svg";
             try {
@@ -268,7 +264,6 @@
                 isComplianceReviewer: isCompliance,
                 isCompliancePersona: isCompliance,
                 isReviewerRole: isReviewerRole,
-                showApproverSection: bShowApproverSection,
                 notifScope: "my",
                 myNotificationsCount: 0,
                 myUnreadNotificationsCount: 0,
@@ -1027,18 +1022,11 @@
         onAfterRendering() {
             const bindClick = (sId, fnHandler) => {
                 const oCard = this.byId(sId);
-                if (oCard) {
-                    if (!oCard._bBoundClick) {
-                        oCard._bBoundClick = true;
-                        oCard.addEventDelegate({
-                            onclick: () => fnHandler.call(this)
-                        });
-                    }
-                    const oDom = oCard.getDomRef();
-                    if (oDom) {
-                        oDom.style.cursor = "pointer";
-                        oDom.onclick = () => fnHandler.call(this);
-                    }
+                if (oCard && !oCard._bBoundClick) {
+                    oCard._bBoundClick = true;
+                    oCard.addEventDelegate({
+                        onclick: () => fnHandler.call(this)
+                    });
                 }
             };
 
@@ -1901,12 +1889,10 @@
 
             if (oModel) {
                 const sRoleLower = (sActiveRole || "").toLowerCase();
-                const bIsReqSync = (sActiveRole === "Requester" || sRoleLower === "requester");
                 const isAdminPersona = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator");
-                const isCompliancePersona = !bIsReqSync && !isAdminPersona && sRoleLower.includes("compliance");
-                const bIsApprover = !bIsReqSync && !isAdminPersona && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
+                const isCompliancePersona = !isAdminPersona && sRoleLower.includes("compliance");
+                const bIsApprover = !isAdminPersona && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
                 const isReviewerRole = bIsApprover || isCompliancePersona;
-                const bShowApproverSection = !bIsReqSync && !isAdminPersona && (bIsApprover || isCompliancePersona);
 
                 // ── Reset ALL page/section UI state to clean defaults ──────────────
                 const sPrevUser = oModel.getProperty("/activeUser") || "";
@@ -1921,7 +1907,6 @@
                 oModel.setProperty("/isComplianceReviewer", isCompliancePersona);
                 oModel.setProperty("/isCompliancePersona", isCompliancePersona);
                 oModel.setProperty("/isReviewerRole", isReviewerRole);
-                            oModel.setProperty("/showApproverSection", bShowApproverSection);
                 oModel.setProperty("/adminSelectedSection", "");
                 this._loadCustomAccessAndConflictConfig(oModel);
 
@@ -1983,31 +1968,6 @@
                 if (oCompModel && oCompModel !== oModel) {
                     oCompModel.setProperty("/showApprovalHistory", bShowApprovalHist);
                 }
-                if (oCompModel && oCompModel !== oModel) {
-                    oCompModel.setProperty("/activeRole", sActiveRole);
-                    oCompModel.setProperty("/isAdminPersona", isAdminPersona);
-                    oCompModel.setProperty("/isApproverPersona", bIsApprover);
-                    oCompModel.setProperty("/isCompliance", isCompliancePersona);
-                    oCompModel.setProperty("/isComplianceReviewer", isCompliancePersona);
-                    oCompModel.setProperty("/isCompliancePersona", isCompliancePersona);
-                    oCompModel.setProperty("/isReviewerRole", isReviewerRole);
-                    oCompModel.setProperty("/showApproverSection", bShowApproverSection);
-                }
-
-                if (bShowApproverSection) {
-                    setTimeout(() => {
-                        try {
-                            const oApproverView = this.byId("approverSectionView");
-                            if (oApproverView) {
-                                const oApproverCtrl = oApproverView.getController();
-                                if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
-                                    oApproverCtrl._syncModelAndRequests();
-                                }
-                            }
-                        } catch(e) {}
-                    }, 50);
-                }
-
                 if (bShowApprovalHist) {
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     oModel.setProperty("/showRequestDetailsPage", false);
@@ -2703,9 +2663,8 @@
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
             const sRoleLower = (sActiveRole || "").toLowerCase();
-            const bIsReqRole = (sActiveRole === "Requester" || sRoleLower === "requester");
-            const isCompliancePersona = !bIsReqRole && sRoleLower.includes("compliance");
-            const bIsApprover = !bIsReqRole && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
+            const isCompliancePersona = sRoleLower.includes("compliance");
+            const bIsApprover = (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Administrator" || sRoleLower.includes("approver") || sRoleLower.includes("compliance") || sRoleLower.includes("admin"));
             const isReviewerRole = bIsApprover || isCompliancePersona;
 
             const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
@@ -3159,7 +3118,7 @@
                                               sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED" || sDbStatus === "REJECTED";
                     if (isApproverDecided) {
                         isProcessedForRole = true;
-                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
+                    } else if (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || sDbStatus === "REVOKE_PENDING" || sDbStatus === "REVOCATION_PENDING" || sDbStatus === "SUBMITTED" || (isRevocationReq && sDbStatus.includes("PENDING"))) {
                         isPendingForRole = true;
                     }
                 } else if (isCompliancePersona) {
@@ -3167,10 +3126,10 @@
                         isPendingForRole = false;
                         isProcessedForRole = false;
                     } else {
-                        if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
-                            isProcessedForRole = true;
-                        } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
+                        if (sDbStatus === "PENDING_COMPLIANCE" && sComplianceStatus !== "APPROVED" && sComplianceStatus !== "REJECTED") {
                             isPendingForRole = true;
+                        } else if (sComplianceStatus === "APPROVED" || sComplianceStatus === "REJECTED" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED") {
+                            isProcessedForRole = true;
                         }
                     }
                 } else if (isIamApp1Persona) {
@@ -3195,7 +3154,7 @@
                     isProcessedForRole = !isOverallPending;
                 }
 
-                if (isAnyReviewerPersona && !isPendingForRole && !isProcessedForRole) {
+                if (isAnyReviewerPersona && (bIsUserMatch || (!isPendingForRole && !isProcessedForRole))) {
                     return;
                 }
 
@@ -5492,29 +5451,9 @@
                     }
                 }
             }
-
-            const oCardPending = this.byId("cardPendingRequests");
-            if (oCardPending && oCardPending.getDomRef()) {
-                oCardPending.getDomRef().classList.toggle("kyraCardExpanded", bPending);
-            }
-            const oCardAdd = this.byId("cardAddAccess");
-            if (oCardAdd && oCardAdd.getDomRef()) {
-                oCardAdd.getDomRef().classList.toggle("kyraCardExpanded", bAdd);
-            }
-            const oCardRemove = this.byId("cardRemoveAccess");
-            if (oCardRemove && oCardRemove.getDomRef()) {
-                oCardRemove.getDomRef().classList.toggle("kyraCardExpanded", bRemove);
-            }
         },
 
         onNavToAddAccess() {
-            const now = Date.now();
-            if (this._lastAddNavClick && (now - this._lastAddNavClick < 350)) {
-                return;
-            }
-            this._lastAddNavClick = now;
-
-            
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -5542,9 +5481,7 @@
             oModel.setProperty("/showPendingSection", false);
             oModel.setProperty("/showApprovedSection", false);
             oModel.setProperty("/showRemoveAccessSector", false);
-            oModel.setProperty("/showMyAccessMasterSection", false);
             oModel.setProperty("/showRequestDetailsPage", false);
-            oModel.setProperty("/selectedTabKey", "myAccess");
             this._updateActionCardArrows(oModel);
 
             this._setupStep1SelectFields();
@@ -8616,13 +8553,6 @@
         },
 
         onNavToPendingRequests() {
-            const now = Date.now();
-            if (this._lastPendingNavClick && (now - this._lastPendingNavClick < 350)) {
-                return;
-            }
-            this._lastPendingNavClick = now;
-
-            
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
@@ -8636,9 +8566,7 @@
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
                     oModel.setProperty("/showRemoveAccessSector", false);
-                    oModel.setProperty("/showMyAccessMasterSection", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
-                    oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
                     
                     setTimeout(() => {
@@ -10116,13 +10044,6 @@
         },
 
         onNavToRemoveAccess() {
-            const now = Date.now();
-            if (this._lastRemoveNavClick && (now - this._lastRemoveNavClick < 350)) {
-                return;
-            }
-            this._lastRemoveNavClick = now;
-
-            
             this._confirmDiscardAddAccess(() => {
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
@@ -10142,7 +10063,6 @@
                     oModel.setProperty("/showPendingSection", false);
                     oModel.setProperty("/showApprovedSection", false);
                     oModel.setProperty("/showAddAccessSector", false);
-                    oModel.setProperty("/showMyAccessMasterSection", false);
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);

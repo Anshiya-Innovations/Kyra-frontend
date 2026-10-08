@@ -202,14 +202,14 @@ sap.ui.define([], () => {
             const sUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER) || getCookie("kyra_session_user") || "";
             const sRole = sessionStorage.getItem(AUTH_KEYS.ACTIVE_ROLE) || getCookie("kyra_session_role") || "Requester";
             const sUuid = sessionStorage.getItem(AUTH_KEYS.ACTIVE_UUID) || getCookie("kyra_session_uuid") || "dev-user-001-uuid";
-            const bIsApprover = (
+            const bIsRequester = (sRole === "Requester" || (typeof sRole === "string" && sRole.toLowerCase() === "requester"));
+            const bIsApprover = !bIsRequester && (
                 sRole === "Approver" ||
                 sRole === "Approver 1" ||
                 sRole === "Approver 2" ||
                 sRole === "Compliance Approver" ||
                 sRole === "Compliance Reviewer" ||
                 sRole === "Compliance Review" ||
-                sRole === "Administrator" ||
                 (typeof sRole === "string" && (sRole.toLowerCase().includes("approver") || sRole.toLowerCase().includes("compliance")))
             );
 
