@@ -672,6 +672,131 @@ sap.ui.define([
             }
         },
 
+                _groupSodConflictCards(cards, isBatch) {
+            if (!cards || !Array.isArray(cards) || cards.length === 0) return [];
+            const groupedMap = new Map();
+
+            const getBareRole = (roleStr) => {
+                if (!roleStr) return "";
+                const s = String(roleStr).trim();
+                const idx = s.indexOf(" — ");
+                if (idx !== -1) return s.slice(idx + 3).trim();
+                const idxDash = s.indexOf(" - ");
+                if (idxDash !== -1) return s.slice(idxDash + 3).trim();
+                return s;
+            };
+
+            const norm = (str) => {
+                if (!str) return "";
+                return String(str).toLowerCase().replace(/persona/gi, "").replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            };
+
+            cards.forEach(card => {
+                const sys = card.system || "Enterprise System";
+                const roleA = (card.roleA || card.existingRole || "").trim();
+                const roleB = (card.roleB || card.newRole || "").trim();
+                const persA = (card.personaA || card.existingPersona || "").trim();
+                const persB = (card.personaB || card.newPersona || "").trim();
+                const desc = (card.conflictDesc || card.description || "").trim();
+                const title = card.conflictTitle || "Segregation of Duties (SoD) Conflict";
+
+                const bareA = getBareRole(roleA);
+                const bareB = getBareRole(roleB);
+                const normBareA = norm(bareA);
+                const normBareB = norm(bareB);
+
+                // Case 1: Intra-role persona conflict (e.g. Frontend vs Backend under same IT Developer role)
+                if (normBareA && normBareB && normBareA === normBareB) {
+                    const p1 = norm(persA);
+                    const p2 = norm(persB);
+                    const sortedPers = [p1, p2].sort().join(" <===> ");
+                    const key = `INTRA:::${norm(sys)}:::${normBareA}:::${sortedPers}`;
+                    if (!groupedMap.has(key)) {
+                        groupedMap.set(key, {
+                            system: sys,
+                            roleA: roleA,
+                            roleB: roleB,
+                            existingRole: card.existingRole || roleA,
+                            newRole: card.newRole || roleB,
+                            personasA: new Set(persA ? [persA] : []),
+                            personasB: new Set(persB ? [persB] : []),
+                            conflictTitle: title,
+                            conflictDesc: desc
+                        });
+                    }
+                    return;
+                }
+
+                // Case 2: Inter-role conflict (e.g. IT Developer personas conflicting with Business Product Owner)
+                let groupKey;
+                let isFlipped = false;
+
+                if (isBatch) {
+                    const fwd = `BATCH:::${norm(sys)}:::${normBareA} <===> ${normBareB}`;
+                    const rev = `BATCH:::${norm(sys)}:::${normBareB} <===> ${normBareA}`;
+                    if (groupedMap.has(fwd)) {
+                        groupKey = fwd;
+                        isFlipped = false;
+                    } else if (groupedMap.has(rev)) {
+                        groupKey = rev;
+                        isFlipped = true;
+                    } else {
+                        groupKey = fwd;
+                        isFlipped = false;
+                    }
+                } else {
+                    // For active/pending conflicts: Side A is always Existing/Pending, Side B is always Newly Added
+                    groupKey = `DIRECTIONAL:::${norm(sys)}:::${normBareA} <===> ${normBareB}`;
+                    isFlipped = false;
+                }
+
+                if (!groupedMap.has(groupKey)) {
+                    groupedMap.set(groupKey, {
+                        system: sys,
+                        roleA: isFlipped ? roleB : roleA,
+                        roleB: isFlipped ? roleA : roleB,
+                        existingRole: isFlipped ? (card.newRole || roleB) : (card.existingRole || roleA),
+                        newRole: isFlipped ? (card.existingRole || roleA) : (card.newRole || roleB),
+                        personasA: new Set(),
+                        personasB: new Set(),
+                        conflictTitle: title,
+                        conflictDesc: desc
+                    });
+                }
+
+                const entry = groupedMap.get(groupKey);
+                if (isFlipped) {
+                    if (persB) entry.personasA.add(persB);
+                    if (persA) entry.personasB.add(persA);
+                } else {
+                    if (persA) entry.personasA.add(persA);
+                    if (persB) entry.personasB.add(persB);
+                }
+            });
+
+            const result = [];
+            groupedMap.forEach(entry => {
+                const joinedPersA = Array.from(entry.personasA).join("\n");
+                const joinedPersB = Array.from(entry.personasB).join("\n");
+
+                result.push({
+                    system: entry.system,
+                    roleA: entry.roleA,
+                    personaA: joinedPersA,
+                    roleB: entry.roleB,
+                    personaB: joinedPersB,
+                    existingRole: entry.existingRole,
+                    existingPersona: joinedPersA,
+                    newRole: entry.newRole,
+                    newPersona: joinedPersB,
+                    conflictTitle: entry.conflictTitle,
+                    conflictDesc: entry.conflictDesc
+                });
+            });
+
+            return result;
+        },
+
         async _evaluateSodConflictsForRequest(oRequest, aEntList, oModel) {
             if (!oModel || !oRequest) return;
             if (oRequest.isRevocation || String(oRequest.type || oRequest.access_type || oRequest.status || "").toLowerCase().includes("rev")) {
@@ -696,7 +821,7 @@ sap.ui.define([
             const sCurrentReqBase = getBaseReqId(sCurrentRequestId);
 
             let aLiveAllRequests = [];
-            let aSodRules = [];
+            let aFetchedSodRules = [];
 
             try {
                 const [respGov, respSod] = await Promise.all([
@@ -714,24 +839,46 @@ sap.ui.define([
                 if (respSod.ok) {
                     const dataSod = await respSod.json();
                     if (dataSod && dataSod.value && dataSod.value.length > 0) {
-                        aSodRules = dataSod.value;
+                        aFetchedSodRules = dataSod.value;
                     }
                 }
             } catch(e) {
                 console.warn("Could not fetch live governance history for SoD evaluation:", e);
             }
 
-            if (!aSodRules || aSodRules.length === 0) {
-                aSodRules = oModel.getProperty("/sodMatrix") || [
-                    { role1: "IT Admin", role2: "IT Developer", description: "Segregation of Duties conflict between Developer and Admin privileges." },
-                    { role1: "IT Admin", role2: "IT Security", description: "System Administrator conflicts with Security Governance." },
-                    { role1: "IT Admin", role2: "Compliance Manager", description: "System Administrator conflicts with Compliance Manager oversight." },
-                    { role1: "IT Security", role2: "IT Developer", description: "Developer access conflicts with IT Security audit authority." },
-                    { role1: "Lead Engineer", role2: "IT Admin", description: "Lead Engineer conflicts with IT Administrators elevated system access." },
-                    { role1: "Security", role2: "Compliance Manager", description: "Compliance Manager conflicts with Security Operational access." },
-                    { role1: "Security Audit", role2: "IT Developer", description: "Security Audit oversight conflicts with Developer operational access." },
-                    { role1: "System Administrator", role2: "Security Audit", description: "System Administrator conflicts with Security Audit role." }
-                ];
+            // Unify and deduplicate all rules from backend and in-memory model
+            const sodRuleMap = new Map();
+            const addRuleToMap = (r) => {
+                if (!r || r.status === "Inactive") return;
+                const r1 = String(r.role1 || r.roleA || r.role_a || "").trim();
+                const r2 = String(r.role2 || r.roleB || r.role_b || "").trim();
+                const sys = String(r.system || "All Systems").trim();
+                if (!r1 || !r2) return;
+                const k1 = `${sys}::${r1}::${r2}`.toLowerCase();
+                const k2 = `${sys}::${r2}::${r1}`.toLowerCase();
+                if (!sodRuleMap.has(k1) && !sodRuleMap.has(k2)) {
+                    sodRuleMap.set(k1, {
+                        id: r.id,
+                        system: sys,
+                        service: r.service || "System Administrator",
+                        role1: r1,
+                        role2: r2,
+                        status: r.status || "Active",
+                        description: r.conflictReason || r.conflict_reason || r.description || "Segregation of Duties conflict."
+                    });
+                }
+            };
+
+            (aFetchedSodRules || []).forEach(addRuleToMap);
+            (oModel.getProperty("/sodMatrix") || []).forEach(addRuleToMap);
+            (oModel.getProperty("/adminCustomConflictsAll") || []).forEach(addRuleToMap);
+
+            const aSodRules = Array.from(sodRuleMap.values());
+            if (aSodRules.length === 0) {
+                oModel.setProperty("/selectedRequestSodActiveConflicts", []);
+                oModel.setProperty("/selectedRequestSodPendingConflicts", []);
+                oModel.setProperty("/selectedRequestSodBatchConflicts", []);
+                return;
             }
 
             // 1. Requester's LIVE active accesses (Approved and not revoked)
@@ -739,21 +886,42 @@ sap.ui.define([
                 r.requester_username && sRequesterUsername && r.requester_username.toLowerCase() === sRequesterUsername.toLowerCase()
             );
 
-            const aUserActiveRoles = aRequesterRecords.filter(r => {
+            let aUserActiveRoles = aRequesterRecords.filter(r => {
                 const sStat = (r.status || r.db_status || "").toUpperCase();
-                const sType = (r.access_type || "").toUpperCase();
-                return (sStat === "APPROVED" || sStat === "ACTIVE") && sType !== "REVOCATION";
+                const sType = (r.access_type || r.request_type || "").toUpperCase();
+                return (sStat === "APPROVED" || sStat === "ACTIVE") && !sType.includes("REV");
             });
 
-            // 2. Requester's LIVE other in-flight pending requests (Excluding current request batch)
+            if (!aUserActiveRoles || aUserActiveRoles.length === 0) {
+                const aModelRoles = (oModel && oModel.getProperty("/activeRoles")) || (oModel && oModel.getProperty("/userAccessList")) || [];
+                if (aModelRoles.length > 0) {
+                    aUserActiveRoles = aModelRoles.filter(item => {
+                        const sStat = (item.status || item.db_status || "").toUpperCase();
+                        const sType = (item.access_type || item.type || "").toUpperCase();
+                        return (sStat === "ACTIVE" || sStat === "APPROVED" || sStat === "") && !sType.includes("REV");
+                    });
+                }
+            }
+
+            // 2. Requester's LIVE other in-flight pending requests (EXCLUDING CURRENT REQUEST BATCH)
+            const sCurrentBaseUpper = (sCurrentReqBase || sCurrentRequestId).toUpperCase();
             const aUserPendingRequests = aRequesterRecords.filter(r => {
                 const sStat = (r.status || r.db_status || "").toUpperCase();
-                const num = (r.request_number || "").trim();
-                const base = getBaseReqId(num);
+                const num = (r.request_number || "").trim().toUpperCase();
+                const base = getBaseReqId(num).toUpperCase();
                 const isPending = (sStat === "PENDING" || sStat.startsWith("PENDING_")) && sStat !== "APPROVED" && sStat !== "REJECTED";
-                const isCurrentReq = (num === sCurrentRequestId) || (sCurrentReqBase && base === sCurrentReqBase);
+                const isCurrentReq = (num === sCurrentRequestId.toUpperCase()) ||
+                                     (sCurrentBaseUpper && (base === sCurrentBaseUpper || num.startsWith(sCurrentBaseUpper)));
                 return isPending && !isCurrentReq;
             });
+
+            const cleanPersonaName = (s) => {
+                if (!s) return "";
+                let str = String(s).trim();
+                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                str = str.replace(/\s+persona$/i, "").trim();
+                return str || s;
+            };
 
             const normalizeSystemName = (sys) => {
                 if (!sys) return "";
@@ -764,6 +932,7 @@ sap.ui.define([
                 if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
                 if (s.includes("concur")) return "concur";
                 if (s.includes("analytics")) return "analytics";
+                if (s.includes("kyra") || s.includes("central governance")) return "kyra";
                 return s;
             };
 
@@ -774,318 +943,276 @@ sap.ui.define([
                 return normA === normB || normA.includes(normB) || normB.includes(normA);
             };
 
-            const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+            const normalizeForMatching = (str) => {
+                if (!str) return "";
+                return String(str)
+                    .replace(/persona/gi, "")
+                    .replace(/[^\w\s]/gi, " ")
+                    .replace(/\s+/g, " ")
+                    .trim()
+                    .toLowerCase();
+            };
 
             const isSameAccess = (itemA, itemB) => {
                 const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
                 const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
                 if (!isSameSystem(sA, sB)) return false;
 
-                const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
-                const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
+                const persA = cleanPersonaName(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
+                const persB = cleanPersonaName(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
+                const roleA = cleanPersonaName(itemA.roleName || itemA.role_name || itemA.team || itemA.roleTitle || "");
+                const roleB = cleanPersonaName(itemB.roleName || itemB.role_name || itemB.team || itemB.roleTitle || "");
 
-                if (persA && persB) {
-                    if (persA === persB) return true;
-                    const pA = persA.replace(/persona/g, "").trim();
-                    const pB = persB.replace(/persona/g, "").trim();
-                    if (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA))) return true;
+                const normPersA = normalizeForMatching(persA);
+                const normPersB = normalizeForMatching(persB);
+                const normRoleA = normalizeForMatching(roleA);
+                const normRoleB = normalizeForMatching(roleB);
+
+                if (normPersA && normPersB) {
+                    return normPersA === normPersB && (normRoleA === normRoleB || !normRoleA || !normRoleB);
                 }
-                if (roleA && roleB) {
-                    return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
+                if (normRoleA && normRoleB) {
+                    return normRoleA === normRoleB;
                 }
                 return false;
             };
 
-            const cleanPersonaName = (s) => {
-                if (!s) return "";
-                let str = String(s).trim();
-                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
-                str = str.replace(/\s+persona$/i, "").trim();
-                return str || s;
+            const parseRuleTarget = (targetStr) => {
+                if (!targetStr) return { persona: "", team: "", raw: "" };
+                const str = String(targetStr).trim();
+                const match = str.match(/^(.*?)\s*\((.*?)\)$/);
+                if (match) {
+                    return {
+                        persona: match[1].trim(),
+                        team: match[2].trim(),
+                        raw: str
+                    };
+                }
+                return {
+                    persona: str,
+                    team: "",
+                    raw: str
+                };
             };
 
-            const getFunctionalArchetype = (roleStr, personaStr) => {
-                const cleanR = cleanStr(roleStr);
-                const cleanP = cleanStr(personaStr);
-                const combined = cleanR + " " + cleanP;
+            const itemMatchesRuleTarget = (item, parsedTarget) => {
+                if (!item || !parsedTarget) return false;
 
-                if (combined.includes("developer") || cleanP.includes("developer")) return "developer";
-                if (combined.includes("administrator") || combined.includes("it admin") || cleanP.includes("cloud infrastructure") || cleanP.includes("database & iam") || cleanR.includes("admin")) return "admin";
-                if (combined.includes("security") || cleanP.includes("security") || cleanP.includes("cybersecurity") || cleanR.includes("isrm") || cleanP.includes("isrm") || cleanR.includes("audit") || cleanP.includes("audit")) return "security";
-                if (combined.includes("lead engineer") || cleanP.includes("principal systems") || cleanP.includes("devops & platform") || cleanR.includes("engineer")) return "engineer";
-                if (combined.includes("compliance") || cleanP.includes("compliance") || cleanP.includes("auditor") || cleanP.includes("privacy")) return "compliance";
-                if (combined.includes("product owner") || cleanP.includes("solution architecture") || cleanP.includes("product manager")) return "owner";
-                if (combined.includes("product group") || cleanP.includes("product suite") || cleanP.includes("integration engineering")) return "product_group";
-                if (combined.includes("line manager") || cleanP.includes("people operations") || cleanP.includes("resource manager")) return "manager";
-                if (combined.includes("role owner") || cleanP.includes("role custodian") || cleanP.includes("access governance approver")) return "role_owner";
-                return cleanR || "user";
-            };
+                const itemPersona = cleanPersonaName(item.persona || item.selectedPersona || item.selected_persona || "");
+                const itemRole = cleanPersonaName(item.roleName || item.role_name || item.team || item.teamName || item.roleTitle || "");
 
-            const getRuleArchetype = (ruleStr) => {
-                const s = String(ruleStr || "").toLowerCase().trim();
-                if (s.includes("developer") || s.includes("dev")) return "developer";
-                if (s.includes("admin") || s.includes("system administrator")) return "admin";
-                if (s.includes("security") || s.includes("audit") || s.includes("isrm")) return "security";
-                if (s.includes("engineer")) return "engineer";
-                if (s.includes("compliance")) return "compliance";
-                if (s.includes("owner")) return "owner";
-                if (s.includes("manager")) return "manager";
-                return s;
-            };
+                const normItemPers = normalizeForMatching(itemPersona);
+                const normItemRole = normalizeForMatching(itemRole);
+                const normTargetPers = normalizeForMatching(parsedTarget.persona);
+                const normTargetTeam = normalizeForMatching(parsedTarget.team);
+                const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-            const checkConflictMatch = (roleA, personaA, roleB, personaB, rule) => {
-                const sR1 = String(rule.role1 || rule.role_a || rule.roleA || "").toLowerCase().trim();
-                const sR2 = String(rule.role2 || rule.role_b || rule.roleB || "").toLowerCase().trim();
-                const cRA = cleanStr(roleA);
-                const cRB = cleanStr(roleB);
-                const cPA = cleanStr(personaA);
-                const cPB = cleanStr(personaB);
+                // Case 1: Target specifically designates a Persona with Team (e.g. "Backend & Systems Developer (IT Developers)")
+                if (parsedTarget.team && parsedTarget.persona !== parsedTarget.team) {
+                    const bPersMatch = (normItemPers === normTargetPers) ||
+                        (normItemPers && normTargetPers && (normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers)));
+                    if (!bPersMatch) return false;
 
-                const archA = getFunctionalArchetype(roleA, personaA);
-                const archB = getFunctionalArchetype(roleB, personaB);
-
-                if (archA === archB && (cRA === cRB || (cPA && cPB && cPA === cPB))) {
-                    return false;
+                    if (normTargetTeam && normItemRole) {
+                        const bTeamMatch = (normItemRole === normTargetTeam) ||
+                            (normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole));
+                        if (!bTeamMatch) return false;
+                    }
+                    return true;
                 }
 
-                const directMatch1 = (cRA.includes(sR1) || cPA.includes(sR1)) && (cRB.includes(sR2) || cPB.includes(sR2));
-                const directMatch2 = (cRA.includes(sR2) || cPA.includes(sR2)) && (cRB.includes(sR1) || cPB.includes(sR1));
-                if (directMatch1 || directMatch2) return true;
+                // Case 2: Target is just a Persona or Role Name without parentheses
+                if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
+                    return true;
+                }
+                if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
+                    return true;
+                }
+                if (normTargetRaw && (
+                    (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) ||
+                    (normItemRole && (normItemRole === normTargetRaw || normItemRole.includes(normTargetRaw) || normTargetRaw.includes(normItemRole)))
+                )) {
+                    return true;
+                }
 
-                if (archA === archB) return false;
+                return false;
+            };
 
-                const r1 = getRuleArchetype(sR1);
-                const r2 = getRuleArchetype(sR2);
+            const checkPairMatchesRule = (itemA, itemB, rule) => {
+                if (!rule || rule.status === "Inactive") return null;
 
-                return (archA === r1 && archB === r2) || (archA === r2 && archB === r1);
+                const sSysA = itemA.system || itemA.target_system || itemA.targetSystem || "";
+                const sSysB = itemB.system || itemB.target_system || itemB.targetSystem || "";
+
+                if (!isSameSystem(sSysA, sSysB)) return null;
+
+                const sRuleSys = rule.system || "";
+                if (sRuleSys && sRuleSys !== "All Systems") {
+                    if (!isSameSystem(sRuleSys, sSysA) || !isSameSystem(sRuleSys, sSysB)) {
+                        return null;
+                    }
+                }
+
+                if (isSameAccess(itemA, itemB)) return null;
+
+                const target1 = parseRuleTarget(rule.role1 || rule.role_a || rule.roleA);
+                const target2 = parseRuleTarget(rule.role2 || rule.role_b || rule.roleB);
+
+                const matchDirect = itemMatchesRuleTarget(itemA, target1) && itemMatchesRuleTarget(itemB, target2);
+                const matchReverse = itemMatchesRuleTarget(itemA, target2) && itemMatchesRuleTarget(itemB, target1);
+
+                if (matchDirect) {
+                    return { item1: itemA, item2: itemB, rule: rule };
+                }
+                if (matchReverse) {
+                    return { item1: itemB, item2: itemA, rule: rule };
+                }
+
+                return null;
+            };
+
+            const makeConflictKey = (card) => {
+                const k1 = `${normalizeSystemName(card.system)}:::${normalizeForMatching(card.roleA || card.existingRole)}:::${normalizeForMatching(card.personaA || card.existingPersona)}`;
+                const k2 = `${normalizeSystemName(card.system)}:::${normalizeForMatching(card.roleB || card.newRole)}:::${normalizeForMatching(card.personaB || card.newPersona)}`;
+                return [k1, k2].sort().join(" <===> ");
             };
 
             const aActiveConflicts = [];
             const aPendingConflicts = [];
             const aBatchConflicts = [];
 
-            const aItemsToCheck = (aEntList && aEntList.length > 0 ? aEntList : (oRequest.entitlements && oRequest.entitlements.length > 0 ? oRequest.entitlements : [oRequest])).slice();
-            aItemsToCheck.sort((a, b) => String(a.requestId || a.request_number || "").localeCompare(String(b.requestId || b.request_number || ""), undefined, { numeric: true }));
+            const seenBatchKeys = new Set();
+            const seenActiveKeys = new Set();
+            const seenPendingKeys = new Set();
 
-            // 1. Check Active Conflicts against LIVE active access of this requester
-            const activeConflictMap = new Map();
-            aItemsToCheck.forEach(newItem => {
-                const sNewSys = newItem.system || newItem.target_system || "";
-                const sNewRoleName = newItem.roleName || newItem.role_name || newItem.roleTitle || "Requested Role";
-                const sNewPersona = newItem.selectedPersona || newItem.selected_persona || newItem.persona || sNewRoleName;
-
-                aUserActiveRoles.forEach(activeRole => {
-                    const sActiveSys = activeRole.target_system || activeRole.system || "";
-                    if (!isSameSystem(sActiveSys, sNewSys)) return;
-                    if (isSameAccess(activeRole, newItem)) return;
-
-                    const sActiveRoleName = activeRole.role_name || activeRole.roleName || activeRole.roleTitle || "Active Role";
-                    const sActivePersona = activeRole.selected_persona || activeRole.selectedPersona || activeRole.persona || sActiveRoleName;
-
-                    aSodRules.forEach(rule => {
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and newly requested access.";
-
-                        if (checkConflictMatch(sNewRoleName, sNewPersona, sActiveRoleName, sActivePersona, rule)) {
-                            const sCleanActiveRole = cleanPersonaName(sActiveRoleName);
-                            const sCleanNewRole = cleanPersonaName(sNewRoleName);
-                            const sKey = `${sActiveSys}:::${sCleanActiveRole}:::${sNewSys}:::${sCleanNewRole}`;
-                            if (!activeConflictMap.has(sKey)) {
-                                activeConflictMap.set(sKey, {
-                                    system: sNewSys,
-                                    existingRole: `${sActiveSys} — ${sCleanActiveRole}`,
-                                    newRole: `${sNewSys} — ${sCleanNewRole}`,
-                                    cleanActiveRole: sCleanActiveRole,
-                                    cleanNewRole: sCleanNewRole,
-                                    existingPersonas: new Set(),
-                                    newPersonas: new Set(),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                            const entry = activeConflictMap.get(sKey);
-                            if (sActivePersona) entry.existingPersonas.add(cleanPersonaName(sActivePersona));
-                            if (sNewPersona) entry.newPersonas.add(cleanPersonaName(sNewPersona));
-                        }
-                    });
-                });
+            const rawItems = (aEntList && aEntList.length > 0 ? aEntList : (oRequest.entitlements && oRequest.entitlements.length > 0 ? oRequest.entitlements : [oRequest])).slice();
+            const seenItemKeys = new Set();
+            const aItemsToCheck = [];
+            rawItems.forEach(item => {
+                const k = `${item.system || item.target_system || ""}:::${item.roleName || item.role_name || item.team || ""}:::${item.selectedPersona || item.persona || ""}`;
+                if (!seenItemKeys.has(k)) {
+                    seenItemKeys.add(k);
+                    aItemsToCheck.push(item);
+                }
             });
 
-            activeConflictMap.forEach(entry => {
-                const sExisting = Array.from(entry.existingPersonas).join("\n");
-                const sNew = Array.from(entry.newPersonas).join("\n");
-                aActiveConflicts.push({
-                    system: entry.system,
-                    existingRole: entry.existingRole,
-                    existingPersona: sExisting,
-                    newRole: entry.newRole,
-                    newPersona: sNew,
-                    conflictTitle: entry.conflictTitle,
-                    conflictDesc: entry.conflictDesc
-                });
-            });
-
-            // 2. Check Pending Conflicts against LIVE other in-flight requests of this requester
-            const pendingConflictMap = new Map();
-            aItemsToCheck.forEach(newItem => {
-                const sNewSys = newItem.system || newItem.target_system || "";
-                const sNewRoleName = newItem.roleName || newItem.role_name || newItem.roleTitle || "Requested Role";
-                const sNewPersona = newItem.selectedPersona || newItem.selected_persona || newItem.persona || sNewRoleName;
-
-                aUserPendingRequests.forEach(pendingReq => {
-                    const sPendingSys = pendingReq.target_system || pendingReq.system || "";
-                    if (!isSameSystem(sPendingSys, sNewSys)) return;
-                    if (isSameAccess(pendingReq, newItem)) return;
-
-                    const sPendingRoleName = pendingReq.role_name || pendingReq.roleName || pendingReq.roleTitle || "Pending Role";
-                    const sPendingPersona = pendingReq.selected_persona || pendingReq.selectedPersona || pendingReq.persona || sPendingRoleName;
-
-                    aSodRules.forEach(rule => {
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected against pending access request.";
-
-                        if (checkConflictMatch(sNewRoleName, sNewPersona, sPendingRoleName, sPendingPersona, rule)) {
-                            const sCleanPendingRole = cleanPersonaName(sPendingRoleName);
-                            const sCleanNewRole = cleanPersonaName(sNewRoleName);
-                            const sKey = `${sPendingSys}:::${sCleanPendingRole}:::${sNewSys}:::${sCleanNewRole}`;
-                            if (!pendingConflictMap.has(sKey)) {
-                                pendingConflictMap.set(sKey, {
-                                    system: sNewSys,
-                                    existingRole: `${sPendingSys} — ${sCleanPendingRole}`,
-                                    newRole: `${sNewSys} — ${cleanPersonaName(sCleanNewRole)}`,
-                                    cleanPendingRole: sCleanPendingRole,
-                                    cleanNewRole: sCleanNewRole,
-                                    existingPersonas: new Set(),
-                                    newPersonas: new Set(),
-                                    conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-                            const entry = pendingConflictMap.get(sKey);
-                            if (sPendingPersona) entry.existingPersonas.add(cleanPersonaName(sPendingPersona));
-                            if (sNewPersona) entry.newPersonas.add(cleanPersonaName(sNewPersona));
-                        }
-                    });
-                });
-            });
-
-            pendingConflictMap.forEach(entry => {
-                const sExisting = Array.from(entry.existingPersonas).join("\n");
-                const sNew = Array.from(entry.newPersonas).join("\n");
-                aPendingConflicts.push({
-                    system: entry.system,
-                    existingRole: entry.existingRole,
-                    existingPersona: sExisting,
-                    newRole: entry.newRole,
-                    newPersona: sNew,
-                    conflictTitle: entry.conflictTitle,
-                    conflictDesc: entry.conflictDesc
-                });
-            });
-
-            // 3. Check Batch Intra-Role Conflicts (within the newly added items / current request batch)
-            const batchConflictMap = new Map();
+            // 1. Check Batch Intra-Role Conflicts (within current request batch)
             for (let i = 0; i < aItemsToCheck.length; i++) {
                 for (let j = i + 1; j < aItemsToCheck.length; j++) {
                     const itemA = aItemsToCheck[i];
                     const itemB = aItemsToCheck[j];
 
-                    const sSysA = itemA.system || itemA.target_system || "Enterprise System";
-                    const sSysB = itemB.system || itemB.target_system || "Enterprise System";
-
-                    if (!isSameSystem(sSysA, sSysB)) continue;
-                    if (isSameAccess(itemA, itemB)) continue;
-
-                    const sRoleA = itemA.roleName || itemA.role_name || itemA.roleTitle || "";
-                    const sPersonaA = itemA.selectedPersona || itemA.selected_persona || itemA.persona || sRoleA;
-                    const sRoleB = itemB.roleName || itemB.role_name || itemB.roleTitle || "";
-                    const sPersonaB = itemB.selectedPersona || itemB.selected_persona || itemB.persona || sRoleB;
-
                     aSodRules.forEach(rule => {
-                        const sDesc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between multiple newly added roles selected together in this request.";
+                        const match = checkPairMatchesRule(itemA, itemB, rule);
+                        if (match) {
+                            const sys = match.item1.system || match.item1.target_system || match.item2.system || match.item2.target_system || rule.system || "Enterprise System";
+                            const role1 = cleanPersonaName(match.item1.roleName || match.item1.role_name || match.item1.team || match.item1.teamName || "Role A");
+                            const role2 = cleanPersonaName(match.item2.roleName || match.item2.role_name || match.item2.team || match.item2.teamName || "Role B");
+                            const pers1 = cleanPersonaName(match.item1.selectedPersona || match.item1.persona || match.item1.selected_persona || role1);
+                            const pers2 = cleanPersonaName(match.item2.selectedPersona || match.item2.persona || match.item2.selected_persona || role2);
+                            const desc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between multiple roles in this request.";
 
-                        if (checkConflictMatch(sRoleA, sPersonaA, sRoleB, sPersonaB, rule)) {
-                            const sCleanRoleA = cleanPersonaName(sRoleA);
-                            const sCleanRoleB = cleanPersonaName(sRoleB);
+                            const card = {
+                                system: sys,
+                                roleA: `${sys} — ${role1}`,
+                                personaA: pers1,
+                                roleB: `${sys} — ${role2}`,
+                                personaB: pers2,
+                                existingRole: `${sys} — ${role1}`,
+                                existingPersona: pers1,
+                                newRole: `${sys} — ${role2}`,
+                                newPersona: pers2,
+                                conflictTitle: "Segregation of Duties (SoD) Conflict",
+                                conflictDesc: desc
+                            };
 
-                            const sKey = `${sSysA}:::${sCleanRoleA}:::${sSysB}:::${sCleanRoleB}`;
-                            const sReverseKey = `${sSysB}:::${sCleanRoleB}:::${sSysA}:::${sCleanRoleA}`;
-
-                            let targetKey = sKey;
-                            let bIsReverse = false;
-                            if (batchConflictMap.has(sReverseKey)) {
-                                targetKey = sReverseKey;
-                                bIsReverse = true;
-                            }
-
-                            if (!batchConflictMap.has(targetKey)) {
-                                batchConflictMap.set(targetKey, {
-                                    system: sSysA,
-                                    roleA: `${sSysA} — ${sCleanRoleA}`,
-                                    roleB: `${sSysB} — ${sCleanRoleB}`,
-                                    cleanRoleA: sCleanRoleA,
-                                    cleanRoleB: sCleanRoleB,
-                                    personasA: new Set(),
-                                    personasB: new Set(),
-                                    conflictTitle: "Batch Selection SoD Conflict",
-                                    conflictDesc: sDesc
-                                });
-                            }
-
-                            const entry = batchConflictMap.get(targetKey);
-                            if (!bIsReverse) {
-                                if (sPersonaA) entry.personasA.add(cleanPersonaName(sPersonaA));
-                                if (sPersonaB) entry.personasB.add(cleanPersonaName(sPersonaB));
-                            } else {
-                                if (sPersonaA) entry.personasB.add(cleanPersonaName(sPersonaA));
-                                if (sPersonaB) entry.personasA.add(cleanPersonaName(sPersonaB));
+                            const key = makeConflictKey(card);
+                            if (!seenBatchKeys.has(key)) {
+                                seenBatchKeys.add(key);
+                                aBatchConflicts.push(card);
                             }
                         }
                     });
                 }
             }
 
-            // Also ensure any matching items in the batch are collected for these conflicted roles
-            batchConflictMap.forEach(entry => {
-                aItemsToCheck.forEach(item => {
-                    const itemSys = item.system || item.target_system || "Enterprise System";
-                    if (!isSameSystem(itemSys, entry.system)) return;
-                    const itemRole = cleanPersonaName(item.roleName || item.role_name || item.roleTitle || "");
-                    const itemPersona = cleanPersonaName(item.selectedPersona || item.selected_persona || item.persona || "");
-                    if (!itemPersona) return;
+            // 2. Check Conflicts against Active Entitlements
+            aItemsToCheck.forEach(newItem => {
+                aUserActiveRoles.forEach(activeRole => {
+                    aSodRules.forEach(rule => {
+                        const match = checkPairMatchesRule(newItem, activeRole, rule);
+                        if (match) {
+                            const sys = newItem.system || newItem.target_system || activeRole.system || activeRole.target_system || rule.system || "Enterprise System";
+                            const actRoleName = cleanPersonaName(activeRole.role_name || activeRole.roleName || activeRole.team || "Active Role");
+                            const actPersName = cleanPersonaName(activeRole.selected_persona || activeRole.persona || actRoleName);
+                            const newRoleName = cleanPersonaName(newItem.roleName || newItem.role_name || newItem.team || "Requested Role");
+                            const newPersName = cleanPersonaName(newItem.selectedPersona || newItem.persona || newRoleName);
+                            const desc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected between active entitlement and newly requested access.";
 
-                    const arch = getFunctionalArchetype(itemRole, itemPersona);
-                    const archA = getFunctionalArchetype(entry.cleanRoleA, entry.cleanRoleA);
-                    const archB = getFunctionalArchetype(entry.cleanRoleB, entry.cleanRoleB);
+                            const card = {
+                                system: sys,
+                                roleA: `${sys} — ${actRoleName}`,
+                                personaA: actPersName,
+                                roleB: `${sys} — ${newRoleName}`,
+                                personaB: newPersName,
+                                existingRole: `${sys} — ${actRoleName}`,
+                                existingPersona: actPersName,
+                                newRole: `${sys} — ${newRoleName}`,
+                                newPersona: newPersName,
+                                conflictTitle: "Segregation of Duties (SoD) Conflict",
+                                conflictDesc: desc
+                            };
 
-                    if (itemRole === entry.cleanRoleA || arch === archA) {
-                        entry.personasA.add(itemPersona);
-                    } else if (itemRole === entry.cleanRoleB || arch === archB) {
-                        entry.personasB.add(itemPersona);
-                    }
-                });
-
-                const sPersonaA = Array.from(entry.personasA).join("\n");
-                const sPersonaB = Array.from(entry.personasB).join("\n");
-
-                aBatchConflicts.push({
-                    system: entry.system,
-                    roleA: entry.roleA,
-                    personaA: sPersonaA,
-                    roleB: entry.roleB,
-                    personaB: sPersonaB,
-                    existingRole: entry.roleA,
-                    existingPersona: sPersonaA,
-                    newRole: entry.roleB,
-                    newPersona: sPersonaB,
-                    conflictTitle: "Batch Selection SoD Conflict",
-                    conflictDesc: entry.conflictDesc
+                            const key = makeConflictKey(card);
+                            if (!seenActiveKeys.has(key)) {
+                                seenActiveKeys.add(key);
+                                aActiveConflicts.push(card);
+                            }
+                        }
+                    });
                 });
             });
 
-            oModel.setProperty("/selectedRequestSodActiveConflicts", aActiveConflicts);
-            oModel.setProperty("/selectedRequestSodPendingConflicts", aPendingConflicts);
-            oModel.setProperty("/selectedRequestSodBatchConflicts", aBatchConflicts);
+            // 3. Check Conflicts against Pending In-Flight Requests
+            aItemsToCheck.forEach(newItem => {
+                aUserPendingRequests.forEach(pendingReq => {
+                    aSodRules.forEach(rule => {
+                        const match = checkPairMatchesRule(newItem, pendingReq, rule);
+                        if (match) {
+                            const sys = newItem.system || newItem.target_system || pendingReq.system || pendingReq.target_system || rule.system || "Enterprise System";
+                            const pendRoleName = cleanPersonaName(pendingReq.role_name || pendingReq.roleName || pendingReq.team || "Pending Role");
+                            const pendPersName = cleanPersonaName(pendingReq.selected_persona || pendingReq.persona || pendRoleName);
+                            const newRoleName = cleanPersonaName(newItem.roleName || newItem.role_name || newItem.team || "Requested Role");
+                            const newPersName = cleanPersonaName(newItem.selectedPersona || newItem.persona || newRoleName);
+                            const desc = rule.description || rule.conflict_reason || rule.conflictReason || "Segregation of Duties conflict detected against pending access request.";
+
+                            const card = {
+                                system: sys,
+                                roleA: `${sys} — ${pendRoleName}`,
+                                personaA: pendPersName,
+                                roleB: `${sys} — ${newRoleName}`,
+                                personaB: newPersName,
+                                existingRole: `${sys} — ${pendRoleName}`,
+                                existingPersona: pendPersName,
+                                newRole: `${sys} — ${newRoleName}`,
+                                newPersona: newPersName,
+                                conflictTitle: "Segregation of Duties (SoD) Conflict",
+                                conflictDesc: desc
+                            };
+
+                            const key = makeConflictKey(card);
+                            if (!seenPendingKeys.has(key)) {
+                                seenPendingKeys.add(key);
+                                aPendingConflicts.push(card);
+                            }
+                        }
+                    });
+                });
+            });
+
+            oModel.setProperty("/selectedRequestSodActiveConflicts", this._groupSodConflictCards(aActiveConflicts, false));
+            oModel.setProperty("/selectedRequestSodPendingConflicts", this._groupSodConflictCards(aPendingConflicts, false));
+            oModel.setProperty("/selectedRequestSodBatchConflicts", this._groupSodConflictCards(aBatchConflicts, true));
         },
 
         onSelectApproverSodExisting() {

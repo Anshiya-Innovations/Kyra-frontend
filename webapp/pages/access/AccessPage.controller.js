@@ -7170,11 +7170,168 @@ sap.ui.define([
                 });
         },
 
+        _groupSodConflictCards(cards, isBatch) {
+            if (!cards || !Array.isArray(cards) || cards.length === 0) return [];
+            const groupedMap = new Map();
+
+            const getBareRole = (roleStr) => {
+                if (!roleStr) return "";
+                const s = String(roleStr).trim();
+                const idx = s.indexOf(" — ");
+                if (idx !== -1) return s.slice(idx + 3).trim();
+                const idxDash = s.indexOf(" - ");
+                if (idxDash !== -1) return s.slice(idxDash + 3).trim();
+                return s;
+            };
+
+            const norm = (str) => {
+                if (!str) return "";
+                return String(str).toLowerCase().replace(/persona/gi, "").replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            };
+
+            cards.forEach(card => {
+                const sys = card.system || "Enterprise System";
+                const roleA = (card.roleA || card.existingRole || "").trim();
+                const roleB = (card.roleB || card.newRole || "").trim();
+                const persA = (card.personaA || card.existingPersona || "").trim();
+                const persB = (card.personaB || card.newPersona || "").trim();
+                const desc = (card.conflictDesc || card.description || "").trim();
+                const title = card.conflictTitle || "Segregation of Duties (SoD) Conflict";
+
+                const bareA = getBareRole(roleA);
+                const bareB = getBareRole(roleB);
+                const normBareA = norm(bareA);
+                const normBareB = norm(bareB);
+
+                // Case 1: Intra-role persona conflict (e.g. Frontend vs Backend under same IT Developer role)
+                if (normBareA && normBareB && normBareA === normBareB) {
+                    const p1 = norm(persA);
+                    const p2 = norm(persB);
+                    const sortedPers = [p1, p2].sort().join(" <===> ");
+                    const key = `INTRA:::${norm(sys)}:::${normBareA}:::${sortedPers}`;
+                    if (!groupedMap.has(key)) {
+                        groupedMap.set(key, {
+                            system: sys,
+                            roleA: roleA,
+                            roleB: roleB,
+                            existingRole: card.existingRole || roleA,
+                            newRole: card.newRole || roleB,
+                            personasA: new Set(persA ? [persA] : []),
+                            personasB: new Set(persB ? [persB] : []),
+                            conflictTitle: title,
+                            conflictDesc: desc
+                        });
+                    }
+                    return;
+                }
+
+                // Case 2: Inter-role conflict (e.g. IT Developer personas conflicting with Business Product Owner)
+                let groupKey;
+                let isFlipped = false;
+
+                if (isBatch) {
+                    const fwd = `BATCH:::${norm(sys)}:::${normBareA} <===> ${normBareB}`;
+                    const rev = `BATCH:::${norm(sys)}:::${normBareB} <===> ${normBareA}`;
+                    if (groupedMap.has(fwd)) {
+                        groupKey = fwd;
+                        isFlipped = false;
+                    } else if (groupedMap.has(rev)) {
+                        groupKey = rev;
+                        isFlipped = true;
+                    } else {
+                        groupKey = fwd;
+                        isFlipped = false;
+                    }
+                } else {
+                    // For active/pending conflicts: Side A is always Existing/Pending, Side B is always Newly Added
+                    groupKey = `DIRECTIONAL:::${norm(sys)}:::${normBareA} <===> ${normBareB}`;
+                    isFlipped = false;
+                }
+
+                if (!groupedMap.has(groupKey)) {
+                    groupedMap.set(groupKey, {
+                        system: sys,
+                        roleA: isFlipped ? roleB : roleA,
+                        roleB: isFlipped ? roleA : roleB,
+                        existingRole: isFlipped ? (card.newRole || roleB) : (card.existingRole || roleA),
+                        newRole: isFlipped ? (card.existingRole || roleA) : (card.newRole || roleB),
+                        personasA: new Set(),
+                        personasB: new Set(),
+                        conflictTitle: title,
+                        conflictDesc: desc
+                    });
+                }
+
+                const entry = groupedMap.get(groupKey);
+                if (isFlipped) {
+                    if (persB) entry.personasA.add(persB);
+                    if (persA) entry.personasB.add(persA);
+                } else {
+                    if (persA) entry.personasA.add(persA);
+                    if (persB) entry.personasB.add(persB);
+                }
+            });
+
+            const result = [];
+            groupedMap.forEach(entry => {
+                const joinedPersA = Array.from(entry.personasA).join("\n");
+                const joinedPersB = Array.from(entry.personasB).join("\n");
+
+                result.push({
+                    system: entry.system,
+                    roleA: entry.roleA,
+                    personaA: joinedPersA,
+                    roleB: entry.roleB,
+                    personaB: joinedPersB,
+                    existingRole: entry.existingRole,
+                    existingPersona: joinedPersA,
+                    newRole: entry.newRole,
+                    newPersona: joinedPersB,
+                    conflictTitle: entry.conflictTitle,
+                    conflictDesc: entry.conflictDesc
+                });
+            });
+
+            return result;
+        },
+
         _evaluateSodConflicts(aSummaryItems) {
             const oModel = this.getView().getModel("accessModel");
-            if (!oModel || !aSummaryItems) return;
+            if (!oModel) return;
 
-            const aUserActiveRoles = oModel.getProperty("/activeRoles") || oModel.getProperty("/userAccessList") || [];
+            if (!aSummaryItems || aSummaryItems.length === 0) {
+                aSummaryItems = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/cartItems") || [];
+            }
+
+            let aUserActiveRoles = oModel.getProperty("/activeRoles");
+            if (!aUserActiveRoles || aUserActiveRoles.length === 0) {
+                const aUserAccessList = oModel.getProperty("/userAccessList") || [];
+                aUserActiveRoles = aUserAccessList.filter(item => {
+                    const sStat = (item.status || "").toLowerCase();
+                    return sStat === "active" || sStat === "";
+                });
+            }
+            if (!aUserActiveRoles || aUserActiveRoles.length === 0) {
+                try {
+                    const aStored = window._kyraCachedGovRequests || JSON.parse(sessionStorage.getItem("kyra_cached_gov_requests") || "[]");
+                    const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || "").trim().toLowerCase();
+                    if (aStored && aStored.length > 0) {
+                        aUserActiveRoles = aStored.filter(r => {
+                            const sU = (r.requester_username || "").trim().toLowerCase();
+                            const sStat = (r.db_status || r.status || "").toUpperCase();
+                            const sType = (r.access_type || r.request_type || "").toUpperCase();
+                            return (!sActiveUser || sU === sActiveUser) && (sStat === "APPROVED" || sStat === "ACTIVE") && !sType.includes("REV");
+                        }).map(r => ({
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: r.role_name,
+                            persona: r.selected_persona || r.persona || r.role_name,
+                            selectedPersona: r.selected_persona || r.persona || r.role_name,
+                            status: "Active"
+                        }));
+                    }
+                } catch(e) {}
+            }
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
             const aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
@@ -7259,19 +7416,21 @@ sap.ui.define([
                 const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
                 if (!isSameSystem(sA, sB)) return false;
 
-                const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
-                const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.team || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.team || itemB.roleTitle || "");
+                const persA = cleanPersonaName(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
+                const persB = cleanPersonaName(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
+                const roleA = cleanPersonaName(itemA.roleName || itemA.role_name || itemA.team || itemA.roleTitle || "");
+                const roleB = cleanPersonaName(itemB.roleName || itemB.role_name || itemB.team || itemB.roleTitle || "");
 
-                if (persA && persB) {
-                    const pA = persA.replace(/persona/g, "").trim();
-                    const pB = persB.replace(/persona/g, "").trim();
-                    if (persA === persB || (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA)))) return true;
-                    return false;
+                const normPersA = normalizeForMatching(persA);
+                const normPersB = normalizeForMatching(persB);
+                const normRoleA = normalizeForMatching(roleA);
+                const normRoleB = normalizeForMatching(roleB);
+
+                if (normPersA && normPersB) {
+                    return normPersA === normPersB && (normRoleA === normRoleB || !normRoleA || !normRoleB);
                 }
-                if (roleA && roleB) {
-                    return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
+                if (normRoleA && normRoleB) {
+                    return normRoleA === normRoleB;
                 }
                 return false;
             };
@@ -7464,8 +7623,7 @@ sap.ui.define([
 
                             const key = makeConflictKey(card);
 
-                            // Avoid duplicating a conflict that is already shown in the batch conflicts
-                            if (!seenBatchKeys.has(key) && !seenActiveKeys.has(key)) {
+                            if (!seenActiveKeys.has(key)) {
                                 seenActiveKeys.add(key);
                                 aActiveConflicts.push(card);
                             }
@@ -7503,7 +7661,7 @@ sap.ui.define([
 
                             const key = makeConflictKey(card);
 
-                            if (!seenBatchKeys.has(key) && !seenActiveKeys.has(key) && !seenPendingKeys.has(key)) {
+                            if (!seenPendingKeys.has(key)) {
                                 seenPendingKeys.add(key);
                                 aPendingConflicts.push(card);
                             }
@@ -7512,9 +7670,9 @@ sap.ui.define([
                 });
             });
 
-            oModel.setProperty("/activeSodConflictsList", aActiveConflicts);
-            oModel.setProperty("/pendingOnlySodConflictsList", aPendingConflicts);
-            oModel.setProperty("/batchSodConflictsList", aBatchConflicts);
+            oModel.setProperty("/activeSodConflictsList", this._groupSodConflictCards(aActiveConflicts, false));
+            oModel.setProperty("/pendingOnlySodConflictsList", this._groupSodConflictCards(aPendingConflicts, false));
+            oModel.setProperty("/batchSodConflictsList", this._groupSodConflictCards(aBatchConflicts, true));
         },
 
         onGoToStep4Slide1() {
