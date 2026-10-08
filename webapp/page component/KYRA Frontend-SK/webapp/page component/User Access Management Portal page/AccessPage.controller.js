@@ -7170,11 +7170,168 @@ sap.ui.define([
                 });
         },
 
+        _groupSodConflictCards(cards, isBatch) {
+            if (!cards || !Array.isArray(cards) || cards.length === 0) return [];
+            const groupedMap = new Map();
+
+            const getBareRole = (roleStr) => {
+                if (!roleStr) return "";
+                const s = String(roleStr).trim();
+                const idx = s.indexOf(" — ");
+                if (idx !== -1) return s.slice(idx + 3).trim();
+                const idxDash = s.indexOf(" - ");
+                if (idxDash !== -1) return s.slice(idxDash + 3).trim();
+                return s;
+            };
+
+            const norm = (str) => {
+                if (!str) return "";
+                return String(str).toLowerCase().replace(/persona/gi, "").replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            };
+
+            cards.forEach(card => {
+                const sys = card.system || "Enterprise System";
+                const roleA = (card.roleA || card.existingRole || "").trim();
+                const roleB = (card.roleB || card.newRole || "").trim();
+                const persA = (card.personaA || card.existingPersona || "").trim();
+                const persB = (card.personaB || card.newPersona || "").trim();
+                const desc = (card.conflictDesc || card.description || "").trim();
+                const title = card.conflictTitle || "Segregation of Duties (SoD) Conflict";
+
+                const bareA = getBareRole(roleA);
+                const bareB = getBareRole(roleB);
+                const normBareA = norm(bareA);
+                const normBareB = norm(bareB);
+
+                // Case 1: Intra-role persona conflict (e.g. Frontend vs Backend under same IT Developer role)
+                if (normBareA && normBareB && normBareA === normBareB) {
+                    const p1 = norm(persA);
+                    const p2 = norm(persB);
+                    const sortedPers = [p1, p2].sort().join(" <===> ");
+                    const key = `INTRA:::${norm(sys)}:::${normBareA}:::${sortedPers}`;
+                    if (!groupedMap.has(key)) {
+                        groupedMap.set(key, {
+                            system: sys,
+                            roleA: roleA,
+                            roleB: roleB,
+                            existingRole: card.existingRole || roleA,
+                            newRole: card.newRole || roleB,
+                            personasA: new Set(persA ? [persA] : []),
+                            personasB: new Set(persB ? [persB] : []),
+                            conflictTitle: title,
+                            conflictDesc: desc
+                        });
+                    }
+                    return;
+                }
+
+                // Case 2: Inter-role conflict (e.g. IT Developer personas conflicting with Business Product Owner)
+                let groupKey;
+                let isFlipped = false;
+
+                if (isBatch) {
+                    const fwd = `BATCH:::${norm(sys)}:::${normBareA} <===> ${normBareB}`;
+                    const rev = `BATCH:::${norm(sys)}:::${normBareB} <===> ${normBareA}`;
+                    if (groupedMap.has(fwd)) {
+                        groupKey = fwd;
+                        isFlipped = false;
+                    } else if (groupedMap.has(rev)) {
+                        groupKey = rev;
+                        isFlipped = true;
+                    } else {
+                        groupKey = fwd;
+                        isFlipped = false;
+                    }
+                } else {
+                    // For active/pending conflicts: Side A is always Existing/Pending, Side B is always Newly Added
+                    groupKey = `DIRECTIONAL:::${norm(sys)}:::${normBareA} <===> ${normBareB}`;
+                    isFlipped = false;
+                }
+
+                if (!groupedMap.has(groupKey)) {
+                    groupedMap.set(groupKey, {
+                        system: sys,
+                        roleA: isFlipped ? roleB : roleA,
+                        roleB: isFlipped ? roleA : roleB,
+                        existingRole: isFlipped ? (card.newRole || roleB) : (card.existingRole || roleA),
+                        newRole: isFlipped ? (card.existingRole || roleA) : (card.newRole || roleB),
+                        personasA: new Set(),
+                        personasB: new Set(),
+                        conflictTitle: title,
+                        conflictDesc: desc
+                    });
+                }
+
+                const entry = groupedMap.get(groupKey);
+                if (isFlipped) {
+                    if (persB) entry.personasA.add(persB);
+                    if (persA) entry.personasB.add(persA);
+                } else {
+                    if (persA) entry.personasA.add(persA);
+                    if (persB) entry.personasB.add(persB);
+                }
+            });
+
+            const result = [];
+            groupedMap.forEach(entry => {
+                const joinedPersA = Array.from(entry.personasA).join("\n");
+                const joinedPersB = Array.from(entry.personasB).join("\n");
+
+                result.push({
+                    system: entry.system,
+                    roleA: entry.roleA,
+                    personaA: joinedPersA,
+                    roleB: entry.roleB,
+                    personaB: joinedPersB,
+                    existingRole: entry.existingRole,
+                    existingPersona: joinedPersA,
+                    newRole: entry.newRole,
+                    newPersona: joinedPersB,
+                    conflictTitle: entry.conflictTitle,
+                    conflictDesc: entry.conflictDesc
+                });
+            });
+
+            return result;
+        },
+
         _evaluateSodConflicts(aSummaryItems) {
             const oModel = this.getView().getModel("accessModel");
-            if (!oModel || !aSummaryItems) return;
+            if (!oModel) return;
 
-            const aUserActiveRoles = oModel.getProperty("/activeRoles") || oModel.getProperty("/userAccessList") || [];
+            if (!aSummaryItems || aSummaryItems.length === 0) {
+                aSummaryItems = oModel.getProperty("/addAccessSummaryItems") || oModel.getProperty("/cartItems") || [];
+            }
+
+            let aUserActiveRoles = oModel.getProperty("/activeRoles");
+            if (!aUserActiveRoles || aUserActiveRoles.length === 0) {
+                const aUserAccessList = oModel.getProperty("/userAccessList") || [];
+                aUserActiveRoles = aUserAccessList.filter(item => {
+                    const sStat = (item.status || "").toLowerCase();
+                    return sStat === "active" || sStat === "";
+                });
+            }
+            if (!aUserActiveRoles || aUserActiveRoles.length === 0) {
+                try {
+                    const aStored = window._kyraCachedGovRequests || JSON.parse(sessionStorage.getItem("kyra_cached_gov_requests") || "[]");
+                    const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || "").trim().toLowerCase();
+                    if (aStored && aStored.length > 0) {
+                        aUserActiveRoles = aStored.filter(r => {
+                            const sU = (r.requester_username || "").trim().toLowerCase();
+                            const sStat = (r.db_status || r.status || "").toUpperCase();
+                            const sType = (r.access_type || r.request_type || "").toUpperCase();
+                            return (!sActiveUser || sU === sActiveUser) && (sStat === "APPROVED" || sStat === "ACTIVE") && !sType.includes("REV");
+                        }).map(r => ({
+                            system: r.target_system,
+                            roleName: r.role_name,
+                            team: r.role_name,
+                            persona: r.selected_persona || r.persona || r.role_name,
+                            selectedPersona: r.selected_persona || r.persona || r.role_name,
+                            status: "Active"
+                        }));
+                    }
+                } catch(e) {}
+            }
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
             const aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
@@ -7259,19 +7416,21 @@ sap.ui.define([
                 const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
                 if (!isSameSystem(sA, sB)) return false;
 
-                const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
-                const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.team || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.team || itemB.roleTitle || "");
+                const persA = cleanPersonaName(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
+                const persB = cleanPersonaName(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
+                const roleA = cleanPersonaName(itemA.roleName || itemA.role_name || itemA.team || itemA.roleTitle || "");
+                const roleB = cleanPersonaName(itemB.roleName || itemB.role_name || itemB.team || itemB.roleTitle || "");
 
-                if (persA && persB) {
-                    const pA = persA.replace(/persona/g, "").trim();
-                    const pB = persB.replace(/persona/g, "").trim();
-                    if (persA === persB || (pA && pB && (pA === pB || pA.includes(pB) || pB.includes(pA)))) return true;
-                    return false;
+                const normPersA = normalizeForMatching(persA);
+                const normPersB = normalizeForMatching(persB);
+                const normRoleA = normalizeForMatching(roleA);
+                const normRoleB = normalizeForMatching(roleB);
+
+                if (normPersA && normPersB) {
+                    return normPersA === normPersB && (normRoleA === normRoleB || !normRoleA || !normRoleB);
                 }
-                if (roleA && roleB) {
-                    return roleA === roleB || roleA.includes(roleB) || roleB.includes(roleA);
+                if (normRoleA && normRoleB) {
+                    return normRoleA === normRoleB;
                 }
                 return false;
             };
@@ -7464,8 +7623,7 @@ sap.ui.define([
 
                             const key = makeConflictKey(card);
 
-                            // Avoid duplicating a conflict that is already shown in the batch conflicts
-                            if (!seenBatchKeys.has(key) && !seenActiveKeys.has(key)) {
+                            if (!seenActiveKeys.has(key)) {
                                 seenActiveKeys.add(key);
                                 aActiveConflicts.push(card);
                             }
@@ -7503,7 +7661,7 @@ sap.ui.define([
 
                             const key = makeConflictKey(card);
 
-                            if (!seenBatchKeys.has(key) && !seenActiveKeys.has(key) && !seenPendingKeys.has(key)) {
+                            if (!seenPendingKeys.has(key)) {
                                 seenPendingKeys.add(key);
                                 aPendingConflicts.push(card);
                             }
@@ -7512,9 +7670,9 @@ sap.ui.define([
                 });
             });
 
-            oModel.setProperty("/activeSodConflictsList", aActiveConflicts);
-            oModel.setProperty("/pendingOnlySodConflictsList", aPendingConflicts);
-            oModel.setProperty("/batchSodConflictsList", aBatchConflicts);
+            oModel.setProperty("/activeSodConflictsList", this._groupSodConflictCards(aActiveConflicts, false));
+            oModel.setProperty("/pendingOnlySodConflictsList", this._groupSodConflictCards(aPendingConflicts, false));
+            oModel.setProperty("/batchSodConflictsList", this._groupSodConflictCards(aBatchConflicts, true));
         },
 
         onGoToStep4Slide1() {
@@ -9022,11 +9180,33 @@ sap.ui.define([
             this.onNavToMyAccessMasterPage();
         },
 
+        onSearchRequests(oEvent) {
+            const sQuery = (oEvent.getParameter("newValue") || oEvent.getParameter("query") || "").trim();
+            this._sCurrentSearchQuery = sQuery;
+            const aFilters = [];
+            if (sQuery.length > 0) {
+                aFilters.push(new sap.ui.model.Filter([
+                    new sap.ui.model.Filter("requestId", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("system", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("roleName", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("roleTitle", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("serviceTopic", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("persona", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("status", sap.ui.model.FilterOperator.Contains, sQuery)
+                ], false));
+            }
+            const oTable = this.byId("myRequestsUnifiedTable");
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter(aFilters);
+            }
+        },
+
         onSearchMasterAccess(oEvent) {
-            const sQuery = oEvent.getParameter("newValue");
+            const sQuery = (oEvent.getParameter("newValue") || oEvent.getParameter("query") || "").trim();
+            this._sMasterSearchQuery = sQuery;
             const aFilters = [];
 
-            if (sQuery && sQuery.trim().length > 0) {
+            if (sQuery.length > 0) {
                 aFilters.push(new sap.ui.model.Filter([
                     new sap.ui.model.Filter("system", sap.ui.model.FilterOperator.Contains, sQuery),
                     new sap.ui.model.Filter("roleName", sap.ui.model.FilterOperator.Contains, sQuery),
@@ -9299,6 +9479,7 @@ sap.ui.define([
                             }
                         }
                     }
+                    this._lastMasterAccessFilterLabels = (aFilterConditions.length === 0) ? [] : aSelectedLabels;
                     oDialog.close();
                 };
 
@@ -9400,231 +9581,322 @@ sap.ui.define([
             });
         },
 
-                        onExportAccess() {
-            this._openExportDialog({
-                title: "Export to Excel",
-                subtitle: "Download the active filtered entitlements as an Excel spreadsheet (.xlsx).",
-                icon: "sap-icon://excel-attachment",
-                filename: "Kyra_Active_Entitlements_" + new Date().toISOString().slice(0, 10),
-                getData: () => {
-                    const oTable = this.byId("myAccessMasterSectionTable");
-                    let aList = [];
-                    if (oTable) {
-                        const oBinding = oTable.getBinding("items");
-                        if (oBinding) {
-                            const aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
-                            if (aContexts && aContexts.length > 0) {
-                                aList = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
-                            } else {
-                                const aAllContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 1000) : [];
-                                if (aAllContexts && aAllContexts.length > 0) {
-                                    aList = aAllContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
-                                }
-                            }
-                        }
-                    }
-                    if (!aList || aList.length === 0) {
-                        const oModel = this.getView().getModel("accessModel");
-                        aList = (oModel && oModel.getProperty("/userAccessList")) || [];
-                    }
-                    return (aList || []).map(item => ({
-                        "SYSTEM": item.system || "",
-                        "SERVICES": item.services || item.serviceTopic || "",
-                        "TEAM / ROLE": item.teamRole || item.roleName || item.team || "",
-                        "PERSONA": item.persona || "",
-                        "EXPIRY DATE": item.expiryDate || "",
-                        "STATUS": item.status || "Active"
-                    }));
-                }
+        async onExportAccess() {
+            const oTable = this.byId("myAccessMasterSectionTable");
+            const oModel = this.getView().getModel("accessModel");
+            const aFallback = (oModel && (oModel.getProperty("/displayedUserAccessList") || oModel.getProperty("/userAccessList"))) || [];
+
+            let sFilterType = "All Active Entitlements";
+            const aFilterParts = [];
+            if (this._sMasterSearchQuery && this._sMasterSearchQuery.trim()) {
+                aFilterParts.push('Search: "' + this._sMasterSearchQuery.trim() + '"');
+            }
+            if (Array.isArray(this._lastMasterAccessFilterLabels) && this._lastMasterAccessFilterLabels.length > 0) {
+                aFilterParts.push('Timeline/Duration: ' + this._lastMasterAccessFilterLabels.join(", "));
+            }
+            if (aFilterParts.length > 0) {
+                sFilterType = aFilterParts.join(" | ");
+            } else {
+                sFilterType = "All Active Entitlements (Unfiltered)";
+            }
+
+            await this._executeAuditExcelExport({
+                oTable: oTable,
+                aFallbackItems: aFallback,
+                sSectionName: "Active Entitlements — Complete Master View",
+                sFilterType: sFilterType,
+                sFilenamePrefix: "Kyra_Active_Entitlements_"
             });
         },
 
-        onExportRequests() {
-            this._openExportDialog({
-                title: "Export to Excel",
-                subtitle: "Download the filtered request audit log as an Excel spreadsheet (.xlsx).",
-                icon: "sap-icon://excel-attachment",
-                filename: "Kyra_Request_History_" + new Date().toISOString().slice(0, 10),
-                getData: () => {
-                    const oTable = this.byId("myRequestsUnifiedTable");
-                    let aList = [];
-                    if (oTable) {
-                        const oBinding = oTable.getBinding("items");
-                        if (oBinding) {
-                            const aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
-                            if (aContexts && aContexts.length > 0) {
-                                aList = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
-                            } else {
-                                const aAllContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 1000) : [];
-                                if (aAllContexts && aAllContexts.length > 0) {
-                                    aList = aAllContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
-                                }
-                            }
-                        }
+        async onExportRequests() {
+            const oTable = this.byId("myRequestsUnifiedTable");
+            const oModel = this.getView().getModel("accessModel");
+            const aFallback = (oModel && (oModel.getProperty("/requestHistory") || oModel.getProperty("/myHistoryRequests"))) || [];
+
+            const sCurrentKpiTitle = (oModel && oModel.getProperty("/historyFilterTitle")) || "All History";
+            const aFilterParts = [];
+            if (sCurrentKpiTitle && sCurrentKpiTitle !== "All History") {
+                aFilterParts.push(sCurrentKpiTitle.includes("History") || sCurrentKpiTitle.includes("Requests") ? sCurrentKpiTitle : (sCurrentKpiTitle + " Requests"));
+            } else {
+                aFilterParts.push("All History");
+            }
+
+            if (this._sCurrentSearchQuery && this._sCurrentSearchQuery.trim()) {
+                aFilterParts.push('Search: "' + this._sCurrentSearchQuery.trim() + '"');
+            }
+            if (Array.isArray(this._lastHistoryDialogFilterLabels) && this._lastHistoryDialogFilterLabels.length > 0) {
+                aFilterParts.push('Filter: ' + this._lastHistoryDialogFilterLabels.join(", "));
+            }
+
+            const sFilterType = aFilterParts.join(" | ");
+
+            await this._executeAuditExcelExport({
+                oTable: oTable,
+                aFallbackItems: aFallback,
+                sSectionName: "My History — " + sCurrentKpiTitle,
+                sFilterType: sFilterType,
+                sFilenamePrefix: "Kyra_My_History_" + sCurrentKpiTitle.replace(/[^a-zA-Z0-9]/g, "_") + "_"
+            });
+        },
+
+        async _executeAuditExcelExport(mParams) {
+            const { oTable, aFallbackItems, sSectionName, sFilterType, sFilenamePrefix } = mParams;
+
+            // 1. Retrieve displayed / filtered items from table binding
+            let aDisplayedItems = [];
+            if (oTable) {
+                const oBinding = oTable.getBinding("items");
+                if (oBinding) {
+                    const aContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 2500) : [];
+                    if (aContexts && aContexts.length > 0) {
+                        aDisplayedItems = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
                     }
-                    if (!aList || aList.length === 0) {
-                        const oModel = this.getView().getModel("accessModel");
-                        aList = (oModel && oModel.getProperty("/allSubmittedRequests")) || (oModel && oModel.getProperty("/requestHistory")) || [];
-                    }
-                    return (aList || []).map(item => ({
-                        "REQUEST ID": item.requestId || item.id || "",
-                        "SYSTEM": item.system || "",
-                        "ROLE / PERMISSION": item.roleName || item.role || "",
-                        "PERSONA": item.persona || "",
-                        "DURATION": item.duration || "",
-                        "SUBMITTED DATE": item.submittedDate || item.date || "",
-                        "STATUS": item.status || ""
-                    }));
                 }
+            }
+            if ((!aDisplayedItems || aDisplayedItems.length === 0) && Array.isArray(aFallbackItems)) {
+                aDisplayedItems = aFallbackItems;
+            }
+
+            if (!aDisplayedItems || aDisplayedItems.length === 0) {
+                sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    MessageToast.show("No records available to export for current filter.");
+                });
+                return;
+            }
+
+            // 2. Obtain complete raw database requests
+            let aRawDb = window._kyraCachedGovRequests;
+            if (!aRawDb || !Array.isArray(aRawDb) || aRawDb.length === 0) {
+                try {
+                    const sCached = sessionStorage.getItem("kyra_cached_gov_requests") || localStorage.getItem("kyra_cached_gov_requests");
+                    if (sCached) aRawDb = JSON.parse(sCached);
+                } catch(eCache) {}
+            }
+            if (!aRawDb || !Array.isArray(aRawDb) || aRawDb.length === 0) {
+                try {
+                    const res = await fetch("/odata/v4/admin-portal/GovernanceHistory", {
+                        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+                    });
+                    const data = await res.json();
+                    if (data && data.value) {
+                        aRawDb = data.value;
+                        window._kyraCachedGovRequests = aRawDb;
+                    }
+                } catch(eFetch) {
+                    console.warn("Failed fetching GovernanceHistory for audit export:", eFetch);
+                }
+            }
+            if (!Array.isArray(aRawDb)) aRawDb = [];
+
+            // Helper to clean strings and find raw db record
+            const cleanStr = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+            const findRawDbRecord = (sReqId, sSys, sRole) => {
+                const reqStr = (sReqId || "").trim();
+                const sysStr = (sSys || "").trim();
+                const roleClean = cleanStr(sRole);
+
+                if (reqStr) {
+                    const matchById = aRawDb.find(r => {
+                        const rNum = String(r.request_number || r.id || r.ID || "").trim();
+                        return rNum === reqStr || (rNum && reqStr && (rNum.toUpperCase() === reqStr.toUpperCase() || rNum.startsWith(reqStr + "-") || reqStr.startsWith(rNum + "-")));
+                    });
+                    if (matchById) return matchById;
+                }
+
+                if (sysStr && roleClean) {
+                    const matchBySysRole = aRawDb.find(r => {
+                        const rSys = (r.target_system || "").trim();
+                        const rRole = cleanStr(r.role_name);
+                        return rSys === sysStr && (rRole === roleClean || (rRole && roleClean && (rRole.includes(roleClean) || roleClean.includes(rRole))));
+                    });
+                    if (matchBySysRole) return matchBySysRole;
+                }
+                return null;
+            };
+
+            // 3. Map displayed items to complete 29 database columns
+            const aExportRows = [];
+            const seenKeys = new Set();
+
+            aDisplayedItems.forEach(item => {
+                if (!item) return;
+
+                if (Array.isArray(item.entitlements) && item.entitlements.length > 0) {
+                    item.entitlements.forEach(ent => {
+                        const sEntReqId = ent.requestId || item.requestId || item.request_number || item.id || "";
+                        const sEntSys = ent.system || item.system || item.target_system || "";
+                        const sEntRole = ent.roleName || ent.role || item.roleName || "";
+                        const rawDb = findRawDbRecord(sEntReqId, sEntSys, sEntRole);
+
+                        const rowKey = (sEntReqId || (rawDb && rawDb.request_number) || "") + ":::" + (sEntSys || (rawDb && rawDb.target_system) || "") + ":::" + (sEntRole || (rawDb && rawDb.role_name) || "");
+                        if (seenKeys.has(rowKey)) return;
+                        seenKeys.add(rowKey);
+
+                        aExportRows.push({
+                            id: (rawDb && (rawDb.id || rawDb.ID)) || ent.requestId || item.requestId || "",
+                            request_number: (rawDb && rawDb.request_number) || ent.requestId || item.requestId || item.request_number || "",
+                            requester_username: (rawDb && rawDb.requester_username) || item.requesterUsername || item.requesterId || item.userId || "emp018",
+                            requester_persona: (rawDb && rawDb.requester_persona) || item.requesterPersona || item.persona || "Requester",
+                            business_sector: (rawDb && rawDb.business_sector) || item.businessSector || item.sector || "Information Technology & Security",
+                            business_function: (rawDb && rawDb.business_function) || item.businessFunction || item.function || "Corporate Governance",
+                            operating_region: (rawDb && rawDb.operating_region) || item.operatingRegion || item.region || "Global Enterprise (ALL)",
+                            target_system: (rawDb && rawDb.target_system) || sEntSys,
+                            service_topic: (rawDb && rawDb.service_topic) || ent.serviceTopic || ent.team || item.serviceTopic || "",
+                            role_name: (rawDb && rawDb.role_name) || sEntRole,
+                            selected_persona: (rawDb && rawDb.selected_persona) || ent.selectedPersona || ent.persona || item.selectedPersona || item.persona || "",
+                            access_type: (rawDb && rawDb.access_type) || item.type || item.requestType || (item.isRevocation ? "Revocation" : "Addition"),
+                            access_duration: (rawDb && rawDb.access_duration) || item.duration || item.accessDuration || "Permanent",
+                            justification: (rawDb && rawDb.justification) || item.justification || "",
+                            status: ent.status || (rawDb && rawDb.status) || item.status || "Pending",
+                            db_status: (rawDb && rawDb.db_status) || (ent.status || item.status || "PENDING").toUpperCase(),
+                            approver_status: (rawDb && rawDb.approver_status) || (item.approver_status || ""),
+                            compliance_status: (rawDb && rawDb.compliance_status) || (item.compliance_status || ""),
+                            iam_approver_1_status: (rawDb && rawDb.iam_approver_1_status) || (item.iam_approver_1_status || ""),
+                            iam_approver_2_status: (rawDb && rawDb.iam_approver_2_status) || (item.iam_approver_2_status || ""),
+                            approver_comment: (rawDb && rawDb.approver_comment) || item.approverRemark || item.approver_comment || "",
+                            reviewer_comment: (rawDb && rawDb.reviewer_comment) || ent.comment || item.reviewer_comment || "",
+                            iam_approver_1_comment: (rawDb && rawDb.iam_approver_1_comment) || item.iam_approver_1_comment || "",
+                            iam_approver_2_comment: (rawDb && rawDb.iam_approver_2_comment) || item.iam_approver_2_comment || "",
+                            has_conflict: rawDb ? (rawDb.has_conflict === true ? "true" : "false") : (item.has_conflict === true ? "true" : "false"),
+                            conflicting_role: (rawDb && rawDb.conflicting_role) || item.conflicting_role || "",
+                            conflict_reason: (rawDb && rawDb.conflict_reason) || item.conflict_reason || "",
+                            created_at: (rawDb && rawDb.created_at) || item.createdAtRaw || item.submissionDate || "",
+                            updated_at: (rawDb && rawDb.updated_at) || item.updatedAtRaw || item.decisionDate || ""
+                        });
+                    });
+                } else {
+                    const sReqId = item.requestId || item.request_number || item.id || "";
+                    const sSys = item.system || item.target_system || "";
+                    const sRole = item.roleName || item.roleTitle || item.teamRole || item.role || "";
+                    const rawDb = findRawDbRecord(sReqId, sSys, sRole);
+
+                    const rowKey = (sReqId || (rawDb && rawDb.request_number) || "") + ":::" + (sSys || (rawDb && rawDb.target_system) || "") + ":::" + (sRole || (rawDb && rawDb.role_name) || "");
+                    if (seenKeys.has(rowKey)) return;
+                    seenKeys.add(rowKey);
+
+                    aExportRows.push({
+                        id: (rawDb && (rawDb.id || rawDb.ID)) || sReqId,
+                        request_number: (rawDb && rawDb.request_number) || sReqId,
+                        requester_username: (rawDb && rawDb.requester_username) || item.requesterUsername || item.requesterId || item.userId || "emp018",
+                        requester_persona: (rawDb && rawDb.requester_persona) || item.requesterPersona || item.persona || "Requester",
+                        business_sector: (rawDb && rawDb.business_sector) || item.businessSector || item.sector || "Information Technology & Security",
+                        business_function: (rawDb && rawDb.business_function) || item.businessFunction || item.function || "Corporate Governance",
+                        operating_region: (rawDb && rawDb.operating_region) || item.operatingRegion || item.region || "Global Enterprise (ALL)",
+                        target_system: (rawDb && rawDb.target_system) || sSys,
+                        service_topic: (rawDb && rawDb.service_topic) || item.serviceTopic || item.services || item.service || "",
+                        role_name: (rawDb && rawDb.role_name) || sRole,
+                        selected_persona: (rawDb && rawDb.selected_persona) || item.selectedPersona || item.persona || "",
+                        access_type: (rawDb && rawDb.access_type) || item.type || item.requestType || (item.isRevocation ? "Revocation" : "Addition"),
+                        access_duration: (rawDb && rawDb.access_duration) || item.duration || item.accessDuration || item.expiryDate || "Permanent",
+                        justification: (rawDb && rawDb.justification) || item.justification || "",
+                        status: item.status || (rawDb && rawDb.status) || "Active",
+                        db_status: (rawDb && rawDb.db_status) || ((rawDb && rawDb.status) || item.status || "ACTIVE").toUpperCase(),
+                        approver_status: (rawDb && rawDb.approver_status) || (item.approver_status || ""),
+                        compliance_status: (rawDb && rawDb.compliance_status) || (item.compliance_status || ""),
+                        iam_approver_1_status: (rawDb && rawDb.iam_approver_1_status) || (item.iam_approver_1_status || ""),
+                        iam_approver_2_status: (rawDb && rawDb.iam_approver_2_status) || (item.iam_approver_2_status || ""),
+                        approver_comment: (rawDb && rawDb.approver_comment) || item.approverRemark || item.approver_comment || "",
+                        reviewer_comment: (rawDb && rawDb.reviewer_comment) || item.reviewer_comment || item.comment || "",
+                        iam_approver_1_comment: (rawDb && rawDb.iam_approver_1_comment) || item.iam_approver_1_comment || "",
+                        iam_approver_2_comment: (rawDb && rawDb.iam_approver_2_comment) || item.iam_approver_2_comment || "",
+                        has_conflict: rawDb ? (rawDb.has_conflict === true ? "true" : "false") : (item.has_conflict === true ? "true" : "false"),
+                        conflicting_role: (rawDb && rawDb.conflicting_role) || item.conflicting_role || "",
+                        conflict_reason: (rawDb && rawDb.conflict_reason) || item.conflict_reason || "",
+                        created_at: (rawDb && rawDb.created_at) || item.createdAtRaw || item.submissionDate || item.grantedDate || "",
+                        updated_at: (rawDb && rawDb.updated_at) || item.updatedAtRaw || item.decisionDate || item.grantedDate || ""
+                    });
+                }
+            });
+
+            if (aExportRows.length === 0) {
+                sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    MessageToast.show("No records available to export for current filter.");
+                });
+                return;
+            }
+
+            // 4. Construct Excel TSV Spreadsheet with UTF-8 BOM
+            const DB_COLUMNS = [
+                { key: "id", label: "ID" },
+                { key: "request_number", label: "REQUEST NUMBER" },
+                { key: "requester_username", label: "REQUESTER USERNAME" },
+                { key: "requester_persona", label: "REQUESTER PERSONA" },
+                { key: "business_sector", label: "BUSINESS SECTOR" },
+                { key: "business_function", label: "BUSINESS FUNCTION" },
+                { key: "operating_region", label: "OPERATING REGION" },
+                { key: "target_system", label: "TARGET SYSTEM" },
+                { key: "service_topic", label: "SERVICE TOPIC" },
+                { key: "role_name", label: "ROLE NAME" },
+                { key: "selected_persona", label: "SELECTED PERSONA" },
+                { key: "access_type", label: "ACCESS TYPE" },
+                { key: "access_duration", label: "ACCESS DURATION" },
+                { key: "justification", label: "JUSTIFICATION" },
+                { key: "status", label: "STATUS" },
+                { key: "db_status", label: "DB STATUS" },
+                { key: "approver_status", label: "APPROVER STATUS" },
+                { key: "compliance_status", label: "COMPLIANCE STATUS" },
+                { key: "iam_approver_1_status", label: "IAM APPROVER 1 STATUS" },
+                { key: "iam_approver_2_status", label: "IAM APPROVER 2 STATUS" },
+                { key: "approver_comment", label: "APPROVER COMMENT" },
+                { key: "reviewer_comment", label: "REVIEWER COMMENT" },
+                { key: "iam_approver_1_comment", label: "IAM APPROVER 1 COMMENT" },
+                { key: "iam_approver_2_comment", label: "IAM APPROVER 2 COMMENT" },
+                { key: "has_conflict", label: "HAS CONFLICT" },
+                { key: "conflicting_role", label: "CONFLICTING ROLE" },
+                { key: "conflict_reason", label: "CONFLICT REASON" },
+                { key: "created_at", label: "CREATED AT" },
+                { key: "updated_at", label: "UPDATED AT" }
+            ];
+
+            const sanitizeCell = (v) => {
+                if (v === null || v === undefined) return "";
+                let s = String(v).trim();
+                if (s.includes("\t") || s.includes("\n") || s.includes("\r") || s.includes('"')) {
+                    s = '"' + s.replace(/"/g, '""').replace(/\r\n|\n|\r/g, " ") + '"';
+                }
+                return s;
+            };
+
+            let sContent = "";
+            sContent += "KYRA ENTERPRISE GOVERNANCE AUDIT REPORT\r\n";
+            sContent += "Report Section:\t" + sanitizeCell(sSectionName || "Audit Log") + "\r\n";
+            sContent += "Filter Type:\t" + sanitizeCell(sFilterType || "All Records (Unfiltered)") + "\r\n";
+            sContent += "Export Timestamp:\t" + sanitizeCell(new Date().toLocaleString()) + "\r\n";
+            sContent += "Total Records Exported:\t" + aExportRows.length + "\r\n";
+            sContent += "\r\n";
+
+            // Headers
+            sContent += DB_COLUMNS.map(c => c.label).join("\t") + "\r\n";
+
+            // Data rows
+            aExportRows.forEach(row => {
+                const aVals = DB_COLUMNS.map(c => sanitizeCell(row[c.key]));
+                sContent += aVals.join("\t") + "\r\n";
+            });
+
+            const sFilename = (sFilenamePrefix || "Kyra_Audit_Export_") + new Date().toISOString().slice(0, 10) + ".xlsx";
+            const oBlob = new Blob(["\uFEFF" + sContent], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8" });
+            const sUrl = URL.createObjectURL(oBlob);
+            const oLink = document.createElement("a");
+            oLink.href = sUrl;
+            oLink.download = sFilename;
+            document.body.appendChild(oLink);
+            oLink.click();
+            document.body.removeChild(oLink);
+            URL.revokeObjectURL(sUrl);
+
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("Audit log exported to Excel (" + aExportRows.length + " records).");
             });
         },
 
         _openExportDialog(oConfig) {
-            sap.ui.require([
-                "sap/m/Dialog",
-                "sap/m/VBox",
-                "sap/m/HBox",
-                "sap/m/Avatar",
-                "sap/m/Title",
-                "sap/m/Text",
-                "sap/m/Button",
-                "sap/m/MessageToast"
-            ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
-                // Notification Modal Header with Close button
-                const oTopBar = new HBox({
-                    justifyContent: "End",
-                    items: [
-                        new Button({
-                            icon: "sap-icon://decline",
-                            type: "Transparent",
-                            tooltip: "Close",
-                            press: () => oDialog.close()
-                        }).addStyleClass("kyraExportNotifCloseBtn")
-                    ]
-                }).addStyleClass("kyraExportNotifTopBar");
-
-                // Excel Icon Circle
-                const oIconCircle = new HBox({
-                    items: [
-                        new Avatar({
-                            src: "sap-icon://excel-attachment",
-                            displaySize: "M"
-                        })
-                    ]
-                }).addStyleClass("kyraExportNotifIconCircle");
-
-                // Title & Subtitle
-                const oTitle = new Title({
-                    text: oConfig.title || "Export to Excel",
-                    level: "H3",
-                    textAlign: "Center",
-                    width: "100%"
-                }).addStyleClass("kyraExportNotifTitle");
-
-                const oDesc = new Text({
-                    text: oConfig.subtitle || "Download the active filtered records as an Excel spreadsheet (.xlsx).",
-                    textAlign: "Center",
-                    width: "100%"
-                }).addStyleClass("kyraExportNotifDesc");
-
-                // File info card (Excel .xlsx only)
-                const oFileCard = new HBox({
-                    alignItems: "Center",
-                    items: [
-                        new Text({ text: ".XLSX" }).addStyleClass("kyraExportNotifFormatPill"),
-                        new VBox({
-                            items: [
-                                new Title({ text: "Excel Spreadsheet (.xlsx)", level: "H5" }).addStyleClass("kyraExportNotifCardTitle"),
-                                new Text({ text: "Formatted tabular workbook with audit columns" }).addStyleClass("kyraExportNotifCardSubtitle")
-                            ]
-                        }).addStyleClass("kyraExportNotifCardInfo")
-                    ]
-                }).addStyleClass("kyraExportNotifFileCard");
-
-                // Download Handler
-                const handleDownload = () => {
-                    const aData = (typeof oConfig.getData === "function") ? oConfig.getData() : [];
-                    if (!aData || aData.length === 0) {
-                        MessageToast.show("No records available to export for current filter.");
-                        oDialog.close();
-                        return;
-                    }
-
-                    const sFilename = (oConfig.filename || "Kyra_Export") + ".xlsx";
-                    const aHeaders = Object.keys(aData[0]);
-                    let sContent = aHeaders.join("\t") + "\r\n";
-                    aData.forEach(row => {
-                        const aVals = aHeaders.map(h => {
-                            let val = (row[h] || "").toString();
-                            if (val.includes(",") || val.includes('"') || val.includes("\n")) {
-                                val = '"' + val.replace(/"/g, '""') + '"';
-                            }
-                            return val;
-                        });
-                        sContent += aVals.join("\t") + "\r\n";
-                    });
-
-                    sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
-
-                    const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    const oBlob = new Blob([sContent], { type: blobMime });
-                    const sUrl = URL.createObjectURL(oBlob);
-                    const oLink = document.createElement("a");
-                    oLink.href = sUrl;
-                    oLink.download = sFilename;
-                    document.body.appendChild(oLink);
-                    oLink.click();
-                    document.body.removeChild(oLink);
-                    URL.revokeObjectURL(sUrl);
-
-                    MessageToast.show("Excel report downloaded successfully!");
-                    oDialog.close();
-                };
-
-                // ONLY 2 BUTTONS: Cancel & Download
-                const oFooter = new HBox({
-                    justifyContent: "End",
-                    alignItems: "Center",
-                    items: [
-                        new Button({
-                            text: "Cancel",
-                            press: () => oDialog.close()
-                        }).addStyleClass("kyraExportNotifCancelBtn"),
-                        new Button({
-                            text: "Download",
-                            icon: "sap-icon://download",
-                            type: "Emphasized",
-                            press: handleDownload
-                        }).addStyleClass("kyraExportNotifDownloadBtn")
-                    ]
-                }).addStyleClass("kyraExportNotifFooter");
-
-                // Assemble Dialog
-                const oDialog = new Dialog({
-                    showHeader: false,
-                    contentWidth: "420px",
-                    verticalScrolling: false,
-                    horizontalScrolling: false,
-                    resizable: false,
-                    content: [
-                        new VBox({
-                            alignItems: "Stretch",
-                            items: [
-                                oTopBar,
-                                oIconCircle,
-                                oTitle,
-                                oDesc,
-                                oFileCard,
-                                oFooter
-                            ]
-                        }).addStyleClass("sapUiNoMargin")
-                    ],
-                    afterClose: () => oDialog.destroy()
-                }).addStyleClass("kyraModernExportNotificationDialog");
-
-                this.getView().addDependent(oDialog);
-                oDialog.open();
-            });
+            if (oConfig && oConfig.filename && oConfig.filename.includes("Active_Entitlements")) {
+                this.onExportAccess();
+            } else {
+                this.onExportRequests();
+            }
         },
 
         onNavToRemoveAccess() {

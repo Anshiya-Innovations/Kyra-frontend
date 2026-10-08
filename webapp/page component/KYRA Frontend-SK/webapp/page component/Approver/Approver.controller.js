@@ -98,7 +98,12 @@ sap.ui.define([
     return Controller.extend("kyra001.pages.Approver.Approver", {
 
         onInit() {
-            const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
+            const oComp = this.getOwnerComponent();
+            const oSharedModel = oComp && oComp.getModel("accessModel");
+            if (oSharedModel) {
+                this.getView().setModel(oSharedModel, "accessModel");
+            }
+            const oRouter = oComp && oComp.getRouter();
             if (oRouter) {
                 ["AccessPage", "UserDashboard", "AdminDashboard"].forEach(routeName => {
                     const r = oRouter.getRoute(routeName);
@@ -263,7 +268,7 @@ sap.ui.define([
         },
 
         _updateDisplayedHistoryRequests() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (!oModel) return;
             const bIsCompliance = !!oModel.getProperty("/isCompliance");
             if (bIsCompliance) {
@@ -274,6 +279,10 @@ sap.ui.define([
                 const aAccess = oModel.getProperty("/historyAccessRequests") || oModel.getProperty("/processedAccessRequests") || [];
                 const aRevoke = oModel.getProperty("/historyRevokeRequests") || oModel.getProperty("/processedRevokeRequests") || [];
                 this._setSmartProperty(oModel, "/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
+            }
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                this._setSmartProperty(oCompModel, "/displayedHistoryRequests", oModel.getProperty("/displayedHistoryRequests"));
             }
             if (this._sCurrentSearchQuery) {
                 this._applySearchFilter(this._sCurrentSearchQuery);
@@ -389,13 +398,33 @@ sap.ui.define([
 
         _showDecisionSummarySlide(oData, bReadOnly) {
             const oModel = this.getView().getModel("accessModel");
-            const aEntitlements = oData.entitlements || [];
+            const rawEntitlements = oData.entitlements || [];
+            const seenEntSummary = new Set();
+            const aEntitlements = rawEntitlements.filter(e => {
+                const sReq = (e.requestId || e.request_number || e.requestNumber || '').trim();
+                const sSys = (e.system || oData.system || '').trim();
+                const sRole = (e.roleName || e.role_name || e.team || '').trim();
+                const sPersona = (e.selectedPersona || e.selected_persona || e.persona || oData.persona || '').trim();
+                const sKey = sReq ? `${sReq}:::${sSys}:::${sRole}:::${sPersona}` : `${sSys}:::${sRole}:::${sPersona}`;
+                if (seenEntSummary.has(sKey)) return false;
+                seenEntSummary.add(sKey);
+                return true;
+            });
 
-            const aApprovedItems = aEntitlements.filter(e => e.status === "Approved");
-            const aRejectedItems = aEntitlements.filter(e => e.status === "Rejected");
-            const aPendingItems = aEntitlements.filter(e => e.status !== "Approved" && e.status !== "Rejected");
+            const aApprovedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "approved" || s.includes("approved") || s === "success";
+            });
+            const aRejectedItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return s === "rejected" || s.includes("reject") || s === "error";
+            });
+            const aPendingItems = aEntitlements.filter(e => {
+                const s = (e.status || "").toLowerCase();
+                return !s.includes("approved") && !s.includes("reject") && s !== "success" && s !== "error";
+            });
 
-            const aFinalApproved = aApprovedItems.concat(aPendingItems);
+            const aFinalApproved = bReadOnly ? aApprovedItems : aApprovedItems.concat(aPendingItems);
 
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
             const sOverallBadgeClass = aRejectedItems.length === 0 ? "kyra-badge-approved" : (aFinalApproved.length === 0 ? "kyra-badge-rejected" : "kyra-badge-partial");
@@ -763,6 +792,15 @@ sap.ui.define([
             const sDate = new Date().toISOString().split("T")[0];
             const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
 
+            const rawSubmitEnts = oData.entitlements || [];
+            const seenSubmitEnts = new Set();
+            const aDedupedSubmitEnts = rawSubmitEnts.filter(e => {
+                const sKey = `${e.requestId || oData.requestId || ''}:::${e.system || oData.system || ''}:::${e.roleName || e.team || ''}:::${e.selectedPersona || e.persona || ''}`;
+                if (seenSubmitEnts.has(sKey)) return false;
+                seenSubmitEnts.add(sKey);
+                return true;
+            });
+
             const oProcessedItem = Object.assign({}, oData, {
                 requesterName: "Requester",
                 persona: "Requester",
@@ -770,15 +808,19 @@ sap.ui.define([
                 statusState: sOverallState,
                 statusIcon: sStatusIcon,
                 decisionDate: sDate,
-                entitlements: (oData.entitlements || []).map(e => ({
+                entitlements: aDedupedSubmitEnts.map(e => ({
+                    requestId: e.requestId || oData.requestId,
                     system: e.system,
                     roleName: e.roleName,
                     team: e.team,
+                    selectedPersona: e.selectedPersona || oData.selectedPersona || oData.persona || "",
+                    persona: e.persona || oData.persona || "",
                     grantedDate: e.grantedDate,
                     expiryDate: e.expiryDate,
                     status: e.status === "Rejected" ? "Rejected" : "Approved",
                     statusState: e.status === "Rejected" ? "Error" : "Success",
-                    statusIcon: e.status === "Rejected" ? "sap-icon://error" : "sap-icon://sys-enter-2"
+                    statusIcon: e.status === "Rejected" ? "sap-icon://error" : "sap-icon://sys-enter-2",
+                    comment: e.comment || ""
                 }))
             });
 
@@ -1042,7 +1084,7 @@ sap.ui.define([
                                 (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
                     if (dec) {
                         const sDecStatus = (dec.status || "").toUpperCase();
-                        if (dec.role === "compliance" || isCompliance) {
+                        if (dec.role === "compliance" || dec.isCompliance || (dec.actorRole && dec.actorRole.toLowerCase().includes("compliance")) || isCompliance) {
                             r.compliance_status = sDecStatus;
                             r.compliance_decision_status = sDecStatus;
                             r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
@@ -1287,24 +1329,31 @@ sap.ui.define([
                             oPendingGrouped[sPendKey].conflicting_role = r.conflicting_role;
                         }
                     }
-                    oPendingGrouped[sPendKey].entitlements.push({
-                        requestId: r.request_number || r.requestId,
-                        system: r.target_system || r.system,
-                        roleName: r.role_name || r.roleName,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: "Pending",
-                        statusState: "Warning",
-                        statusIcon: "sap-icon://pending",
-                        approverRemark: r.approver_comment || r.approverRemark || "",
-                        comment: r.reviewer_comment || r.comments || "",
-                        hasConflict: hasConflict,
-                        has_conflict: hasConflict,
-                        conflictingRole: r.conflicting_role || "",
-                        conflicting_role: r.conflicting_role || ""
-                    });
+                    if (!oPendingGrouped[sPendKey]._seenEnts) {
+                        oPendingGrouped[sPendKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oPendingGrouped[sPendKey]._seenEnts.has(sEntUnique)) {
+                        oPendingGrouped[sPendKey]._seenEnts.add(sEntUnique);
+                        oPendingGrouped[sPendKey].entitlements.push({
+                            requestId: r.request_number || r.requestId,
+                            system: r.target_system || r.system,
+                            roleName: r.role_name || r.roleName,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: "Pending",
+                            statusState: "Warning",
+                            statusIcon: "sap-icon://pending",
+                            approverRemark: r.approver_comment || r.approverRemark || "",
+                            comment: r.reviewer_comment || r.comments || "",
+                            hasConflict: hasConflict,
+                            has_conflict: hasConflict,
+                            conflictingRole: r.conflicting_role || "",
+                            conflicting_role: r.conflicting_role || ""
+                        });
+                    }
                     return;
                 }
 
@@ -1368,19 +1417,26 @@ sap.ui.define([
                             oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
                         }
                     }
-                    oGrouped[sGroupKey].entitlements.push({
-                        requestId: r.request_number || r.requestId,
-                        system: r.target_system || r.system,
-                        roleName: r.role_name || r.roleName,
-                        team: sService,
-                        serviceTopic: sService,
-                        selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
-                        status: bRoleApproved ? "Approved" : "Rejected",
-                        statusState: bRoleApproved ? "Success" : "Error",
-                        statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
-                        comment: r.approver_comment || r.reviewer_comment || r.comments || ""
-                    });
+                    if (!oGrouped[sGroupKey]._seenEnts) {
+                        oGrouped[sGroupKey]._seenEnts = new Set();
+                    }
+                    const sEntUnique = `${r.request_number || r.requestId || ''}:::${r.target_system || r.system || ''}:::${r.role_name || r.roleName || ''}:::${cleanPersonaName(r.selected_persona || r.persona || '')}`;
+                    if (!oGrouped[sGroupKey]._seenEnts.has(sEntUnique)) {
+                        oGrouped[sGroupKey]._seenEnts.add(sEntUnique);
+                        oGrouped[sGroupKey].entitlements.push({
+                            requestId: r.request_number || r.requestId,
+                            system: r.target_system || r.system,
+                            roleName: r.role_name || r.roleName,
+                            team: sService,
+                            serviceTopic: sService,
+                            selectedPersona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            persona: cleanPersonaName(r.selected_persona || r.persona || r.role_name || ""),
+                            status: bRoleApproved ? "Approved" : "Rejected",
+                            statusState: bRoleApproved ? "Success" : "Error",
+                            statusIcon: bRoleApproved ? "sap-icon://sys-enter-2" : "sap-icon://error",
+                            comment: r.approver_comment || r.reviewer_comment || r.comments || ""
+                        });
+                    }
                 }
             });
 
@@ -1527,13 +1583,41 @@ sap.ui.define([
                         const bReq = getBaseReqId(sReq).toUpperCase();
                         processedBaseIds.add(sReq);
                         processedBaseIds.add(bReq);
-                        const bExistsInDb = aProcessed.some(p => {
+                        const existingIdx = aProcessed.findIndex(p => {
                             const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                             return pId === sReq || getBaseReqId(pId).toUpperCase() === bReq;
                         });
-                        if (!bExistsInDb) {
+                        if (existingIdx >= 0) {
+                            const existing = aProcessed[existingIdx];
+                            if (sp.status && sp.status !== "Pending" && sp.status !== "Revoke Pending") {
+                                existing.status = sp.status;
+                                existing.statusState = sp.statusState;
+                                existing.statusIcon = sp.statusIcon;
+                                existing.decisionDate = sp.decisionDate || existing.decisionDate;
+                                existing.updatedAtRaw = sp.updatedAtRaw || existing.updatedAtRaw;
+                                existing.updated_at = sp.updated_at || existing.updated_at;
+                            }
+                            if (existing.entitlements && existing.entitlements.length > 0) {
+                                const seenE = new Set();
+                                existing.entitlements = existing.entitlements.filter(e => {
+                                    const sKey = `${e.requestId || ''}:::${e.system || ''}:::${e.roleName || ''}:::${e.selectedPersona || ''}`;
+                                    if (seenE.has(sKey)) return false;
+                                    seenE.add(sKey);
+                                    return true;
+                                });
+                            }
+                        } else {
                             if (!sp.updatedAtRaw) sp.updatedAtRaw = sp.updated_at || new Date().toISOString();
                             if (!sp.updated_at) sp.updated_at = sp.updatedAtRaw;
+                            if (sp.entitlements && sp.entitlements.length > 0) {
+                                const seenE = new Set();
+                                sp.entitlements = sp.entitlements.filter(e => {
+                                    const sKey = `${e.requestId || ''}:::${e.system || ''}:::${e.roleName || ''}:::${e.selectedPersona || ''}`;
+                                    if (seenE.has(sKey)) return false;
+                                    seenE.add(sKey);
+                                    return true;
+                                });
+                            }
                             aProcessed.unshift(sp);
                         }
                     }
@@ -1563,7 +1647,15 @@ sap.ui.define([
                 aPending = aPending.filter(p => {
                     const pId = String(p.requestId || p.request_number || "").trim().toUpperCase();
                     const pBase = getBaseReqId(pId).toUpperCase();
-                    return !processedBaseIds.has(pId) && !processedBaseIds.has(pBase);
+                    if (processedBaseIds.has(pId) || processedBaseIds.has(pBase)) return false;
+                    if (p.entitlements && p.entitlements.some(e => {
+                        const eId = String(e.requestId || "").trim().toUpperCase();
+                        const eBase = getBaseReqId(eId).toUpperCase();
+                        return processedBaseIds.has(eId) || (eBase && processedBaseIds.has(eBase));
+                    })) {
+                        return false;
+                    }
+                    return true;
                 });
             } catch(eProc) {}
 
@@ -1635,7 +1727,34 @@ sap.ui.define([
 
             this._setSmartProperty(oModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
             this._setSmartProperty(oModel, "/processedRequests", aProcessed);
+            const bShowHistory = sessionStorage.getItem("kyra_show_approval_history") === "true";
+            if (bShowHistory) {
+                this._setSmartProperty(oModel, "/showApprovalHistory", true);
+            }
             this._updateDisplayedHistoryRequests();
+
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                this._setSmartProperty(oCompModel, "/pendingRequests", isCompliance ? aAccessPending : aPending);
+                this._setSmartProperty(oCompModel, "/pendingAccessRequests", aAccessPending);
+                this._setSmartProperty(oCompModel, "/pendingRevokeRequests", aRevokePending);
+                this._setSmartProperty(oCompModel, "/pendingAccessCount", aAccessPending.length);
+                this._setSmartProperty(oCompModel, "/pendingRevokeCount", aRevokePending.length);
+                this._setSmartProperty(oCompModel, "/processedRequests", aProcessed);
+                this._setSmartProperty(oCompModel, "/processedAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/processedRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/processedAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oCompModel, "/processedRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oCompModel, "/processedCount", aProcessed.length);
+                this._setSmartProperty(oCompModel, "/historyAccessRequests", aAccessProcessed);
+                this._setSmartProperty(oCompModel, "/historyRevokeRequests", aRevokeProcessed);
+                this._setSmartProperty(oCompModel, "/historyAccessCount", aAccessProcessed.length);
+                this._setSmartProperty(oCompModel, "/historyRevokeCount", aRevokeProcessed.length);
+                this._setSmartProperty(oCompModel, "/displayedHistoryRequests", oModel.getProperty("/displayedHistoryRequests"));
+                if (bShowHistory) {
+                    this._setSmartProperty(oCompModel, "/showApprovalHistory", true);
+                }
+            }
         },
 
         async _reloadAllRequests(oModel) {
@@ -1664,7 +1783,15 @@ sap.ui.define([
                 } catch(e) {}
             }
             if (aInitialData && aInitialData.length > 0) {
-                this._applyLoadedApproverData(oModel, aInitialData.slice(), isCompliance);
+                const seenInit = new Set();
+                const aDedupedInit = aInitialData.filter(r => {
+                    const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                    if (!sNum) return true;
+                    if (seenInit.has(sNum)) return false;
+                    seenInit.add(sNum);
+                    return true;
+                });
+                this._applyLoadedApproverData(oModel, aDedupedInit, isCompliance);
             }
 
             // ── STEP 2: BACKGROUND REVALIDATION WITH SINGLE-FLIGHT COALESCING ────
@@ -1697,7 +1824,15 @@ sap.ui.define([
                 }
 
                 if (data && data.value && data.value.length > 0) {
-                    const aRawData = data.value.slice();
+                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const seenRawReqs = new Set();
+                    const aRawData = rawList.filter(r => {
+                        const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
+                        if (!sNum) return true;
+                        if (seenRawReqs.has(sNum)) return false;
+                        seenRawReqs.add(sNum);
+                        return true;
+                    });
                     let oDecidedMap = window._kyraDecidedRequestsMap || {};
                     try {
                         const sDecSaved = sessionStorage.getItem("kyra_decided_requests_map");
@@ -1710,7 +1845,7 @@ sap.ui.define([
                             const dec = oDecidedMap[sNum] || oDecidedMap[sNum.toUpperCase()] || (sBase ? (oDecidedMap[sBase] || oDecidedMap[sBase.toUpperCase()]) : null);
                             if (dec) {
                                 const sDecStatus = (dec.status || "").toUpperCase();
-                                if (dec.isCompliance || isCompliance) {
+                                if (dec.isCompliance || (dec.actorRole && dec.actorRole.toLowerCase().includes("compliance")) || isCompliance) {
                                     r.compliance_status = sDecStatus;
                                     r.compliance_decision_status = sDecStatus;
                                     r.status = sDecStatus.includes("REJECT") ? "REJECTED" : "PENDING_IAM_1";
@@ -1848,200 +1983,319 @@ sap.ui.define([
             this._applySearchFilter(sQuery);
         },
 
-                        onExportApprovals() {
-            this._openExportDialog({
-                title: "Export to Excel",
-                subtitle: "Download the current filtered approval records as an Excel spreadsheet (.xlsx).",
-                icon: "sap-icon://excel-attachment",
-                filename: "Kyra_Approvals_Export_" + new Date().toISOString().slice(0, 10),
-                getData: () => {
-                    const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
-                    const bHistory = oModel ? !!oModel.getProperty("/showApprovalHistory") : false;
-                    const sTab = oModel ? (oModel.getProperty("/approverPendingTab") || "accessRequests") : "accessRequests";
-                    const sActiveTableId = bHistory ? "approvalHistoryTable" : (sTab === "revokeRequests" ? "approvalRevokeTable" : "approvalAccessTable");
-                    const oTable = this.byId(sActiveTableId);
-                    let aFilteredItems = [];
-                    if (oTable) {
-                        const oBinding = oTable.getBinding("items");
-                        if (oBinding) {
-                            const aContexts = oBinding.getCurrentContexts ? oBinding.getCurrentContexts() : [];
-                            if (aContexts && aContexts.length > 0) {
-                                aFilteredItems = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
-                            } else {
-                                const aAllContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 1000) : [];
-                                if (aAllContexts && aAllContexts.length > 0) {
-                                    aFilteredItems = aAllContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
-                                }
-                            }
-                        }
-                    }
-                    if (!aFilteredItems || aFilteredItems.length === 0) {
-                        if (oModel) {
-                            if (bHistory) aFilteredItems = oModel.getProperty("/approvalHistory") || [];
-                            else if (sTab === "revokeRequests") aFilteredItems = oModel.getProperty("/pendingRevokeRequests") || [];
-                            else aFilteredItems = oModel.getProperty("/pendingAccessRequests") || [];
-                        }
-                    }
-                    return (aFilteredItems || []).map(item => ({
-                        "REQUESTER / USER ID": item.requesterId || item.userId || item.requestId || "",
-                        "BUSINESS SECTOR": item.businessSector || item.sector || "Information Technology & Security",
-                        "BUSINESS FUNCTION": item.businessFunction || item.function || "Corporate Governance",
-                        "DURATION": item.duration || item.accessDuration || "Permanent",
-                        "SUBMISSION DATE": item.submissionDate || item.submittedDate || "",
-                        "APPROVAL STATUS": item.status || "Pending",
-                        "SYSTEM": item.system || "",
-                        "ROLE / PERMISSION": item.roleName || item.role || item.requestedRole || ""
-                    }));
+        async onExportApprovals() {
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+            const bHistory = oModel ? !!oModel.getProperty("/showApprovalHistory") : false;
+            const sPendingTab = oModel ? (oModel.getProperty("/approverPendingTab") || "accessRequests") : "accessRequests";
+            const sHistoryTab = oModel ? (oModel.getProperty("/approverHistoryTab") || "accessRequests") : "accessRequests";
+
+            let sActiveTableId = "";
+            let sSectionName = "";
+            let sFilterBase = "";
+            let aFallbackItems = [];
+
+            if (!bHistory) {
+                // Section 3: User requests
+                if (sPendingTab === "revokeRequests") {
+                    sActiveTableId = "approvalRevokeTable";
+                    sSectionName = "User Requests — Revoke Queue";
+                    sFilterBase = "Pending Revocation Requests";
+                    aFallbackItems = oModel ? (oModel.getProperty("/pendingRevokeRequests") || []) : [];
+                } else {
+                    sActiveTableId = "approvalAccessTable";
+                    sSectionName = "User Requests — Access Queue";
+                    sFilterBase = "Pending Access Requests";
+                    aFallbackItems = oModel ? (oModel.getProperty("/pendingAccessRequests") || []) : [];
                 }
+            } else {
+                // Section 4: Processed Approval History Log
+                sActiveTableId = "approvalHistoryTable";
+                if (sHistoryTab === "revokeRequests") {
+                    sSectionName = "Processed Approval History Log — Revoke Requests";
+                    sFilterBase = "Processed Revocation Requests";
+                    aFallbackItems = oModel ? (oModel.getProperty("/historyRevokeRequests") || oModel.getProperty("/processedRevokeRequests") || []) : [];
+                } else {
+                    sSectionName = "Processed Approval History Log — Access Requests";
+                    sFilterBase = "Processed Access Requests";
+                    aFallbackItems = oModel ? (oModel.getProperty("/historyAccessRequests") || oModel.getProperty("/processedAccessRequests") || []) : [];
+                }
+            }
+
+            const oTable = this.byId(sActiveTableId);
+
+            // Filter Type calculation
+            const aFilterParts = [sFilterBase];
+            if (this._sCurrentSearchQuery && this._sCurrentSearchQuery.trim()) {
+                aFilterParts.push('Search: "' + this._sCurrentSearchQuery.trim() + '"');
+            }
+            if (this._lastApproverFilterLabel && this._lastApproverFilterLabel.trim()) {
+                aFilterParts.push('Filter: ' + this._lastApproverFilterLabel.trim());
+            }
+            const sFilterType = aFilterParts.join(" | ");
+            const sPrefix = bHistory ? "Kyra_Processed_History_" : "Kyra_User_Requests_";
+
+            await this._executeAuditExcelExport({
+                oTable: oTable,
+                aFallbackItems: aFallbackItems,
+                sSectionName: sSectionName,
+                sFilterType: sFilterType,
+                sFilenamePrefix: sPrefix + (bHistory ? sHistoryTab : sPendingTab) + "_"
+            });
+        },
+
+        async _executeAuditExcelExport(mParams) {
+            const { oTable, aFallbackItems, sSectionName, sFilterType, sFilenamePrefix } = mParams;
+
+            // 1. Retrieve displayed / filtered items from table binding
+            let aDisplayedItems = [];
+            if (oTable) {
+                const oBinding = oTable.getBinding("items");
+                if (oBinding) {
+                    const aContexts = oBinding.getContexts ? oBinding.getContexts(0, oBinding.getLength ? oBinding.getLength() : 2500) : [];
+                    if (aContexts && aContexts.length > 0) {
+                        aDisplayedItems = aContexts.map(c => c && c.getObject ? c.getObject() : null).filter(Boolean);
+                    }
+                }
+            }
+            if ((!aDisplayedItems || aDisplayedItems.length === 0) && Array.isArray(aFallbackItems)) {
+                aDisplayedItems = aFallbackItems;
+            }
+
+            if (!aDisplayedItems || aDisplayedItems.length === 0) {
+                sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    MessageToast.show("No records available to export for current filter.");
+                });
+                return;
+            }
+
+            // 2. Obtain complete raw database requests
+            let aRawDb = window._kyraCachedGovRequests;
+            if (!aRawDb || !Array.isArray(aRawDb) || aRawDb.length === 0) {
+                try {
+                    const sCached = sessionStorage.getItem("kyra_cached_gov_requests") || localStorage.getItem("kyra_cached_gov_requests");
+                    if (sCached) aRawDb = JSON.parse(sCached);
+                } catch(eCache) {}
+            }
+            if (!aRawDb || !Array.isArray(aRawDb) || aRawDb.length === 0) {
+                try {
+                    const res = await fetch("/odata/v4/admin-portal/GovernanceHistory", {
+                        headers: { "Cache-Control": "no-cache", "Pragma": "no-cache" }
+                    });
+                    const data = await res.json();
+                    if (data && data.value) {
+                        aRawDb = data.value;
+                        window._kyraCachedGovRequests = aRawDb;
+                    }
+                } catch(eFetch) {
+                    console.warn("Failed fetching GovernanceHistory for audit export:", eFetch);
+                }
+            }
+            if (!Array.isArray(aRawDb)) aRawDb = [];
+
+            // Helper to clean strings and find raw db record
+            const cleanStr = (s) => (s || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+            const findRawDbRecord = (sReqId, sSys, sRole) => {
+                const reqStr = (sReqId || "").trim();
+                const sysStr = (sSys || "").trim();
+                const roleClean = cleanStr(sRole);
+
+                if (reqStr) {
+                    const matchById = aRawDb.find(r => {
+                        const rNum = String(r.request_number || r.id || r.ID || "").trim();
+                        return rNum === reqStr || (rNum && reqStr && (rNum.toUpperCase() === reqStr.toUpperCase() || rNum.startsWith(reqStr + "-") || reqStr.startsWith(rNum + "-")));
+                    });
+                    if (matchById) return matchById;
+                }
+
+                if (sysStr && roleClean) {
+                    const matchBySysRole = aRawDb.find(r => {
+                        const rSys = (r.target_system || "").trim();
+                        const rRole = cleanStr(r.role_name);
+                        return rSys === sysStr && (rRole === roleClean || (rRole && roleClean && (rRole.includes(roleClean) || roleClean.includes(rRole))));
+                    });
+                    if (matchBySysRole) return matchBySysRole;
+                }
+                return null;
+            };
+
+            // 3. Map displayed items to complete 29 database columns
+            const aExportRows = [];
+            const seenKeys = new Set();
+
+            aDisplayedItems.forEach(item => {
+                if (!item) return;
+
+                if (Array.isArray(item.entitlements) && item.entitlements.length > 0) {
+                    item.entitlements.forEach(ent => {
+                        const sEntReqId = ent.requestId || item.requestId || item.request_number || item.id || "";
+                        const sEntSys = ent.system || item.system || item.target_system || "";
+                        const sEntRole = ent.roleName || ent.role || item.roleName || "";
+                        const rawDb = findRawDbRecord(sEntReqId, sEntSys, sEntRole);
+
+                        const rowKey = (sEntReqId || (rawDb && rawDb.request_number) || "") + ":::" + (sEntSys || (rawDb && rawDb.target_system) || "") + ":::" + (sEntRole || (rawDb && rawDb.role_name) || "");
+                        if (seenKeys.has(rowKey)) return;
+                        seenKeys.add(rowKey);
+
+                        aExportRows.push({
+                            id: (rawDb && (rawDb.id || rawDb.ID)) || ent.requestId || item.requestId || "",
+                            request_number: (rawDb && rawDb.request_number) || ent.requestId || item.requestId || item.request_number || "",
+                            requester_username: (rawDb && rawDb.requester_username) || item.requesterUsername || item.requesterId || item.userId || "emp018",
+                            requester_persona: (rawDb && rawDb.requester_persona) || item.requesterPersona || item.persona || "Requester",
+                            business_sector: (rawDb && rawDb.business_sector) || item.businessSector || item.sector || "Information Technology & Security",
+                            business_function: (rawDb && rawDb.business_function) || item.businessFunction || item.function || "Corporate Governance",
+                            operating_region: (rawDb && rawDb.operating_region) || item.operatingRegion || item.region || "Global Enterprise (ALL)",
+                            target_system: (rawDb && rawDb.target_system) || sEntSys,
+                            service_topic: (rawDb && rawDb.service_topic) || ent.serviceTopic || ent.team || item.serviceTopic || "",
+                            role_name: (rawDb && rawDb.role_name) || sEntRole,
+                            selected_persona: (rawDb && rawDb.selected_persona) || ent.selectedPersona || ent.persona || item.selectedPersona || item.persona || "",
+                            access_type: (rawDb && rawDb.access_type) || item.type || item.requestType || (item.isRevocation ? "Revocation" : "Addition"),
+                            access_duration: (rawDb && rawDb.access_duration) || item.duration || item.accessDuration || "Permanent",
+                            justification: (rawDb && rawDb.justification) || item.justification || "",
+                            status: ent.status || (rawDb && rawDb.status) || item.status || "Pending",
+                            db_status: (rawDb && rawDb.db_status) || (ent.status || item.status || "PENDING").toUpperCase(),
+                            approver_status: (rawDb && rawDb.approver_status) || (item.approver_status || ""),
+                            compliance_status: (rawDb && rawDb.compliance_status) || (item.compliance_status || ""),
+                            iam_approver_1_status: (rawDb && rawDb.iam_approver_1_status) || (item.iam_approver_1_status || ""),
+                            iam_approver_2_status: (rawDb && rawDb.iam_approver_2_status) || (item.iam_approver_2_status || ""),
+                            approver_comment: (rawDb && rawDb.approver_comment) || item.approverRemark || item.approver_comment || "",
+                            reviewer_comment: (rawDb && rawDb.reviewer_comment) || ent.comment || item.reviewer_comment || "",
+                            iam_approver_1_comment: (rawDb && rawDb.iam_approver_1_comment) || item.iam_approver_1_comment || "",
+                            iam_approver_2_comment: (rawDb && rawDb.iam_approver_2_comment) || item.iam_approver_2_comment || "",
+                            has_conflict: rawDb ? (rawDb.has_conflict === true ? "true" : "false") : (item.has_conflict === true ? "true" : "false"),
+                            conflicting_role: (rawDb && rawDb.conflicting_role) || item.conflicting_role || "",
+                            conflict_reason: (rawDb && rawDb.conflict_reason) || item.conflict_reason || "",
+                            created_at: (rawDb && rawDb.created_at) || item.createdAtRaw || item.submissionDate || "",
+                            updated_at: (rawDb && rawDb.updated_at) || item.updatedAtRaw || item.decisionDate || ""
+                        });
+                    });
+                } else {
+                    const sReqId = item.requestId || item.request_number || item.id || "";
+                    const sSys = item.system || item.target_system || "";
+                    const sRole = item.roleName || item.roleTitle || item.teamRole || item.role || "";
+                    const rawDb = findRawDbRecord(sReqId, sSys, sRole);
+
+                    const rowKey = (sReqId || (rawDb && rawDb.request_number) || "") + ":::" + (sSys || (rawDb && rawDb.target_system) || "") + ":::" + (sRole || (rawDb && rawDb.role_name) || "");
+                    if (seenKeys.has(rowKey)) return;
+                    seenKeys.add(rowKey);
+
+                    aExportRows.push({
+                        id: (rawDb && (rawDb.id || rawDb.ID)) || sReqId,
+                        request_number: (rawDb && rawDb.request_number) || sReqId,
+                        requester_username: (rawDb && rawDb.requester_username) || item.requesterUsername || item.requesterId || item.userId || "emp018",
+                        requester_persona: (rawDb && rawDb.requester_persona) || item.requesterPersona || item.persona || "Requester",
+                        business_sector: (rawDb && rawDb.business_sector) || item.businessSector || item.sector || "Information Technology & Security",
+                        business_function: (rawDb && rawDb.business_function) || item.businessFunction || item.function || "Corporate Governance",
+                        operating_region: (rawDb && rawDb.operating_region) || item.operatingRegion || item.region || "Global Enterprise (ALL)",
+                        target_system: (rawDb && rawDb.target_system) || sSys,
+                        service_topic: (rawDb && rawDb.service_topic) || item.serviceTopic || item.services || item.service || "",
+                        role_name: (rawDb && rawDb.role_name) || sRole,
+                        selected_persona: (rawDb && rawDb.selected_persona) || item.selectedPersona || item.persona || "",
+                        access_type: (rawDb && rawDb.access_type) || item.type || item.requestType || (item.isRevocation ? "Revocation" : "Addition"),
+                        access_duration: (rawDb && rawDb.access_duration) || item.duration || item.accessDuration || item.expiryDate || "Permanent",
+                        justification: (rawDb && rawDb.justification) || item.justification || "",
+                        status: item.status || (rawDb && rawDb.status) || "Active",
+                        db_status: (rawDb && rawDb.db_status) || ((rawDb && rawDb.status) || item.status || "ACTIVE").toUpperCase(),
+                        approver_status: (rawDb && rawDb.approver_status) || (item.approver_status || ""),
+                        compliance_status: (rawDb && rawDb.compliance_status) || (item.compliance_status || ""),
+                        iam_approver_1_status: (rawDb && rawDb.iam_approver_1_status) || (item.iam_approver_1_status || ""),
+                        iam_approver_2_status: (rawDb && rawDb.iam_approver_2_status) || (item.iam_approver_2_status || ""),
+                        approver_comment: (rawDb && rawDb.approver_comment) || item.approverRemark || item.approver_comment || "",
+                        reviewer_comment: (rawDb && rawDb.reviewer_comment) || item.reviewer_comment || item.comment || "",
+                        iam_approver_1_comment: (rawDb && rawDb.iam_approver_1_comment) || item.iam_approver_1_comment || "",
+                        iam_approver_2_comment: (rawDb && rawDb.iam_approver_2_comment) || item.iam_approver_2_comment || "",
+                        has_conflict: rawDb ? (rawDb.has_conflict === true ? "true" : "false") : (item.has_conflict === true ? "true" : "false"),
+                        conflicting_role: (rawDb && rawDb.conflicting_role) || item.conflicting_role || "",
+                        conflict_reason: (rawDb && rawDb.conflict_reason) || item.conflict_reason || "",
+                        created_at: (rawDb && rawDb.created_at) || item.createdAtRaw || item.submissionDate || item.grantedDate || "",
+                        updated_at: (rawDb && rawDb.updated_at) || item.updatedAtRaw || item.decisionDate || item.grantedDate || ""
+                    });
+                }
+            });
+
+            if (aExportRows.length === 0) {
+                sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    MessageToast.show("No records available to export for current filter.");
+                });
+                return;
+            }
+
+            // 4. Construct Excel TSV Spreadsheet with UTF-8 BOM
+            const DB_COLUMNS = [
+                { key: "id", label: "ID" },
+                { key: "request_number", label: "REQUEST NUMBER" },
+                { key: "requester_username", label: "REQUESTER USERNAME" },
+                { key: "requester_persona", label: "REQUESTER PERSONA" },
+                { key: "business_sector", label: "BUSINESS SECTOR" },
+                { key: "business_function", label: "BUSINESS FUNCTION" },
+                { key: "operating_region", label: "OPERATING REGION" },
+                { key: "target_system", label: "TARGET SYSTEM" },
+                { key: "service_topic", label: "SERVICE TOPIC" },
+                { key: "role_name", label: "ROLE NAME" },
+                { key: "selected_persona", label: "SELECTED PERSONA" },
+                { key: "access_type", label: "ACCESS TYPE" },
+                { key: "access_duration", label: "ACCESS DURATION" },
+                { key: "justification", label: "JUSTIFICATION" },
+                { key: "status", label: "STATUS" },
+                { key: "db_status", label: "DB STATUS" },
+                { key: "approver_status", label: "APPROVER STATUS" },
+                { key: "compliance_status", label: "COMPLIANCE STATUS" },
+                { key: "iam_approver_1_status", label: "IAM APPROVER 1 STATUS" },
+                { key: "iam_approver_2_status", label: "IAM APPROVER 2 STATUS" },
+                { key: "approver_comment", label: "APPROVER COMMENT" },
+                { key: "reviewer_comment", label: "REVIEWER COMMENT" },
+                { key: "iam_approver_1_comment", label: "IAM APPROVER 1 COMMENT" },
+                { key: "iam_approver_2_comment", label: "IAM APPROVER 2 COMMENT" },
+                { key: "has_conflict", label: "HAS CONFLICT" },
+                { key: "conflicting_role", label: "CONFLICTING ROLE" },
+                { key: "conflict_reason", label: "CONFLICT REASON" },
+                { key: "created_at", label: "CREATED AT" },
+                { key: "updated_at", label: "UPDATED AT" }
+            ];
+
+            const sanitizeCell = (v) => {
+                if (v === null || v === undefined) return "";
+                let s = String(v).trim();
+                if (s.includes("\t") || s.includes("\n") || s.includes("\r") || s.includes('"')) {
+                    s = '"' + s.replace(/"/g, '""').replace(/\r\n|\n|\r/g, " ") + '"';
+                }
+                return s;
+            };
+
+            let sContent = "";
+            sContent += "KYRA ENTERPRISE GOVERNANCE AUDIT REPORT\r\n";
+            sContent += "Report Section:\t" + sanitizeCell(sSectionName || "Audit Log") + "\r\n";
+            sContent += "Filter Type:\t" + sanitizeCell(sFilterType || "All Records (Unfiltered)") + "\r\n";
+            sContent += "Export Timestamp:\t" + sanitizeCell(new Date().toLocaleString()) + "\r\n";
+            sContent += "Total Records Exported:\t" + aExportRows.length + "\r\n";
+            sContent += "\r\n";
+
+            // Headers
+            sContent += DB_COLUMNS.map(c => c.label).join("\t") + "\r\n";
+
+            // Data rows
+            aExportRows.forEach(row => {
+                const aVals = DB_COLUMNS.map(c => sanitizeCell(row[c.key]));
+                sContent += aVals.join("\t") + "\r\n";
+            });
+
+            const sFilename = (sFilenamePrefix || "Kyra_Audit_Export_") + new Date().toISOString().slice(0, 10) + ".xlsx";
+            const oBlob = new Blob(["\uFEFF" + sContent], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8" });
+            const sUrl = URL.createObjectURL(oBlob);
+            const oLink = document.createElement("a");
+            oLink.href = sUrl;
+            oLink.download = sFilename;
+            document.body.appendChild(oLink);
+            oLink.click();
+            document.body.removeChild(oLink);
+            URL.revokeObjectURL(sUrl);
+
+            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                MessageToast.show("Audit log exported to Excel (" + aExportRows.length + " records).");
             });
         },
 
         _openExportDialog(oConfig) {
-            sap.ui.require([
-                "sap/m/Dialog",
-                "sap/m/VBox",
-                "sap/m/HBox",
-                "sap/m/Avatar",
-                "sap/m/Title",
-                "sap/m/Text",
-                "sap/m/Button",
-                "sap/m/MessageToast"
-            ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
-                // Notification Modal Header with Close button
-                const oTopBar = new HBox({
-                    justifyContent: "End",
-                    items: [
-                        new Button({
-                            icon: "sap-icon://decline",
-                            type: "Transparent",
-                            tooltip: "Close",
-                            press: () => oDialog.close()
-                        }).addStyleClass("kyraExportNotifCloseBtn")
-                    ]
-                }).addStyleClass("kyraExportNotifTopBar");
-
-                // Excel Icon Circle
-                const oIconCircle = new HBox({
-                    items: [
-                        new Avatar({
-                            src: "sap-icon://excel-attachment",
-                            displaySize: "M"
-                        })
-                    ]
-                }).addStyleClass("kyraExportNotifIconCircle");
-
-                // Title & Subtitle
-                const oTitle = new Title({
-                    text: oConfig.title || "Export to Excel",
-                    level: "H3",
-                    textAlign: "Center",
-                    width: "100%"
-                }).addStyleClass("kyraExportNotifTitle");
-
-                const oDesc = new Text({
-                    text: oConfig.subtitle || "Download the current filtered approval records as an Excel spreadsheet (.xlsx).",
-                    textAlign: "Center",
-                    width: "100%"
-                }).addStyleClass("kyraExportNotifDesc");
-
-                // File info card (Excel .xlsx only)
-                const oFileCard = new HBox({
-                    alignItems: "Center",
-                    items: [
-                        new Text({ text: ".XLSX" }).addStyleClass("kyraExportNotifFormatPill"),
-                        new VBox({
-                            items: [
-                                new Title({ text: "Excel Spreadsheet (.xlsx)", level: "H5" }).addStyleClass("kyraExportNotifCardTitle"),
-                                new Text({ text: "Formatted tabular workbook with audit columns" }).addStyleClass("kyraExportNotifCardSubtitle")
-                            ]
-                        }).addStyleClass("kyraExportNotifCardInfo")
-                    ]
-                }).addStyleClass("kyraExportNotifFileCard");
-
-                // Download Handler
-                const handleDownload = () => {
-                    const aData = (typeof oConfig.getData === "function") ? oConfig.getData() : [];
-                    if (!aData || aData.length === 0) {
-                        MessageToast.show("No records available to export for current filter.");
-                        oDialog.close();
-                        return;
-                    }
-
-                    const sFilename = (oConfig.filename || "Kyra_Approvals_Export") + ".xlsx";
-                    const aHeaders = Object.keys(aData[0]);
-                    let sContent = aHeaders.join("\t") + "\r\n";
-                    aData.forEach(row => {
-                        const aVals = aHeaders.map(h => {
-                            let val = (row[h] || "").toString();
-                            if (val.includes(",") || val.includes('"') || val.includes("\n")) {
-                                val = '"' + val.replace(/"/g, '""') + '"';
-                            }
-                            return val;
-                        });
-                        sContent += aVals.join("\t") + "\r\n";
-                    });
-
-                    sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
-
-                    const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    const oBlob = new Blob([sContent], { type: blobMime });
-                    const sUrl = URL.createObjectURL(oBlob);
-                    const oLink = document.createElement("a");
-                    oLink.href = sUrl;
-                    oLink.download = sFilename;
-                    document.body.appendChild(oLink);
-                    oLink.click();
-                    document.body.removeChild(oLink);
-                    URL.revokeObjectURL(sUrl);
-
-                    MessageToast.show("Excel report downloaded successfully!");
-                    oDialog.close();
-                };
-
-                // ONLY 2 BUTTONS: Cancel & Download
-                const oFooter = new HBox({
-                    justifyContent: "End",
-                    alignItems: "Center",
-                    items: [
-                        new Button({
-                            text: "Cancel",
-                            press: () => oDialog.close()
-                        }).addStyleClass("kyraExportNotifCancelBtn"),
-                        new Button({
-                            text: "Download",
-                            icon: "sap-icon://download",
-                            type: "Emphasized",
-                            press: handleDownload
-                        }).addStyleClass("kyraExportNotifDownloadBtn")
-                    ]
-                }).addStyleClass("kyraExportNotifFooter");
-
-                // Assemble Dialog
-                const oDialog = new Dialog({
-                    showHeader: false,
-                    contentWidth: "420px",
-                    verticalScrolling: false,
-                    horizontalScrolling: false,
-                    resizable: false,
-                    content: [
-                        new VBox({
-                            alignItems: "Stretch",
-                            items: [
-                                oTopBar,
-                                oIconCircle,
-                                oTitle,
-                                oDesc,
-                                oFileCard,
-                                oFooter
-                            ]
-                        }).addStyleClass("sapUiNoMargin")
-                    ],
-                    afterClose: () => oDialog.destroy()
-                }).addStyleClass("kyraModernExportNotificationDialog");
-
-                this.getView().addDependent(oDialog);
-                oDialog.open();
-            });
+            this.onExportApprovals();
         },
 
         onFilterApprovalsDialog() {
@@ -2255,6 +2509,7 @@ sap.ui.define([
                         }
                     });
                     const sSummary = aSelectedTitles.join(", ");
+                    this._lastApproverFilterLabel = sSummary;
                     MessageToast.show(sSummary ? "Filtered by: " + sSummary : "Showing all requests.");
                 };
 

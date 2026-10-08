@@ -96,10 +96,17 @@
                     id="approvalAccessTable"
                     visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' }"
                     items="{accessModel>/pendingAccessRequests}"
-                    noDataText="No pending access requests in queue."
                     fixedLayout="true"
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
+                    <noData>
+                        <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                            <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://inbox" class="kyraTableEmptyIcon" />
+                            </HBox>
+                            <Title text="No pending access requests in queue" level="H4" class="kyraTableEmptyTitle" />
+                        </VBox>
+                    </noData>
                     <columns>
                         <Column width="10%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -139,10 +146,17 @@
                     id="approvalRevokeTable"
                     visible="{= !${accessModel>/isCompliance} &amp;&amp; ${accessModel>/approverPendingTab} === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
-                    noDataText="No pending revocation requests in queue."
                     fixedLayout="true"
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
+                    <noData>
+                        <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                            <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                                <core:Icon src="sap-icon://delete" class="kyraTableEmptyIcon" />
+                            </HBox>
+                            <Title text="No pending revocation requests in queue" level="H4" class="kyraTableEmptyTitle" />
+                        </VBox>
+                    </noData>
                     <columns>
                         <Column width="10%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         <Column width="22%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
@@ -183,10 +197,17 @@
                 id="approvalHistoryTable"
                 visible="{= ${accessModel>/showApprovalHistory} === true }"
                 items="{accessModel>/displayedHistoryRequests}"
-                noDataText="{= ${accessModel>/isCompliance} ? 'No processed approval history available.' : ((${accessModel>/approverHistoryTab} || 'accessRequests') === 'revokeRequests' ? 'No processed revocation history available.' : 'No processed access history available.') }"
                 fixedLayout="true"
                 popinLayout="GridSmall"
                 class="sapUiNoMargin kyraApproverTable">
+                <noData>
+                    <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                        <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
+                            <core:Icon src="sap-icon://history" class="kyraTableEmptyIcon" />
+                        </HBox>
+                        <Title text="No processed history records available" level="H4" class="kyraTableEmptyTitle" />
+                    </VBox>
+                </noData>
                 <columns>
                     <Column width="8%" hAlign="Center"><Text text="USER ID" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                     <Column width="20%" minScreenWidth="Tablet" demandPopin="true" hAlign="Center"><Text text="BUSINESS SECTOR" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
