@@ -9400,12 +9400,12 @@ sap.ui.define([
             });
         },
 
-                onExportAccess() {
+                        onExportAccess() {
             this._openExportDialog({
-                title: "Export Active Entitlements",
-                subtitle: "Select file format and download filtered active records",
+                title: "Export to Excel",
+                subtitle: "Download the active filtered entitlements as an Excel spreadsheet (.xlsx).",
                 icon: "sap-icon://excel-attachment",
-                filename: "Kyra_Active_Entitlements_Filtered_" + new Date().toISOString().slice(0, 10),
+                filename: "Kyra_Active_Entitlements_" + new Date().toISOString().slice(0, 10),
                 getData: () => {
                     const oTable = this.byId("myAccessMasterSectionTable");
                     let aList = [];
@@ -9441,10 +9441,10 @@ sap.ui.define([
 
         onExportRequests() {
             this._openExportDialog({
-                title: "Export Request History",
-                subtitle: "Select file format and download filtered request audit log",
+                title: "Export to Excel",
+                subtitle: "Download the filtered request audit log as an Excel spreadsheet (.xlsx).",
                 icon: "sap-icon://excel-attachment",
-                filename: "Kyra_Request_History_Filtered_" + new Date().toISOString().slice(0, 10),
+                filename: "Kyra_Request_History_" + new Date().toISOString().slice(0, 10),
                 getData: () => {
                     const oTable = this.byId("myRequestsUnifiedTable");
                     let aList = [];
@@ -9490,163 +9490,58 @@ sap.ui.define([
                 "sap/m/Button",
                 "sap/m/MessageToast"
             ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
-                let sSelectedFormat = "XLSX";
-                let bIncludeTimestamps = true;
-
-                // 1. Header
-                const oHeader = new HBox({
-                    justifyContent: "SpaceBetween",
-                    alignItems: "Center",
+                // Notification Modal Header with Close button
+                const oTopBar = new HBox({
+                    justifyContent: "End",
                     items: [
-                        new HBox({
-                            alignItems: "Center",
-                            items: [
-                                new Avatar({
-                                    src: oConfig.icon || "sap-icon://excel-attachment",
-                                    displaySize: "S"
-                                }).addStyleClass("kyraHistFilterAvatar sapUiSmallMarginEnd"),
-                                new VBox({
-                                    items: [
-                                        new Title({
-                                            text: oConfig.title || "Export Data",
-                                            level: "H4"
-                                        }).addStyleClass("kyraHistDialogTitle"),
-                                        new Text({
-                                            text: oConfig.subtitle || "Select file format and download filtered report"
-                                        }).addStyleClass("kyraHistDialogSubtitle")
-                                    ]
-                                })
-                            ]
-                        }),
                         new Button({
                             icon: "sap-icon://decline",
                             type: "Transparent",
                             tooltip: "Close",
                             press: () => oDialog.close()
-                        }).addStyleClass("kyraHistDialogCloseBtn")
+                        }).addStyleClass("kyraExportNotifCloseBtn")
                     ]
-                }).addStyleClass("kyraHistDialogHeader");
+                }).addStyleClass("kyraExportNotifTopBar");
 
-                // 2. Format options
-                const aFormats = [
-                    {
-                        key: "XLSX",
-                        title: "Excel Spreadsheet (.xlsx)",
-                        desc: "Structured tabular format with styled columns & filters",
-                        icon: "sap-icon://excel-attachment",
-                        colorClass: "kyraHistIcon_emerald"
-                    },
-                    {
-                        key: "CSV",
-                        title: "Comma-Separated Values (.csv)",
-                        desc: "Standard CSV delimiter format for databases & analytics",
-                        icon: "sap-icon://document-text",
-                        colorClass: "kyraHistIcon_teal"
-                    },
-                    {
-                        key: "PDF",
-                        title: "Audit Summary Report (.pdf)",
-                        desc: "Enterprise compliance printable summary document",
-                        icon: "sap-icon://pdf-attachment",
-                        colorClass: "kyraHistIcon_amber"
-                    }
-                ];
+                // Excel Icon Circle
+                const oIconCircle = new HBox({
+                    items: [
+                        new Avatar({
+                            src: "sap-icon://excel-attachment",
+                            displaySize: "M"
+                        })
+                    ]
+                }).addStyleClass("kyraExportNotifIconCircle");
 
-                const oFormatSectionTitle = new Text({
-                    text: "EXPORT FORMAT"
-                }).addStyleClass("kyraHistSectionTitle sapUiSmallMarginTop sapUiTinyMarginBottom");
+                // Title & Subtitle
+                const oTitle = new Title({
+                    text: oConfig.title || "Export to Excel",
+                    level: "H3",
+                    textAlign: "Center",
+                    width: "100%"
+                }).addStyleClass("kyraExportNotifTitle");
 
-                const aFormatRows = [];
-                const oFormatContainer = new VBox({ items: [] });
+                const oDesc = new Text({
+                    text: oConfig.subtitle || "Download the active filtered records as an Excel spreadsheet (.xlsx).",
+                    textAlign: "Center",
+                    width: "100%"
+                }).addStyleClass("kyraExportNotifDesc");
 
-                const updateFormatSelection = () => {
-                    aFormatRows.forEach(item => {
-                        const bActive = item.key === sSelectedFormat;
-                        if (bActive) {
-                            item.card.addStyleClass("kyraHistMultiRowSelected");
-                            item.checkbox.addStyleClass("kyraCheckMark");
-                        } else {
-                            item.card.removeStyleClass("kyraHistMultiRowSelected");
-                            item.checkbox.removeStyleClass("kyraCheckMark");
-                        }
-                    });
-                };
-
-                aFormats.forEach(fmt => {
-                    const oCheckSquare = new HBox().addStyleClass("kyraCheckboxSquare");
-                    const oRowCard = new HBox({
-                        justifyContent: "SpaceBetween",
-                        alignItems: "Center",
-                        items: [
-                            new HBox({
-                                alignItems: "Center",
-                                items: [
-                                    new Avatar({
-                                        src: fmt.icon,
-                                        displaySize: "S"
-                                    }).addStyleClass("kyraHistRowAvatar " + fmt.colorClass + " sapUiSmallMarginEnd"),
-                                    new VBox({
-                                        items: [
-                                            new Title({ text: fmt.title, level: "H5" }).addStyleClass("kyraHistRowTitle"),
-                                            new Text({ text: fmt.desc }).addStyleClass("kyraHistRowSubtitle")
-                                        ]
-                                    })
-                                ]
-                            }),
-                            oCheckSquare
-                        ]
-                    }).addStyleClass("kyraHistMultiSelectRow sapUiTinyMarginBottom");
-
-                    oRowCard.attachBrowserEvent("click", () => {
-                        sSelectedFormat = fmt.key;
-                        updateFormatSelection();
-                    });
-
-                    aFormatRows.push({ key: fmt.key, card: oRowCard, checkbox: oCheckSquare });
-                    oFormatContainer.addItem(oRowCard);
-                });
-                updateFormatSelection();
-
-                // 3. Options Section (Only metadata options, NO full list)
-                const oOptionsSectionTitle = new Text({
-                    text: "EXPORT OPTIONS"
-                }).addStyleClass("kyraHistSectionTitle sapUiSmallMarginTop sapUiTinyMarginBottom");
-
-                const oOptTimestampCheck = new HBox().addStyleClass("kyraCheckboxSquare kyraCheckMark");
-                const oOptTimestampCard = new HBox({
-                    justifyContent: "SpaceBetween",
+                // File info card (Excel .xlsx only)
+                const oFileCard = new HBox({
                     alignItems: "Center",
                     items: [
-                        new HBox({
-                            alignItems: "Center",
+                        new Text({ text: ".XLSX" }).addStyleClass("kyraExportNotifFormatPill"),
+                        new VBox({
                             items: [
-                                new Avatar({
-                                    src: "sap-icon://history",
-                                    displaySize: "S"
-                                }).addStyleClass("kyraHistRowAvatar kyraHistIcon_emerald sapUiSmallMarginEnd"),
-                                new VBox({
-                                    items: [
-                                        new Title({ text: "Include Audit Metadata & Timestamp", level: "H5" }).addStyleClass("kyraHistRowTitle"),
-                                        new Text({ text: "Append generation timestamp and user session context" }).addStyleClass("kyraHistRowSubtitle")
-                                    ]
-                                })
+                                new Title({ text: "Excel Spreadsheet (.xlsx)", level: "H5" }).addStyleClass("kyraExportNotifCardTitle"),
+                                new Text({ text: "Formatted tabular workbook with audit columns" }).addStyleClass("kyraExportNotifCardSubtitle")
                             ]
-                        }),
-                        oOptTimestampCheck
+                        }).addStyleClass("kyraExportNotifCardInfo")
                     ]
-                }).addStyleClass("kyraHistMultiSelectRow kyraHistMultiRowSelected sapUiTinyMarginBottom");
-                oOptTimestampCard.attachBrowserEvent("click", () => {
-                    bIncludeTimestamps = !bIncludeTimestamps;
-                    if (bIncludeTimestamps) {
-                        oOptTimestampCard.addStyleClass("kyraHistMultiRowSelected");
-                        oOptTimestampCheck.addStyleClass("kyraCheckMark");
-                    } else {
-                        oOptTimestampCard.removeStyleClass("kyraHistMultiRowSelected");
-                        oOptTimestampCheck.removeStyleClass("kyraCheckMark");
-                    }
-                });
+                }).addStyleClass("kyraExportNotifFileCard");
 
-                // 4. Download Execution Handler
+                // Download Handler
                 const handleDownload = () => {
                     const aData = (typeof oConfig.getData === "function") ? oConfig.getData() : [];
                     if (!aData || aData.length === 0) {
@@ -9655,10 +9550,9 @@ sap.ui.define([
                         return;
                     }
 
-                    const sFilename = (oConfig.filename || "Kyra_Export") + (sSelectedFormat === "XLSX" ? ".xlsx" : sSelectedFormat === "CSV" ? ".csv" : ".pdf");
+                    const sFilename = (oConfig.filename || "Kyra_Export") + ".xlsx";
                     const aHeaders = Object.keys(aData[0]);
-                    const sDelim = sSelectedFormat === "XLSX" ? "\t" : ",";
-                    let sContent = aHeaders.join(sDelim) + "\r\n";
+                    let sContent = aHeaders.join("\t") + "\r\n";
                     aData.forEach(row => {
                         const aVals = aHeaders.map(h => {
                             let val = (row[h] || "").toString();
@@ -9667,14 +9561,12 @@ sap.ui.define([
                             }
                             return val;
                         });
-                        sContent += aVals.join(sDelim) + "\r\n";
+                        sContent += aVals.join("\t") + "\r\n";
                     });
 
-                    if (bIncludeTimestamps) {
-                        sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
-                    }
+                    sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
 
-                    const blobMime = (sSelectedFormat === "XLSX") ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : (sSelectedFormat === "PDF" ? "application/pdf" : "text/csv;charset=utf-8;");
+                    const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                     const oBlob = new Blob([sContent], { type: blobMime });
                     const sUrl = URL.createObjectURL(oBlob);
                     const oLink = document.createElement("a");
@@ -9685,66 +9577,50 @@ sap.ui.define([
                     document.body.removeChild(oLink);
                     URL.revokeObjectURL(sUrl);
 
-                    MessageToast.show(sFilename + " exported and downloaded successfully!");
+                    MessageToast.show("Excel report downloaded successfully!");
                     oDialog.close();
                 };
 
-                // 5. Footer
+                // ONLY 2 BUTTONS: Cancel & Download
                 const oFooter = new HBox({
-                    justifyContent: "SpaceBetween",
+                    justifyContent: "End",
                     alignItems: "Center",
                     items: [
                         new Button({
-                            text: "Reset",
-                            icon: "sap-icon://refresh",
-                            type: "Transparent",
-                            press: () => {
-                                sSelectedFormat = "XLSX";
-                                bIncludeTimestamps = true;
-                                updateFormatSelection();
-                                oOptTimestampCard.addStyleClass("kyraHistMultiRowSelected");
-                                oOptTimestampCheck.addStyleClass("kyraCheckMark");
-                            }
-                        }).addStyleClass("kyraHistResetBtn"),
-                        new HBox({
-                            alignItems: "Center",
-                            items: [
-                                new Button({
-                                    text: "Cancel",
-                                    press: () => oDialog.close()
-                                }).addStyleClass("kyraHistCancelBtn sapUiTinyMarginEnd"),
-                                new Button({
-                                    text: "Export & Download",
-                                    icon: "sap-icon://download",
-                                    type: "Emphasized",
-                                    press: handleDownload
-                                }).addStyleClass("kyraHistApplyBtn")
-                            ]
-                        })
+                            text: "Cancel",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraExportNotifCancelBtn"),
+                        new Button({
+                            text: "Download",
+                            icon: "sap-icon://download",
+                            type: "Emphasized",
+                            press: handleDownload
+                        }).addStyleClass("kyraExportNotifDownloadBtn")
                     ]
-                }).addStyleClass("kyraHistDialogFooter sapUiSmallMarginTop");
+                }).addStyleClass("kyraExportNotifFooter");
 
-                // 6. Assemble Dialog
+                // Assemble Dialog
                 const oDialog = new Dialog({
                     showHeader: false,
-                    contentWidth: "450px",
+                    contentWidth: "420px",
                     verticalScrolling: false,
                     horizontalScrolling: false,
                     resizable: false,
                     content: [
                         new VBox({
+                            alignItems: "Stretch",
                             items: [
-                                oHeader,
-                                oFormatSectionTitle,
-                                oFormatContainer,
-                                oOptionsSectionTitle,
-                                oOptTimestampCard,
+                                oTopBar,
+                                oIconCircle,
+                                oTitle,
+                                oDesc,
+                                oFileCard,
                                 oFooter
                             ]
                         }).addStyleClass("sapUiNoMargin")
                     ],
                     afterClose: () => oDialog.destroy()
-                }).addStyleClass("kyraModernHistoryFilterDialog kyraExportModernDialog");
+                }).addStyleClass("kyraModernExportNotificationDialog");
 
                 this.getView().addDependent(oDialog);
                 oDialog.open();

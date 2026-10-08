@@ -50071,3 +50071,355 @@ html body .sapUiCalItem {
 .sapUiCalHead > .sapUiCalHeadBYear {
     color: #008C9C !important;
 }
+
+/* =========================================================================
+   CLEAN EXPORT NOTIFICATION POPUP (Excel Only, 2 Buttons: Cancel & Download)
+   ========================================================================= */
+.kyraModernExportNotificationDialog.sapMDialog,
+html body .sapMDialog.kyraModernExportNotificationDialog,
+html body .sapUiTheme-sap_horizon .sapMDialog.kyraModernExportNotificationDialog {
+    width: 420px !important;
+    max-width: 420px !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.9) !important;
+    border: none !important;
+    background: #FFFFFF !important;
+    overflow: visible !important;
+}
+
+.kyraModernExportNotificationDialog .sapMDialogSection,
+html body .sapUiTheme-sap_horizon .kyraModernExportNotificationDialog .sapMDialogSection {
+    padding: 24px 28px 26px 28px !important;
+    background: #FFFFFF !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+    box-sizing: border-box !important;
+    border-radius: 16px !important;
+}
+
+.kyraModernExportNotificationDialog .sapMDialogScrollCont,
+html body .sapUiTheme-sap_horizon .kyraModernExportNotificationDialog .sapMDialogScrollCont {
+    overflow: visible !important;
+    overflow-y: visible !important;
+    padding: 0 !important;
+}
+
+.kyraModernExportNotificationDialog footer,
+.kyraModernExportNotificationDialog .sapMDialogFooter,
+html body .sapUiTheme-sap_horizon .kyraModernExportNotificationDialog .sapMDialogFooter {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+.kyraExportNotifTopBar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+}
+
+.kyraExportNotifCloseBtn,
+.kyraExportNotifCloseBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn.sapMBtn {
+    background: transparent !important;
+    border: none !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    margin: -6px -8px 0 0 !important;
+    box-shadow: none !important;
+}
+
+.kyraExportNotifCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn .sapMBtnInner {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #94A3B8 !important;
+    padding: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraExportNotifCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover .sapMBtnInner {
+    background: #F1F5F9 !important;
+    color: #0F172A !important;
+}
+
+.kyraExportNotifCloseBtn .sapUiIcon {
+    font-size: 14px !important;
+    color: inherit !important;
+}
+
+.kyraExportNotifCenterBody {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+.kyraExportNotifIconCircle {
+    width: 62px !important;
+    height: 62px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #E6F7F9 0%, #D4F4F7 100%) !important;
+    border: 1.5px solid #A5E8EE !important;
+    box-shadow: 0 8px 18px -4px rgba(0, 140, 156, 0.18) !important;
+    margin: 0 auto 14px auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraExportNotifIconCircle .sapUiIcon,
+.kyraExportNotifIconCircle .sapFAvatarIcon {
+    font-size: 26px !important;
+    color: #008C9C !important;
+    line-height: 1 !important;
+}
+
+.kyraExportNotifIconCircle .sapFAvatar,
+.kyraExportNotifIconCircle .sapMAvatar {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.kyraExportNotifTitle,
+.kyraModernExportNotificationDialog .kyraExportNotifTitle,
+html body .sapMDialog.kyraModernExportNotificationDialog .kyraExportNotifTitle,
+html body .sapUiTheme-sap_horizon .sapMDialog.kyraModernExportNotificationDialog .kyraExportNotifTitle {
+    width: 100% !important;
+    text-align: center !important;
+    display: block !important;
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    line-height: 1.3 !important;
+    margin: 0 0 6px 0 !important;
+    letter-spacing: -0.01em !important;
+}
+
+.kyraModernExportNotificationDialog .kyraExportNotifTitle .sapMTitleText,
+.kyraModernExportNotificationDialog .kyraExportNotifTitle span,
+.kyraModernExportNotificationDialog .kyraExportNotifTitle bdi {
+    text-align: center !important;
+    width: 100% !important;
+    display: block !important;
+    color: #0F172A !important;
+    font-weight: 800 !important;
+    font-size: 19px !important;
+}
+
+.kyraExportNotifDesc,
+.kyraModernExportNotificationDialog .kyraExportNotifDesc,
+html body .sapMDialog.kyraModernExportNotificationDialog .kyraExportNotifDesc {
+    font-size: 13px !important;
+    color: #64748B !important;
+    text-align: center !important;
+    line-height: 1.5 !important;
+    margin: 0 auto 18px auto !important;
+    max-width: 330px !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.kyraExportNotifFileCard {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 13px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 22px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraExportNotifFileCard:hover {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+}
+
+.kyraExportNotifFormatPill {
+    background: #E6F7F9 !important;
+    color: #008C9C !important;
+    border: 1px solid #B2EBF2 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    padding: 5px 9px !important;
+    border-radius: 7px !important;
+    letter-spacing: 0.05em !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraExportNotifCardInfo {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: left !important;
+    flex: 1 1 auto !important;
+    margin-left: 12px !important;
+}
+
+.kyraExportNotifCardTitle,
+.kyraExportNotifCardTitle.sapMTitle {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+}
+
+.kyraExportNotifCardSubtitle,
+.kyraExportNotifCardSubtitle.sapMText {
+    font-size: 11.5px !important;
+    color: #64748B !important;
+    margin: 2px 0 0 0 !important;
+    line-height: 1.3 !important;
+}
+
+/* Footer with only 2 buttons: Cancel and Download */
+.kyraExportNotifFooter {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+    padding: 2px 0 !important;
+}
+
+.kyraExportNotifCancelBtn,
+.kyraExportNotifCancelBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn.sapMBtn,
+.kyraExportNotifDownloadBtn,
+.kyraExportNotifDownloadBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraExportNotifDownloadBtn.sapMBtn {
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.kyraExportNotifCancelBtn .sapMBtnInner,
+.kyraExportNotifCancelBtn.sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn .sapMBtnInner {
+    box-sizing: border-box !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    line-height: 37px !important;
+    padding: 0 20px !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.15s ease !important;
+    overflow: visible !important;
+}
+
+.kyraExportNotifCancelBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn:hover .sapMBtnInner {
+    background: #F8FAFC !important;
+    border-color: #94A3B8 !important;
+    color: #0F172A !important;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08) !important;
+}
+
+.kyraExportNotifCancelBtn .sapMBtnText,
+.kyraExportNotifCancelBtn bdi {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+}
+
+.kyraExportNotifCancelBtn:hover .sapMBtnText,
+.kyraExportNotifCancelBtn:hover bdi {
+    color: #0F172A !important;
+}
+
+.kyraExportNotifDownloadBtn .sapMBtnInner,
+.kyraExportNotifDownloadBtn.sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifDownloadBtn .sapMBtnInner {
+    box-sizing: border-box !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    line-height: 37px !important;
+    padding: 0 22px !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #008C9C !important;
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    transition: all 0.15s ease !important;
+    overflow: visible !important;
+}
+
+.kyraExportNotifDownloadBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifDownloadBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    border-color: #007684 !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.38) !important;
+    transform: translateY(-1px) !important;
+}
+
+.kyraExportNotifDownloadBtn .sapMBtnIcon,
+.kyraExportNotifDownloadBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    margin: 0 4px 0 0 !important;
+    position: static !important;
+}
+
+.kyraExportNotifDownloadBtn .sapMBtnText,
+.kyraExportNotifDownloadBtn bdi {
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
