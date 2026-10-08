@@ -177,6 +177,19 @@ sap.ui.define([
 
     return Controller.extend("kyra001.pages.access.AccessPage", {
         onInit() {
+            // Disable spellcheck on search fields
+            this.getView().addEventDelegate({
+                onAfterRendering: () => {
+                    setTimeout(() => {
+                        document.querySelectorAll('.kyraEntitlementsSearchField input, .sapMSF input').forEach(el => {
+                            el.setAttribute('spellcheck', 'false');
+                            el.setAttribute('autocomplete', 'off');
+                            el.setAttribute('autocorrect', 'off');
+                        });
+                    }, 300);
+                }
+            });
+
             // Kyra: Ensure entire dropdown row in MultiComboBox is clickable and pointer-styled
             if (!window._kyraMultiComboClickListenerAttached) {
                 window._kyraMultiComboClickListenerAttached = true;
@@ -9542,43 +9555,42 @@ sap.ui.define([
                 }).addStyleClass("kyraExportNotifFileCard");
 
                 // Download Handler
-                const handleDownload = () => {
-                    const aData = (typeof oConfig.getData === "function") ? oConfig.getData() : [];
-                    if (!aData || aData.length === 0) {
-                        MessageToast.show("No records available to export for current filter.");
-                        oDialog.close();
-                        return;
-                    }
-
-                    const sFilename = (oConfig.filename || "Kyra_Export") + ".xlsx";
-                    const aHeaders = Object.keys(aData[0]);
-                    let sContent = aHeaders.join("\t") + "\r\n";
-                    aData.forEach(row => {
-                        const aVals = aHeaders.map(h => {
-                            let val = (row[h] || "").toString();
-                            if (val.includes(",") || val.includes('"') || val.includes("\n")) {
-                                val = '"' + val.replace(/"/g, '""') + '"';
-                            }
-                            return val;
-                        });
-                        sContent += aVals.join("\t") + "\r\n";
-                    });
-
-                    sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
-
-                    const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    const oBlob = new Blob([sContent], { type: blobMime });
-                    const sUrl = URL.createObjectURL(oBlob);
-                    const oLink = document.createElement("a");
-                    oLink.href = sUrl;
-                    oLink.download = sFilename;
-                    document.body.appendChild(oLink);
-                    oLink.click();
-                    document.body.removeChild(oLink);
-                    URL.revokeObjectURL(sUrl);
-
-                    MessageToast.show("Excel report downloaded successfully!");
+                const handleDownload = async () => {
                     oDialog.close();
+                    if (typeof oConfig.onConfirmDownload === "function") {
+                        await oConfig.onConfirmDownload();
+                    } else if (typeof oConfig.getData === "function") {
+                        const aData = oConfig.getData();
+                        if (!aData || aData.length === 0) {
+                            MessageToast.show("No records available to export for current filter.");
+                            return;
+                        }
+                        const sFilename = (oConfig.filename || "Kyra_Export") + ".xlsx";
+                        const aHeaders = Object.keys(aData[0]);
+                        let sContent = aHeaders.join("\t") + "\r\n";
+                        aData.forEach(row => {
+                            const aVals = aHeaders.map(h => {
+                                let val = (row[h] || "").toString();
+                                if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+                                    val = '"' + val.replace(/"/g, '""') + '"';
+                                }
+                                return val;
+                            });
+                            sContent += aVals.join("\t") + "\r\n";
+                        });
+                        sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
+                        const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        const oBlob = new Blob([sContent], { type: blobMime });
+                        const sUrl = URL.createObjectURL(oBlob);
+                        const oLink = document.createElement("a");
+                        oLink.href = sUrl;
+                        oLink.download = sFilename;
+                        document.body.appendChild(oLink);
+                        oLink.click();
+                        document.body.removeChild(oLink);
+                        URL.revokeObjectURL(sUrl);
+                        MessageToast.show("Excel report downloaded successfully!");
+                    }
                 };
 
                 // ONLY 2 BUTTONS: Cancel & Download
@@ -13260,6 +13272,38 @@ sap.ui.define([
             });
         },
 
+        
+        onToggleAdminServiceStatus(oEvent) {
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oCtx) return;
+            const oObj = oCtx.getObject();
+            if (!oObj) return;
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sCurrent = oObj.status || "Active";
+            const sNewStatus = (sCurrent === "Active") ? "Deactive" : "Active";
+
+            const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
+                item.serviceName === oObj.serviceName ? Object.assign({}, item, {
+                    status: sNewStatus,
+                    isUnsaved: false
+                }) : item
+            );
+            oModel.setProperty("/adminServicesAll", aAll);
+            oModel.setProperty("/adminServices", aAll.slice());
+
+            if (oModel.getProperty("/selectedAdminServiceName") === oObj.serviceName) {
+                oModel.setProperty("/isCurrentServiceUnsaved", false);
+            }
+
+            this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Service '" + oObj.serviceName + "' status changed to " + sNewStatus + ".");
+            this._showSlideNotification("Status Updated", "Service '" + oObj.serviceName + "' is now " + sNewStatus + " and saved.");
+            sap.m.MessageToast.show("Service '" + oObj.serviceName + "' is now " + sNewStatus + ".");
+        },
+
         onEditAdminService(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
@@ -13304,8 +13348,8 @@ sap.ui.define([
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_svc_status">STATUS</label>
                                 <select id="kyra_edit_svc_status" class="kyra-system-modal-select">
-                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                    <option value="Active" ${(sCurrentStatus === "Active" || sCurrentStatus === "Draft") ? "selected" : ""}>Active</option>
+                                    <option value="Deactive" ${(sCurrentStatus === "Deactive" || sCurrentStatus === "Inactive") ? "selected" : ""}>Deactive</option>
                                 </select>
                             </div>
                         </div>
@@ -13360,7 +13404,8 @@ sap.ui.define([
                                 const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
                                     item.serviceName === sOldName ? Object.assign({}, item, {
                                         serviceName: sNewName,
-                                        status: sNewStatus
+                                        status: sNewStatus,
+                                        isUnsaved: false
                                     }) : item
                                 );
                                 oModel.setProperty("/adminServicesAll", aAll);
@@ -13411,6 +13456,7 @@ sap.ui.define([
                                 const bIsCurrent = (oModel.getProperty("/selectedAdminServiceName") === sOldName || oModel.getProperty("/selectedAdminServiceName") === sNewName);
                                 if (bIsCurrent) {
                                     oModel.setProperty("/selectedAdminServiceName", sNewName);
+                                    oModel.setProperty("/isCurrentServiceUnsaved", false);
 
                                     // Refresh right-hand service details panel (Teams & Personas)
                                     const oCurrentSelTeam = oModel.getProperty("/selectedAdminClassification");

@@ -98,6 +98,19 @@ sap.ui.define([
     return Controller.extend("kyra001.pages.Approver.Approver", {
 
         onInit() {
+            // Disable spellcheck on search fields
+            this.getView().addEventDelegate({
+                onAfterRendering: () => {
+                    setTimeout(() => {
+                        document.querySelectorAll('.kyraEntitlementsSearchField input, .sapMSF input').forEach(el => {
+                            el.setAttribute('spellcheck', 'false');
+                            el.setAttribute('autocomplete', 'off');
+                            el.setAttribute('autocorrect', 'off');
+                        });
+                    }, 300);
+                }
+            });
+
             const oComp = this.getOwnerComponent();
             const oSharedModel = oComp && oComp.getModel("accessModel");
             if (oSharedModel) {
@@ -2034,12 +2047,18 @@ sap.ui.define([
             const sFilterType = aFilterParts.join(" | ");
             const sPrefix = bHistory ? "Kyra_Processed_History_" : "Kyra_User_Requests_";
 
-            await this._executeAuditExcelExport({
-                oTable: oTable,
-                aFallbackItems: aFallbackItems,
-                sSectionName: sSectionName,
-                sFilterType: sFilterType,
-                sFilenamePrefix: sPrefix + (bHistory ? sHistoryTab : sPendingTab) + "_"
+            this._openExportDialog({
+                title: "Export to Excel",
+                subtitle: "Download the current filtered approval records as an Excel spreadsheet (.xlsx).",
+                onConfirmDownload: async () => {
+                    await this._executeAuditExcelExport({
+                        oTable: oTable,
+                        aFallbackItems: aFallbackItems,
+                        sSectionName: sSectionName,
+                        sFilterType: sFilterType,
+                        sFilenamePrefix: sPrefix + (bHistory ? sHistoryTab : sPendingTab) + "_"
+                    });
+                }
             });
         },
 
@@ -2295,7 +2314,152 @@ sap.ui.define([
         },
 
         _openExportDialog(oConfig) {
-            this.onExportApprovals();
+            sap.ui.require([
+                "sap/m/Dialog",
+                "sap/m/VBox",
+                "sap/m/HBox",
+                "sap/m/Avatar",
+                "sap/m/Title",
+                "sap/m/Text",
+                "sap/m/Button",
+                "sap/m/MessageToast"
+            ], (Dialog, VBox, HBox, Avatar, Title, Text, Button, MessageToast) => {
+                let oDialog;
+                // Notification Modal Header with Close button
+                const oTopBar = new HBox({
+                    justifyContent: "End",
+                    items: [
+                        new Button({
+                            icon: "sap-icon://decline",
+                            type: "Transparent",
+                            tooltip: "Close",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraExportNotifCloseBtn")
+                    ]
+                }).addStyleClass("kyraExportNotifTopBar");
+
+                // Excel Icon Circle
+                const oIconCircle = new HBox({
+                    justifyContent: "Center",
+                    items: [
+                        new Avatar({
+                            src: "sap-icon://excel-attachment",
+                            displaySize: "M"
+                        })
+                    ]
+                }).addStyleClass("kyraExportNotifIconCircle");
+
+                // Title & Subtitle
+                const oTitle = new Title({
+                    text: oConfig.title || "Export to Excel",
+                    level: "H3",
+                    textAlign: "Center",
+                    width: "100%"
+                }).addStyleClass("kyraExportNotifTitle");
+
+                const oDesc = new Text({
+                    text: oConfig.subtitle || "Download the active filtered records as an Excel spreadsheet (.xlsx).",
+                    textAlign: "Center",
+                    width: "100%"
+                }).addStyleClass("kyraExportNotifDesc");
+
+                // File info card (Excel .xlsx only)
+                const oFileCard = new HBox({
+                    alignItems: "Center",
+                    items: [
+                        new Text({ text: ".XLSX" }).addStyleClass("kyraExportNotifFormatPill"),
+                        new VBox({
+                            items: [
+                                new Title({ text: "Excel Spreadsheet (.xlsx)", level: "H5" }).addStyleClass("kyraExportNotifCardTitle"),
+                                new Text({ text: "Formatted tabular workbook with audit columns" }).addStyleClass("kyraExportNotifCardSubtitle")
+                            ]
+                        }).addStyleClass("kyraExportNotifCardInfo")
+                    ]
+                }).addStyleClass("kyraExportNotifFileCard");
+
+                // Download Handler
+                const handleDownload = async () => {
+                    oDialog.close();
+                    if (typeof oConfig.onConfirmDownload === "function") {
+                        await oConfig.onConfirmDownload();
+                    } else if (typeof oConfig.getData === "function") {
+                        const aData = oConfig.getData();
+                        if (!aData || aData.length === 0) {
+                            MessageToast.show("No records available to export for current filter.");
+                            return;
+                        }
+                        const sFilename = (oConfig.filename || "Kyra_Approvals_Export") + ".xlsx";
+                        const aHeaders = Object.keys(aData[0]);
+                        let sContent = aHeaders.join("\t") + "\r\n";
+                        aData.forEach(row => {
+                            const aVals = aHeaders.map(h => {
+                                let val = (row[h] || "").toString();
+                                if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+                                    val = '"' + val.replace(/"/g, '""') + '"';
+                                }
+                                return val;
+                            });
+                            sContent += aVals.join("\t") + "\r\n";
+                        });
+                        sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
+                        const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                        const oBlob = new Blob([sContent], { type: blobMime });
+                        const sUrl = URL.createObjectURL(oBlob);
+                        const oLink = document.createElement("a");
+                        oLink.href = sUrl;
+                        oLink.download = sFilename;
+                        document.body.appendChild(oLink);
+                        oLink.click();
+                        document.body.removeChild(oLink);
+                        URL.revokeObjectURL(sUrl);
+                        MessageToast.show("Excel report downloaded successfully!");
+                    }
+                };
+
+                // ONLY 2 BUTTONS: Cancel & Download
+                const oFooter = new HBox({
+                    justifyContent: "End",
+                    alignItems: "Center",
+                    items: [
+                        new Button({
+                            text: "Cancel",
+                            press: () => oDialog.close()
+                        }).addStyleClass("kyraExportNotifCancelBtn"),
+                        new Button({
+                            text: "Download",
+                            icon: "sap-icon://download",
+                            type: "Emphasized",
+                            press: handleDownload
+                        }).addStyleClass("kyraExportNotifDownloadBtn")
+                    ]
+                }).addStyleClass("kyraExportNotifFooter");
+
+                // Assemble Dialog
+                oDialog = new Dialog({
+                    showHeader: false,
+                    contentWidth: "420px",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
+                    resizable: false,
+                    content: [
+                        new VBox({
+                            alignItems: "Stretch",
+                            items: [
+                                oTopBar,
+                                oIconCircle,
+                                oTitle,
+                                oDesc,
+                                oFileCard,
+                                oFooter
+                            ]
+                        }).addStyleClass("sapUiNoMargin")
+                    ],
+                    afterClose: () => oDialog.destroy()
+                }).addStyleClass("kyraModernExportNotificationDialog");
+
+                this.getView().addDependent(oDialog);
+                oDialog.open();
+            });
         },
 
         onFilterApprovalsDialog() {

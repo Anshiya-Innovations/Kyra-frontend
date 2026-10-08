@@ -1205,21 +1205,11 @@
                                 <!-- Employee Active Entitlements Table -->
                                 <Title text="{= 'User Active Entitlements (' + (${accessModel>/personaLookupUser/entitlements} ? ${accessModel>/personaLookupUser/entitlements}.length : 0) + ')' }" level="H5" class="kyraAdminCardTitle sapUiTinyMarginBottom" />
                                 <Table items="{accessModel>/personaLookupUser/entitlements}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable">
-                                    <noData>
-                                        <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
-                                            <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
-                                                <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
-                                            </HBox>
-                                            <Title text="No active entitlements found" level="H4" class="kyraTableEmptyTitle" />
-                                            <Text text="This user currently has no active entitlements or roles assigned." class="fioriDescriptionText sapUiTinyMarginTop" />
-                                        </VBox>
-                                    </noData>
                                     <columns>
-                                        <Column width="24%"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
-                                        <Column width="22%"><Text text="SERVICES" class="kyraAdminColHeader" /></Column>
-                                        <Column width="22%"><Text text="TEAM / ROLE" class="kyraAdminColHeader" /></Column>
-                                        <Column width="20%"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
-                                        <Column width="12%"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                        <Column width="25%" hAlign="Begin"><Text text="SYSTEM" class="kyraAdminColHeader" /></Column>
+                                        <Column width="25%" hAlign="Begin"><Text text="SERVICE TOPIC" class="kyraAdminColHeader" /></Column>
+                                        <Column width="28%" hAlign="Begin"><Text text="ROLE NAME" class="kyraAdminColHeader" /></Column>
+                                        <Column width="22%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
                                     </columns>
                                     <items>
                                         <ColumnListItem vAlign="Middle">
@@ -1357,21 +1347,15 @@
                                     </HBox>
                                 </HBox>
 
-                                <Table id="deptPersonaUsersTable" items="{accessModel>/departmentPersonaUsers}" fixedLayout="true" class="sapUiNoMargin kyraAdminCleanTable kyraDeptUsersTable">
+                                <Table id="deptPersonaUsersTable"
+                                    items="{accessModel>/departmentPersonaUsers}"
+                                    fixedLayout="true"
+                                    class="sapUiNoMargin kyraAdminCleanTable kyraDeptUsersTable">
                                     <columns>
-                                        <Column width="48px" hAlign="Center" class="kyraTableCheckCol kyraDeptCheckCol">
-                                            <CheckBox
-                                                id="masterDeptCheckbox"
-                                                selected="{accessModel>/departmentPersonaAllSelected}"
-                                                select=".onToggleMasterDeptCheckbox"
-                                                class="kyraAdminTableCheckbox"
-                                                tooltip="Select or Deselect All" />
-                                        </Column>
-                                        <Column width="15%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
-                                        <Column width="21%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
-                                        <Column width="26%" hAlign="Begin"><Text text="EMAIL ADDRESS" class="kyraAdminColHeader" /></Column>
-                                        <Column width="20%" hAlign="Begin"><Text text="DEPARTMENT" class="kyraAdminColHeader" /></Column>
-                                        <Column width="18%" hAlign="Begin"><Text text="PERSONA" class="kyraAdminColHeader" /></Column>
+                                        <Column width="18%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
+                                        <Column width="24%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
+                                        <Column width="28%" hAlign="Begin"><Text text="EMAIL" class="kyraAdminColHeader" /></Column>
+                                        <Column width="30%" hAlign="Center"><Text text="ASSIGNED PERSONA" class="kyraAdminColHeader" /></Column>
                                     </columns>
                                     <items>
                                         <ColumnListItem vAlign="Middle" type="Active" highlight="None" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
@@ -1435,9 +1419,9 @@
                                         fixedLayout="true"
                                         class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
                                         <columns>
-                                            <Column width="46%" hAlign="Begin"><Text text="BUSINESS SECTORS" class="kyraAdminColHeader" /></Column>
-                                            <Column width="27%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                            <Column width="27%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="52%" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraAdminColHeader" /></Column>
+                                            <Column width="24%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="24%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                         </columns>
                                         <items>
                                             <ColumnListItem
@@ -1594,9 +1578,9 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable">
                                 <columns>
-                                    <Column width="50%" hAlign="Begin"><Text text="REGION" class="kyraAdminColHeader" /></Column>
-                                    <Column width="30%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="20%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="52%" hAlign="Begin"><Text text="REGION" class="kyraAdminColHeader" /></Column>
+                                    <Column width="24%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="24%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
@@ -1649,11 +1633,11 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable">
                                 <columns>
-                                    <Column width="30%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
-                                    <Column width="18%" hAlign="Begin"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
-                                    <Column width="18%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
-                                    <Column width="12%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="28%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
+                                    <Column width="20%" hAlign="Begin"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
+                                    <Column width="18%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="20%" hAlign="Begin"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
+                                    <Column width="14%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
@@ -1728,9 +1712,9 @@
                                         fixedLayout="true"
                                         class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
                                         <columns>
-                                            <Column width="46%" hAlign="Begin"><Text text="SERVICE NAME" class="kyraAdminColHeader" /></Column>
-                                            <Column width="27%" hAlign="Begin"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                            <Column width="27%" hAlign="Begin"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="50%" hAlign="Begin"><Text text="SERVICE NAME" class="kyraAdminColHeader" /></Column>
+                                            <Column width="25%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="25%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                         </columns>
                                         <items>
                                             <ColumnListItem
@@ -1743,12 +1727,12 @@
                                                 </customData>
                                                 <cells>
                                                     <Text text="{accessModel>serviceName}" class="kyraAdminCellBold" />
-                                                    <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                    <HBox alignItems="Center" class="kyraAdminStatusPill" press=".onToggleAdminServiceStatus" tooltip="Click to toggle Active / Deactive status">
                                                         <customData>
-                                                            <core:CustomData key="status" value="{= ${accessModel>isUnsaved} ? 'Draft' : ${accessModel>status} }" writeToDom="true" />
+                                                            <core:CustomData key="status" value="{= ${accessModel>isUnsaved} ? 'Draft' : (${accessModel>status} === 'Inactive' ? 'Deactive' : ${accessModel>status}) }" writeToDom="true" />
                                                         </customData>
                                                         <HBox class="kyraAdminVectorDot" />
-                                                        <Text text="{= ${accessModel>isUnsaved} ? 'Draft' : ${accessModel>status} }" class="kyraAdminPillText" />
+                                                        <Text text="{= ${accessModel>isUnsaved} ? 'Draft' : (${accessModel>status} === 'Inactive' ? 'Deactive' : ${accessModel>status}) }" class="kyraAdminPillText" />
                                                     </HBox>
                                                     <HBox alignItems="Center" class="kyraAdminRowActionGroup">
                                                         <Button
@@ -1767,22 +1751,7 @@
                                         </items>
                                     </Table>
                                 </VBox>
-                                <HBox
-                                    visible="true"
-                                    width="100%"
-                                    justifyContent="End"
-                                    alignItems="Center"
-                                    class="kyraAdminServiceDetailsFooter">
-                                    <Button
-                                        text="Cancel"
-                                        press=".onCancelAdminServicesSection"
-                                        class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
-                                    <Button
-                                        text="Save"
-                                        type="Emphasized"
-                                        press=".onSaveAdminServicesSection"
-                                        class="kyraAdminSaveBtn" />
-                                </HBox>
+                                
                             </VBox>
 
                             <!-- RIGHT CARD: SERVICE DETAILS - SYSTEM ADMINISTRATOR -->
@@ -2062,10 +2031,10 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable kyraAdminConflictTable">
                                 <columns>
-                                    <Column width="13%" hAlign="Center"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
-                                    <Column width="23%" hAlign="Center"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="23%" hAlign="Center"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="23%" hAlign="Center"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
+                                    <Column width="16%" hAlign="Begin"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
                                     <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
                                     <Column width="9%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>

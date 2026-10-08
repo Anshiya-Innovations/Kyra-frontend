@@ -177,6 +177,19 @@ sap.ui.define([
 
     return Controller.extend("kyra001.pages.access.AccessPage", {
         onInit() {
+            // Disable spellcheck on search fields
+            this.getView().addEventDelegate({
+                onAfterRendering: () => {
+                    setTimeout(() => {
+                        document.querySelectorAll('.kyraEntitlementsSearchField input, .sapMSF input').forEach(el => {
+                            el.setAttribute('spellcheck', 'false');
+                            el.setAttribute('autocomplete', 'off');
+                            el.setAttribute('autocorrect', 'off');
+                        });
+                    }, 300);
+                }
+            });
+
             // Kyra: Ensure entire dropdown row in MultiComboBox is clickable and pointer-styled
             if (!window._kyraMultiComboClickListenerAttached) {
                 window._kyraMultiComboClickListenerAttached = true;
@@ -9581,7 +9594,7 @@ sap.ui.define([
             });
         },
 
-        async onExportAccess() {
+                async onExportAccess() {
             const oTable = this.byId("myAccessMasterSectionTable");
             const oModel = this.getView().getModel("accessModel");
             const aFallback = (oModel && (oModel.getProperty("/displayedUserAccessList") || oModel.getProperty("/userAccessList"))) || [];
@@ -9600,12 +9613,18 @@ sap.ui.define([
                 sFilterType = "All Active Entitlements (Unfiltered)";
             }
 
-            await this._executeAuditExcelExport({
-                oTable: oTable,
-                aFallbackItems: aFallback,
-                sSectionName: "Active Entitlements — Complete Master View",
-                sFilterType: sFilterType,
-                sFilenamePrefix: "Kyra_Active_Entitlements_"
+            this._openExportDialog({
+                title: "Export to Excel",
+                subtitle: "Download the active filtered entitlements as an Excel spreadsheet (.xlsx).",
+                onConfirmDownload: async () => {
+                    await this._executeAuditExcelExport({
+                        oTable: oTable,
+                        aFallbackItems: aFallback,
+                        sSectionName: "Active Entitlements — Complete Master View",
+                        sFilterType: sFilterType,
+                        sFilenamePrefix: "Kyra_Active_Entitlements_"
+                    });
+                }
             });
         },
 
@@ -9631,12 +9650,18 @@ sap.ui.define([
 
             const sFilterType = aFilterParts.join(" | ");
 
-            await this._executeAuditExcelExport({
-                oTable: oTable,
-                aFallbackItems: aFallback,
-                sSectionName: "My History — " + sCurrentKpiTitle,
-                sFilterType: sFilterType,
-                sFilenamePrefix: "Kyra_My_History_" + sCurrentKpiTitle.replace(/[^a-zA-Z0-9]/g, "_") + "_"
+            this._openExportDialog({
+                title: "Export to Excel",
+                subtitle: "Download the active filtered request history as an Excel spreadsheet (.xlsx).",
+                onConfirmDownload: async () => {
+                    await this._executeAuditExcelExport({
+                        oTable: oTable,
+                        aFallbackItems: aFallback,
+                        sSectionName: "My History — " + sCurrentKpiTitle,
+                        sFilterType: sFilterType,
+                        sFilenamePrefix: "Kyra_My_History_" + sCurrentKpiTitle.replace(/[^a-zA-Z0-9]/g, "_") + "_"
+                    });
+                }
             });
         },
 
@@ -13532,6 +13557,38 @@ sap.ui.define([
             });
         },
 
+        
+        onToggleAdminServiceStatus(oEvent) {
+            const oCtx = oEvent.getSource().getBindingContext("accessModel");
+            if (!oCtx) return;
+            const oObj = oCtx.getObject();
+            if (!oObj) return;
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sCurrent = oObj.status || "Active";
+            const sNewStatus = (sCurrent === "Active") ? "Deactive" : "Active";
+
+            const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
+                item.serviceName === oObj.serviceName ? Object.assign({}, item, {
+                    status: sNewStatus,
+                    isUnsaved: false
+                }) : item
+            );
+            oModel.setProperty("/adminServicesAll", aAll);
+            oModel.setProperty("/adminServices", aAll.slice());
+
+            if (oModel.getProperty("/selectedAdminServiceName") === oObj.serviceName) {
+                oModel.setProperty("/isCurrentServiceUnsaved", false);
+            }
+
+            this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
+            this._syncAdminConfigToLiveAddAccess(oModel, true);
+            this._persistAllCustomizationsToDb(oModel, "Service '" + oObj.serviceName + "' status changed to " + sNewStatus + ".");
+            this._showSlideNotification("Status Updated", "Service '" + oObj.serviceName + "' is now " + sNewStatus + " and saved.");
+            sap.m.MessageToast.show("Service '" + oObj.serviceName + "' is now " + sNewStatus + ".");
+        },
+
         onEditAdminService(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             const oCtx = oEvent.getSource().getBindingContext("accessModel");
@@ -13576,8 +13633,8 @@ sap.ui.define([
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_svc_status">STATUS</label>
                                 <select id="kyra_edit_svc_status" class="kyra-system-modal-select">
-                                    <option value="Active" ${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                    <option value="Inactive" ${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
+                                    <option value="Active" ${(sCurrentStatus === "Active" || sCurrentStatus === "Draft") ? "selected" : ""}>Active</option>
+                                    <option value="Deactive" ${(sCurrentStatus === "Deactive" || sCurrentStatus === "Inactive") ? "selected" : ""}>Deactive</option>
                                 </select>
                             </div>
                         </div>
@@ -13632,7 +13689,8 @@ sap.ui.define([
                                 const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
                                     item.serviceName === sOldName ? Object.assign({}, item, {
                                         serviceName: sNewName,
-                                        status: sNewStatus
+                                        status: sNewStatus,
+                                        isUnsaved: false
                                     }) : item
                                 );
                                 oModel.setProperty("/adminServicesAll", aAll);
@@ -13683,6 +13741,7 @@ sap.ui.define([
                                 const bIsCurrent = (oModel.getProperty("/selectedAdminServiceName") === sOldName || oModel.getProperty("/selectedAdminServiceName") === sNewName);
                                 if (bIsCurrent) {
                                     oModel.setProperty("/selectedAdminServiceName", sNewName);
+                                    oModel.setProperty("/isCurrentServiceUnsaved", false);
 
                                     // Refresh right-hand service details panel (Teams & Personas)
                                     const oCurrentSelTeam = oModel.getProperty("/selectedAdminClassification");
