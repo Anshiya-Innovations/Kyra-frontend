@@ -47039,11 +47039,8 @@ select option:hover,
 .kyraDeptUsersTable th.kyraTableCheckCol,
 .kyraAdminCleanTable th.kyraTableCheckCol,
 .kyraAdminCleanTable th.kyraDeptCheckCol,
-.kyraDeptUsersTable td.sapMListTblCell:has(.sapMCb),
-.kyraDeptUsersTable td.sapMListTblCell:has(.kyraAdminTableCheckbox),
 .kyraAdminCleanTable td.sapMListTblCell:has(.kyraAdminTableCheckbox),
 .kyraAdminCleanTable td.sapMListTblCell:has(.sapMCb),
-.kyraDeptUsersTable td.kyraTableCheckCell,
 .kyraAdminCleanTable td.kyraTableCheckCell {
     width: 48px !important;
     min-width: 48px !important;
@@ -52737,10 +52734,20 @@ html body #adminCustomConflictsTable {
 .kyraDeptUsersTable .sapMListTblHeaderCell,
 #deptPersonaUsersTable thead th,
 .kyraDeptUsersTable thead th,
+html body #deptPersonaUsersTable th,
+html body #deptPersonaUsersTable .sapMListTblHeaderCell,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable th,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCell,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable th,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCell,
 #adminSystemsTable th,
 #adminSystemsTable .sapMListTblHeaderCell,
 .kyraAdminSystemsTable th,
-.kyraAdminSystemsTable .sapMListTblHeaderCell {
+.kyraAdminSystemsTable .sapMListTblHeaderCell,
+#adminSystemsTable thead th,
+.kyraAdminSystemsTable thead th,
+html body #adminSystemsTable th,
+html body #adminSystemsTable .sapMListTblHeaderCell {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
     padding: 13px 16px !important;
@@ -52754,6 +52761,7 @@ html body #adminCustomConflictsTable {
     border-inline-end: 1px solid transparent !important;
     border-inline-end-color: transparent !important;
     border-bottom: 1.5px solid #E2E8F0 !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
 }
 
@@ -52776,10 +52784,53 @@ html body #adminCustomConflictsTable {
 .kyraDeptUsersTable th::before,
 .kyraDeptUsersTable th::after,
 .kyraDeptUsersTable .sapMListTblHeaderCell::before,
-.kyraDeptUsersTable .sapMListTblHeaderCell::after {
+.kyraDeptUsersTable .sapMListTblHeaderCell::after,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::before,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::after,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::before,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::after,
+#deptPersonaUsersTable .sapMColumnHeaderContent::before,
+#deptPersonaUsersTable .sapMColumnHeaderContent::after,
+.kyraDeptUsersTable .sapMColumnHeaderContent::before,
+.kyraDeptUsersTable .sapMColumnHeaderContent::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable th::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable th::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCell::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCell::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCellInner::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCellInner::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMColumnHeaderContent::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMColumnHeaderContent::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable th::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable th::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCell::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCell::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCellInner::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCellInner::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMColumnHeaderContent::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMColumnHeaderContent::after,
+#adminSystemsTable th::before,
+#adminSystemsTable th::after,
+#adminSystemsTable .sapMListTblHeaderCell::before,
+#adminSystemsTable .sapMListTblHeaderCell::after,
+.kyraAdminSystemsTable th::before,
+.kyraAdminSystemsTable th::after,
+.kyraAdminSystemsTable .sapMListTblHeaderCell::before,
+.kyraAdminSystemsTable .sapMListTblHeaderCell::after,
+#adminSystemsTable .sapMListTblHeaderCellInner::before,
+#adminSystemsTable .sapMListTblHeaderCellInner::after,
+.kyraAdminSystemsTable .sapMListTblHeaderCellInner::before,
+.kyraAdminSystemsTable .sapMListTblHeaderCellInner::after,
+#adminSystemsTable .sapMColumnHeaderContent::before,
+#adminSystemsTable .sapMColumnHeaderContent::after,
+.kyraAdminSystemsTable .sapMColumnHeaderContent::before,
+.kyraAdminSystemsTable .sapMColumnHeaderContent::after {
     display: none !important;
     content: none !important;
     border: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
 }
 
 #deptPersonaUsersTable th .sapMColumnHeaderContent,
@@ -52926,15 +52977,95 @@ html body #adminCustomConflictsTable {
 }
 
 /* Checkbox Centering in Department Users table */
-#deptPersonaUsersTable td .sapMCb,
-#deptPersonaUsersTable td .kyraAdminTableCheckbox,
-.kyraDeptUsersTable td .sapMCb,
-.kyraDeptUsersTable td .kyraAdminTableCheckbox {
+#deptPersonaUsersTable th:first-child,
+.kyraDeptUsersTable th:first-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+#deptPersonaUsersTable th:first-child .sapMColumnHeaderContent,
+.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#deptPersonaUsersTable th:first-child .kyraAdminColHeader,
+.kyraDeptUsersTable th:first-child .kyraAdminColHeader {
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+#deptPersonaUsersTable td:first-child,
+.kyraDeptUsersTable td:first-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 14px 0 !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMFlexBox,
+#deptPersonaUsersTable td:first-child .sapMHBox,
+.kyraDeptUsersTable td:first-child .sapMFlexBox,
+.kyraDeptUsersTable td:first-child .sapMHBox {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMCb,
+#deptPersonaUsersTable td:first-child .kyraAdminTableCheckbox,
+.kyraDeptUsersTable td:first-child .sapMCb,
+.kyraDeptUsersTable td:first-child .kyraAdminTableCheckbox {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
+    padding: 0 !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
     vertical-align: middle !important;
+    position: relative !important;
+    float: none !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMCbBg,
+.kyraDeptUsersTable td:first-child .sapMCbBg {
+    position: static !important;
+    margin: 0 auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    box-sizing: border-box !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMCbLabel,
+.kyraDeptUsersTable td:first-child .sapMCbLabel {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
 }
 
 /* Persona Badge Centering in Department Users table */
@@ -53038,6 +53169,14 @@ html body #adminCustomConflictsTable {
 /* =========================================================================
    ADMIN SYSTEMS TABLE: HEADER DIVIDERS INVISIBLE (Alignment 100% Preserved)
    ========================================================================= */
+#deptPersonaUsersTable th,
+#deptPersonaUsersTable .sapMListTblHeaderCell,
+.kyraDeptUsersTable th,
+.kyraDeptUsersTable .sapMListTblHeaderCell,
+#deptPersonaUsersTable thead th,
+.kyraDeptUsersTable thead th,
+html body #deptPersonaUsersTable th,
+html body #deptPersonaUsersTable .sapMListTblHeaderCell,
 #adminSystemsTable th,
 #adminSystemsTable .sapMListTblHeaderCell,
 .kyraAdminSystemsTable th,
@@ -53056,6 +53195,10 @@ html body #adminSystemsTable .sapMListTblHeaderCell {
     border-bottom: 1.5px solid #E2E8F0 !important;
 }
 
+#deptPersonaUsersTable th:last-child,
+#deptPersonaUsersTable .sapMListTblHeaderCell:last-child,
+.kyraDeptUsersTable th:last-child,
+.kyraDeptUsersTable .sapMListTblHeaderCell:last-child,
 #adminSystemsTable th:last-child,
 #adminSystemsTable .sapMListTblHeaderCell:last-child,
 .kyraAdminSystemsTable th:last-child,
@@ -53064,6 +53207,22 @@ html body #adminSystemsTable .sapMListTblHeaderCell {
     border-inline-end: none !important;
 }
 
+#deptPersonaUsersTable th::before,
+#deptPersonaUsersTable th::after,
+#deptPersonaUsersTable .sapMListTblHeaderCell::before,
+#deptPersonaUsersTable .sapMListTblHeaderCell::after,
+.kyraDeptUsersTable th::before,
+.kyraDeptUsersTable th::after,
+.kyraDeptUsersTable .sapMListTblHeaderCell::before,
+.kyraDeptUsersTable .sapMListTblHeaderCell::after,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::before,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::after,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::before,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::after,
+#deptPersonaUsersTable .sapMColumnHeaderContent::before,
+#deptPersonaUsersTable .sapMColumnHeaderContent::after,
+.kyraDeptUsersTable .sapMColumnHeaderContent::before,
+.kyraDeptUsersTable .sapMColumnHeaderContent::after,
 #adminSystemsTable th::before,
 #adminSystemsTable th::after,
 #adminSystemsTable .sapMListTblHeaderCell::before,
