@@ -2142,6 +2142,54 @@ sap.ui.define([
             });
         },
 
+        _ensureXlsxLibrary() {
+            return new Promise((resolve, reject) => {
+                if (window.XLSX && window.XLSX.utils && window.XLSX.writeFile) {
+                    return resolve(window.XLSX);
+                }
+
+                const existingScript = document.querySelector("script[data-xlsx-lib='true']");
+                if (existingScript) {
+                    if (window.XLSX && window.XLSX.utils) return resolve(window.XLSX);
+                    existingScript.addEventListener("load", () => resolve(window.XLSX));
+                    existingScript.addEventListener("error", (e) => reject(e));
+                    return;
+                }
+
+                const tryLoadScript = (sources, index = 0) => {
+                    if (index >= sources.length) {
+                        return reject(new Error("Unable to load Excel export library (XLSX)."));
+                    }
+                    const src = sources[index];
+                    const script = document.createElement("script");
+                    script.setAttribute("data-xlsx-lib", "true");
+                    script.src = src;
+                    script.onload = () => {
+                        if (window.XLSX && window.XLSX.utils) {
+                            resolve(window.XLSX);
+                        } else {
+                            tryLoadScript(sources, index + 1);
+                        }
+                    };
+                    script.onerror = () => {
+                        script.remove();
+                        tryLoadScript(sources, index + 1);
+                    };
+                    document.head.appendChild(script);
+                };
+
+                const possibleSources = [
+                    "lib/xlsx.full.min.js",
+                    "./lib/xlsx.full.min.js",
+                    "webapp/lib/xlsx.full.min.js",
+                    "/lib/xlsx.full.min.js",
+                    "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",
+                    "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
+                ];
+                tryLoadScript(possibleSources, 0);
+            });
+        },
+
         async _executeAuditExcelExport(mParams) {
             const { oTable, aFallbackItems, sSectionName, sFilterType, sFilenamePrefix } = mParams;
 
@@ -2318,7 +2366,7 @@ sap.ui.define([
                 return;
             }
 
-            // 4. Construct Excel TSV Spreadsheet with UTF-8 BOM
+            // 4. Construct Genuine OpenXML Excel Spreadsheet (.xlsx) using SheetJS
             const DB_COLUMNS = [
                 { key: "id", label: "ID" },
                 { key: "request_number", label: "REQUEST NUMBER" },
@@ -2351,46 +2399,42 @@ sap.ui.define([
                 { key: "updated_at", label: "UPDATED AT" }
             ];
 
-            const sanitizeCell = (v) => {
-                if (v === null || v === undefined) return "";
-                let s = String(v).trim();
-                if (s.includes("\t") || s.includes("\n") || s.includes("\r") || s.includes('"')) {
-                    s = '"' + s.replace(/"/g, '""').replace(/\r\n|\n|\r/g, " ") + '"';
-                }
-                return s;
-            };
+            try {
+                const XLSX = await this._ensureXlsxLibrary();
+                const aAoa = [
+                    ["KYRA ENTERPRISE GOVERNANCE AUDIT REPORT"],
+                    ["Report Section:", sSectionName || "Audit Log"],
+                    ["Filter Type:", sFilterType || "All Records (Unfiltered)"],
+                    ["Export Timestamp:", new Date().toLocaleString()],
+                    ["Total Records Exported:", aExportRows.length],
+                    [], // Blank separator row
+                    DB_COLUMNS.map(c => c.label)
+                ];
 
-            let sContent = "";
-            sContent += "KYRA ENTERPRISE GOVERNANCE AUDIT REPORT\r\n";
-            sContent += "Report Section:\t" + sanitizeCell(sSectionName || "Audit Log") + "\r\n";
-            sContent += "Filter Type:\t" + sanitizeCell(sFilterType || "All Records (Unfiltered)") + "\r\n";
-            sContent += "Export Timestamp:\t" + sanitizeCell(new Date().toLocaleString()) + "\r\n";
-            sContent += "Total Records Exported:\t" + aExportRows.length + "\r\n";
-            sContent += "\r\n";
+                aExportRows.forEach(row => {
+                    aAoa.push(DB_COLUMNS.map(c => {
+                        const val = row[c.key];
+                        return (val === null || val === undefined) ? "" : String(val);
+                    }));
+                });
 
-            // Headers
-            sContent += DB_COLUMNS.map(c => c.label).join("\t") + "\r\n";
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(aAoa);
+                ws["!cols"] = DB_COLUMNS.map(c => ({ wch: Math.max(c.label.length + 3, 16) }));
+                XLSX.utils.book_append_sheet(wb, ws, "Audit Log");
 
-            // Data rows
-            aExportRows.forEach(row => {
-                const aVals = DB_COLUMNS.map(c => sanitizeCell(row[c.key]));
-                sContent += aVals.join("\t") + "\r\n";
-            });
+                const sFilename = (sFilenamePrefix || "Kyra_Audit_Export_") + new Date().toISOString().slice(0, 10) + ".xlsx";
+                XLSX.writeFile(wb, sFilename, { bookType: "xlsx", compression: true });
 
-            const sFilename = (sFilenamePrefix || "Kyra_Audit_Export_") + new Date().toISOString().slice(0, 10) + ".xlsx";
-            const oBlob = new Blob(["\uFEFF" + sContent], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8" });
-            const sUrl = URL.createObjectURL(oBlob);
-            const oLink = document.createElement("a");
-            oLink.href = sUrl;
-            oLink.download = sFilename;
-            document.body.appendChild(oLink);
-            oLink.click();
-            document.body.removeChild(oLink);
-            URL.revokeObjectURL(sUrl);
-
-            sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
-                MessageToast.show("Audit log exported to Excel (" + aExportRows.length + " records).");
-            });
+                sap.ui.require(["sap/m/MessageToast"], (MessageToast) => {
+                    MessageToast.show("Audit log exported to Excel (" + aExportRows.length + " records).");
+                });
+            } catch (err) {
+                console.error("Excel export error:", err);
+                sap.ui.require(["sap/m/MessageBox"], (MessageBox) => {
+                    MessageBox.error("Failed to generate Excel file: " + (err.message || err));
+                });
+            }
         },
 
         _openExportDialog(oConfig) {
@@ -2468,31 +2512,18 @@ sap.ui.define([
                             MessageToast.show("No records available to export for current filter.");
                             return;
                         }
-                        const sFilename = (oConfig.filename || "Kyra_Approvals_Export") + ".xlsx";
-                        const aHeaders = Object.keys(aData[0]);
-                        let sContent = aHeaders.join("\t") + "\r\n";
-                        aData.forEach(row => {
-                            const aVals = aHeaders.map(h => {
-                                let val = (row[h] || "").toString();
-                                if (val.includes(",") || val.includes('"') || val.includes("\n")) {
-                                    val = '"' + val.replace(/"/g, '""') + '"';
-                                }
-                                return val;
-                            });
-                            sContent += aVals.join("\t") + "\r\n";
-                        });
-                        sContent += "\r\nGenerated at: " + new Date().toLocaleString() + "\r\n";
-                        const blobMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                        const oBlob = new Blob([sContent], { type: blobMime });
-                        const sUrl = URL.createObjectURL(oBlob);
-                        const oLink = document.createElement("a");
-                        oLink.href = sUrl;
-                        oLink.download = sFilename;
-                        document.body.appendChild(oLink);
-                        oLink.click();
-                        document.body.removeChild(oLink);
-                        URL.revokeObjectURL(sUrl);
-                        MessageToast.show("Excel report downloaded successfully!");
+                        try {
+                            const XLSX = await this._ensureXlsxLibrary();
+                            const ws = XLSX.utils.json_to_sheet(aData);
+                            const wb = XLSX.utils.book_new();
+                            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                            const sFilename = (oConfig.filename || "Kyra_Approvals_Export") + ".xlsx";
+                            XLSX.writeFile(wb, sFilename, { bookType: "xlsx", compression: true });
+                            MessageToast.show("Excel report downloaded successfully!");
+                        } catch (eXlsx) {
+                            console.error("Excel fallback error:", eXlsx);
+                            MessageToast.show("Export failed: " + (eXlsx.message || eXlsx));
+                        }
                     }
                 };
 
