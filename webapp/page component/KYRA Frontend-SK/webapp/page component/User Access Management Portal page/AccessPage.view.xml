@@ -1,4 +1,4 @@
-﻿<mvc:View
+<mvc:View
     controllerName="kyra001.pages.access.AccessPage"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -1364,10 +1364,12 @@
                                     <items>
                                         <ColumnListItem vAlign="Middle" type="Active" highlight="None" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
                                             <cells>
-                                                <CheckBox
-                                                    selected="{accessModel>selected}"
-                                                    select=".onDeptUserCheckboxToggle"
-                                                    class="kyraAdminTableCheckbox" />
+                                                <HBox alignItems="Center" justifyContent="Center" width="100%">
+                                                    <CheckBox
+                                                        selected="{accessModel>selected}"
+                                                        select=".onDeptUserCheckboxToggle"
+                                                        class="kyraAdminTableCheckbox" />
+                                                </HBox>
                                                 <Text text="{accessModel>username}" class="kyraAdminCellBold" />
                                                 <Text text="{accessModel>fullName}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>email}" class="kyraAdminCellText" />

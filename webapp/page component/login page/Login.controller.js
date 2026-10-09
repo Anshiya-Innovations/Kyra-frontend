@@ -60,8 +60,8 @@ sap.ui.define([
                 isBusy: false,
                 hasError: false,
                 errorMessage: "",
-                idLabel: "Requester ID",
-                idPlaceholder: "Enter your Requester ID",
+                idLabel: "User ID",
+                idPlaceholder: "Enter your User ID",
                 idState: "None",
                 idStateText: ""
             });
@@ -170,8 +170,8 @@ sap.ui.define([
                 oModel.setProperty("/userId", "");
                 oModel.setProperty("/hasError", false);
                 oModel.setProperty("/errorMessage", "");
-                oModel.setProperty("/idLabel", "Requester ID");
-                oModel.setProperty("/idPlaceholder", "Enter your Requester ID");
+                oModel.setProperty("/idLabel", "User ID");
+                oModel.setProperty("/idPlaceholder", "Enter your User ID");
                 oModel.setProperty("/idState", "None");
                 oModel.setProperty("/idStateText", "");
             }
@@ -192,8 +192,8 @@ sap.ui.define([
             const sSelectedRole = oSelectedItem ? oSelectedItem.getKey() : "";
             const oModel = this.getView().getModel("login");
 
-            let sLabel = "Requester ID";
-            let sPlaceholder = "Enter your Requester ID";
+            let sLabel = "User ID";
+            let sPlaceholder = "Enter your User ID";
 
             if (sSelectedRole === "Admin" || sSelectedRole === "Administrator") {
                 sLabel = "Admin ID";
@@ -207,6 +207,9 @@ sap.ui.define([
             } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
                 sLabel = "Requester ID";
                 sPlaceholder = "Enter your Requester ID";
+            } else {
+                sLabel = "User ID";
+                sPlaceholder = "Enter your User ID";
             }
 
             oModel.setProperty("/selectedRole", sSelectedRole);
@@ -284,10 +287,20 @@ sap.ui.define([
             const oModel = oView.getModel("login");
             const oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            let sEffectiveTitle = oModel.getProperty("/selectedRole");
-            if (!sEffectiveTitle || sEffectiveTitle === "Select Persona" || sEffectiveTitle === "Select persona" || sEffectiveTitle === "Review") {
-                sEffectiveTitle = "Requester";
+            const sSelectedRole = (oModel.getProperty("/selectedRole") || "").trim();
+
+            this._resetErrorStates();
+
+            // REQUIRE MANUAL SELECTION: No auto-select or default-select!
+            if (!sSelectedRole || sSelectedRole === "" || sSelectedRole === "Select persona" || sSelectedRole === "Select Persona") {
+                oModel.setProperty("/hasError", true);
+                oModel.setProperty("/errorMessage", "Please select a persona to sign in.");
+                
+                this._triggerErrorShake();
+                return;
             }
+
+            const sEffectiveTitle = sSelectedRole;
             const sUserId = (oView.byId("idInput").getValue() || "").trim();
             oModel.setProperty("/userId", sUserId);
             const bRemember = oModel.getProperty("/rememberMe");
@@ -329,16 +342,6 @@ sap.ui.define([
 
             // Instant, bulletproof login handler with seamless pre-loading and smooth navigation
             const performLoginSuccess = (oResult) => {
-                // Promptly dismiss loading slide for instantaneous dashboard display
-                setTimeout(() => {
-                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                        window.KyraLoader.hide();
-                    } else if (window.hideKyraLoading) {
-                        window.hideKyraLoading();
-                    }
-                }, 350);
-                oModel.setProperty("/isBusy", false);
-
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
                 const sCanonicalUser = (oResult && (oResult.userId || oResult.username)) ? (oResult.userId || oResult.username) : sUserId.toLowerCase();
 
@@ -425,41 +428,54 @@ sap.ui.define([
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }
 
+                const fnNavigateToAccessPage = () => {
+                    oModel.setProperty("/isBusy", false);
 
-                MessageToast.show("Login successful! Welcome back, " + sCanonicalUser);
-
-                // 1. Router Navigation to AccessPage Dashboard
-                try {
-                    const oRouter = this.getOwnerComponent().getRouter();
-                    if (oRouter) {
-                        oRouter.navTo("AccessPage");
-                        if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
-                            oRouter.getTargets().display("TargetAccessPage");
+                    // 1. Router Navigation to AccessPage Dashboard
+                    try {
+                        const oRouter = this.getOwnerComponent().getRouter();
+                        if (oRouter) {
+                            oRouter.navTo("AccessPage");
+                            if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                                oRouter.getTargets().display("TargetAccessPage");
+                            }
                         }
+                    } catch(e) {
+                        console.warn("Router navigation to AccessPage warning:", e);
                     }
-                } catch(e) {
-                    console.warn("Router navigation to AccessPage warning:", e);
-                }
 
-                // 2. Direct Container View Switching Fallback
-                try {
-                    const oApp = this.byId("app") || 
-                                 (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
-                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
-                    if (oApp) {
-                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
-                        if (oInnerApp && typeof oInnerApp.to === "function") {
-                            try {
-                                const sPageId = (this.getOwnerComponent() && typeof this.getOwnerComponent().createId === "function")
-                                    ? this.getOwnerComponent().createId("AccessPage") : "AccessPage";
-                                if (typeof oInnerApp.getPage === "function" && oInnerApp.getPage(sPageId)) {
-                                    oInnerApp.to(sPageId);
-                                }
-                            } catch(e) {}
+                    // 2. Direct Container View Switching Fallback
+                    try {
+                        const oApp = this.byId("app") || 
+                                     (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                     (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                        if (oApp) {
+                            const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                            if (oInnerApp && typeof oInnerApp.to === "function") {
+                                try {
+                                    const sPageId = (this.getOwnerComponent() && typeof this.getOwnerComponent().createId === "function")
+                                        ? this.getOwnerComponent().createId("AccessPage") : "AccessPage";
+                                    if (typeof oInnerApp.getPage === "function" && oInnerApp.getPage(sPageId)) {
+                                        oInnerApp.to(sPageId);
+                                    }
+                                } catch(e) {}
+                            }
                         }
+                    } catch(e) {
+                        console.warn("Direct container fallback navigation error:", e);
                     }
-                } catch(e) {
-                    console.warn("Direct container fallback navigation error:", e);
+                };
+
+                // Display success within the exact same loading screen card, then smoothly navigate
+                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                    window.KyraLoader.showSuccess({
+                        title: "Login Successful",
+                        subtitle: "Welcome back, " + sCanonicalUser,
+                        duration: 1600,
+                        onComplete: fnNavigateToAccessPage
+                    });
+                } else {
+                    fnNavigateToAccessPage();
                 }
             };
 
