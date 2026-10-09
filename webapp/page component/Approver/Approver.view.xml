@@ -9,7 +9,8 @@
 
         <!-- SECTION 2: USER REQUESTS BOX &amp; HISTORY LOG -->
         <VBox
-            visible="true"
+            id="kyraApproverCardRoot"
+            visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showHistorySection} }"
             class="kyraApproverCard sapUiNoMargin">
             
             <!-- ROW 1: HEADER (Left: Avatar, Title, Subtitle with teal bar | Right: Solid Kyra Teal Segmented Pill Buttons) -->

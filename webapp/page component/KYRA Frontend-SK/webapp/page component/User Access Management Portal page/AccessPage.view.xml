@@ -3802,11 +3802,13 @@
                     </Table>
                 </VBox>
 
-                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver or Compliance Review and on My Access tab and none of the 3 action cards are active) -->
-                <mvc:XMLView 
-                    id="approverSectionView"
-                    viewName="kyra001.pages.Approver.Approver"
-                    visible="{= !!${accessModel>/showApproverSection} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showHistorySection} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }" />
+                <!-- DYNAMIC APPROVER COMPONENT (Visible ONLY when logged in as Approver or Compliance Review and on My Access tab, hidden on History slide) -->
+                <VBox id="approverSectionContainer"
+                    visible="{= !!${accessModel>/showApproverSection} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showHistorySection} &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }">
+                    <mvc:XMLView 
+                        id="approverSectionView"
+                        viewName="kyra001.pages.Approver.Approver" />
+                </VBox>
             </VBox>
 
             <!-- DEDICATED REQUEST TRACKING PAGE (Opened on clicking any row in Pending List) -->

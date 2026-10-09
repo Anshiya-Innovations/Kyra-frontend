@@ -1986,6 +1986,14 @@
                 oModel.setProperty("/showApprovedSection", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
+                const oApproverContainer = this.byId("approverSectionContainer");
+                if (oApproverContainer) {
+                    oApproverContainer.setVisible(false);
+                }
+                const oApproverView = this.byId("approverSectionView");
+                if (oApproverView) {
+                    oApproverView.setVisible(false);
+                }
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/selectedTabKey", "myAccess");
                 oModel.setProperty("/selectedRequestDetail", {});
@@ -8685,6 +8693,14 @@
                 if (oContainer) {
                     oContainer.setVisible(true);
                 }
+                const oApproverContainer = this.byId("approverSectionContainer");
+                if (oApproverContainer) {
+                    oApproverContainer.setVisible(false);
+                }
+                const oApproverView = this.byId("approverSectionView");
+                if (oApproverView) {
+                    oApproverView.setVisible(false);
+                }
                 const oTable = this.byId("myRequestsUnifiedTable");
                 if (oTable) {
                     const oBinding = oTable.getBinding("items");
@@ -8716,6 +8732,15 @@
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
                 this._updateActionCardArrows(oModel);
+                const bShowApprover = !!oModel.getProperty("/showApproverSection");
+                const oApproverContainer = this.byId("approverSectionContainer");
+                if (oApproverContainer) {
+                    oApproverContainer.setVisible(bShowApprover);
+                }
+                const oApproverView = this.byId("approverSectionView");
+                if (oApproverView) {
+                    oApproverView.setVisible(bShowApprover);
+                }
             });
         },
 
