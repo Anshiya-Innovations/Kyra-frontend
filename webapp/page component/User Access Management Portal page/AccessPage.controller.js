@@ -9477,8 +9477,30 @@ sap.ui.define([
             this.onNavToMyAccessMasterPage();
         },
 
+        onSearchMyAccess(oEvent) {
+            const sQuery = (oEvent.getParameter("newValue") !== undefined ? oEvent.getParameter("newValue") : (oEvent.getParameter("query") || "")).toLowerCase().trim();
+            this._sMyAccessSearchQuery = sQuery;
+            const aFilters = [];
+            if (sQuery.length > 0) {
+                aFilters.push(new sap.ui.model.Filter([
+                    new sap.ui.model.Filter("system", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("services", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("serviceTopic", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("teamRole", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("roleName", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("team", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("persona", sap.ui.model.FilterOperator.Contains, sQuery),
+                    new sap.ui.model.Filter("status", sap.ui.model.FilterOperator.Contains, sQuery)
+                ], false));
+            }
+            const oTable = this.byId("myAccessTable");
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter(aFilters);
+            }
+        },
+
         onSearchRequests(oEvent) {
-            const sQuery = (oEvent.getParameter("newValue") || oEvent.getParameter("query") || "").trim();
+            const sQuery = (oEvent.getParameter("newValue") !== undefined ? oEvent.getParameter("newValue") : (oEvent.getParameter("query") || "")).trim();
             this._sCurrentSearchQuery = sQuery;
             const aFilters = [];
             if (sQuery.length > 0) {
@@ -9499,7 +9521,7 @@ sap.ui.define([
         },
 
         onSearchMasterAccess(oEvent) {
-            const sQuery = (oEvent.getParameter("newValue") || oEvent.getParameter("query") || "").trim();
+            const sQuery = (oEvent.getParameter("newValue") !== undefined ? oEvent.getParameter("newValue") : (oEvent.getParameter("query") || "")).trim();
             this._sMasterSearchQuery = sQuery;
             const aFilters = [];
 

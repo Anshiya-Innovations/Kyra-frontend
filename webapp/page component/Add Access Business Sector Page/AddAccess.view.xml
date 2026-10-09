@@ -1,5 +1,5 @@
 <mvc:View
-    controllerName="kyra001.pages.addAccessBusinessSector.AddAccess"
+    controllerName="kyra001.pages.addAccess.AddAccess"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:f="sap.f"
@@ -31,7 +31,7 @@
                 </f:additionalContent>
             </f:ShellBar>
 
-            <!-- Main Content Container Centered with Bottom Scroll Protection -->
+            <!-- Main Content Container -->
             <VBox class="fioriMainContentBox fioriBottomPaddingBox">
                 <!-- Enterprise Top Header Banner (Matching Dashboard Top) -->
                 <VBox class="fioriWelcomeCard sapUiSmallMarginBottom">
@@ -61,12 +61,6 @@
                                 <Text text="User ID:" class="kyraUserIdLabel" />
                                 <Text text="{= ${addAccessModel>/activeUser} || 'emp081' }" class="kyraUserIdValue" />
                             </HBox>
-                            <Button
-                                id="fioriHeaderRefreshBtn"
-                                icon="sap-icon://refresh"
-                                text="Refresh"
-                                type="Transparent"
-                                class="fioriHeaderRefreshBtn kyraBannerRefreshBtn" />
                         </HBox>
                     </HBox>
                 </VBox>
@@ -124,9 +118,9 @@
                     <HBox justifyContent="End" class="sapUiSmallMarginTop">
                         <Button
                             text="Cancel"
-                            type="Transparent"
+                            type="Default"
                             press=".onNavBackToPortal"
-                            class="sapUiTinyMarginEnd" />
+                            class="kyraSecondaryBtn sapUiTinyMarginEnd" />
                         <Button
                             text="Next"
                             type="Emphasized"
@@ -156,19 +150,39 @@
                         <form:content>
                             <core:Title text="Region and Systems Selection" />
                             
-                            <Label text="Region" required="true" />
-                            <Select
-                                id="regionSelect"
-                                selectedKey="{addAccessModel>/region}"
-                                width="100%"
-                                class="fioriFormSelect">
-                                <core:Item key="" text="-- Select Region --" />
-                                <core:Item key="North America (NA)" text="North America (NA)" icon="sap-icon://globe" />
-                                <core:Item key="Europe, Middle East &amp; Africa (EMEA)" text="Europe, Middle East &amp; Africa (EMEA)" icon="sap-icon://globe" />
-                                <core:Item key="Asia-Pacific (APAC)" text="Asia-Pacific (APAC)" icon="sap-icon://globe" />
-                                <core:Item key="Latin America (LATAM)" text="Latin America (LATAM)" icon="sap-icon://globe" />
-                                <core:Item key="Global Enterprise (ALL)" text="Global Enterprise (ALL)" icon="sap-icon://world" />
-                            </Select>
+                            <Label text="Operating Region Selection" required="true" class="sapUiSmallMarginBottom" />
+                            <VBox class="fioriMapCardOuter sapUiSmallMarginBottom">
+                                <core:HTML content='&lt;div id="mapWrapperAddAccess" class="map-wrapper"&gt;
+                                        &lt;img id="worldMapImgAddAccess" src="world-map.jpg" alt="World Map" class="world-map-img"&gt;
+                                        &lt;div id="pinsLayerAddAccess" class="map-pins-layer"&gt;&lt;/div&gt;
+                                        
+                                        &lt;div id="selectAllBtnAddAccess" class="select-all-btn-wrapper"&gt;
+                                          &lt;div class="select-all-icon"&gt;
+                                            &lt;svg class="select-all-pin-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"&gt;
+                                              &lt;path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5-2.5z"/&gt;
+                                            &lt;/svg&gt;
+                                            &lt;svg class="select-all-check-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"&gt;
+                                              &lt;path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/&gt;
+                                            &lt;/svg&gt;
+                                          &lt;/div&gt;
+                                          &lt;span class="select-all-text"&gt;Select All Regions&lt;/span&gt;
+                                        &lt;/div&gt;
+                                    &lt;/div&gt;'>
+                                </core:HTML>
+                            </VBox>
+
+                            <VBox class="selected-regions-card-box sapUiSmallMarginBottom" alignContent="Center" alignItems="Center">
+                                <Text text="SELECTED REGIONS" class="selected-regions-header" />
+                                <HBox id="selectedChipsListAddAccess" items="{addAccessModel>/selectedRegionChips}" class="selected-chips-list" justifyContent="Center" wrap="Wrap">
+                                    <Button 
+                                        text="{addAccessModel>name}" 
+                                        icon="sap-icon://decline" 
+                                        iconFirst="false" 
+                                        press=".onRemoveMapRegionChip"
+                                        class="region-chip-btn sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+                                </HBox>
+                                <Text text="No regions selected" class="no-selection-text" visible="{= !${addAccessModel>/hasRegionSelection} }" />
+                            </VBox>
 
                             <Label text="Systems" required="true" />
                             <MultiComboBox
@@ -252,9 +266,9 @@
                         <HBox>
                             <Button
                                 text="Cancel"
-                                type="Transparent"
+                                type="Default"
                                 press=".onNavBackToPortal"
-                                class="sapUiTinyMarginEnd" />
+                                class="kyraSecondaryBtn sapUiTinyMarginEnd" />
                             <Button
                                 text="Next"
                                 type="Emphasized"
@@ -264,125 +278,73 @@
                     </HBox>
                 </VBox>
 
-                <!-- STEP 3 CONTAINER: ACCESS REQUEST SUMMARY &amp; REVIEW PAGE -->
+                <!-- STEP 3 CONTAINER: ACCESS REQUEST SUMMARY & REVIEW PAGE -->
                 <VBox
                     visible="{addAccessModel>/step3Visible}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
-                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                        <Avatar src="sap-icon://summary-detail" backgroundColor="Accent6" displaySize="S" class="sapUiTinyMarginEnd" />
-                        <VBox>
-                            <Title text="Access Request Summary and Review" level="H4" />
-                            <Text text="Review all configured business governance details clearly before submitting." class="fioriDescriptionText" />
-                        </VBox>
+
+                    <!-- Section Header: Title + Back to User Access Portal button -->
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://customer" backgroundColor="Accent6" displaySize="M" class="sapUiSmallMarginEnd" />
+                            <VBox>
+                                <Title text="Access Request Governance Summary Review" level="H3" />
+                                <Text text="{= 'Reviewing entitlement submission for Requester User ID: ' + (${addAccessModel>/activeUser} || '') }" class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button
+                            text="Back to User Access Portal"
+                            press=".onNavBackToPortal"
+                            class="kyraBackTealBtn"
+                            tooltip="Back to User Access Portal" />
                     </HBox>
 
-                    <!-- Itemized Access Request List Table (Formatted similar to Dashboard My Requests with Edit &amp; Remove) -->
-                    <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
-                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiTinyMarginBottom">
-                            <Title text="Configured Access Entitlements Review" level="H5" />
-                            <Button
-                                text="Edit"
-                                icon="sap-icon://edit"
-                                class="kyraSummaryEditBtn"
-                                press=".onBackToStep2"
-                                tooltip="Modify selected options in Step 2" />
+                    <!-- Full Access Governance & Requester Details Card -->
+                    <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginTop">
+                        <Title text="Full Access Governance &amp; Requester Details" level="H5" class="sapUiTinyMarginBottom" />
+                        <HBox wrap="Wrap" class="sapUiTinyMarginTop">
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="User ID" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/activeUser}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="Business Sector" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/sector}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="Business Function" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/function}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="Region" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/region}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="Duration" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/duration}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="Business Justification" class="fioriFormLabel" />
+                                <Text text="{addAccessModel>/justification}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
+                            </VBox>
+                            <VBox width="25%" class="sapUiTinyMarginBottom">
+                                <Label text="Status" class="fioriFormLabel" />
+                                <ObjectStatus
+                                    text="Pending Approval"
+                                    state="Warning"
+                                    icon="sap-icon://history"
+                                    class="sapUiTinyMarginTop" />
+                            </VBox>
                         </HBox>
-                        <Table
-                            id="summaryRequestsTable"
-                            items="{addAccessModel>/summaryItems}"
-                            noDataText="No access items remaining."
-                            fixedLayout="true"
-                            class="sapUiNoMargin kyraActiveEntitlementsTable">
-                            <columns>
-                                 <Column width="12%" hAlign="Center"><Text text="REQUEST ID" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="14%" hAlign="Center"><Text text="TARGET SYSTEM" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="18%" hAlign="Center"><Text text="ROLE TITLE &amp; SECTOR" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="16%" hAlign="Center"><Text text="PERSONA" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="12%" hAlign="Center"><Text text="ACCESS STATUS" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="11%" hAlign="Center"><Text text="ACCESS TYPE" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="8%" hAlign="Center"><Text text="DURATION" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                                 <Column width="9%" hAlign="Center"><Text text="ACTIONS" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                             </columns>
-                             <items>
-                                 <ColumnListItem vAlign="Middle" class="kyraTableRow">
-                                     <cells>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <ObjectIdentifier title="{addAccessModel>requestId}" class="kyraCellText kyraCellTextCenter" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <Text text="{addAccessModel>system}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <ObjectIdentifier title="{addAccessModel>roleName}" subtitle="{addAccessModel>sector}" class="kyraCellText kyraCellTextCenter" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <Text text="{addAccessModel>persona}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <ObjectStatus
-                                                 text="{addAccessModel>existingStatus}"
-                                                 state="{addAccessModel>existingState}"
-                                                 icon="{= ${addAccessModel>existingStatus} === 'Already Active' ? 'sap-icon://sys-enter-2' : 'sap-icon://pending' }"
-                                                 class="kyraTableStatusBadge" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <ObjectStatus
-                                                 text="{addAccessModel>accessType}"
-                                                 state="{= ${addAccessModel>accessType} === 'RESTRICTED' ? 'Warning' : 'Success' }"
-                                                 icon="{= ${addAccessModel>accessType} === 'RESTRICTED' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }"
-                                                 class="kyraTableStatusBadge" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <Text text="{addAccessModel>duration}" class="kyraCellTextCenter" />
-                                         </HBox>
-                                         <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                             <Button
-                                                 icon="sap-icon://delete"
-                                                 type="Reject"
-                                                 press=".onRemoveSummaryItem"
-                                                 tooltip="Remove this access item from request list"
-                                                 class="kyraDestructiveBtn kyraTableActionBtn" />
-                                         </HBox>
-                                     </cells>
-                                 </ColumnListItem>
-                             </items>
-                         </Table>
-                     </VBox>
-
-                     <!-- Summary Full Governance &amp; Requester Information Card -->
-                     <VBox class="fioriTableCard sapUiResponsivePadding" style="border-left: 4px solid #0066E8;">
-                         <Title text="Full Access Governance &amp; Requester Details" level="H5" class="sapUiTinyMarginBottom" />
-                         <HBox wrap="Wrap" class="sapUiTinyMarginTop">
-                             <VBox width="25%" class="sapUiTinyMarginBottom">
-                                 <Label text="Requester User ID" class="fioriFormLabel" />
-                                 <Text text="{addAccessModel>/activeUser}" class="sapUiTinyMarginTop" style="font-weight: 600; color: #0066E8;" />
-                             </VBox>
-                             <VBox width="25%" class="sapUiTinyMarginBottom">
-                                 <Label text="Requester Role Persona" class="fioriFormLabel" />
-                                 <Text text="{addAccessModel>/activePersona}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                             </VBox>
-                             <VBox width="25%" class="sapUiTinyMarginBottom">
-                                 <Label text="Business Function" class="fioriFormLabel" />
-                                 <Text text="{addAccessModel>/function}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                             </VBox>
-                             <VBox width="25%" class="sapUiTinyMarginBottom">
-                                 <Label text="Operating Region" class="fioriFormLabel" />
-                                 <Text text="{addAccessModel>/region}" class="sapUiTinyMarginTop" style="font-weight: 600;" />
-                             </VBox>
-                             <VBox width="100%" class="sapUiTinyMarginBottom">
-                                 <Label text="Business Justification" class="fioriFormLabel" />
-                                 <Text text="{addAccessModel>/justification}" class="sapUiTinyMarginTop" style="font-style: italic;" />
-                             </VBox>
-                         </HBox>
                     </VBox>
 
-                    <!-- Summary Down Side Action Buttons -->
+                    <!-- Action Buttons -->
                     <HBox justifyContent="End" alignItems="Center" class="sapUiSmallMarginTop">
                         <Button
                             text="Cancel Request"
-                            type="Transparent"
+                            type="Default"
                             press=".onNavBackToPortal"
-                            class="sapUiTinyMarginEnd" />
+                            class="kyraSecondaryBtn sapUiTinyMarginEnd" />
                         <Button
                             text="Submit Access Request"
                             type="Emphasized"

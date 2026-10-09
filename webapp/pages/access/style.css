@@ -468,22 +468,17 @@ body::-webkit-scrollbar {
     margin: 0 !important;
 }
 
+/* Hide Refresh Button from all places as requested */
+.fioriHeaderRefreshBtn,
+.kyraBannerRefreshBtn,
+#fioriHeaderRefreshBtn,
 .fioriHeaderRefreshBtn.kyraBannerRefreshBtn,
 .fioriHeaderRefreshBtn.kyraBannerRefreshBtn.sapMBtn,
-html body .fioriHeaderRefreshBtn.kyraBannerRefreshBtn,
-html body .sapUiTheme-sap_horizon .fioriHeaderRefreshBtn.kyraBannerRefreshBtn {
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    box-shadow: none !important;
-    outline: none !important;
+html body .fioriHeaderRefreshBtn,
+html body .kyraBannerRefreshBtn,
+html body #fioriHeaderRefreshBtn {
+    display: none !important;
+    visibility: hidden !important;
 }
 
 .fioriHeaderRefreshBtn.kyraBannerRefreshBtn .sapMBtnInner,
@@ -1011,134 +1006,36 @@ html body .sapUiTheme-sap_horizon .fioriDescriptionText.sapMText {
     display: block !important;
 }
 
-/* Entitlements Toolbar (Search & View All Button Row) */
+/* Entitlements Toolbar (Search & View All Button Row: Better spacing) */
 .kyraEntitlementsSearchGroup {
     display: flex !important;
     align-items: center !important;
-    gap: 12px !important;
+    gap: 20px !important;
 }
 
 .kyraEntitlementsSearchField,
 .kyraEntitlementsSearchField.sapMSF {
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-    background: #FFFFFF !important;
-    border: 1px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    background: transparent !important;
+    border: none !important;
     box-sizing: border-box !important;
     outline: none !important;
     box-shadow: none !important;
-    overflow: hidden !important;
     padding: 0 !important;
     margin: 0 !important;
-    position: relative !important;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
-    vertical-align: middle !important;
 }
 
-.kyraEntitlementsSearchField.sapMSF:hover {
-    border-color: #94A3B8 !important;
-}
-
+.kyraEntitlementsSearchField.sapMSF:hover,
 .kyraEntitlementsSearchField.sapMSF:focus-within,
 .kyraEntitlementsSearchField.sapMSF.sapMSFFocused,
 .kyraEntitlementsSearchField.sapMSF:focus {
-    border-color: #00778B !important;
-    box-shadow: 0 0 0 3px rgba(0, 119, 139, 0.15) !important;
+    border: none !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
-.kyraEntitlementsSearchField form,
-.kyraEntitlementsSearchField .sapMSFF {
-    height: 100% !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    position: relative !important;
-}
-
-.kyraEntitlementsSearchField .sapMSFInner,
-.kyraEntitlementsSearchField .sapMSFR {
-    height: 100% !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    position: relative !important;
-}
-
-.kyraEntitlementsSearchField input.sapMSFI,
-.kyraEntitlementsSearchField input.sapMSFInput {
-    position: absolute !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    left: 0 !important;
-    width: calc(100% - 36px) !important;
-    height: 32px !important;
-    line-height: 32px !important;
-    font-size: 13.5px !important;
-    color: #1E293B !important;
-    padding-left: 14px !important;
-    padding-right: 4px !important;
-    margin: 0 !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    font-style: normal !important;
-    box-sizing: border-box !important;
-}
-
-.kyraEntitlementsSearchField input.sapMSFI::placeholder,
-.kyraEntitlementsSearchField input.sapMSFInput::placeholder {
-    color: #94A3B8 !important;
-    font-style: normal !important;
-    line-height: 32px !important;
-}
-
-.kyraEntitlementsSearchField .sapMSFB {
-    position: absolute !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    right: 0 !important;
-    height: 32px !important;
-    width: 36px !important;
-    min-width: 36px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.kyraEntitlementsSearchField .sapMSFB .sapUiIcon,
-.kyraEntitlementsSearchField .sapMSFSI {
-    color: #64748B !important;
-    font-size: 15px !important;
-    border: none !important;
-    outline: none !important;
-    transition: color 0.15s ease !important;
-}
-
-.kyraEntitlementsSearchField .sapMSFB:hover .sapUiIcon,
-.kyraEntitlementsSearchField .sapMSFB:hover .sapMSFSI {
-    color: #00778B !important;
-}
 
 .sapMListTblHeader .sapMListTblCell {
     background-color: #F8FAFC !important;
@@ -8011,18 +7908,19 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnContent {
     justify-content: center !important;
 }
 
+.kyraViewAllBtn:hover,
 .kyraViewAllBtn:hover .sapMBtnInner,
 .kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
 .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 1.5px solid transparent !important;
+    border-color: transparent !important;
     outline: none !important;
-    box-shadow: 0 3px 10px rgba(1, 195, 208, 0.3) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .kyraViewAllBtn:active .sapMBtnInner,
@@ -14744,7 +14642,7 @@ html body .sapUiTheme-sap_horizon .sapMBtn.kyraNotifClearAllBtn:active bdi,
 .kyraNotifSearchInput.sapMSF.sapMSFFocused,
 .kyraNotifSearchInput.sapMSF:focus {
     border-color: #008C9C !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -15985,7 +15883,7 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
 html body .kyraHelpSearchField .sapMSFF,
 html body .sapUiTheme-sap_horizon .kyraHelpSearchField .sapMSFF {
     height: 46px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1px solid #CBD5E1 !important;
     border-radius: 10px !important;
     background: #FFFFFF !important;
     box-shadow: none !important;
@@ -15994,20 +15892,22 @@ html body .sapUiTheme-sap_horizon .kyraHelpSearchField .sapMSFF {
     display: flex !important;
     align-items: center !important;
     overflow: hidden !important;
+    outline: none !important;
 }
 
 .kyraHelpSearchField:hover .sapMSFF,
 html body .kyraHelpSearchField:hover .sapMSFF,
 html body .sapUiTheme-sap_horizon .kyraHelpSearchField:hover .sapMSFF {
-    border-color: #008C9C !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.1) !important;
+    border-color: #94A3B8 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .kyraHelpSearchField:focus-within .sapMSFF,
 html body .kyraHelpSearchField:focus-within .sapMSFF,
 html body .sapUiTheme-sap_horizon .kyraHelpSearchField:focus-within .sapMSFF {
     border-color: #008C9C !important;
-    box-shadow: 0 0 0 3.5px rgba(0, 140, 156, 0.18) !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -16094,7 +15994,8 @@ html body .kyraHelpSearchField .sapMSFS {
 
 .kyraModernSearchContainer:focus-within {
     border-color: #008C9C !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.12) !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .kyraModernSearchIcon {
@@ -18718,9 +18619,7 @@ html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnContent {
     justify-content: center !important;
 }
 
-/* Primary Button Hover State: Matches View All Button Exactly (#008C9C + #01C3D0 border glow) */
-.kyraViewAllBtn:hover .sapMBtnInner,
-.kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
+/* Primary Button Hover State */
 .kyraPrimaryBtn:hover .sapMBtnInner,
 .kyraPrimaryBtn.sapMBtn:hover .sapMBtnInner,
 .fioriEmphasizedBtn:hover .sapMBtnInner,
@@ -18729,7 +18628,6 @@ html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnContent {
 .kyraSubmitDecisionBtn:hover .sapMBtnInner,
 .sapMBtnEmphasized:hover .sapMBtnInner,
 .sapMBtn.sapMBtnEmphasized:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraPrimaryBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .fioriEmphasizedBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:hover .sapMBtnInner {
@@ -32506,24 +32404,26 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     align-items: center !important;
     margin: 0 !important;
     padding: 0 8px 0 12px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1px solid #CBD5E1 !important;
     border-radius: 8px !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    box-shadow: none !important;
     background: #FFFFFF !important;
     position: relative !important;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+    transition: border-color 0.15s ease !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
 }
 
 .kyraAdminSearchField .sapMSFF:hover {
     border-color: #94A3B8 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .kyraAdminSearchField.sapMFocus .sapMSFF,
 .kyraAdminSearchField .sapMSFF:focus-within {
     border-color: #008C9C !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -43352,10 +43252,10 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInne
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border-color: #01C3D0 !important;
+    border-color: transparent !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .kyraViewAllBtn:active .sapMBtnInner,
@@ -49136,10 +49036,10 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border-color: #01C3D0 !important;
+    border-color: transparent !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .kyraViewAllBtn:active .sapMBtnInner,
@@ -49625,7 +49525,15 @@ html body .sapUiTheme-sap_horizon .kyraAdminConflictSaveBtn .sapMBtnInner,
 .kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: transparent !important;
+    color: #FFFFFF !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
 .kyraAdminSaveBtn:hover .sapMBtnInner,
 .kyraAdminSaveBtn.sapMBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraAdminSaveBtn:hover .sapMBtnInner,
@@ -50634,9 +50542,32 @@ html body .kyraAdminSearchField,
     overflow: visible !important;
     padding: 0 !important;
     margin: 0 !important;
-    vertical-align: middle !important;
     display: inline-flex !important;
     align-items: center !important;
+}
+
+html body .kyraEntitlementsSearchField:hover,
+html body .kyraAdminSearchField:hover,
+html body .kyraEntitlementsSearchField:focus,
+html body .kyraAdminSearchField:focus,
+html body .kyraEntitlementsSearchField:focus-within,
+html body .kyraAdminSearchField:focus-within,
+html body .kyraEntitlementsSearchField.sapMSFFocused,
+html body .kyraAdminSearchField.sapMSFFocused,
+html body .kyraEntitlementsSearchField.sapMFocus,
+html body .kyraAdminSearchField.sapMFocus,
+.kyraEntitlementsSearchField.sapMSF:hover,
+.kyraEntitlementsSearchField.sapMSF:focus-within,
+.kyraEntitlementsSearchField.sapMSF.sapMSFFocused,
+.kyraEntitlementsSearchField.sapMSF:focus,
+.kyraAdminSearchField.sapMSF:hover,
+.kyraAdminSearchField.sapMSF:focus-within,
+.kyraAdminSearchField.sapMSF.sapMSFFocused,
+.kyraAdminSearchField.sapMSF:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 html body .kyraApproverRightControls .kyraEntitlementsSearchField form,
@@ -50654,7 +50585,9 @@ html body .kyraAdminSearchField .sapMSFF,
 .kyraEntitlementsSearchField form,
 .kyraEntitlementsSearchField .sapMSFF,
 .kyraAdminSearchField form,
-.kyraAdminSearchField .sapMSFF {
+.kyraAdminSearchField .sapMSFF,
+html body .sapMSF .sapMSFF,
+.sapMSF .sapMSFF {
     height: 36px !important;
     min-height: 36px !important;
     max-height: 36px !important;
@@ -50664,15 +50597,16 @@ html body .kyraAdminSearchField .sapMSFF,
     align-items: center !important;
     margin: 0 !important;
     padding: 0 8px 0 12px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1px solid #CBD5E1 !important;
     border-radius: 8px !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    box-shadow: none !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     position: relative !important;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+    transition: border-color 0.18s ease !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
+    outline: none !important;
 }
 
 html body .kyraApproverRightControls .kyraEntitlementsSearchField .sapMSFF:hover,
@@ -50680,8 +50614,12 @@ html body .kyraApproverRightControls .kyraAdminSearchField .sapMSFF:hover,
 html body .sapUiTheme-sap_horizon .kyraEntitlementsSearchField .sapMSFF:hover,
 html body .sapUiTheme-sap_horizon .kyraAdminSearchField .sapMSFF:hover,
 .kyraEntitlementsSearchField .sapMSFF:hover,
-.kyraAdminSearchField .sapMSFF:hover {
+.kyraAdminSearchField .sapMSFF:hover,
+html body .sapMSF .sapMSFF:hover,
+.sapMSF .sapMSFF:hover {
     border-color: #94A3B8 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 html body .kyraApproverRightControls .kyraEntitlementsSearchField.sapMFocus .sapMSFF,
@@ -50695,9 +50633,13 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField .sapMSFF:focus-within,
 .kyraEntitlementsSearchField.sapMFocus .sapMSFF,
 .kyraEntitlementsSearchField .sapMSFF:focus-within,
 .kyraAdminSearchField.sapMFocus .sapMSFF,
-.kyraAdminSearchField .sapMSFF:focus-within {
+.kyraAdminSearchField .sapMSFF:focus-within,
+html body .sapMSF.sapMFocus .sapMSFF,
+html body .sapMSF .sapMSFF:focus-within,
+.sapMSF.sapMFocus .sapMSFF,
+.sapMSF .sapMSFF:focus-within {
     border-color: #008C9C !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+    box-shadow: none !important;
     outline: none !important;
 }
 
@@ -50817,9 +50759,16 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField input,
     color: #008C9C !important;
 }
 
-/* Reset / Clear Button */
-.kyraEntitlementsSearchField .sapMSFReset,
-.kyraAdminSearchField .sapMSFReset {
+/* Reset / Clear Button: Only show when search field has a value (.sapMSFVal); hide cleanly when empty ("not cancel time") */
+.kyraEntitlementsSearchField:not(.sapMSFVal) .sapMSFReset,
+.kyraAdminSearchField:not(.sapMSFVal) .sapMSFReset,
+.kyraEntitlementsSearchField .sapMSFReset[style*="none"],
+.kyraAdminSearchField .sapMSFReset[style*="none"] {
+    display: none !important;
+}
+
+.kyraEntitlementsSearchField.sapMSFVal .sapMSFReset,
+.kyraAdminSearchField.sapMSFVal .sapMSFReset {
     position: static !important;
     transform: none !important;
     flex: 0 0 auto !important;
@@ -50840,6 +50789,12 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField input,
 .kyraAdminSearchField .sapMSFReset .sapUiIcon {
     color: #94A3B8 !important;
     font-size: 12px !important;
+    transition: color 0.15s ease !important;
+}
+
+.kyraEntitlementsSearchField .sapMSFReset:hover .sapUiIcon,
+.kyraAdminSearchField .sapMSFReset:hover .sapUiIcon {
+    color: #0F172A !important;
 }
 
 /* ==========================================================================

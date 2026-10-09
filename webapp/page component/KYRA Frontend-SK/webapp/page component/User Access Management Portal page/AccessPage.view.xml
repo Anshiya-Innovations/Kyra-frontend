@@ -79,13 +79,6 @@
                                     <Text text="User ID:" class="kyraUserIdLabel" />
                                     <Text text="{accessModel>/activeUser}" class="kyraUserIdValue" />
                                 </HBox>
-                                <Button
-                                    id="fioriHeaderRefreshBtn"
-                                    icon="sap-icon://refresh"
-                                    text="Refresh"
-                                    type="Transparent"
-                                    press=".onRefreshAccess"
-                                    class="fioriHeaderRefreshBtn kyraBannerRefreshBtn" />
                             </HBox>
                         </HBox>
                     </VBox>
@@ -2115,6 +2108,7 @@
                             <SearchField
                                 placeholder="Search entitlements..."
                                 width="270px"
+                                search=".onSearchMyAccess"
                                 liveChange=".onSearchMyAccess"
                                 class="kyraAdminSearchField kyraEntitlementsSearchField" />
                             <Button
@@ -2243,6 +2237,7 @@
                             <SearchField
                                 placeholder="Search request ID or role..."
                                 width="230px"
+                                search=".onSearchRequests"
                                 liveChange=".onSearchRequests"
                                 class="kyraAdminSearchField kyraEntitlementsSearchField" />
                             
@@ -2360,6 +2355,7 @@
                             <SearchField
                                 placeholder="Search all entitlements..."
                                 width="230px"
+                                search=".onSearchMasterAccess"
                                 liveChange=".onSearchMasterAccess"
                                 class="kyraAdminSearchField kyraEntitlementsSearchField" />
 

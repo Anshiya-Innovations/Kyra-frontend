@@ -61,12 +61,6 @@
                                 <Text text="User ID:" class="kyraUserIdLabel" />
                                 <Text text="{= ${addAccessModel>/activeUser} || 'emp081' }" class="kyraUserIdValue" />
                             </HBox>
-                            <Button
-                                id="fioriHeaderRefreshBtn"
-                                icon="sap-icon://refresh"
-                                text="Refresh"
-                                type="Transparent"
-                                class="fioriHeaderRefreshBtn kyraBannerRefreshBtn" />
                         </HBox>
                     </HBox>
                 </VBox>
