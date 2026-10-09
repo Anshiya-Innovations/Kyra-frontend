@@ -1397,16 +1397,15 @@
                         <!-- 2. SPLIT ROW: BUSINESS SECTORS [LEFT] & BUSINESS FUNCTION DETAILS [RIGHT] -->
                         <!-- Matches Services & Service Details exact proportions, alignment, gap, & design -->
                         <!-- ============================================================== -->
-                        <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow sapUiSmallMarginBottom">
+                        <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow kyraAdminBusinessSectorsSplitRow sapUiSmallMarginBottom">
                             <!-- Left Card: Business Sectors -->
-                            <VBox width="43%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
+                            <VBox width="49%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
                                 <VBox width="100%">
                                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                         <Title text="{= 'Business Sectors (' + (${accessModel>/adminBusinessSectors} ? ${accessModel>/adminBusinessSectors}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
                                         <HBox alignItems="Center" class="kyraAdminHeaderActions">
                                             <SearchField
-                                                placeholder="Search Sectors..."
-                                                width="170px"
+                                                placeholder="Search sector..." width="175px"
                                                 liveChange=".onSearchAdminBusinessSectors"
                                                 class="kyraAdminSearchField" />
                                             <Button
@@ -1422,9 +1421,9 @@
                                         fixedLayout="true"
                                         class="sapUiNoMargin kyraAdminCleanTable kyraAdminServiceTable">
                                         <columns>
-                                            <Column width="52%" hAlign="Begin"><Text text="BUSINESS SECTOR" class="kyraAdminColHeader" /></Column>
-                                            <Column width="24%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                            <Column width="24%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="50%" hAlign="Begin" class="kyraColText"><Text text="BUSINESS SECTOR" class="kyraAdminColHeader" /></Column>
+                                            <Column width="25%" hAlign="Center" class="kyraColStatus"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                            <Column width="25%" hAlign="Center" class="kyraColActions"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                         </columns>
                                         <items>
                                             <ColumnListItem
@@ -1438,14 +1437,14 @@
                                                 </customData>
                                                 <cells>
                                                     <Text text="{accessModel>sectorName}" class="kyraAdminCellBold" />
-                                                    <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                                    <HBox alignItems="Center" justifyContent="Center" class="kyraAdminStatusPill">
                                                         <customData>
                                                             <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                         </customData>
                                                         <HBox class="kyraAdminVectorDot" />
                                                         <Text text="{accessModel>status}" class="kyraAdminPillText" />
                                                     </HBox>
-                                                    <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                                    <HBox alignItems="Center" justifyContent="Center" class="kyraAdminRowActionGroup">
                                                         <Button
                                                             icon="sap-icon://edit"
                                                             press=".onEditAdminBusinessSector"
@@ -1454,7 +1453,7 @@
                                                         <Button
                                                             icon="sap-icon://delete"
                                                             press=".onDeleteAdminBusinessSector"
-                                                            class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
+                                                            class="kyraAdminSystemDeleteBtn"
                                                             tooltip="Delete Business Sector" />
                                                     </HBox>
                                                 </cells>
@@ -1482,7 +1481,7 @@
                             </VBox>
 
                             <!-- Right Card: Business Function Details -->
-                            <VBox width="55.5%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
+                            <VBox width="49.5%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
                                 <VBox width="100%">
                                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow" width="100%">
                                         <Title text="{= 'Business Function Details' + (${accessModel>/selectedAdminBusinessSectorName} ? ' - ' + ${accessModel>/selectedAdminBusinessSectorName} : '') }" level="H4" class="kyraAdminCardTitle" wrapping="true" />
@@ -1636,18 +1635,18 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable">
                                 <columns>
-                                    <Column width="28%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
-                                    <Column width="20%" hAlign="Begin"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
+                                    <Column width="30%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
+                                    <Column width="15%" hAlign="Center"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
                                     <Column width="18%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="20%" hAlign="Begin"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
-                                    <Column width="14%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="19%" hAlign="Center"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
+                                    <Column width="18%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
                                         <cells>
                                             <Text text="{accessModel>systemName}" class="kyraAdminCellBold" />
                                             <Text text="{= ${accessModel>thresholdLimit} || '5' }" class="kyraAdminCellText" />
-                                            <HBox alignItems="Center" class="kyraAdminStatusPill">
+                                            <HBox alignItems="Center" justifyContent="Center" class="kyraAdminStatusPill">
                                                 <customData>
                                                     <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                 </customData>
@@ -1655,7 +1654,7 @@
                                                 <Text text="{accessModel>status}" class="kyraAdminPillText" />
                                             </HBox>
                                             <Text text="{accessModel>createdDate}" class="kyraAdminCellText" />
-                                            <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                            <HBox alignItems="Center" justifyContent="Center" class="kyraAdminRowActionGroup">
                                                 <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditAdminSystem"
@@ -1664,7 +1663,7 @@
                                                 <Button
                                                     icon="sap-icon://delete"
                                                     press=".onDeleteAdminSystem"
-                                                    class="kyraAdminSystemDeleteBtn sapUiTinyMarginBegin"
+                                                    class="kyraAdminSystemDeleteBtn"
                                                     tooltip="Delete System" />
                                             </HBox>
                                         </cells>
@@ -2034,12 +2033,12 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable kyraAdminConflictTable">
                                 <columns>
-                                    <Column width="16%" hAlign="Begin"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
-                                    <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="9%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="11%" hAlign="Begin" class="kyraColText kyraColTargetSys"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin" class="kyraColText kyraColPrimary"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Begin" class="kyraColText kyraColConflicting"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="24%" hAlign="Begin" class="kyraColText kyraColReason"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
+                                    <Column width="10.5%" hAlign="Center" class="kyraColStatus"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="10.5%" hAlign="Center" class="kyraColActions"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
@@ -2048,7 +2047,7 @@
                                             <Text text="{accessModel>role1}" class="kyraAdminCellBold" />
                                             <Text text="{accessModel>role2}" class="kyraAdminCellBold" />
                                             <Text text="{accessModel>description}" class="kyraAdminCellText" />
-                                            <HBox alignItems="Center" class="kyraAdminStatusPill" press=".onToggleAdminConflictStatus" tooltip="Click to toggle Active / Inactive status">
+                                            <HBox alignItems="Center" justifyContent="Center" class="kyraAdminStatusPill" press=".onToggleAdminConflictStatus" tooltip="Click to toggle Active / Inactive status">
                                                 <customData>
                                                     <core:CustomData key="status" value="{accessModel>status}" writeToDom="true" />
                                                 </customData>
@@ -2057,7 +2056,7 @@
                                                     text="{= ${accessModel>status} || 'Active' }"
                                                     class="kyraAdminPillText" />
                                             </HBox>
-                                            <HBox alignItems="Center" class="kyraAdminRowActionGroup">
+                                            <HBox alignItems="Center" justifyContent="Center" class="kyraAdminRowActionGroup">
                                                 <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditAdminConflictRule"
