@@ -2401,9 +2401,40 @@ sap.ui.define([
 
             try {
                 const XLSX = await this._ensureXlsxLibrary();
+
+                const oModel = (this.getView() && (this.getView().getModel("accessModel") || this.getView().getModel("approverModel") || this.getView().getModel())) || null;
+                const sDownloadUserId = (oModel && (oModel.getProperty("/activeUser") || oModel.getProperty("/userId"))) ||
+                                        sessionStorage.getItem("kyra_active_user") ||
+                                        sessionStorage.getItem("kyra_user_id") ||
+                                        sessionStorage.getItem("kyra_active_username") ||
+                                        localStorage.getItem("kyra_active_user") ||
+                                        "emp001";
+
+                const sDownloadUserRole = (oModel && (oModel.getProperty("/activeRole") || oModel.getProperty("/selectedPersona") || oModel.getProperty("/activePersona") || oModel.getProperty("/persona"))) ||
+                                          sessionStorage.getItem("kyra_active_role") ||
+                                          sessionStorage.getItem("kyra_active_persona") ||
+                                          localStorage.getItem("kyra_active_role") ||
+                                          "Requester";
+
+                const sDownloadUserName = (oModel && (oModel.getProperty("/activeUserName") || oModel.getProperty("/userName") || oModel.getProperty("/fullName"))) ||
+                                          sessionStorage.getItem("kyra_active_fullname") ||
+                                          sessionStorage.getItem("kyra_user_fullname") ||
+                                          sessionStorage.getItem("kyra_active_username") ||
+                                          "";
+
+                let sDownloadedByDisplay = sDownloadUserId;
+                if (sDownloadUserName && sDownloadUserName.trim().toLowerCase() !== sDownloadUserId.trim().toLowerCase()) {
+                    sDownloadedByDisplay = sDownloadUserName.trim() + " (" + sDownloadUserId + ") — " + sDownloadUserRole;
+                } else {
+                    sDownloadedByDisplay = sDownloadUserId + " (" + sDownloadUserRole + ")";
+                }
+
                 const aAoa = [
                     ["KYRA ENTERPRISE GOVERNANCE AUDIT REPORT"],
                     ["Report Section:", sSectionName || "Audit Log"],
+                    ["Downloaded By (User):", sDownloadedByDisplay],
+                    ["User ID:", sDownloadUserId],
+                    ["User Role / Persona:", sDownloadUserRole],
                     ["Filter Type:", sFilterType || "All Records (Unfiltered)"],
                     ["Export Timestamp:", new Date().toLocaleString()],
                     ["Total Records Exported:", aExportRows.length],
@@ -2421,6 +2452,8 @@ sap.ui.define([
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(aAoa);
                 ws["!cols"] = DB_COLUMNS.map(c => ({ wch: Math.max(c.label.length + 3, 16) }));
+                if (ws["!cols"] && ws["!cols"][0]) ws["!cols"][0].wch = Math.max(ws["!cols"][0].wch, 26);
+                if (ws["!cols"] && ws["!cols"][1]) ws["!cols"][1].wch = Math.max(ws["!cols"][1].wch, 35);
                 XLSX.utils.book_append_sheet(wb, ws, "Audit Log");
 
                 const sFilename = (sFilenamePrefix || "Kyra_Audit_Export_") + new Date().toISOString().slice(0, 10) + ".xlsx";
