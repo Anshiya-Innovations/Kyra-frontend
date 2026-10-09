@@ -1635,10 +1635,10 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable">
                                 <columns>
-                                    <Column width="30%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
-                                    <Column width="15%" hAlign="Center"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
+                                    <Column width="28%" hAlign="Center"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
+                                    <Column width="16%" hAlign="Center"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
                                     <Column width="18%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="19%" hAlign="Center"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
+                                    <Column width="20%" hAlign="Center"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
                                     <Column width="18%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
@@ -2033,12 +2033,12 @@
                                 fixedLayout="true"
                                 class="sapUiNoMargin kyraAdminCleanTable kyraAdminConflictTable">
                                 <columns>
-                                    <Column width="11%" hAlign="Begin" class="kyraColText kyraColTargetSys"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin" class="kyraColText kyraColPrimary"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="22%" hAlign="Begin" class="kyraColText kyraColConflicting"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
-                                    <Column width="24%" hAlign="Begin" class="kyraColText kyraColReason"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
-                                    <Column width="10.5%" hAlign="Center" class="kyraColStatus"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
-                                    <Column width="10.5%" hAlign="Center" class="kyraColActions"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="14%" hAlign="Center"><Text text="TARGET SYSTEM" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Center"><Text text="PRIMARY TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="22%" hAlign="Center"><Text text="CONFLICTING TEAM / PERSONA" class="kyraAdminColHeader" /></Column>
+                                    <Column width="24%" hAlign="Center"><Text text="CONFLICT REASON" class="kyraAdminColHeader" /></Column>
+                                    <Column width="9%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="9%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
