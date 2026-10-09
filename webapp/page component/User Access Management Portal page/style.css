@@ -53034,3 +53034,56 @@ html body #adminCustomConflictsTable {
     line-height: 1.45 !important;
     max-width: 340px !important;
 }
+
+/* =========================================================================
+   ADMIN SYSTEMS TABLE: HEADER DIVIDERS INVISIBLE (Alignment 100% Preserved)
+   ========================================================================= */
+#adminSystemsTable th,
+#adminSystemsTable .sapMListTblHeaderCell,
+.kyraAdminSystemsTable th,
+.kyraAdminSystemsTable .sapMListTblHeaderCell,
+#adminSystemsTable thead th,
+.kyraAdminSystemsTable thead th,
+html body #adminSystemsTable th,
+html body #adminSystemsTable .sapMListTblHeaderCell {
+    border-top: none !important;
+    border-left: none !important;
+    border-inline-start: none !important;
+    border-right: 1px solid transparent !important;
+    border-right-color: transparent !important;
+    border-inline-end: 1px solid transparent !important;
+    border-inline-end-color: transparent !important;
+    border-bottom: 1.5px solid #E2E8F0 !important;
+}
+
+#adminSystemsTable th:last-child,
+#adminSystemsTable .sapMListTblHeaderCell:last-child,
+.kyraAdminSystemsTable th:last-child,
+.kyraAdminSystemsTable .sapMListTblHeaderCell:last-child {
+    border-right: none !important;
+    border-inline-end: none !important;
+}
+
+#adminSystemsTable th::before,
+#adminSystemsTable th::after,
+#adminSystemsTable .sapMListTblHeaderCell::before,
+#adminSystemsTable .sapMListTblHeaderCell::after,
+.kyraAdminSystemsTable th::before,
+.kyraAdminSystemsTable th::after,
+.kyraAdminSystemsTable .sapMListTblHeaderCell::before,
+.kyraAdminSystemsTable .sapMListTblHeaderCell::after,
+#adminSystemsTable .sapMListTblHeaderCellInner::before,
+#adminSystemsTable .sapMListTblHeaderCellInner::after,
+.kyraAdminSystemsTable .sapMListTblHeaderCellInner::before,
+.kyraAdminSystemsTable .sapMListTblHeaderCellInner::after,
+#adminSystemsTable .sapMColumnHeaderContent::before,
+#adminSystemsTable .sapMColumnHeaderContent::after,
+.kyraAdminSystemsTable .sapMColumnHeaderContent::before,
+.kyraAdminSystemsTable .sapMColumnHeaderContent::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}

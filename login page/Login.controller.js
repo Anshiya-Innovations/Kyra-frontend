@@ -60,8 +60,8 @@ sap.ui.define([
                 isBusy: false,
                 hasError: false,
                 errorMessage: "",
-                idLabel: "Requester ID",
-                idPlaceholder: "Enter your Requester ID",
+                idLabel: "User ID",
+                idPlaceholder: "Enter your User ID",
                 idState: "None",
                 idStateText: ""
             });
@@ -78,7 +78,14 @@ sap.ui.define([
                 .catch(err => console.error("Architecture SVG load error:", err));
 
             const oRouter = this.getOwnerComponent().getRouter();
-            oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
+            if (oRouter) {
+                if (oRouter.getRoute("Login")) {
+                    oRouter.getRoute("Login").attachPatternMatched(this._onRouteMatched, this);
+                }
+                if (oRouter.getRoute("AppPreviewLogin")) {
+                    oRouter.getRoute("AppPreviewLogin").attachPatternMatched(this._onRouteMatched, this);
+                }
+            }
         },
 
         onAfterRendering() {
@@ -151,6 +158,9 @@ sap.ui.define([
                     } catch(e) {}
                 }
                 oRouter.navTo("AccessPage", {}, true);
+                if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                    oRouter.getTargets().display("TargetAccessPage");
+                }
                 return;
             }
 
@@ -185,18 +195,21 @@ sap.ui.define([
             let sLabel = "Requester ID";
             let sPlaceholder = "Enter your Requester ID";
 
-            if (sSelectedRole === "Approver") {
+            if (sSelectedRole === "Admin" || sSelectedRole === "Administrator") {
+                sLabel = "Admin ID";
+                sPlaceholder = "Enter your Admin ID";
+            } else if (sSelectedRole === "Approver") {
                 sLabel = "Approver ID";
                 sPlaceholder = "Enter your Approver ID";
             } else if (sSelectedRole === "Compliance Review" || sSelectedRole === "Compliance Approver") {
                 sLabel = "Compliance Review ID";
                 sPlaceholder = "Enter your Compliance Review ID";
-            } else if (sSelectedRole === "Administrator") {
-                sLabel = "Administrator ID";
-                sPlaceholder = "Enter your Administrator ID";
             } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
                 sLabel = "Requester ID";
                 sPlaceholder = "Enter your Requester ID";
+            } else {
+                sLabel = "User ID";
+                sPlaceholder = "Enter your User ID";
             }
 
             oModel.setProperty("/selectedRole", sSelectedRole);
@@ -274,10 +287,23 @@ sap.ui.define([
             const oModel = oView.getModel("login");
             const oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            let sEffectiveTitle = oModel.getProperty("/selectedRole");
-            if (!sEffectiveTitle || sEffectiveTitle === "Select Persona" || sEffectiveTitle === "Select persona" || sEffectiveTitle === "Review") {
-                sEffectiveTitle = "Requester";
+            const sSelectedRole = (oModel.getProperty("/selectedRole") || "").trim();
+
+            this._resetErrorStates();
+
+            // REQUIRE MANUAL SELECTION: No auto-select or default-select!
+            if (!sSelectedRole || sSelectedRole === "" || sSelectedRole === "Select persona" || sSelectedRole === "Select Persona") {
+                oModel.setProperty("/hasError", true);
+                oModel.setProperty("/errorMessage", "Please select a persona to sign in.");
+                const oSelect = this.byId("roleSelect");
+                if (oSelect) {
+                    oSelect.setValueState("Error");
+                }
+                this._triggerErrorShake();
+                return;
             }
+
+            const sEffectiveTitle = sSelectedRole;
             const sUserId = (oView.byId("idInput").getValue() || "").trim();
             oModel.setProperty("/userId", sUserId);
             const bRemember = oModel.getProperty("/rememberMe");
@@ -319,15 +345,14 @@ sap.ui.define([
 
             // Instant, bulletproof login handler with seamless pre-loading and smooth navigation
             const performLoginSuccess = (oResult) => {
-                // Update loader slide text to indicate pre-loading dashboard data
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records..."
-                    });
-                } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading KYRA Governance Dashboard...", "Pre-loading active roles, entitlements, and governance records...");
-                }
+                // Promptly dismiss loading slide for instantaneous dashboard display
+                setTimeout(() => {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                }, 350);
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
@@ -338,26 +363,84 @@ sap.ui.define([
                 sessionStorage.setItem("kyra_user_id", sCanonicalUser);
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
                 sessionStorage.setItem("kyra_active_role", sEffectiveTitle);
+                sessionStorage.setItem("kyra_company_name", (oResult && oResult.companyName) ? oResult.companyName : "");
+                sessionStorage.setItem("kyra_schema_keyword", (oResult && oResult.schemaKeyword) ? oResult.schemaKeyword : "");
 
                 if (bRemember) {
                     localStorage.setItem("kyra_remember_id", sCanonicalUser);
                 }
 
-                const bIsApprover = (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance") || sEffectiveTitle.toLowerCase().includes("admin"))));
-                const isCompliance = typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance");
+                const bIsAdmin = (sEffectiveTitle === "Admin" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "admin"));
+                const bIsRequester = (sEffectiveTitle === "Requester" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "requester"));
+                const bIsApprover = !bIsRequester && !bIsAdmin && (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance"))));
+                const isCompliance = !bIsRequester && !bIsAdmin && (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance"));
+                const bShowApproverSection = !bIsRequester && !bIsAdmin && (bIsApprover || isCompliance);
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
+                    // ── Full reset of ALL state properties from previous session ────────
+                    oAccessModel.setProperty("/pendingRequests", []);
+                    oAccessModel.setProperty("/processedRequests", []);
+                    oAccessModel.setProperty("/pendingAccessRequests", []);
+                    oAccessModel.setProperty("/pendingRevokeRequests", []);
+                    oAccessModel.setProperty("/activeRoles", []);
+                    oAccessModel.setProperty("/userAccessList", []);
+                    oAccessModel.setProperty("/myPendingRequests", []);
+                    oAccessModel.setProperty("/myApprovedRequests", []);
+                    oAccessModel.setProperty("/myHistoryRequests", []);
+                    oAccessModel.setProperty("/requestHistory", []);
+                    oAccessModel.setProperty("/allSubmittedRequests", []);
+                    oAccessModel.setProperty("/filteredNotificationsList", []);
+                    oAccessModel.setProperty("/activeSodConflictsList", []);
+                    oAccessModel.setProperty("/pendingOnlySodConflictsList", []);
+                    oAccessModel.setProperty("/batchSodConflictsList", []);
+                    oAccessModel.setProperty("/restrictedRecords", []);
+                    oAccessModel.setProperty("/addAccessSummaryItems", []);
+                    oAccessModel.setProperty("/addAccessSystemSlideConfigs", {});
+                    oAccessModel.setProperty("/addAccessStep", 1);
+                    oAccessModel.setProperty("/selectedSector", "");
+                    oAccessModel.setProperty("/selectedFunction", "");
+                    oAccessModel.setProperty("/addAccessRegion", "");
+                    oAccessModel.setProperty("/mapSelectedRegions", []);
+                    oAccessModel.setProperty("/addAccessSelectedSystems", []);
+                    oAccessModel.setProperty("/addAccessSelectedPersonas", []);
+                    oAccessModel.setProperty("/showAddAccessSector", false);
+                    oAccessModel.setProperty("/showRemoveAccessSector", false);
+                    oAccessModel.setProperty("/showMyAccessMasterSection", false);
+                    oAccessModel.setProperty("/showPendingSection", false);
+                    oAccessModel.setProperty("/showApprovedSection", false);
+                    oAccessModel.setProperty("/showAllNotificationsPage", false);
+                    oAccessModel.setProperty("/showHelpPage", false);
+                    oAccessModel.setProperty("/showRequestDetailsPage", false);
+                    oAccessModel.setProperty("/selectedTabKey", "myAccess");
+                    oAccessModel.setProperty("/selectedRequestDetail", {});
+                    oAccessModel.setProperty("/pendingAccessCount", 0);
+                    oAccessModel.setProperty("/pendingRevokeCount", 0);
+                    oAccessModel.setProperty("/processedAccessCount", 0);
+                    oAccessModel.setProperty("/processedRevokeCount", 0);
+                    oAccessModel.setProperty("/processedCount", 0);
+                    oAccessModel.setProperty("/myNotificationsCount", 0);
+                    oAccessModel.setProperty("/myUnreadNotificationsCount", 0);
+                    oAccessModel.setProperty("/usersNotificationsCount", 0);
+                    oAccessModel.setProperty("/currentScopeAllCount", 0);
+                    oAccessModel.setProperty("/currentScopeUnreadCount", 0);
+                    // ── Set new user identity ────────────────────────────────────────────
                     oAccessModel.setProperty("/activeUser", sCanonicalUser);
                     oAccessModel.setProperty("/userId", sCanonicalUser);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
+                    oAccessModel.setProperty("/isAuthenticated", true);
+                    oAccessModel.setProperty("/isAdmin", bIsAdmin);
+                    oAccessModel.setProperty("/isAdminPersona", bIsAdmin);
+                    oAccessModel.setProperty("/adminSelectedSection", "");
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
                     oAccessModel.setProperty("/isCompliancePersona", isCompliance);
+                    oAccessModel.setProperty("/showApproverSection", bShowApproverSection);
                     oAccessModel.setProperty("/approverPendingTab", "accessRequests");
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }
+
 
                 MessageToast.show("Login successful! Welcome back, " + sCanonicalUser);
 
@@ -382,7 +465,13 @@ sap.ui.define([
                     if (oApp) {
                         const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
                         if (oInnerApp && typeof oInnerApp.to === "function") {
-                            oInnerApp.to("AccessPage", "show");
+                            try {
+                                const sPageId = (this.getOwnerComponent() && typeof this.getOwnerComponent().createId === "function")
+                                    ? this.getOwnerComponent().createId("AccessPage") : "AccessPage";
+                                if (typeof oInnerApp.getPage === "function" && oInnerApp.getPage(sPageId)) {
+                                    oInnerApp.to(sPageId);
+                                }
+                            } catch(e) {}
                         }
                     }
                 } catch(e) {

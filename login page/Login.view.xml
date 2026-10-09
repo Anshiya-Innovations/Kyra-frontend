@@ -165,7 +165,7 @@
                                     id="roleSelect"
                                     selectedKey="{login>/selectedRole}"
                                     change=".onRoleChange"
-                                    forceSelection="true"
+                                    forceSelection="false"
                                     width="100%"
                                     class="kyraModernSelect kyraSelectPlaceholderState">
                                     <items>

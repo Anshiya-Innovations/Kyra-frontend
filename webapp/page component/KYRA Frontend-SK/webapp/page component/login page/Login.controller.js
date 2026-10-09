@@ -60,8 +60,8 @@ sap.ui.define([
                 isBusy: false,
                 hasError: false,
                 errorMessage: "",
-                idLabel: "Requester ID",
-                idPlaceholder: "Enter your Requester ID",
+                idLabel: "User ID",
+                idPlaceholder: "Enter your User ID",
                 idState: "None",
                 idStateText: ""
             });
@@ -195,18 +195,21 @@ sap.ui.define([
             let sLabel = "Requester ID";
             let sPlaceholder = "Enter your Requester ID";
 
-            if (sSelectedRole === "Approver") {
+            if (sSelectedRole === "Admin" || sSelectedRole === "Administrator") {
+                sLabel = "Admin ID";
+                sPlaceholder = "Enter your Admin ID";
+            } else if (sSelectedRole === "Approver") {
                 sLabel = "Approver ID";
                 sPlaceholder = "Enter your Approver ID";
             } else if (sSelectedRole === "Compliance Review" || sSelectedRole === "Compliance Approver") {
                 sLabel = "Compliance Review ID";
                 sPlaceholder = "Enter your Compliance Review ID";
-            } else if (sSelectedRole === "Administrator") {
-                sLabel = "Administrator ID";
-                sPlaceholder = "Enter your Administrator ID";
             } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
                 sLabel = "Requester ID";
                 sPlaceholder = "Enter your Requester ID";
+            } else {
+                sLabel = "User ID";
+                sPlaceholder = "Enter your User ID";
             }
 
             oModel.setProperty("/selectedRole", sSelectedRole);
@@ -284,10 +287,23 @@ sap.ui.define([
             const oModel = oView.getModel("login");
             const oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            let sEffectiveTitle = oModel.getProperty("/selectedRole");
-            if (!sEffectiveTitle || sEffectiveTitle === "Select Persona" || sEffectiveTitle === "Select persona" || sEffectiveTitle === "Review") {
-                sEffectiveTitle = "Requester";
+            const sSelectedRole = (oModel.getProperty("/selectedRole") || "").trim();
+
+            this._resetErrorStates();
+
+            // REQUIRE MANUAL SELECTION: No auto-select or default-select!
+            if (!sSelectedRole || sSelectedRole === "" || sSelectedRole === "Select persona" || sSelectedRole === "Select Persona") {
+                oModel.setProperty("/hasError", true);
+                oModel.setProperty("/errorMessage", "Please select a persona to sign in.");
+                const oSelect = this.byId("roleSelect");
+                if (oSelect) {
+                    oSelect.setValueState("Error");
+                }
+                this._triggerErrorShake();
+                return;
             }
+
+            const sEffectiveTitle = sSelectedRole;
             const sUserId = (oView.byId("idInput").getValue() || "").trim();
             oModel.setProperty("/userId", sUserId);
             const bRemember = oModel.getProperty("/rememberMe");
@@ -329,14 +345,14 @@ sap.ui.define([
 
             // Instant, bulletproof login handler with seamless pre-loading and smooth navigation
             const performLoginSuccess = (oResult) => {
-                // Update loader slide text to indicate pre-loading dashboard data
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading Governance Dashboard...", subtitle: "Setting up user workspace and retrieving access records..."
-                    });
-                } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading Governance Dashboard...", "Setting up user workspace and retrieving access records...");
-                }
+                // Promptly dismiss loading slide for instantaneous dashboard display
+                setTimeout(() => {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                }, 350);
                 oModel.setProperty("/isBusy", false);
 
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
@@ -347,13 +363,18 @@ sap.ui.define([
                 sessionStorage.setItem("kyra_user_id", sCanonicalUser);
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
                 sessionStorage.setItem("kyra_active_role", sEffectiveTitle);
+                sessionStorage.setItem("kyra_company_name", (oResult && oResult.companyName) ? oResult.companyName : "");
+                sessionStorage.setItem("kyra_schema_keyword", (oResult && oResult.schemaKeyword) ? oResult.schemaKeyword : "");
 
                 if (bRemember) {
                     localStorage.setItem("kyra_remember_id", sCanonicalUser);
                 }
 
-                const bIsApprover = (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance") || sEffectiveTitle.toLowerCase().includes("admin"))));
-                const isCompliance = typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance");
+                const bIsAdmin = (sEffectiveTitle === "Admin" || sEffectiveTitle === "Administrator" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "admin"));
+                const bIsRequester = (sEffectiveTitle === "Requester" || (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase() === "requester"));
+                const bIsApprover = !bIsRequester && !bIsAdmin && (sEffectiveTitle === "Approver" || sEffectiveTitle === "Compliance Review" || sEffectiveTitle === "Compliance Approver" || (typeof sEffectiveTitle === "string" && (sEffectiveTitle.toLowerCase().includes("approver") || sEffectiveTitle.toLowerCase().includes("compliance"))));
+                const isCompliance = !bIsRequester && !bIsAdmin && (typeof sEffectiveTitle === "string" && sEffectiveTitle.toLowerCase().includes("compliance"));
+                const bShowApproverSection = !bIsRequester && !bIsAdmin && (bIsApprover || isCompliance);
 
                 const oAccessModel = this.getOwnerComponent().getModel("accessModel");
                 if (oAccessModel) {
@@ -408,10 +429,14 @@ sap.ui.define([
                     oAccessModel.setProperty("/userId", sCanonicalUser);
                     oAccessModel.setProperty("/activeRole", sEffectiveTitle);
                     oAccessModel.setProperty("/isAuthenticated", true);
+                    oAccessModel.setProperty("/isAdmin", bIsAdmin);
+                    oAccessModel.setProperty("/isAdminPersona", bIsAdmin);
+                    oAccessModel.setProperty("/adminSelectedSection", "");
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
                     oAccessModel.setProperty("/isCompliancePersona", isCompliance);
+                    oAccessModel.setProperty("/showApproverSection", bShowApproverSection);
                     oAccessModel.setProperty("/approverPendingTab", "accessRequests");
                     oAccessModel.setProperty("/showApprovalHistory", false);
                 }

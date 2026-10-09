@@ -60,8 +60,8 @@ sap.ui.define([
                 isBusy: false,
                 hasError: false,
                 errorMessage: "",
-                idLabel: "Requester ID",
-                idPlaceholder: "Enter your Requester ID",
+                idLabel: "User ID",
+                idPlaceholder: "Enter your User ID",
                 idState: "None",
                 idStateText: ""
             });
@@ -207,6 +207,9 @@ sap.ui.define([
             } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
                 sLabel = "Requester ID";
                 sPlaceholder = "Enter your Requester ID";
+            } else {
+                sLabel = "User ID";
+                sPlaceholder = "Enter your User ID";
             }
 
             oModel.setProperty("/selectedRole", sSelectedRole);
@@ -284,10 +287,23 @@ sap.ui.define([
             const oModel = oView.getModel("login");
             const oResourceBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            let sEffectiveTitle = oModel.getProperty("/selectedRole");
-            if (!sEffectiveTitle || sEffectiveTitle === "Select Persona" || sEffectiveTitle === "Select persona" || sEffectiveTitle === "Review") {
-                sEffectiveTitle = "Requester";
+            const sSelectedRole = (oModel.getProperty("/selectedRole") || "").trim();
+
+            this._resetErrorStates();
+
+            // REQUIRE MANUAL SELECTION: No auto-select or default-select!
+            if (!sSelectedRole || sSelectedRole === "" || sSelectedRole === "Select persona" || sSelectedRole === "Select Persona") {
+                oModel.setProperty("/hasError", true);
+                oModel.setProperty("/errorMessage", "Please select a persona to sign in.");
+                const oSelect = this.byId("roleSelect");
+                if (oSelect) {
+                    oSelect.setValueState("Error");
+                }
+                this._triggerErrorShake();
+                return;
             }
+
+            const sEffectiveTitle = sSelectedRole;
             const sUserId = (oView.byId("idInput").getValue() || "").trim();
             oModel.setProperty("/userId", sUserId);
             const bRemember = oModel.getProperty("/rememberMe");
