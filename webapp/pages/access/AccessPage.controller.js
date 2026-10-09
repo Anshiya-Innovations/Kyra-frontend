@@ -1947,9 +1947,10 @@
             const oModel = this.getView().getModel("accessModel");
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
             const sActiveUser = (oAuthInfo.userId || sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || (oModel ? oModel.getProperty("/activeUser") : null) || "").trim().toLowerCase();
+            const sActiveRole = oAuthInfo.role || sessionStorage.getItem("kyra_active_role") || "Requester";
             sessionStorage.setItem("kyra_active_user", sActiveUser);
             sessionStorage.setItem("kyra_user_id", sActiveUser);
-            const sActiveRole = oAuthInfo.role || sessionStorage.getItem("kyra_active_role") || "Requester";
+            sessionStorage.setItem("kyra_active_role", sActiveRole);
 
             if (oModel) {
                 const sRoleLower = (sActiveRole || "").toLowerCase();
@@ -1967,6 +1968,7 @@
                 oModel.setProperty("/activeUser", sActiveUser);
                 oModel.setProperty("/userId", sActiveUser);
                 oModel.setProperty("/activeRole", sActiveRole);
+                oModel.setProperty("/isRequester", bIsReqSync);
                 oModel.setProperty("/isAdminPersona", isAdminPersona);
                 oModel.setProperty("/isApproverPersona", bIsApprover);
                 oModel.setProperty("/isCompliance", isCompliancePersona);
@@ -1986,14 +1988,7 @@
                 oModel.setProperty("/showApprovedSection", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
-                const oApproverContainer = this.byId("approverSectionContainer");
-                if (oApproverContainer) {
-                    oApproverContainer.setVisible(false);
-                }
-                const oApproverView = this.byId("approverSectionView");
-                if (oApproverView) {
-                    oApproverView.setVisible(false);
-                }
+                this._updateApproverSectionVisibility();
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/selectedTabKey", "myAccess");
                 oModel.setProperty("/selectedRequestDetail", {});
@@ -2045,6 +2040,7 @@
                 }
                 if (oCompModel && oCompModel !== oModel) {
                     oCompModel.setProperty("/activeRole", sActiveRole);
+                    oCompModel.setProperty("/isRequester", bIsReqSync);
                     oCompModel.setProperty("/isAdminPersona", isAdminPersona);
                     oCompModel.setProperty("/isApproverPersona", bIsApprover);
                     oCompModel.setProperty("/isCompliance", isCompliancePersona);
@@ -2055,10 +2051,12 @@
                 }
 
                 if (bShowApproverSection) {
+                    this._updateApproverSectionVisibility();
                     setTimeout(() => {
                         try {
                             const oApproverView = this.byId("approverSectionView");
                             if (oApproverView) {
+                                this._updateApproverSectionVisibility();
                                 const oApproverCtrl = oApproverView.getController();
                                 if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
                                     oApproverCtrl._syncModelAndRequests();
@@ -5617,6 +5615,75 @@
             if (oCardCustom && oCardCustom.getDomRef()) {
                 oCardCustom.getDomRef().classList.toggle("kyraCardExpanded", bAdminCustom);
             }
+            this._updateApproverSectionVisibility();
+        },
+
+        _updateApproverSectionVisibility() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
+            const sRoleLower = sActiveRole.toLowerCase();
+            const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "" || !!oModel.getProperty("/isRequester"));
+            const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+
+            // STRICT GUARANTEE: On ANY Requester or Admin page, NEVER show User Requests!
+            if (bIsRequester || bIsAdmin) {
+                oModel.setProperty("/showApproverSection", false);
+                const oApproverContainer = this.byId("approverSectionContainer");
+                if (oApproverContainer) {
+                    oApproverContainer.setVisible(false);
+                }
+                const oApproverView = this.byId("approverSectionView");
+                if (oApproverView) {
+                    oApproverView.setVisible(false);
+                }
+                return;
+            }
+
+            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance"));
+            if (!bIsApproverOrCompliance) {
+                oModel.setProperty("/showApproverSection", false);
+                const oApproverContainer = this.byId("approverSectionContainer");
+                if (oApproverContainer) {
+                    oApproverContainer.setVisible(false);
+                }
+                const oApproverView = this.byId("approverSectionView");
+                if (oApproverView) {
+                    oApproverView.setVisible(false);
+                }
+                return;
+            }
+
+            const bShowApproverSection = !!oModel.getProperty("/showApproverSection");
+            const sSelectedTab = oModel.getProperty("/selectedTabKey") || "myAccess";
+            const bShowHistory = !!oModel.getProperty("/showHistorySection");
+            const bShowPending = !!oModel.getProperty("/showPendingSection");
+            const bShowAddAccess = !!oModel.getProperty("/showAddAccessSector");
+            const bShowRemoveAccess = !!oModel.getProperty("/showRemoveAccessSector");
+            const bShowMaster = !!oModel.getProperty("/showMyAccessMasterSection");
+            const bShowDetails = !!oModel.getProperty("/showRequestDetailsPage");
+            const bShowNotifs = !!oModel.getProperty("/showAllNotificationsPage");
+            const bShowHelp = !!oModel.getProperty("/showHelpPage");
+
+            const bVisible = bShowApproverSection &&
+                sSelectedTab === "myAccess" &&
+                !bShowHistory &&
+                !bShowPending &&
+                !bShowAddAccess &&
+                !bShowRemoveAccess &&
+                !bShowMaster &&
+                !bShowDetails &&
+                !bShowNotifs &&
+                !bShowHelp;
+
+            const oApproverContainer = this.byId("approverSectionContainer");
+            if (oApproverContainer) {
+                oApproverContainer.setVisible(bVisible);
+            }
+            const oApproverView = this.byId("approverSectionView");
+            if (oApproverView) {
+                oApproverView.setVisible(bVisible);
+            }
         },
 
         onNavToAddAccess() {
@@ -8658,6 +8725,7 @@
             this._confirmDiscardAddAccess(() => {
                 if (oModel) {
                     oModel.setProperty("/selectedTabKey", sSelectedKey);
+                    this._updateApproverSectionVisibility();
                 }
             });
         },
@@ -8693,14 +8761,7 @@
                 if (oContainer) {
                     oContainer.setVisible(true);
                 }
-                const oApproverContainer = this.byId("approverSectionContainer");
-                if (oApproverContainer) {
-                    oApproverContainer.setVisible(false);
-                }
-                const oApproverView = this.byId("approverSectionView");
-                if (oApproverView) {
-                    oApproverView.setVisible(false);
-                }
+                this._updateApproverSectionVisibility();
                 const oTable = this.byId("myRequestsUnifiedTable");
                 if (oTable) {
                     const oBinding = oTable.getBinding("items");
@@ -8732,15 +8793,7 @@
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
                 this._updateActionCardArrows(oModel);
-                const bShowApprover = !!oModel.getProperty("/showApproverSection");
-                const oApproverContainer = this.byId("approverSectionContainer");
-                if (oApproverContainer) {
-                    oApproverContainer.setVisible(bShowApprover);
-                }
-                const oApproverView = this.byId("approverSectionView");
-                if (oApproverView) {
-                    oApproverView.setVisible(bShowApprover);
-                }
+                this._updateApproverSectionVisibility();
             });
         },
 
@@ -10930,11 +10983,13 @@
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/showHistorySection", false);
+                oModel.setProperty("/selectedTabKey", "myAccess");
             }
             const oContainer = this.byId("historySectionContainer");
             if (oContainer) {
                 oContainer.setVisible(false);
             }
+            this._updateApproverSectionVisibility();
         },
 
         onFilterHistoryDialog() {

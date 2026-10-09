@@ -183,13 +183,39 @@ sap.ui.define([
         _syncModelAndRequests() {
             const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
-                const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").trim();
+                const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
                 const sRoleLower = sActiveRole.toLowerCase();
-                const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester");
-                const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator");
-                const isCompliance = !bIsRequester && !bIsAdmin && sRoleLower.includes("compliance");
-                const isApprover = !bIsRequester && !bIsAdmin && (sRoleLower.includes("approver") || isCompliance);
-                const bShowApproverSection = !bIsRequester && !bIsAdmin && isApprover;
+                const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "" || !!oModel.getProperty("/isRequester"));
+                const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+
+                // STRICT: When active persona is Requester or Admin, NEVER show approver section
+                if (bIsRequester || bIsAdmin) {
+                    oModel.setProperty("/showApproverSection", false);
+                    oModel.setProperty("/isApproverPersona", false);
+                    oModel.setProperty("/isCompliance", false);
+                    oModel.setProperty("/isComplianceReviewer", false);
+                    oModel.setProperty("/isCompliancePersona", false);
+                    const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+                    if (oCompModel && oCompModel !== oModel) {
+                        oCompModel.setProperty("/showApproverSection", false);
+                        oCompModel.setProperty("/isApproverPersona", false);
+                        oCompModel.setProperty("/isCompliance", false);
+                        oCompModel.setProperty("/isComplianceReviewer", false);
+                        oCompModel.setProperty("/isCompliancePersona", false);
+                    }
+                    if (this.getView()) {
+                        this.getView().setVisible(false);
+                    }
+                    const oCardRoot = this.byId("kyraApproverCardRoot");
+                    if (oCardRoot) {
+                        oCardRoot.setVisible(false);
+                    }
+                    return;
+                }
+
+                const isCompliance = sRoleLower.includes("compliance");
+                const isApprover = sRoleLower.includes("approver") || isCompliance;
+                const bShowApproverSection = isApprover;
 
                 oModel.setProperty("/isCompliance", isCompliance);
                 oModel.setProperty("/isComplianceReviewer", isCompliance);
@@ -207,7 +233,22 @@ sap.ui.define([
                 }
 
                 if (!bShowApproverSection) {
+                    if (this.getView()) {
+                        this.getView().setVisible(false);
+                    }
+                    const oCardRoot = this.byId("kyraApproverCardRoot");
+                    if (oCardRoot) {
+                        oCardRoot.setVisible(false);
+                    }
                     return;
+                }
+
+                if (this.getView()) {
+                    this.getView().setVisible(true);
+                }
+                const oCardRoot = this.byId("kyraApproverCardRoot");
+                if (oCardRoot) {
+                    oCardRoot.setVisible(true);
                 }
 
                 if (!oModel.getProperty("/approverPendingTab") || isCompliance) {
