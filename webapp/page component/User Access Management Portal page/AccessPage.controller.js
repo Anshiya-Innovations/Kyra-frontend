@@ -10201,7 +10201,6 @@ sap.ui.define([
 
             // 4. Construct Genuine OpenXML Excel Spreadsheet (.xlsx) using SheetJS
             const DB_COLUMNS = [
-                { key: "id", label: "ID" },
                 { key: "request_number", label: "REQUEST NUMBER" },
                 { key: "requester_username", label: "REQUESTER USERNAME" },
                 { key: "requester_persona", label: "REQUESTER PERSONA" },
@@ -10285,8 +10284,29 @@ sap.ui.define([
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(aAoa);
                 ws["!cols"] = DB_COLUMNS.map(c => ({ wch: Math.max(c.label.length + 3, 16) }));
-                if (ws["!cols"] && ws["!cols"][0]) ws["!cols"][0].wch = Math.max(ws["!cols"][0].wch, 26);
-                if (ws["!cols"] && ws["!cols"][1]) ws["!cols"][1].wch = Math.max(ws["!cols"][1].wch, 35);
+                if (ws["!cols"] && ws["!cols"][0]) ws["!cols"][0].wch = Math.max(ws["!cols"][0].wch, 24);
+                if (ws["!cols"] && ws["!cols"][1]) ws["!cols"][1].wch = Math.max(ws["!cols"][1].wch, 22);
+                // Read-only format: protect worksheet so users cannot modify cells or layout after exporting
+                ws["!protect"] = {
+                    password: "KyraReadOnlyAudit",
+                    sheet: true,
+                    objects: true,
+                    scenarios: true,
+                    selectLockedCells: true,
+                    selectUnlockedCells: true,
+                    formatColumns: false,
+                    formatRows: false,
+                    formatCells: false,
+                    insertColumns: false,
+                    insertRows: false,
+                    insertHyperlinks: false,
+                    deleteColumns: false,
+                    deleteRows: false,
+                    sort: false,
+                    autoFilter: false,
+                    pivotTables: false
+                };
+
                 XLSX.utils.book_append_sheet(wb, ws, "Audit Log");
 
                 const sFilename = (sFilenamePrefix || "Kyra_Audit_Export_") + new Date().toISOString().slice(0, 10) + ".xlsx";
