@@ -26,6 +26,65 @@ sap.ui.define([], function() {
          * Never triggered by background polling intervals.
          * @param {Object|string} options
          */
+        /**
+         * Transitions the current loading slide into a clean, modern success slide.
+         * Shows a teal checkmark icon circle, success title, and success subtitle for a duration, then smoothly hides.
+         * @param {Object|string} options { title, subtitle, duration, onComplete }
+         */
+        showSuccess(options) {
+            if (typeof options === "string") {
+                options = { subtitle: options };
+            }
+            options = options || {};
+            const sTitle = options.title || "Saved Successfully";
+            const sSubtitle = options.subtitle || "Customization saved to database successfully.";
+            const iDuration = (typeof options.duration === "number" && options.duration > 0) ? options.duration : 1900;
+            const fnComplete = options.onComplete || (() => {});
+
+            if (dismissTimer) {
+                clearTimeout(dismissTimer);
+                dismissTimer = null;
+            }
+
+            this._ensureStyles();
+            isVisible = true;
+
+            let overlay = document.getElementById("kyra_loading_slide_overlay");
+            if (!overlay) {
+                overlay = document.createElement("div");
+                overlay.id = "kyra_loading_slide_overlay";
+                overlay.className = "kyraLoadingSlideOverlay";
+                if (document.body) {
+                    document.body.appendChild(overlay);
+                } else {
+                    document.addEventListener("DOMContentLoaded", () => {
+                        document.body.appendChild(overlay);
+                    });
+                }
+            }
+
+            overlay.innerHTML = `
+                <div class="kyraLoadingSlideCard kyraSuccessSlideCard">
+                    <div class="kyraSuccessCheckCircle">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="kyraLoadingTitle kyraSuccessTitle">${sTitle}</div>
+                    <div class="kyraLoadingSubtitle kyraSuccessSubtitle">${sSubtitle}</div>
+                </div>
+            `;
+
+            overlay.classList.add("kyra-active");
+            overlay.style.setProperty("display", "flex", "important");
+            overlay.style.setProperty("opacity", "1", "important");
+            overlay.style.setProperty("pointer-events", "all", "important");
+
+            dismissTimer = setTimeout(() => {
+                this.forceHide(fnComplete);
+            }, iDuration);
+        },
+
         show(options) {
             if (typeof options === "string") {
                 options = { title: options };
@@ -249,6 +308,36 @@ sap.ui.define([], function() {
                         100% { transform: rotate(360deg); }
                     }
 
+                    /* Success Card Icon & Animation */
+                    .kyraSuccessCheckCircle {
+                        width: 56px !important;
+                        height: 56px !important;
+                        border-radius: 50% !important;
+                        background-color: #008C9C !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        margin: 0 auto 20px auto !important;
+                        box-shadow: 0 8px 24px -4px rgba(0, 140, 156, 0.45) !important;
+                        animation: kyraCheckPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                    }
+                    @keyframes kyraCheckPop {
+                        0% { transform: scale(0.6); opacity: 0; }
+                        100% { transform: scale(1); opacity: 1; }
+                    }
+                    .kyraSuccessTitle {
+                        color: #0F172A !important;
+                        font-size: 19px !important;
+                        font-weight: 700 !important;
+                        margin-bottom: 8px !important;
+                    }
+                    .kyraSuccessSubtitle {
+                        color: #475569 !important;
+                        font-size: 13.5px !important;
+                        line-height: 1.45 !important;
+                        max-width: 340px !important;
+                    }
+
                     /* Title: Bold & Centered */
                     .kyraLoadingTitle {
                         width: 100% !important;
@@ -401,7 +490,7 @@ sap.ui.define([], function() {
                     return origFetch.apply(this, args)
                         .then(res => {
                             if (showTimer) clearTimeout(showTimer);
-                            if (bShown) {
+                            if (bShown && !sUrl.includes("/saveAdminCustomization") && !sUrl.includes("/convertDepartmentPersona")) {
                                 self.hide(null, 320);
                             }
                             return res;

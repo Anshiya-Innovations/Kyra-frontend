@@ -12989,7 +12989,15 @@ sap.ui.define([
 
             this._lastConflictSaveTs = Date.now();
 
-            fetch("/odata/v4/admin-portal/saveAdminCustomization", {
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Saving to Database...",
+                    subtitle: "Persisting governance configuration to PostgreSQL database...",
+                    duration: 12000
+                });
+            }
+
+            return fetch("/odata/v4/admin-portal/saveAdminCustomization", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ configJson: JSON.stringify(oPayload) })
@@ -12998,7 +13006,6 @@ sap.ui.define([
                 .then(oRes => {
                     const bOk = !!(oRes && (oRes.ok === true || (oRes.value && oRes.value.ok === true)));
                     if (bOk) {
-                        MessageToast.show(sSuccessMsg || "Customization saved to database successfully.");
                         try {
                             localStorage.setItem("kyra_last_admin_config_mutation", String(Date.now()));
                         } catch(e) {}
@@ -13013,12 +13020,29 @@ sap.ui.define([
                                 syncChannel.close();
                             } catch(e) {}
                         }
+
+                        const sDisplayMsg = sSuccessMsg || "Customization saved to database successfully.";
+                        if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                            window.KyraLoader.showSuccess({
+                                title: "Saved Successfully",
+                                subtitle: sDisplayMsg,
+                                duration: 1900
+                            });
+                        } else {
+                            MessageToast.show(sDisplayMsg);
+                        }
                     } else {
+                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide();
+                        }
                         MessageToast.show("⚠ Saved locally, but database sync returned an error.");
                     }
                 })
                 .catch((err) => {
                     console.warn("[_persistAllCustomizationsToDb Network/Fetch Error]", err);
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    }
                     MessageToast.show("⚠ Saved locally. Will retry synchronizing with database on next update.");
                 });
         },
@@ -14282,25 +14306,10 @@ sap.ui.define([
 
                                 closeFn();
 
-                                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                                    window.KyraLoader.show({
-                                        title: "Updating Service & Teams...",
-                                        subtitle: "Saving configuration changes and refreshing live data..."
-                                    });
-                                }
-
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
                                 that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' and teams updated.");
                                 that._ensureAdminSnapshots(oModel);
                                 oModel.refresh(true);
-
-                                setTimeout(() => {
-                                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                                        window.KyraLoader.hide();
-                                    }
-                                    that._showSlideNotification("Service Updated", "Service '" + sNewName + "' and teams updated.");
-                                    MessageToast.show("Service '" + sNewName + "' and teams updated.");
-                                }, 500);
                             };
                         }
                     },
@@ -18190,6 +18199,13 @@ sap.ui.define([
             oModel.setProperty("/departmentPersona/departmentName", sCleanDept);
 
             try {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Converting Department Persona...",
+                        subtitle: "Updating user persona records in database...",
+                        duration: 12000
+                    });
+                }
                 const res = await fetch("/odata/v4/admin-portal/convertDepartmentPersona", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -18224,10 +18240,21 @@ sap.ui.define([
 
                 // Sync live admin config
                 this._syncAdminConfigToLiveAddAccess(oModel);
-                this._showSlideNotification("Department Converted", sMsg, "success");
-                sap.m.MessageToast.show(sMsg);
+
+                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                    window.KyraLoader.showSuccess({
+                        title: "Saved Successfully",
+                        subtitle: sMsg,
+                        duration: 1900
+                    });
+                } else {
+                    sap.m.MessageToast.show(sMsg);
+                }
             } catch (err) {
                 console.error("Convert department persona error:", err);
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
                 oModel.setProperty("/departmentPersonaResult", {
                     message: err.message || "Failed to convert department personas.",
                     state: "Error"
