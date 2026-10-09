@@ -53087,3 +53087,12 @@ html body #adminSystemsTable .sapMListTblHeaderCell {
     height: 0 !important;
     opacity: 0 !important;
 }
+
+/* Suppress black UI5 MessageToast popups so feedback displays inside unified KyraLoader slide */
+.sapMMessageToast {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
