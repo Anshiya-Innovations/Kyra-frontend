@@ -7395,10 +7395,26 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 }
 
 /* Popover Panel */
+.kyraNotificationPopover,
+.kyraNotificationPopover.sapMPopover,
+.kyraNotificationPopover.sapMResponsivePopover {
+    max-height: calc(100vh - 80px) !important;
+    height: auto !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.16), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+    border: 1px solid #E2E8F0 !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
 .kyraNotificationPopover .sapMPopoverCont,
 .kyraNotificationPopover .sapMPopoverScroll,
 .kyraNotificationPopover .sapMScrollCont,
-.kyraNotificationPopover .sapMScrollContScroll {
+.kyraNotificationPopover .sapMScrollContScroll,
+.kyraNotificationPopover .sapMPopoverWrapper {
+    height: auto !important;
+    max-height: calc(100vh - 80px) !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
     overflow-y: hidden !important;
@@ -7409,7 +7425,18 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 .kyraNotificationPopover .sapMPopoverCont::-webkit-scrollbar,
 .kyraNotificationPopover .sapMPopoverScroll::-webkit-scrollbar,
 .kyraNotificationPopover .sapMScrollCont::-webkit-scrollbar,
-.kyraNotificationPopover .sapMScrollContScroll::-webkit-scrollbar {
+.kyraNotificationPopover .sapMScrollContScroll::-webkit-scrollbar,
+.kyraNotificationPopover ::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.kyraNotificationPopover .sapMPopoverCont::-webkit-scrollbar-button,
+.kyraNotificationPopover .sapMPopoverScroll::-webkit-scrollbar-button,
+.kyraNotificationPopover .sapMScrollCont::-webkit-scrollbar-button,
+.kyraNotificationPopover .sapMScrollContScroll::-webkit-scrollbar-button,
+.kyraNotificationPopover ::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
@@ -7445,6 +7472,8 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     color: #0F172A;
     background: #FFFFFF;
     overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 /* Header */
@@ -7547,6 +7576,36 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 .kyra-notif-list {
     display: flex !important;
     flex-direction: column !important;
+    max-height: 440px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #CBD5E1 transparent !important;
+}
+
+.kyra-notif-list::-webkit-scrollbar {
+    width: 5px !important;
+    height: 5px !important;
+    display: block !important;
+}
+
+.kyra-notif-list::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.kyra-notif-list::-webkit-scrollbar-thumb {
+    background: #CBD5E1 !important;
+    border-radius: 9999px !important;
+}
+
+.kyra-notif-list::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8 !important;
+}
+
+.kyra-notif-list::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .kyra-notif-item {
@@ -52654,6 +52713,273 @@ html body #adminCustomConflictsTable {
 #adminCustomConflictsTable .kyraAdminSystemDeleteBtn .sapMBtnInner,
 .kyraAdminConflictTable .kyraAdminSystemEditBtn .sapMBtnInner,
 .kyraAdminConflictTable .kyraAdminSystemDeleteBtn .sapMBtnInner {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+
+/* ==========================================================================
+   DEPARTMENT USERS TABLE & ADMIN SYSTEMS TABLE:
+   - Crisp tiny row & column divider lines (#E2E8F0)
+   - 100% Center alignment for all headers, cells, text, badges, and action buttons
+   ========================================================================== */
+
+/* 1. Header Styling: Center alignment & Invisible Column Dividers (for exact alignment preservation) */
+#deptPersonaUsersTable th,
+#deptPersonaUsersTable .sapMListTblHeaderCell,
+.kyraDeptUsersTable th,
+.kyraDeptUsersTable .sapMListTblHeaderCell,
+#deptPersonaUsersTable thead th,
+.kyraDeptUsersTable thead th,
+#adminSystemsTable th,
+#adminSystemsTable .sapMListTblHeaderCell,
+.kyraAdminSystemsTable th,
+.kyraAdminSystemsTable .sapMListTblHeaderCell {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    padding: 13px 16px !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-inline-start: none !important;
+    border-right: 1px solid transparent !important;
+    border-right-color: transparent !important;
+    border-inline-end: 1px solid transparent !important;
+    border-inline-end-color: transparent !important;
+    border-bottom: 1.5px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+#deptPersonaUsersTable th:last-child,
+#deptPersonaUsersTable .sapMListTblHeaderCell:last-child,
+.kyraDeptUsersTable th:last-child,
+.kyraDeptUsersTable .sapMListTblHeaderCell:last-child,
+#adminSystemsTable th:last-child,
+#adminSystemsTable .sapMListTblHeaderCell:last-child,
+.kyraAdminSystemsTable th:last-child,
+.kyraAdminSystemsTable .sapMListTblHeaderCell:last-child {
+    border-right: none !important;
+    border-inline-end: none !important;
+}
+
+#deptPersonaUsersTable th::before,
+#deptPersonaUsersTable th::after,
+#deptPersonaUsersTable .sapMListTblHeaderCell::before,
+#deptPersonaUsersTable .sapMListTblHeaderCell::after,
+.kyraDeptUsersTable th::before,
+.kyraDeptUsersTable th::after,
+.kyraDeptUsersTable .sapMListTblHeaderCell::before,
+.kyraDeptUsersTable .sapMListTblHeaderCell::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+}
+
+#deptPersonaUsersTable th .sapMColumnHeaderContent,
+.kyraDeptUsersTable th .sapMColumnHeaderContent,
+#adminSystemsTable th .sapMColumnHeaderContent,
+.kyraAdminSystemsTable th .sapMColumnHeaderContent {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+}
+
+#deptPersonaUsersTable th .kyraAdminColHeader,
+#deptPersonaUsersTable th .sapMText,
+.kyraDeptUsersTable th .kyraAdminColHeader,
+.kyraDeptUsersTable th .sapMText,
+#adminSystemsTable th .kyraAdminColHeader,
+#adminSystemsTable th .sapMText,
+.kyraAdminSystemsTable th .kyraAdminColHeader,
+.kyraAdminSystemsTable th .sapMText {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    color: #1E293B !important;
+    text-transform: uppercase !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* 2. Data Cells: Crisp 1px Horizontal Row & Vertical Column Dividers, Center-Aligned */
+#deptPersonaUsersTable td,
+#deptPersonaUsersTable .sapMListTblCell,
+.kyraDeptUsersTable td,
+.kyraDeptUsersTable .sapMListTblCell,
+#adminSystemsTable td,
+#adminSystemsTable .sapMListTblCell,
+.kyraAdminSystemsTable td,
+.kyraAdminSystemsTable .sapMListTblCell {
+    padding: 14px 16px !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: 1px solid #E2E8F0 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+    background: #FFFFFF !important;
+    color: #334155 !important;
+    font-size: 13.5px !important;
+}
+
+#deptPersonaUsersTable td:last-child,
+#deptPersonaUsersTable .sapMListTblCell:last-child,
+.kyraDeptUsersTable td:last-child,
+.kyraDeptUsersTable .sapMListTblCell:last-child,
+#adminSystemsTable td:last-child,
+#adminSystemsTable .sapMListTblCell:last-child,
+.kyraAdminSystemsTable td:last-child,
+.kyraAdminSystemsTable .sapMListTblCell:last-child {
+    border-right: none !important;
+}
+
+#deptPersonaUsersTable tr:last-child td,
+#deptPersonaUsersTable tr:last-child .sapMListTblCell,
+.kyraDeptUsersTable tr:last-child td,
+.kyraDeptUsersTable tr:last-child .sapMListTblCell,
+#adminSystemsTable tr:last-child td,
+#adminSystemsTable tr:last-child .sapMListTblCell,
+.kyraAdminSystemsTable tr:last-child td,
+.kyraAdminSystemsTable tr:last-child .sapMListTblCell {
+    border-bottom: none !important;
+}
+
+#deptPersonaUsersTable .kyraAdminTableRow,
+.kyraDeptUsersTable .kyraAdminTableRow,
+#adminSystemsTable .kyraAdminTableRow,
+.kyraAdminSystemsTable .kyraAdminTableRow {
+    min-height: 52px !important;
+    height: auto !important;
+    transition: background-color 0.15s ease !important;
+}
+
+#deptPersonaUsersTable .kyraAdminTableRow:hover td,
+#deptPersonaUsersTable tbody tr:hover td,
+.kyraDeptUsersTable tbody tr:hover td,
+#adminSystemsTable .kyraAdminTableRow:hover td,
+#adminSystemsTable tbody tr:hover td,
+.kyraAdminSystemsTable tbody tr:hover td {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+}
+
+/* 3. All Text Elements inside cells: 100% Center-Aligned */
+#deptPersonaUsersTable td .sapMText,
+#deptPersonaUsersTable td .sapMTextBreakWord,
+#deptPersonaUsersTable td .kyraAdminCellBold,
+#deptPersonaUsersTable td .kyraAdminCellText,
+#deptPersonaUsersTable td span,
+.kyraDeptUsersTable td .sapMText,
+.kyraDeptUsersTable td .sapMTextBreakWord,
+.kyraDeptUsersTable td .kyraAdminCellBold,
+.kyraDeptUsersTable td .kyraAdminCellText,
+.kyraDeptUsersTable td span,
+#adminSystemsTable td .sapMText,
+#adminSystemsTable td .sapMTextBreakWord,
+#adminSystemsTable td .kyraAdminCellBold,
+#adminSystemsTable td .kyraAdminCellText,
+#adminSystemsTable td span,
+.kyraAdminSystemsTable td .sapMText,
+.kyraAdminSystemsTable td .sapMTextBreakWord,
+.kyraAdminSystemsTable td .kyraAdminCellBold,
+.kyraAdminSystemsTable td .kyraAdminCellText,
+.kyraAdminSystemsTable td span {
+    text-align: center !important;
+    text-align-last: center !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#deptPersonaUsersTable .kyraAdminCellBold,
+.kyraDeptUsersTable .kyraAdminCellBold,
+#adminSystemsTable .kyraAdminCellBold,
+.kyraAdminSystemsTable .kyraAdminCellBold {
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    color: #0F172A !important;
+    line-height: 1.45 !important;
+    text-align: center !important;
+}
+
+#deptPersonaUsersTable .kyraAdminCellText,
+.kyraDeptUsersTable .kyraAdminCellText,
+#adminSystemsTable .kyraAdminCellText,
+.kyraAdminSystemsTable .kyraAdminCellText {
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+}
+
+/* Checkbox Centering in Department Users table */
+#deptPersonaUsersTable td .sapMCb,
+#deptPersonaUsersTable td .kyraAdminTableCheckbox,
+.kyraDeptUsersTable td .sapMCb,
+.kyraDeptUsersTable td .kyraAdminTableCheckbox {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    vertical-align: middle !important;
+}
+
+/* Persona Badge Centering in Department Users table */
+#deptPersonaUsersTable td .kyraDeptPersonaBadge,
+.kyraDeptUsersTable td .kyraDeptPersonaBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+    vertical-align: middle !important;
+}
+
+/* Status Pill Centering in Admin Systems table */
+#adminSystemsTable td .kyraAdminStatusPill,
+.kyraAdminSystemsTable td .kyraAdminStatusPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin: 0 auto !important;
+    vertical-align: middle !important;
+}
+
+/* Action Buttons Group Centering in Admin Systems table */
+#adminSystemsTable td .kyraAdminRowActionGroup,
+.kyraAdminSystemsTable td .kyraAdminRowActionGroup {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+}
+
+#adminSystemsTable .kyraAdminSystemEditBtn,
+#adminSystemsTable .kyraAdminSystemDeleteBtn,
+.kyraAdminSystemsTable .kyraAdminSystemEditBtn,
+.kyraAdminSystemsTable .kyraAdminSystemDeleteBtn {
+    margin: 0 !important;
+}
+
+#adminSystemsTable .kyraAdminSystemEditBtn .sapMBtnInner,
+#adminSystemsTable .kyraAdminSystemDeleteBtn .sapMBtnInner,
+.kyraAdminSystemsTable .kyraAdminSystemEditBtn .sapMBtnInner,
+.kyraAdminSystemsTable .kyraAdminSystemDeleteBtn .sapMBtnInner {
     width: 32px !important;
     height: 32px !important;
     min-width: 32px !important;

@@ -1355,10 +1355,11 @@
                                     fixedLayout="true"
                                     class="sapUiNoMargin kyraAdminCleanTable kyraDeptUsersTable">
                                     <columns>
-                                        <Column width="18%" hAlign="Begin"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
-                                        <Column width="24%" hAlign="Begin"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
-                                        <Column width="28%" hAlign="Begin"><Text text="EMAIL" class="kyraAdminColHeader" /></Column>
-                                        <Column width="30%" hAlign="Center"><Text text="ASSIGNED PERSONA" class="kyraAdminColHeader" /></Column>
+                                        <Column width="10%" hAlign="Center"><Text text="SELECT" class="kyraAdminColHeader" /></Column>
+                                        <Column width="18%" hAlign="Center"><Text text="EMPLOYEE ID" class="kyraAdminColHeader" /></Column>
+                                        <Column width="22%" hAlign="Center"><Text text="FULL NAME" class="kyraAdminColHeader" /></Column>
+                                        <Column width="26%" hAlign="Center"><Text text="EMAIL" class="kyraAdminColHeader" /></Column>
+                                        <Column width="24%" hAlign="Center"><Text text="ASSIGNED PERSONA" class="kyraAdminColHeader" /></Column>
                                     </columns>
                                     <items>
                                         <ColumnListItem vAlign="Middle" type="Active" highlight="None" press=".onDeptUserRowPress" class="{= 'kyraDeptUserRow ' + (${accessModel>selected} ? 'kyraDeptUserRowSelected' : '') }">
@@ -1370,8 +1371,7 @@
                                                 <Text text="{accessModel>username}" class="kyraAdminCellBold" />
                                                 <Text text="{accessModel>fullName}" class="kyraAdminCellText" />
                                                 <Text text="{accessModel>email}" class="kyraAdminCellText" />
-                                                <Text text="{accessModel>department}" class="kyraAdminCellText" />
-                                                <HBox alignItems="Center" class="{= 'kyraDeptPersonaBadge ' + (${accessModel>personaBadgeClass} || 'kyraPersonaRequester') }">
+                                                <HBox alignItems="Center" justifyContent="Center" class="{= 'kyraDeptPersonaBadge ' + (${accessModel>personaBadgeClass} || 'kyraPersonaRequester') }">
                                                     <HBox class="kyraPersonaAvatarCircle" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="{= ${accessModel>personaIcon} || 'sap-icon://person-placeholder' }" class="kyraPersonaBadgeIcon" />
                                                     </HBox>
@@ -1633,7 +1633,7 @@
                                 id="adminSystemsTable"
                                 items="{accessModel>/adminSystems}"
                                 fixedLayout="true"
-                                class="sapUiNoMargin kyraAdminCleanTable">
+                                class="sapUiNoMargin kyraAdminCleanTable kyraAdminSystemsTable">
                                 <columns>
                                     <Column width="28%" hAlign="Center"><Text text="SYSTEM NAME" class="kyraAdminColHeader" /></Column>
                                     <Column width="16%" hAlign="Center"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>

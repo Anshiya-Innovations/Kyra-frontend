@@ -5451,15 +5451,36 @@ sap.ui.define([
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
                     contentWidth: "440px",
+                    contentHeight: "auto",
                     horizontalScrolling: false,
                     verticalScrolling: false,
                     placement: "Bottom",
-                    showArrow: true,
-                    class: "kyraNotificationPopover",
+                    showArrow: false,
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
                     afterClose: () => oPopover.destroy()
+                });
+                oPopover.addStyleClass("kyraNotificationPopover");
+                if (oPopover._oControl) {
+                    oPopover._oControl.addStyleClass("kyraNotificationPopover");
+                }
+                oPopover.attachAfterOpen(() => {
+                    const oDom = oPopover.getDomRef();
+                    if (oDom) {
+                        oDom.style.height = "auto";
+                        oDom.style.maxHeight = "calc(100vh - 100px)";
+                        const oCont = oDom.querySelector(".sapMPopoverCont");
+                        if (oCont) {
+                            oCont.style.height = "auto";
+                            oCont.style.maxHeight = "calc(100vh - 100px)";
+                        }
+                        const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                        if (oScroll) {
+                            oScroll.style.height = "auto";
+                            oScroll.style.maxHeight = "calc(100vh - 100px)";
+                        }
+                    }
                 });
 
                 this.getView().addDependent(oPopover);
@@ -9521,6 +9542,13 @@ sap.ui.define([
             ], (Dialog, DatePicker, VBox, HBox, Label, Avatar, Text, Title, Button, Filter, FilterOperator, MessageToast) => {
                 const aOptions = [
                     {
+                        key: "ALL",
+                        title: "All",
+                        desc: "Show all active entitlements regardless of duration",
+                        icon: "sap-icon://multiselect-all",
+                        colorClass: "kyraHistIcon_teal"
+                    },
+                    {
                         key: "PERMANENT",
                         title: "Permanent",
                         desc: "Standard continuous access requests",
@@ -9552,6 +9580,7 @@ sap.ui.define([
 
                 // Multiple selection state
                 const oSelectionState = Object.assign({
+                    ALL: false,
                     PERMANENT: false,
                     "30DAYS": false,
                     "90DAYS": false,
@@ -9629,7 +9658,21 @@ sap.ui.define([
                 };
 
                 const toggleKey = (sKey) => {
-                    oSelectionState[sKey] = !oSelectionState[sKey];
+                    if (sKey === "ALL") {
+                        const bNewAll = !oSelectionState.ALL;
+                        oSelectionState.ALL = bNewAll;
+                        if (bNewAll) {
+                            oSelectionState.PERMANENT = false;
+                            oSelectionState["30DAYS"] = false;
+                            oSelectionState["90DAYS"] = false;
+                            oSelectionState.CUSTOM = false;
+                        }
+                    } else {
+                        oSelectionState[sKey] = !oSelectionState[sKey];
+                        if (oSelectionState[sKey]) {
+                            oSelectionState.ALL = false;
+                        }
+                    }
                     updateUI();
                 };
 
@@ -9695,6 +9738,9 @@ sap.ui.define([
                     const aSelectedLabels = [];
                     const aFilterConditions = [];
 
+                    if (oSelectionState.ALL) {
+                        aSelectedLabels.push("All");
+                    }
                     if (oSelectionState.PERMANENT) {
                         aSelectedLabels.push("Permanent");
                         aFilterConditions.push(new Filter({
@@ -9741,7 +9787,7 @@ sap.ui.define([
                     if (oTable) {
                         const oBinding = oTable.getBinding("items");
                         if (oBinding) {
-                            if (aFilterConditions.length === 0) {
+                            if (oSelectionState.ALL || aFilterConditions.length === 0) {
                                 oBinding.filter([]);
                                 MessageToast.show("Showing all active entitlements.");
                             } else {
@@ -9755,7 +9801,7 @@ sap.ui.define([
                             }
                         }
                     }
-                    this._lastMasterAccessFilterLabels = (aFilterConditions.length === 0) ? [] : aSelectedLabels;
+                    this._lastMasterAccessFilterLabels = (oSelectionState.ALL || aFilterConditions.length === 0) ? (oSelectionState.ALL ? ["All"] : []) : aSelectedLabels;
                     oDialog.close();
                 };
 
@@ -9798,6 +9844,7 @@ sap.ui.define([
                             icon: "sap-icon://refresh",
                             type: "Transparent",
                             press: () => {
+                                oSelectionState.ALL = false;
                                 oSelectionState.PERMANENT = false;
                                 oSelectionState["30DAYS"] = false;
                                 oSelectionState["90DAYS"] = false;
@@ -14233,12 +14280,27 @@ sap.ui.define([
                                     }
                                 }
 
+                                closeFn();
+
+                                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                                    window.KyraLoader.show({
+                                        title: "Updating Service & Teams...",
+                                        subtitle: "Saving configuration changes and refreshing live data..."
+                                    });
+                                }
+
                                 that._syncAdminConfigToLiveAddAccess(oModel, true);
                                 that._persistAllCustomizationsToDb(oModel, "Service '" + sNewName + "' and teams updated.");
                                 that._ensureAdminSnapshots(oModel);
-                                that._showSlideNotification("Service Updated", "Service '" + sNewName + "' and teams updated.");
-                                MessageToast.show("Service '" + sNewName + "' and teams updated.");
-                                closeFn();
+                                oModel.refresh(true);
+
+                                setTimeout(() => {
+                                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                                        window.KyraLoader.hide();
+                                    }
+                                    that._showSlideNotification("Service Updated", "Service '" + sNewName + "' and teams updated.");
+                                    MessageToast.show("Service '" + sNewName + "' and teams updated.");
+                                }, 500);
                             };
                         }
                     },
@@ -18150,10 +18212,10 @@ sap.ui.define([
                     try { aConvertedUsers = JSON.parse(oResult.usersJson); } catch (e) {}
                 }
 
-                aConvertedUsers.forEach(function(u) { u.selected = true; });
+                aConvertedUsers.forEach(function(u) { u.selected = false; });
                 oModel.setProperty("/departmentPersonaUsers", aConvertedUsers);
-                oModel.setProperty("/departmentPersonaAllSelected", aConvertedUsers.length > 0);
-                oModel.setProperty("/departmentPersonaSelectedCount", aConvertedUsers.length);
+                oModel.setProperty("/departmentPersonaAllSelected", false);
+                oModel.setProperty("/departmentPersonaSelectedCount", 0);
                 const sMsg = oResult.message || `Successfully converted ${oResult.count || aConvertedUsers.length} user(s) in '${sCleanDept}' to ${sTargetPersona}.`;
                 oModel.setProperty("/departmentPersonaResult", {
                     message: sMsg,
