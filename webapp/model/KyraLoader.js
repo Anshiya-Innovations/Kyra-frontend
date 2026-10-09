@@ -75,6 +75,7 @@ sap.ui.define([], function() {
             const oSubtitle = overlay.querySelector(".kyraLoadingSubtitle");
             const oIconBox = overlay.querySelector(".kyraSlideIconBox");
 
+            this._isSavingToDb = (typeof sTitle === "string" && (sTitle.includes("Saving") || sTitle.includes("Persisting") || sTitle.includes("Database")));
             if (oCard && oTitle && oSubtitle) {
                 if (oIconBox) {
                     oIconBox.innerHTML = '<div class="kyraSimpleSpinner"></div>';
@@ -109,6 +110,7 @@ sap.ui.define([], function() {
          * @param {Object|string} options
          */
         showSuccess(options) {
+            this._isSavingToDb = false;
             if (typeof options === "string") {
                 options = { subtitle: options };
             }
@@ -188,6 +190,10 @@ sap.ui.define([], function() {
          * @param {boolean} [bForce=false]
          */
         hide(callback, minDisplayTime = 0, bForce = false) {
+            // If saving configuration/mutating database, do not dismiss early until success screen arrives
+            if (this._isSavingToDb && !bForce) {
+                return;
+            }
             if (!bForce && iActiveCount > 1) {
                 iActiveCount--;
                 return;
@@ -562,9 +568,15 @@ sap.ui.define([], function() {
                                                         sLower.includes("updated") || 
                                                         sLower.includes("created") || 
                                                         sLower.includes("welcome");
+                                if (sLower.includes("login") || sLower.includes("welcome back")) {
+                                    if (KyraLoader.isShowing()) {
+                                        KyraLoader.hide();
+                                    }
+                                    return;
+                                }
                                 if (KyraLoader.isShowing() || isSuccessOrSave) {
                                     KyraLoader.showSuccess({
-                                        title: sLower.includes("login") ? "Login Successful" : "Saved Successfully",
+                                        title: "Saved Successfully",
                                         subtitle: sMsg,
                                         duration: 1600
                                     });

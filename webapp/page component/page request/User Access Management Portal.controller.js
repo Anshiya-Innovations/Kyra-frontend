@@ -14485,7 +14485,6 @@ sap.ui.define([
             this._syncAdminConfigToLiveAddAccess(oModel, true);
             this._persistAllCustomizationsToDb(oModel, "Service configuration saved to database and activated for all users.");
             this._showSlideNotification("Services Saved", "Services and team configurations saved to database and activated.");
-            sap.m.MessageToast.show("Services configuration saved successfully.");
         },
 
         onDeleteAdminService(oEvent) {

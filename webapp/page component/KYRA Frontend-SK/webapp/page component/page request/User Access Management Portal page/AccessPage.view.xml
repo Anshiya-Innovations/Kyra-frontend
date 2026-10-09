@@ -1399,23 +1399,29 @@
                         <!-- 2. SPLIT ROW: BUSINESS SECTORS [LEFT] & BUSINESS FUNCTION DETAILS [RIGHT] -->
                         <!-- Matches Services & Service Details exact proportions, alignment, gap, & design -->
                         <!-- ============================================================== -->
-                        <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow kyraAdminBusinessSectorsSplitRow sapUiSmallMarginBottom">
-                            <!-- Left Card: Business Sectors -->
-                            <VBox width="49%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
-                                <VBox width="100%">
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
-                                        <Title text="{= 'Business Sectors (' + (${accessModel>/adminBusinessSectors} ? ${accessModel>/adminBusinessSectors}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
-                                        <HBox alignItems="Center" class="kyraAdminHeaderActions">
-                                            <SearchField
-                                                placeholder="Search sector..." width="175px"
-                                                liveChange=".onSearchAdminBusinessSectors"
-                                                class="kyraAdminSearchField" />
-                                            <Button
-                                                text="+ Add Business Sector"
-                                                press=".onAddAdminBusinessSector"
-                                                class="kyraAdminAddServiceTopBtn" />
+                        <!-- ============================================================== -->
+                        <!-- 2. UNIFIED CARD: BUSINESS SECTORS [LEFT] &amp; BUSINESS FUNCTION DETAILS [RIGHT] (MATCHING SERVICES &amp; SYSTEM PLACE DESIGN) -->
+                        <!-- ============================================================== -->
+                        <VBox class="kyraAdminWhiteCard kyraAdminUnifiedServiceCard sapUiSmallMarginBottom" width="100%">
+                            <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow kyraAdminUnifiedServiceRow">
+                                <!-- Left Panel: Business Sectors -->
+                                <VBox width="45%" class="kyraAdminServiceLeftPanel" justifyContent="SpaceBetween">
+                                    <VBox width="100%">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                            <Title text="{= 'Business Sectors (' + (${accessModel>/adminBusinessSectors} ? ${accessModel>/adminBusinessSectors}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
+                                            <HBox alignItems="Center" class="kyraAdminHeaderActions">
+                                                <SearchField
+                                                    placeholder="Search sector..." width="175px"
+                                                    liveChange=".onSearchAdminBusinessSectors"
+                                                    class="kyraAdminSearchField" />
+                                                <Button
+                                                    text="Add Business Sector"
+                                                    icon="sap-icon://add"
+                                                    type="Emphasized"
+                                                    press=".onAddAdminBusinessSector"
+                                                    class="kyraAdminAddBlueBtn" />
+                                            </HBox>
                                         </HBox>
-                                    </HBox>
 
                                     <Table id="adminBusinessSectorsTable"
                                         noDataText="No business sectors created yet. Click '+ Add Business Sector' to create one."
@@ -1463,36 +1469,30 @@
                                         </items>
                                     </Table>
                                 </VBox>
-
-                                <HBox
-                                    visible="true"
-                                    width="100%"
-                                    justifyContent="End"
-                                    alignItems="Center"
-                                    class="kyraAdminServiceDetailsFooter">
-                                    <Button
-                                        text="Cancel"
-                                        press=".onCancelAdminBusinessSectors"
-                                        class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
-                                    <Button
-                                        text="Save"
-                                        type="Emphasized"
-                                        press=".onSaveAdminBusinessSectors"
-                                        class="kyraAdminSaveBtn" />
-                                </HBox>
                             </VBox>
 
-                            <!-- Right Card: Business Function Details -->
-                            <VBox width="49.5%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
-                                <VBox width="100%">
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow" width="100%">
-                                        <Title text="{= 'Business Function Details' + (${accessModel>/selectedAdminBusinessSectorName} ? ' - ' + ${accessModel>/selectedAdminBusinessSectorName} : '') }" level="H4" class="kyraAdminCardTitle" wrapping="true" />
-                                        <Button
-                                            visible="{= !!${accessModel>/selectedAdminBusinessSectorName} }"
-                                            text="+ Add Business Function"
-                                            press=".onAddAdminBusinessFunction"
-                                            class="kyraAdminAddServiceTopBtn" />
-                                    </HBox>
+                                <!-- VERTICAL DIVIDER -->
+                                <VBox class="kyraAdminServiceVerticalDivider" />
+
+                                <!-- Right Panel: Business Function Details -->
+                                <VBox width="53%" class="kyraAdminServiceRightPanel" justifyContent="SpaceBetween">
+                                    <VBox width="100%">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow" width="100%">
+                                            <VBox class="kyraAdminFlexibleTitle">
+                                                <Title text="Business Function Details" level="H4" class="kyraAdminCardTitle" />
+                                                <Text
+                                                    visible="{= !!${accessModel>/selectedAdminBusinessSectorName} }"
+                                                    text="{accessModel>/selectedAdminBusinessSectorName}"
+                                                    class="kyraAdminSelectedSectorSubtitle sapUiTinyMarginTop" />
+                                            </VBox>
+                                            <Button
+                                                visible="{= !!${accessModel>/selectedAdminBusinessSectorName} }"
+                                                text="Add Business Function"
+                                                icon="sap-icon://add"
+                                                type="Emphasized"
+                                                press=".onAddAdminBusinessFunction"
+                                                class="kyraAdminAddBlueBtn sapUiSmallMarginBegin" />
+                                        </HBox>
 
                                     <!-- Clean Empty State when no Business Sector is selected (Exact match to Services) -->
                                     <VBox
@@ -1553,6 +1553,7 @@
                                 </HBox>
                             </VBox>
                         </HBox>
+                    </VBox>
 
                         <!-- ============================================================== -->
                         <!-- NEW SECTION: REGION FULL-WIDTH TABLE (Image 3)                 -->
@@ -1686,26 +1687,29 @@
                             </HBox>
                         </VBox>
 
-                        <!-- 2. BOTTOM SPLIT ROW: SERVICE (8) [LEFT] &amp; SERVICE DETAILS - FIORI LAUNCHPAD [RIGHT] -->
-                        <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow">
+                        <!-- 2. UNIFIED CARD: SERVICE (8) [LEFT] &amp; SERVICE DETAILS [RIGHT] (MATCHING SYSTEM PLACE DESIGN) -->
+                        <VBox class="kyraAdminWhiteCard kyraAdminUnifiedServiceCard sapUiSmallMarginBottom" width="100%">
+                            <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow kyraAdminUnifiedServiceRow">
 
-                            <!-- LEFT CARD: SERVICE (8) -->
-                            <VBox width="43%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
-                                <VBox width="100%">
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
-                                        <Title text="{= 'Service (' + (${accessModel>/adminServices} ? ${accessModel>/adminServices}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
-                                        <HBox alignItems="Center" class="kyraAdminHeaderActions">
-                                            <SearchField
-                                                placeholder="Search service..."
-                                                width="180px"
-                                                liveChange=".onSearchAdminServices"
-                                                class="kyraAdminSearchField" />
-                                            <Button
-                                                text="+ Add Service"
-                                                press=".onAddAdminService"
-                                                class="kyraAdminAddServiceTopBtn" />
+                                <!-- LEFT PANEL: SERVICE (8) -->
+                                <VBox width="43%" class="kyraAdminServiceLeftPanel" justifyContent="SpaceBetween">
+                                    <VBox width="100%">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
+                                            <Title text="{= 'Service (' + (${accessModel>/adminServices} ? ${accessModel>/adminServices}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
+                                            <HBox alignItems="Center" class="kyraAdminHeaderActions">
+                                                <SearchField
+                                                    placeholder="Search service..."
+                                                    width="180px"
+                                                    liveChange=".onSearchAdminServices"
+                                                    class="kyraAdminSearchField" />
+                                                <Button
+                                                    text="Add Service"
+                                                    icon="sap-icon://add"
+                                                    type="Emphasized"
+                                                    press=".onAddAdminService"
+                                                    class="kyraAdminAddBlueBtn" />
+                                            </HBox>
                                         </HBox>
-                                    </HBox>
 
                                     
 
@@ -1758,8 +1762,11 @@
                                 
                             </VBox>
 
-                            <!-- RIGHT CARD: SERVICE DETAILS - SYSTEM ADMINISTRATOR -->
-                            <VBox width="55.5%" class="kyraAdminWhiteCard kyraAdminSplitCard" justifyContent="SpaceBetween">
+                                <!-- VERTICAL DIVIDER -->
+                                <VBox class="kyraAdminServiceVerticalDivider" />
+
+                                <!-- RIGHT PANEL: SERVICE DETAILS -->
+                                <VBox width="55.5%" class="kyraAdminServiceRightPanel" justifyContent="SpaceBetween">
                                 <VBox width="100%">
                                     <HBox alignItems="Center" class="kyraAdminCardHeaderRow">
                                         <Title text="{= 'Service Details' + (${accessModel>/selectedAdminServiceName} ? ' - ' + ${accessModel>/selectedAdminServiceName} : '') }" level="H4" class="kyraAdminCardTitle" />
@@ -1926,6 +1933,7 @@
                                 </HBox>
                             </VBox>
                         </HBox>
+                    </VBox>
 
                         <!-- 3. BOTTOM FULL-WIDTH CARD: CUSTOM CONFLICT SECTION (Configure Conflicts from Systems, Services, Teams &amp; Personas above) -->
                         <VBox class="kyraAdminWhiteCard sapUiSmallMarginTop" width="100%">
@@ -2009,10 +2017,10 @@
                                     <TextArea
                                         value="{accessModel>/newConflictDraft/description}"
                                         placeholder="Enter conflict description..."
-                                        rows="3"
+                                        rows="2"
                                         growing="false"
                                         width="100%"
-                                        class="kyraAdminBuilderTextArea" />
+                                        class="kyraAdminBuilderSimpleInput kyraAdminConflictReasonTextArea" />
                                 </VBox>
 
                                 <!-- Conflict Slide Footer Bar: Cancel & Save -->

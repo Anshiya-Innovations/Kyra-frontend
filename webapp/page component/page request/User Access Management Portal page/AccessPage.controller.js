@@ -11965,9 +11965,8 @@ sap.ui.define([
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
                     contentWidth: "295px",
-                    contentHeight: "430px",
                     horizontalScrolling: false,
-                    verticalScrolling: true,
+                    verticalScrolling: false,
                     placement: "Bottom",
                     showArrow: true,
                     class: "kyraUserProfilePopover",
@@ -14485,7 +14484,6 @@ sap.ui.define([
             this._syncAdminConfigToLiveAddAccess(oModel, true);
             this._persistAllCustomizationsToDb(oModel, "Service configuration saved to database and activated for all users.");
             this._showSlideNotification("Services Saved", "Services and team configurations saved to database and activated.");
-            sap.m.MessageToast.show("Services configuration saved successfully.");
         },
 
         onDeleteAdminService(oEvent) {
@@ -15592,10 +15590,12 @@ sap.ui.define([
             const sSectorName = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
             const oMap = oModel.getProperty("/adminBusinessFunctionsMap") || {};
             this._savedAdminBusinessFunctionsMap = JSON.parse(JSON.stringify(oMap));
+            const aAllSectors = oModel.getProperty("/adminBusinessSectorsAll") || [];
+            this._savedAdminBusinessSectorsAll = JSON.parse(JSON.stringify(aAllSectors));
             this._syncAdminConfigToLiveAddAccess(oModel, true);
-            this._persistAllCustomizationsToDb(oModel, "Business Functions for '" + sSectorName + "' saved.");
-            this._showSlideNotification("Business Functions Saved", "Functions for '" + sSectorName + "' saved and activated.");
-            sap.m.MessageToast.show("Business Functions saved successfully.");
+            this._persistAllCustomizationsToDb(oModel, "Business Sectors and Functions saved.");
+            this._showSlideNotification("Business Configuration Saved", "Business Sectors and Functions saved to database and activated.");
+            sap.m.MessageToast.show("Business Sectors & Functions saved successfully.");
         },
 
         onCancelAdminBusinessFunctions() {
@@ -15610,7 +15610,14 @@ sap.ui.define([
                 oMap[sSectorName] = JSON.parse(JSON.stringify(aRestored));
                 oModel.setProperty("/adminBusinessFunctionsMap", oMap);
             }
-            sap.m.MessageToast.show("Business Functions reverted to last saved state.");
+            if (this._savedAdminBusinessSectorsAll) {
+                const aRestored = JSON.parse(JSON.stringify(this._savedAdminBusinessSectorsAll));
+                const sCur = oModel.getProperty("/selectedAdminBusinessSectorName") || "";
+                const aMapped = aRestored.map(s => Object.assign({}, s, { selected: sCur ? s.sectorName === sCur : false }));
+                oModel.setProperty("/adminBusinessSectorsAll", aRestored);
+                oModel.setProperty("/adminBusinessSectors", aMapped);
+            }
+            sap.m.MessageToast.show("Business Sectors & Functions reverted to last saved state.");
         },
 
         onAddAdminBusinessSector() {

@@ -5972,7 +5972,7 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 .kyraUserProfilePopover,
 .kyraUserProfilePopover.sapMPopover,
 .kyraUserProfilePopover.sapMResponsivePopover {
-    max-height: 440px !important;
+    max-height: none !important;
     overflow: hidden !important;
 }
 
@@ -5983,59 +5983,31 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     border: 1px solid #E2E8F0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
-    max-height: 430px !important;
+    max-height: none !important;
     overflow: hidden !important;
 }
 
 .kyraUserProfilePopover .sapMPopoverScroll,
 .kyraUserProfilePopover .sapMScrollCont,
 .kyraUserProfilePopover .sapMScrollContScroll {
+    overflow: hidden !important;
     overflow-x: hidden !important;
-    overflow-y: auto !important;
-    max-height: 430px !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #94A3B8 #F1F5F9 !important;
-    scroll-behavior: smooth !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior: contain !important;
+    overflow-y: hidden !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
-/* Highly visible, sleek custom scrollbar for Profile Popover */
+/* Completely remove and hide all scrollbars for Profile Popover */
+.kyraUserProfilePopover *::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMPopoverCont::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMScrollCont::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMScrollContScroll::-webkit-scrollbar,
 .kyra-modern-profile-popup::-webkit-scrollbar {
-    display: block !important;
-    width: 6px !important;
-}
-
-.kyraUserProfilePopover .sapMPopoverCont::-webkit-scrollbar-track,
-.kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar-track,
-.kyraUserProfilePopover .sapMScrollCont::-webkit-scrollbar-track,
-.kyraUserProfilePopover .sapMScrollContScroll::-webkit-scrollbar-track,
-.kyra-modern-profile-popup::-webkit-scrollbar-track {
-    background: #F1F5F9 !important;
-    border-radius: 9999px !important;
-    margin: 6px 0 !important;
-}
-
-.kyraUserProfilePopover .sapMPopoverCont::-webkit-scrollbar-thumb,
-.kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar-thumb,
-.kyraUserProfilePopover .sapMScrollCont::-webkit-scrollbar-thumb,
-.kyraUserProfilePopover .sapMScrollContScroll::-webkit-scrollbar-thumb,
-.kyra-modern-profile-popup::-webkit-scrollbar-thumb {
-    background: #94A3B8 !important;
-    border-radius: 9999px !important;
-    transition: background 0.2s ease !important;
-}
-
-.kyraUserProfilePopover .sapMPopoverCont::-webkit-scrollbar-thumb:hover,
-.kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar-thumb:hover,
-.kyraUserProfilePopover .sapMScrollCont::-webkit-scrollbar-thumb:hover,
-.kyraUserProfilePopover .sapMScrollContScroll::-webkit-scrollbar-thumb:hover,
-.kyra-modern-profile-popup::-webkit-scrollbar-thumb:hover {
-    background: #008C9C !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .kyraUserProfilePopover .sapMPopoverArr::after {
@@ -6046,15 +6018,16 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 .kyra-modern-profile-popup {
     width: 100% !important;
     max-width: 295px !important;
-    padding: 14px 8px 14px 12px !important;
+    padding: 12px 14px !important;
     box-sizing: border-box !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     color: #0F172A !important;
-    max-height: 430px !important;
-    overflow-y: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
     overflow-x: hidden !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #94A3B8 #F1F5F9 !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
 /* Profile Header */
@@ -6131,19 +6104,19 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 .kyra-menu-separator {
     height: 1px !important;
     background-color: #F1F5F9 !important;
-    margin: 8px 0 !important;
+    margin: 5px 0 !important;
     width: 100% !important;
 }
 
 /* Section Title */
 .kyra-section-title {
-    font-size: 11px !important;
+    font-size: 10.5px !important;
     font-weight: 700 !important;
     color: #64748B !important;
     letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
     margin-bottom: 2px !important;
-    padding: 4px 8px 2px 8px !important;
+    padding: 2px 8px 1px 8px !important;
 }
 
 /* Menu Item: Default Clean State */
@@ -6151,14 +6124,14 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 8px 10px 8px 10px !important;
+    padding: 6.5px 10px 6.5px 10px !important;
     border-radius: 8px !important;
     cursor: pointer !important;
     border-left: 3.5px solid transparent !important;
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     user-select: none !important;
     box-sizing: border-box !important;
-    margin: 2px 4px !important;
+    margin: 1px 4px !important;
     background-color: transparent !important;
 }
 
@@ -47039,11 +47012,8 @@ select option:hover,
 .kyraDeptUsersTable th.kyraTableCheckCol,
 .kyraAdminCleanTable th.kyraTableCheckCol,
 .kyraAdminCleanTable th.kyraDeptCheckCol,
-.kyraDeptUsersTable td.sapMListTblCell:has(.sapMCb),
-.kyraDeptUsersTable td.sapMListTblCell:has(.kyraAdminTableCheckbox),
 .kyraAdminCleanTable td.sapMListTblCell:has(.kyraAdminTableCheckbox),
 .kyraAdminCleanTable td.sapMListTblCell:has(.sapMCb),
-.kyraDeptUsersTable td.kyraTableCheckCell,
 .kyraAdminCleanTable td.kyraTableCheckCell {
     width: 48px !important;
     min-width: 48px !important;
@@ -50873,7 +50843,7 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField input,
 }
 
 /* ==========================================================================
-   CONFLICT REASON TEXTAREA: PIXEL-PERFECT SPACIOUS, CLEAN BORDER & HOVER
+   CONFLICT REASON FIELD: CLEAN SIMPLE STANDARD FORM INPUT (2 LINES, SAME DESIGN)
    ========================================================================== */
 .kyraAdminConflictReasonDownRow,
 .kyraAdminConflictSlideContainer .kyraAdminConflictReasonDownRow {
@@ -50885,110 +50855,218 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField input,
     overflow: visible !important;
 }
 
-.kyraAdminBuilderTextArea,
-.kyraAdminBuilderTextArea.sapMTextArea,
+/* ==========================================================================
+   CONFLICT REASON: SIMPLE TWO-LINE VISIBLE RECTANGULAR BOX (ACTIONS PRESERVED)
+   ========================================================================== */
 .kyraAdminConflictReasonDownRow .sapMTextArea,
-.kyraAdminConflictReasonDownRow .kyraAdminBuilderTextArea,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea,
+.kyraAdminConflictReasonDownRow .kyraAdminConflictReasonTextArea,
+.kyraAdminConflictReasonDownRow .kyraAdminBuilderSimpleInput,
+html body .kyraAdminConflictReasonDownRow .sapMTextArea,
 html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextArea {
+    display: block !important;
+    width: 100% !important;
+    min-height: 58px !important;
+    height: 58px !important;
+    max-height: 58px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 6px !important;
+    padding: 0 !important;
+    margin: 4px 0 0 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    position: relative !important;
+    overflow: hidden !important;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.kyraAdminConflictReasonDownRow .sapMTextArea:hover,
+.kyraAdminConflictReasonDownRow .kyraAdminConflictReasonTextArea:hover,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextArea:hover {
+    border-color: #94A3B8 !important;
+}
+
+.kyraAdminConflictReasonDownRow .sapMTextArea.sapMFocus,
+.kyraAdminConflictReasonDownRow .sapMTextArea:focus-within,
+.kyraAdminConflictReasonDownRow .kyraAdminConflictReasonTextArea:focus-within,
+.kyraAdminConflictReasonDownRow .kyraAdminBuilderSimpleInput:focus-within,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextArea.sapMFocus,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextArea:focus-within {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.15) !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}
+
+.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper,
+.kyraAdminConflictReasonDownRow .sapMTextArea .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper {
     border: none !important;
+    border-bottom: none !important;
     background: transparent !important;
     background-color: transparent !important;
     box-shadow: none !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
-    overflow: visible !important;
-    width: 100% !important;
-    min-height: 72px !important;
-    height: auto !important;
-    max-height: none !important;
-}
-
-.kyraAdminBuilderTextArea .sapMInputBaseContentWrapper,
-.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper {
-    min-height: 72px !important;
-    height: 72px !important;
-    max-height: none !important;
-    width: 100% !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    padding: 0 !important;
     box-sizing: border-box !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease !important;
-    overflow: hidden !important;
+    display: block !important;
     position: relative !important;
 }
 
-.kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::before,
-.kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::after,
 .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper::before,
 .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper::after,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::before,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper::after {
+.kyraAdminConflictReasonDownRow .sapMTextArea::before,
+.kyraAdminConflictReasonDownRow .sapMTextArea::after,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper::before,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper::after {
     display: none !important;
     content: none !important;
     border: none !important;
+    border-bottom: none !important;
 }
 
-.kyraAdminBuilderTextArea:hover .sapMInputBaseContentWrapper,
-.kyraAdminBuilderTextArea.sapMTextArea:hover .sapMInputBaseContentWrapper,
-.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:hover,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea:hover .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:hover {
-    border-color: #008C9C !important;
-    background: #F8FAFC !important;
-    background-color: #F8FAFC !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.1) !important;
-}
-
-.kyraAdminBuilderTextArea.sapMFocus .sapMInputBaseContentWrapper,
-.kyraAdminBuilderTextArea .sapMInputBaseContentWrapper:focus-within,
-.kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:focus-within,
-.kyraAdminConflictReasonDownRow .sapMTextArea.sapMFocus .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea.sapMFocus .sapMInputBaseContentWrapper,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMInputBaseContentWrapper:focus-within,
-html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMInputBaseContentWrapper:focus-within {
-    border-color: #008C9C !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.16) !important;
-    outline: none !important;
-}
-
-.kyraAdminBuilderTextArea .sapMTextAreaInner,
+.kyraAdminConflictReasonDownRow textarea,
 .kyraAdminConflictReasonDownRow .sapMTextAreaInner,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMTextAreaInner,
 html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextAreaInner {
     border: none !important;
+    border-bottom: none !important;
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
     background-color: transparent !important;
-    padding: 10px 14px !important;
+    padding: 8px 12px !important;
+    margin: 0 !important;
     font-size: 13.5px !important;
-    line-height: 1.5 !important;
+    line-height: 20px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    max-height: 56px !important;
     color: #0F172A !important;
-    resize: none !important;
     box-sizing: border-box !important;
     width: 100% !important;
-    height: 100% !important;
-    min-height: 68px !important;
-    max-height: none !important;
     font-family: inherit !important;
+    resize: none !important;
+    display: block !important;
 }
 
-.kyraAdminBuilderTextArea .sapMTextAreaInner::placeholder,
+/* Hide placeholder when user clicks/focuses inside the box so cursor doesn't clash with text */
+.kyraAdminConflictReasonDownRow textarea:focus::placeholder,
+.kyraAdminConflictReasonDownRow .sapMTextAreaInner:focus::placeholder,
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextAreaInner:focus::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+}
+
+/* Clean, crisp placeholder when idle/blurred */
+.kyraAdminConflictReasonDownRow textarea::placeholder,
 .kyraAdminConflictReasonDownRow .sapMTextAreaInner::placeholder,
-html body .sapUiTheme-sap_horizon .kyraAdminBuilderTextArea .sapMTextAreaInner::placeholder {
+html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextAreaInner::placeholder {
     color: #94A3B8 !important;
     font-size: 13.5px !important;
     font-weight: 400 !important;
+    line-height: 20px !important;
     opacity: 1 !important;
+    transition: opacity 0.15s ease !important;
+}
+
+/* Hide any UI5 overlay placeholder element to avoid duplicate or misaligned text */
+.kyraAdminConflictReasonDownRow .sapMInputBasePlaceholder,
+.kyraAdminConflictReasonDownRow .sapMTextAreaPlaceholder,
+.kyraAdminConflictReasonDownRow [id$="-placeholder"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Selected Sector Subtitle displayed down underneath title */
+.kyraAdminSelectedSectorSubtitle {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #008C9C !important;
+    display: inline-block !important;
+    line-height: 1.4 !important;
+}
+
+/* Explicitly remove and hide all search icons and cancel/clear icons */
+.kyraAdminConflictReasonDownRow .sapMSFB,
+.kyraAdminConflictReasonDownRow .sapMSFReset,
+.kyraAdminConflictReasonDownRow .sapMInputBaseIcon,
+.kyraAdminConflictReasonDownRow .sapUiIcon,
+.kyraAdminBuilderSimpleInput .sapMSFB,
+.kyraAdminBuilderSimpleInput .sapMSFReset,
+.kyraAdminBuilderSimpleInput .sapMInputBaseIcon {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ==========================================================================
+   UNIFIED SERVICE & BUSINESS SECTORS CARD (MATCHING SYSTEM PLACE DESIGN)
+   ========================================================================== */
+.kyraAdminUnifiedServiceCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 20px 24px !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+.kyraAdminUnifiedServiceRow {
+    gap: 0 !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+.kyraAdminServiceLeftPanel {
+    padding-right: 20px !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraAdminServiceVerticalDivider {
+    width: 1px !important;
+    min-width: 1px !important;
+    background-color: #E2E8F0 !important;
+    margin: 0 6px !important;
+    align-self: stretch !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraAdminServiceRightPanel {
+    padding-left: 20px !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.kyraAdminFlexibleTitle {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+}
+
+.kyraAdminAccessCustomizationWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
 }
 
 /* Conflict Slide Footer Bar: Cancel & Save Buttons Margin separation */
@@ -52737,10 +52815,20 @@ html body #adminCustomConflictsTable {
 .kyraDeptUsersTable .sapMListTblHeaderCell,
 #deptPersonaUsersTable thead th,
 .kyraDeptUsersTable thead th,
+html body #deptPersonaUsersTable th,
+html body #deptPersonaUsersTable .sapMListTblHeaderCell,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable th,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCell,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable th,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCell,
 #adminSystemsTable th,
 #adminSystemsTable .sapMListTblHeaderCell,
 .kyraAdminSystemsTable th,
-.kyraAdminSystemsTable .sapMListTblHeaderCell {
+.kyraAdminSystemsTable .sapMListTblHeaderCell,
+#adminSystemsTable thead th,
+.kyraAdminSystemsTable thead th,
+html body #adminSystemsTable th,
+html body #adminSystemsTable .sapMListTblHeaderCell {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
     padding: 13px 16px !important;
@@ -52754,6 +52842,7 @@ html body #adminCustomConflictsTable {
     border-inline-end: 1px solid transparent !important;
     border-inline-end-color: transparent !important;
     border-bottom: 1.5px solid #E2E8F0 !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
 }
 
@@ -52776,10 +52865,53 @@ html body #adminCustomConflictsTable {
 .kyraDeptUsersTable th::before,
 .kyraDeptUsersTable th::after,
 .kyraDeptUsersTable .sapMListTblHeaderCell::before,
-.kyraDeptUsersTable .sapMListTblHeaderCell::after {
+.kyraDeptUsersTable .sapMListTblHeaderCell::after,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::before,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::after,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::before,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::after,
+#deptPersonaUsersTable .sapMColumnHeaderContent::before,
+#deptPersonaUsersTable .sapMColumnHeaderContent::after,
+.kyraDeptUsersTable .sapMColumnHeaderContent::before,
+.kyraDeptUsersTable .sapMColumnHeaderContent::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable th::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable th::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCell::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCell::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCellInner::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMListTblHeaderCellInner::after,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMColumnHeaderContent::before,
+html body .sapUiTheme-sap_horizon #deptPersonaUsersTable .sapMColumnHeaderContent::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable th::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable th::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCell::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCell::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCellInner::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMListTblHeaderCellInner::after,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMColumnHeaderContent::before,
+html body .sapUiTheme-sap_horizon .kyraDeptUsersTable .sapMColumnHeaderContent::after,
+#adminSystemsTable th::before,
+#adminSystemsTable th::after,
+#adminSystemsTable .sapMListTblHeaderCell::before,
+#adminSystemsTable .sapMListTblHeaderCell::after,
+.kyraAdminSystemsTable th::before,
+.kyraAdminSystemsTable th::after,
+.kyraAdminSystemsTable .sapMListTblHeaderCell::before,
+.kyraAdminSystemsTable .sapMListTblHeaderCell::after,
+#adminSystemsTable .sapMListTblHeaderCellInner::before,
+#adminSystemsTable .sapMListTblHeaderCellInner::after,
+.kyraAdminSystemsTable .sapMListTblHeaderCellInner::before,
+.kyraAdminSystemsTable .sapMListTblHeaderCellInner::after,
+#adminSystemsTable .sapMColumnHeaderContent::before,
+#adminSystemsTable .sapMColumnHeaderContent::after,
+.kyraAdminSystemsTable .sapMColumnHeaderContent::before,
+.kyraAdminSystemsTable .sapMColumnHeaderContent::after {
     display: none !important;
     content: none !important;
     border: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
 }
 
 #deptPersonaUsersTable th .sapMColumnHeaderContent,
@@ -52926,15 +53058,95 @@ html body #adminCustomConflictsTable {
 }
 
 /* Checkbox Centering in Department Users table */
-#deptPersonaUsersTable td .sapMCb,
-#deptPersonaUsersTable td .kyraAdminTableCheckbox,
-.kyraDeptUsersTable td .sapMCb,
-.kyraDeptUsersTable td .kyraAdminTableCheckbox {
+#deptPersonaUsersTable th:first-child,
+.kyraDeptUsersTable th:first-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+#deptPersonaUsersTable th:first-child .sapMColumnHeaderContent,
+.kyraDeptUsersTable th:first-child .sapMColumnHeaderContent {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#deptPersonaUsersTable th:first-child .kyraAdminColHeader,
+.kyraDeptUsersTable th:first-child .kyraAdminColHeader {
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+#deptPersonaUsersTable td:first-child,
+.kyraDeptUsersTable td:first-child {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 14px 0 !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMFlexBox,
+#deptPersonaUsersTable td:first-child .sapMHBox,
+.kyraDeptUsersTable td:first-child .sapMFlexBox,
+.kyraDeptUsersTable td:first-child .sapMHBox {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMCb,
+#deptPersonaUsersTable td:first-child .kyraAdminTableCheckbox,
+.kyraDeptUsersTable td:first-child .sapMCb,
+.kyraDeptUsersTable td:first-child .kyraAdminTableCheckbox {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
+    padding: 0 !important;
+    width: 22px !important;
+    min-width: 22px !important;
+    max-width: 22px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
     vertical-align: middle !important;
+    position: relative !important;
+    float: none !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMCbBg,
+.kyraDeptUsersTable td:first-child .sapMCbBg {
+    position: static !important;
+    margin: 0 auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    box-sizing: border-box !important;
+}
+
+#deptPersonaUsersTable td:first-child .sapMCbLabel,
+.kyraDeptUsersTable td:first-child .sapMCbLabel {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
 }
 
 /* Persona Badge Centering in Department Users table */
@@ -53038,6 +53250,14 @@ html body #adminCustomConflictsTable {
 /* =========================================================================
    ADMIN SYSTEMS TABLE: HEADER DIVIDERS INVISIBLE (Alignment 100% Preserved)
    ========================================================================= */
+#deptPersonaUsersTable th,
+#deptPersonaUsersTable .sapMListTblHeaderCell,
+.kyraDeptUsersTable th,
+.kyraDeptUsersTable .sapMListTblHeaderCell,
+#deptPersonaUsersTable thead th,
+.kyraDeptUsersTable thead th,
+html body #deptPersonaUsersTable th,
+html body #deptPersonaUsersTable .sapMListTblHeaderCell,
 #adminSystemsTable th,
 #adminSystemsTable .sapMListTblHeaderCell,
 .kyraAdminSystemsTable th,
@@ -53056,6 +53276,10 @@ html body #adminSystemsTable .sapMListTblHeaderCell {
     border-bottom: 1.5px solid #E2E8F0 !important;
 }
 
+#deptPersonaUsersTable th:last-child,
+#deptPersonaUsersTable .sapMListTblHeaderCell:last-child,
+.kyraDeptUsersTable th:last-child,
+.kyraDeptUsersTable .sapMListTblHeaderCell:last-child,
 #adminSystemsTable th:last-child,
 #adminSystemsTable .sapMListTblHeaderCell:last-child,
 .kyraAdminSystemsTable th:last-child,
@@ -53064,6 +53288,22 @@ html body #adminSystemsTable .sapMListTblHeaderCell {
     border-inline-end: none !important;
 }
 
+#deptPersonaUsersTable th::before,
+#deptPersonaUsersTable th::after,
+#deptPersonaUsersTable .sapMListTblHeaderCell::before,
+#deptPersonaUsersTable .sapMListTblHeaderCell::after,
+.kyraDeptUsersTable th::before,
+.kyraDeptUsersTable th::after,
+.kyraDeptUsersTable .sapMListTblHeaderCell::before,
+.kyraDeptUsersTable .sapMListTblHeaderCell::after,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::before,
+#deptPersonaUsersTable .sapMListTblHeaderCellInner::after,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::before,
+.kyraDeptUsersTable .sapMListTblHeaderCellInner::after,
+#deptPersonaUsersTable .sapMColumnHeaderContent::before,
+#deptPersonaUsersTable .sapMColumnHeaderContent::after,
+.kyraDeptUsersTable .sapMColumnHeaderContent::before,
+.kyraDeptUsersTable .sapMColumnHeaderContent::after,
 #adminSystemsTable th::before,
 #adminSystemsTable th::after,
 #adminSystemsTable .sapMListTblHeaderCell::before,
@@ -53087,3 +53327,12 @@ html body #adminSystemsTable .sapMListTblHeaderCell {
     height: 0 !important;
     opacity: 0 !important;
 }
+
+/* Suppress black UI5 MessageToast popups so feedback displays inside unified KyraLoader slide */
+.sapMMessageToast {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+

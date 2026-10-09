@@ -466,17 +466,13 @@ sap.ui.define([
                     }
                 };
 
-                // Display success within the exact same loading screen card, then smoothly navigate
-                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
-                    window.KyraLoader.showSuccess({
-                        title: "Login Successful",
-                        subtitle: "Welcome back, " + sCanonicalUser,
-                        duration: 1600,
-                        onComplete: fnNavigateToAccessPage
-                    });
-                } else {
-                    fnNavigateToAccessPage();
+                // Dismiss loader immediately and navigate directly without showing intermediate success popup card
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
                 }
+                fnNavigateToAccessPage();
             };
 
             const handleLoginError = (oError) => {
