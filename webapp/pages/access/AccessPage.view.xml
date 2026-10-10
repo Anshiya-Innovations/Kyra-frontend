@@ -3638,64 +3638,53 @@
                                         fixedLayout="true">
                                         <columns>
                                             <!-- 1. REQUEST ID (14%) -->
-                                            <Column width="14%" hAlign="Begin">
-                                                <HBox alignItems="Center" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://document" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="REQUEST ID" wrapping="false" class="kyraSummaryColHeader" />
-                                                </HBox>
+                                            <Column width="14%" hAlign="Center">
+                                                <Text text="REQUEST ID" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 2. TOPIC (12%) -->
-                                            <Column width="12%" hAlign="Begin">
-                                                <HBox alignItems="Center" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://comment" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="TOPIC" wrapping="false" class="kyraSummaryColHeader" />
-                                                </HBox>
+                                            <!-- 2. SERVICES (14%) -->
+                                            <Column width="14%" hAlign="Center">
+                                                <Text text="SERVICES" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 3. ROLE TITLE (16%) -->
-                                            <Column width="16%" hAlign="Begin">
-                                                <HBox alignItems="Center" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://shield" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="ROLE TITLE" wrapping="false" class="kyraSummaryColHeader" />
-                                                </HBox>
+                                            <!-- 3. ROLE TITLE (15%) -->
+                                            <Column width="15%" hAlign="Center">
+                                                <Text text="ROLE TITLE" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
                                             <!-- 4. ASSIGNED PERSONA (18%) -->
-                                            <Column width="18%" hAlign="Begin">
-                                                <HBox alignItems="Center" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://customer" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="ASSIGNED PERSONA" wrapping="false" class="kyraSummaryColHeader" />
-                                                </HBox>
+                                            <Column width="18%" hAlign="Center">
+                                                <Text text="ASSIGNED PERSONA" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 5. DURATION (15%) -->
-                                            <Column width="15%" hAlign="Begin">
-                                                <HBox alignItems="Center" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://calendar" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="DURATION" wrapping="false" class="kyraSummaryColHeader" />
-                                                </HBox>
+                                            <!-- 5. DURATION (14%) -->
+                                            <Column width="14%" hAlign="Center">
+                                                <Text text="DURATION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
                                             <!-- 6. STATUS (15%) -->
-                                            <Column width="15%" hAlign="Begin">
-                                                <HBox alignItems="Center" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://message-information" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="STATUS" wrapping="false" class="kyraSummaryColHeader" />
-                                                </HBox>
+                                            <Column width="15%" hAlign="Center">
+                                                <Text text="STATUS" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
                                             <!-- 7. ACTION (10%) -->
                                             <Column width="10%" hAlign="Center">
-                                                <HBox alignItems="Center" justifyContent="Center" width="100%" wrap="NoWrap">
-                                                    <core:Icon src="sap-icon://action-settings" class="kyraSummaryColHeaderIcon sapUiTinyMarginEnd" />
-                                                    <Text text="ACTION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
-                                                </HBox>
+                                                <Text text="ACTION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
                                         </columns>
                                         <items>
-                                            <ColumnListItem vAlign="Middle" class="kyraTableRow">
+                                             <ColumnListItem vAlign="Middle" class="kyraTableRow">
                                                 <cells>
-                                                    <Text text="{accessModel>requestId}" class="kyraSummaryReqIdText kyraCellText" wrapping="false" />
-                                                    <Text text="{accessModel>topic}" class="kyraSummaryTopicText kyraCellText" wrapping="false" />
-                                                    <Text text="{accessModel>roleTitle}" class="kyraSummaryRoleTitleText kyraCellText" wrapping="false" />
-                                                    <Text text="{accessModel>persona}" class="kyraSummaryPersonaText kyraCellText" wrapping="false" />
-                                                    <Text text="{accessModel>duration}" class="kyraSummaryDurationText kyraCellText" wrapping="false" />
-                                                    <HBox alignItems="Center" width="100%" wrap="NoWrap">
+                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                                        <Text text="{accessModel>requestId}" class="kyraSummaryReqIdText kyraCellText kyraCellTextCenter" wrapping="false" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                                        <Text text="{accessModel>topic}" class="kyraSummaryTopicText kyraCellText kyraCellTextCenter" wrapping="false" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                                        <Text text="{accessModel>roleTitle}" class="kyraSummaryRoleTitleText kyraCellText kyraCellTextCenter" wrapping="false" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                                        <Text text="{accessModel>persona}" class="kyraSummaryPersonaText kyraCellText kyraCellTextCenter" wrapping="false" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                                        <Text text="{accessModel>duration}" class="kyraSummaryDurationText kyraCellText kyraCellTextCenter" wrapping="false" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" alignItems="Center" width="100%" wrap="NoWrap">
                                                         <ObjectStatus
                                                             text="{accessModel>existingStatus}"
                                                             state="{accessModel>existingState}"

@@ -26284,6 +26284,8 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
 .kyraSummaryColHeader {
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
     gap: 6px !important;
     font-size: 11px !important;
     font-weight: 800 !important;
@@ -26300,12 +26302,14 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sa
     justify-content: center !important;
 }
 
-.kyraSummaryTable th:last-child .kyraSummaryColHeader,
-.kyraSummaryTable th:last-child .sapMFlexBox,
-.kyraSummaryTable th:last-child,
-.kyraSummaryTable td:last-child {
+.kyraSummaryTable th,
+.kyraSummaryTable th .kyraSummaryColHeader,
+.kyraSummaryTable th .sapMFlexBox,
+.kyraSummaryTable td,
+.kyraSummaryTable td .sapMFlexBox {
     text-align: center !important;
     justify-content: center !important;
+    align-items: center !important;
 }
 
 .kyraSummaryJustificationBox {
@@ -30109,20 +30113,47 @@ td.sapMListNoDataCell {
     overflow: hidden !important;
 }
 
+.kyraSummaryTable {
+    border-collapse: collapse !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background: #FFFFFF !important;
+    width: 100% !important;
+}
+
+.kyraSummaryTable .sapMListTblHeader {
+    background: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.kyraSummaryTable th,
+.kyraSummaryTable .sapMListTblHeaderCell {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: 1px solid #E2E8F0 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    background: #F8FAFC !important;
+    padding: 12px 10px !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
 .kyraSummaryTable th:last-child,
 .kyraSummaryTable .sapMListTblHeaderCell:last-child {
     border-right: none !important;
 }
 
-.kyraSummaryTable th:not(:last-child),
-.kyraSummaryTable .sapMListTblHeaderCell:not(:last-child),
-.kyraSummaryTable th:not(:last-child) .sapMText,
-.kyraSummaryTable th:not(:last-child) .sapMColumnHeader,
-.kyraSummaryTable th:not(:last-child) .sapMColumnHeaderContent,
-.kyraSummaryTable th:not(:last-child) .sapMFlexBox,
-.kyraSummaryTable th:not(:last-child) .kyraSummaryColHeader {
-    text-align: left !important;
-    justify-content: flex-start !important;
+.kyraSummaryTable th,
+.kyraSummaryTable .sapMListTblHeaderCell,
+.kyraSummaryTable th .sapMText,
+.kyraSummaryTable th .sapMColumnHeader,
+.kyraSummaryTable th .sapMColumnHeaderContent,
+.kyraSummaryTable th .sapMFlexBox,
+.kyraSummaryTable th .kyraSummaryColHeader {
+    text-align: center !important;
+    justify-content: center !important;
     align-items: center !important;
 }
 
@@ -30131,24 +30162,41 @@ td.sapMListNoDataCell {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     font-weight: 700 !important;
     font-size: 11.5px !important;
-    letter-spacing: 0.03em !important;
+    letter-spacing: 0.04em !important;
     color: #0F172A !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;
+    margin: 0 auto !important;
+    display: inline-block !important;
+}
+
+.kyraSummaryTable tr.sapMLIB,
+.kyraSummaryTable .sapMListTblRow {
+    border-bottom: 1px solid #E2E8F0 !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    background-color: #FFFFFF !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraSummaryTable tr.sapMLIB:hover,
+.kyraSummaryTable .sapMListTblRow:hover {
+    background-color: #F8FAFC !important;
 }
 
 .kyraSummaryTable td,
 .kyraSummaryTable tbody .sapMListTblCell {
-    height: 52px !important;
-    min-height: 52px !important;
-    padding: 10px 14px !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    padding: 10px 12px !important;
     vertical-align: middle !important;
     border-top: none !important;
     border-left: none !important;
-    border-right: none !important;
+    border-right: 1px solid #E2E8F0 !important;
     border-bottom: 1px solid #E2E8F0 !important;
     box-sizing: border-box !important;
     background-color: #FFFFFF !important;
+    text-align: center !important;
 }
 
 .kyraSummaryTable td:last-child,
@@ -30156,12 +30204,13 @@ td.sapMListNoDataCell {
     border-right: none !important;
 }
 
-.kyraSummaryTable td:not(:last-child),
-.kyraSummaryTable tbody .sapMListTblCell:not(:last-child),
-.kyraSummaryTable td:not(:last-child) .sapMFlexBox {
-    text-align: left !important;
-    justify-content: flex-start !important;
+.kyraSummaryTable td,
+.kyraSummaryTable tbody .sapMListTblCell,
+.kyraSummaryTable td .sapMFlexBox {
+    text-align: center !important;
+    justify-content: center !important;
     align-items: center !important;
+    margin: 0 auto !important;
 }
 
 .kyraSummaryTable th:last-child,
@@ -30174,15 +30223,21 @@ td.sapMListNoDataCell {
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus,
 .kyraSummaryStatusText {
-    margin: 0 !important;
-    align-self: flex-start !important;
+    margin: 0 auto !important;
+    align-self: center !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
 }
 
 .kyraSummaryTable .kyraCellText {
     font-size: 13px !important;
     color: #0F172A !important;
-    line-height: 1.35 !important;
-    text-align: left !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 100% !important;
 }
 
 /* 7. Last Row Bottom Border Reset */
@@ -30193,9 +30248,7 @@ td.sapMListNoDataCell {
 .kyraApproverTable tbody tr:last-child td,
 .kyraApproverTable .sapMListTblRow:last-child .sapMListTblCell,
 .kyraActiveEntitlementsTable tbody tr:last-child td,
-.kyraActiveEntitlementsTable .sapMListTblRow:last-child .sapMListTblCell,
-.kyraSummaryTable tbody tr:last-child td,
-.kyraSummaryTable .sapMListTblRow:last-child .sapMListTblCell {
+.kyraActiveEntitlementsTable .sapMListTblRow:last-child .sapMListTblCell {
     border-bottom: none !important;
 }
 
