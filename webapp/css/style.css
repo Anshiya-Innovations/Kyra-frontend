@@ -39,7 +39,12 @@ body::-webkit-scrollbar {
 }
 
 /* ONLY THE ACTIVE FIORI PAGE CONTAINER SCROLLS (SINGLE SLEEK SIDE SCROLLBAR) */
-.sapMPage, 
+.sapMPage {
+    width: 100%;
+    height: 100%;
+    overflow: hidden !important;
+}
+
 .sapMPageScroll, 
 .sapMPageBg {
     width: 100%;
@@ -155,9 +160,9 @@ body::-webkit-scrollbar {
 /* Prominent ShellBar Header Overrides - Light Theme */
 .sapFShellBar,
 .fioriMainShellBar {
-    position: relative !important;
-    top: auto !important;
-    z-index: 10 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important;
     border-bottom: 1px solid #E2E8F0 !important;
@@ -168,10 +173,24 @@ body::-webkit-scrollbar {
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.sapFShellBar .sapFShellBarNavArea,
+.sapFShellBarNavArea {
+    display: inline-flex !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-shrink: 0 !important;
 }
 
 .sapFShellBarTitle,
+.sapFShellBar .sapFShellBarTitle,
 .fioriMainShellBar .sapFShellBarTitle {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     color: #034988 !important;
     font-weight: 800 !important;
     font-size: 1.25rem !important;
@@ -180,12 +199,47 @@ body::-webkit-scrollbar {
 }
 
 .sapFShellBarSubtitle,
+.sapFShellBar .sapFShellBarSubtitle,
 .fioriMainShellBar .sapFShellBarSubtitle {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     color: #475569 !important;
     font-size: 0.92rem !important;
     font-weight: 500 !important;
     margin-left: 10px !important;
     line-height: normal !important;
+}
+
+.sapFShellBar .sapFShellBarRightArea,
+.sapFShellBarRightArea {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    margin-left: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: 100% !important;
+    flex-shrink: 0 !important;
+}
+
+.sapFShellBar .sapFShellBarAdditionalContent,
+.sapFShellBarAdditionalContent {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: 100% !important;
+}
+
+.sapFShellBarProfile,
+.sapFShellBar .sapFShellBarProfile {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* Prominent Header Action Buttons (Bell, Sign Out, Profile Avatar) - Unified styles defined below in Section */
@@ -12656,20 +12710,21 @@ textarea.sapMInputBaseInner,
     height: 0 !important;
 }
 
-/* Single unified vertical scrollbar - max-height 236px to show exactly 5 items cleanly in front */
+/* Popover outer container: clean wrapper, NEVER scrollable */
 .kyraDropdownBottomOnly .sapMPopoverCont,
 .sapMComboBoxBasePicker .sapMPopoverCont,
 .sapMComboBoxPicker .sapMPopoverCont,
 .sapMMultiComboBoxPicker .sapMPopoverCont,
 .sapMSltPicker .sapMPopoverCont {
+    overflow: hidden !important;
     overflow-x: hidden !important;
-    overflow-y: auto !important;
-    max-height: 236px !important;
+    overflow-y: hidden !important;
+    max-height: none !important;
+    height: auto !important;
     box-sizing: border-box !important;
     border-radius: 9px !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #007684 #F0FDFA !important;
-    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
 .kyraDropdownBottomOnly .sapMPopoverScroll,
@@ -19575,22 +19630,33 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
     height: 0 !important;
 }
 
-/* SINGLE DEFINITIVE SCROLLER: .sapMPopoverScroll & .sapMPopoverCont */
-.sapMPopoverScroll,
+/* SINGLE DEFINITIVE SCROLLER: .sapMPopoverScroll ONLY (outer wrapper .sapMPopoverCont never scrolls) */
 .sapMPopoverCont,
-.sapMMultiComboBoxPicker .sapMPopoverScroll,
 .sapMMultiComboBoxPicker .sapMPopoverCont,
-.sapMComboBoxBasePicker .sapMPopoverScroll,
 .sapMComboBoxBasePicker .sapMPopoverCont,
-.sapMComboBoxPicker .sapMPopoverScroll,
 .sapMComboBoxPicker .sapMPopoverCont,
-.sapMSltPicker .sapMPopoverScroll,
 .sapMSltPicker .sapMPopoverCont,
-.kyraDropdownBottomOnly .sapMPopoverScroll,
 .kyraDropdownBottomOnly .sapMPopoverCont,
-html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll,
 html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
-    max-height: 320px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.sapMPopoverScroll,
+.sapMMultiComboBoxPicker .sapMPopoverScroll,
+.sapMComboBoxBasePicker .sapMPopoverScroll,
+.sapMComboBoxPicker .sapMPopoverScroll,
+.sapMSltPicker .sapMPopoverScroll,
+.kyraDropdownBottomOnly .sapMPopoverScroll,
+html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverScroll {
+    max-height: 236px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     padding: 4px 2px 6px 0 !important;
@@ -19607,7 +19673,7 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker .sapMPopoverCont {
 .sapMSelectList,
 .sapMSltPicker .sapMSelectList,
 .sapMSelectPicker .sapMSelectList {
-    padding: 4px 0 6px 0 !important;
+    padding: 6px 0 8px 0 !important;
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
