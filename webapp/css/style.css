@@ -5559,28 +5559,30 @@ html body .sapUiTheme-sap_horizon .kyraNavPillBtn:not(.sapMBtnInverted):not(.sap
     font-weight: 500 !important;
 }
 
-/* Inactive Hover: subtle soft slate highlight */
+/* Inactive Hover: subtle soft highlight with crisp tiny teal border */
 html body .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover .sapMBtnInner,
 html body .kyraNavPillBtn.sapMBtnTransparent:not(.sapMBtnInverted):hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover .sapMBtnInner,
 html body .kyraSectionToggleBar .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover .sapMBtnInner {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
-    border-color: #94A3B8 !important;
-    box-shadow: 0 2px 5px rgba(15, 23, 42, 0.08) !important;
-    color: #0F172A !important;
+    border: 1.5px solid #008C9C !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.2) !important;
+    color: #008C9C !important;
+    transform: none !important;
 }
 
 html body .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover .sapMBtnIcon,
 html body .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover .sapUiIcon,
 html body .kyraNavPillBtn.sapMBtnTransparent:not(.sapMBtnInverted):hover .sapMBtnIcon {
-    color: #0F172A !important;
+    color: #008C9C !important;
 }
 
 html body .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover .sapMBtnText,
 html body .kyraNavPillBtn:not(.sapMBtnInverted):not(.sapMBtnEmphasized):hover bdi,
 html body .kyraNavPillBtn.sapMBtnTransparent:not(.sapMBtnInverted):hover .sapMBtnText {
-    color: #0F172A !important;
+    color: #008C9C !important;
 }
 
 /* â”€â”€ 2. ACTIVE / SELECTED STATE (Solid Kyra Teal #008C9C, pure white text & icon) â”€â”€ */
@@ -5639,7 +5641,7 @@ html body .sapUiTheme-sap_horizon .kyraNavPillBtn.sapMBtnEmphasized bdi {
     font-weight: 600 !important;
 }
 
-/* Active Hover: slightly deeper teal */
+/* Active Hover: matches View All button hover action (#007684 bg, tiny #01C3D0 cyan border & cyan shadow glow) */
 html body .kyraNavPillBtn.sapMBtnInverted:hover .sapMBtnInner,
 html body .kyraNavPillBtn.sapMBtnEmphasized:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNavPillBtn.sapMBtnInverted:hover .sapMBtnInner,
@@ -5648,9 +5650,11 @@ html body .kyraSectionToggleBar .kyraNavPillBtn.sapMBtnInverted:hover .sapMBtnIn
 html body .kyraSectionToggleBar .kyraNavPillBtn.sapMBtnEmphasized:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border-color: #007684 !important;
-    box-shadow: 0 4px 10px rgba(0, 140, 156, 0.4) !important;
+    border: 1.5px solid #01C3D0 !important;
+    border-color: #01C3D0 !important;
+    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
     color: #FFFFFF !important;
+    transform: none !important;
 }
 
 html body .kyraNavPillBtn.sapMBtnInverted:hover .sapMBtnIcon,
