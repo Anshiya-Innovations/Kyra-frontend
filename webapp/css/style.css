@@ -140,21 +140,29 @@ body::-webkit-scrollbar {
 
 /* Keyframe Animations for Smooth Transitions */
 @keyframes slideDownFade {
-    0% { opacity: 0; transform: translateY(-16px); }
+    0% { opacity: 0; transform: translateY(-4px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUpFade {
-    0% { opacity: 0; transform: translateY(16px); }
+    0% { opacity: 0; transform: translateY(4px); }
     100% { opacity: 1; transform: translateY(0); }
 }
 
 .fioriSlideDownAnim {
-    animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    animation: slideDownFade 0.22s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: translateZ(0);
+    will-change: opacity, transform;
 }
 
 .fioriSlideUpAnim {
-    animation: slideUpFade 0.4s ease-out !important;
+    animation: slideUpFade 0.22s ease-out both !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: translateZ(0);
+    will-change: opacity, transform;
 }
 
 /* Prominent ShellBar Header Overrides - Light Theme */
@@ -9318,12 +9326,37 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 /* =========================================================================
    COMPACT & PROFESSIONAL USER REQUESTS TABLE & TOOLBAR
    ========================================================================= */
-.kyraApproverCard {
+.kyraApproverCard,
+#kyraApproverCardRoot {
     background: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 10px !important;
     padding: 14px 18px !important;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    min-height: 380px !important;
+}
+
+/* Smooth, flicker-free fade for Approver Pending & History slides */
+@keyframes kyraApproverFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kyraApproverFadeAnim,
+#kyraApproverPendingContainer,
+#approvalHistoryTable {
+    animation: kyraApproverFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    transform: translateZ(0);
+    will-change: opacity, transform;
+    min-height: 280px !important;
 }
 
 .kyraApproverTopToolbar {

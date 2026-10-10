@@ -90,7 +90,10 @@
             </HBox>
 
             <!-- CLASSIFICATIONS CONTENT -->
-            <VBox visible="{= !${accessModel>/showApprovalHistory} }" class="sapUiNoMargin">
+            <VBox
+                id="kyraApproverPendingContainer"
+                visible="{= !${accessModel>/showApprovalHistory} }"
+                class="sapUiNoMargin kyraApproverFadeAnim">
 
                 <!-- CLASSIFICATION 1: ACCESS REQUESTS -->
                 <Table
@@ -209,7 +212,7 @@
                 growingThreshold="100"
                 growingScrollToLoad="true"
                 popinLayout="GridSmall"
-                class="sapUiNoMargin kyraApproverTable">
+                class="sapUiNoMargin kyraApproverTable kyraApproverFadeAnim">
                 <noData>
                     <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
                         <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">

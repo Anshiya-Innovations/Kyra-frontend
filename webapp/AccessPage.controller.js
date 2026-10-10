@@ -8846,7 +8846,7 @@ sap.ui.define([
                     
                     setTimeout(() => {
                         this._smoothScrollTo("pendingSectionContainer", 64);
-                    }, 50);
+                    }, 240);
                 }
             });
         },
