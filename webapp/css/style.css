@@ -1010,7 +1010,7 @@ html body .sapUiTheme-sap_horizon .fioriDescriptionText.sapMText {
 .kyraEntitlementsSearchGroup {
     display: flex !important;
     align-items: center !important;
-    gap: 20px !important;
+    gap: 12px !important;
 }
 
 .kyraEntitlementsSearchField,
@@ -7915,22 +7915,23 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border: 1.5px solid #007684 !important;
-    border-color: #007684 !important;
+    border: 1px solid #01C3D0 !important;
+    border-color: #01C3D0 !important;
     outline: none !important;
-    box-shadow: 0 2px 4px rgba(0, 140, 156, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
     transform: none !important;
 }
 
 .kyraViewAllBtn:active .sapMBtnInner,
 .kyraViewAllBtn.sapMBtn:active .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn:active .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
+    background: #00606e !important;
+    background-color: #00606e !important;
+    border: 1px solid #008C9C !important;
+    border-color: #008C9C !important;
     outline: none !important;
-    transform: translateY(0) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .kyraViewAllBtn:focus,
@@ -18638,7 +18639,6 @@ html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:hover .sapMBtnInner {
 }
 
 /* Primary Button Active State */
-.kyraViewAllBtn:active .sapMBtnInner,
 .kyraPrimaryBtn:active .sapMBtnInner,
 .fioriEmphasizedBtn:active .sapMBtnInner,
 .sapMBtnEmphasized:active .sapMBtnInner {
@@ -49027,9 +49027,10 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border-color: #007684 !important;
+    border: 1px solid #01C3D0 !important;
+    border-color: #01C3D0 !important;
     color: #FFFFFF !important;
-    box-shadow: 0 2px 4px rgba(0, 140, 156, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
     transform: none !important;
 }
 
@@ -49037,8 +49038,9 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraViewAllBtn.sapMBtn:active .sapMBtnInner {
     background: #00606e !important;
     background-color: #00606e !important;
+    border: 1px solid #008C9C !important;
     border-color: #008C9C !important;
-    transform: translateY(0) !important;
+    transform: none !important;
     box-shadow: none !important;
 }
 
@@ -49442,9 +49444,6 @@ html body .sapUiTheme-sap_horizon .kyraExportModernDialog .sapMDialogScrollCont 
 /* Hover: #007684, border-color #01C3D0, cyan shadow 0 4px 14px rgba(0,195,208,0.45) */
 /* Active: #00606e, border-color #008C9C, translateY(0)                      */
 /* ========================================================================== */
-.kyraViewAllBtn,
-.kyraViewAllBtn.sapMBtn,
-html body .sapMBtn.kyraViewAllBtn,
 .kyraAdminSaveBtn,
 .kyraAdminSaveBtn.sapMBtn,
 html body .sapMBtn.kyraAdminSaveBtn,
@@ -49467,11 +49466,6 @@ html body .sapMBtn.kyraAdminConflictSaveBtn,
     box-shadow: none !important;
 }
 
-.kyraViewAllBtn .sapMBtnInner,
-.kyraViewAllBtn.sapMBtn .sapMBtnInner,
-html body .sapMBtn.kyraViewAllBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInner,
 .kyraAdminSaveBtn .sapMBtnInner,
 .kyraAdminSaveBtn.sapMBtn .sapMBtnInner,
 html body .sapMBtn.kyraAdminSaveBtn .sapMBtnInner,
@@ -49512,11 +49506,6 @@ html body .sapUiTheme-sap_horizon .kyraAdminConflictSaveBtn .sapMBtnInner,
     outline: none !important;
 }
 
-.kyraViewAllBtn:hover .sapMBtnInner,
-.kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
-html body .sapMBtn.kyraViewAllBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
 .kyraAdminSaveBtn:hover .sapMBtnInner,
 .kyraAdminSaveBtn.sapMBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraAdminSaveBtn:hover .sapMBtnInner,
@@ -49541,9 +49530,6 @@ html body .sapUiTheme-sap_horizon .kyraAdminConflictSaveBtn:hover .sapMBtnInner,
     transform: translateY(-1px) !important;
 }
 
-.kyraViewAllBtn:active .sapMBtnInner,
-.kyraViewAllBtn.sapMBtn:active .sapMBtnInner,
-html body .sapMBtn.kyraViewAllBtn:active .sapMBtnInner,
 .kyraAdminSaveBtn:active .sapMBtnInner,
 .kyraAdminSaveBtn.sapMBtn:active .sapMBtnInner,
 html body .sapMBtn.kyraAdminSaveBtn:active .sapMBtnInner,
@@ -53603,23 +53589,177 @@ html body .sapUiTheme-sap_horizon .sapMSF:hover .sapMSFR,
 
 
 
-/* Better gap between search bar and View All button, and isolate hover */
-.kyraEntitlementsSearchGroup {
-    display: flex !important;
+/* ==========================================================================
+   ENTITLEMENTS TOOLBAR: FIXED 12px GAP, ZERO LAYOUT SHIFT & ISOLATED HOVER
+   ========================================================================== */
+.kyraEntitlementsSearchGroup,
+.sapMFlexBox.kyraEntitlementsSearchGroup,
+html body .kyraEntitlementsSearchGroup,
+html body .sapUiTheme-sap_horizon .kyraEntitlementsSearchGroup {
+    display: inline-flex !important;
+    flex-direction: row !important;
     align-items: center !important;
-    gap: 20px !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.kyraEntitlementsSearchGroup .kyraViewAllBtn,
-.kyraViewAllBtn {
-    margin-left: 0 !important;
+.kyraEntitlementsSearchGroup > .sapMFlexItem {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+/* Search Field locked in position with no movement */
+.kyraEntitlementsSearchGroup .kyraEntitlementsSearchField,
+.kyraEntitlementsSearchGroup .kyraEntitlementsSearchField.sapMSF,
+html body .kyraEntitlementsSearchGroup .kyraEntitlementsSearchField {
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+}
+
+/* View All Button container locked in position */
+.kyraViewAllBtn,
+.kyraViewAllBtn.sapMBtn,
+html body .sapMBtn.kyraViewAllBtn,
+html body .kyraEntitlementsSearchGroup .kyraViewAllBtn,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+}
+
+/* View All Button Inner: Normal State */
+.kyraViewAllBtn .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn .sapMBtnInner,
+html body .sapMBtn.kyraViewAllBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized .sapMBtnInner,
+html body .kyraEntitlementsSearchGroup .kyraViewAllBtn .sapMBtnInner {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    line-height: 36px !important;
+    padding: 0 20px !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #008C9C !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    font-family: inherit !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    outline: none !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+/* View All Button: Hover State (NO JUMP / NO TRANSLATE, HOVER EFFECT CONFINED TO BUTTON ONLY) */
+.kyraViewAllBtn:hover,
+.kyraViewAllBtn.sapMBtn:hover,
+html body .sapMBtn.kyraViewAllBtn:hover,
+html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover {
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    top: 0 !important;
+    left: 0 !important;
 }
 
 .kyraViewAllBtn:hover .sapMBtnInner,
 .kyraViewAllBtn.sapMBtn:hover .sapMBtnInner,
+.kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .sapMBtn.kyraViewAllBtn:hover .sapMBtnInner,
+html body .sapMBtn.kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .kyraViewAllBtn:hover .sapMBtnInner,
+html body .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:hover .sapMBtnInner,
+html body .kyraEntitlementsSearchGroup .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .kyraEntitlementsSearchGroup .sapMBtn.kyraViewAllBtn:hover .sapMBtnInner,
+html body .kyraEntitlementsSearchGroup .sapMBtn.kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraViewAllBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMBtn.kyraViewAllBtn.sapMBtnEmphasized:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 1px solid #01C3D0 !important;
+    border-color: #01C3D0 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
     transform: none !important;
-    box-shadow: 0 2px 4px rgba(0, 140, 156, 0.2) !important;
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    padding: 0 20px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+}
+
+/* View All Button: Active State */
+.kyraViewAllBtn:active,
+.kyraViewAllBtn.sapMBtn:active {
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+.kyraViewAllBtn:active .sapMBtnInner,
+.kyraViewAllBtn.sapMBtn:active .sapMBtnInner,
+html body .sapMBtn.kyraViewAllBtn:active .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn:active .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:active .sapMBtnInner,
+html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
+    background: #00606e !important;
+    background-color: #00606e !important;
+    border: 1px solid #008C9C !important;
+    border-color: #008C9C !important;
+    color: #FFFFFF !important;
+    box-shadow: none !important;
+    transform: none !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    padding: 0 20px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
 }
 
