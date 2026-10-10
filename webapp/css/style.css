@@ -20896,9 +20896,13 @@ td.sapMListNoDataCell,
 }
 
 .map-pin-container.active .pin-label::before {
-    content: "âœ“ " !important;
+    content: "\2713" !important;
+    display: inline-block !important;
+    margin-right: 5px !important;
     font-weight: 900 !important;
+    font-size: 11px !important;
     color: #FFFFFF !important;
+    line-height: 1 !important;
 }
 
 /* -------------------------------------------------------------------------
