@@ -32528,36 +32528,34 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     transition: color 0.15s ease !important;
 }
 
-/* Reset / Clear Button (Cancel 'âœ•') */
-.kyraAdminSearchField .sapMSFR {
-    display: none !important;
-    color: #94A3B8 !important;
-}
-
-.kyraAdminSearchField .sapMSFR:hover {
-    color: #E11D48 !important;
-    background-color: #FFE4E6 !important;
-}
-
-.kyraAdminSearchField .sapMSFR .sapUiIcon,
-.kyraAdminSearchField .sapMSFR .sapMSFSI,
-.kyraAdminSearchField .sapMSFR::after {
-    color: inherit !important;
-    font-size: 13px !important;
-    line-height: 1 !important;
-    border: none !important;
-    outline: none !important;
-}
-
-/* Seamless icon switching: Zero icon overlapping when user types */
-.kyraAdminSearchField.sapMSFVal .sapMSFS,
-.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFS {
-    display: none !important;
-}
-
+/* Reset / Clear Button (X): Permanently removed */
+.kyraAdminSearchField .sapMSFR,
+.kyraAdminSearchField .sapMSFReset,
 .kyraAdminSearchField.sapMSFVal .sapMSFR,
-.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFR {
+.kyraAdminSearchField.sapMSFVal .sapMSFReset,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFR,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFReset {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+/* Search (Magnifier) icon permanently visible on the right */
+.kyraAdminSearchField .sapMSFB,
+.kyraAdminSearchField .sapMSFS,
+.kyraAdminSearchField.sapMSFVal .sapMSFB,
+.kyraAdminSearchField.sapMSFVal .sapMSFS,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFB,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFS {
     display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    order: 99 !important;
 }
 
 /* 3. Primary Action Buttons (Add System, Add Service, Add Conflict, Enter, Save) - KYRA Brand Teal */
@@ -50702,19 +50700,32 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField .sapMInputBaseInner,
     opacity: 1 !important;
 }
 
-/* Search Magnifier Button */
+/* Search Magnifier Button: ALWAYS visible on far right, never hidden on typing or hover-out */
 .kyraEntitlementsSearchField .sapMSFB,
-.kyraAdminSearchField .sapMSFB {
+.kyraAdminSearchField .sapMSFB,
+.kyraEntitlementsSearchField.sapMSFVal .sapMSFB,
+.kyraAdminSearchField.sapMSFVal .sapMSFB,
+.kyraEntitlementsSearchField:not(:hover) .sapMSFB,
+.kyraAdminSearchField:not(:hover) .sapMSFB,
+.kyraEntitlementsSearchField:has(input:not(:placeholder-shown)) .sapMSFB,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFB {
     position: static !important;
     transform: none !important;
     top: auto !important;
     right: auto !important;
-    flex: 0 0 auto !important;
-    height: 28px !important;
-    width: 28px !important;
-    min-width: 28px !important;
-    margin-left: 4px !important;
+    left: auto !important;
+    bottom: auto !important;
+    order: 99 !important;
+    flex: 0 0 26px !important;
+    height: 26px !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
+    margin: 0 !important;
     display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
@@ -50722,62 +50733,65 @@ html body .sapUiTheme-sap_horizon .kyraAdminSearchField .sapMInputBaseInner,
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    border-radius: 50% !important;
     padding: 0 !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
 }
 
 .kyraEntitlementsSearchField .sapMSFB .sapUiIcon,
 .kyraEntitlementsSearchField .sapMSFB .sapMSFSI,
+.kyraEntitlementsSearchField .sapMSFB .sapMSFS,
 .kyraAdminSearchField .sapMSFB .sapUiIcon,
-.kyraAdminSearchField .sapMSFB .sapMSFSI {
+.kyraAdminSearchField .sapMSFB .sapMSFSI,
+.kyraAdminSearchField .sapMSFB .sapMSFS {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     color: #64748B !important;
     font-size: 14px !important;
     line-height: 14px !important;
     transition: color 0.15s ease !important;
 }
 
+.kyraEntitlementsSearchField .sapMSFB:hover,
+.kyraAdminSearchField .sapMSFB:hover {
+    background-color: rgba(0, 140, 156, 0.08) !important;
+}
+
 .kyraEntitlementsSearchField .sapMSFB:hover .sapUiIcon,
 .kyraEntitlementsSearchField .sapMSFB:hover .sapMSFSI,
+.kyraEntitlementsSearchField .sapMSFB:hover .sapMSFS,
 .kyraAdminSearchField .sapMSFB:hover .sapUiIcon,
-.kyraAdminSearchField .sapMSFB:hover .sapMSFSI {
+.kyraAdminSearchField .sapMSFB:hover .sapMSFSI,
+.kyraAdminSearchField .sapMSFB:hover .sapMSFS {
     color: #008C9C !important;
 }
 
-/* Reset / Clear Button: Only show when search field has a value (.sapMSFVal); hide cleanly when empty ("not cancel time") */
-.kyraEntitlementsSearchField:not(.sapMSFVal) .sapMSFReset,
-.kyraAdminSearchField:not(.sapMSFVal) .sapMSFReset,
-.kyraEntitlementsSearchField .sapMSFReset[style*="none"],
-.kyraAdminSearchField .sapMSFReset[style*="none"] {
-    display: none !important;
-}
-
+/* Reset / Clear Button (X): PERMANENTLY REMOVED from Entitlements and Admin Search Fields */
+.kyraEntitlementsSearchField .sapMSFReset,
+.kyraEntitlementsSearchField .sapMSFR,
 .kyraEntitlementsSearchField.sapMSFVal .sapMSFReset,
-.kyraAdminSearchField.sapMSFVal .sapMSFReset {
-    position: static !important;
-    transform: none !important;
-    flex: 0 0 auto !important;
-    height: 24px !important;
-    width: 24px !important;
-    min-width: 24px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 2px 0 0 !important;
-}
-
-.kyraEntitlementsSearchField .sapMSFReset .sapUiIcon,
-.kyraAdminSearchField .sapMSFReset .sapUiIcon {
-    color: #94A3B8 !important;
-    font-size: 12px !important;
-    transition: color 0.15s ease !important;
-}
-
-.kyraEntitlementsSearchField .sapMSFReset:hover .sapUiIcon,
-.kyraAdminSearchField .sapMSFReset:hover .sapUiIcon {
-    color: #0F172A !important;
+.kyraEntitlementsSearchField.sapMSFVal .sapMSFR,
+.kyraEntitlementsSearchField:has(input:not(:placeholder-shown)) .sapMSFReset,
+.kyraEntitlementsSearchField:has(input:not(:placeholder-shown)) .sapMSFR,
+.kyraAdminSearchField .sapMSFReset,
+.kyraAdminSearchField .sapMSFR,
+.kyraAdminSearchField.sapMSFVal .sapMSFReset,
+.kyraAdminSearchField.sapMSFVal .sapMSFR,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFReset,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFR,
+.kyraEntitlementsSearchField .sapMSFReset[style*="none"],
+.kyraAdminSearchField .sapMSFReset[style*="none"],
+.kyraEntitlementsSearchField .sapMSFR[style*="none"],
+.kyraAdminSearchField .sapMSFR[style*="none"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
 }
 
 /* ==========================================================================
@@ -53387,6 +53401,207 @@ html body .sapUiTheme-sap_horizon .sapMSF .sapMInputBaseInner,
     background-color: transparent !important;
     border-radius: 0 !important;
 }
+
+/* ==========================================================================
+   KYRA UNIVERSAL SEARCH BAR ICON BEHAVIOR (ALL SEARCH FIELDS IN THE APP)
+   1. Search Magnifier Icon (Search) is PERMANENTLY visible in its designated spot on the far right (order: 99).
+      Never hidden, never depends on hover, never disappears when text is typed (.sapMSFVal).
+   2. Clear / Cancel Icon (X) is cleanly hidden when input is empty.
+      When text is entered (.sapMSFVal or :has(input:not(:placeholder-shown))), it appears directly to the left of the magnifier (order: 98).
+   3. Both icons sit side-by-side with zero overlap, fixed dimensions (24px / 26px), zero layout jumping.
+   4. Hovering only applies clean hover color / subtle background without shifting or disappearing.
+   ========================================================================== */
+
+/* Universal Form Container layout for all Search Fields */
+html body .sapMSF form,
+html body .sapMSF .sapMSFF,
+html body .sapUiTheme-sap_horizon .sapMSF form,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFF {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    position: relative !important;
+    padding: 0 6px 0 12px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* Universal Input inside Search Field */
+html body .sapMSF input,
+html body .sapMSF .sapMSFI,
+html body .sapMSF .sapMSFInner,
+html body .sapUiTheme-sap_horizon .sapMSF input,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFI,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFInner {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    line-height: 34px !important;
+    padding: 0 4px 0 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    order: 1 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+}
+
+/* Universal Search Magnifier Button - ALWAYS VISIBLE AT ALL TIMES (Never hover-only!) */
+html body .sapMSF .sapMSFB,
+html body .sapMSF .sapMSFS,
+html body .sapMSF:not(:hover) .sapMSFB,
+html body .sapMSF:not(:hover) .sapMSFS,
+html body .sapMSF.sapMSFVal .sapMSFB,
+html body .sapMSF.sapMSFVal .sapMSFS,
+html body .sapMSF:has(input:not(:placeholder-shown)) .sapMSFB,
+html body .sapMSF:has(input:not(:placeholder-shown)) .sapMSFS,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS,
+html body .sapUiTheme-sap_horizon .sapMSF:not(:hover) .sapMSFB,
+html body .sapUiTheme-sap_horizon .sapMSF:not(:hover) .sapMSFS,
+html body .sapUiTheme-sap_horizon .sapMSF.sapMSFVal .sapMSFB,
+html body .sapUiTheme-sap_horizon .sapMSF.sapMSFVal .sapMSFS {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: static !important;
+    transform: none !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    order: 99 !important;
+    flex: 0 0 26px !important;
+    width: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
+    height: 26px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border-radius: 50% !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+/* Universal Search Magnifier Icon inner glyph */
+html body .sapMSF .sapMSFB .sapUiIcon,
+html body .sapMSF .sapMSFB .sapMSFSI,
+html body .sapMSF .sapMSFS .sapUiIcon,
+html body .sapMSF .sapMSFS .sapMSFSI,
+html body .sapMSF .sapMSFS::after,
+html body .sapMSF .sapMSFB::after,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB .sapMSFSI,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS .sapMSFSI,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS::after,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB::after {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #64748B !important;
+    font-size: 14px !important;
+    line-height: 14px !important;
+    transition: color 0.15s ease !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Universal Search Magnifier Hover State */
+html body .sapMSF .sapMSFB:hover,
+html body .sapMSF .sapMSFS:hover,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB:hover,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS:hover {
+    background-color: rgba(0, 140, 156, 0.08) !important;
+}
+
+html body .sapMSF .sapMSFB:hover .sapUiIcon,
+html body .sapMSF .sapMSFB:hover .sapMSFSI,
+html body .sapMSF .sapMSFS:hover .sapUiIcon,
+html body .sapMSF .sapMSFS:hover .sapMSFSI,
+html body .sapMSF .sapMSFB:hover::after,
+html body .sapMSF .sapMSFS:hover::after,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB:hover .sapMSFSI,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS:hover .sapMSFSI,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFB:hover::after,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFS:hover::after {
+    color: #008C9C !important;
+}
+
+/* ==========================================================================
+   UNIVERSAL REMOVAL OF CLEAR / RESET (X) BUTTON FROM ALL SEARCH BARS
+   Permanently remove (X) so ONLY the Search Magnifier Icon is visible.
+   ========================================================================== */
+.sapMSF .sapMSFReset,
+.sapMSF .sapMSFR,
+.sapMSF.sapMSFVal .sapMSFReset,
+.sapMSF.sapMSFVal .sapMSFR,
+.sapMSF:has(input:not(:placeholder-shown)) .sapMSFReset,
+.sapMSF:has(input:not(:placeholder-shown)) .sapMSFR,
+html body .sapMSF .sapMSFReset,
+html body .sapMSF .sapMSFR,
+html body .sapMSF.sapMSFVal .sapMSFReset,
+html body .sapMSF.sapMSFVal .sapMSFR,
+html body .sapMSF:has(input:not(:placeholder-shown)) .sapMSFReset,
+html body .sapMSF:has(input:not(:placeholder-shown)) .sapMSFR,
+html body .sapMSF:hover .sapMSFReset,
+html body .sapMSF:hover .sapMSFR,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFReset,
+html body .sapUiTheme-sap_horizon .sapMSF .sapMSFR,
+html body .sapUiTheme-sap_horizon .sapMSF.sapMSFVal .sapMSFReset,
+html body .sapUiTheme-sap_horizon .sapMSF.sapMSFVal .sapMSFR,
+html body .sapUiTheme-sap_horizon .sapMSF:has(input:not(:placeholder-shown)) .sapMSFReset,
+html body .sapUiTheme-sap_horizon .sapMSF:has(input:not(:placeholder-shown)) .sapMSFR,
+html body .sapUiTheme-sap_horizon .sapMSF:hover .sapMSFReset,
+html body .sapUiTheme-sap_horizon .sapMSF:hover .sapMSFR,
+.kyraEntitlementsSearchField .sapMSFReset,
+.kyraEntitlementsSearchField .sapMSFR,
+.kyraEntitlementsSearchField.sapMSFVal .sapMSFReset,
+.kyraEntitlementsSearchField.sapMSFVal .sapMSFR,
+.kyraEntitlementsSearchField:has(input:not(:placeholder-shown)) .sapMSFReset,
+.kyraEntitlementsSearchField:has(input:not(:placeholder-shown)) .sapMSFR,
+.kyraAdminSearchField .sapMSFReset,
+.kyraAdminSearchField .sapMSFR,
+.kyraAdminSearchField.sapMSFVal .sapMSFReset,
+.kyraAdminSearchField.sapMSFVal .sapMSFR,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFReset,
+.kyraAdminSearchField:has(input:not(:placeholder-shown)) .sapMSFR {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+
+
+
 
 /* Better gap between search bar and View All button, and isolate hover */
 .kyraEntitlementsSearchGroup {
