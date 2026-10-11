@@ -231,6 +231,48 @@ sap.ui.define([
                 }, true);
             }
 
+            // Kyra: Ensure stepper buttons (▲ near top & ▼ near bottom) in all dropdown scrollbars are clickable and functional
+            if (!window._kyraScrollbarButtonsListenerAttached) {
+                window._kyraScrollbarButtonsListenerAttached = true;
+                const fnHandleScrollStep = function(oEvent) {
+                    const oTarget = oEvent.target;
+                    if (!oTarget || typeof oTarget.closest !== "function") return;
+                    const oPopover = oTarget.closest(".sapMPopover, .kyraDropdownBottomOnly, .sapMComboBoxPicker, .sapMMultiComboBoxPicker, .sapMComboBoxBasePicker, .sapMSltPicker");
+                    if (!oPopover) return;
+                    const oScroll = oPopover.querySelector(".sapMPopoverScroll") || oPopover.querySelector(".sapMScrollContScroll") || oPopover.querySelector(".sapMSelectList");
+                    if (!oScroll || oScroll.scrollHeight <= oScroll.clientHeight) return;
+
+                    const rect = oScroll.getBoundingClientRect();
+                    const pRect = oPopover.getBoundingClientRect();
+                    const clientX = oEvent.clientX;
+                    const clientY = oEvent.clientY;
+
+                    // Right scrollbar area: within 32px of right border of the scroll or popover container
+                    const bInRightGutter = (clientX >= rect.right - 32 && clientX <= rect.right + 15) ||
+                                          (clientX >= pRect.right - 32 && clientX <= pRect.right + 15);
+
+                    if (bInRightGutter) {
+                        const nTop = Math.min(rect.top, pRect.top);
+                        const nBottom = Math.max(rect.bottom, pRect.bottom);
+
+                        // Top stepper button: top 36px
+                        if (clientY >= nTop - 4 && clientY <= nTop + 36) {
+                            oEvent.preventDefault();
+                            oEvent.stopPropagation();
+                            oScroll.scrollTop = Math.max(0, oScroll.scrollTop - 48);
+                        }
+                        // Bottom stepper button: bottom 36px
+                        else if (clientY >= nBottom - 36 && clientY <= nBottom + 12) {
+                            oEvent.preventDefault();
+                            oEvent.stopPropagation();
+                            oScroll.scrollTop = Math.min(oScroll.scrollHeight, oScroll.scrollTop + 48);
+                        }
+                    }
+                };
+                document.addEventListener("mousedown", fnHandleScrollStep, true);
+                document.addEventListener("click", fnHandleScrollStep, true);
+            }
+
             this._localInFlightRevocations = {};
             this._aSelectedRegionIds = [];
             try {
@@ -1438,11 +1480,6 @@ sap.ui.define([
                             if (!oWrapper._hasKyraBoxClick) {
                                 oWrapper._hasKyraBoxClick = true;
                                 oWrapper.addEventListener("click", (e) => {
-                                    // If click was on chevron arrow icon, UI5 native handles it
-                                    if (e.target && e.target.closest && e.target.closest(".sapMInputBaseIconContainer, .sapMInputBaseIcon, .sapMComboBoxArrow, .sapMSelectArrow")) {
-                                        return;
-                                    }
-
                                     if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
                                         return;
                                     }
@@ -1483,11 +1520,6 @@ sap.ui.define([
                 oControl._step1Delegate = {
                     onAfterRendering: fnApply,
                     ontap: (oEvent) => {
-                        const target = oEvent && (oEvent.target || oEvent.srcElement);
-                        if (target && target.closest && target.closest(".sapMInputBaseIconContainer, .sapMInputBaseIcon, .sapMComboBoxArrow, .sapMSelectArrow")) {
-                            return;
-                        }
-
                         if (typeof oControl.getEnabled === "function" && !oControl.getEnabled()) {
                             if (typeof oEvent.setMarked === "function") oEvent.setMarked();
                             return;

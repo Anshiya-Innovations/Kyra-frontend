@@ -12764,8 +12764,6 @@ textarea.sapMInputBaseInner,
     overflow-x: hidden !important;
     overflow-y: auto !important;
     max-height: 236px !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #007684 #F0FDFA !important;
     box-sizing: border-box !important;
     -webkit-overflow-scrolling: touch !important;
 }
@@ -12776,8 +12774,8 @@ textarea.sapMInputBaseInner,
 .sapMComboBoxPicker ::-webkit-scrollbar,
 .sapMMultiComboBoxPicker ::-webkit-scrollbar,
 .sapMSltPicker ::-webkit-scrollbar {
-    width: 6px !important;
-    height: 6px !important;
+    width: 10px !important;
+    height: 10px !important;
     display: block !important;
 }
 
@@ -12790,66 +12788,111 @@ textarea.sapMInputBaseInner,
 .sapMPopoverCont ::-webkit-scrollbar-button,
 .sapMPopoverScroll ::-webkit-scrollbar-button {
     display: block !important;
-    width: 6px !important;
-    height: 12px !important;
+    width: 10px !important;
+    height: 14px !important;
     background-color: #F0FDFA !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 .kyraDropdownBottomOnly ::-webkit-scrollbar-button:vertical:decrement,
+.kyraDropdownBottomOnly ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.kyraDropdownBottomOnly ::-webkit-scrollbar-button:start:decrement,
 .sapMComboBoxBasePicker ::-webkit-scrollbar-button:vertical:decrement,
+.sapMComboBoxBasePicker ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMComboBoxBasePicker ::-webkit-scrollbar-button:start:decrement,
 .sapMComboBoxPicker ::-webkit-scrollbar-button:vertical:decrement,
+.sapMComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMComboBoxPicker ::-webkit-scrollbar-button:start:decrement,
 .sapMMultiComboBoxPicker ::-webkit-scrollbar-button:vertical:decrement,
+.sapMMultiComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMMultiComboBoxPicker ::-webkit-scrollbar-button:start:decrement,
 .sapMSltPicker ::-webkit-scrollbar-button:vertical:decrement,
+.sapMSltPicker ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMSltPicker ::-webkit-scrollbar-button:start:decrement,
 .sapMPopoverCont ::-webkit-scrollbar-button:vertical:decrement,
-.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:decrement {
+.sapMPopoverCont ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMPopoverCont ::-webkit-scrollbar-button:start:decrement,
+.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:decrement,
+.sapMPopoverScroll ::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMPopoverScroll ::-webkit-scrollbar-button:start:decrement {
     display: block !important;
-    height: 12px !important;
-    width: 6px !important;
+    height: 14px !important;
+    width: 10px !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
-    background-size: 6px 5px !important;
+    background-size: 8px 6px !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,0 10,6 0,6' fill='%23007684'/%3E%3C/svg%3E") !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
     border-radius: 4px 4px 0 0 !important;
 }
 
 .kyraDropdownBottomOnly ::-webkit-scrollbar-button:vertical:decrement:hover,
+.kyraDropdownBottomOnly ::-webkit-scrollbar-button:single-button:vertical:decrement:hover,
 .sapMComboBoxBasePicker ::-webkit-scrollbar-button:vertical:decrement:hover,
+.sapMComboBoxBasePicker ::-webkit-scrollbar-button:single-button:vertical:decrement:hover,
 .sapMComboBoxPicker ::-webkit-scrollbar-button:vertical:decrement:hover,
+.sapMComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:decrement:hover,
 .sapMMultiComboBoxPicker ::-webkit-scrollbar-button:vertical:decrement:hover,
+.sapMMultiComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:decrement:hover,
 .sapMSltPicker ::-webkit-scrollbar-button:vertical:decrement:hover,
+.sapMSltPicker ::-webkit-scrollbar-button:single-button:vertical:decrement:hover,
 .sapMPopoverCont ::-webkit-scrollbar-button:vertical:decrement:hover,
-.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:decrement:hover {
+.sapMPopoverCont ::-webkit-scrollbar-button:single-button:vertical:decrement:hover,
+.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:decrement:hover,
+.sapMPopoverScroll ::-webkit-scrollbar-button:single-button:vertical:decrement:hover {
     background-color: #CCFBF1 !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,0 10,6 0,6' fill='%23005E6A'/%3E%3C/svg%3E") !important;
 }
 
 .kyraDropdownBottomOnly ::-webkit-scrollbar-button:vertical:increment,
+.kyraDropdownBottomOnly ::-webkit-scrollbar-button:single-button:vertical:increment,
+.kyraDropdownBottomOnly ::-webkit-scrollbar-button:end:increment,
 .sapMComboBoxBasePicker ::-webkit-scrollbar-button:vertical:increment,
+.sapMComboBoxBasePicker ::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMComboBoxBasePicker ::-webkit-scrollbar-button:end:increment,
 .sapMComboBoxPicker ::-webkit-scrollbar-button:vertical:increment,
+.sapMComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMComboBoxPicker ::-webkit-scrollbar-button:end:increment,
 .sapMMultiComboBoxPicker ::-webkit-scrollbar-button:vertical:increment,
+.sapMMultiComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMMultiComboBoxPicker ::-webkit-scrollbar-button:end:increment,
 .sapMSltPicker ::-webkit-scrollbar-button:vertical:increment,
+.sapMSltPicker ::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMSltPicker ::-webkit-scrollbar-button:end:increment,
 .sapMPopoverCont ::-webkit-scrollbar-button:vertical:increment,
-.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:increment {
+.sapMPopoverCont ::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMPopoverCont ::-webkit-scrollbar-button:end:increment,
+.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:increment,
+.sapMPopoverScroll ::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMPopoverScroll ::-webkit-scrollbar-button:end:increment {
     display: block !important;
-    height: 12px !important;
-    width: 6px !important;
+    height: 14px !important;
+    width: 10px !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
-    background-size: 6px 5px !important;
+    background-size: 8px 6px !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,6 10,0 0,0' fill='%23007684'/%3E%3C/svg%3E") !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
     border-radius: 0 0 4px 4px !important;
 }
 
 .kyraDropdownBottomOnly ::-webkit-scrollbar-button:vertical:increment:hover,
+.kyraDropdownBottomOnly ::-webkit-scrollbar-button:single-button:vertical:increment:hover,
 .sapMComboBoxBasePicker ::-webkit-scrollbar-button:vertical:increment:hover,
+.sapMComboBoxBasePicker ::-webkit-scrollbar-button:single-button:vertical:increment:hover,
 .sapMComboBoxPicker ::-webkit-scrollbar-button:vertical:increment:hover,
+.sapMComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:increment:hover,
 .sapMMultiComboBoxPicker ::-webkit-scrollbar-button:vertical:increment:hover,
+.sapMMultiComboBoxPicker ::-webkit-scrollbar-button:single-button:vertical:increment:hover,
 .sapMSltPicker ::-webkit-scrollbar-button:vertical:increment:hover,
+.sapMSltPicker ::-webkit-scrollbar-button:single-button:vertical:increment:hover,
 .sapMPopoverCont ::-webkit-scrollbar-button:vertical:increment:hover,
-.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:increment:hover {
+.sapMPopoverCont ::-webkit-scrollbar-button:single-button:vertical:increment:hover,
+.sapMPopoverScroll ::-webkit-scrollbar-button:vertical:increment:hover,
+.sapMPopoverScroll ::-webkit-scrollbar-button:single-button:vertical:increment:hover {
     background-color: #CCFBF1 !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,6 10,0 0,0' fill='%23005E6A'/%3E%3C/svg%3E") !important;
 }
@@ -26115,15 +26158,13 @@ html body .sapMMultiComboBox[aria-disabled="true"] * {
 .sapMPopoverCont:not(:has(.sapMPopoverScroll)) {
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #007684 #F0FDFA !important;
     -ms-overflow-style: auto !important;
 }
 
 .sapMPopoverScroll::-webkit-scrollbar,
 .sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar {
-    width: 6px !important;
-    height: 6px !important;
+    width: 10px !important;
+    height: 10px !important;
     display: block !important;
 }
 
@@ -26150,34 +26191,60 @@ html body .sapMMultiComboBox[aria-disabled="true"] * {
 .sapMPopoverScroll::-webkit-scrollbar-button,
 .sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button {
     display: block !important;
-    width: 6px !important;
-    height: 12px !important;
+    width: 10px !important;
+    height: 14px !important;
     background-color: #F0FDFA !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
 }
 
 .sapMPopoverScroll::-webkit-scrollbar-button:vertical:decrement,
-.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:vertical:decrement {
+.sapMPopoverScroll::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMPopoverScroll::-webkit-scrollbar-button:start:decrement,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:vertical:decrement,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:single-button:vertical:decrement,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:start:decrement {
     display: block !important;
-    height: 12px !important;
-    width: 6px !important;
+    height: 14px !important;
+    width: 10px !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
-    background-size: 6px 5px !important;
+    background-size: 8px 6px !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,0 10,6 0,6' fill='%23007684'/%3E%3C/svg%3E") !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+}
+
+.sapMPopoverScroll::-webkit-scrollbar-button:vertical:decrement:hover,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:vertical:decrement:hover {
+    background-color: #CCFBF1 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,0 10,6 0,6' fill='%23005E6A'/%3E%3C/svg%3E") !important;
 }
 
 .sapMPopoverScroll::-webkit-scrollbar-button:vertical:increment,
-.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:vertical:increment {
+.sapMPopoverScroll::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMPopoverScroll::-webkit-scrollbar-button:end:increment,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:vertical:increment,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:single-button:vertical:increment,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:end:increment {
     display: block !important;
-    height: 12px !important;
-    width: 6px !important;
+    height: 14px !important;
+    width: 10px !important;
     background-repeat: no-repeat !important;
     background-position: center center !important;
-    background-size: 6px 5px !important;
+    background-size: 8px 6px !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,6 10,0 0,0' fill='%23007684'/%3E%3C/svg%3E") !important;
     cursor: pointer !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+}
+
+.sapMPopoverScroll::-webkit-scrollbar-button:vertical:increment:hover,
+.sapMPopoverCont:not(:has(.sapMPopoverScroll))::-webkit-scrollbar-button:vertical:increment:hover {
+    background-color: #CCFBF1 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpolygon points='5,6 10,0 0,0' fill='%23005E6A'/%3E%3C/svg%3E") !important;
 }
 
 /* 3. Dropdown List Inner Elements: OVERFLOW VISIBLE (NEVER SPAWN A SECOND SCROLLBAR) */
@@ -27072,7 +27139,17 @@ html body .kyraValTable .kyraRoleStatusRequested,
     background: #FEF3C7 !important;
     color: #B45309 !important;
     border: 1px solid #FCD34D !important;
+    border-radius: 9999px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    padding: 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
     box-shadow: 0 1px 2px rgba(180, 83, 9, 0.08) !important;
+    margin: 0 auto !important;
 }
 html body .kyraRoleStatusRequested .kyraRoleStatusIcon,
 html body .kyraRoleStatusRequested .kyraRoleStatusText,
@@ -27087,6 +27164,35 @@ html body .kyraValTable .kyraRoleStatusRequested .sapMText,
 .kyraRoleStatusRequested .sapUiIcon,
 .kyraRoleStatusRequested .sapMText {
     color: #B45309 !important;
+}
+
+/* Exact Match for media_1791690345840_7c72c7ef.png: EXISTING ROLE Header & Centered Already Requested Pill */
+.kyraValTable th:has(.kyraColHeadCenter) .sapMListTblHeaderCellInner,
+.kyraValTable th.sapMListTblHeaderCellCenter .sapMListTblHeaderCellInner {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.kyraValTable th .kyraColHeadCenter,
+.kyraValTable th:has(.kyraColHeadCenter) .sapMText {
+    text-align: center !important;
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    display: block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+html body .kyraValTable .kyraBadgeCenterCell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    text-align: center !important;
 }
 
 /* 2. Already Active: Fresh, clean emerald green pill */
