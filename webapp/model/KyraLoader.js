@@ -1,418 +1,136 @@
 sap.ui.define([], function() {
     "use strict";
 
-    let dismissTimer = null;
-    let startTime = 0;
-    let isVisible = false;
-    let iActiveCount = 0;
-    let isBusyIndicatorHooked = false;
-    let isFetchHooked = false;
-    let pageLoadTimestamp = Date.now();
-    let lastUserActionTimestamp = Date.now();
+    // Immediate removal of any loading screen DOM elements
+    function removeAllLoaderDom() {
+        if (typeof document === "undefined") return;
+        try {
+            const aSelectors = [
+                "#kyra_initial_loader",
+                "#kyra_loading_slide_overlay",
+                ".kyraLoadingSlideOverlay",
+                ".kyraLoadingSlideCard"
+            ];
+            aSelectors.forEach(sSel => {
+                const aElements = document.querySelectorAll(sSel);
+                aElements.forEach(el => {
+                    if (el && el.parentNode) {
+                        el.parentNode.removeChild(el);
+                    }
+                });
+            });
+        } catch (e) {}
+    }
 
-    if (typeof window !== "undefined") {
-        const markAction = () => { lastUserActionTimestamp = Date.now(); };
-        ["pointerdown", "keydown", "click", "touchstart"].forEach(evt => {
-            window.addEventListener(evt, markAction, { passive: true, capture: true });
-        });
-        window.addEventListener("hashchange", markAction, { passive: true });
-        window.addEventListener("popstate", markAction, { passive: true });
+    // Run DOM cleanup immediately and upon ready
+    removeAllLoaderDom();
+    if (typeof document !== "undefined") {
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", removeAllLoaderDom);
+        }
+        window.addEventListener("load", removeAllLoaderDom);
     }
 
     const KyraLoader = {
-                        /**
-         * Shows or updates the global KYRA project-themed loading popup slide.
-         * Only displayed on explicit user actions or explicit calls.
-         * Never triggered by background polling intervals.
+        /**
+         * Loading screens are completely disabled.
+         * Safe no-op that ensures callbacks fire cleanly without rendering any screen.
          * @param {Object|string} options
          */
         show(options) {
-            if (typeof options === "string") {
-                options = { title: options };
+            removeAllLoaderDom();
+            if (options && typeof options.onComplete === "function") {
+                try { options.onComplete(); } catch (e) {}
             }
-            options = options || {};
-            const sTitle = options.title || "Loading Data...";
-            const sSubtitle = options.subtitle || "Please wait a moment while Kyra retrieves the latest information...";
-            const iDuration = options.duration;
-            const fnComplete = options.onComplete || (() => {});
-
-            if (!isVisible) {
-                iActiveCount = 1;
-                startTime = Date.now();
-            } else {
-                iActiveCount++;
-            }
-
-            if (dismissTimer) {
-                clearTimeout(dismissTimer);
-                dismissTimer = null;
-            }
-
-            this._ensureStyles();
-            isVisible = true;
-
-            let overlay = document.getElementById("kyra_loading_slide_overlay");
-            if (!overlay) {
-                overlay = document.createElement("div");
-                overlay.id = "kyra_loading_slide_overlay";
-                overlay.className = "kyraLoadingSlideOverlay";
-                if (document.body) {
-                    document.body.appendChild(overlay);
-                } else {
-                    document.addEventListener("DOMContentLoaded", () => {
-                        document.body.appendChild(overlay);
-                    });
-                }
-            }
-
-            overlay.classList.add("kyra-active");
-            overlay.style.setProperty("display", "flex", "important");
-            overlay.style.setProperty("opacity", "1", "important");
-            overlay.style.setProperty("pointer-events", "all", "important");
-
-            const oCard = overlay.querySelector(".kyraLoadingSlideCard");
-            const oTitle = overlay.querySelector(".kyraLoadingTitle");
-            const oSubtitle = overlay.querySelector(".kyraLoadingSubtitle");
-            const oIconBox = overlay.querySelector(".kyraSlideIconBox");
-
-            this._isSavingToDb = (typeof sTitle === "string" && (sTitle.includes("Saving") || sTitle.includes("Persisting") || sTitle.includes("Database")));
-            if (oCard && oTitle && oSubtitle) {
-                if (oIconBox) {
-                    oIconBox.innerHTML = '<div class="kyraSimpleSpinner"></div>';
-                }
-                oCard.classList.remove("kyraSuccessSlideCard");
-                oTitle.className = "kyraLoadingTitle";
-                oTitle.textContent = sTitle;
-                oSubtitle.className = "kyraLoadingSubtitle";
-                oSubtitle.textContent = sSubtitle;
-            } else {
-                overlay.innerHTML = `
-                    <div class="kyraLoadingSlideCard">
-                        <div class="kyraSlideIconBox">
-                            <div class="kyraSimpleSpinner"></div>
-                        </div>
-                        <div class="kyraLoadingTitle">${sTitle}</div>
-                        <div class="kyraLoadingSubtitle">${sSubtitle}</div>
-                    </div>
-                `;
-            }
-
-            // Safety timeout: auto-hide after duration or default 12s for database operations so it never hangs
-            const iEffectiveDuration = (typeof iDuration === "number" && iDuration > 0) ? iDuration : 12000;
-            dismissTimer = setTimeout(() => {
-                this.forceHide(fnComplete);
-            }, iEffectiveDuration);
         },
 
         /**
-         * Transitions the current loading slide into a success slide, or displays a success slide.
-         * Retains the exact same loading card in-place for seamless feedback with no separate popups.
+         * Related success screens/slides are completely disabled.
+         * Safe no-op that executes completion callbacks immediately without displaying screens.
          * @param {Object|string} options
          */
         showSuccess(options) {
-            this._isSavingToDb = false;
-            if (typeof options === "string") {
-                options = { subtitle: options };
+            removeAllLoaderDom();
+            if (options && typeof options.onComplete === "function") {
+                try { options.onComplete(); } catch (e) {}
+            } else if (options && typeof options.callback === "function") {
+                try { options.callback(); } catch (e) {}
             }
-            options = options || {};
-            const sTitle = options.title || "Saved Successfully";
-            const sSubtitle = options.subtitle || "";
-            const iDuration = (typeof options.duration === "number" && options.duration > 0) ? options.duration : 1600;
-            const fnComplete = options.onComplete || (() => {});
-
-            this._ensureStyles();
-
-            if (dismissTimer) {
-                clearTimeout(dismissTimer);
-                dismissTimer = null;
-            }
-
-            let overlay = document.getElementById("kyra_loading_slide_overlay");
-            if (!overlay) {
-                overlay = document.createElement("div");
-                overlay.id = "kyra_loading_slide_overlay";
-                overlay.className = "kyraLoadingSlideOverlay";
-                if (document.body) {
-                    document.body.appendChild(overlay);
-                }
-            }
-
-            isVisible = true;
-            iActiveCount = 1;
-            overlay.classList.add("kyra-active");
-            overlay.style.setProperty("display", "flex", "important");
-            overlay.style.setProperty("opacity", "1", "important");
-            overlay.style.setProperty("pointer-events", "all", "important");
-
-            const checkIconSvg = `
-                <div class="kyraSuccessCheckCircle">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                </div>
-            `;
-
-            let oCard = overlay.querySelector(".kyraLoadingSlideCard");
-            let oIconBox = overlay.querySelector(".kyraSlideIconBox");
-            let oTitle = overlay.querySelector(".kyraLoadingTitle, .kyraSuccessTitle");
-            let oSubtitle = overlay.querySelector(".kyraLoadingSubtitle, .kyraSuccessSubtitle");
-
-            if (oCard && oTitle && oSubtitle) {
-                oCard.classList.add("kyraSuccessSlideCard");
-                if (oIconBox) {
-                    oIconBox.innerHTML = checkIconSvg;
-                }
-                oTitle.className = "kyraLoadingTitle kyraSuccessTitle";
-                oTitle.textContent = sTitle;
-                oSubtitle.className = "kyraLoadingSubtitle kyraSuccessSubtitle";
-                oSubtitle.textContent = sSubtitle;
-            } else {
-                overlay.innerHTML = `
-                    <div class="kyraLoadingSlideCard kyraSuccessSlideCard">
-                        <div class="kyraSlideIconBox">
-                            ${checkIconSvg}
-                        </div>
-                        <div class="kyraLoadingTitle kyraSuccessTitle">${sTitle}</div>
-                        <div class="kyraLoadingSubtitle kyraSuccessSubtitle">${sSubtitle}</div>
-                    </div>
-                `;
-            }
-
-            dismissTimer = setTimeout(() => {
-                this.forceHide(fnComplete);
-            }, iDuration);
         },
 
         /**
-         * Gracefully hides the global KYRA loading popup slide.
+         * Gracefully ensures all loading screens and overlays remain hidden.
          * @param {Function} [callback]
-         * @param {number} [minDisplayTime=0]
-         * @param {boolean} [bForce=false]
          */
-        hide(callback, minDisplayTime = 0, bForce = false) {
-            // If saving configuration/mutating database, do not dismiss early until success screen arrives
-            if (this._isSavingToDb && !bForce) {
-                return;
-            }
-            if (!bForce && iActiveCount > 1) {
-                iActiveCount--;
-                return;
-            }
-            iActiveCount = 0;
-
-            if (dismissTimer) {
-                clearTimeout(dismissTimer);
-                dismissTimer = null;
-            }
-
-            const elapsed = Date.now() - startTime;
-            const remaining = Math.max(0, minDisplayTime - elapsed);
-
-            const removeOverlay = () => {
-                const overlay = document.getElementById("kyra_loading_slide_overlay");
-                if (overlay) {
-                    overlay.classList.remove("kyra-active");
-                    overlay.style.setProperty("opacity", "0", "important");
-                    overlay.style.setProperty("pointer-events", "none", "important");
-                    setTimeout(() => {
-                        if (overlay && overlay.parentNode && iActiveCount === 0) {
-                            overlay.style.setProperty("display", "none", "important");
-                            overlay.parentNode.removeChild(overlay);
-                        }
-                    }, 240);
-                }
-
-                const initLoader = document.getElementById("kyra_initial_loader");
-                if (initLoader) {
-                    initLoader.style.transition = "opacity 0.22s ease";
-                    initLoader.style.opacity = "0";
-                    setTimeout(() => {
-                        if (initLoader && initLoader.parentNode) {
-                            initLoader.parentNode.removeChild(initLoader);
-                        }
-                    }, 240);
-                }
-
-                isVisible = false;
-                if (typeof callback === "function") {
-                    callback();
-                }
-            };
-
-            if (remaining > 0) {
-                setTimeout(removeOverlay, remaining);
-            } else {
-                removeOverlay();
+        hide(callback) {
+            removeAllLoaderDom();
+            if (typeof callback === "function") {
+                try { callback(); } catch (e) {}
             }
         },
 
         /**
-         * Forcibly hides the loader immediately.
+         * Forcibly ensures all loading screens and overlays are removed immediately.
          * @param {Function} [callback]
          */
         forceHide(callback) {
-            iActiveCount = 0;
-            this.hide(callback, 0, true);
+            removeAllLoaderDom();
+            if (typeof callback === "function") {
+                try { callback(); } catch (e) {}
+            }
         },
 
         isShowing() {
-            return isVisible;
+            return false;
         },
 
         getActiveCount() {
-            return iActiveCount;
+            return 0;
         },
 
         /**
-         * Embeds the modern Kyra project design, colour, and theme styles.
+         * Injects CSS to permanently hide, suppress, and disable all loading screens,
+         * overlays, UI5 BusyIndicators, and block layers across the application.
          */
         _ensureStyles() {
             if (typeof document === "undefined") return;
-            if (!document.getElementById("kyra_loading_placement_styles")) {
+            if (!document.getElementById("kyra_loading_suppress_styles")) {
                 const style = document.createElement("style");
-                style.id = "kyra_loading_placement_styles";
+                style.id = "kyra_loading_suppress_styles";
                 style.textContent = `
-                    /* Backdrop Overlay with smooth frosted blur */
-                    .kyraLoadingSlideOverlay {
-                        position: fixed !important;
-                        top: 0 !important;
-                        left: 0 !important;
-                        right: 0 !important;
-                        bottom: 0 !important;
-                        width: 100vw !important;
-                        height: 100vh !important;
-                        background: rgba(15, 23, 42, 0.45) !important;
-                        backdrop-filter: blur(6px) !important;
-                        -webkit-backdrop-filter: blur(6px) !important;
-                        display: none !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        margin: 0 !important;
-                        padding: 16px !important;
-                        box-sizing: border-box !important;
-                        z-index: 9999999 !important;
-                        opacity: 0 !important;
-                        pointer-events: none !important;
-                        user-select: none !important;
-                        -webkit-user-select: none !important;
-                        transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-                    }
-                    .kyraLoadingSlideOverlay.kyra-active {
-                        display: flex !important;
-                        opacity: 1 !important;
-                        pointer-events: all !important;
-                    }
-
-                    /* Floating Popup Slide Card - Simple Clean Design from screenshot */
-                    .kyraLoadingSlideCard {
-                        background: #FFFFFF !important;
-                        width: 400px !important;
-                        max-width: calc(100vw - 36px) !important;
-                        border-radius: 22px !important;
-                        border: 1px solid rgba(226, 232, 240, 0.85) !important;
-                        box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.16), 0 8px 18px -4px rgba(15, 23, 42, 0.08) !important;
-                        padding: 38px 32px 34px 32px !important;
-                        margin: 0 auto !important;
-                        text-align: center !important;
-                        position: relative !important;
-                        display: flex !important;
-                        flex-direction: column !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        box-sizing: border-box !important;
-                        transform: translateY(12px) scale(0.97) !important;
-                        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-                    }
-                    .kyraLoadingSlideOverlay.kyra-active .kyraLoadingSlideCard {
-                        transform: translateY(0) scale(1) !important;
-                    }
-
-                    /* Simple Circular Ring Spinner */
-                    .kyraSimpleSpinner {
-                        width: 52px !important;
-                        height: 52px !important;
-                        border-radius: 50% !important;
-                        border: 4px solid #E2E8F0 !important;
-                        border-top-color: #008C9C !important;
-                        animation: kyraSimpleSpin 0.85s linear infinite !important;
-                        margin: 0 auto 22px auto !important;
-                        box-sizing: border-box !important;
-                    }
-                    @keyframes kyraSimpleSpin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-
-                    /* Success Card Icon & Animation */
-                    .kyraSuccessCheckCircle {
-                        width: 56px !important;
-                        height: 56px !important;
-                        border-radius: 50% !important;
-                        background-color: #008C9C !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        margin: 0 auto 20px auto !important;
-                        box-shadow: 0 8px 24px -4px rgba(0, 140, 156, 0.45) !important;
-                        animation: kyraCheckPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-                    }
-                    @keyframes kyraCheckPop {
-                        0% { transform: scale(0.6); opacity: 0; }
-                        100% { transform: scale(1); opacity: 1; }
-                    }
-                    .kyraSuccessTitle {
-                        color: #0F172A !important;
-                        font-size: 19px !important;
-                        font-weight: 700 !important;
-                        margin-bottom: 8px !important;
-                    }
-                    .kyraSuccessSubtitle {
-                        color: #475569 !important;
-                        font-size: 13.5px !important;
-                        line-height: 1.45 !important;
-                        max-width: 340px !important;
-                    }
-
-                    /* Title: Bold & Centered */
-                    .kyraLoadingTitle {
-                        width: 100% !important;
-                        text-align: center !important;
-                        font-size: 19px !important;
-                        font-weight: 700 !important;
-                        color: #0F172A !important;
-                        margin: 0 0 10px 0 !important;
-                        padding: 0 !important;
-                        line-height: 1.35 !important;
-                        letter-spacing: -0.015em !important;
-                    }
-
-                    /* Subtitle: Clean Slate & Centered */
-                    .kyraLoadingSubtitle {
-                        width: 100% !important;
-                        max-width: 320px !important;
-                        text-align: center !important;
-                        font-size: 13.5px !important;
-                        font-weight: 400 !important;
-                        color: #64748B !important;
-                        line-height: 1.5 !important;
-                        margin: 0 auto !important;
-                        padding: 0 !important;
-                    }
-
-                    /* Suppress standard UI5 busy indicator dots so only Kyra's loading slide appears */
+                    #kyra_initial_loader,
+                    #kyra_loading_slide_overlay,
+                    .kyraLoadingSlideOverlay,
+                    .kyraLoadingSlideCard,
+                    .kyraSimpleCircleSpinner,
+                    .kyraSimpleSpinner,
                     .sapUiBusy,
-                    .sapUiBLDay,
-                    .sapUiLocalBusyIndicator {
-                        opacity: 0 !important;
-                    }
-
-                    /* Suppress black UI5 MessageToast popups so feedback displays inside unified KyraLoader slide */
-                    .sapMMessageToast {
+                    .sapUiBusyAnimation,
+                    .sapUiBusyDot,
+                    .sapUiBusyText,
+                    .sapUiBusyBlockLayer,
+                    .sapUiBlockLayer,
+                    .sapUiBlockLayerAnimation,
+                    .sapUiBLFix,
+                    .sapUiLocalBusyIndicator,
+                    .sapUiLocalBusyIndicatorBox,
+                    .sapUiLocalBusyIndicatorAnimation,
+                    .sapUiLocalBusyIndicatorDot,
+                    .sapMBusyDialog {
                         display: none !important;
-                        opacity: 0 !important;
                         visibility: hidden !important;
+                        opacity: 0 !important;
                         pointer-events: none !important;
+                        width: 0 !important;
+                        height: 0 !important;
+                        max-width: 0 !important;
+                        max-height: 0 !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        overflow: hidden !important;
+                        z-index: -99999 !important;
                     }
                 `;
                 document.head.appendChild(style);
@@ -420,192 +138,31 @@ sap.ui.define([], function() {
         },
 
         /**
-         * Sets up universal hooks for sap.ui.core.BusyIndicator and intelligent fetch interception.
-         * Only triggers on actual user data-running time (navigation, submission, approval, queries)
-         * and NEVER during silent background polling intervals or idle time.
+         * Sets up universal hooks:
+         * Suppresses sap.ui.core.BusyIndicator completely so no UI5 loading screen ever appears.
+         * Ensures window.fetch operates with zero loading screen overhead.
          */
         setupGlobalHooks() {
-            if (typeof window === "undefined") return;
+            this._ensureStyles();
+            removeAllLoaderDom();
 
-            // 1. Hook sap.ui.core.BusyIndicator
-            if (!isBusyIndicatorHooked && typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                isBusyIndicatorHooked = true;
-                const self = this;
-                const origShow = sap.ui.core.BusyIndicator.show;
-                const origHide = sap.ui.core.BusyIndicator.hide;
-
-                sap.ui.core.BusyIndicator.show = function(iDelay) {
-                    self.show({
-                        title: "Processing Request...",
-                        subtitle: "Verifying and synchronizing governance data..."
-                    });
-                    if (typeof origShow === "function") {
-                        origShow.call(this, 999999); // Suppress default dots
-                    }
+            // Suppress sap.ui.core.BusyIndicator globally
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                sap.ui.core.BusyIndicator.show = function() {
+                    removeAllLoaderDom();
                 };
-
                 sap.ui.core.BusyIndicator.hide = function() {
-                    self.hide();
-                    if (typeof origHide === "function") {
-                        origHide.apply(this, arguments);
-                    }
+                    removeAllLoaderDom();
                 };
-            }
-
-            // 2. Intelligent Fetch Interceptor for Data-Running Time
-            if (!isFetchHooked && typeof window.fetch === "function") {
-                isFetchHooked = true;
-                const self = this;
-                const origFetch = window.fetch;
-
-                window.fetch = function(...args) {
-                    const resource = args[0];
-                    const init = args[1] || {};
-                    const sUrl = (typeof resource === "string") ? resource : (resource && resource.url ? resource.url : "");
-                    const sMethod = ((init.method) || (resource && resource.method) || "GET").toUpperCase();
-
-                    // Skip static resources (files, assets, html, css, js, json models, icons)
-                    const isStaticAsset = /\.(png|jpg|jpeg|gif|svg|webp|css|js|properties|xml|html)(\?.*)?$/i.test(sUrl);
-                    const isSilentHeader = init.headers && (
-                        init.headers["X-Kyra-Silent"] === "true" || 
-                        (typeof init.headers.get === "function" && init.headers.get("X-Kyra-Silent") === "true")
-                    );
-
-                    // NEVER show during silent background polling or idle "no action time"
-                    const isSilentBackground = window._kyraSilentBackgroundSync === true;
-                    const now = Date.now();
-                    const isRecentUserAction = (now - lastUserActionTimestamp < 4500);
-                    const isInitialPageLoad = (now - pageLoadTimestamp < 6000);
-                    const isDataMutation = (sMethod === "POST" || sMethod === "PUT" || sMethod === "DELETE" || sMethod === "PATCH");
-                    const isDataEndpoint = sUrl.includes("/odata/v4/") || sUrl.includes("/api/") || sUrl.includes("/GovernanceHistory") || sUrl.includes("/SoDMatrix");
-
-                    const shouldShowLoader = !isStaticAsset && !isSilentHeader && !isSilentBackground && isDataEndpoint && (isDataMutation || isRecentUserAction || isInitialPageLoad);
-
-                    if (!shouldShowLoader) {
-                        return origFetch.apply(this, args);
-                    }
-
-                    // Contextual title & subtitle for the Kyra Loading Slide
-                    let sTitle = "Loading Data...";
-                    let sSubtitle = "Retrieving records from Kyra Governance database...";
-
-                    if (sUrl.includes("/submitAccessRequest")) {
-                        sTitle = "Submitting Access Request...";
-                        sSubtitle = "Recording requested entitlements and routing to approvers...";
-                    } else if (sUrl.includes("/submitAccessDecision")) {
-                        sTitle = "Recording Decision...";
-                        sSubtitle = "Saving governance decision and updating audit trail...";
-                    } else if (sUrl.includes("/GovernanceHistory")) {
-                        sTitle = "Loading Governance Records...";
-                        sSubtitle = "Synchronizing active roles, pending requests, and history...";
-                    } else if (sUrl.includes("/SoDMatrix")) {
-                        sTitle = "Analyzing Conflicts...";
-                        sSubtitle = "Evaluating Segregation of Duties (SoD) risk rules...";
-                    } else if (sUrl.includes("/convertUserPersona") || sUrl.includes("/convertDepartmentPersona")) {
-                        sTitle = "Converting Persona...";
-                        sSubtitle = "Updating user persona classifications in database...";
-                    } else if (sUrl.includes("/saveAdminCustomization")) {
-                        sTitle = "Saving Configuration...";
-                        sSubtitle = "Persisting governance customization settings...";
-                    } else if (sUrl.includes("/testConnection") || sUrl.includes("/testKyraConnection")) {
-                        sTitle = "Testing Database Connection...";
-                        sSubtitle = "Verifying connectivity and schema authorization...";
-                    } else if (sUrl.includes("/migrateData")) {
-                        sTitle = "Migrating Governance Data...";
-                        sSubtitle = "Updating database records and structural tables...";
-                    } else if (sUrl.includes("/login")) {
-                        sTitle = "Authenticating User...";
-                        sSubtitle = "Verifying credentials and security permissions...";
-                    }
-
-                    let showTimer = null;
-                    let bShown = false;
-
-                    if (isDataMutation) {
-                        bShown = true;
-                        self.show({ title: sTitle, subtitle: sSubtitle });
-                    } else {
-                        showTimer = setTimeout(() => {
-                            bShown = true;
-                            self.show({ title: sTitle, subtitle: sSubtitle });
-                        }, 100);
-                    }
-
-                    return origFetch.apply(this, args)
-                        .then(res => {
-                            if (showTimer) clearTimeout(showTimer);
-                            if (bShown && 
-                                !sUrl.includes("/saveAdminCustomization") && 
-                                !sUrl.includes("/convertDepartmentPersona") && 
-                                !sUrl.includes("/convertUserPersona") && 
-                                !sUrl.includes("/auth/login") && 
-                                !sUrl.includes("/submitAccessRequest")) {
-                                self.hide(null, 320);
-                            }
-                            return res;
-                        })
-                        .catch(err => {
-                            if (showTimer) clearTimeout(showTimer);
-                            if (bShown) {
-                                self.hide(null, 320);
-                            }
-                            throw err;
-                        });
-                };
-            }
-
-            // 3. Universal MessageToast Interceptor: Prevents black floating toasts and routes feedback into KyraLoader success slide
-            if (typeof sap !== "undefined" && sap.ui) {
-                sap.ui.require(["sap/m/MessageToast"], function(MessageToast) {
-                    if (MessageToast && !MessageToast._kyraHooked) {
-                        MessageToast._kyraHooked = true;
-                        const origToastShow = MessageToast.show;
-                        MessageToast.show = function(sMsg, mOpt) {
-                            if (typeof sMsg === "string" && sMsg.trim().length > 0) {
-                                const sLower = sMsg.toLowerCase();
-                                const isSuccessOrSave = sLower.includes("success") || 
-                                                        sLower.includes("saved") || 
-                                                        sLower.includes("updated") || 
-                                                        sLower.includes("created") || 
-                                                        sLower.includes("welcome");
-                                if (sLower.includes("login") || sLower.includes("welcome back")) {
-                                    if (KyraLoader.isShowing()) {
-                                        KyraLoader.hide();
-                                    }
-                                    return;
-                                }
-                                if (KyraLoader.isShowing() || isSuccessOrSave) {
-                                    KyraLoader.showSuccess({
-                                        title: "Saved Successfully",
-                                        subtitle: sMsg,
-                                        duration: 1600
-                                    });
-                                    return;
-                                }
-                            }
-                            // Suppress floating black toast
-                            console.log("[KyraLoader Suppressed Toast]:", sMsg);
-                        };
-                    }
-                });
             }
         },
 
         /**
-         * Automatically wraps any Promise with the global KYRA loading screen.
+         * Wraps any Promise directly without showing any loading screen.
          * @param {Promise} pPromise
-         * @param {Object|string} options
          */
-        async wrap(pPromise, options) {
-            this.show(options);
-            try {
-                const result = await pPromise;
-                this.hide();
-                return result;
-            } catch (err) {
-                this.hide();
-                throw err;
-            }
+        async wrap(pPromise) {
+            return pPromise;
         }
     };
 
@@ -618,14 +175,14 @@ sap.ui.define([], function() {
         window.showKyraSuccess = (title, subtitle, duration, onComplete) => {
             return KyraLoader.showSuccess({ title, subtitle, duration, onComplete });
         };
-        window.hideKyraLoading = (callback, minDisplayTime, force) => {
-            return KyraLoader.hide(callback, minDisplayTime, force);
+        window.hideKyraLoading = (callback) => {
+            return KyraLoader.hide(callback);
         };
         window.forceHideKyraLoading = (callback) => {
             return KyraLoader.forceHide(callback);
         };
 
-        // Automatically initialize hooks and styles
+        // Initialize suppressive styles and hooks
         KyraLoader._ensureStyles();
         KyraLoader.setupGlobalHooks();
     }

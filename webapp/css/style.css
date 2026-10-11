@@ -11242,15 +11242,17 @@ html body .sapUiBlockLayer {
     }
 }
 
-/* Master Login Page Shell */
+/* Master Login Page Shell - Custom Enterprise Cyber Wallpaper (Used for Login Screen Only) */
 .kyraDesktopLoginPage,
 .kyraDesktopLoginPage.sapMPage,
-.kyraDesktopLoginPage .sapMPageBg {
-    background: #F8FAFC !important;
-    background: radial-gradient(circle at 15% 20%, rgba(0, 201, 232, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 85% 75%, rgba(0, 140, 156, 0.08) 0%, transparent 45%),
-                linear-gradient(135deg, #F0F8FA 0%, #E8F4F8 35%, #F4FBF9 70%, #F8FAFC 100%) !important;
-    background-color: #F8FAFC !important;
+.kyraDesktopLoginPage .sapMPageBg,
+.kyraDesktopLoginPage .sapMPageScroll {
+    background-image: url('../images/kyra_login_bg.png') !important;
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    background-color: #E2F5F8 !important;
     overflow: hidden !important;
     height: 100vh !important;
     width: 100vw !important;
@@ -11262,100 +11264,54 @@ html body .sapUiBlockLayer {
     height: 100vh !important;
 }
 
-/* Ambient Canvas Layer (Fixed Background) */
-.kyraAmbientCanvasContainer {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
-    overflow: hidden !important;
-}
-
-/* Cyber Matrix Subtle Grid Overlay */
-.kyraCyberGridOverlay {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background-image: 
-        linear-gradient(to right, rgba(0, 140, 156, 0.04) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 140, 156, 0.04) 1px, transparent 1px) !important;
-    background-size: 40px 40px !important;
-    opacity: 0.8 !important;
-}
-
-/* Glowing Ambient Floating Orbs */
-.kyraAmbientOrb {
-    position: absolute !important;
-    border-radius: 50% !important;
-    filter: blur(80px) !important;
-    pointer-events: none !important;
-}
-
-.kyraAmbientOrb1 {
-    top: -60px !important;
-    left: -40px !important;
-    width: 480px !important;
-    height: 480px !important;
-    background: radial-gradient(circle, rgba(0, 201, 232, 0.18) 0%, rgba(0, 140, 156, 0.06) 60%, transparent 80%) !important;
-    animation: kyraMeshFloat 18s ease-in-out infinite !important;
-}
-
-.kyraAmbientOrb2 {
-    bottom: -100px !important;
-    right: 5% !important;
-    width: 520px !important;
-    height: 520px !important;
-    background: radial-gradient(circle, rgba(0, 140, 156, 0.16) 0%, rgba(5, 150, 105, 0.08) 60%, transparent 80%) !important;
-    animation: kyraOrbCounterFloat 22s ease-in-out infinite !important;
-}
-
-.kyraAmbientOrb3 {
-    top: 40% !important;
-    left: 45% !important;
-    width: 360px !important;
-    height: 360px !important;
-    background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, rgba(0, 201, 232, 0.06) 60%, transparent 80%) !important;
-    animation: kyraMeshFloat 14s ease-in-out infinite alternate !important;
-}
-
-/* Watermark Stylized K */
+/* Ambient Canvas Layer, Grid Overlay, Glowing Orbs, and Watermark Fully Removed */
+.kyraAmbientCanvasContainer,
+.kyraCyberGridOverlay,
+.kyraAmbientOrb,
+.kyraAmbientOrb1,
+.kyraAmbientOrb2,
+.kyraAmbientOrb3,
 .kyraWatermarkK {
-    position: absolute !important;
-    left: 28% !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    height: 650px !important;
-    width: auto !important;
-    opacity: 0.028 !important;
-    filter: drop-shadow(0 0 60px rgba(0, 140, 156, 0.3)) !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
     pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
 }
 
-/* 2-Column Responsive Layout Wrapper */
+/* 2-Column Responsive Layout Wrapper - Perfectly Upper-Centered, Single Screen */
 .kyraLoginLayoutWrapper {
     width: 100% !important;
     min-width: 100% !important;
+    height: 100vh !important;
     min-height: 100vh !important;
-    height: auto !important;
+    max-height: 100vh !important;
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
+    justify-content: center !important;
     box-sizing: border-box !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow: hidden !important;
     position: relative !important;
     z-index: 2 !important;
+    padding: 0 40px !important;
+    margin: 0 !important;
+    transform: translateY(-28px) !important;
 }
 
 .kyraDesktopLoginPage .sapMPageScroll {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* Custom Sleek Side Scrollbar for Login Screen */
@@ -11384,31 +11340,31 @@ html body .sapUiBlockLayer {
    LEFT SECTION (ZERO-TRUST CYBERSECURITY HUB)
    ========================================================================= */
 .kyraLoginLeftPanel {
-    flex: 0 0 55% !important;
-    width: 55% !important;
-    min-width: 55% !important;
-    max-width: 55% !important;
-    height: 100vh !important;
+    flex: 0 0 54% !important;
+    width: 54% !important;
+    min-width: 54% !important;
+    max-width: 54% !important;
+    height: auto !important;
+    max-height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    align-items: stretch !important;
-    gap: 8px !important;
-    padding: 24px 36px 20px 48px !important;
+    align-items: flex-start !important;
+    gap: 0 !important;
+    padding: 0 24px 0 32px !important;
     box-sizing: border-box !important;
     position: relative !important;
-    overflow: hidden !important;
-    animation: kyraHeroEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    overflow: visible !important;
+    animation: none !important;
 }
 
 /* Top Hero Brand Logo (Clean & Proper) */
 .kyraHeroBrandLogoContainer {
     display: flex !important;
     align-items: center !important;
-    margin-top: 4px !important;
+    margin-top: 0 !important;
     margin-bottom: 12px !important;
-    padding-left: 2px !important;
-    padding-top: 4px !important;
+    padding: 0 !important;
     overflow: visible !important;
 }
 
@@ -11419,14 +11375,15 @@ html body .sapUiBlockLayer {
     object-fit: contain !important;
     display: block !important;
     filter: drop-shadow(0 3px 8px rgba(0, 140, 156, 0.22)) !important;
-    transition: transform 0.25s ease, filter 0.25s ease !important;
-    cursor: pointer !important;
+    transition: none !important;
+    cursor: default !important;
+    pointer-events: none !important;
     image-rendering: -webkit-optimize-contrast;
 }
 
 .kyraHeroBrandLogoOnly:hover {
-    transform: scale(1.05) !important;
-    filter: drop-shadow(0 5px 14px rgba(0, 140, 156, 0.35)) !important;
+    transform: none !important;
+    filter: drop-shadow(0 3px 8px rgba(0, 140, 156, 0.22)) !important;
 }
 
 /* Hero Typography: Headline in 1 Line + 2-Line Subtitle */
@@ -11536,132 +11493,87 @@ html body .sapUiBlockLayer {
     margin: 16px auto 0 auto !important;
     position: relative !important;
     overflow: visible !important;
+    pointer-events: none !important;
+    cursor: default !important;
 }
 
-/* Outer Stage Canvas */
+/* Outer Stage Canvas - Clean Static Frame (Zero Hover Action) */
+.kyra3dStageCanvas,
+.kyra3dStageCanvas * {
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
 .kyra3dStageCanvas {
     position: relative !important;
-    width: 490px !important;
-    height: 265px !important;
+    width: 470px !important;
+    height: 235px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     perspective: 1000px !important;
     margin: 0 auto !important;
     overflow: visible !important;
+    animation: none !important;
+    pointer-events: none !important;
+    cursor: default !important;
 }
 
-/* Outer Rotating Dashed Cyber Radar Ring */
+/* Outer Clean Orbit Circle - Static, Symmetrical, Properly Visible */
 .kyra3dStageCanvas::before {
     content: '' !important;
     position: absolute !important;
     width: 410px !important;
     height: 205px !important;
     border-radius: 50% !important;
-    border: 1.5px dashed rgba(0, 180, 216, 0.38) !important;
-    top: 52% !important;
+    border: 1.5px dashed rgba(0, 168, 185, 0.45) !important;
+    top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     pointer-events: none !important;
     z-index: 1 !important;
-    box-shadow: 0 0 20px rgba(0, 201, 232, 0.15), inset 0 0 20px rgba(0, 201, 232, 0.08) !important;
-    animation: kyraOrbitRingSpin 32s linear infinite !important;
+    box-shadow: 0 0 16px rgba(0, 201, 232, 0.10), inset 0 0 16px rgba(0, 201, 232, 0.05) !important;
+    animation: none !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-/* Inner Counter-Rotating Holographic Ring */
+/* Inner Clean Holographic Circle - Static, Symmetrical, Properly Visible */
 .kyra3dStageCanvas::after {
     content: '' !important;
     position: absolute !important;
-    width: 290px !important;
-    height: 145px !important;
+    width: 280px !important;
+    height: 140px !important;
     border-radius: 50% !important;
-    border: 1.5px solid rgba(0, 140, 156, 0.26) !important;
-    top: 52% !important;
+    border: 1.5px solid rgba(0, 140, 156, 0.28) !important;
+    top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     pointer-events: none !important;
     z-index: 1 !important;
-    box-shadow: 0 0 16px rgba(0, 140, 156, 0.12) !important;
-    animation: kyraOrbitRingCounterSpin 22s linear infinite !important;
+    box-shadow: 0 0 12px rgba(0, 140, 156, 0.08) !important;
+    animation: none !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-@keyframes kyraOrbitRingSpin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-@keyframes kyraOrbitRingCounterSpin {
-    0% { transform: translate(-50%, -50%) rotate(360deg); }
-    100% { transform: translate(-50%, -50%) rotate(0deg); }
-}
-
-/* Dynamic Radar Pulse Waves Radiating from Core */
-.kyraRadarPulseWave {
-    position: absolute !important;
-    top: 52% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    border-radius: 50% !important;
-    border: 1.5px solid rgba(0, 201, 232, 0.5) !important;
-    pointer-events: none !important;
-    z-index: 2 !important;
-    box-sizing: border-box !important;
-}
-
-.kyraRadarPulseWave1 {
-    width: 150px !important;
-    height: 75px !important;
-    animation: kyraPulseExpand 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite !important;
-}
-
+/* Radar Scan Beam & Pulse Waves Hidden (Clean, Static, No Effects) */
+.kyraRadarScanBeam,
+.kyraRadarPulseWave,
+.kyraRadarPulseWave1,
 .kyraRadarPulseWave2 {
-    width: 150px !important;
-    height: 75px !important;
-    animation: kyraPulseExpand 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite 2s !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    animation: none !important;
 }
 
-@keyframes kyraPulseExpand {
-    0% {
-        width: 120px;
-        height: 60px;
-        opacity: 0.8;
-        border-color: rgba(0, 201, 232, 0.6);
-    }
-    50% {
-        opacity: 0.4;
-    }
-    100% {
-        width: 440px;
-        height: 220px;
-        opacity: 0;
-        border-color: rgba(0, 140, 156, 0);
-    }
-}
-
-/* Subtle Radar Conic Sweeper Beam */
-.kyraRadarScanBeam {
-    position: absolute !important;
-    width: 380px !important;
-    height: 190px !important;
-    top: 52% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    border-radius: 50% !important;
-    background: conic-gradient(from 0deg at 50% 50%, rgba(0, 201, 232, 0.12) 0deg, rgba(0, 140, 156, 0) 65deg, transparent 360deg) !important;
-    pointer-events: none !important;
-    z-index: 3 !important;
-    animation: kyraRadarSweep 14s linear infinite !important;
-}
-
-@keyframes kyraRadarSweep {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-/* Central Core 3D Shield Node with Majestic Levitation & Glow */
+/* Central Core 3D Shield Node (Clean Static Position) */
 .kyraCenterShieldNode {
     position: absolute !important;
-    top: 52% !important;
+    top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     z-index: 10 !important;
@@ -11669,76 +11581,34 @@ html body .sapUiBlockLayer {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    animation: kyraCenterShieldFloat 5s ease-in-out infinite alternate !important;
+    animation: none !important;
 }
 
 .kyra3dCenterShieldImg {
-    width: 154px !important;
-    height: 154px !important;
+    width: 140px !important;
+    height: 140px !important;
     object-fit: contain !important;
-    filter: drop-shadow(0 14px 28px rgba(0, 140, 156, 0.35)) drop-shadow(0 0 16px rgba(0, 201, 232, 0.28)) !important;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease !important;
-    cursor: pointer !important;
-    animation: kyraShieldBreathe 5s ease-in-out infinite alternate !important;
-}
-
-.kyra3dCenterShieldImg:hover {
-    transform: scale(1.12) translateY(-4px) !important;
-    filter: drop-shadow(0 22px 40px rgba(0, 140, 156, 0.55)) drop-shadow(0 0 28px rgba(0, 201, 232, 0.75)) !important;
+    filter: drop-shadow(0 12px 24px rgba(0, 140, 156, 0.32)) drop-shadow(0 0 14px rgba(0, 201, 232, 0.24)) !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    transition: none !important;
+    animation: none !important;
 }
 
 .kyraCenterGlowAura {
     position: absolute !important;
-    width: 130px !important;
-    height: 42px !important;
-    bottom: -6px !important;
-    background: radial-gradient(ellipse, rgba(0, 201, 232, 0.45) 0%, rgba(0, 140, 156, 0.1) 50%, transparent 75%) !important;
+    width: 120px !important;
+    height: 38px !important;
+    bottom: -4px !important;
+    background: radial-gradient(ellipse, rgba(0, 201, 232, 0.35) 0%, rgba(0, 140, 156, 0.08) 50%, transparent 75%) !important;
     border-radius: 50% !important;
     pointer-events: none !important;
     z-index: 8 !important;
-    animation: kyraGlowAuraPulse 5s ease-in-out infinite alternate !important;
+    animation: none !important;
+    opacity: 0.5 !important;
 }
 
-@keyframes kyraCenterShieldFloat {
-    0% {
-        transform: translate(-50%, -50%) translateY(0px) rotate(0deg);
-    }
-    50% {
-        transform: translate(-50%, -50%) translateY(-10px) rotate(-0.5deg);
-    }
-    100% {
-        transform: translate(-50%, -50%) translateY(2px) rotate(0.5deg);
-    }
-}
-
-@keyframes kyraShieldBreathe {
-    0% {
-        filter: drop-shadow(0 12px 24px rgba(0, 140, 156, 0.30)) drop-shadow(0 0 12px rgba(0, 201, 232, 0.25));
-    }
-    50% {
-        filter: drop-shadow(0 20px 36px rgba(0, 140, 156, 0.48)) drop-shadow(0 0 22px rgba(0, 201, 232, 0.55));
-    }
-    100% {
-        filter: drop-shadow(0 12px 24px rgba(0, 140, 156, 0.30)) drop-shadow(0 0 12px rgba(0, 201, 232, 0.25));
-    }
-}
-
-@keyframes kyraGlowAuraPulse {
-    0% {
-        transform: scale(0.88);
-        opacity: 0.45;
-    }
-    50% {
-        transform: scale(1.22);
-        opacity: 0.85;
-    }
-    100% {
-        transform: scale(0.88);
-        opacity: 0.45;
-    }
-}
-
-/* Orbit Satellite Nodes with Smooth Multi-Axis Motion */
+/* Orbit Satellite Nodes - Pure 3D Pedestals Without Badges (Static - Zero Hover Action) */
 .kyraOrbitNode {
     position: absolute !important;
     z-index: 12 !important;
@@ -11746,170 +11616,92 @@ html body .sapUiBlockLayer {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 4px !important;
-    cursor: pointer !important;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    gap: 0 !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    transition: none !important;
+    animation: none !important;
 }
 
 .kyra3dSatelliteImg {
-    width: 90px !important;
-    height: 90px !important;
+    width: 86px !important;
+    height: 86px !important;
     object-fit: contain !important;
     filter: drop-shadow(0 8px 18px rgba(0, 140, 156, 0.25)) drop-shadow(0 0 10px rgba(0, 201, 232, 0.15)) !important;
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease !important;
+    transition: none !important;
+    cursor: default !important;
+    pointer-events: none !important;
 }
 
-.kyraOrbitNode:hover .kyra3dSatelliteImg {
-    transform: scale(1.14) translateY(-5px) !important;
-    filter: drop-shadow(0 16px 28px rgba(0, 140, 156, 0.45)) drop-shadow(0 0 18px rgba(0, 201, 232, 0.6)) !important;
+.kyraOrbitNode:hover .kyra3dSatelliteImg,
+.kyra3dSatelliteImg:hover {
+    transform: none !important;
+    filter: drop-shadow(0 8px 18px rgba(0, 140, 156, 0.25)) drop-shadow(0 0 10px rgba(0, 201, 232, 0.15)) !important;
 }
 
-.kyraNodeBadgeLabel {
-    font-size: 10.5px !important;
-    font-weight: 700 !important;
-    color: #0F766E !important;
-    background: rgba(255, 255, 255, 0.92) !important;
-    border: 1px solid rgba(0, 140, 156, 0.28) !important;
-    border-radius: 9999px !important;
-    padding: 2.5px 9px !important;
-    box-shadow: 0 2px 10px rgba(0, 140, 156, 0.12) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    letter-spacing: 0.02em !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    animation: kyraBadgePulse 4s ease-in-out infinite alternate !important;
+/* Fully Remove All Badge Label Designs (Matching Second Image Pill Button Removal) */
+.kyraNodeBadgeLabel,
+.kyraNodeTopRight .kyraNodeBadgeLabel,
+.kyraNodeBadgeLabel[text*="Cloud Gateway"],
+.kyraNodeBadgeLabel[data-text*="Cloud Gateway"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
-@keyframes kyraBadgePulse {
-    0% {
-        box-shadow: 0 2px 8px rgba(0, 140, 156, 0.1);
-        border-color: rgba(0, 140, 156, 0.25);
-    }
-    100% {
-        box-shadow: 0 3px 12px rgba(0, 201, 232, 0.3);
-        border-color: rgba(0, 201, 232, 0.5);
-    }
-}
-
-.kyraOrbitNode:hover .kyraNodeBadgeLabel {
-    background: #008C9C !important;
-    color: #FFFFFF !important;
-    border-color: #008C9C !important;
-    box-shadow: 0 6px 16px rgba(0, 140, 156, 0.45) !important;
-    transform: translateY(-3px) scale(1.05) !important;
-}
-
-/* Organic 3D Floating Trajectories for All 4 Orbit Satellites */
+/* Node Static Positions - Balanced 3D Constellation (Spacious, No Overlap) */
 /* Top-Left: User Identity */
 .kyraNodeTopLeft {
-    top: 2px !important;
-    left: 14px !important;
-    animation: kyraFloatNodeTL 5.8s ease-in-out infinite alternate !important;
-}
-
-@keyframes kyraFloatNodeTL {
-    0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-    }
-    33% {
-        transform: translate3d(-5px, -8px, 0) rotate(-1deg);
-    }
-    66% {
-        transform: translate3d(4px, -4px, 0) rotate(0.8deg);
-    }
-    100% {
-        transform: translate3d(-2px, -11px, 0) rotate(-0.5deg);
-    }
+    top: 6px !important;
+    left: 24px !important;
+    animation: none !important;
 }
 
 /* Bottom-Left: Verified Compliance / Zero-Trust */
 .kyraNodeBottomLeft {
-    bottom: 2px !important;
-    left: 4px !important;
-    animation: kyraFloatNodeBL 6.4s ease-in-out 0.4s infinite alternate !important;
+    bottom: 6px !important;
+    left: 24px !important;
+    animation: none !important;
 }
 
-@keyframes kyraFloatNodeBL {
-    0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-    }
-    33% {
-        transform: translate3d(-4px, 8px, 0) rotate(1deg);
-    }
-    66% {
-        transform: translate3d(5px, 3px, 0) rotate(-0.8deg);
-    }
-    100% {
-        transform: translate3d(-1px, 11px, 0) rotate(0.5deg);
-    }
-}
-
-/* Top-Right: Cloud Server / Gateway */
+/* Top-Right: Cloud Server */
 .kyraNodeTopRight {
-    top: 2px !important;
-    right: 14px !important;
-    animation: kyraFloatNodeTR 6.1s ease-in-out 0.8s infinite alternate !important;
-}
-
-@keyframes kyraFloatNodeTR {
-    0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-    }
-    33% {
-        transform: translate3d(6px, -9px, 0) rotate(1deg);
-    }
-    66% {
-        transform: translate3d(-4px, -3px, 0) rotate(-0.8deg);
-    }
-    100% {
-        transform: translate3d(3px, -11px, 0) rotate(0.5deg);
-    }
+    top: 6px !important;
+    right: 24px !important;
+    animation: none !important;
 }
 
 /* Bottom-Right: Continuous Analytics / Audit */
 .kyraNodeBottomRight {
-    bottom: 2px !important;
-    right: 4px !important;
-    animation: kyraFloatNodeBR 6.8s ease-in-out 1.2s infinite alternate !important;
-}
-
-@keyframes kyraFloatNodeBR {
-    0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-    }
-    33% {
-        transform: translate3d(5px, 8px, 0) rotate(-1deg);
-    }
-    66% {
-        transform: translate3d(-5px, 4px, 0) rotate(0.8deg);
-    }
-    100% {
-        transform: translate3d(2px, 11px, 0) rotate(-0.5deg);
-    }
+    bottom: 6px !important;
+    right: 24px !important;
+    animation: none !important;
 }
 
 /* =========================================================================
-   RIGHT SECTION (FLOATING GLASSMORPHIC LOGIN CARD)
+   RIGHT SECTION (LOGIN CARD - CLEAN, STATIC, PERFECTLY CENTERED)
    ========================================================================= */
 .kyraLoginRightPanel {
-    flex: 0 0 45% !important;
-    width: 45% !important;
-    min-width: 45% !important;
-    max-width: 45% !important;
-    min-height: 100vh !important;
-    height: 100vh !important;
+    flex: 0 0 46% !important;
+    width: 46% !important;
+    min-width: 46% !important;
+    max-width: 46% !important;
+    height: auto !important;
     max-height: 100vh !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 20px 24px !important;
+    padding: 0 24px !important;
     box-sizing: border-box !important;
     position: relative !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow: visible !important;
 }
 
 /* Centered Glassmorphism Card: Sleek, High-End Enterprise Design */
@@ -11918,15 +11710,15 @@ html body .sapUiBlockLayer {
     border-radius: 20px !important;
     border: 1px solid #E2E8F0 !important;
     box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.8) !important;
-    padding: 30px 34px 28px 34px !important;
-    max-width: 450px !important;
+    padding: 28px 32px 26px 32px !important;
+    max-width: 420px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    margin: auto !important;
+    margin: 0 auto !important;
     position: relative !important;
     z-index: 2 !important;
     overflow: visible !important;
-    animation: kyraCardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    animation: none !important;
 }
 
 /* Top Card Header: Clean Direct Logo Only */
@@ -15908,113 +15700,32 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
 }
 
 /* =========================================================================
-   KYRA SIMPLE MINIMAL LOADING POPUP (Matching media_1787656906841.jpg)
+   LOGIN SCREEN: COMPLETELY REMOVE LOADING SCREEN FOR LOGIN PAGE ONLY
    ========================================================================= */
-.kyraLoadingSlideOverlay {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: rgba(15, 23, 42, 0.40) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    filter: none !important;
+#kyra_initial_loader,
+.kyraDesktopLoginPage .kyraLoadingSlideOverlay,
+.kyraDesktopLoginPage #kyra_loading_slide_overlay,
+.kyraDesktopLoginPage .kyraLoadingSlideCard,
+.kyraDesktopLoginPage .kyraSimpleCircleSpinner,
+.kyraDesktopLoginPage .kyraSimpleSpinner,
+.kyraDesktopLoginPage .sapUiLocalBusyIndicator,
+.kyraDesktopLoginPage .sapUiLocalBusyIndicatorBox,
+.kyraDesktopLoginPage .sapUiLocalBusyIndicatorAnimation,
+.kyraDesktopLoginPage .sapUiLocalBusyIndicatorDot {
     display: none !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    z-index: 999999 !important;
+    visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-    transition: opacity 0.22s ease !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-}
-
-.kyraLoadingSlideOverlay.kyra-active {
-    display: flex !important;
-    opacity: 1 !important;
-    pointer-events: all !important;
-}
-
-.kyraLoadingSlideCard {
-    background: #FFFFFF !important;
-    width: 380px !important;
-    max-width: calc(100vw - 48px) !important;
-    border-radius: 22px !important;
-    box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.85) !important;
-    padding: 32px 28px 32px 28px !important;
-    margin: 0 auto !important;
-    text-align: center !important;
-    position: relative !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    transform: translateY(14px) scale(0.97) !important;
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    box-sizing: border-box !important;
-}
-
-.kyraLoadingSlideOverlay.kyra-active .kyraLoadingSlideCard {
-    transform: translateY(0) scale(1) !important;
-}
-
-/* Clean Single Circle Loading Spinner */
-.kyraSimpleCircleSpinner {
-    width: 52px !important;
-    height: 52px !important;
-    display: block !important;
-    flex-shrink: 0 !important;
-    margin: 0 auto 18px auto !important;
-    border-radius: 50% !important;
-    border: 4px solid #E2E8F0 !important;
-    border-top-color: #008C9C !important;
-    border-right-color: #008C9C !important;
-    transform-origin: center center !important;
-    animation: kyraSimpleSpin 0.85s linear infinite !important;
-    box-sizing: border-box !important;
-}
-
-@keyframes kyraSimpleSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Typography Placement */
-.kyraLoadingTitle {
-    width: 100% !important;
-    max-width: 100% !important;
-    text-align: center !important;
-    font-size: 17px !important;
-    font-weight: 700 !important;
-    color: #0F172A !important;
-    margin: 0 0 8px 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
-    line-height: 1.35 !important;
-    letter-spacing: -0.01em !important;
-    box-sizing: border-box !important;
-    word-break: break-word !important;
-}
-
-.kyraLoadingSubtitle {
-    width: 100% !important;
-    max-width: 324px !important;
-    text-align: center !important;
-    font-size: 13.5px !important;
-    font-weight: 400 !important;
-    color: #64748B !important;
-    line-height: 1.45 !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    box-sizing: border-box !important;
-    word-break: break-word !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    z-index: -99999 !important;
 }
 
 /* =========================================================================
@@ -21895,8 +21606,8 @@ html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnInner {
 }
 
 .kyraHero3dGraphicImg:hover {
-    transform: translateY(-4px) scale(1.015) !important;
-    filter: drop-shadow(0 20px 42px rgba(0, 140, 156, 0.24)) !important;
+    transform: none !important;
+    filter: drop-shadow(0 16px 36px rgba(0, 140, 156, 0.16)) !important;
 }
 
 /* Hide legacy detached left elements if present */

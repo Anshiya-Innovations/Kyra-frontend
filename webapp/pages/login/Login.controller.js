@@ -91,6 +91,30 @@ sap.ui.define([
         onAfterRendering() {
             this._attachSvgInteractions();
             this._updateSelectStyle(this.getView().getModel("login").getProperty("/selectedRole"));
+
+            // Apply custom enterprise cyber wallpaper to login page only
+            try {
+                const sLoginBgUrl = sap.ui.require.toUrl("kyra001/images/kyra_login_bg.png");
+                const oPage = this.byId("kyraLoginPage") || (this.getView().getContent() && this.getView().getContent()[0]);
+                if (oPage && oPage.getDomRef()) {
+                    const oDom = oPage.getDomRef();
+                    oDom.style.backgroundImage = `url('${sLoginBgUrl}')`;
+                    oDom.style.backgroundSize = "cover";
+                    oDom.style.backgroundPosition = "center center";
+                    oDom.style.backgroundRepeat = "no-repeat";
+                    oDom.style.backgroundAttachment = "fixed";
+
+                    const oScroll = oDom.querySelector(".sapMPageScroll");
+                    if (oScroll) {
+                        oScroll.style.backgroundImage = `url('${sLoginBgUrl}')`;
+                        oScroll.style.backgroundSize = "cover";
+                        oScroll.style.backgroundPosition = "center center";
+                        oScroll.style.backgroundRepeat = "no-repeat";
+                        oScroll.style.backgroundAttachment = "fixed";
+                    }
+                }
+            } catch(e) {}
+
             // Prevent aggressive initial focus ring so the card opens in pristine resting state
             setTimeout(() => {
                 if (document.activeElement && (document.activeElement.classList.contains("sapMSlt") || document.activeElement.classList.contains("sapMInputBaseInner") || document.activeElement.tagName === "BODY")) {
@@ -100,46 +124,7 @@ sap.ui.define([
         },
 
         _attachSvgInteractions() {
-            setTimeout(() => {
-                const aNodes = [
-                    { id: "nodeIdGovernance", label: "Identity Governance", msg: "Identity Governance: Centralized enterprise identity governance active." },
-                    { id: "nodeRoleMgmt", label: "Role Management", msg: "Role Management: Dynamic role entitlement provisioning enabled." },
-                    { id: "nodeEntitlement", label: "Entitlement Provisioning", msg: "Entitlement Provisioning: Enterprise multi-cloud directories synchronized." },
-                    { id: "nodeCompliance", label: "Continuous Compliance", msg: "Continuous Compliance: Continuous automated compliance active across hybrid cloud." }
-                ];
-
-                aNodes.forEach(node => {
-                    const el = document.getElementById(node.id);
-                    if (el && !el.dataset.bound) {
-                        el.dataset.bound = "true";
-                        el.style.cursor = "pointer";
-                        el.addEventListener("click", () => {
-                            MessageToast.show(node.msg);
-                        });
-                    }
-                });
-
-                const shieldEl = document.querySelector(".kyraSvgFloatingShield");
-                if (shieldEl && !shieldEl.dataset.bound) {
-                    shieldEl.dataset.bound = "true";
-                    shieldEl.style.cursor = "pointer";
-                    shieldEl.addEventListener("click", () => {
-                        MessageToast.show("KYRA Core Shield: Total Access Control and Security Gateway Active");
-                    });
-                }
-
-                const aPills = document.querySelectorAll(".kyraArchPill");
-                aPills.forEach(pill => {
-                    if (pill && !pill.dataset.bound) {
-                        pill.dataset.bound = "true";
-                        pill.style.cursor = "pointer";
-                        pill.addEventListener("click", () => {
-                            const txt = pill.textContent ? pill.textContent.trim() : "Security Architecture";
-                            MessageToast.show(txt + ": Active and Protected by KYRA Security Architecture");
-                        });
-                    }
-                });
-            }, 300);
+            // Left hero section is purely static with zero hover and click actions
         },
 
         _onRouteMatched() {
@@ -321,16 +306,7 @@ sap.ui.define([
 
             // 2. Clear error state and start loading
             this._resetErrorStates();
-            oModel.setProperty("/isBusy", true);
-
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Authenticating Credentials...",
-                    subtitle: "Verifying security identity and enterprise authorization..."
-                });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Authenticating Credentials...", "Verifying security identity and enterprise authorization...");
-            }
+            oModel.setProperty("/isBusy", false);
 
             if (bRemember) {
                 localStorage.setItem("kyra_remember_role", sEffectiveTitle);

@@ -818,7 +818,6 @@ sap.ui.define([
         },
 
         _setupModernBusyIndicator() {
-            // Setup global fetch and BusyIndicator hooks for unified project-themed loading slide
             if (window.KyraLoader && typeof window.KyraLoader.setupGlobalHooks === "function") {
                 window.KyraLoader.setupGlobalHooks();
             }

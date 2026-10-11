@@ -5,25 +5,18 @@
     xmlns:core="sap.ui.core"
     displayBlock="true">
     
-    <Page showHeader="false" enableScrolling="true" class="kyraDesktopLoginPage">
+    <Page id="kyraLoginPage" showHeader="false" enableScrolling="false" class="kyraDesktopLoginPage">
         <content>
-            <!-- Ambient Background Effects (Cyber Mesh Grid, Glow Orbs, Subtle Watermark) -->
-            <VBox class="kyraAmbientCanvasContainer" width="100%" height="100%">
-                <HBox class="kyraCyberGridOverlay" />
-                <HBox class="kyraAmbientOrb kyraAmbientOrb1" />
-                <HBox class="kyraAmbientOrb kyraAmbientOrb2" />
-                <HBox class="kyraAmbientOrb kyraAmbientOrb3" />
-                <Image src="{login>/logoUrl}" densityAware="false" class="kyraWatermarkK" />
-            </VBox>
+
 
             <FlexBox class="kyraLoginLayoutWrapper" direction="Row" wrap="Wrap" height="100%" width="100%">
                 
-                <!-- ================= LEFT SECTION (58% COLUMN - ZERO-TRUST CYBERSECURITY HUB) ================= -->
-                <VBox class="kyraLoginLeftPanel" justifyContent="Start" alignItems="Stretch">
+                <!-- ================= LEFT SECTION (ZERO-TRUST CYBERSECURITY HUB) ================= -->
+                <VBox class="kyraLoginLeftPanel" justifyContent="Center" alignItems="Start">
                     
                     <!-- Top Brand Logo (Clean & Proper) -->
                     <HBox alignItems="Center" class="kyraHeroBrandLogoContainer">
-                        <Image src="{login>/logoUrl}" height="44px" densityAware="false" class="kyraHeroBrandLogoOnly" tooltip="KYRA Secure Access" />
+                        <Image src="{login>/logoUrl}" height="44px" densityAware="false" class="kyraHeroBrandLogoOnly" />
                     </HBox>
 
                     <!-- Hero Typography & Core Value Proposition -->
@@ -45,16 +38,11 @@
                         </VBox>
                     </VBox>
 
-                    <!-- 3D Cyber Constellation Hub (All 5 Separate Icons Interactive Stage) -->
+                    <!-- 3D Cyber Constellation Hub (All 5 Separate Icons Stage) -->
                     <VBox class="kyraCyberStageWrapper" alignItems="Center" justifyContent="Center" width="100%">
                         
-                        <!-- Main 3D Interactive Stage Canvas -->
+                        <!-- Main 3D Stage Canvas -->
                         <HBox class="kyra3dStageCanvas" justifyContent="Center" alignItems="Center">
-                            
-                            <!-- Dynamic Holographic Radar Sweep & Energy Pulse Waves -->
-                            <HBox class="kyraRadarScanBeam" />
-                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave1" />
-                            <HBox class="kyraRadarPulseWave kyraRadarPulseWave2" />
                             
                             <!-- Central Core 3D Shield -->
                             <VBox class="kyraCenterShieldNode" alignItems="Center" justifyContent="Center">
@@ -62,8 +50,7 @@
                                     id="kyra3dShieldCenter"
                                     src="{login>/iconShieldUrl}"
                                     densityAware="false"
-                                    class="kyra3dCenterShieldImg"
-                                    tooltip="KYRA Zero-Trust Security Core" />
+                                    class="kyra3dCenterShieldImg" />
                                 <HBox class="kyraCenterGlowAura" />
                             </VBox>
 
@@ -72,9 +59,7 @@
                                 <Image 
                                     src="{login>/iconUserUrl}"
                                     densityAware="false"
-                                    class="kyra3dSatelliteImg"
-                                    tooltip="Identity Governance" />
-                                <Text text="Identity" class="kyraNodeBadgeLabel" />
+                                    class="kyra3dSatelliteImg" />
                             </VBox>
 
                             <!-- Node Bottom-Left: Verified Compliance -->
@@ -82,9 +67,7 @@
                                 <Image 
                                     src="{login>/iconVerifiedUrl}"
                                     densityAware="false"
-                                    class="kyra3dSatelliteImg"
-                                    tooltip="Zero-Trust Compliance" />
-                                <Text text="Zero-Trust" class="kyraNodeBadgeLabel" />
+                                    class="kyra3dSatelliteImg" />
                             </VBox>
 
                             <!-- Node Top-Right: Cloud Infrastructure -->
@@ -92,9 +75,7 @@
                                 <Image 
                                     src="{login>/iconServerUrl}"
                                     densityAware="false"
-                                    class="kyra3dSatelliteImg"
-                                    tooltip="Cloud Gateway &amp; Servers" />
-                                <Text text="Cloud Gateway" class="kyraNodeBadgeLabel" />
+                                    class="kyra3dSatelliteImg" />
                             </VBox>
 
                             <!-- Node Bottom-Right: Continuous Analytics -->
@@ -102,9 +83,7 @@
                                 <Image 
                                     src="{login>/iconAnalyticsUrl}"
                                     densityAware="false"
-                                    class="kyra3dSatelliteImg"
-                                    tooltip="Continuous Audit &amp; Risk" />
-                                <Text text="Continuous Audit" class="kyraNodeBadgeLabel" />
+                                    class="kyra3dSatelliteImg" />
                             </VBox>
 
                         </HBox>
