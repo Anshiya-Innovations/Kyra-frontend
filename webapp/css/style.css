@@ -13855,7 +13855,7 @@ html body .sapMTokenSelected .sapMTokenIcon {
     justify-content: space-between !important;
     align-items: flex-start !important;
     margin-top: 18px !important;
-    padding: 0 4px !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
 }
 
@@ -13863,45 +13863,68 @@ html body .sapMTokenSelected .sapMTokenIcon {
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    flex: 1 1 0 !important;
-    width: 16.66% !important;
+    flex: 1 1 0% !important;
+    width: 16.666% !important;
     min-width: 0 !important;
     text-align: center !important;
-    padding: 0 4px !important;
+    padding: 0 !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
 }
 
 .kyraStepIconRow {
     display: flex !important;
     align-items: center !important;
+    justify-content: center !important;
     width: 100% !important;
+    height: 48px !important;
     margin-bottom: 10px !important;
     position: relative !important;
+    box-sizing: border-box !important;
 }
 
 .kyraStepLineSpacer {
-    flex: 1 1 0 !important;
+    flex: 1 1 0% !important;
+    width: auto !important;
+    min-width: 0 !important;
     height: 2px !important;
     visibility: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .kyraStepLine {
-    flex: 1 1 0 !important;
+    flex: 1 1 0% !important;
+    width: auto !important;
+    min-width: 0 !important;
     height: 2px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .kyraStepLineGreen {
     background-color: #16A34A !important;
+    border: none !important;
+}
+
+.kyraStepLineRed {
+    background-color: #DC2626 !important;
+    border: none !important;
 }
 
 .kyraStepLineDashed {
-    border-top: 2px dashed #CBD5E1 !important;
-    background: transparent !important;
+    border: none !important;
+    height: 2px !important;
+    background: repeating-linear-gradient(to right, #CBD5E1, #CBD5E1 5px, transparent 5px, transparent 10px) !important;
 }
 
 .kyraStepCircle {
     width: 48px !important;
     height: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
@@ -13909,6 +13932,8 @@ html body .sapMTokenSelected .sapMTokenIcon {
     position: relative !important;
     z-index: 2 !important;
     flex-shrink: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
     transition: all 0.2s ease !important;
 }
 
@@ -13943,6 +13968,21 @@ html body .sapMTokenSelected .sapMTokenIcon {
 
 .kyraStepIcon {
     font-size: 20px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraStepCircle .kyraStepIcon,
+.kyraStepCircle > .sapUiIcon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .kyraStepIconGreen {
@@ -13969,65 +14009,118 @@ html body .sapMTokenSelected .sapMTokenIcon {
     position: absolute !important;
     top: -2px !important;
     right: -2px !important;
-    width: 17px !important;
-    height: 17px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
     border-radius: 50% !important;
     background: #16A34A !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border: 2px solid #FFFFFF !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 5 !important;
 }
 
 .kyraStepBadgeRed {
     position: absolute !important;
     top: -2px !important;
     right: -2px !important;
-    width: 17px !important;
-    height: 17px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
     border-radius: 50% !important;
     background: #DC2626 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border: 2px solid #FFFFFF !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 5 !important;
 }
 
 .kyraStepBadgeAmber {
     position: absolute !important;
     top: -2px !important;
     right: -2px !important;
-    width: 17px !important;
-    height: 17px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    min-height: 18px !important;
+    max-height: 18px !important;
     border-radius: 50% !important;
     background: #D97706 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border: 2px solid #FFFFFF !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 5 !important;
 }
 
-.kyraBadgeCheckIcon {
-    font-size: 8.5px !important;
+.kyraBadgeCheckIcon,
+.kyraBadgeErrorIcon,
+.kyraStepBadgeGreen .sapUiIcon,
+.kyraStepBadgeRed .sapUiIcon,
+.kyraStepBadgeAmber .sapUiIcon {
+    font-size: 9px !important;
     color: #FFFFFF !important;
     font-weight: bold !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
 }
 
-.kyraBadgeErrorIcon {
-    font-size: 8.5px !important;
-    color: #FFFFFF !important;
-    font-weight: bold !important;
+.kyraBadgeCheckIcon::before,
+.kyraBadgeErrorIcon::before,
+.kyraStepBadgeGreen .sapUiIcon::before,
+.kyraStepBadgeRed .sapUiIcon::before,
+.kyraStepBadgeAmber .sapUiIcon::before {
+    display: block !important;
+    line-height: 1 !important;
+    font-size: 9px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
 }
 
 .kyraStepBadgeBlueDot {
     position: absolute !important;
     top: -1px !important;
     right: -1px !important;
-    width: 13px !important;
-    height: 13px !important;
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    min-height: 14px !important;
+    max-height: 14px !important;
     border-radius: 50% !important;
     background: #008C9C !important;
     border: 2px solid #FFFFFF !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    z-index: 5 !important;
 }
 
 .kyraStepNumBadge {
@@ -34959,7 +35052,7 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     font-size: 13px !important;
 }
 
-.kyraStepLine {
+.kyraStudioStepper .kyraStepLine {
     width: 90px !important;
     height: 1.5px !important;
     background: #E2E8F0 !important;

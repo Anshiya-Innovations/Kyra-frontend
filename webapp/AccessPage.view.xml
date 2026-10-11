@@ -3941,7 +3941,7 @@
                                 <HBox class="kyraStepCircle kyraStepCircleRed" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step2/state} === 'RED' }">
                                     <core:Icon src="sap-icon://person-placeholder" class="kyraStepIcon kyraStepIconRed" />
                                     <HBox class="kyraStepBadgeRed" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://error" class="kyraBadgeErrorIcon" />
+                                        <core:Icon src="sap-icon://decline" class="kyraBadgeErrorIcon" />
                                     </HBox>
                                 </HBox>
                                 <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step2/state} !== 'GREEN' &amp;&amp; ${accessModel>/selectedRequestDetail/step2/state} !== 'BLUE' &amp;&amp; ${accessModel>/selectedRequestDetail/step2/state} !== 'RED' }">
@@ -3998,7 +3998,7 @@
                                 <HBox class="kyraStepCircle kyraStepCircleRed" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step3/state} === 'RED' }">
                                     <core:Icon src="sap-icon://shield" class="kyraStepIcon kyraStepIconRed" />
                                     <HBox class="kyraStepBadgeRed" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://error" class="kyraBadgeErrorIcon" />
+                                        <core:Icon src="sap-icon://decline" class="kyraBadgeErrorIcon" />
                                     </HBox>
                                 </HBox>
                                 <HBox class="kyraStepCircle kyraStepCircleAmber" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step3/state} === 'AMBER' }">
@@ -4067,7 +4067,7 @@
                                 <HBox class="kyraStepCircle kyraStepCircleRed" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step4/state} === 'RED' }">
                                     <core:Icon src="sap-icon://user-settings" class="kyraStepIcon kyraStepIconRed" />
                                     <HBox class="kyraStepBadgeRed" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://error" class="kyraBadgeErrorIcon" />
+                                        <core:Icon src="sap-icon://decline" class="kyraBadgeErrorIcon" />
                                     </HBox>
                                 </HBox>
                                 <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step4/state} === 'GRAY' || !${accessModel>/selectedRequestDetail/step4/state} }">
@@ -4124,7 +4124,7 @@
                                 <HBox class="kyraStepCircle kyraStepCircleRed" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step5/state} === 'RED' }">
                                     <core:Icon src="sap-icon://sys-monitor" class="kyraStepIcon kyraStepIconRed" />
                                     <HBox class="kyraStepBadgeRed" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://error" class="kyraBadgeErrorIcon" />
+                                        <core:Icon src="sap-icon://decline" class="kyraBadgeErrorIcon" />
                                     </HBox>
                                 </HBox>
                                 <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step5/state} === 'GRAY' || !${accessModel>/selectedRequestDetail/step5/state} }">
@@ -4177,7 +4177,7 @@
                                 <HBox class="kyraStepCircle kyraStepCircleRed" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step6/state} === 'RED' }">
                                     <core:Icon src="sap-icon://flag" class="kyraStepIcon kyraStepIconRed" />
                                     <HBox class="kyraStepBadgeRed" justifyContent="Center" alignItems="Center">
-                                        <core:Icon src="sap-icon://error" class="kyraBadgeErrorIcon" />
+                                        <core:Icon src="sap-icon://decline" class="kyraBadgeErrorIcon" />
                                     </HBox>
                                 </HBox>
                                 <HBox class="kyraStepCircle kyraStepCircleGray" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step6/state} === 'GRAY' || !${accessModel>/selectedRequestDetail/step6/state} }">
