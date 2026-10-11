@@ -24,6 +24,8 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden !important;
+    overflow-anchor: none !important;
+    scrollbar-gutter: stable;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     font-family: 'Inter', "72", "72full", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
@@ -43,6 +45,7 @@ body::-webkit-scrollbar {
     width: 100%;
     height: 100%;
     overflow: hidden !important;
+    overflow-anchor: none !important;
 }
 
 .sapMPageScroll, 
@@ -51,6 +54,8 @@ body::-webkit-scrollbar {
     height: 100%;
     overflow-x: hidden !important;
     overflow-y: auto !important;
+    overflow-anchor: none !important;
+    scrollbar-gutter: stable;
     scrollbar-width: thin !important;
     scrollbar-color: #CBD5E1 transparent !important;
 }
@@ -119,6 +124,32 @@ body::-webkit-scrollbar {
     padding-bottom: 140px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #CBD5E1 transparent !important;
+}
+
+.sapMPageScroll::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+
+.sapMPageScroll::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.sapMPageScroll::-webkit-scrollbar-thumb {
+    background: #CBD5E1 !important;
+    border-radius: 9999px !important;
+}
+
+.sapMPageScroll::-webkit-scrollbar-thumb:hover {
+    background: #008C9C !important;
+}
+
+.sapMPageScroll::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Perfectly Centered Enterprise Page Container */
@@ -5918,25 +5949,19 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
    MODERN CLEAN WEB APP PROFILE POPUP (Pixel-Perfect Alignment & Spacing)
    ========================================================================= */
 .kyraUserProfilePopover {
-    animation: kyraPopoverSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-}
-
-@keyframes kyraPopoverSlideDown {
-    0% {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.98);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    animation: none !important;
 }
 
 .kyraUserProfilePopover,
 .kyraUserProfilePopover.sapMPopover,
 .kyraUserProfilePopover.sapMResponsivePopover {
-    max-height: none !important;
-    overflow: hidden !important;
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    height: auto !important;
+    max-height: calc(100vh - 65px) !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
 }
 
 .kyraUserProfilePopover .sapMPopoverCont {
@@ -5944,30 +5969,57 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     border-radius: 16px !important;
     box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.14), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
     border: 1px solid #E2E8F0 !important;
-    padding: 0 !important;
+    padding: 0 0 4px 0 !important;
     box-sizing: border-box !important;
-    max-height: none !important;
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    height: auto !important;
+    max-height: calc(100vh - 65px) !important;
     overflow: hidden !important;
 }
 
 .kyraUserProfilePopover .sapMPopoverScroll,
 .kyraUserProfilePopover .sapMScrollCont,
 .kyraUserProfilePopover .sapMScrollContScroll {
-    overflow: hidden !important;
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    height: auto !important;
+    max-height: calc(100vh - 65px) !important;
+    overflow-y: auto !important;
     overflow-x: hidden !important;
-    overflow-y: hidden !important;
-    max-height: none !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #CBD5E1 transparent !important;
+    box-sizing: border-box !important;
 }
 
-/* Completely remove and hide all scrollbars for Profile Popover */
 .kyraUserProfilePopover *::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMPopoverCont::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMScrollCont::-webkit-scrollbar,
 .kyraUserProfilePopover .sapMScrollContScroll::-webkit-scrollbar,
 .kyra-modern-profile-popup::-webkit-scrollbar {
+    width: 4px !important;
+    display: block !important;
+}
+
+.kyraUserProfilePopover *::-webkit-scrollbar-track,
+.kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar-track,
+.kyra-modern-profile-popup::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.kyraUserProfilePopover *::-webkit-scrollbar-thumb,
+.kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar-thumb,
+.kyra-modern-profile-popup::-webkit-scrollbar-thumb {
+    background: #CBD5E1 !important;
+    border-radius: 9999px !important;
+}
+
+.kyraUserProfilePopover *::-webkit-scrollbar-button,
+.kyraUserProfilePopover .sapMPopoverScroll::-webkit-scrollbar-button,
+.kyra-modern-profile-popup::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
@@ -5980,17 +6032,13 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 
 .kyra-modern-profile-popup {
     width: 100% !important;
-    max-width: 295px !important;
-    padding: 12px 14px !important;
+    max-width: 300px !important;
+    padding: 8px 10px 16px 10px !important;
     box-sizing: border-box !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
     color: #0F172A !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    overflow-x: hidden !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
+    height: auto !important;
+    overflow: visible !important;
 }
 
 /* Profile Header */
@@ -6087,7 +6135,7 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 6.5px 10px 6.5px 10px !important;
+    padding: 5px 10px 5px 10px !important;
     border-radius: 8px !important;
     cursor: pointer !important;
     border-left: 3.5px solid transparent !important;
@@ -6119,6 +6167,10 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 }
 
 /* Sign Out item specific hover */
+.kyra-menu-item.kyra-signout-item {
+    margin-bottom: 8px !important;
+}
+
 .kyra-menu-item.kyra-signout-item:hover {
     background-color: #FEF2F2 !important;
     border-left: 3.5px solid #DC2626 !important;
@@ -7334,6 +7386,9 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 .kyraNotificationPopover,
 .kyraNotificationPopover.sapMPopover,
 .kyraNotificationPopover.sapMResponsivePopover {
+    width: 440px !important;
+    min-width: 440px !important;
+    max-width: 440px !important;
     max-height: calc(100vh - 80px) !important;
     height: auto !important;
     border-radius: 16px !important;
@@ -7349,6 +7404,9 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 .kyraNotificationPopover .sapMScrollCont,
 .kyraNotificationPopover .sapMScrollContScroll,
 .kyraNotificationPopover .sapMPopoverWrapper {
+    width: 440px !important;
+    min-width: 440px !important;
+    max-width: 440px !important;
     height: auto !important;
     max-height: calc(100vh - 80px) !important;
     overflow: hidden !important;
@@ -7356,6 +7414,7 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     overflow-y: hidden !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
+    box-sizing: border-box !important;
 }
 
 .kyraNotificationPopover .sapMPopoverCont::-webkit-scrollbar,
@@ -7401,7 +7460,8 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 }
 
 .kyra-notif-box-card {
-    width: 100% !important;
+    width: 440px !important;
+    min-width: 440px !important;
     max-width: 440px !important;
     box-sizing: border-box !important;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -14850,32 +14910,77 @@ html body .sapUiTheme-sap_horizon .sapMBtn.kyraNotifClearAllBtn:active bdi,
 
 /* Search Field Styling */
 .kyraNotifSearchInput,
-.kyraNotifSearchInput.sapMSF {
+.kyraNotifSearchInput.sapMSF,
+html body .kyraNotifSearchInput.sapMSF,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput.sapMSF {
     height: 38px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.kyraNotifSearchInput.sapMSF:hover,
+.kyraNotifSearchInput.sapMSF:focus-within,
+.kyraNotifSearchInput.sapMSF.sapMSFFocused,
+.kyraNotifSearchInput.sapMSF:focus,
+html body .kyraNotifSearchInput.sapMSF:hover,
+html body .kyraNotifSearchInput.sapMSF:focus-within,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput.sapMSF:focus-within {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.kyraNotifSearchInput .sapMSFF,
+html body .kyraNotifSearchInput form,
+html body .kyraNotifSearchInput .sapMSFF,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput form,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput .sapMSFF {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     border: 1px solid #CBD5E1 !important;
     border-radius: 8px !important;
     box-sizing: border-box !important;
     outline: none !important;
     box-shadow: none !important;
     overflow: hidden !important;
+    display: flex !important;
+    align-items: center !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
-.kyraNotifSearchInput.sapMSF:hover {
+.kyraNotifSearchInput:hover .sapMSFF,
+html body .kyraNotifSearchInput:hover form,
+html body .kyraNotifSearchInput:hover .sapMSFF,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput:hover form,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput:hover .sapMSFF {
     border-color: #94A3B8 !important;
-}
-
-.kyraNotifSearchInput.sapMSF:focus-within,
-.kyraNotifSearchInput.sapMSF.sapMSFFocused,
-.kyraNotifSearchInput.sapMSF:focus {
-    border-color: #008C9C !important;
-    box-shadow: none !important;
     outline: none !important;
+    box-shadow: none !important;
 }
 
-.kyraNotifSearchInput .sapMSFF,
-.kyraNotifSearchInput .sapMSFI,
+.kyraNotifSearchInput:focus-within .sapMSFF,
+.kyraNotifSearchInput.sapMSFFocused .sapMSFF,
+.kyraNotifSearchInput.sapMFocus .sapMSFF,
+html body .kyraNotifSearchInput:focus-within form,
+html body .kyraNotifSearchInput:focus-within .sapMSFF,
+html body .kyraNotifSearchInput.sapMSFFocused form,
+html body .kyraNotifSearchInput.sapMSFFocused .sapMSFF,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput:focus-within form,
+html body .sapUiTheme-sap_horizon .kyraNotifSearchInput:focus-within .sapMSFF {
+    border-color: #008C9C !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .kyraNotifSearchInput .sapMSFInner,
 .kyraNotifSearchInput input.sapMSFI,
 .kyraNotifSearchInput input.sapMSFInput,
@@ -22449,7 +22554,13 @@ body.kyra-request-tracking-view .kyraSignOutHeaderBtn,
 body.kyra-request-tracking-view #kyraHeaderProfileAvatar,
 body.kyra-request-tracking-view .kyraHeaderProfileAvatar,
 body.kyra-request-tracking-view .sapFShellBarProfile,
-body.kyra-request-tracking-view .sapFShellBarAdditionalContent {
+body.kyra-request-tracking-view .sapFShellBarAdditionalContent,
+body.kyra-add-access-open .kyraNotificationBellWrapper,
+body.kyra-add-access-open .kyraSignOutHeaderBtn,
+body.kyra-add-access-open #kyraHeaderProfileAvatar,
+body.kyra-add-access-open .kyraHeaderProfileAvatar,
+body.kyra-add-access-open .sapFShellBarProfile,
+body.kyra-add-access-open .sapFShellBarAdditionalContent {
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
@@ -30810,18 +30921,19 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
    SAPUI5 sets top/left via JavaScript; overriding with CSS !important = glitch
    ========================================================================= */
 
-/* 7. Promote popover to own GPU compositing layer â€” flicker-free rendering */
+/* 7. Promote popover to own GPU compositing layer — flicker-free rendering */
 .sapMPopover,
 .sapMComboBoxPopup,
 .sapMMultiComboBoxPopup,
 .sapMSelectDropdown,
 .sapMSltPicker {
-    will-change: opacity !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
     z-index: 100000 !important;
-    /* NO position:fixed / transform:translateZ / contain:layout here â€”
-       those override SAPUI5's JS top/left calculation and cause the glitch */
+    animation: none !important;
+    -webkit-animation: none !important;
+    transition: none !important;
+    -webkit-transition: none !important;
 }
 
 /* 8. Popover scroll container: clean overflow, no duplicate scrollbars */
@@ -31272,6 +31384,7 @@ html body .sapUiTheme-sap_horizon .sapMListNoDataText,
     box-sizing: border-box !important;
     z-index: 200000 !important;
     overflow-x: hidden !important;
+    overflow-anchor: none !important;
 }
 
 /* Ensure all dropdown arrow icons and icon containers are instantly clickable across all dropdowns */
@@ -53628,6 +53741,34 @@ html body .sapMSF,
     background-color: transparent !important;
 }
 
+/* Ensure outer .sapMSF container NEVER has a border or box-shadow, preventing double borders */
+.sapMSF,
+html body .sapMSF,
+html body .sapUiTheme-sap_horizon .sapMSF {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.sapMSF:hover,
+.sapMSF:focus,
+.sapMSF:focus-within,
+.sapMSF.sapMSFFocused,
+html body .sapMSF:hover,
+html body .sapMSF:focus,
+html body .sapMSF:focus-within,
+html body .sapMSF.sapMSFFocused,
+html body .sapUiTheme-sap_horizon .sapMSF:hover,
+html body .sapUiTheme-sap_horizon .sapMSF:focus,
+html body .sapUiTheme-sap_horizon .sapMSF:focus-within,
+html body .sapUiTheme-sap_horizon .sapMSF.sapMSFFocused {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
 .sapMSF form,
 .sapMSF .sapMSFF,
 html body .sapMSF form,
@@ -54095,4 +54236,3 @@ html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
     min-height: 38px !important;
     max-height: 38px !important;
 }
-

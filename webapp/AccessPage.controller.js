@@ -177,6 +177,18 @@ sap.ui.define([
 
     return Controller.extend("kyra001.pages.access.AccessPage", {
         onInit() {
+            // Prevent browser scroll jumps/shaking when dropdown elements receive focus
+            if (!window._kyraFocusScrollPatched && typeof HTMLElement !== "undefined") {
+                window._kyraFocusScrollPatched = true;
+                const fnOrigFocus = HTMLElement.prototype.focus;
+                HTMLElement.prototype.focus = function(options) {
+                    if (options === undefined) {
+                        return fnOrigFocus.call(this, { preventScroll: true });
+                    }
+                    return fnOrigFocus.call(this, options);
+                };
+            }
+
             // Disable spellcheck on search fields
             this.getView().addEventDelegate({
                 onAfterRendering: () => {
@@ -824,6 +836,15 @@ sap.ui.define([
                 }
             });
 
+            const fnOrigSetProperty = oModel.setProperty.bind(oModel);
+            oModel.setProperty = function(sPath, oValue, oContext, bAsyncUpdate) {
+                const res = fnOrigSetProperty(sPath, oValue, oContext, bAsyncUpdate);
+                if (sPath === "/showAddAccessSector" || sPath === "showAddAccessSector") {
+                    document.body.classList.toggle("kyra-add-access-open", !!oValue);
+                }
+                return res;
+            };
+
             this.getView().setModel(oModel, "accessModel");
             this.getOwnerComponent().setModel(oModel, "accessModel");
             this._loadCustomAccessAndConflictConfig(oModel);
@@ -1106,6 +1127,9 @@ sap.ui.define([
                 this._oNotificationPopover.destroy();
                 this._oNotificationPopover = null;
             }
+            if (document.body.classList.contains("kyra-add-access-open")) {
+                document.body.classList.remove("kyra-add-access-open");
+            }
         },
 
         _setSmartProperty(oModel, sPath, vNewVal) {
@@ -1312,14 +1336,6 @@ sap.ui.define([
                             oControl.toggleOpen();
                         }
                         setTimeout(() => {
-                            const oDom = oControl.getDomRef();
-                            if (oDom) {
-                                const rect = oDom.getBoundingClientRect();
-                                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                if (rect.bottom > windowHeight - 340 || rect.top < 80) {
-                                    oDom.scrollIntoView({ behavior: "smooth", block: "center" });
-                                }
-                            }
                             try {
                                 const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
                                                 (typeof oControl._getPicker === "function" && oControl._getPicker());
@@ -1499,16 +1515,6 @@ sap.ui.define([
                                         oControl.close();
                                     } else if (typeof oControl.open === "function") {
                                         oControl.open();
-                                        setTimeout(() => {
-                                            const dom = oControl.getDomRef();
-                                            if (dom) {
-                                                const rect = dom.getBoundingClientRect();
-                                                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                                if (rect.bottom > windowHeight - 260 || rect.top < 80) {
-                                                    dom.scrollIntoView({ behavior: "smooth", block: "center" });
-                                                }
-                                            }
-                                        }, 80);
                                     }
                                 });
                             }
@@ -1546,16 +1552,6 @@ sap.ui.define([
                             oControl.close();
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
-                            setTimeout(() => {
-                                const oDom = oControl.getDomRef();
-                                if (oDom) {
-                                    const rect = oDom.getBoundingClientRect();
-                                    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                    if (rect.bottom > windowHeight - 260 || rect.top < 80) {
-                                        oDom.scrollIntoView({ behavior: "smooth", block: "center" });
-                                    }
-                                }
-                            }, 80);
                         }
                     }
                 };
@@ -1637,16 +1633,6 @@ sap.ui.define([
                         oControl.close();
                     } else if (typeof oControl.open === "function") {
                         oControl.open();
-                        setTimeout(() => {
-                            const oDom = oControl.getDomRef();
-                            if (oDom) {
-                                const rect = oDom.getBoundingClientRect();
-                                const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-                                if (rect.bottom > windowHeight - 260 || rect.top < 80) {
-                                    oDom.scrollIntoView({ behavior: "smooth", block: "center" });
-                                }
-                            }
-                        }, 80);
                     }
                 },
                 onclick: (oEvent) => {
@@ -5321,9 +5307,9 @@ sap.ui.define([
         },
 
         onOpenNotificationsPopover(oEvent) {
-            let oSource = oEvent.getSource ? oEvent.getSource() : null;
-            if (!oSource || (oSource.getMetadata && oSource.getMetadata().getName() === "sap.f.ShellBar")) {
-                oSource = this.byId("kyraHeaderBellBtn") || oSource;
+            let oSource = this.byId("kyraHeaderBellBtn");
+            if (!oSource || !oSource.getDomRef()) {
+                oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
             }
 
             const oModel = this.getView().getModel("accessModel");
@@ -5496,23 +5482,58 @@ sap.ui.define([
                     afterClose: () => oPopover.destroy()
                 });
                 oPopover.addStyleClass("kyraNotificationPopover");
-                if (oPopover._oControl) {
-                    oPopover._oControl.addStyleClass("kyraNotificationPopover");
-                }
+                oPopover.attachBeforeOpen(() => {
+                    if (oPopover._oControl) {
+                        oPopover._oControl.addStyleClass("kyraNotificationPopover");
+                        if (typeof oPopover._oControl.setPlacement === "function") {
+                            oPopover._oControl.setPlacement("Bottom");
+                        }
+                    }
+                });
                 oPopover.attachAfterOpen(() => {
-                    const oDom = oPopover.getDomRef();
+                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                        ? oPopover._oControl 
+                        : oPopover;
+                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
                     if (oDom) {
+                        oDom.style.width = "440px";
+                        oDom.style.minWidth = "440px";
+                        oDom.style.maxWidth = "440px";
                         oDom.style.height = "auto";
-                        oDom.style.maxHeight = "calc(100vh - 100px)";
+                        oDom.style.maxHeight = "calc(100vh - 80px)";
+
+                        // Position safety check:
+                        // Ensure it stays below the bell button, never flipped to Top off-screen
+                        const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
+                        const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellDom.getDomRef() : null;
+                        if (oBellDom) {
+                            const bellRect = oBellDom.getBoundingClientRect();
+                            const iTop = parseInt(oDom.style.top || "0", 10);
+                            if (iTop < bellRect.bottom || iTop < 50) {
+                                oDom.style.top = (bellRect.bottom + 8) + "px";
+                            }
+                            // Keep safely within screen boundaries
+                            const iLeft = parseInt(oDom.style.left || "0", 10);
+                            if (iLeft + 440 > window.innerWidth - 16 || iLeft < 16) {
+                                oDom.style.left = Math.max(16, window.innerWidth - 440 - 20) + "px";
+                            }
+                        }
+
                         const oCont = oDom.querySelector(".sapMPopoverCont");
                         if (oCont) {
+                            oCont.style.width = "440px";
+                            oCont.style.minWidth = "440px";
+                            oCont.style.maxWidth = "440px";
                             oCont.style.height = "auto";
-                            oCont.style.maxHeight = "calc(100vh - 100px)";
+                            oCont.style.maxHeight = "calc(100vh - 80px)";
                         }
                         const oScroll = oDom.querySelector(".sapMPopoverScroll");
                         if (oScroll) {
+                            oScroll.style.width = "440px";
+                            oScroll.style.minWidth = "440px";
+                            oScroll.style.maxWidth = "440px";
                             oScroll.style.height = "auto";
-                            oScroll.style.maxHeight = "calc(100vh - 100px)";
+                            oScroll.style.maxHeight = "calc(100vh - 80px)";
                         }
                     }
                 });
@@ -5569,6 +5590,8 @@ sap.ui.define([
             const bPending = !!oModel.getProperty("/showPendingSection");
             const bAdd = !!oModel.getProperty("/showAddAccessSector");
             const bRemove = !!oModel.getProperty("/showRemoveAccessSector");
+
+            document.body.classList.toggle("kyra-add-access-open", bAdd);
 
             const oArrowPending = this.byId("arrowPendingRequests");
             if (oArrowPending) {
@@ -11898,8 +11921,8 @@ sap.ui.define([
 
         onProfilePress(oEvent) {
             let oSource = this.byId("kyraHeaderProfileAvatar");
-            if (!oSource) {
-                oSource = oEvent.getSource ? oEvent.getSource() : oEvent.getParameter("item");
+            if (!oSource || !oSource.getDomRef()) {
+                oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
             }
 
             const oModel = this.getView().getModel("accessModel");
@@ -12038,16 +12061,70 @@ sap.ui.define([
 
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
-                    contentWidth: "295px",
+                    contentWidth: "300px",
                     horizontalScrolling: false,
-                    verticalScrolling: false,
+                    verticalScrolling: true,
                     placement: "Bottom",
                     showArrow: true,
-                    class: "kyraUserProfilePopover",
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
                     afterClose: () => oPopover.destroy()
+                });
+                oPopover.addStyleClass("kyraUserProfilePopover");
+                oPopover.attachBeforeOpen(() => {
+                    if (oPopover._oControl) {
+                        oPopover._oControl.addStyleClass("kyraUserProfilePopover");
+                        if (typeof oPopover._oControl.setPlacement === "function") {
+                            oPopover._oControl.setPlacement("Bottom");
+                        }
+                    }
+                });
+                oPopover.attachAfterOpen(() => {
+                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                        ? oPopover._oControl 
+                        : oPopover;
+                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
+                    if (oDom) {
+                        oDom.style.width = "300px";
+                        oDom.style.minWidth = "300px";
+                        oDom.style.maxWidth = "300px";
+                        oDom.style.height = "auto";
+                        oDom.style.maxHeight = "calc(100vh - 65px)";
+
+                        const oCont = oDom.querySelector(".sapMPopoverCont");
+                        if (oCont) {
+                            oCont.style.width = "300px";
+                            oCont.style.minWidth = "300px";
+                            oCont.style.maxWidth = "300px";
+                            oCont.style.height = "auto";
+                            oCont.style.maxHeight = "calc(100vh - 65px)";
+                        }
+                        const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                        if (oScroll) {
+                            oScroll.style.width = "300px";
+                            oScroll.style.minWidth = "300px";
+                            oScroll.style.maxWidth = "300px";
+                            oScroll.style.height = "auto";
+                            oScroll.style.maxHeight = "calc(100vh - 65px)";
+                            oScroll.style.overflowY = "auto";
+                            oScroll.style.overflowX = "hidden";
+                        }
+
+                        // Align safely under profile avatar
+                        const oAvatar = (oSource && oSource.getDomRef) ? oSource.getDomRef() : null;
+                        if (oAvatar) {
+                            const rect = oAvatar.getBoundingClientRect();
+                            const iTop = parseInt(oDom.style.top || "0", 10);
+                            if (iTop < rect.bottom || iTop < 45) {
+                                oDom.style.top = (rect.bottom + 8) + "px";
+                            }
+                            const iLeft = parseInt(oDom.style.left || "0", 10);
+                            if (iLeft + 300 > window.innerWidth - 12) {
+                                oDom.style.left = Math.max(12, window.innerWidth - 300 - 16) + "px";
+                            }
+                        }
+                    }
                 });
 
                 this.getView().addDependent(oPopover);

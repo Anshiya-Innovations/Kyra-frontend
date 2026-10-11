@@ -24,6 +24,8 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden !important;
+    overflow-anchor: none !important;
+    scrollbar-gutter: stable;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     font-family: 'Inter', "72", "72full", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
@@ -43,6 +45,7 @@ body::-webkit-scrollbar {
     width: 100%;
     height: 100%;
     overflow: hidden !important;
+    overflow-anchor: none !important;
 }
 
 .sapMPageScroll, 
@@ -51,6 +54,8 @@ body::-webkit-scrollbar {
     height: 100%;
     overflow-x: hidden !important;
     overflow-y: auto !important;
+    overflow-anchor: none !important;
+    scrollbar-gutter: stable;
     scrollbar-width: thin !important;
     scrollbar-color: #CBD5E1 transparent !important;
 }
@@ -30840,18 +30845,19 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
    SAPUI5 sets top/left via JavaScript; overriding with CSS !important = glitch
    ========================================================================= */
 
-/* 7. Promote popover to own GPU compositing layer â€” flicker-free rendering */
+/* 7. Promote popover to own GPU compositing layer — flicker-free rendering */
 .sapMPopover,
 .sapMComboBoxPopup,
 .sapMMultiComboBoxPopup,
 .sapMSelectDropdown,
 .sapMSltPicker {
-    will-change: opacity !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
     z-index: 100000 !important;
-    /* NO position:fixed / transform:translateZ / contain:layout here â€”
-       those override SAPUI5's JS top/left calculation and cause the glitch */
+    animation: none !important;
+    -webkit-animation: none !important;
+    transition: none !important;
+    -webkit-transition: none !important;
 }
 
 /* 8. Popover scroll container: clean overflow, no duplicate scrollbars */
@@ -31302,6 +31308,7 @@ html body .sapUiTheme-sap_horizon .sapMListNoDataText,
     box-sizing: border-box !important;
     z-index: 200000 !important;
     overflow-x: hidden !important;
+    overflow-anchor: none !important;
 }
 
 /* Ensure all dropdown arrow icons and icon containers are instantly clickable across all dropdowns */
