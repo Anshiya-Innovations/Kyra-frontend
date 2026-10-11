@@ -1173,9 +1173,15 @@ sap.ui.define([
                         } else {
                             r.approver_status = sDecStatus;
                             r.approver_decision_status = sDecStatus;
-                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                            r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                            const hasRowConf = (dec.hasConflict !== false) && (r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim()));
+                            const isRej = sDecStatus.includes("REJECT");
+                            r.status = isRej ? "REJECTED" : (dec.nextStatus || (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1"));
                             r.db_status = r.status;
+                            if (dec.hasConflict === false) {
+                                r.has_conflict = false;
+                                r.hasConflict = false;
+                                r.conflicting_role = null;
+                            }
                         }
                     }
                 });
@@ -1208,7 +1214,8 @@ sap.ui.define([
                 info.allRows.push(r);
                 info.statuses.add(sDbStatus);
 
-                const hasRowConflict = r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim());
+                const isRowRejected = sDbStatus === "REJECTED" || (r.approver_status || "").toUpperCase() === "REJECTED";
+                const hasRowConflict = !isRowRejected && (r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim()));
                 if (hasRowConflict) {
                     info.hasConflict = true;
                     if (r.conflicting_role) info.conflictingRole = r.conflicting_role;
@@ -1285,9 +1292,9 @@ sap.ui.define([
 
                 if (isCompliance) {
                     // COMPLIANCE REVIEWER:
-                    // Only handles non-revocation requests WITH conflict.
+                    // Only handles non-revocation requests WITH conflict that are not already past compliance.
                     // If Compliance has already decided: goes to History (Processed), NEVER in Pending!
-                    if (!isRevocation && hasConflict) {
+                    if (hasConflict && sDbStatus !== "PENDING_IAM_1" && sDbStatus !== "PENDING_IAM_2" && sDbStatus !== "APPROVED") {
                         if (info.hasComplianceDecided) {
                             isProcessedForRole = true;
                             bRoleApproved = !info.hasComplianceRejected;
@@ -1936,9 +1943,15 @@ sap.ui.define([
                                 } else {
                                     r.approver_status = sDecStatus;
                                     r.approver_decision_status = sDecStatus;
-                                    const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                                    r.db_status = r.status;
+                                    const hasRowConf = (dec.hasConflict !== false) && (r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim()));
+                            const isRej = sDecStatus.includes("REJECT");
+                            r.status = isRej ? "REJECTED" : (dec.nextStatus || (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1"));
+                            r.db_status = r.status;
+                            if (dec.hasConflict === false) {
+                                r.has_conflict = false;
+                                r.hasConflict = false;
+                                r.conflicting_role = null;
+                            }
                                 }
                             }
                         });
