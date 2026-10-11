@@ -107,28 +107,24 @@
                             <Text text="Welcome back! Please sign in to continue." class="kyraCardWelcomeText" />
                         </VBox>
 
-                        <!-- Sleek Modern Error Notification Banner -->
+                        <!-- Sleek Modern Floating Error Notification Banner (Zero Layout Shift) -->
                         <HBox
                             id="kyraLoginErrorBanner"
                             visible="{login>/hasError}"
                             alignItems="Center"
                             justifyContent="SpaceBetween"
-                            class="kyraCustomErrorBanner sapUiTinyMarginBottom">
+                            class="kyraCustomErrorBanner">
                             <HBox alignItems="Center" class="kyraErrorLeftGroup">
                                 <HBox class="kyraErrorIconBadge" alignItems="Center" justifyContent="Center">
                                     <core:Icon src="sap-icon://alert" class="kyraErrorBadgeIcon" />
                                 </HBox>
-                                <VBox class="kyraErrorTextGroup sapUiTinyMarginBegin">
-                                    <Text text="Authentication Failed" class="kyraErrorTitle" />
-                                    <Text text="{login>/errorMessage}" class="kyraErrorMessage" />
-                                </VBox>
+                                <Text text="{login>/errorMessage}" class="kyraErrorMessage" />
                             </HBox>
                             <Button
                                 icon="sap-icon://decline"
                                 type="Transparent"
                                 press=".onDismissError"
-                                class="kyraErrorCloseBtn"
-                                tooltip="Dismiss error" />
+                                class="kyraErrorCloseBtn" />
                         </HBox>
 
                         <!-- Form Controls Container -->

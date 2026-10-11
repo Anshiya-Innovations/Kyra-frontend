@@ -86,11 +86,38 @@ sap.ui.define([
                     oRouter.getRoute("AppPreviewLogin").attachPatternMatched(this._onRouteMatched, this);
                 }
             }
+
         },
 
         onAfterRendering() {
             this._attachSvgInteractions();
             this._updateSelectStyle(this.getView().getModel("login").getProperty("/selectedRole"));
+
+            const that = this;
+            const oSelect = this.byId("roleSelect");
+            if (oSelect) {
+                // When dropdown picker finishes opening, dismiss error state
+                try {
+                    const oPicker = oSelect.getPicker();
+                    if (oPicker && typeof oPicker.attachAfterOpen === "function") {
+                        oPicker.attachAfterOpen(() => {
+                            that.onDismissError();
+                        });
+                    }
+                } catch(e) {}
+
+                // On clicking the select, hide the error banner DOM instantly without interrupting dropdown opening
+                const oSelectDom = oSelect.getDomRef();
+                if (oSelectDom && !oSelectDom.dataset.errHideBound) {
+                    oSelectDom.dataset.errHideBound = "true";
+                    oSelectDom.addEventListener("click", () => {
+                        const oBanner = that.byId("kyraLoginErrorBanner");
+                        if (oBanner && oBanner.getDomRef()) {
+                            oBanner.getDomRef().style.display = "none";
+                        }
+                    }, false);
+                }
+            }
 
             // Apply custom enterprise cyber wallpaper to login page only
             try {
@@ -218,28 +245,61 @@ sap.ui.define([
         },
 
         _resetErrorStates() {
-            const oModel = this.getView().getModel("login");
+            const oModel = this.getView() && this.getView().getModel("login");
             if (oModel) {
                 oModel.setProperty("/idState", "None");
                 oModel.setProperty("/idStateText", "");
                 oModel.setProperty("/hasError", false);
                 oModel.setProperty("/errorMessage", "");
             }
+            try {
+                const oBanner = this.byId("kyraLoginErrorBanner");
+                if (oBanner) {
+                    oBanner.setVisible(false);
+                    const oDom = oBanner.getDomRef();
+                    if (oDom) {
+                        oDom.style.display = "none";
+                    }
+                }
+            } catch(e) {}
+            const oSelect = this.byId("roleSelect");
+            if (oSelect) {
+                oSelect.removeStyleClass("kyraSelectError");
+            }
+            if (this._errorDismissTimer) {
+                clearTimeout(this._errorDismissTimer);
+                this._errorDismissTimer = null;
+            }
+        },
+
+        _startAutoDismissError() {
+            if (this._errorDismissTimer) {
+                clearTimeout(this._errorDismissTimer);
+            }
+            this._errorDismissTimer = setTimeout(() => {
+                const oModel = this.getView() && this.getView().getModel("login");
+                if (oModel) {
+                    oModel.setProperty("/hasError", false);
+                    oModel.setProperty("/errorMessage", "");
+                    oModel.setProperty("/idState", "None");
+                }
+                const oSelect = this.byId("roleSelect");
+                if (oSelect) {
+                    oSelect.removeStyleClass("kyraSelectError");
+                }
+            }, 6000);
         },
 
         _triggerErrorShake() {
-            const oCard = this.byId("kyraLoginCardContainer");
-            if (oCard) {
-                const oDom = oCard.getDomRef();
-                if (oDom) {
-                    oDom.classList.remove("kyraCardShake");
-                    void oDom.offsetWidth; // Force reflow
-                    oDom.classList.add("kyraCardShake");
-                    setTimeout(() => {
-                        oDom.classList.remove("kyraCardShake");
-                    }, 500);
+            setTimeout(() => {
+                const oBanner = this.byId("kyraLoginErrorBanner");
+                if (oBanner && oBanner.getDomRef()) {
+                    const oDom = oBanner.getDomRef();
+                    oDom.classList.remove("kyraBannerPulse");
+                    void oDom.offsetWidth;
+                    oDom.classList.add("kyraBannerPulse");
                 }
-            }
+            }, 30);
         },
 
         onInputChange() {
@@ -249,18 +309,15 @@ sap.ui.define([
             if (sUserId && sUserId.trim().length > 0) {
                 oModel.setProperty("/idState", "None");
                 oModel.setProperty("/idStateText", "");
-            }
-
-            if (sUserId && oModel.getProperty("/hasError")) {
-                oModel.setProperty("/hasError", false);
-                oModel.setProperty("/errorMessage", "");
+                if (oModel.getProperty("/hasError")) {
+                    oModel.setProperty("/hasError", false);
+                    oModel.setProperty("/errorMessage", "");
+                }
             }
         },
 
         onDismissError() {
-            const oModel = this.getView().getModel("login");
-            oModel.setProperty("/hasError", false);
-            oModel.setProperty("/errorMessage", "");
+            this._resetErrorStates();
         },
 
         onContactSupport() {
@@ -280,8 +337,12 @@ sap.ui.define([
             if (!sSelectedRole || sSelectedRole === "" || sSelectedRole === "Select persona" || sSelectedRole === "Select Persona") {
                 oModel.setProperty("/hasError", true);
                 oModel.setProperty("/errorMessage", "Please select a persona to sign in.");
-                
+                const oSelect = this.byId("roleSelect");
+                if (oSelect) {
+                    oSelect.addStyleClass("kyraSelectError");
+                }
                 this._triggerErrorShake();
+                this._startAutoDismissError();
                 return;
             }
 
@@ -294,13 +355,14 @@ sap.ui.define([
 
             // 1. Check ID Field presence
             if (!sUserId) {
-                const sIdLabel = oModel.getProperty("/idLabel") || "Requester ID";
-                const sErr = `${sIdLabel} is required. Please enter your credentials.`;
+                const sIdLabel = oModel.getProperty("/idLabel") || "User ID";
+                const sErr = `Please enter your ${sIdLabel} to continue.`;
                 oModel.setProperty("/hasError", true);
                 oModel.setProperty("/errorMessage", sErr);
                 oModel.setProperty("/idState", "Error");
                 oModel.setProperty("/idStateText", "");
                 this._triggerErrorShake();
+                this._startAutoDismissError();
                 return;
             }
 
@@ -472,6 +534,7 @@ sap.ui.define([
                 oModel.setProperty("/idState", "Error");
                 oModel.setProperty("/idStateText", "");
                 this._triggerErrorShake();
+                this._startAutoDismissError();
             };
 
             // Strict Database Authentication against connected backend
