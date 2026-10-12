@@ -30,13 +30,7 @@ sap.ui.define([
         },
 
         onRefreshData() {
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Refreshing Dashboard Data...",
-                    subtitle: "Synchronizing system metrics, alerts, and user queues...",
-                    duration: 1000
-                });
-            }
+            // Dashboard loads directly
             setTimeout(() => {
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();

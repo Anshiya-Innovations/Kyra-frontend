@@ -7582,59 +7582,64 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     margin: 0 !important;
 }
 
-/* Items List */
+/* Items List - Scrollable with Sleek Side Scrollbar (Max 3 items height) */
 .kyraNotificationPopover .sapMPopoverCont,
 .kyraNotificationPopover .sapMPopoverScroll {
     overflow: hidden !important;
     overflow-y: hidden !important;
 }
 
-.kyraNotificationPopover::-webkit-scrollbar,
-.kyraNotificationPopover *::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
+.kyra-notif-box-card {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #FFFFFF !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
 }
 
-.kyraNotificationPopover::-webkit-scrollbar-button,
-.kyraNotificationPopover *::-webkit-scrollbar-button {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
+.kyra-notif-header {
+    flex-shrink: 0 !important;
 }
 
 .kyra-notif-list {
     display: flex !important;
     flex-direction: column !important;
-    max-height: none !important;
-    overflow-y: visible !important;
+    max-height: 380px !important;
+    overflow-y: auto !important;
     overflow-x: hidden !important;
     padding-top: 0 !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #008C9C #F1F5F9 !important;
 }
 
 .kyra-notif-list::-webkit-scrollbar {
-    width: 5px !important;
-    height: 5px !important;
+    width: 6px !important;
     display: block !important;
 }
 
 .kyra-notif-list::-webkit-scrollbar-track {
-    background: transparent !important;
+    background: #F1F5F9 !important;
+    border-radius: 4px !important;
 }
 
 .kyra-notif-list::-webkit-scrollbar-thumb {
-    background: #CBD5E1 !important;
-    border-radius: 9999px !important;
+    background: #008C9C !important;
+    border-radius: 4px !important;
 }
 
 .kyra-notif-list::-webkit-scrollbar-thumb:hover {
-    background: #94A3B8 !important;
+    background: #007583 !important;
 }
 
 .kyra-notif-list::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
+}
+
+.kyra-notif-footer {
+    flex-shrink: 0 !important;
 }
 
 .kyra-notif-item {
@@ -54745,58 +54750,144 @@ html body .sapUiTheme-sap_horizon .kyraApproverTable tr.sapMListTblRow:hover::af
 
 
 /* =========================================================================
-   DATEPICKER ENHANCEMENTS: REMOVE BLUE OUTLINE ON SELECTED DATE & CONVERT CALENDAR SYMBOL TO GREEN/TEAL #008C9C
+   DATEPICKER ENHANCEMENTS: ZERO BLUE ON SELECTED DATE & CALENDAR ICON #008C9C
    ========================================================================= */
 /* Prevent page horizontal shifting/shaking when dropdowns or popovers open */
 html {
     scrollbar-gutter: stable;
 }
 
-/* Remove inner blue focus ring / border on selected date */
-.sapMDatePicker-CTX .sapUiCalItem,
-.sapMDatePicker-CTX .sapUiCalItemSel,
-.sapMDatePicker-CTX .sapUiCalItem.sapUiCalItemSel,
-.sapMDatePicker-CTX .sapUiCalItem:focus,
-.sapMDatePicker-CTX .sapUiCalItemSel:focus,
-.sapMDatePicker-CTX .sapUiCalItem:focus-visible,
-.sapMDatePicker-CTX .sapUiCalItemSel:focus-visible,
+/* Force CSS Custom Properties to brand teal #008C9C and disable default SAP blue focus */
+.sapMDatePicker,
+.kyraHistDatePicker,
+.sapMDatePicker-CTX,
+.sapMDatePickerDialog,
+.sapMDatePickerPopup,
+.sapUiCal,
+.sapUiCalMonthView {
+    --sapContent_FocusColor: transparent !important;
+    --sapField_FocusColor: #008C9C !important;
+    --sapButton_IconColor: #008C9C !important;
+    --sapContent_IconColor: #008C9C !important;
+    --sapContent_NonInteractiveIconColor: #008C9C !important;
+    --sapField_IconColor: #008C9C !important;
+    --sapButton_Selected_TextColor: #008C9C !important;
+    --sapButton_Active_TextColor: #008C9C !important;
+    --sapContent_Selected_ForegroundColor: #008C9C !important;
+    --sapSelectedColor: #008C9C !important;
+}
+
+/* Completely remove any inner or outer blue focus ring / border on selected date */
 .sapUiCalItemSel,
-.sapUiCalItem.sapUiCalItemSel,
+.sapUiCalItemSel *,
+.sapUiCalItemSel::before,
+.sapUiCalItemSel::after,
 .sapUiCalItemSel:focus,
+.sapUiCalItemSel:focus *,
+.sapUiCalItemSel:focus::before,
+.sapUiCalItemSel:focus::after,
 .sapUiCalItemSel:focus-visible,
+.sapUiCalItemSel:focus-visible *,
+.sapUiCalItem.sapUiCalItemSel,
+.sapUiCalItem.sapUiCalItemSel *,
+.sapUiCalItem.sapUiCalItemSel::before,
+.sapUiCalItem.sapUiCalItemSel::after,
+.sapUiCalItem.sapUiCalItemSel:focus,
+.sapUiCalItem.sapUiCalItemSel:focus *,
+.sapUiCalItem.sapUiCalItemSel:focus-visible,
+.sapUiCalItem.sapUiCalItemSel:focus-visible *,
+.sapUiCalItem.sapUiCalItemSel .sapUiCalItemText,
+.sapUiCalItem.sapUiCalItemSel .sapUiCalItemText::before,
+.sapUiCalItem.sapUiCalItemSel .sapUiCalItemText::after,
+.sapMDatePicker-CTX .sapUiCalItemSel,
+.sapMDatePicker-CTX .sapUiCalItemSel *,
+.sapMDatePicker-CTX .sapUiCalItemSel::before,
+.sapMDatePicker-CTX .sapUiCalItemSel::after,
+.sapMDatePicker-CTX .sapUiCalItemSel:focus,
+.sapMDatePicker-CTX .sapUiCalItemSel:focus *,
+.sapMDatePicker-CTX .sapUiCalItem.sapUiCalItemSel .sapUiCalItemText,
 html body .sapUiTheme-sap_horizon .sapUiCalItemSel,
-html body .sapUiTheme-sap_horizon .sapUiCalItem.sapUiCalItemSel,
-html body .sapUiTheme-sap_horizon .sapUiCalItemSel:focus,
-html body .sapUiTheme-sap_horizon .sapUiCalItemSel:focus-visible,
-html body .sapUiTheme-sap_horizon .sapUiCalItem:focus,
-html body .sapUiTheme-sap_horizon .sapUiCalItem:focus-visible {
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel *,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel::before,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel::after,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel .sapUiCalItemText,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel:focus .sapUiCalItemText,
+html body .sapUiTheme-sap_horizon .sapUiCalItem.sapUiCalItemSel .sapUiCalItemText {
     outline: none !important;
     outline-width: 0 !important;
     outline-color: transparent !important;
     outline-style: none !important;
     box-shadow: none !important;
+    border: none !important;
+    -webkit-tap-highlight-color: transparent !important;
 }
 
-/* Convert Blue DatePicker Calendar Icon / Symbol to Project Brand Green/Teal #008C9C */
+/* Force selected date button to clean brand green/teal #008C9C background with crisp white text */
+.sapUiCalItemSel,
+.sapUiCalItem.sapUiCalItemSel,
+.sapMDatePicker-CTX .sapUiCalItemSel,
+.sapMDatePicker-CTX .sapUiCalItem.sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalItem.sapUiCalItemSel {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    border: 2px solid #008C9C !important;
+    border-radius: 8px !important;
+}
+
+.sapUiCalItemSel .sapUiCalItemText,
+.sapUiCalItemSel span,
+.sapUiCalItem.sapUiCalItemSel .sapUiCalItemText,
+.sapUiCalItem.sapUiCalItemSel span,
+.sapMDatePicker-CTX .sapUiCalItemSel .sapUiCalItemText,
+.sapMDatePicker-CTX .sapUiCalItemSel span,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel .sapUiCalItemText,
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel span {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    font-weight: 700 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* DatePicker Calendar Icon / Symbol: Always Green/Teal #008C9C across idle, hover, focus, active, opened */
+.sapMDatePicker .sapUiIcon,
+.sapMDatePicker .sapMInputValHelp,
 .sapMDatePicker .sapMInputValHelp .sapUiIcon,
 .sapMDatePicker .sapMInputValHelp .sapMBtnIcon,
 .sapMDatePicker .sapMInputBaseIcon,
 .sapMDatePicker .sapMDatePickerIcon,
-.sapMDatePicker .sapUiIcon,
-.sapMDatePicker-CTX .sapUiIcon,
+.kyraHistDatePicker .sapUiIcon,
+.kyraHistDatePicker .sapMInputValHelp,
 .kyraHistDatePicker .sapMInputValHelp .sapUiIcon,
 .kyraHistDatePicker .sapMInputValHelp .sapMBtnIcon,
 .kyraHistDatePicker .sapMInputBaseIcon,
 .kyraHistDatePicker .sapMDatePickerIcon,
-.kyraHistDatePicker .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker .sapUiIcon,
 html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputValHelp .sapUiIcon,
 html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMDatePickerIcon,
 html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputBaseIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputBaseIconPressed,
+html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputValHelp:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputValHelp:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputValHelp:focus .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker .sapMInputValHelp.sapMInputBaseIconPressed .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker.sapMFocus .sapMInputValHelp .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker.sapMFocus .sapMDatePickerIcon,
+html body .sapUiTheme-sap_horizon .sapMDatePicker.sapMFocus .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputValHelp .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMDatePickerIcon,
 html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputBaseIcon,
-html body .sapUiTheme-sap_horizon .sapMDatePicker.sapMFocus .sapMDatePickerIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputBaseIconPressed,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputValHelp:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputValHelp:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputValHelp:focus .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker .sapMInputValHelp.sapMInputBaseIconPressed .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistDatePicker.sapMFocus .sapMInputValHelp .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraHistDatePicker.sapMFocus .sapMDatePickerIcon,
-html body .sapUiTheme-sap_horizon .sapMDatePicker.sapMFocus .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraHistDatePicker.sapMFocus .sapUiIcon,
 html body .sapUiTheme-sap_horizon .sapMInputBaseIconContainer .sapUiIcon,
 html body .sapUiTheme-sap_horizon .sapMInputBaseIconContainer .sapMInputBaseIcon {
@@ -54866,4 +54957,136 @@ div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
     justify-content: center !important;
     box-sizing: border-box !important;
     cursor: pointer !important;
+}
+
+
+/* =========================================================================
+   NOTIFICATIONS POPOVER: SLEEK SIDE SCROLLBAR & PINNED HEADER/FOOTER
+   ========================================================================= */
+.kyraNotificationPopover.sapMPopover,
+.kyraNotificationPopover .sapMPopoverCont,
+.kyraNotificationPopover .sapMPopoverScroll {
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.kyraNotificationPopover.sapMPopover::-webkit-scrollbar,
+.kyraNotificationPopover .sapMPopoverCont::-webkit-scrollbar,
+.kyraNotificationPopover .sapMPopoverScroll::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Eliminate all native webkit scrollbar buttons/arrows inside popover except the list */
+.kyraNotificationPopover.sapMPopover::-webkit-scrollbar-button,
+.kyraNotificationPopover .sapMPopoverCont::-webkit-scrollbar-button,
+.kyraNotificationPopover .sapMPopoverScroll::-webkit-scrollbar-button,
+.kyraNotificationPopover *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+    pointer-events: none !important;
+}
+
+.kyra-notif-box-card {
+    width: 440px !important;
+    min-width: 440px !important;
+    max-width: 440px !important;
+    box-sizing: border-box !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    color: #0F172A !important;
+    background: #FFFFFF !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 480px !important;
+}
+
+.kyra-notif-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 14px 20px 12px 20px !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    flex-shrink: 0 !important;
+    background: #FFFFFF !important;
+    z-index: 2 !important;
+}
+
+/* Notification Items List: Visible, Modern Side Scrollbar with Brand Teal Thumb */
+.kyraNotificationPopover .kyra-notif-list,
+.kyra-notif-list {
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 340px !important;
+    min-height: 80px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 0 !important;
+    flex: 1 1 auto !important;
+    scroll-behavior: smooth !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #008C9C #F8FAFC !important;
+}
+
+/* Chrome / Safari / Edge Custom Side Scrollbar */
+.kyraNotificationPopover .kyra-notif-list::-webkit-scrollbar,
+.kyra-notif-list::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+
+.kyraNotificationPopover .kyra-notif-list::-webkit-scrollbar-track,
+.kyra-notif-list::-webkit-scrollbar-track {
+    background: #F8FAFC !important;
+    border-radius: 9999px !important;
+    margin: 4px 0 !important;
+}
+
+.kyraNotificationPopover .kyra-notif-list::-webkit-scrollbar-thumb,
+.kyra-notif-list::-webkit-scrollbar-thumb {
+    background: #008C9C !important;
+    border-radius: 9999px !important;
+}
+
+.kyraNotificationPopover .kyra-notif-list::-webkit-scrollbar-thumb:hover,
+.kyra-notif-list::-webkit-scrollbar-thumb:hover {
+    background: #007583 !important;
+}
+
+.kyraNotificationPopover .kyra-notif-list::-webkit-scrollbar-button,
+.kyra-notif-list::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Footer: Always Pinned at Bottom, Never Clipped */
+.kyraNotificationPopover .kyra-notif-footer,
+.kyra-notif-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 20px !important;
+    background: #FFFFFF !important;
+    border-top: 1px solid #F1F5F9 !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+    transition: background 0.15s ease !important;
+    z-index: 2 !important;
+}
+
+.kyraNotificationPopover .kyra-notif-footer:hover,
+.kyra-notif-footer:hover {
+    background: #F8FAFC !important;
 }

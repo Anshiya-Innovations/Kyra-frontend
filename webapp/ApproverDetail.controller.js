@@ -304,14 +304,7 @@ sap.ui.define([
             }
             window.scrollTo(0, 0);
 
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Loading Governance Review...",
-                    subtitle: "Evaluating live Segregation of Duties (SoD) conflict matrix..."
-                });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Loading Governance Review...", "Evaluating live Segregation of Duties (SoD) conflict matrix...");
-            }
+            // Review page loads instantly
 
             try {
                 const sReqId = oEvent.getParameter("arguments").requestId;

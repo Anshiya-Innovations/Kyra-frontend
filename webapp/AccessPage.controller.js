@@ -2966,16 +2966,7 @@ sap.ui.define([
             const bHasWarmCache = !!(window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) || !!sessionStorage.getItem("kyra_cached_gov_requests");
             const bIsReviewerCheck = isReviewerRole;
 
-            if (!bSilent) {
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading Governance Records...",
-                        subtitle: "Retrieving active roles, entitlements, and access data..."
-                    });
-                } else if (window.showKyraLoading) {
-                    window.showKyraLoading("Loading Governance Records...", "Retrieving active roles, entitlements, and access data...");
-                }
-            }
+            // Background loading is silent
 
             let aRawDbRequests = [];
             if (window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
@@ -4683,18 +4674,31 @@ sap.ui.define([
             if (!oModel) return;
 
             this._confirmDiscardAddAccess(() => {
+                // Ensure no loading screen overlay is active - zero multiple screens
+                if (typeof window !== "undefined" && window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (typeof window !== "undefined" && window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+
+                // Show only this screen: All Notifications page
                 oModel.setProperty("/showAllNotificationsPage", true);
                 oModel.setProperty("/showRequestDetailsPage", false);
                 oModel.setProperty("/showHelpPage", false);
                 oModel.setProperty("/showContactITPage", false);
+                oModel.setProperty("/showTroubleshootPage", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
                 oModel.setProperty("/showMyAccessMasterSection", false);
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showHistorySection", false);
+                oModel.setProperty("/showApprovalHistory", false);
                 oModel.setProperty("/notifScope", "my");
                 oModel.setProperty("/notifFilterKey", "all");
                 oModel.setProperty("/notifSearchQuery", "");
+
+                // Immediately load and display notifications data
                 this._loadNotifications(oModel);
                 this._loadSubmittedRequests(oModel, true, true);
                 this._scrollToTop();
@@ -5496,7 +5500,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             const iUnreadCount = oModel ? (oModel.getProperty("/notificationsCount") || 0) : 0;
             const aNotifs = oModel ? (oModel.getProperty("/notificationsList") || []) : [];
-            const aDisplayNotifs = aNotifs.slice(0, 3);
+            const aDisplayNotifs = (aNotifs && aNotifs.length > 0) ? aNotifs.slice(0, 3) : [];
 
             sap.ui.require([
                 "sap/m/ResponsivePopover", "sap/ui/core/HTML", "sap/m/MessageToast"
@@ -5669,56 +5673,77 @@ sap.ui.define([
                         if (typeof oPopover._oControl.setPlacement === "function") {
                             oPopover._oControl.setPlacement("Bottom");
                         }
+                        if (typeof oPopover._oControl.setVerticalScrolling === "function") {
+                            oPopover._oControl.setVerticalScrolling(false);
+                        }
+                        if (typeof oPopover._oControl.setHorizontalScrolling === "function") {
+                            oPopover._oControl.setHorizontalScrolling(false);
+                        }
                     }
                 });
                 oPopover.attachAfterOpen(() => {
-                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
-                        ? oPopover._oControl 
-                        : oPopover;
-                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
-                    if (oDom) {
-                        oDom.style.width = "440px";
-                        oDom.style.minWidth = "440px";
-                        oDom.style.maxWidth = "440px";
-                        oDom.style.height = "auto";
-                        oDom.style.maxHeight = "calc(100vh - 80px)";
+                    const fnReset = () => {
+                        const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                            ? oPopover._oControl 
+                            : oPopover;
+                        const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
+                        if (oDom) {
+                            oDom.style.width = "440px";
+                            oDom.style.minWidth = "440px";
+                            oDom.style.maxWidth = "440px";
+                            oDom.style.height = "auto";
+                            oDom.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                            oDom.style.overflow = "hidden";
+                            oDom.scrollTop = 0;
 
-                        // Position safety check:
-                        // Ensure it stays below the bell button, never flipped to Top off-screen
-                        const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
-                        const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
-                        if (oBellDom) {
-                            const bellRect = oBellDom.getBoundingClientRect();
-                            const iTop = parseInt(oDom.style.top || "0", 10);
-                            if (iTop < bellRect.bottom || iTop < 50) {
-                                oDom.style.top = (bellRect.bottom + 8) + "px";
+                            // Position safety check:
+                            // Ensure it stays below the bell button, never flipped to Top off-screen
+                            const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
+                            const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
+                            if (oBellDom) {
+                                const bellRect = oBellDom.getBoundingClientRect();
+                                const iTop = parseInt(oDom.style.top || "0", 10);
+                                if (iTop < bellRect.bottom || iTop < 50) {
+                                    oDom.style.top = (bellRect.bottom + 8) + "px";
+                                }
+                                // Keep safely within screen boundaries
+                                const iLeft = parseInt(oDom.style.left || "0", 10);
+                                if (iLeft + 440 > window.innerWidth - 16 || iLeft < 16) {
+                                    oDom.style.left = Math.max(16, window.innerWidth - 440 - 20) + "px";
+                                }
                             }
-                            // Keep safely within screen boundaries
-                            const iLeft = parseInt(oDom.style.left || "0", 10);
-                            if (iLeft + 440 > window.innerWidth - 16 || iLeft < 16) {
-                                oDom.style.left = Math.max(16, window.innerWidth - 440 - 20) + "px";
-                            }
-                        }
 
-                        const oCont = oDom.querySelector(".sapMPopoverCont");
-                        if (oCont) {
-                            oCont.style.width = "440px";
-                            oCont.style.minWidth = "440px";
-                            oCont.style.maxWidth = "440px";
-                            oCont.style.height = "auto";
-                            oCont.style.overflow = "hidden";
-                            oCont.scrollTop = 0;
+                            const oCont = oDom.querySelector(".sapMPopoverCont");
+                            if (oCont) {
+                                oCont.style.width = "440px";
+                                oCont.style.minWidth = "440px";
+                                oCont.style.maxWidth = "440px";
+                                oCont.style.height = "auto";
+                                oCont.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                                oCont.style.overflow = "hidden";
+                                oCont.scrollTop = 0;
+                            }
+                            const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                            if (oScroll) {
+                                oScroll.style.width = "440px";
+                                oScroll.style.minWidth = "440px";
+                                oScroll.style.maxWidth = "440px";
+                                oScroll.style.height = "auto";
+                                oScroll.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                                oScroll.style.overflow = "hidden";
+                                oScroll.scrollTop = 0;
+                            }
+                            const oList = oDom.querySelector(".kyra-notif-list");
+                            if (oList) {
+                                oList.scrollTop = 0;
+                            }
                         }
-                        const oScroll = oDom.querySelector(".sapMPopoverScroll");
-                        if (oScroll) {
-                            oScroll.style.width = "440px";
-                            oScroll.style.minWidth = "440px";
-                            oScroll.style.maxWidth = "440px";
-                            oScroll.style.height = "auto";
-                            oScroll.style.overflow = "hidden";
-                            oScroll.scrollTop = 0;
-                        }
-                    }
+                    };
+
+                    fnReset();
+                    requestAnimationFrame(fnReset);
+                    setTimeout(fnReset, 40);
+                    setTimeout(fnReset, 120);
                 });
 
                 this.getView().addDependent(oPopover);
@@ -9225,15 +9250,7 @@ sap.ui.define([
 
             const sReqNum = (oItem && (oItem.requestId || oItem.requestNumber)) || "REQ-GENERAL";
 
-            // 1. Show Modern Loading Screen & BusyIndicator
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Loading Request Tracking...",
-                    subtitle: "Retrieving live governance status from database..."
-                });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Loading Request Tracking...", "Retrieving live governance status from database...");
-            }
+            // Open tracking directly without full-screen loader
 
             try {
                 // 2. Fetch fresh live database records with a smooth minimum delay for loader visibility

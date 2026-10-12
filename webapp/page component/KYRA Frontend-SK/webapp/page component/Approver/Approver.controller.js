@@ -395,12 +395,7 @@ sap.ui.define([
         onOpenRequestSummaryDialog(oEvent) {
             const oItem = oEvent.getSource();
             const oData = oItem.getBindingContext("accessModel").getObject();
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Loading Governance Review...",
-                    subtitle: "Fetching request details and evaluating live SoD conflict matrix..."
-                });
-            }
+            // Navigation is instant
             this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
                 requestId: oData.requestId
             });
@@ -1833,14 +1828,7 @@ sap.ui.define([
         },
 
         async _reloadAllRequests(oModel, bSilent = false) {
-            if (!bSilent) {
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading Governance Review...",
-                        subtitle: "Retrieving pending approvals and compliance records..."
-                    });
-                }
-            }
+            // Reload is silent
             if (!oModel) return;
 
             const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();

@@ -315,7 +315,7 @@ sap.ui.define([], function() {
                 return;
             }
 
-            _iActiveCount++;
+            _iActiveCount = 1;
 
             if (_oTimerWatchdog) {
                 clearTimeout(_oTimerWatchdog);
@@ -455,26 +455,18 @@ sap.ui.define([], function() {
          * @param {boolean} [force] If true, forcibly hides immediately regardless of active count.
          */
         hide(callback, force) {
-            if (force) {
-                _iActiveCount = 0;
-            } else {
-                _iActiveCount = Math.max(0, _iActiveCount - 1);
+            _iActiveCount = 0;
+            if (_oTimerWatchdog) {
+                clearTimeout(_oTimerWatchdog);
+                _oTimerWatchdog = null;
             }
-
-            if (_iActiveCount === 0) {
-                if (_oTimerWatchdog) {
-                    clearTimeout(_oTimerWatchdog);
-                    _oTimerWatchdog = null;
-                }
-                if (_oSuccessTimer) {
-                    clearTimeout(_oSuccessTimer);
-                    _oSuccessTimer = null;
-                }
-                if (_oOverlay) {
-                    _oOverlay.classList.remove("kyra-active");
-                }
+            if (_oSuccessTimer) {
+                clearTimeout(_oSuccessTimer);
+                _oSuccessTimer = null;
             }
-
+            if (_oOverlay) {
+                _oOverlay.classList.remove("kyra-active");
+            }
             if (typeof callback === "function") {
                 try { callback(); } catch (e) {}
             }
@@ -507,17 +499,7 @@ sap.ui.define([], function() {
          */
         setupGlobalHooks() {
             ensureStyles();
-
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                const self = this;
-                sap.ui.core.BusyIndicator.show = function(iDelay) {
-                    if (isAddAccess()) return;
-                    self.show();
-                };
-                sap.ui.core.BusyIndicator.hide = function() {
-                    self.hide();
-                };
-            }
+            // Do NOT hijack sap.ui.core.BusyIndicator globally - prevents unwanted repetitive full-screen popups
         },
 
         async wrap(pPromise) {
