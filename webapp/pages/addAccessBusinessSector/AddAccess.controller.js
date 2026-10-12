@@ -356,7 +356,7 @@ sap.ui.define([
                 return;
             }
 
-            sap.ui.core.BusyIndicator.show(0);
+            // Add Access operations proceed without loading indicators per strict exception
 
             let aAllSubmittedRequests = [];
             let aExistingRequestNumbers = [];
@@ -545,17 +545,7 @@ sap.ui.define([
 
             oModel.setProperty("/submitEnabled", false);
 
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Submitting Access Request...",
-                    subtitle: "Synchronizing governance records with the database..."
-                });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
-            }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
-            }
+            // Submission in Add Access proceeds directly without loading overlay per strict exception
 
             const sSubmissionDate = new Date().toISOString().split("T")[0];
             const sUser = sessionStorage.getItem("kyra_active_user") || "";

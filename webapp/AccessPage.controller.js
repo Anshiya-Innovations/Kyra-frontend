@@ -1207,6 +1207,18 @@ sap.ui.define([
                     document.activeElement.blur();
                 }
             }, 60);
+
+            // Ensure window scroll never offsets the sticky header
+            window.addEventListener("scroll", () => {
+                if (window.scrollY !== 0 || window.pageYOffset !== 0) {
+                    window.scrollTo(0, 0);
+                }
+            }, { passive: true });
+
+            // Ensure request tracking view class is cleared if on regular portal pages
+            if (document.body.classList.contains("kyra-request-tracking-view")) {
+                document.body.classList.remove("kyra-request-tracking-view");
+            }
         },
 
         _setupMultiComboBoxRowClickSelection() {
@@ -1237,6 +1249,66 @@ sap.ui.define([
                                 return oList;
                             };
                         }
+                        const fnResetMCBScroll = function(oMCB) {
+                            if (!oMCB) return;
+                            const fnDoReset = () => {
+                                try {
+                                    const p = (typeof oMCB.getPicker === "function" && oMCB.getPicker()) || 
+                                              (typeof oMCB._getPicker === "function" && oMCB._getPicker());
+                                    if (p) {
+                                        if (typeof p.getScrollDelegate === "function" && p.getScrollDelegate()) {
+                                            p.getScrollDelegate().scrollTo(0, 0, 0);
+                                        }
+                                        const pDom = p.getDomRef();
+                                        if (pDom) {
+                                            pDom.scrollTop = 0;
+                                            const cont = pDom.querySelector(".sapMPopoverCont");
+                                            if (cont) {
+                                                cont.scrollTop = 0;
+                                                cont.style.overflow = "hidden";
+                                                cont.style.overflowY = "hidden";
+                                            }
+                                            const sc = pDom.querySelector(".sapMPopoverScroll");
+                                            if (sc) sc.scrollTop = 0;
+                                            const ul = pDom.querySelector(".sapMListUl");
+                                            if (ul) ul.scrollTop = 0;
+                                            const allScrolls = pDom.querySelectorAll(".sapMPopoverScroll, .sapMList, .sapMListUl, .sapMMultiComboBoxList");
+                                            allScrolls.forEach((el) => { if (el.scrollTop !== 0) el.scrollTop = 0; });
+                                        }
+                                    }
+                                    const list = (typeof oMCB._getList === "function" && oMCB._getList()) ||
+                                                 (typeof oMCB.getList === "function" && oMCB.getList());
+                                    if (list && typeof list.scrollToIndex === "function") {
+                                        list.scrollToIndex(0);
+                                    }
+                                } catch(e) {}
+                            };
+                            fnDoReset();
+                            if (window.requestAnimationFrame) window.requestAnimationFrame(fnDoReset);
+                            setTimeout(fnDoReset, 0);
+                            setTimeout(fnDoReset, 30);
+                            setTimeout(fnDoReset, 80);
+                            setTimeout(fnDoReset, 150);
+                            setTimeout(fnDoReset, 250);
+                        };
+
+                        const fnOrigOpen = proto.open;
+                        if (typeof fnOrigOpen === "function") {
+                            proto.open = function() {
+                                const res = fnOrigOpen.apply(this, arguments);
+                                fnResetMCBScroll(this);
+                                return res;
+                            };
+                        }
+
+                        const fnOrigOnPickerOpen = proto._onPickerOpen;
+                        if (typeof fnOrigOnPickerOpen === "function") {
+                            proto._onPickerOpen = function() {
+                                const res = fnOrigOnPickerOpen.apply(this, arguments);
+                                fnResetMCBScroll(this);
+                                return res;
+                            };
+                        }
                     }
                 }
 
@@ -1256,10 +1328,67 @@ sap.ui.define([
                     }
                 }
 
-
             } catch(e) {
                 console.warn("MultiComboBox prototype setup warning:", e);
             }
+        },
+
+        _resetPickerScrollToTop(oControl) {
+            if (!oControl) return;
+            const fnReset = () => {
+                try {
+                    const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
+                                    (typeof oControl._getPicker === "function" && oControl._getPicker());
+                    if (oPicker) {
+                        if (typeof oPicker.getScrollDelegate === "function" && oPicker.getScrollDelegate()) {
+                            oPicker.getScrollDelegate().scrollTo(0, 0, 0);
+                        }
+                        const oPickerDom = oPicker.getDomRef();
+                        if (oPickerDom) {
+                            oPickerDom.scrollTop = 0;
+                            const oCont = oPickerDom.querySelector(".sapMPopoverCont");
+                            if (oCont) {
+                                oCont.scrollTop = 0;
+                                oCont.style.overflow = "hidden";
+                                oCont.style.overflowY = "hidden";
+                            }
+                            const oScroll = oPickerDom.querySelector(".sapMPopoverScroll");
+                            if (oScroll) {
+                                oScroll.scrollTop = 0;
+                            }
+                            const oListUl = oPickerDom.querySelector(".sapMListUl");
+                            if (oListUl) {
+                                oListUl.scrollTop = 0;
+                            }
+                            const aScrollables = oPickerDom.querySelectorAll(".sapMPopoverScroll, .sapMList, .sapMListUl, .sapMMultiComboBoxList, .sapMSelectList");
+                            aScrollables.forEach((el) => {
+                                if (el.scrollTop !== 0) el.scrollTop = 0;
+                            });
+                        }
+                    }
+                    if (typeof oControl._getList === "function") {
+                        const oList = oControl._getList();
+                        if (oList && typeof oList.scrollToIndex === "function") {
+                            oList.scrollToIndex(0);
+                        }
+                    }
+                } catch(e) {}
+            };
+
+            fnReset();
+            if (window.requestAnimationFrame) {
+                window.requestAnimationFrame(fnReset);
+            }
+            setTimeout(fnReset, 0);
+            setTimeout(fnReset, 30);
+            setTimeout(fnReset, 80);
+            setTimeout(fnReset, 150);
+            setTimeout(fnReset, 250);
+        },
+
+        _scrollDomIntoPageContainer(oTargetDom, sBlock) {
+            // Disabled to keep page completely steady and prevent shaking on dropdown open
+            return;
         },
 
         _applyMultiComboBoxRowClickSelection() {
@@ -1335,6 +1464,7 @@ sap.ui.define([
                         } else if (typeof oControl.toggleOpen === "function") {
                             oControl.toggleOpen();
                         }
+                        this._resetPickerScrollToTop(oControl);
                         setTimeout(() => {
                             try {
                                 const oPicker = (typeof oControl.getPicker === "function" && oControl.getPicker()) || 
@@ -1346,8 +1476,17 @@ sap.ui.define([
                                         oPickerDom.style.width = "100%";
                                         const oCont = oPickerDom.querySelector(".sapMPopoverCont");
                                         if (oCont) {
+                                            oCont.scrollTop = 0;
                                             oCont.style.overflow = "hidden";
                                             oCont.style.overflowY = "hidden";
+                                        }
+                                        const oScroll = oPickerDom.querySelector(".sapMPopoverScroll");
+                                        if (oScroll) {
+                                            oScroll.scrollTop = 0;
+                                        }
+                                        const oListUl = oPickerDom.querySelector(".sapMListUl");
+                                        if (oListUl) {
+                                            oListUl.scrollTop = 0;
                                         }
                                         const fnStripTitles = () => {
                                             oPickerDom.querySelectorAll("[title]").forEach((el) => el.removeAttribute("title"));
@@ -1360,6 +1499,7 @@ sap.ui.define([
                                     }
                                 }
                             } catch(e) {}
+                            this._resetPickerScrollToTop(oControl);
                         }, 80);
                     }
                 };
@@ -1391,6 +1531,19 @@ sap.ui.define([
                             }
                             if (typeof oPicker.addStyleClass === "function") {
                                 oPicker.addStyleClass("kyraDropdownBottomOnly");
+                            }
+                            if (!oPicker._hasKyraScrollReset) {
+                                oPicker._hasKyraScrollReset = true;
+                                if (typeof oPicker.attachAfterOpen === "function") {
+                                    oPicker.attachAfterOpen(() => {
+                                        this._resetPickerScrollToTop(oControl);
+                                    });
+                                }
+                                if (typeof oPicker.attachBeforeOpen === "function") {
+                                    oPicker.attachBeforeOpen(() => {
+                                        this._resetPickerScrollToTop(oControl);
+                                    });
+                                }
                             }
                         }
                     } catch(err) {}
@@ -1475,6 +1628,14 @@ sap.ui.define([
                             if (typeof oPicker.addStyleClass === "function") {
                                 oPicker.addStyleClass("kyraDropdownBottomOnly");
                             }
+                            if (!oPicker._hasKyraScrollReset) {
+                                oPicker._hasKyraScrollReset = true;
+                                if (typeof oPicker.attachAfterOpen === "function") {
+                                    oPicker.attachAfterOpen(() => {
+                                        this._resetPickerScrollToTop(oControl);
+                                    });
+                                }
+                            }
                         }
                     } catch(e) {}
 
@@ -1515,6 +1676,10 @@ sap.ui.define([
                                         oControl.close();
                                     } else if (typeof oControl.open === "function") {
                                         oControl.open();
+                                        this._resetPickerScrollToTop(oControl);
+                                        setTimeout(() => {
+                                            this._resetPickerScrollToTop(oControl);
+                                        }, 40);
                                     }
                                 });
                             }
@@ -1552,6 +1717,10 @@ sap.ui.define([
                             oControl.close();
                         } else if (typeof oControl.open === "function") {
                             oControl.open();
+                            this._resetPickerScrollToTop(oControl);
+                            setTimeout(() => {
+                                this._resetPickerScrollToTop(oControl);
+                            }, 40);
                         }
                     }
                 };
@@ -1581,6 +1750,14 @@ sap.ui.define([
                         }
                         if (typeof oPicker.addStyleClass === "function") {
                             oPicker.addStyleClass("kyraDropdownBottomOnly");
+                        }
+                        if (!oPicker._hasKyraScrollReset) {
+                            oPicker._hasKyraScrollReset = true;
+                            if (typeof oPicker.attachAfterOpen === "function") {
+                                oPicker.attachAfterOpen(() => {
+                                    this._resetPickerScrollToTop(oControl);
+                                });
+                            }
                         }
                         if (!oPicker._hasKyraCloseAttached) {
                             oPicker._hasKyraCloseAttached = true;
@@ -1633,6 +1810,10 @@ sap.ui.define([
                         oControl.close();
                     } else if (typeof oControl.open === "function") {
                         oControl.open();
+                        this._resetPickerScrollToTop(oControl);
+                        setTimeout(() => {
+                            this._resetPickerScrollToTop(oControl);
+                        }, 40);
                     }
                 },
                 onclick: (oEvent) => {
@@ -5793,12 +5974,14 @@ sap.ui.define([
             if (bCurr) {
                 if (this._hasAddAccessInProgress()) {
                     this._confirmDiscardAddAccess(() => {
+                        window._kyraInAddAccess = false;
                         this._resetAddAccessState();
                         oModel.setProperty("/showAddAccessSector", false);
                         this._updateActionCardArrows(oModel);
                     });
                     return;
                 } else {
+                    window._kyraInAddAccess = false;
                     this._resetAddAccessState();
                     oModel.setProperty("/showAddAccessSector", false);
                     this._updateActionCardArrows(oModel);
@@ -5808,6 +5991,11 @@ sap.ui.define([
 
             // Reset all fields so Add Access is completely fresh and empty every time the user opens it
             this._resetAddAccessState();
+
+            window._kyraInAddAccess = true;
+            if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                window.KyraLoader.forceHide();
+            }
 
             oModel.setProperty("/showAddAccessSector", true);
             oModel.setProperty("/showPendingSection", false);
@@ -5968,6 +6156,7 @@ sap.ui.define([
 
         onCloseAddAccessSector() {
             this._confirmDiscardAddAccess(() => {
+                window._kyraInAddAccess = false;
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     oModel.setProperty("/showAddAccessSector", false);
@@ -6058,6 +6247,16 @@ sap.ui.define([
                     if (oPage && oTarget && typeof oPage.scrollToElement === "function") {
                         oPage.scrollToElement(oTarget, 400);
                     }
+                }
+                // Guard against browser window scrolling off-screen
+                if (window.scrollY !== 0 || window.pageYOffset !== 0) {
+                    window.scrollTo(0, 0);
+                }
+                if (document.documentElement && document.documentElement.scrollTop !== 0) {
+                    document.documentElement.scrollTop = 0;
+                }
+                if (document.body && document.body.scrollTop !== 0) {
+                    document.body.scrollTop = 0;
                 }
             };
             setTimeout(fnDoScroll, 50);
@@ -8327,16 +8526,7 @@ sap.ui.define([
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
-            // 1. Show Modern Centered Loading Screen
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Submitting Access Request...",
-                    subtitle: "Synchronizing governance records with the database..."
-                });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
-            }
-
+            // Add Access submission proceeds without loading screen per strict exception
             const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
             const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
@@ -18067,6 +18257,13 @@ sap.ui.define([
             }
 
             try {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Saving Persona to Database...",
+                        subtitle: "Updating user persona in PostgreSQL database...",
+                        duration: 15000
+                    });
+                }
                 const res = await fetch("/odata/v4/admin-portal/convertUserPersona", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -18126,12 +18323,21 @@ sap.ui.define([
                 oModel.setProperty("/adminPersonaUsers", aPersonaUsers);
                 this._syncAdminConfigToLiveAddAccess(oModel);
 
-                MessageToast.show(
-                    "User '" + sUsername + "' successfully converted from " + sOldPersona + " to " + sTargetPersona +
-                    " (saved in " + sNewTable + ")."
-                );
+                const sSuccessMsg = "User '" + sUsername + "' successfully converted from " + sOldPersona + " to " + sTargetPersona + " (saved in " + sNewTable + ").";
+                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                    window.KyraLoader.showSuccess({
+                        title: "Saved Successfully",
+                        subtitle: sSuccessMsg,
+                        duration: 1900
+                    });
+                } else {
+                    MessageToast.show(sSuccessMsg);
+                }
             } catch (e) {
                 console.error("Error converting user persona:", e);
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
                 MessageToast.show("Error saving persona conversion for '" + sUsername + "': " + (e.message || "Failed"));
             }
         },

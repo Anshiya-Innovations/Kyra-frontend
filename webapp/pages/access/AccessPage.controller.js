@@ -5974,12 +5974,14 @@ sap.ui.define([
             if (bCurr) {
                 if (this._hasAddAccessInProgress()) {
                     this._confirmDiscardAddAccess(() => {
+                        window._kyraInAddAccess = false;
                         this._resetAddAccessState();
                         oModel.setProperty("/showAddAccessSector", false);
                         this._updateActionCardArrows(oModel);
                     });
                     return;
                 } else {
+                    window._kyraInAddAccess = false;
                     this._resetAddAccessState();
                     oModel.setProperty("/showAddAccessSector", false);
                     this._updateActionCardArrows(oModel);
@@ -5989,6 +5991,11 @@ sap.ui.define([
 
             // Reset all fields so Add Access is completely fresh and empty every time the user opens it
             this._resetAddAccessState();
+
+            window._kyraInAddAccess = true;
+            if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                window.KyraLoader.forceHide();
+            }
 
             oModel.setProperty("/showAddAccessSector", true);
             oModel.setProperty("/showPendingSection", false);
@@ -6149,6 +6156,7 @@ sap.ui.define([
 
         onCloseAddAccessSector() {
             this._confirmDiscardAddAccess(() => {
+                window._kyraInAddAccess = false;
                 const oModel = this.getView().getModel("accessModel");
                 if (oModel) {
                     oModel.setProperty("/showAddAccessSector", false);
@@ -8518,16 +8526,7 @@ sap.ui.define([
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
-            // 1. Show Modern Centered Loading Screen
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Submitting Access Request...",
-                    subtitle: "Synchronizing governance records with the database..."
-                });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
-            }
-
+            // Add Access submission proceeds without loading screen per strict exception
             const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
             const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
@@ -18258,6 +18257,13 @@ sap.ui.define([
             }
 
             try {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Saving Persona to Database...",
+                        subtitle: "Updating user persona in PostgreSQL database...",
+                        duration: 15000
+                    });
+                }
                 const res = await fetch("/odata/v4/admin-portal/convertUserPersona", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -18317,12 +18323,21 @@ sap.ui.define([
                 oModel.setProperty("/adminPersonaUsers", aPersonaUsers);
                 this._syncAdminConfigToLiveAddAccess(oModel);
 
-                MessageToast.show(
-                    "User '" + sUsername + "' successfully converted from " + sOldPersona + " to " + sTargetPersona +
-                    " (saved in " + sNewTable + ")."
-                );
+                const sSuccessMsg = "User '" + sUsername + "' successfully converted from " + sOldPersona + " to " + sTargetPersona + " (saved in " + sNewTable + ").";
+                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                    window.KyraLoader.showSuccess({
+                        title: "Saved Successfully",
+                        subtitle: sSuccessMsg,
+                        duration: 1900
+                    });
+                } else {
+                    MessageToast.show(sSuccessMsg);
+                }
             } catch (e) {
                 console.error("Error converting user persona:", e);
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
                 MessageToast.show("Error saving persona conversion for '" + sUsername + "': " + (e.message || "Failed"));
             }
         },

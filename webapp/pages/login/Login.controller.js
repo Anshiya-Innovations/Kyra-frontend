@@ -538,6 +538,9 @@ sap.ui.define([
             };
 
             // Strict Database Authentication against connected backend
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show();
+            }
             fetch("/odata/v4/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
