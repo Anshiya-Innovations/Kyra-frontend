@@ -229,7 +229,8 @@
                                     <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                                     <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Select selectedKey="{path: 'accessModel>restrictedLimit', type: 'sap.ui.model.type.String'}" width="84px" class="kyraRestrictedLimitSelect">
+                                        <Select id="kyraRestrictedLimitSelect" selectedKey="{path: 'accessModel>restrictedLimit', type: 'sap.ui.model.type.String'}" width="100px" class="kyraRestrictedLimitSelect" change="onRestrictedLimitChange">
+                                            <core:Item key="0" text="0" />
                                             <core:Item key="1" text="1" />
                                             <core:Item key="2" text="2" />
                                             <core:Item key="3" text="3" />

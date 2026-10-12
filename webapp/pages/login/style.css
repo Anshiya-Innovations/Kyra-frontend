@@ -54099,3 +54099,122 @@ html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
 .kyraRestrictedLimitStepInput .sapMStepInputBtn:active {
     background: #CBD5E1 !important;
 }
+
+
+/* =========================================================================
+   KYRA DATEPICKER POPUP - CLEAN CALENDAR, NO SCROLLBAR, FULL 6 WEEKS VISIBLE
+   ========================================================================= */
+.sapMDatePicker-CTX.sapMPopover,
+.sapMDatePickerDialog,
+.sapMDatePickerPopup,
+html body .sapMDatePicker-CTX.sapMPopover,
+html body .sapUiTheme-sap_horizon .sapMDatePicker-CTX.sapMPopover {
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    border-radius: 16px !important;
+    border: 1.5px solid #E2E8F0 !important;
+    box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 6px 16px -2px rgba(0, 140, 156, 0.08) !important;
+    background: #FFFFFF !important;
+    width: auto !important;
+    min-width: 310px !important;
+}
+
+.sapMDatePicker-CTX .sapMPopoverCont,
+.sapMDatePicker-CTX .sapMPopoverScroll,
+.sapMDatePickerDialog .sapMDialogSection,
+.sapMDatePickerPopup .sapMPopoverCont,
+.sapMDatePickerPopup .sapMPopoverScroll {
+    height: auto !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    background: #FFFFFF !important;
+    padding: 12px 14px 16px 14px !important;
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+}
+
+/* Hide scrollbars across DatePicker popover */
+.sapMDatePicker-CTX::-webkit-scrollbar,
+.sapMDatePicker-CTX *::-webkit-scrollbar,
+.sapMDatePickerPopup::-webkit-scrollbar,
+.sapMDatePickerPopup *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.sapMDatePicker-CTX::-webkit-scrollbar-button,
+.sapMDatePicker-CTX *::-webkit-scrollbar-button,
+.sapMDatePickerPopup::-webkit-scrollbar-button,
+.sapMDatePickerPopup *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Calendar month view & items */
+.sapMDatePicker-CTX .sapUiCal,
+.sapMDatePicker-CTX .sapMCal,
+.sapMDatePicker-CTX .sapUiCalMonthView,
+.sapMDatePicker-CTX .sapUiCalDatesRow,
+.sapMDatePicker-CTX .sapUiCalContent {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+/* Month view days grid sizing */
+.sapMDatePicker-CTX .sapUiCalItem,
+.sapMDatePickerPopup .sapUiCalItem {
+    height: 32px !important;
+    min-height: 32px !important;
+    line-height: 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    margin: 2px auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.sapMDatePicker-CTX .sapUiCalHead {
+    height: 36px !important;
+    line-height: 36px !important;
+    margin-bottom: 6px !important;
+}
+
+.sapMDatePicker-CTX .sapUiCalHead > .sapUiCalHeadBVal,
+.sapMDatePicker-CTX .sapUiCalHead > .sapUiCalHeadBMonth,
+.sapMDatePicker-CTX .sapUiCalHead > .sapUiCalHeadBYear {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #008C9C !important;
+}
+
+.sapMDatePicker-CTX .sapUiCalHeadPrev .sapUiIcon,
+.sapMDatePicker-CTX .sapUiCalHeadNext .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 14px !important;
+}
+
+.sapMDatePicker-CTX .sapUiCalItemNow {
+    border: 1.5px solid #008C9C !important;
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+}
+
+.sapMDatePicker-CTX .sapUiCalItemSel,
+.sapMDatePicker-CTX .sapUiCalItem.sapUiCalItemSel {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+}

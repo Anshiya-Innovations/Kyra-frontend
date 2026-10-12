@@ -5496,14 +5496,14 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             const iUnreadCount = oModel ? (oModel.getProperty("/notificationsCount") || 0) : 0;
             const aNotifs = oModel ? (oModel.getProperty("/notificationsList") || []) : [];
-            const aTopNotifs = aNotifs.slice(0, 3);
+            const aDisplayNotifs = aNotifs.slice(0, 3);
 
             sap.ui.require([
                 "sap/m/ResponsivePopover", "sap/ui/core/HTML", "sap/m/MessageToast"
             ], (ResponsivePopover, HTML, MessageToast) => {
                 
                 let sItemsHtml = "";
-                if (aTopNotifs.length === 0) {
+                if (aDisplayNotifs.length === 0) {
                     sItemsHtml = `
                         <div class="kyra-notif-empty-state">
                             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="kyra-notif-empty-bell">
@@ -5514,39 +5514,31 @@ sap.ui.define([
                         </div>
                     `;
                 } else {
-                    aTopNotifs.forEach((n, idx) => {
+                    aDisplayNotifs.forEach((n, idx) => {
                         const sDotHtml = n.unread !== false ? `<span class="kyra-notif-blue-dot"></span>` : "";
                         
                         let sAvatarHtml = "";
-                        if (n.type === "approved") {
+                        const sTitleLower = (n.title || "").toLowerCase();
+                        if (n.type === "approved" || sTitleLower.includes("approved")) {
                             sAvatarHtml = `
-                                <div class="kyra-notif-avatar-circle" style="background: #DCFCE7; border: 1px solid #BBF7D0;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#16A34A" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <div class="kyra-notif-avatar-circle" style="background: #F1F5F9; border: 1px solid #E2E8F0;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#16A34A" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10" fill="#16A34A"></circle>
                                         <polyline points="9 11 12 14 16 9" stroke="#FFFFFF" stroke-width="2.5" fill="none"></polyline>
                                     </svg>
                                 </div>
                             `;
-                        } else if (n.type === "rejected") {
+                        } else if (n.type === "rejected" || sTitleLower.includes("rejected")) {
                             sAvatarHtml = `
                                 <div class="kyra-notif-avatar-circle" style="background: #FEE2E2; border: 1px solid #FCA5A5;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#DC2626" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#DC2626" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10" fill="#DC2626"></circle>
                                         <line x1="15" y1="9" x2="9" y2="15" stroke="#FFFFFF" stroke-width="2.5"></line>
                                         <line x1="9" y1="9" x2="15" y2="15" stroke="#FFFFFF" stroke-width="2.5"></line>
                                     </svg>
                                 </div>
                             `;
-                        } else if (n.type === "revocation" || n.isRevocation) {
-                            sAvatarHtml = `
-                                <div class="kyra-notif-avatar-circle" style="background: #FFF7ED; border: 1px solid #FFEDD5;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </div>
-                            `;
-                        } else if (n.type === "access_review") {
+                        } else if (n.type === "access_review" || sTitleLower.includes("compliance")) {
                             sAvatarHtml = `
                                 <div class="kyra-notif-avatar-circle" style="background: #EFF6FF; border: 1px solid #DBEAFE;">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5557,8 +5549,16 @@ sap.ui.define([
                                     </svg>
                                 </div>
                             `;
+                        } else if (n.type === "revocation" || n.isRevocation || sTitleLower.includes("revok")) {
+                            sAvatarHtml = `
+                                <div class="kyra-notif-avatar-circle" style="background: #FFF7ED; border: 1px solid #FFEDD5;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </div>
+                            `;
                         } else {
-                            // submitted / pending / info - neutral slate, no blue
                             sAvatarHtml = `
                                 <div class="kyra-notif-avatar-circle" style="background: #F1F5F9; border: 1px solid #E2E8F0;">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5571,13 +5571,14 @@ sap.ui.define([
 
                         let sRemarkHtml = "";
                         if (n.approverComment) {
-                            const sBorderColor = n.type === 'rejected' ? '#DC2626' : (n.type === 'approved' ? '#16A34A' : '#00778B');
-                            const sBgColor = n.type === 'rejected' ? '#FEF2F2' : (n.type === 'approved' ? '#F0FDF4' : '#F8FAFC');
-                            const sLabelColor = n.type === 'rejected' ? '#991B1B' : (n.type === 'approved' ? '#166534' : '#00778B');
+                            const isRej = n.type === 'rejected' || sTitleLower.includes('rejected');
+                            const sBorderColor = isRej ? '#DC2626' : '#22C55E';
+                            const sBgColor = isRej ? '#FEF2F2' : '#F0FDF4';
+                            const sLabelColor = isRej ? '#991B1B' : '#166534';
                             sRemarkHtml = `
-                                <div style="margin-top: 6px; padding: 6px 10px; background: ${sBgColor}; border-left: 3px solid ${sBorderColor}; border-radius: 4px; font-size: 11.5px; line-height: 1.35; color: #334155;">
+                                <div class="kyra-notif-remark-box" style="margin-top: 6px; margin-bottom: 6px; padding: 7px 12px; background: ${sBgColor}; border-left: 3.5px solid ${sBorderColor}; border-radius: 0 6px 6px 0; font-size: 12.5px; line-height: 1.4; color: #334155;">
                                     <span style="font-weight: 700; color: ${sLabelColor};">Approver Remark:</span>
-                                    <span style="font-style: italic; color: #0F172A; margin-left: 4px;">"${n.approverComment}"</span>
+                                    <span style="font-style: italic; color: #334155; margin-left: 4px;">"${n.approverComment}"</span>
                                 </div>
                             `;
                         }
@@ -5592,7 +5593,7 @@ sap.ui.define([
                                     <div class="kyra-notif-item-desc">${n.description || ''}</div>
                                     ${sRemarkHtml}
                                     <div class="kyra-notif-item-time" style="margin-top: 4px;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <polyline points="12 6 12 12 16 14"></polyline>
                                         </svg>
@@ -5607,13 +5608,12 @@ sap.ui.define([
                     });
                 }
 
-                let cleanupDropdown = null;
                 const sHtmlContent = `
                     <div class="kyra-notif-box-card">
-                        <!-- Top Header matching Image 2 -->
+                        <!-- Top Header matching screenshot -->
                         <div class="kyra-notif-header">
                             <div class="kyra-notif-header-left">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                                 </svg>
@@ -5637,7 +5637,7 @@ sap.ui.define([
                             ${sItemsHtml}
                         </div>
 
-                        <!-- Footer (View all notifications) matching Image 2 -->
+                        <!-- Footer: View all notifications -->
                         <div class="kyra-notif-footer" id="kyra_notif_view_all_footer" style="cursor: pointer;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F172A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -5656,7 +5656,7 @@ sap.ui.define([
                     horizontalScrolling: false,
                     verticalScrolling: false,
                     placement: "Bottom",
-                    showArrow: false,
+                    showArrow: true,
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
@@ -5686,7 +5686,7 @@ sap.ui.define([
                         // Position safety check:
                         // Ensure it stays below the bell button, never flipped to Top off-screen
                         const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
-                        const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellDom.getDomRef() : null;
+                        const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
                         if (oBellDom) {
                             const bellRect = oBellDom.getBoundingClientRect();
                             const iTop = parseInt(oDom.style.top || "0", 10);
@@ -5706,7 +5706,8 @@ sap.ui.define([
                             oCont.style.minWidth = "440px";
                             oCont.style.maxWidth = "440px";
                             oCont.style.height = "auto";
-                            oCont.style.maxHeight = "calc(100vh - 80px)";
+                            oCont.style.overflow = "hidden";
+                            oCont.scrollTop = 0;
                         }
                         const oScroll = oDom.querySelector(".sapMPopoverScroll");
                         if (oScroll) {
@@ -5714,7 +5715,8 @@ sap.ui.define([
                             oScroll.style.minWidth = "440px";
                             oScroll.style.maxWidth = "440px";
                             oScroll.style.height = "auto";
-                            oScroll.style.maxHeight = "calc(100vh - 80px)";
+                            oScroll.style.overflow = "hidden";
+                            oScroll.scrollTop = 0;
                         }
                     }
                 });
@@ -5743,7 +5745,7 @@ sap.ui.define([
                         };
                     }
 
-                    aTopNotifs.forEach((n, idx) => {
+                    aDisplayNotifs.forEach((n, idx) => {
                         const el = document.getElementById("kyra_notif_item_" + idx);
                         if (el) {
                             el.onclick = () => {
