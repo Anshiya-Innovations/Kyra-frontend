@@ -13,12 +13,21 @@ sap.ui.define([], function() {
     /**
      * Determines whether the user is currently inside the Add Access page,
      * including any of its slides, dropdowns, forms, target systems, or child sections.
-     * Admin page operations are NEVER considered Add Access.
+     * Admin page operations and explicit submit operations are strictly allowed.
+     * @param {Object} [options]
      * @returns {boolean}
      */
-    function isAddAccess() {
+    function isAddAccess(options) {
         try {
             if (typeof window === "undefined") return false;
+
+            // Explicit bypass for Add Access Submit time
+            if (options && options.forceShow === true) {
+                return false;
+            }
+            if (window._kyraSubmittingAddAccess === true) {
+                return false;
+            }
 
             // Admin page is strictly excluded from Add Access restriction
             const sHash = (window.location && window.location.hash) || "";
@@ -298,7 +307,7 @@ sap.ui.define([], function() {
          * @param {Object|string} [options] Optional title/text or options object.
          */
         show(options) {
-            if (isAddAccess()) {
+            if (isAddAccess(options)) {
                 this.forceHide();
                 if (options && typeof options.onComplete === "function") {
                     try { options.onComplete(); } catch (e) {}
@@ -375,7 +384,7 @@ sap.ui.define([], function() {
          * @param {Object|string} options
          */
         showSuccess(options) {
-            if (isAddAccess()) {
+            if (isAddAccess(options)) {
                 this.forceHide();
                 if (options && typeof options.onComplete === "function") {
                     try { options.onComplete(); } catch (e) {}

@@ -54077,3 +54077,54 @@ html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
     min-height: 38px !important;
     max-height: 38px !important;
 }
+
+
+/* ── RESTRICTED LIMIT STEP INPUT (Restricted Records Table) ───────────── */
+.kyraRestrictedLimitStepInput {
+    border-radius: 6px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMInputBaseContentWrapper {
+    height: 32px !important;
+    border-radius: 6px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMInputBaseContentWrapper:hover {
+    border-color: #94A3B8 !important;
+}
+
+.kyraRestrictedLimitStepInput.sapMFocus .sapMInputBaseContentWrapper,
+.kyraRestrictedLimitStepInput .sapMInputBaseContentWrapper:focus-within {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMInputBaseInner {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #0F172A !important;
+    text-align: center !important;
+    padding: 0 4px !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMStepInputBtn {
+    background: #F8FAFC !important;
+    color: #475569 !important;
+    border-color: #CBD5E1 !important;
+    transition: background 0.15s ease !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMStepInputBtn:hover {
+    background: #E2E8F0 !important;
+    color: #0F172A !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMStepInputBtn:active {
+    background: #CBD5E1 !important;
+}

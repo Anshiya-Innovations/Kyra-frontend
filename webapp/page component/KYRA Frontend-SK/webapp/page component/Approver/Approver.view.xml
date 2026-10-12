@@ -46,7 +46,7 @@
             <!-- ROW 2: SUB-TOOLBAR (Left: Access & Revoke Segmented tabs | Right: Search, Filter, Export) -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverSubToolbar">
                 <!-- LEFT: Access & Revoke tab buttons (Solid Kyra Teal #008C9C on selected) -->
-                <HBox visible="{= !${accessModel>/isCompliance} || !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
+                <HBox class="kyraAccessRevokeBar" alignItems="Center">
                     <Button
                         text="{= 'Access (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyAccessCount} || 0) : (${accessModel>/pendingAccessCount} || 0)) + ')' }"
                         icon="sap-icon://key"
@@ -55,9 +55,9 @@
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Access Requests' : 'Pending Access Requests' }"
                         class="kyraTabPillBtn" />
                     <Button
-                        visible="{= !${accessModel>/isCompliance} }"
                         text="{= 'Revoke (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyRevokeCount} || 0) : (${accessModel>/pendingRevokeCount} || 0)) + ')' }"
                         icon="sap-icon://delete"
+                        visible="{= !${accessModel>/isCompliance} }"
                         type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectRevokeRequestsTab"
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Revocation Requests' : 'Pending Revocation Requests' }"
@@ -90,7 +90,10 @@
             </HBox>
 
             <!-- CLASSIFICATIONS CONTENT -->
-            <VBox visible="{= !${accessModel>/showApprovalHistory} }" class="sapUiNoMargin">
+            <VBox
+                id="kyraApproverPendingContainer"
+                visible="{= !${accessModel>/showApprovalHistory} }"
+                class="sapUiNoMargin kyraApproverFadeAnim">
 
                 <!-- CLASSIFICATION 1: ACCESS REQUESTS -->
                 <Table
@@ -98,6 +101,9 @@
                     visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' }"
                     items="{accessModel>/pendingAccessRequests}"
                     fixedLayout="true"
+                    growing="true"
+                    growingThreshold="100"
+                    growingScrollToLoad="true"
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
                     <noData>
@@ -145,9 +151,12 @@
                 <!-- CLASSIFICATION 2: REVOCATION REQUESTS -->
                 <Table
                     id="approvalRevokeTable"
-                    visible="{= !${accessModel>/isCompliance} &amp;&amp; ${accessModel>/approverPendingTab} === 'revokeRequests' }"
+                    visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
                     fixedLayout="true"
+                    growing="true"
+                    growingThreshold="100"
+                    growingScrollToLoad="true"
                     popinLayout="GridSmall"
                     class="sapUiNoMargin kyraApproverTable">
                     <noData>
@@ -199,8 +208,11 @@
                 visible="{= ${accessModel>/showApprovalHistory} === true }"
                 items="{accessModel>/displayedHistoryRequests}"
                 fixedLayout="true"
+                growing="true"
+                growingThreshold="100"
+                growingScrollToLoad="true"
                 popinLayout="GridSmall"
-                class="sapUiNoMargin kyraApproverTable">
+                class="sapUiNoMargin kyraApproverTable kyraApproverFadeAnim">
                 <noData>
                     <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
                         <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">

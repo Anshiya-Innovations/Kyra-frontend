@@ -46,7 +46,7 @@
             <!-- ROW 2: SUB-TOOLBAR (Left: Access & Revoke Segmented tabs | Right: Search, Filter, Export) -->
             <HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap" class="kyraApproverSubToolbar">
                 <!-- LEFT: Access & Revoke tab buttons (Solid Kyra Teal #008C9C on selected) -->
-                <HBox visible="{= !${accessModel>/isCompliance} || !${accessModel>/showApprovalHistory} }" class="kyraAccessRevokeBar" alignItems="Center">
+                <HBox class="kyraAccessRevokeBar" alignItems="Center">
                     <Button
                         text="{= 'Access (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyAccessCount} || 0) : (${accessModel>/pendingAccessCount} || 0)) + ')' }"
                         icon="sap-icon://key"
@@ -55,9 +55,9 @@
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Access Requests' : 'Pending Access Requests' }"
                         class="kyraTabPillBtn" />
                     <Button
-                        visible="{= !${accessModel>/isCompliance} }"
                         text="{= 'Revoke (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyRevokeCount} || 0) : (${accessModel>/pendingRevokeCount} || 0)) + ')' }"
                         icon="sap-icon://delete"
+                        visible="{= !${accessModel>/isCompliance} }"
                         type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectRevokeRequestsTab"
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Revocation Requests' : 'Pending Revocation Requests' }"
@@ -151,7 +151,7 @@
                 <!-- CLASSIFICATION 2: REVOCATION REQUESTS -->
                 <Table
                     id="approvalRevokeTable"
-                    visible="{= !${accessModel>/isCompliance} &amp;&amp; ${accessModel>/approverPendingTab} === 'revokeRequests' }"
+                    visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
                     fixedLayout="true"
                     growing="true"

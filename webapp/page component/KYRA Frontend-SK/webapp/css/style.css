@@ -54077,3 +54077,156 @@ html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
     min-height: 38px !important;
     max-height: 38px !important;
 }
+
+
+/* ── RESTRICTED LIMIT STEP INPUT & SELECT DROPDOWN (Restricted Records Table) ───────────── */
+.kyraRestrictedLimitSelect {
+    border-radius: 6px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.kyraRestrictedLimitSelect .sapMSlt {
+    height: 32px !important;
+    border-radius: 6px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+    padding: 0 8px !important;
+}
+
+.kyraRestrictedLimitSelect:hover .sapMSlt {
+    border-color: #94A3B8 !important;
+}
+
+.kyraRestrictedLimitSelect.sapMFocus .sapMSlt,
+.kyraRestrictedLimitSelect .sapMSlt:focus,
+.kyraRestrictedLimitSelect .sapMSlt:focus-within {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraRestrictedLimitSelect .sapMSltLabel {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    text-align: center !important;
+    line-height: 30px !important;
+}
+
+.kyraRestrictedLimitSelect .sapMSltArrow {
+    color: #008C9C !important;
+    line-height: 30px !important;
+}
+
+.kyraColHeadCenter {
+    text-align: center !important;
+    display: block !important;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+    word-break: break-word !important;
+}
+
+/* Kyra Select Popover & List Menu (Numbers 1 to 10) */
+.sapMPopover.sapMSltPicker {
+    border-radius: 8px !important;
+    border: 1px solid #CBD5E1 !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15) !important;
+    overflow: hidden !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectListItemBase {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #0F172A !important;
+    text-align: center !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectListItemBase:hover {
+    background-color: #F1F5F9 !important;
+    color: #008C9C !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectListItemBase.sapMSelectListItemSelected {
+    background-color: #E6F4F6 !important;
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    border-left: 3px solid #008C9C !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectList {
+    max-height: 240px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #008C9C #F1F5F9 !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectList::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectList::-webkit-scrollbar-thumb {
+    background: #008C9C !important;
+    border-radius: 4px !important;
+}
+
+.sapMPopover.sapMSltPicker .sapMSelectList::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
+}
+
+.kyraRestrictedLimitStepInput {
+    border-radius: 6px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMInputBaseContentWrapper {
+    height: 32px !important;
+    border-radius: 6px !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMInputBaseContentWrapper:hover {
+    border-color: #94A3B8 !important;
+}
+
+.kyraRestrictedLimitStepInput.sapMFocus .sapMInputBaseContentWrapper,
+.kyraRestrictedLimitStepInput .sapMInputBaseContentWrapper:focus-within {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMInputBaseInner {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #0F172A !important;
+    text-align: center !important;
+    padding: 0 4px !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMStepInputBtn {
+    background: #F8FAFC !important;
+    color: #475569 !important;
+    border-color: #CBD5E1 !important;
+    transition: background 0.15s ease !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMStepInputBtn:hover {
+    background: #E2E8F0 !important;
+    color: #0F172A !important;
+}
+
+.kyraRestrictedLimitStepInput .sapMStepInputBtn:active {
+    background: #CBD5E1 !important;
+}

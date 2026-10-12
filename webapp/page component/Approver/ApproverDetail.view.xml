@@ -191,19 +191,19 @@
                     <Table id="approverRestrictedRecordsTable" items="{accessModel>/restrictedRecords}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length &gt; 0 }">
                         <columns>
                             <!-- 1. System Name -->
-                            <Column width="20%" hAlign="Begin">
+                            <Column width="16%" hAlign="Begin">
                                 <Text text="SYSTEM NAME" class="kyraValColHeader" />
                             </Column>
                             <!-- 2. Services -->
-                            <Column width="16%" hAlign="Begin">
+                            <Column width="12%" hAlign="Begin">
                                 <Text text="SERVICES" class="kyraValColHeader" />
                             </Column>
                             <!-- 3. Team -->
-                            <Column width="16%" hAlign="Begin">
+                            <Column width="13%" hAlign="Begin">
                                 <Text text="TEAM" class="kyraValColHeader" />
                             </Column>
                             <!-- 4. Persona -->
-                            <Column width="20%" hAlign="Begin">
+                            <Column width="17%" hAlign="Begin">
                                 <Text text="PERSONA" class="kyraValColHeader" />
                             </Column>
                             <!-- 5. Security Group -->
@@ -213,6 +213,10 @@
                             <!-- 6. AD Group -->
                             <Column width="14%" hAlign="Begin">
                                 <Text text="AD GROUP" class="kyraValColHeader" />
+                            </Column>
+                            <!-- 7. Restricted Limit -->
+                            <Column width="14%" hAlign="Center">
+                                <Text text="RESTRICTED LIMIT" class="kyraValColHeader kyraColHeadCenter" />
                             </Column>
                         </columns>
                         <items>
@@ -224,6 +228,20 @@
                                     <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
                                     <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
                                     <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                        <Select selectedKey="{path: 'accessModel>restrictedLimit', type: 'sap.ui.model.type.String'}" width="84px" class="kyraRestrictedLimitSelect">
+                                            <core:Item key="1" text="1" />
+                                            <core:Item key="2" text="2" />
+                                            <core:Item key="3" text="3" />
+                                            <core:Item key="4" text="4" />
+                                            <core:Item key="5" text="5" />
+                                            <core:Item key="6" text="6" />
+                                            <core:Item key="7" text="7" />
+                                            <core:Item key="8" text="8" />
+                                            <core:Item key="9" text="9" />
+                                            <core:Item key="10" text="10" />
+                                        </Select>
+                                    </HBox>
                                 </cells>
                             </ColumnListItem>
                         </items>

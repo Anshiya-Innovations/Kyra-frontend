@@ -545,7 +545,16 @@ sap.ui.define([
 
             oModel.setProperty("/submitEnabled", false);
 
-            // Submission in Add Access proceeds directly without loading overlay per strict exception
+            // Show unified SAP Fiori loading screen with #008C9C spinner during Add Access submit
+            window._kyraSubmittingAddAccess = true;
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Submitting Access Request…",
+                    subtitle: "Persisting access request to PostgreSQL database…",
+                    duration: 30000,
+                    forceShow: true
+                });
+            }
 
             const sSubmissionDate = new Date().toISOString().split("T")[0];
             const sUser = sessionStorage.getItem("kyra_active_user") || "";
@@ -591,7 +600,7 @@ sap.ui.define([
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 1500);
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
                 const response = await fetch("odata/v4/auth/submitAccessRequest", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -605,11 +614,6 @@ sap.ui.define([
             } catch (err) {
                 console.warn("Database persistence fetch timeout or error, local session saved:", err);
             } finally {
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
-                }
                 if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                     sap.ui.core.BusyIndicator.hide();
                 }
@@ -643,12 +647,27 @@ sap.ui.define([
                 aNewSubmittedRequests.length + " entitlement request(s) saved permanently to the database and transferred to your Dashboard 'My Requests' section." +
                 (iSkippedCount > 0 ? `\n\n(Note: ${iSkippedCount} item(s) with status 'Already Applied' or 'Already Active' were excluded.)` : "");
 
-            MessageBox.success(sMsg, {
-                title: "Request Submitted Successfully",
-                onClose: () => {
-                    this.getOwnerComponent().getRouter().navTo("AccessPage");
-                }
-            });
+            const fnCompleteSuccess = () => {
+                window._kyraSubmittingAddAccess = false;
+                MessageBox.success(sMsg, {
+                    title: "Request Submitted Successfully",
+                    onClose: () => {
+                        this.getOwnerComponent().getRouter().navTo("AccessPage");
+                    }
+                });
+            };
+
+            if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                window.KyraLoader.showSuccess({
+                    title: "Request Submitted Successfully",
+                    subtitle: `Successfully recorded ${aNewSubmittedRequests.length} access request(s) into database.`,
+                    duration: 1800,
+                    forceShow: true,
+                    onComplete: fnCompleteSuccess
+                });
+            } else {
+                fnCompleteSuccess();
+            }
         }
     });
 });

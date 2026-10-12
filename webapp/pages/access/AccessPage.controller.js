@@ -8526,7 +8526,17 @@ sap.ui.define([
             const sActiveUser = sessionStorage.getItem("kyra_active_user") || sessionStorage.getItem("kyra_user_id") || sessionStorage.getItem("kyra_remember_id") || "";
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Requester";
 
-            // Add Access submission proceeds without loading screen per strict exception
+            // Show unified SAP Fiori loading screen with #008C9C spinner during Add Access submit
+            window._kyraSubmittingAddAccess = true;
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Submitting Access Request…",
+                    subtitle: "Persisting access request to PostgreSQL database…",
+                    duration: 30000,
+                    forceShow: true
+                });
+            }
+
             const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
             const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
@@ -8588,6 +8598,7 @@ sap.ui.define([
                 }
 
                 if (!response.ok || (data.error && data.error.message)) {
+                    window._kyraSubmittingAddAccess = false;
                     const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
                     if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                         window.KyraLoader.hide();
@@ -8616,6 +8627,7 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSystemSlideConfigs", {});
 
             } catch (err) {
+                window._kyraSubmittingAddAccess = false;
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
                 } else if (window.hideKyraLoading) {
@@ -8630,14 +8642,6 @@ sap.ui.define([
                 this._bIsSubmittingInPage = false;
                 if (oModel) {
                     oModel.setProperty("/isSubmittingAccessRequest", false);
-                }
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
-                }
-                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                    sap.ui.core.BusyIndicator.hide();
                 }
             }
 
@@ -8767,21 +8771,37 @@ sap.ui.define([
                 </div>
             `;
 
-            if (window.KyraDialog && typeof window.KyraDialog.show === "function") {
-                window.KyraDialog.show({
+            // Transition unified loader to Done Screen, and then present the summary modal
+            const fnShowFinalModal = () => {
+                window._kyraSubmittingAddAccess = false;
+                if (window.KyraDialog && typeof window.KyraDialog.show === "function") {
+                    window.KyraDialog.show({
+                        title: "Access Request Submitted",
+                        messageHtml: sPopupHtml,
+                        type: "success",
+                        maxWidth: "520px",
+                        buttonText: "Done",
+                        onConfirm: fnDismissSubmitDialog,
+                        onClose: fnDismissSubmitDialog
+                    });
+                } else {
+                    MessageBox.information("Access Request processing complete!", {
+                        title: "Access Request Submitted",
+                        onClose: fnDismissSubmitDialog
+                    });
+                }
+            };
+
+            if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                window.KyraLoader.showSuccess({
                     title: "Access Request Submitted",
-                    messageHtml: sPopupHtml,
-                    type: "success",
-                    maxWidth: "520px",
-                    buttonText: "Done",
-                    onConfirm: fnDismissSubmitDialog,
-                    onClose: fnDismissSubmitDialog
+                    subtitle: `Successfully recorded ${aValidItems.length} access item(s) into database.`,
+                    duration: 1800,
+                    forceShow: true,
+                    onComplete: fnShowFinalModal
                 });
             } else {
-                MessageBox.information("Access Request processing complete!", {
-                    title: "Access Request Submitted",
-                    onClose: fnDismissSubmitDialog
-                });
+                fnShowFinalModal();
             }
         },
 

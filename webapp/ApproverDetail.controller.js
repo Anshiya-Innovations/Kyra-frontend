@@ -1400,7 +1400,14 @@ sap.ui.define([
                             securityGroup: sSecGroup,
                             selectedSecurityGroups: sSecGroup,
                             adGroup: sAdGroup,
-                            adGroupName: sAdGroup
+                            restrictedLimit: (() => {
+                                const v = item.restrictedLimit != null ? item.restrictedLimit : (item.limit != null ? item.limit : 5);
+                                const num = parseInt(v, 10);
+                                if (!isNaN(num) && num >= 1 && num <= 10) {
+                                    return String(num);
+                                }
+                                return "5";
+                            })()
                         });
                     }
                 }

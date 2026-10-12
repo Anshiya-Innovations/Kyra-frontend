@@ -57,6 +57,7 @@
                     <Button
                         text="{= 'Revoke (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyRevokeCount} || 0) : (${accessModel>/pendingRevokeCount} || 0)) + ')' }"
                         icon="sap-icon://delete"
+                        visible="{= !${accessModel>/isCompliance} }"
                         type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectRevokeRequestsTab"
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Revocation Requests' : 'Pending Revocation Requests' }"

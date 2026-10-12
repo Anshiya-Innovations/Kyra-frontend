@@ -495,7 +495,7 @@ sap.ui.define([
                 return;
             }
 
-            sap.ui.core.BusyIndicator.show(0);
+            // Add Access operations proceed without loading indicators per strict exception
 
             let aAllSubmittedRequests = [];
             let aExistingRequestNumbers = [];
@@ -667,10 +667,16 @@ sap.ui.define([
         },
 
         async onFinalSubmitRequest() {
+            if (this._bIsSubmitting) {
+                console.warn("Access request submission is already in flight. Ignoring duplicate click.");
+                return;
+            }
+            this._bIsSubmitting = true;
             const oModel = this.getView().getModel("addAccessModel");
-            const aSummaryItems = oModel.getProperty("/summaryItems") || [];
+            const aSummaryItems = oModel ? (oModel.getProperty("/summaryItems") || []) : [];
 
             if (aSummaryItems.length === 0) {
+                this._bIsSubmitting = false;
                 MessageBox.error("No access items remaining in your summary list.");
                 return;
             }
@@ -689,16 +695,15 @@ sap.ui.define([
 
             oModel.setProperty("/submitEnabled", false);
 
+            // Show unified SAP Fiori loading screen with #008C9C spinner during Add Access submit
+            window._kyraSubmittingAddAccess = true;
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                 window.KyraLoader.show({
-                    title: "Submitting Access Request...",
-                    subtitle: "Synchronizing governance records with the database..."
+                    title: "Submitting Access Request…",
+                    subtitle: "Persisting access request to PostgreSQL database…",
+                    duration: 30000,
+                    forceShow: true
                 });
-            } else if (window.showKyraLoading) {
-                window.showKyraLoading("Submitting Access Request...", "Synchronizing governance records with the database...");
-            }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
             }
 
             const sUser = sessionStorage.getItem("kyra_active_user") || "";
@@ -738,7 +743,13 @@ sap.ui.define([
                 }
 
                 if (!response.ok || (data.error && data.error.message)) {
+                    window._kyraSubmittingAddAccess = false;
                     const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
                     sap.ui.core.BusyIndicator.hide();
                     oModel.setProperty("/submitEnabled", true);
                     MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
@@ -756,16 +767,18 @@ sap.ui.define([
                 }
                 try { localStorage.setItem("kyra_last_db_mutation", String(Date.now())); } catch(e) {}
             } catch (err) {
-                sap.ui.core.BusyIndicator.hide();
-                oModel.setProperty("/submitEnabled", true);
-                MessageBox.error("Failed to connect to database: " + err.message);
-                return;
-            } finally {
+                window._kyraSubmittingAddAccess = false;
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                     window.KyraLoader.hide();
                 } else if (window.hideKyraLoading) {
                     window.hideKyraLoading();
                 }
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/submitEnabled", true);
+                MessageBox.error("Failed to connect to database: " + err.message);
+                return;
+            } finally {
+                this._bIsSubmitting = false;
                 if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                     sap.ui.core.BusyIndicator.hide();
                 }
@@ -802,12 +815,27 @@ sap.ui.define([
                 aItemsToSubmit.length + " entitlement request(s) stored directly into PostgreSQL database and will now be available in the Approver and User Request views." +
                 (iSkippedCount > 0 ? `\n\n(Note: ${iSkippedCount} item(s) with status 'Already Applied' or 'Already Active' were excluded.)` : "");
 
-            MessageBox.success(sMsg, {
-                title: "Request Stored in Database",
-                onClose: () => {
-                    this.getOwnerComponent().getRouter().navTo("AccessPage");
-                }
-            });
+            const fnCompleteSuccess = () => {
+                window._kyraSubmittingAddAccess = false;
+                MessageBox.success(sMsg, {
+                    title: "Request Stored in Database",
+                    onClose: () => {
+                        this.getOwnerComponent().getRouter().navTo("AccessPage");
+                    }
+                });
+            };
+
+            if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                window.KyraLoader.showSuccess({
+                    title: "Request Stored in Database",
+                    subtitle: `Successfully recorded ${aItemsToSubmit.length} access item(s) into database.`,
+                    duration: 1800,
+                    forceShow: true,
+                    onComplete: fnCompleteSuccess
+                });
+            } else {
+                fnCompleteSuccess();
+            }
         }
     });
 });
