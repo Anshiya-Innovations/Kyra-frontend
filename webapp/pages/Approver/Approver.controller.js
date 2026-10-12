@@ -460,12 +460,17 @@ sap.ui.define([
                     return;
                 }
 
-                // 2. Default remark / comment if omitted so user is not blocked
-                aEntitlements.forEach(e => {
-                    if (!e.comment || !e.comment.trim()) {
-                        e.comment = ((e.status || "").toLowerCase().includes("reject")) ? "Rejected by Approver" : "Approved by Approver";
-                    }
-                });
+                // 2. Validation: Remarks must be entered manually - NO auto-fill! All items must have a remark entered.
+                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
+                if (aMissingRemarks.length > 0) {
+                    sap.ui.require(["sap/m/MessageBox"], (MessageBox) => {
+                        const sMsg = aMissingRemarks.length === 1
+                            ? "Remark Required: Please enter a remark for the entitlement before submitting."
+                            : "Remark Required: Please enter a remark for all " + aMissingRemarks.length + " entitlements before submitting.";
+                        MessageBox.warning(sMsg, { title: "Action Required" });
+                    });
+                    return;
+                }
 
                 this._showDecisionSummarySlide(oData, false);
             }

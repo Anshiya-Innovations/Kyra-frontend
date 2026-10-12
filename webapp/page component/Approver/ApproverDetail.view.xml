@@ -118,8 +118,128 @@
 
 
 
-                <!-- CARD 2: SOD CONFLICT REVIEW SECTION (Hidden for Revoke requests, visible otherwise) -->
-                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom" visible="{= !${accessModel>/selectedRequest/isRevocation} &amp;&amp; (String(${accessModel>/selectedRequest/status} || '').toLowerCase().indexOf('revoke') === -1) &amp;&amp; (String(${accessModel>/selectedRequest/type} || '').toLowerCase().indexOf('rev') === -1) }">
+                <!-- CARD 1.5A: THRESHOLD LIMITS CARD -->
+                <VBox class="kyraValidationCard sapUiSmallMarginBottom">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://performance" class="kyraValAvatarBlue sapUiSmallMarginEnd" displaySize="S" />
+                            <VBox>
+                                <Title text="Threshold Limits" level="H5" class="kyraValCardTitle" />
+                                <Text text="Validate access against defined system threshold limits." class="kyraValCardSubtitle" />
+                            </VBox>
+                        </HBox>
+                        <HBox class="kyraPillBadgeWarning" alignItems="Center" visible="{= ${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length &gt; 0 }">
+                            <Text text="{= ${accessModel>/thresholdLimits}.length + ' Issues' }" class="kyraPillBadgeWarningText" />
+                        </HBox>
+                        <HBox class="kyraPillBadgeSuccess" alignItems="Center" visible="{= !${accessModel>/thresholdLimits} || ${accessModel>/thresholdLimits}.length === 0 }">
+                            <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
+                            <Text text="0 Issues" class="kyraPillBadgeSuccessText" />
+                        </HBox>
+                    </HBox>
+                    
+                    <Table id="approverThresholdLimitsTable" items="{accessModel>/thresholdLimits}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length &gt; 0 }">
+                        <columns>
+                            <Column width="28%" hAlign="Begin"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
+                            <Column width="28%" hAlign="Begin"><Text text="SECTOR" class="kyraValColHeader" /></Column>
+                            <Column width="20%" hAlign="Center"><Text text="LIMIT" class="kyraValColHeader kyraColHeadCenter" /></Column>
+                            <Column width="24%" hAlign="Center"><Text text="EXCESSIVE PERCENTAGE" class="kyraValColHeader kyraColHeadCenter" /></Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem vAlign="Middle" class="kyraValTableRow">
+                                <cells>
+                                    <Text text="{accessModel>system}" wrapping="true" class="kyraValBoldText kyraValCellWrap" />
+                                    <Text text="{accessModel>sector}" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                        <Text text="{accessModel>limit}" class="kyraValMonospaceBadge kyraCellTextCenter" />
+                                    </HBox>
+                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                        <ObjectStatus text="{accessModel>excessivePercentage}" state="{accessModel>statusState}" class="kyraTableStatusBadge" />
+                                    </HBox>
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                    <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/thresholdLimits} || ${accessModel>/thresholdLimits}.length === 0 }">
+                        <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
+                            <core:Icon src="sap-icon://survey" class="kyraValClipboardIcon" />
+                            <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />
+                        </HBox>
+                        <Text text="No Threshold Limits Exceeded" class="kyraValEmptyTitle" />
+                        <Text text="All access levels are within the defined system threshold limits." class="kyraValEmptyDesc" />
+                    </VBox>
+                </VBox>
+
+                <!-- CARD 1.5B: RESTRICTED RECORDS CARD -->
+                <VBox class="kyraValidationCard sapUiSmallMarginBottom">
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://role" class="kyraValAvatarPurple sapUiSmallMarginEnd" displaySize="S" />
+                            <VBox>
+                                <Title text="Restricted Records" level="H5" class="kyraValCardTitle" />
+                                <Text text="List of access records with restricted permissions requiring security governance." class="kyraValCardSubtitle" />
+                            </VBox>
+                        </HBox>
+                        <HBox class="kyraPillBadgeWarning" alignItems="Center" visible="{= ${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length &gt; 0 }">
+                            <Text text="{= (${accessModel>/restrictedRecords} ? ${accessModel>/restrictedRecords}.length : 0) + ' Records' }" class="kyraPillBadgeWarningText" />
+                        </HBox>
+                        <HBox class="kyraPillBadgeSuccess" alignItems="Center" visible="{= !${accessModel>/restrictedRecords} || ${accessModel>/restrictedRecords}.length === 0 }">
+                            <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
+                            <Text text="0 Records" class="kyraPillBadgeSuccessText" />
+                        </HBox>
+                    </HBox>
+                    
+                    <Table id="approverRestrictedRecordsTable" items="{accessModel>/restrictedRecords}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/restrictedRecords} &amp;&amp; ${accessModel>/restrictedRecords}.length &gt; 0 }">
+                        <columns>
+                            <!-- 1. System Name -->
+                            <Column width="20%" hAlign="Begin">
+                                <Text text="SYSTEM NAME" class="kyraValColHeader" />
+                            </Column>
+                            <!-- 2. Services -->
+                            <Column width="16%" hAlign="Begin">
+                                <Text text="SERVICES" class="kyraValColHeader" />
+                            </Column>
+                            <!-- 3. Team -->
+                            <Column width="16%" hAlign="Begin">
+                                <Text text="TEAM" class="kyraValColHeader" />
+                            </Column>
+                            <!-- 4. Persona -->
+                            <Column width="20%" hAlign="Begin">
+                                <Text text="PERSONA" class="kyraValColHeader" />
+                            </Column>
+                            <!-- 5. Security Group -->
+                            <Column width="14%" hAlign="Begin">
+                                <Text text="SECURITY GROUP" class="kyraValColHeader" />
+                            </Column>
+                            <!-- 6. AD Group -->
+                            <Column width="14%" hAlign="Begin">
+                                <Text text="AD GROUP" class="kyraValColHeader" />
+                            </Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem vAlign="Middle" class="kyraValTableRow">
+                                <cells>
+                                    <Text text="{= ${accessModel>systemName} || ${accessModel>system} }" wrapping="true" class="kyraValBoldText kyraValCellWrap" />
+                                    <Text text="{= ${accessModel>services} || ${accessModel>serviceTopic} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                    <Text text="{= ${accessModel>team} || ${accessModel>teamRole} || ${accessModel>roleTitle} || ${accessModel>roleName} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                    <Text text="{= ${accessModel>persona} || ${accessModel>selectedPersona} }" wrapping="true" class="kyraValNormalText kyraValCellWrap" />
+                                    <Text text="{= ${accessModel>securityGroup} || ${accessModel>selectedSecurityGroups} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                    <Text text="{= ${accessModel>adGroupName} || ${accessModel>adGroup} }" wrapping="true" class="kyraValMonospaceBadge kyraValCellWrap" />
+                                </cells>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                    <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/restrictedRecords} || ${accessModel>/restrictedRecords}.length === 0 }">
+                        <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
+                            <core:Icon src="sap-icon://role" class="kyraValClipboardIcon" />
+                            <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />
+                        </HBox>
+                        <Text text="No Restricted Records" class="kyraValEmptyTitle" />
+                        <Text text="All requested roles have standard access classification." class="kyraValEmptyDesc" />
+                    </VBox>
+                </VBox>
+
+                <!-- CARD 2: SOD CONFLICT REVIEW SECTION -->
+                <VBox class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                     <!-- Top Action Bar -->
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraSodActionBar sapUiSmallMarginBottom" width="100%">
                         <HBox alignItems="Center">
@@ -397,6 +517,8 @@
                                                  <HBox class="kyraGovCell kyraGovCell7" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <Input
                                                         value="{accessModel>comment}"
+                                                        valueState="{accessModel>commentValueState}"
+                                                        valueStateText="{accessModel>commentValueStateText}"
                                                         liveChange=".onRemarkLiveChange"
                                                         placeholder="Add remark..."
                                                         class="kyraGovRemarkInput"

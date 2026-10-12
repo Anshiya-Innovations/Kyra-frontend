@@ -28408,6 +28408,14 @@ html body .sapMBtn.kyraGovBtnApprove:hover .sapMBtnInner {
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
 }
 
+.kyraGovRemarkInput.sapMInputBaseStateError .sapMInputBaseContentWrapper,
+.kyraGovRemarkInput .sapMInputBaseContentWrapperStateError,
+.kyraGovRemarkInput .sapMInputBaseContentWrapperError {
+    border-color: #EF4444 !important;
+    background-color: #FEF2F2 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
 .kyraGovRemarkInput .sapMInputBaseInner {
     border: none !important;
     outline: none !important;

@@ -1631,8 +1631,12 @@ sap.ui.define([
             const oContext = oEvent.getSource().getBindingContext("accessModel");
             const oModel = this.getView().getModel("accessModel");
             if (oContext && oModel) {
-                const sVal = oEvent.getParameter("value");
+                const sVal = oEvent.getParameter("value") || "";
                 oModel.setProperty(oContext.getPath() + "/comment", sVal);
+                if (sVal.trim()) {
+                    oModel.setProperty(oContext.getPath() + "/commentValueState", "None");
+                    oModel.setProperty(oContext.getPath() + "/commentValueStateText", "");
+                }
             }
         },
 
@@ -1668,12 +1672,32 @@ sap.ui.define([
                     return;
                 }
 
-                // 2. Default remark / comment if omitted so user is not blocked
-                aEntitlements.forEach(e => {
-                    if (!e.comment || !e.comment.trim()) {
-                        e.comment = ((e.status || "").toLowerCase().includes("reject")) ? "Rejected by Approver" : "Approved by Approver";
-                    }
-                });
+                // 2. VALIDATION: Remarks must be entered manually - NO auto-fill! All items must have a remark entered.
+                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
+                if (aMissingRemarks.length > 0) {
+                    // Highlight empty remark input fields in red
+                    aTables.forEach(tbl => {
+                        (tbl.items || []).forEach(item => {
+                            if (!item.comment || !item.comment.trim()) {
+                                item.commentValueState = "Error";
+                                item.commentValueStateText = "Please enter a remark";
+                            } else {
+                                item.commentValueState = "None";
+                                item.commentValueStateText = "";
+                            }
+                        });
+                    });
+                    oModel.setProperty("/selectedRequest/summaryTables", aTables);
+
+                    const sMsg = aMissingRemarks.length === 1
+                        ? "Remark Required: Please enter a remark for the entitlement before submitting."
+                        : "Remark Required: Please enter a remark for all " + aMissingRemarks.length + " entitlements before submitting.";
+
+                    MessageBox.warning(sMsg, {
+                        title: "Action Required"
+                    });
+                    return;
+                }
 
                 this._showDecisionSummarySlide(oData, false);
             }
@@ -3265,6 +3289,8 @@ sap.ui.define([
                     item.statusState = sNewState;
                     item.statusIcon = sNewIcon;
                     item.comment = sRemark;
+                    item.commentValueState = "None";
+                    item.commentValueStateText = "";
                 });
             });
             oModel.setProperty("/selectedRequest/summaryTables", aTables);

@@ -517,6 +517,8 @@
                                                  <HBox class="kyraGovCell kyraGovCell7" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <Input
                                                         value="{accessModel>comment}"
+                                                        valueState="{accessModel>commentValueState}"
+                                                        valueStateText="{accessModel>commentValueStateText}"
                                                         liveChange=".onRemarkLiveChange"
                                                         placeholder="Add remark..."
                                                         class="kyraGovRemarkInput"

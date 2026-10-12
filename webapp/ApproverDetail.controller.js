@@ -664,13 +664,11 @@ sap.ui.define([
                         summaryTables: aSummaryTables
                     });
 
-                    if (isRevocation) {
-                        oModel.setProperty("/selectedRequestSodActiveConflicts", []);
-                        oModel.setProperty("/selectedRequestSodPendingConflicts", []);
-                        oModel.setProperty("/selectedRequestSodBatchConflicts", []);
-                    } else {
-                        await this._evaluateSodConflictsForRequest(oRequest, aEntList, oModel);
-                    }
+                    // Evaluate SoD Conflicts for all requests (both Addition and Revocation)
+                    await this._evaluateSodConflictsForRequest(oRequest, aEntList, oModel);
+
+                    // Evaluate Threshold Limits and Restricted Records live data
+                    await this._evaluateThresholdAndRestrictedForRequest(oRequest, aEntList, oModel, liveData);
                     oModel.setProperty("/approverSodTab", 1);
 
                     // Wait for UI5 binding updates and DOM rendering to finish before dismissing loader
@@ -816,12 +814,6 @@ sap.ui.define([
 
         async _evaluateSodConflictsForRequest(oRequest, aEntList, oModel) {
             if (!oModel || !oRequest) return;
-            if (oRequest.isRevocation || String(oRequest.type || oRequest.access_type || oRequest.status || "").toLowerCase().includes("rev")) {
-                oModel.setProperty("/selectedRequestSodActiveConflicts", []);
-                oModel.setProperty("/selectedRequestSodPendingConflicts", []);
-                oModel.setProperty("/selectedRequestSodBatchConflicts", []);
-                return;
-            }
 
             const sRequesterUsername = (oRequest.requesterId || oRequest.requesterUsername || oRequest.requester_username || "").trim();
             
@@ -1140,7 +1132,13 @@ sap.ui.define([
                                 newRole: `${sys} — ${role2}`,
                                 newPersona: pers2,
                                 conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                conflictDesc: desc
+                                conflictDesc: desc,
+                                item1RequestId: match.item1.requestId || match.item1.request_number || "",
+                                item1RoleName: role1,
+                                item1Persona: pers1,
+                                item2RequestId: match.item2.requestId || match.item2.request_number || "",
+                                item2RoleName: role2,
+                                item2Persona: pers2
                             };
 
                             const key = makeConflictKey(card);
@@ -1177,7 +1175,11 @@ sap.ui.define([
                                 newRole: `${sys} — ${newRoleName}`,
                                 newPersona: newPersName,
                                 conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                conflictDesc: desc
+                                conflictDesc: desc,
+                                requestedRequestId: newItem.requestId || newItem.request_number || "",
+                                requestedRoleName: newRoleName,
+                                requestedPersona: newPersName,
+                                requestedSystem: sys
                             };
 
                             const key = makeConflictKey(card);
@@ -1214,7 +1216,11 @@ sap.ui.define([
                                 newRole: `${sys} — ${newRoleName}`,
                                 newPersona: newPersName,
                                 conflictTitle: "Segregation of Duties (SoD) Conflict",
-                                conflictDesc: desc
+                                conflictDesc: desc,
+                                requestedRequestId: newItem.requestId || newItem.request_number || "",
+                                requestedRoleName: newRoleName,
+                                requestedPersona: newPersName,
+                                requestedSystem: sys
                             };
 
                             const key = makeConflictKey(card);
@@ -1227,9 +1233,288 @@ sap.ui.define([
                 });
             });
 
+            if (aActiveConflicts.length === 0) {
+                const confItem = (aEntList && aEntList.find(e => e.conflictingRole || e.conflicting_role)) || (aItemsToCheck && aItemsToCheck.find(e => e.conflictingRole || e.conflicting_role));
+                const sConfRole = (confItem && (confItem.conflictingRole || confItem.conflicting_role)) || oRequest.conflictingRole || oRequest.conflicting_role;
+                if (sConfRole) {
+                    const item0 = confItem || aItemsToCheck[0] || oRequest;
+                    const sys = item0.system || item0.target_system || item0.systemName || "SAP System";
+                    const newRoleName = cleanPersonaName(item0.roleName || item0.role_name || item0.team || item0.teamName || "Requested Role");
+                    const newPersName = cleanPersonaName(item0.selectedPersona || item0.persona || newRoleName);
+                    aActiveConflicts.push({
+                        system: sys,
+                        roleA: `${sys} — ${sConfRole}`,
+                        personaA: sConfRole,
+                        roleB: `${sys} — ${newRoleName}`,
+                        personaB: newPersName,
+                        existingRole: `${sys} — ${sConfRole}`,
+                        existingPersona: sConfRole,
+                        newRole: `${sys} — ${newRoleName}`,
+                        newPersona: newPersName,
+                        conflictTitle: "Segregation of Duties (SoD) Conflict",
+                        conflictDesc: "Segregation of Duties conflict detected with active role " + sConfRole + ".",
+                        requestedRequestId: item0.requestId || item0.request_number || "",
+                        requestedRoleName: newRoleName,
+                        requestedPersona: newPersName,
+                        requestedSystem: sys
+                    });
+                }
+            }
+
+            this._rawActiveConflicts = aActiveConflicts;
+            this._rawPendingConflicts = aPendingConflicts;
+            this._rawBatchConflicts = aBatchConflicts;
+            oModel.setProperty("/rawSodActiveConflicts", aActiveConflicts);
+            oModel.setProperty("/rawSodPendingConflicts", aPendingConflicts);
+            oModel.setProperty("/rawSodBatchConflicts", aBatchConflicts);
+
             oModel.setProperty("/selectedRequestSodActiveConflicts", this._groupSodConflictCards(aActiveConflicts, false));
             oModel.setProperty("/selectedRequestSodPendingConflicts", this._groupSodConflictCards(aPendingConflicts, false));
             oModel.setProperty("/selectedRequestSodBatchConflicts", this._groupSodConflictCards(aBatchConflicts, true));
+        },
+
+        async _evaluateThresholdAndRestrictedForRequest(oRequest, aEntList, oModel, liveData) {
+            if (!oModel || !oRequest) return;
+
+            const aItems = (aEntList && aEntList.length > 0) ? aEntList : [oRequest];
+            const sRequesterUsername = (oRequest.requesterId || oRequest.requesterUsername || "").trim();
+
+            const cleanPersonaName = (s) => {
+                if (!s) return "";
+                let str = String(s).trim();
+                str = str.replace(/\s*\([^)]*\)\s*$/g, "").trim();
+                str = str.replace(/\s+persona\b/gi, "").trim();
+                return str || s;
+            };
+
+            const cleanForComp = (s) => {
+                if (!s) return "";
+                let str = String(s).trim();
+                str = str.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+                str = str.replace(/\bpersona\b/gi, "").trim();
+                str = str.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+                return str;
+            };
+
+            const aAllowedRestrictedPersonas = [
+                "cloud infrastructure administrator",
+                "database iam administrator",
+                "database & iam administrator",
+                "devops platform lead",
+                "devops & platform lead",
+                "cybersecurity operations",
+                "identity management specialist",
+                "solution architecture owner",
+                "integration engineering lead"
+            ];
+
+            const isRestrictedPersona = (sPers, item) => {
+                if (item && item.accessPrivilege) {
+                    if (item.accessPrivilege === "Restricted") return true;
+                    if (item.accessPrivilege === "Not restricted") return false;
+                }
+                if (item && (item.access_type === "RESTRICTED" || item.accessType === "RESTRICTED" || item.type === "RESTRICTED" || item.isRestricted === true)) {
+                    return true;
+                }
+
+                const sTargetClean = cleanForComp(sPers || (item && (item.persona || item.selectedPersona || item.roleName || item.team)));
+                if (!sTargetClean) return false;
+
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                for (const sSrv of Object.keys(oDetailsMap)) {
+                    const aTeams = oDetailsMap[sSrv] || [];
+                    for (const oTeam of aTeams) {
+                        const aSubs = (oTeam && oTeam.subClassifications) || [];
+                        for (const oSub of aSubs) {
+                            if (!oSub || !oSub.name) continue;
+                            const sSubClean = cleanForComp(oSub.name);
+                            if (sSubClean === sTargetClean || sSubClean.includes(sTargetClean) || sTargetClean.includes(sSubClean)) {
+                                if (oSub.accessPrivilege === "Restricted") return true;
+                                if (oSub.accessPrivilege === "Not restricted") return false;
+                            }
+                        }
+                    }
+                }
+
+                return aAllowedRestrictedPersonas.some(r => cleanForComp(r) === sTargetClean);
+            };
+
+            // Derive Restricted Records
+            const aRestrictedRecords = [];
+            const seenRestrictedKeys = new Set();
+
+            aItems.forEach((item, idx) => {
+                const sPersona = item.persona || item.selectedPersona || "";
+                if (isRestrictedPersona(sPersona, item)) {
+                    const sSys = item.system || item.target_system || item.systemName || "SAP BTP Cloud Platform";
+                    let sServices = item.services || item.serviceTopic || item.service || "System Administrator";
+                    let sTeam = cleanPersonaName(item.team || item.teamName || item.roleName || item.roleTitle || "IT Developers");
+                    const sPersonaClean = cleanPersonaName(sPersona) || "Database & IAM Administrator Persona";
+
+                    let sSecGroup = item.securityGroup || item.selectedSecurityGroups || "";
+                    let sAdGroup = item.adGroupName || item.adGroup || "";
+
+                    if (!sSecGroup) {
+                        if (sSys.includes("BTP")) {
+                            sSecGroup = "SEC-BTP-ADMIN-ACCESS";
+                        } else if (sSys.includes("Ariba")) {
+                            sSecGroup = "SEC-ARIBA-PROCURE-ACCESS";
+                        } else if (sSys.includes("SuccessFactors")) {
+                            sSecGroup = "SEC-SF-HR-ACCESS";
+                        } else if (sSys.includes("S/4HANA") || sSys.includes("S4HANA")) {
+                            sSecGroup = "SEC-S4HANA-FIN-ACCESS";
+                        } else {
+                            sSecGroup = "SEC-PRIVILEGED-ACCESS";
+                        }
+                    }
+
+                    if (!sAdGroup) {
+                        if (sSys.includes("BTP")) {
+                            sAdGroup = "AD-KYRA-BTP-ENG-GRP";
+                        } else if (sSys.includes("Ariba")) {
+                            sAdGroup = "AD-KYRA-ARIBA-GRP";
+                        } else if (sSys.includes("SuccessFactors")) {
+                            sAdGroup = "AD-KYRA-SF-GRP";
+                        } else if (sSys.includes("S/4HANA") || sSys.includes("S4HANA")) {
+                            sAdGroup = "AD-KYRA-S4HANA-GRP";
+                        } else {
+                            sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
+                        }
+                    }
+
+                    const k = `${sSys}:::${sServices}:::${sTeam}:::${sPersonaClean}`;
+                    if (!seenRestrictedKeys.has(k)) {
+                        seenRestrictedKeys.add(k);
+                        aRestrictedRecords.push({
+                            id: "RR-" + (idx + 1),
+                            system: sSys,
+                            systemName: sSys,
+                            services: sServices,
+                            serviceTopic: sServices,
+                            team: sTeam,
+                            teamName: sTeam,
+                            roleName: sTeam,
+                            roleTitle: sTeam,
+                            persona: sPersonaClean,
+                            selectedPersona: sPersonaClean,
+                            securityGroup: sSecGroup,
+                            selectedSecurityGroups: sSecGroup,
+                            adGroup: sAdGroup,
+                            adGroupName: sAdGroup
+                        });
+                    }
+                }
+            });
+
+            oModel.setProperty("/restrictedRecords", aRestrictedRecords);
+
+            // Derive Threshold Limits
+            let aAllLive = (liveData && liveData.value) || [];
+            if (aAllLive.length === 0) {
+                try {
+                    const resp = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        if (data && data.value) {
+                            aAllLive = data.value;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            const isSameSys = (sysA, sysB) => {
+                if (!sysA || !sysB) return false;
+                const normA = String(sysA).toLowerCase().replace(/[^a-z0-9]/g, "");
+                const normB = String(sysB).toLowerCase().replace(/[^a-z0-9]/g, "");
+                return normA === normB || normA.includes(normB) || normB.includes(normA);
+            };
+
+            const targetSystems = new Set();
+            aItems.forEach(item => {
+                const s = item.system || item.target_system || item.systemName;
+                if (s) targetSystems.add(s);
+            });
+            if (targetSystems.size === 0 && oRequest.system) {
+                targetSystems.add(oRequest.system);
+            }
+
+            const aThresholdLimits = [];
+            const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [
+                { systemName: "SAP BTP Cloud Platform", thresholdLimit: "5" },
+                { systemName: "SAP S/4HANA Enterprise", thresholdLimit: "8" },
+                { systemName: "KYRA Central Governance", thresholdLimit: "4" },
+                { systemName: "Active Directory / IAM", thresholdLimit: "5" },
+                { systemName: "SAP SuccessFactors", thresholdLimit: "8" },
+                { systemName: "SAP Ariba Supply Network", thresholdLimit: "5" }
+            ];
+
+            const sSector = oRequest.businessSector || oRequest.sector || "Global Supply Chain & Logistics";
+
+            targetSystems.forEach(sSys => {
+                const oSysCfg = aAdminSystems.find(s => isSameSys(s.systemName, sSys));
+                let iSysLimit = 5;
+                if (oSysCfg && oSysCfg.thresholdLimit) {
+                    const parsedLimit = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
+                    if (!isNaN(parsedLimit) && parsedLimit > 0) {
+                        iSysLimit = parsedLimit;
+                    }
+                }
+
+                const uniqueEntitlements = new Set();
+
+                aAllLive.forEach(rec => {
+                    const rUser = (rec.requester_username || "").toLowerCase();
+                    if (sRequesterUsername && rUser === sRequesterUsername.toLowerCase()) {
+                        const recSys = rec.system || rec.target_system || "";
+                        if (isSameSys(recSys, sSys)) {
+                            const recStatus = (rec.status || rec.db_status || "").toUpperCase();
+                            const recType = (rec.access_type || rec.request_type || "").toUpperCase();
+                            if (!recType.includes("REV") || recStatus === "APPROVED" || recStatus === "ACTIVE" || recStatus.startsWith("PENDING")) {
+                                const k = rec.request_number || `${recSys}:::${rec.role_name}:::${rec.selected_persona || rec.persona || rec.id}`;
+                                uniqueEntitlements.add(k);
+                            }
+                        }
+                    }
+                });
+
+                aItems.forEach(item => {
+                    const itemSys = item.system || item.target_system || item.systemName || "";
+                    if (isSameSys(itemSys, sSys)) {
+                        const k = item.requestId || `${itemSys}:::${item.team || item.roleName}:::${item.selectedPersona || item.persona}`;
+                        uniqueEntitlements.add(k);
+                    }
+                });
+
+                if (uniqueEntitlements.size === 0) {
+                    const aMemAccess = (oModel.getProperty("/userAccessList") || oModel.getProperty("/activeRoles") || []);
+                    aMemAccess.forEach(acc => {
+                        const accSys = acc.system || acc.target_system || "";
+                        if (isSameSys(accSys, sSys)) {
+                            const k = acc.id || `${accSys}:::${acc.roleName || acc.team}:::${acc.persona || acc.selectedPersona}`;
+                            uniqueEntitlements.add(k);
+                        }
+                    });
+                }
+
+                const iTotalCount = uniqueEntitlements.size;
+
+                if (iTotalCount > iSysLimit) {
+                    const iPct = Math.round((iTotalCount / iSysLimit) * 100);
+                    aThresholdLimits.push({
+                        system: sSys,
+                        sector: sSector,
+                        thresholdLimit: String(iSysLimit),
+                        actualCount: iTotalCount,
+                        limit: `${iTotalCount}/${iSysLimit}`,
+                        excessivePercentage: `${iPct}%`,
+                        status: "Excessive",
+                        state: "Warning",
+                        statusState: "Warning"
+                    });
+                }
+            });
+
+            oModel.setProperty("/thresholdLimits", aThresholdLimits);
         },
 
         onSelectApproverSodExisting() {
@@ -1346,8 +1631,12 @@ sap.ui.define([
             const oContext = oEvent.getSource().getBindingContext("accessModel");
             const oModel = this.getView().getModel("accessModel");
             if (oContext && oModel) {
-                const sVal = oEvent.getParameter("value");
+                const sVal = oEvent.getParameter("value") || "";
                 oModel.setProperty(oContext.getPath() + "/comment", sVal);
+                if (sVal.trim()) {
+                    oModel.setProperty(oContext.getPath() + "/commentValueState", "None");
+                    oModel.setProperty(oContext.getPath() + "/commentValueStateText", "");
+                }
             }
         },
 
@@ -1383,12 +1672,32 @@ sap.ui.define([
                     return;
                 }
 
-                // 2. Default remark / comment if omitted so user is not blocked
-                aEntitlements.forEach(e => {
-                    if (!e.comment || !e.comment.trim()) {
-                        e.comment = ((e.status || "").toLowerCase().includes("reject")) ? "Rejected by Approver" : "Approved by Approver";
-                    }
-                });
+                // 2. VALIDATION: Remarks must be entered manually - NO auto-fill! All items must have a remark entered.
+                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
+                if (aMissingRemarks.length > 0) {
+                    // Highlight empty remark input fields in red
+                    aTables.forEach(tbl => {
+                        (tbl.items || []).forEach(item => {
+                            if (!item.comment || !item.comment.trim()) {
+                                item.commentValueState = "Error";
+                                item.commentValueStateText = "Please enter a remark";
+                            } else {
+                                item.commentValueState = "None";
+                                item.commentValueStateText = "";
+                            }
+                        });
+                    });
+                    oModel.setProperty("/selectedRequest/summaryTables", aTables);
+
+                    const sMsg = aMissingRemarks.length === 1
+                        ? "Remark Required: Please enter a remark for the entitlement before submitting."
+                        : "Remark Required: Please enter a remark for all " + aMissingRemarks.length + " entitlements before submitting.";
+
+                    MessageBox.warning(sMsg, {
+                        title: "Action Required"
+                    });
+                    return;
+                }
 
                 this._showDecisionSummarySlide(oData, false);
             }
@@ -1802,6 +2111,84 @@ sap.ui.define([
                 m.setProperty("/showRemoveAccessSector", false);
             });
 
+            // Evaluate effective conflict state for approved items
+            const aApprovedList = (aFinalApproved && aFinalApproved.length > 0) ? aFinalApproved : [];
+            const aRejectedList = (aRejectedItems && aRejectedItems.length > 0) ? aRejectedItems : [];
+
+            const rawActCards = (this._rawActiveConflicts && this._rawActiveConflicts.length) ? this._rawActiveConflicts : (oModel && oModel.getProperty("/rawSodActiveConflicts")) || (oModel && oModel.getProperty("/selectedRequestSodActiveConflicts")) || [];
+            const rawPendCards = (this._rawPendingConflicts && this._rawPendingConflicts.length) ? this._rawPendingConflicts : (oModel && oModel.getProperty("/rawSodPendingConflicts")) || (oModel && oModel.getProperty("/selectedRequestSodPendingConflicts")) || [];
+            const rawBatchCards = (this._rawBatchConflicts && this._rawBatchConflicts.length) ? this._rawBatchConflicts : (oModel && oModel.getProperty("/rawSodBatchConflicts")) || (oModel && oModel.getProperty("/selectedRequestSodBatchConflicts")) || [];
+
+            const isItemMatchingCard = (item, card) => {
+                if (!item || !card) return false;
+                const iReq = String(item.requestId || item.request_number || item.id || "").trim().toUpperCase();
+                const cReq = String(card.requestedRequestId || "").trim().toUpperCase();
+                if (cReq && iReq && cReq === iReq) return true;
+
+                const sSys = String(item.system || item.target_system || "").trim().toLowerCase();
+                const cSys = String(card.system || "").trim().toLowerCase();
+                if (cSys && sSys && !sSys.includes(cSys) && !cSys.includes(sSys)) return false;
+
+                const iRole = String(item.roleName || item.team || "").trim().toLowerCase().replace(/\s*\([^)]*\)/g, "");
+                const iPers = String(item.selectedPersona || item.persona || "").trim().toLowerCase().replace(/\s+persona\b/gi, "");
+                const cRole = String(card.requestedRoleName || card.newRole || card.roleB || "").trim().toLowerCase().replace(/\s*\([^)]*\)/g, "");
+                const cPers = String(card.requestedPersona || card.newPersona || card.personaB || "").trim().toLowerCase().replace(/\s+persona\b/gi, "");
+
+                const bRoleMatch = !cRole || !iRole || cRole.includes(iRole) || iRole.includes(cRole);
+                const bPersMatch = !cPers || !iPers || cPers.includes(iPers) || iPers.includes(cPers);
+                return bRoleMatch && bPersMatch;
+            };
+
+            const doesApprovedItemHaveConflict = (appr) => {
+                if (!appr) return false;
+                // 1. Matches active conflict
+                if (rawActCards.some(c => isItemMatchingCard(appr, c))) return true;
+                // 2. Matches pending conflict
+                if (rawPendCards.some(c => isItemMatchingCard(appr, c))) return true;
+                // 3. Part of intra-batch conflict where BOTH items are in aApprovedList
+                const inBatch = rawBatchCards.some(card => {
+                    const c1Req = String(card.item1RequestId || "").trim().toUpperCase();
+                    const c2Req = String(card.item2RequestId || "").trim().toUpperCase();
+                    const rId = String(appr.requestId || appr.request_number || appr.id || "").trim().toUpperCase();
+                    const is1 = (c1Req && rId && c1Req === rId) || (card.item1RoleName && String(appr.roleName || appr.team || "").toLowerCase().includes(String(card.item1RoleName).toLowerCase()));
+                    const is2 = (c2Req && rId && c2Req === rId) || (card.item2RoleName && String(appr.roleName || appr.team || "").toLowerCase().includes(String(card.item2RoleName).toLowerCase()));
+                    if (!is1 && !is2) return false;
+                    // Check if other partner is in aApprovedList
+                    const partnerIsApproved = aApprovedList.some(other => {
+                        if (other === appr) return false;
+                        const oId = String(other.requestId || other.request_number || other.id || "").trim().toUpperCase();
+                        if (is1) {
+                            return (c2Req && oId && c2Req === oId) || (card.item2RoleName && String(other.roleName || other.team || "").toLowerCase().includes(String(card.item2RoleName).toLowerCase()));
+                        } else {
+                            return (c1Req && oId && c1Req === oId) || (card.item1RoleName && String(other.roleName || other.team || "").toLowerCase().includes(String(card.item1RoleName).toLowerCase()));
+                        }
+                    });
+                    return partnerIsApproved;
+                });
+                if (inBatch) return true;
+                // 4. Own conflict flag (unless against an item that was rejected)
+                if (appr.hasConflict === true || appr.has_conflict === true) {
+                    const cRole = String(appr.conflictingRole || appr.conflicting_role || "").trim().toLowerCase();
+                    if (cRole) {
+                        const isWithRejected = aRejectedList.some(rej => {
+                            const rRole = String(rej.roleName || rej.team || "").trim().toLowerCase();
+                            const rPers = String(rej.selectedPersona || rej.persona || "").trim().toLowerCase();
+                            return (rRole && cRole.includes(rRole)) || (rPers && cRole.includes(rPers));
+                        });
+                        if (isWithRejected) return false;
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            let bRemainingApprovedHasConflict = false;
+            if (!isReqRevocation && aApprovedList.length > 0) {
+                bRemainingApprovedHasConflict = aApprovedList.some(appr => doesApprovedItemHaveConflict(appr));
+            }
+
+            const sNextTargetStatus = bIsComplianceApprover ? (sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : "PENDING_IAM_1") : (bRemainingApprovedHasConflict ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+
             // Synchronously register in decided map
             window._kyraLastDecisionSubmitTime = Date.now();
             window._kyraLastDecidedReqId = sSubTargetBase;
@@ -1818,6 +2205,8 @@ sap.ui.define([
                 status: sOverallStatus,
                 actorRole: sActiveRole,
                 isCompliance: bIsComplianceApprover,
+                hasConflict: bRemainingApprovedHasConflict,
+                nextStatus: sNextTargetStatus,
                 timestamp: Date.now()
             };
             window._kyraDecidedRequestsMap[sReqIdNorm] = oDecidedRecord;
@@ -1827,8 +2216,19 @@ sap.ui.define([
             (oData.entitlements || []).forEach(e => {
                 if (e.requestId) {
                     const eNorm = String(e.requestId).trim().toUpperCase();
-                    window._kyraDecidedRequestsMap[eNorm] = oDecidedRecord;
-                    oDecidedMap[eNorm] = oDecidedRecord;
+                    const isRej = (e.status || "").toLowerCase().includes("reject");
+                    const eRecord = {
+                        requestId: eNorm,
+                        baseRequestId: sSubTargetBase,
+                        status: isRej ? "Rejected" : "Approved",
+                        actorRole: sActiveRole,
+                        isCompliance: bIsComplianceApprover,
+                        hasConflict: isRej ? false : (bIsComplianceApprover ? false : doesApprovedItemHaveConflict(e)),
+                        nextStatus: isRej ? "REJECTED" : sNextTargetStatus,
+                        timestamp: Date.now()
+                    };
+                    window._kyraDecidedRequestsMap[eNorm] = eRecord;
+                    oDecidedMap[eNorm] = eRecord;
                     const eBase = getBaseReqId(eNorm).toUpperCase();
                     if (eBase) {
                         window._kyraDecidedRequestsMap[eBase] = oDecidedRecord;
@@ -1861,9 +2261,25 @@ sap.ui.define([
                         } else {
                             r.approver_status = sOverallStatus.toUpperCase();
                             r.approver_decision_status = sOverallStatus.toUpperCase();
-                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                            r.status = sOverallStatus.toUpperCase().includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                            r.db_status = r.status;
+
+                            const isThisRowRejected = aRejectedList.some(rej => {
+                                const rejId = String(rej.requestId || rej.id || rej.request_number || "").trim().toUpperCase();
+                                return rejId && (rejId === rId || rId.endsWith(rejId) || rejId.endsWith(rId));
+                            });
+
+                            if (isThisRowRejected) {
+                                r.status = "REJECTED";
+                                r.db_status = "REJECTED";
+                            } else {
+                                r.status = aApprovedList.length > 0 ? sNextTargetStatus : "REJECTED";
+                                r.db_status = r.status;
+                                r.has_conflict = bRemainingApprovedHasConflict;
+                                r.hasConflict = bRemainingApprovedHasConflict;
+                                if (!bRemainingApprovedHasConflict) {
+                                    r.conflicting_role = null;
+                                    r.conflictingRole = null;
+                                }
+                            }
                         }
                         r.updated_at = sNowIso;
                     }
@@ -1926,24 +2342,11 @@ sap.ui.define([
             // STEP 2: PERSIST TO BACKEND DATABASE WHILE LOADER REMAINS VISIBLE
             // ═══════════════════════════════════════════════════════════════════════
             try {
-                const aActiveConflicts = (oModel && oModel.getProperty("/selectedRequestSodActiveConflicts")) || [];
-                const aPendingConflicts = (oModel && oModel.getProperty("/selectedRequestSodPendingConflicts")) || [];
-                const aBatchConflicts = (oModel && oModel.getProperty("/selectedRequestSodBatchConflicts")) || [];
-                const bHasConflict = (
-                    aActiveConflicts.length > 0 ||
-                    aPendingConflicts.length > 0 ||
-                    aBatchConflicts.length > 0 ||
-                    oData.hasConflict === true ||
-                    oData.has_conflict === true ||
-                    !!oData.conflictingRole ||
-                    !!oData.conflicting_role ||
-                    (oData.entitlements || []).some(e => e.hasConflict === true || e.has_conflict === true || !!e.conflictingRole || !!e.conflicting_role)
-                );
-
                 let aDecisionsPayload = (oData.entitlements || []).map(e => {
                     const isRejected = (e.status || "").toLowerCase().includes("reject");
                     let sStatus = isRejected ? "REJECTED" : "APPROVED";
                     let sComment = e.comment || e.comments || (isRejected ? "Rejected by Approver" : "Approved by Approver");
+                    const itemHasConf = isRejected ? false : (bIsComplianceApprover ? false : doesApprovedItemHaveConflict(e));
                     return {
                         requestNumber: e.requestId || oData.requestId,
                         targetSystem: e.system || oData.system,
@@ -1952,7 +2355,7 @@ sap.ui.define([
                         status: sStatus,
                         comments: sComment,
                         actorRole: sActiveRole,
-                        hasConflict: bHasConflict,
+                        hasConflict: itemHasConf,
                         accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition")
                     };
                 });
@@ -1967,7 +2370,7 @@ sap.ui.define([
                         status: isRejected ? "REJECTED" : "APPROVED",
                         comments: isRejected ? "Rejected by Approver" : "Approved by Approver",
                         actorRole: sActiveRole,
-                        hasConflict: bHasConflict,
+                        hasConflict: isRejected ? false : bRemainingApprovedHasConflict,
                         accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition")
                     }];
                 }
@@ -1981,7 +2384,7 @@ sap.ui.define([
                         actorRole: sActiveRole,
                         actorUsername: sActiveUser,
                         approverUsername: sActiveUser,
-                        hasConflict: bHasConflict,
+                        hasConflict: bRemainingApprovedHasConflict,
                         accessType: isReqRevocation ? "REVOCATION" : (oData.accessType || "Addition"),
                         decisions: aDecisionsPayload
                     })
@@ -2167,7 +2570,7 @@ sap.ui.define([
 
             const isRevCheckDetail = (p) => !!(p.isRevocation || p.type === "Revocation" || String(p.requestId || '').startsWith("REV-") || String(p.accessType || '').toUpperCase().includes("REV"));
             const aAccessPending = aPending.filter(p => !isRevCheckDetail(p));
-            const aRevokePending = isCompliance ? [] : aPending.filter(p => isRevCheckDetail(p));
+            const aRevokePending = aPending.filter(p => isRevCheckDetail(p));
 
             const sortAscD = (a, b) => {
                 const tA = new Date(a.createdAtRaw || a.created_at || a.createdAt || a.submissionDate || 0).getTime();
@@ -2386,7 +2789,7 @@ sap.ui.define([
                     // COMPLIANCE REVIEWER:
                     // Only handles non-revocation requests WITH conflict.
                     // If Compliance has already decided: goes to History (Processed), NEVER in Pending!
-                    if (!isRevocation && hasConflict) {
+                    if (hasConflict) {
                         if (info.hasComplianceDecided) {
                             isProcessedForRole = true;
                             bRoleApproved = !info.hasComplianceRejected;
@@ -2886,6 +3289,8 @@ sap.ui.define([
                     item.statusState = sNewState;
                     item.statusIcon = sNewIcon;
                     item.comment = sRemark;
+                    item.commentValueState = "None";
+                    item.commentValueStateText = "";
                 });
             });
             oModel.setProperty("/selectedRequest/summaryTables", aTables);
