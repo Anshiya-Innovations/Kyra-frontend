@@ -55090,3 +55090,20 @@ div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
 .kyra-notif-footer:hover {
     background: #F8FAFC !important;
 }
+
+/* =========================================================================
+   KYRA DYNAMIC DIALOG: SECONDARY / CANCEL BUTTON BRAND HOVER
+   ========================================================================= */
+#kyra_dialog_cancel_btn:hover {
+    border-color: #008C9C !important;
+    background: #F0FDFA !important;
+    color: #008C9C !important;
+}
+
+#kyra_dialog_cancel_btn:active {
+    border-color: #007280 !important;
+    background: #CCFBF1 !important;
+    color: #007280 !important;
+    transform: scale(0.97) !important;
+}
+
