@@ -55591,3 +55591,80 @@ html body .kyraValTable .kyraRoleStatusRevoke {
     height: 0 !important;
     visibility: hidden !important;
 }
+
+
+/* ========================================================================== */
+/* FIX: ACCESS DURATION DROPDOWN FULL-HEIGHT CLICKABLE ICON                   */
+/* ========================================================================== */
+#inPageDurationSelect,
+.kyraSideDurationSelect {
+    cursor: pointer !important;
+}
+
+#inPageDurationSelect .sapMInputBaseContentWrapper,
+.kyraSideDurationSelect .sapMInputBaseContentWrapper {
+    cursor: pointer !important;
+    position: relative !important;
+    padding-right: 42px !important;
+}
+
+#inPageDurationSelect .sapMInputBaseInner,
+.kyraSideDurationSelect .sapMInputBaseInner,
+#inPageDurationSelect input,
+.kyraSideDurationSelect input {
+    cursor: pointer !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+#inPageDurationSelect .sapMInputBaseIconContainer,
+.kyraSideDurationSelect .sapMInputBaseIconContainer,
+#inPageDurationSelect .sapMComboBoxArrow,
+.kyraSideDurationSelect .sapMComboBoxArrow {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 10 !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#inPageDurationSelect .sapMInputBaseIconContainer .sapUiIcon,
+.kyraSideDurationSelect .sapMInputBaseIconContainer .sapUiIcon,
+#inPageDurationSelect .sapMComboBoxArrow .sapUiIcon,
+.kyraSideDurationSelect .sapMComboBoxArrow .sapUiIcon,
+#inPageDurationSelect .sapMComboBoxIcon,
+.kyraSideDurationSelect .sapMComboBoxIcon {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 100% !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    color: #008C9C !important;
+    font-size: 14.5px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
