@@ -5948,8 +5948,39 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 /* =========================================================================
    MODERN CLEAN WEB APP PROFILE POPUP (Pixel-Perfect Alignment & Spacing)
    ========================================================================= */
-.kyraUserProfilePopover {
+/* Keyframe Slide Down Animation for Smooth Header Popups */
+@keyframes kyraHeaderPopupSlideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kyraUserProfilePopover,
+.kyraUserProfilePopover.sapMPopover,
+.kyraUserProfilePopover.sapMResponsivePopover,
+.kyraNotificationPopover,
+.kyraNotificationPopover.sapMPopover,
+.kyraNotificationPopover.sapMResponsivePopover {
+    animation: kyraHeaderPopupSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    transform-origin: top right !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    will-change: transform, opacity !important;
+}
+
+.kyraPopoverClosing,
+.kyraPopoverClosing.sapMPopover,
+.kyraPopoverClosing.sapMResponsivePopover {
     animation: none !important;
+    opacity: 0 !important;
+    transform: translateY(-6px) !important;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    pointer-events: none !important;
 }
 
 .kyraUserProfilePopover,
@@ -30840,7 +30871,7 @@ html body .sapUiTheme-sap_horizon .sapMSelectListItem.sapMSelectListItemBaseSele
    ========================================================================= */
 
 /* 7. Promote popover to own GPU compositing layer — flicker-free rendering */
-.sapMPopover,
+.sapMPopover:not(.kyraNotificationPopover):not(.kyraUserProfilePopover),
 .sapMComboBoxPopup,
 .sapMMultiComboBoxPopup,
 .sapMSelectDropdown,
@@ -54534,78 +54565,370 @@ html body .sapUiTheme-sap_horizon .sapMDatePicker-CTX.sapMPopover {
     max-height: none !important;
 }
 
-/* Month view days grid sizing */
-.sapMDatePicker-CTX .sapUiCalItem,
-.sapMDatePickerPopup .sapUiCalItem {
-    height: 32px !important;
-    min-height: 32px !important;
-    line-height: 32px !important;
-    width: 32px !important;
-    min-width: 32px !important;
-    font-size: 13px !important;
+/* =========================================================================
+   DATEPICKER & CALENDAR SYSTEM: SPACIOUS "LITTLE BIG", NO SCROLLBAR, FULL PROPER CALENDAR
+   ========================================================================= */
+
+/* 1. Popover Container: Spacious width, auto height fitting all 6 rows cleanly, no clipping */
+.sapMPopover:has(.sapUiCal),
+.sapMPopover:has(.sapUiCalMonthView),
+div[id*="-cal--popover"],
+div[id*="-cal-popover"],
+.sapMDatePicker-CTX.sapMPopover,
+.sapMDatePickerPopup,
+.sapMDatePickerDialog,
+html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal),
+html body .sapUiTheme-sap_horizon div[id*="-cal--popover"],
+html body .sapUiTheme-sap_horizon div[id*="-cal-popover"] {
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    height: auto !important;
+    min-height: 375px !important;
+    max-height: calc(100vh - 40px) !important;
+    border-radius: 16px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.14), 0 6px 16px -2px rgba(0, 140, 156, 0.08) !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. Popover Content & Scroll Containers: Eliminate ALL scrollbars completely */
+.sapMPopover:has(.sapUiCal) .sapMPopoverCont,
+.sapMPopover:has(.sapUiCal) .sapMPopoverScroll,
+div[id*="-cal--popover"] .sapMPopoverCont,
+div[id*="-cal--popover"] .sapMPopoverScroll,
+div[id*="-cal-popover"] .sapMPopoverCont,
+div[id*="-cal-popover"] .sapMPopoverScroll,
+.sapMDatePicker-CTX .sapMPopoverCont,
+.sapMDatePicker-CTX .sapMPopoverScroll,
+.sapMDatePickerPopup .sapMPopoverCont,
+.sapMDatePickerPopup .sapMPopoverScroll,
+html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal) .sapMPopoverCont,
+html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal) .sapMPopoverScroll {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 375px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    padding: 14px 16px 18px 16px !important;
+    box-sizing: border-box !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    background: #FFFFFF !important;
+}
+
+/* 3. Calendar Root, Month View, and Items Grid */
+.sapUiCal,
+.sapMPopover:has(.sapUiCal) .sapUiCal,
+.sapMDatePicker-CTX .sapUiCal,
+div[id*="-cal--popover"] .sapUiCal,
+div[id*="-cal-popover"] .sapUiCal,
+html body .sapUiTheme-sap_horizon .sapUiCal {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 340px !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+.sapUiCalMonthView,
+.sapMPopover:has(.sapUiCal) .sapUiCalMonthView,
+.sapMDatePicker-CTX .sapUiCalMonthView,
+div[id*="-cal--popover"] .sapUiCalMonthView,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthView {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important;
+    min-height: 295px !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.sapUiCalContent,
+.sapUiCalItems,
+.sapUiCalMonth,
+.sapUiCalDatesRow,
+.sapMPopover:has(.sapUiCal) .sapUiCalContent,
+.sapMPopover:has(.sapUiCal) .sapUiCalItems {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* 4. Calendar Header (< October 2026 >) */
+.sapUiCalHead,
+.sapMPopover:has(.sapUiCal) .sapUiCalHead,
+.sapMDatePicker-CTX .sapUiCalHead,
+html body .sapUiTheme-sap_horizon .sapUiCalHead {
+    height: 42px !important;
+    min-height: 42px !important;
+    line-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    padding: 0 4px 8px 4px !important;
+    margin-bottom: 8px !important;
+    background: transparent !important;
+}
+
+.sapUiCalHeadB1,
+.sapUiCalHeadB2,
+.sapUiCalHeadB,
+.sapUiCalHead > .sapUiCalHeadBVal,
+.sapUiCalHead > .sapUiCalHeadBMonth,
+.sapUiCalHead > .sapUiCalHeadBYear,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB1,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadB2 {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 16px !important;
+    letter-spacing: -0.01em !important;
+    padding: 4px 10px !important;
     border-radius: 8px !important;
-    margin: 2px auto !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.sapUiCalHeadPrev,
+.sapUiCalHeadNext,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadPrev,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadNext {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    color: #008C9C !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.sapUiCalHeadPrev:hover,
+.sapUiCalHeadNext:hover {
+    background: #F0FDFA !important;
+    color: #007583 !important;
+}
+
+.sapUiCalHeadPrev .sapUiIcon,
+.sapUiCalHeadNext .sapUiIcon {
+    font-size: 15px !important;
+    color: #008C9C !important;
+}
+
+/* 5. Weekday Names Row (Sun Mon Tue Wed Thu Fri Sat) */
+.sapUiCalDays,
+.sapUiCalMonthView .sapUiCalDays {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    line-height: 30px !important;
+    padding: 0 !important;
+    margin-bottom: 4px !important;
+    width: 100% !important;
+}
+
+.sapUiCalWH,
+.sapUiCalDayName,
+.sapUiCalDayWeek,
+.sapUiCalRowWeekDay,
+.sapUiCalMonthView .sapUiCalWH,
+html body .sapUiTheme-sap_horizon .sapUiCalWH,
+html body .sapUiTheme-sap_horizon .sapUiCalDayName {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    text-align: center !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #64748B !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    padding: 0 !important;
+    height: 28px !important;
+    line-height: 28px !important;
+}
+
+/* 6. Calendar Rows & Day Item Sizing ("Little Big" - 38px x 38px) */
+.sapUiCalRow,
+.sapUiCalDatesRow,
+html body .sapUiTheme-sap_horizon .sapUiCalRow {
+    height: 42px !important;
+    min-height: 42px !important;
+    line-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin: 2px 0 !important;
+    width: 100% !important;
+}
+
+.sapUiCalItem,
+.sapUiCalDay,
+.sapMPopover:has(.sapUiCal) .sapUiCalItem,
+.sapMDatePicker-CTX .sapUiCalItem,
+div[id*="-cal--popover"] .sapUiCalItem,
+html body .sapUiTheme-sap_horizon .sapUiCalItem {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    line-height: 38px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #1E293B !important;
+    border-radius: 9px !important;
+    margin: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
+    border: 1.5px solid transparent !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
 }
 
-.sapMDatePicker-CTX .sapUiCalHead {
-    height: 36px !important;
-    line-height: 36px !important;
-    margin-bottom: 6px !important;
-}
-
-.sapMDatePicker-CTX .sapUiCalHead > .sapUiCalHeadBVal,
-.sapMDatePicker-CTX .sapUiCalHead > .sapUiCalHeadBMonth,
-.sapMDatePicker-CTX .sapUiCalHead > .sapUiCalHeadBYear {
-    font-size: 15px !important;
-    font-weight: 700 !important;
-    color: #008C9C !important;
-}
-
-.sapMDatePicker-CTX .sapUiCalHeadPrev .sapUiIcon,
-.sapMDatePicker-CTX .sapUiCalHeadNext .sapUiIcon {
-    color: #008C9C !important;
+.sapUiCalItem .sapUiCalItemText,
+.sapUiCalItem span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     font-size: 14px !important;
+    line-height: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 
-.sapMDatePicker-CTX .sapUiCalItemNow {
-    border: 1.5px solid #008C9C !important;
+.sapUiCalItem:hover,
+.sapUiCalItem:focus,
+html body .sapUiTheme-sap_horizon .sapUiCalItem:hover {
+    background: #F0FDFA !important;
+    color: #008C9C !important;
+    border-color: #CCEFF3 !important;
+    font-weight: 600 !important;
+}
+
+/* 7. Today Date: Subtle Soft Mint + Crisp Teal Border */
+.sapUiCalItemNow,
+.sapMPopover:has(.sapUiCal) .sapUiCalItemNow,
+.sapMDatePicker-CTX .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon .sapUiCalItemNow {
+    border: 2px solid #008C9C !important;
     color: #008C9C !important;
     font-weight: 700 !important;
-    border-radius: 8px !important;
-    background: transparent !important;
+    border-radius: 9px !important;
+    background: rgba(0, 140, 156, 0.08) !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
+.sapUiCalItemNow .sapUiCalItemText,
+.sapUiCalItemNow span {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+}
+
+/* 8. Selected Date: Solid Teal #008C9C with Pure White Text */
+.sapUiCalItemSel,
+.sapUiCalItem.sapUiCalItemSel,
+.sapMPopover:has(.sapUiCal) .sapUiCalItemSel,
 .sapMDatePicker-CTX .sapUiCalItemSel,
-.sapMDatePicker-CTX .sapUiCalItem.sapUiCalItemSel {
+html body .sapUiTheme-sap_horizon .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalItem.sapUiCalItemSel {
     background: #008C9C !important;
     background-color: #008C9C !important;
     color: #FFFFFF !important;
-    border-radius: 8px !important;
+    border: 2px solid #008C9C !important;
+    border-radius: 9px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
+    outline: none !important;
+}
+
+.sapUiCalItemSel .sapUiCalItemText,
+.sapUiCalItemSel span,
+.sapUiCalItem.sapUiCalItemSel .sapUiCalItemText,
+.sapUiCalItem.sapUiCalItemSel span {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
     font-weight: 700 !important;
 }
 
-
-/* =========================================================================
-   DATEPICKER CALENDAR FIXES: ZERO BLUE, CLEAN TEAL SELECTION, CRISP TODAY RING, NO SCROLLBAR
-   ========================================================================= */
-.sapMDatePicker-CTX.sapMPopover,
-.sapMDatePicker-CTX .sapMPopoverCont,
-.sapMDatePicker-CTX .sapMPopoverScroll,
-.sapMDatePicker-CTX .sapUiCal,
-.sapMDatePicker-CTX .sapUiCalContent,
-.sapMDatePicker-CTX .sapUiCalMonthView {
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    height: auto !important;
-    max-height: none !important;
+.sapUiCalItemNow.sapUiCalItemSel,
+.sapUiCalItemNow.sapUiCalItemSel .sapUiCalItemText,
+.sapUiCalItemNow.sapUiCalItemSel span {
+    background: #008C9C !important;
+    color: #FFFFFF !important;
+    border-color: #008C9C !important;
 }
 
+/* 9. Complete Side Scrollbar Elimination across Webkit / Firefox / Edge */
+.sapMPopover:has(.sapUiCal),
+.sapMPopover:has(.sapUiCal) *,
+.sapMDatePicker-CTX,
+.sapMDatePicker-CTX *,
+div[id*="-cal--popover"],
+div[id*="-cal--popover"] *,
+div[id*="-cal-popover"],
+div[id*="-cal-popover"] * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.sapMPopover:has(.sapUiCal)::-webkit-scrollbar,
+.sapMPopover:has(.sapUiCal) *::-webkit-scrollbar,
 .sapMDatePicker-CTX::-webkit-scrollbar,
-.sapMDatePicker-CTX *::-webkit-scrollbar {
+.sapMDatePicker-CTX *::-webkit-scrollbar,
+div[id*="-cal--popover"]::-webkit-scrollbar,
+div[id*="-cal--popover"] *::-webkit-scrollbar,
+div[id*="-cal-popover"]::-webkit-scrollbar,
+div[id*="-cal-popover"] *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.sapMPopover:has(.sapUiCal)::-webkit-scrollbar-button,
+.sapMPopover:has(.sapUiCal) *::-webkit-scrollbar-button,
+.sapMDatePicker-CTX::-webkit-scrollbar-button,
+.sapMDatePicker-CTX *::-webkit-scrollbar-button,
+div[id*="-cal--popover"]::-webkit-scrollbar-button,
+div[id*="-cal--popover"] *::-webkit-scrollbar-button,
+div[id*="-cal-popover"]::-webkit-scrollbar-button,
+div[id*="-cal-popover"] *::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
@@ -54948,21 +55271,6 @@ html body .sapUiTheme-sap_horizon .sapMInputBaseIconContainer .sapMInputBaseIcon
     fill: #007583 !important;
 }
 
-/* Calendar Month View - Remove scrollbar and ensure all rows fit cleanly */
-.sapMDatePicker-CTX.sapMPopover,
-.sapMDatePicker-CTX .sapMPopoverCont,
-.sapMDatePicker-CTX .sapMPopoverScroll,
-.sapMDatePicker-CTX .sapUiCal,
-.sapMDatePicker-CTX .sapUiCalContent,
-.sapMDatePicker-CTX .sapUiCalMonthView,
-.sapMDatePicker-CTX .sapUiCalItems,
-.sapUiCalMonthView,
-.sapUiCalItems {
-    overflow: hidden !important;
-    overflow-y: hidden !important;
-    height: auto !important;
-    max-height: none !important;
-}
 
 /* Restricted Limit Dropdown: Smooth opening without viewport overflow or page jitter */
 div[id*="kyraRestrictedLimitSelect"][id*="-picker"],
@@ -55824,5 +56132,148 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
     border-color: #007280 !important;
     transform: scale(0.96) !important;
 }
+
+/* =========================================================================
+   HEADER POPUPS (PROFILE & NOTIFICATION): SMOOTH GPU SLIDE ENTRANCE & EXIT
+   Prevents layout shifting, shaking, and flickering with smooth 60fps animations
+   ========================================================================= */
+html body .kyraNotificationPopover.sapMPopover,
+html body .kyraUserProfilePopover.sapMPopover,
+html body .sapUiTheme-sap_horizon .kyraNotificationPopover,
+html body .sapUiTheme-sap_horizon .kyraUserProfilePopover {
+    animation: kyraHeaderPopupSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    transform-origin: top right !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    will-change: transform, opacity !important;
+}
+
+html body .kyraPopoverClosing.sapMPopover,
+html body .sapUiTheme-sap_horizon .kyraPopoverClosing {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: translateY(-6px) !important;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    pointer-events: none !important;
+}
+
+/* =========================================================================
+   DATEPICKER CALENDAR FINAL OVERRIDE: SPACIOUS, ZERO SCROLLBAR, PROPER VIEW
+   ========================================================================= */
+html body .sapMPopover:has(.sapUiCal),
+html body .sapMPopover:has(.sapUiCalMonthView),
+html body div[id*="-cal--popover"],
+html body div[id*="-cal-popover"],
+html body .sapMDatePicker-CTX.sapMPopover,
+html body .sapMDatePickerPopup,
+html body .sapMDatePickerDialog,
+html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal),
+html body .sapUiTheme-sap_horizon div[id*="-cal--popover"],
+html body .sapUiTheme-sap_horizon div[id*="-cal-popover"] {
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
+    height: auto !important;
+    min-height: 375px !important;
+    max-height: calc(100vh - 40px) !important;
+    border-radius: 16px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.14), 0 6px 16px -2px rgba(0, 140, 156, 0.08) !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    box-sizing: border-box !important;
+}
+
+html body .sapMPopover:has(.sapUiCal) .sapMPopoverCont,
+html body .sapMPopover:has(.sapUiCal) .sapMPopoverScroll,
+html body div[id*="-cal--popover"] .sapMPopoverCont,
+html body div[id*="-cal--popover"] .sapMPopoverScroll,
+html body div[id*="-cal-popover"] .sapMPopoverCont,
+html body div[id*="-cal-popover"] .sapMPopoverScroll,
+html body .sapMDatePicker-CTX .sapMPopoverCont,
+html body .sapMDatePicker-CTX .sapMPopoverScroll,
+html body .sapMDatePickerPopup .sapMPopoverCont,
+html body .sapMDatePickerPopup .sapMPopoverScroll,
+html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal) .sapMPopoverCont,
+html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal) .sapMPopoverScroll {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 375px !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    padding: 14px 16px 18px 16px !important;
+    box-sizing: border-box !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    background: #FFFFFF !important;
+}
+
+html body .sapMPopover:has(.sapUiCal) .sapUiCalItem,
+html body .sapMDatePicker-CTX .sapUiCalItem,
+html body div[id*="-cal--popover"] .sapUiCalItem,
+html body div[id*="-cal-popover"] .sapUiCalItem,
+html body .sapUiTheme-sap_horizon .sapUiCalItem {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    line-height: 38px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border-radius: 9px !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+html body .sapMPopover:has(.sapUiCal),
+html body .sapMPopover:has(.sapUiCal) *,
+html body .sapMDatePicker-CTX,
+html body .sapMDatePicker-CTX *,
+html body div[id*="-cal--popover"],
+html body div[id*="-cal--popover"] *,
+html body div[id*="-cal-popover"],
+html body div[id*="-cal-popover"] * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+html body .sapMPopover:has(.sapUiCal)::-webkit-scrollbar,
+html body .sapMPopover:has(.sapUiCal) *::-webkit-scrollbar,
+html body .sapMDatePicker-CTX::-webkit-scrollbar,
+html body .sapMDatePicker-CTX *::-webkit-scrollbar,
+html body div[id*="-cal--popover"]::-webkit-scrollbar,
+html body div[id*="-cal--popover"] *::-webkit-scrollbar,
+html body div[id*="-cal-popover"]::-webkit-scrollbar,
+html body div[id*="-cal-popover"] *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+html body .sapMPopover:has(.sapUiCal)::-webkit-scrollbar-button,
+html body .sapMPopover:has(.sapUiCal) *::-webkit-scrollbar-button,
+html body .sapMDatePicker-CTX::-webkit-scrollbar-button,
+html body .sapMDatePicker-CTX *::-webkit-scrollbar-button,
+html body div[id*="-cal--popover"]::-webkit-scrollbar-button,
+html body div[id*="-cal--popover"] *::-webkit-scrollbar-button,
+html body div[id*="-cal-popover"]::-webkit-scrollbar-button,
+html body div[id*="-cal-popover"] *::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+
 
 

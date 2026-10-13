@@ -5509,34 +5509,28 @@ sap.ui.define([
                 oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
             }
 
-            // Mutual exclusivity: Close profile popover if open to prevent duplicate/overlapping panels
+            // Mutual exclusivity: Close profile popover smoothly if open to prevent duplicate/overlapping panels
             if (this._oProfilePopover) {
                 try {
                     if (this._oProfilePopover.isOpen && this._oProfilePopover.isOpen()) {
                         this._oProfilePopover.close();
                     }
-                    this._oProfilePopover.destroy();
                 } catch (e) {}
-                this._oProfilePopover = null;
             }
 
             // Prevent rapid multi-trigger debounce guard
             const iNow = Date.now();
-            if (this._iLastNotifPressTime && (iNow - this._iLastNotifPressTime < 350)) {
+            if (this._iLastNotifPressTime && (iNow - this._iLastNotifPressTime < 300)) {
                 return;
             }
             this._iLastNotifPressTime = iNow;
 
             // Singleton pattern: If notification popover already exists and is open, close/toggle it cleanly
             if (this._oNotifPopover) {
-                if (this._oNotifPopover.isOpen()) {
+                if (this._oNotifPopover.isOpen && this._oNotifPopover.isOpen()) {
                     this._oNotifPopover.close();
                     return;
                 }
-                try {
-                    this._oNotifPopover.destroy();
-                } catch (e) {}
-                this._oNotifPopover = null;
             }
 
             const oModel = this.getView().getModel("accessModel");
@@ -5695,6 +5689,69 @@ sap.ui.define([
                     </div>
                 `;
 
+                const fnPositionNotif = () => {
+                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                        ? oPopover._oControl 
+                        : oPopover;
+                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
+                    if (!oDom) {
+                        return;
+                    }
+                    oDom.style.width = "440px";
+                    oDom.style.minWidth = "440px";
+                    oDom.style.maxWidth = "440px";
+                    oDom.style.height = "auto";
+                    oDom.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                    oDom.style.overflow = "hidden";
+                    oDom.scrollTop = 0;
+
+                    // Position safety check:
+                    // Ensure it stays below the bell button, never flipped to Top off-screen
+                    const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
+                    const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
+                    if (oBellDom) {
+                        const bellRect = oBellDom.getBoundingClientRect();
+                        if (bellRect && bellRect.bottom > 0) {
+                            const iTop = Math.round(bellRect.bottom + 8);
+                            let iLeft = Math.round(bellRect.right - 440);
+                            if (iLeft + 440 > window.innerWidth - 16) {
+                                iLeft = Math.max(16, window.innerWidth - 440 - 16);
+                            }
+                            if (iLeft < 16) {
+                                iLeft = 16;
+                            }
+                            oDom.style.setProperty("top", iTop + "px", "important");
+                            oDom.style.setProperty("left", iLeft + "px", "important");
+                            oDom.style.setProperty("right", "auto", "important");
+                        }
+                    }
+
+                    const oCont = oDom.querySelector(".sapMPopoverCont");
+                    if (oCont) {
+                        oCont.style.width = "440px";
+                        oCont.style.minWidth = "440px";
+                        oCont.style.maxWidth = "440px";
+                        oCont.style.height = "auto";
+                        oCont.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                        oCont.style.overflow = "hidden";
+                        oCont.scrollTop = 0;
+                    }
+                    const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                    if (oScroll) {
+                        oScroll.style.width = "440px";
+                        oScroll.style.minWidth = "440px";
+                        oScroll.style.maxWidth = "440px";
+                        oScroll.style.height = "auto";
+                        oScroll.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                        oScroll.style.overflow = "hidden";
+                        oScroll.scrollTop = 0;
+                    }
+                    const oList = oDom.querySelector(".kyra-notif-list");
+                    if (oList) {
+                        oList.scrollTop = 0;
+                    }
+                };
+
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
                     contentWidth: "440px",
@@ -5715,9 +5772,17 @@ sap.ui.define([
                 });
                 this._oNotifPopover = oPopover;
                 oPopover.addStyleClass("kyraNotificationPopover");
+
+                if (oPopover._oControl) {
+                    oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionNotif;
+                }
+
                 oPopover.attachBeforeOpen(() => {
+                    oPopover.removeStyleClass("kyraPopoverClosing");
                     if (oPopover._oControl) {
+                        oPopover._oControl.removeStyleClass("kyraPopoverClosing");
                         oPopover._oControl.addStyleClass("kyraNotificationPopover");
+                        oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionNotif;
                         if (typeof oPopover._oControl.setPlacement === "function") {
                             oPopover._oControl.setPlacement("Bottom");
                         }
@@ -5729,69 +5794,16 @@ sap.ui.define([
                         }
                     }
                 });
+
+                oPopover.attachBeforeClose(() => {
+                    oPopover.addStyleClass("kyraPopoverClosing");
+                    if (oPopover._oControl) {
+                        oPopover._oControl.addStyleClass("kyraPopoverClosing");
+                    }
+                });
+
                 oPopover.attachAfterOpen(() => {
-                    const fnReset = () => {
-                        const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
-                            ? oPopover._oControl 
-                            : oPopover;
-                        const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
-                        if (oDom) {
-                            oDom.style.width = "440px";
-                            oDom.style.minWidth = "440px";
-                            oDom.style.maxWidth = "440px";
-                            oDom.style.height = "auto";
-                            oDom.style.maxHeight = "min(500px, calc(100vh - 70px))";
-                            oDom.style.overflow = "hidden";
-                            oDom.scrollTop = 0;
-
-                            // Position safety check:
-                            // Ensure it stays below the bell button, never flipped to Top off-screen
-                            const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
-                            const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
-                            if (oBellDom) {
-                                const bellRect = oBellDom.getBoundingClientRect();
-                                const iTop = parseInt(oDom.style.top || "0", 10);
-                                if (iTop < bellRect.bottom || iTop < 50) {
-                                    oDom.style.top = (bellRect.bottom + 8) + "px";
-                                }
-                                // Keep safely within screen boundaries
-                                const iLeft = parseInt(oDom.style.left || "0", 10);
-                                if (iLeft + 440 > window.innerWidth - 16 || iLeft < 16) {
-                                    oDom.style.left = Math.max(16, window.innerWidth - 440 - 20) + "px";
-                                }
-                            }
-
-                            const oCont = oDom.querySelector(".sapMPopoverCont");
-                            if (oCont) {
-                                oCont.style.width = "440px";
-                                oCont.style.minWidth = "440px";
-                                oCont.style.maxWidth = "440px";
-                                oCont.style.height = "auto";
-                                oCont.style.maxHeight = "min(500px, calc(100vh - 70px))";
-                                oCont.style.overflow = "hidden";
-                                oCont.scrollTop = 0;
-                            }
-                            const oScroll = oDom.querySelector(".sapMPopoverScroll");
-                            if (oScroll) {
-                                oScroll.style.width = "440px";
-                                oScroll.style.minWidth = "440px";
-                                oScroll.style.maxWidth = "440px";
-                                oScroll.style.height = "auto";
-                                oScroll.style.maxHeight = "min(500px, calc(100vh - 70px))";
-                                oScroll.style.overflow = "hidden";
-                                oScroll.scrollTop = 0;
-                            }
-                            const oList = oDom.querySelector(".kyra-notif-list");
-                            if (oList) {
-                                oList.scrollTop = 0;
-                            }
-                        }
-                    };
-
-                    fnReset();
-                    requestAnimationFrame(fnReset);
-                    setTimeout(fnReset, 40);
-                    setTimeout(fnReset, 120);
+                    fnPositionNotif();
                 });
 
                 this.getView().addDependent(oPopover);
@@ -12220,20 +12232,18 @@ sap.ui.define([
                 return document.querySelector(".sapFShellBarProfile");
             };
 
-            // Mutual exclusivity: Close notification popover if open to prevent duplicate/overlapping panels
+            // Mutual exclusivity: Close notification popover smoothly if open to prevent duplicate/overlapping panels
             if (this._oNotifPopover) {
                 try {
                     if (this._oNotifPopover.isOpen && this._oNotifPopover.isOpen()) {
                         this._oNotifPopover.close();
                     }
-                    this._oNotifPopover.destroy();
                 } catch (e) {}
-                this._oNotifPopover = null;
             }
 
             // Prevent rapid multi-trigger debounce guard
             const iNow = Date.now();
-            if (this._iLastProfilePressTime && (iNow - this._iLastProfilePressTime < 350)) {
+            if (this._iLastProfilePressTime && (iNow - this._iLastProfilePressTime < 300)) {
                 return;
             }
             this._iLastProfilePressTime = iNow;
@@ -12244,10 +12254,6 @@ sap.ui.define([
                     this._oProfilePopover.close();
                     return;
                 }
-                try {
-                    this._oProfilePopover.destroy();
-                } catch (e) {}
-                this._oProfilePopover = null;
             }
 
             const oModel = this.getView().getModel("accessModel");
@@ -12384,6 +12390,59 @@ sap.ui.define([
                     </div>
                 `;
 
+                const fnPositionProfile = () => {
+                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                        ? oPopover._oControl 
+                        : oPopover;
+                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
+                    if (!oDom) {
+                        return;
+                    }
+                    oDom.style.width = "300px";
+                    oDom.style.minWidth = "300px";
+                    oDom.style.maxWidth = "300px";
+                    oDom.style.height = "auto";
+                    oDom.style.maxHeight = "calc(100vh - 65px)";
+
+                    const oCont = oDom.querySelector(".sapMPopoverCont");
+                    if (oCont) {
+                        oCont.style.width = "300px";
+                        oCont.style.minWidth = "300px";
+                        oCont.style.maxWidth = "300px";
+                        oCont.style.height = "auto";
+                        oCont.style.maxHeight = "calc(100vh - 65px)";
+                    }
+                    const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                    if (oScroll) {
+                        oScroll.style.width = "300px";
+                        oScroll.style.minWidth = "300px";
+                        oScroll.style.maxWidth = "300px";
+                        oScroll.style.height = "auto";
+                        oScroll.style.maxHeight = "calc(100vh - 65px)";
+                        oScroll.style.overflowY = "auto";
+                        oScroll.style.overflowX = "hidden";
+                    }
+
+                    // Align accurately under profile avatar button
+                    const oAvatarEl = fnGetAvatarDom();
+                    if (oAvatarEl) {
+                        const rect = oAvatarEl.getBoundingClientRect();
+                        if (rect && rect.bottom > 0) {
+                            const iTop = Math.round(rect.bottom + 8);
+                            let iLeft = Math.round(rect.right - 300);
+                            if (iLeft + 300 > window.innerWidth - 14) {
+                                iLeft = Math.max(14, window.innerWidth - 300 - 14);
+                            }
+                            if (iLeft < 14) {
+                                iLeft = 14;
+                            }
+                            oDom.style.setProperty("top", iTop + "px", "important");
+                            oDom.style.setProperty("left", iLeft + "px", "important");
+                            oDom.style.setProperty("right", "auto", "important");
+                        }
+                    }
+                };
+
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
                     contentWidth: "300px",
@@ -12403,70 +12462,32 @@ sap.ui.define([
                 });
                 this._oProfilePopover = oPopover;
                 oPopover.addStyleClass("kyraUserProfilePopover");
+
+                if (oPopover._oControl) {
+                    oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionProfile;
+                }
+
                 oPopover.attachBeforeOpen(() => {
+                    oPopover.removeStyleClass("kyraPopoverClosing");
                     if (oPopover._oControl) {
+                        oPopover._oControl.removeStyleClass("kyraPopoverClosing");
                         oPopover._oControl.addStyleClass("kyraUserProfilePopover");
+                        oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionProfile;
                         if (typeof oPopover._oControl.setPlacement === "function") {
                             oPopover._oControl.setPlacement("Bottom");
                         }
                     }
                 });
+
+                oPopover.attachBeforeClose(() => {
+                    oPopover.addStyleClass("kyraPopoverClosing");
+                    if (oPopover._oControl) {
+                        oPopover._oControl.addStyleClass("kyraPopoverClosing");
+                    }
+                });
+
                 oPopover.attachAfterOpen(() => {
-                    const fnPosition = () => {
-                        const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
-                            ? oPopover._oControl 
-                            : oPopover;
-                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
-                    if (oDom) {
-                        oDom.style.width = "300px";
-                        oDom.style.minWidth = "300px";
-                        oDom.style.maxWidth = "300px";
-                        oDom.style.height = "auto";
-                        oDom.style.maxHeight = "calc(100vh - 65px)";
-
-                        const oCont = oDom.querySelector(".sapMPopoverCont");
-                        if (oCont) {
-                            oCont.style.width = "300px";
-                            oCont.style.minWidth = "300px";
-                            oCont.style.maxWidth = "300px";
-                            oCont.style.height = "auto";
-                            oCont.style.maxHeight = "calc(100vh - 65px)";
-                        }
-                        const oScroll = oDom.querySelector(".sapMPopoverScroll");
-                        if (oScroll) {
-                            oScroll.style.width = "300px";
-                            oScroll.style.minWidth = "300px";
-                            oScroll.style.maxWidth = "300px";
-                            oScroll.style.height = "auto";
-                            oScroll.style.maxHeight = "calc(100vh - 65px)";
-                            oScroll.style.overflowY = "auto";
-                            oScroll.style.overflowX = "hidden";
-                        }
-
-                            // Align accurately under profile avatar button
-                            const oAvatarEl = fnGetAvatarDom();
-                            if (oAvatarEl) {
-                                const rect = oAvatarEl.getBoundingClientRect();
-                                if (rect && rect.bottom > 0) {
-                                    const iTop = Math.round(rect.bottom + 8);
-                                    let iLeft = Math.round(rect.right - 300);
-                                    if (iLeft + 300 > window.innerWidth - 14) {
-                                        iLeft = Math.max(14, window.innerWidth - 300 - 14);
-                                    }
-                                    if (iLeft < 14) {
-                                        iLeft = 14;
-                                    }
-                                    oDom.style.setProperty("top", iTop + "px", "important");
-                                    oDom.style.setProperty("left", iLeft + "px", "important");
-                                    oDom.style.setProperty("right", "auto", "important");
-                                }
-                            }
-                        }
-                    };
-                    fnPosition();
-                    requestAnimationFrame(fnPosition);
-                    setTimeout(fnPosition, 30);
-                    setTimeout(fnPosition, 100);
+                    fnPositionProfile();
                 });
 
                 this.getView().addDependent(oPopover);
