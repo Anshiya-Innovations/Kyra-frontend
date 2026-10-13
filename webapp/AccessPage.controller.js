@@ -5672,7 +5672,7 @@ sap.ui.define([
                     horizontalScrolling: false,
                     verticalScrolling: false,
                     placement: "Bottom",
-                    showArrow: true,
+                    showArrow: false,
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],

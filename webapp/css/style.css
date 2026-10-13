@@ -7459,12 +7459,7 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     border-top-color: #FFFFFF !important;
 }
 
-.kyraNotificationPopover {
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
-    border: 1px solid #E2E8F0 !important;
-}
+/* Popover outer card styling handled in main declaration */
 
 .kyra-notif-box-card {
     width: 440px !important;
@@ -7587,9 +7582,9 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     display: flex !important;
     flex-direction: column !important;
     background: #FFFFFF !important;
-    border-radius: 12px !important;
+    border-radius: 0 !important;
     overflow: hidden !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+    box-shadow: none !important;
 }
 
 .kyra-notif-header {
@@ -55586,4 +55581,13 @@ html body .kyraValTable .kyraRoleStatusRevoke {
     line-height: 1 !important;
     margin: 0 !important;
     padding: 0 !important;
+}
+
+.kyraNotificationPopover .sapMPopoverArr,
+.kyraNotificationPopover .sapMPopoverArrUp,
+.kyraNotificationPopover .sapMPopoverArrDown {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    visibility: hidden !important;
 }
