@@ -1127,6 +1127,18 @@ sap.ui.define([
                 this._oNotificationPopover.destroy();
                 this._oNotificationPopover = null;
             }
+            if (this._oNotifPopover) {
+                try {
+                    this._oNotifPopover.destroy();
+                } catch (e) {}
+                this._oNotifPopover = null;
+            }
+            if (this._oProfilePopover) {
+                try {
+                    this._oProfilePopover.destroy();
+                } catch (e) {}
+                this._oProfilePopover = null;
+            }
             if (document.body.classList.contains("kyra-add-access-open")) {
                 document.body.classList.remove("kyra-add-access-open");
             }
@@ -5496,6 +5508,24 @@ sap.ui.define([
             if (!oSource || !oSource.getDomRef()) {
                 oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
             }
+
+            // Mutual exclusivity: Close profile popover if open to prevent duplicate/overlapping panels
+            if (this._oProfilePopover) {
+                try {
+                    if (this._oProfilePopover.isOpen && this._oProfilePopover.isOpen()) {
+                        this._oProfilePopover.close();
+                    }
+                    this._oProfilePopover.destroy();
+                } catch (e) {}
+                this._oProfilePopover = null;
+            }
+
+            // Prevent rapid multi-trigger debounce guard
+            const iNow = Date.now();
+            if (this._iLastNotifPressTime && (iNow - this._iLastNotifPressTime < 350)) {
+                return;
+            }
+            this._iLastNotifPressTime = iNow;
 
             // Singleton pattern: If notification popover already exists and is open, close/toggle it cleanly
             if (this._oNotifPopover) {
@@ -12167,9 +12197,57 @@ sap.ui.define([
         },
 
         onProfilePress(oEvent) {
-            let oSource = this.byId("kyraHeaderProfileAvatar");
-            if (!oSource || !oSource.getDomRef()) {
-                oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
+            let oAvatarControl = this.byId("kyraHeaderProfileAvatar");
+            if (!oAvatarControl || (oAvatarControl.getMetadata && oAvatarControl.getMetadata().getName() !== "sap.m.Avatar")) {
+                const oSrc = (oEvent && oEvent.getSource ? oEvent.getSource() : null);
+                if (oSrc && oSrc.getMetadata && oSrc.getMetadata().getName() === "sap.m.Avatar") {
+                    oAvatarControl = oSrc;
+                }
+            }
+
+            const fnGetAvatarDom = () => {
+                if (oAvatarControl && oAvatarControl.getDomRef && oAvatarControl.getDomRef()) {
+                    return oAvatarControl.getDomRef();
+                }
+                const elById = document.getElementById(this.createId("kyraHeaderProfileAvatar"));
+                if (elById) {
+                    return elById;
+                }
+                const elByClass = document.querySelector(".kyraHeaderProfileAvatar");
+                if (elByClass) {
+                    return elByClass;
+                }
+                return document.querySelector(".sapFShellBarProfile");
+            };
+
+            // Mutual exclusivity: Close notification popover if open to prevent duplicate/overlapping panels
+            if (this._oNotifPopover) {
+                try {
+                    if (this._oNotifPopover.isOpen && this._oNotifPopover.isOpen()) {
+                        this._oNotifPopover.close();
+                    }
+                    this._oNotifPopover.destroy();
+                } catch (e) {}
+                this._oNotifPopover = null;
+            }
+
+            // Prevent rapid multi-trigger debounce guard
+            const iNow = Date.now();
+            if (this._iLastProfilePressTime && (iNow - this._iLastProfilePressTime < 350)) {
+                return;
+            }
+            this._iLastProfilePressTime = iNow;
+
+            // Singleton pattern: If profile popover already exists and is open, close/toggle cleanly
+            if (this._oProfilePopover) {
+                if (this._oProfilePopover.isOpen && this._oProfilePopover.isOpen()) {
+                    this._oProfilePopover.close();
+                    return;
+                }
+                try {
+                    this._oProfilePopover.destroy();
+                } catch (e) {}
+                this._oProfilePopover = null;
             }
 
             const oModel = this.getView().getModel("accessModel");
@@ -12312,12 +12390,18 @@ sap.ui.define([
                     horizontalScrolling: false,
                     verticalScrolling: true,
                     placement: "Bottom",
-                    showArrow: true,
+                    showArrow: false,
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oPopover.destroy()
+                    afterClose: () => {
+                        if (this._oProfilePopover === oPopover) {
+                            this._oProfilePopover = null;
+                        }
+                        oPopover.destroy();
+                    }
                 });
+                this._oProfilePopover = oPopover;
                 oPopover.addStyleClass("kyraUserProfilePopover");
                 oPopover.attachBeforeOpen(() => {
                     if (oPopover._oControl) {
@@ -12328,9 +12412,10 @@ sap.ui.define([
                     }
                 });
                 oPopover.attachAfterOpen(() => {
-                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
-                        ? oPopover._oControl 
-                        : oPopover;
+                    const fnPosition = () => {
+                        const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                            ? oPopover._oControl 
+                            : oPopover;
                     const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
                     if (oDom) {
                         oDom.style.width = "300px";
@@ -12358,26 +12443,38 @@ sap.ui.define([
                             oScroll.style.overflowX = "hidden";
                         }
 
-                        // Align safely under profile avatar
-                        const oAvatar = (oSource && oSource.getDomRef) ? oSource.getDomRef() : null;
-                        if (oAvatar) {
-                            const rect = oAvatar.getBoundingClientRect();
-                            const iTop = parseInt(oDom.style.top || "0", 10);
-                            if (iTop < rect.bottom || iTop < 45) {
-                                oDom.style.top = (rect.bottom + 8) + "px";
-                            }
-                            const iLeft = parseInt(oDom.style.left || "0", 10);
-                            if (iLeft + 300 > window.innerWidth - 12) {
-                                oDom.style.left = Math.max(12, window.innerWidth - 300 - 16) + "px";
+                            // Align accurately under profile avatar button
+                            const oAvatarEl = fnGetAvatarDom();
+                            if (oAvatarEl) {
+                                const rect = oAvatarEl.getBoundingClientRect();
+                                if (rect && rect.bottom > 0) {
+                                    const iTop = Math.round(rect.bottom + 8);
+                                    let iLeft = Math.round(rect.right - 300);
+                                    if (iLeft + 300 > window.innerWidth - 14) {
+                                        iLeft = Math.max(14, window.innerWidth - 300 - 14);
+                                    }
+                                    if (iLeft < 14) {
+                                        iLeft = 14;
+                                    }
+                                    oDom.style.setProperty("top", iTop + "px", "important");
+                                    oDom.style.setProperty("left", iLeft + "px", "important");
+                                    oDom.style.setProperty("right", "auto", "important");
+                                }
                             }
                         }
-                    }
+                    };
+                    fnPosition();
+                    requestAnimationFrame(fnPosition);
+                    setTimeout(fnPosition, 30);
+                    setTimeout(fnPosition, 100);
                 });
 
                 this.getView().addDependent(oPopover);
-                if (oSource) {
-                    oPopover.openBy(oSource);
-                }
+                const oAvatarDomTarget = fnGetAvatarDom();
+                const oOpenTarget = (oAvatarControl && oAvatarControl.getDomRef && oAvatarControl.getDomRef())
+                    ? oAvatarControl 
+                    : (oAvatarDomTarget || oAvatarControl || this.byId("kyraHeaderProfileAvatar") || this.getView());
+                oPopover.openBy(oOpenTarget);
 
                 setTimeout(() => {
                     const attachClick = (id, fn) => {
@@ -12396,25 +12493,45 @@ sap.ui.define([
 
                     attachClick("kyra_menu_access", () => {
                         this._confirmDiscardAddAccess(() => {
-                            oModel.setProperty("/selectedTabKey", "myAccess");
-                            oModel.setProperty("/showAllNotificationsPage", false);
-                            oModel.setProperty("/showHelpPage", false);
-                            oModel.setProperty("/showRequestDetailsPage", false);
-                            oModel.setProperty("/showAddAccessSector", false);
-                            oModel.setProperty("/showRemoveAccessSector", false);
-                            oModel.setProperty("/showMyAccessMasterSection", false);
+                            if (typeof this.onSelectMyAccessTab === "function") {
+                                this.onSelectMyAccessTab();
+                            } else if (oModel) {
+                                oModel.setProperty("/selectedTabKey", "myAccess");
+                                oModel.setProperty("/showAllNotificationsPage", false);
+                                oModel.setProperty("/showHelpPage", false);
+                                oModel.setProperty("/showRequestDetailsPage", false);
+                                oModel.setProperty("/showAddAccessSector", false);
+                                oModel.setProperty("/showRemoveAccessSector", false);
+                                oModel.setProperty("/showMyAccessMasterSection", false);
+                            }
                         });
                     });
 
                     attachClick("kyra_menu_requests", () => {
                         this._confirmDiscardAddAccess(() => {
-                            oModel.setProperty("/selectedTabKey", "myRequests");
-                            oModel.setProperty("/showAllNotificationsPage", false);
-                            oModel.setProperty("/showHelpPage", false);
-                            oModel.setProperty("/showRequestDetailsPage", false);
-                            oModel.setProperty("/showAddAccessSector", false);
-                            oModel.setProperty("/showRemoveAccessSector", false);
-                            oModel.setProperty("/showMyAccessMasterSection", false);
+                            if (oModel) {
+                                oModel.setProperty("/selectedTabKey", "myAccess");
+                                oModel.setProperty("/showPendingSection", true);
+                                oModel.setProperty("/showApprovedSection", false);
+                                oModel.setProperty("/showAddAccessSector", false);
+                                oModel.setProperty("/showRemoveAccessSector", false);
+                                oModel.setProperty("/showMyAccessMasterSection", false);
+                                oModel.setProperty("/showRequestDetailsPage", false);
+                                oModel.setProperty("/showAllNotificationsPage", false);
+                                oModel.setProperty("/showHelpPage", false);
+                                oModel.setProperty("/showHistorySection", false);
+                                if (typeof this._updateActionCardArrows === "function") {
+                                    this._updateActionCardArrows(oModel);
+                                }
+                                if (typeof this._updateApproverSectionVisibility === "function") {
+                                    this._updateApproverSectionVisibility();
+                                }
+                                setTimeout(() => {
+                                    if (typeof this._smoothScrollTo === "function") {
+                                        this._smoothScrollTo("pendingSectionContainer", 64);
+                                    }
+                                }, 150);
+                            }
                         });
                     });
 

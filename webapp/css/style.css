@@ -5960,15 +5960,19 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     max-width: 300px !important;
     height: auto !important;
     max-height: calc(100vh - 65px) !important;
-    overflow: visible !important;
+    border-radius: 16px !important;
+    box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.14), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+    border: 1px solid #E2E8F0 !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
     box-sizing: border-box !important;
 }
 
 .kyraUserProfilePopover .sapMPopoverCont {
-    background: #FFFFFF !important;
+    background: transparent !important;
     border-radius: 16px !important;
-    box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.14), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
-    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    border: none !important;
     padding: 0 0 4px 0 !important;
     box-sizing: border-box !important;
     width: 300px !important;
@@ -6025,9 +6029,19 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     height: 0 !important;
 }
 
+.kyraUserProfilePopover .sapMPopoverHeader {
+    display: none !important;
+}
+
+.kyraUserProfilePopover .sapMPopoverArr,
+.kyraUserProfilePopover .sapMPopoverArrUp,
+.kyraUserProfilePopover .sapMPopoverArrDown,
+.kyraUserProfilePopover .sapMPopoverArr::before,
 .kyraUserProfilePopover .sapMPopoverArr::after {
-    background: #FFFFFF !important;
-    border-color: #E2E8F0 !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    visibility: hidden !important;
 }
 
 .kyra-modern-profile-popup {
@@ -55585,7 +55599,12 @@ html body .kyraValTable .kyraRoleStatusRevoke {
 
 .kyraNotificationPopover .sapMPopoverArr,
 .kyraNotificationPopover .sapMPopoverArrUp,
-.kyraNotificationPopover .sapMPopoverArrDown {
+.kyraNotificationPopover .sapMPopoverArrDown,
+.kyraUserProfilePopover .sapMPopoverArr,
+.kyraUserProfilePopover .sapMPopoverArrUp,
+.kyraUserProfilePopover .sapMPopoverArrDown,
+.kyraUserProfilePopover .sapMPopoverArr::before,
+.kyraUserProfilePopover .sapMPopoverArr::after {
     display: none !important;
     width: 0 !important;
     height: 0 !important;
