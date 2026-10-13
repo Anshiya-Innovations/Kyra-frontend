@@ -3268,17 +3268,17 @@
             <!-- 1. System Name -->
             <Column width="15%" hAlign="Begin"><Text text="SYSTEM NAME" class="kyraValColHeader" /></Column>
             <!-- 2. Services -->
-            <Column width="13%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
+            <Column width="12%" hAlign="Begin"><Text text="SERVICES" class="kyraValColHeader" /></Column>
             <!-- 3. Team -->
-            <Column width="14%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
+            <Column width="13%" hAlign="Begin"><Text text="TEAM" class="kyraValColHeader" /></Column>
             <!-- 4. Persona -->
-            <Column width="16%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
+            <Column width="15%" hAlign="Begin"><Text text="PERSONA" class="kyraValColHeader" /></Column>
             <!-- 5. Security Group -->
             <Column width="13%" hAlign="Begin"><Text text="SECURITY GROUP" class="kyraValColHeader" /></Column>
             <!-- 6. AD Group -->
-            <Column width="13%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
+            <Column width="14%" hAlign="Begin"><Text text="AD GROUP" class="kyraValColHeader" /></Column>
             <!-- 7. Existing Role -->
-            <Column width="16%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
+            <Column width="18%" hAlign="Center"><Text text="EXISTING ROLE" class="kyraValColHeader kyraColHeadCenter" /></Column>
         </columns>
         <items>
             <ColumnListItem vAlign="Middle" class="kyraValTableRow">
@@ -3637,8 +3637,8 @@
                                         class="kyraSummaryTable"
                                         fixedLayout="true">
                                         <columns>
-                                            <!-- 1. REQUEST ID (14%) -->
-                                            <Column width="14%" hAlign="Center">
+                                            <!-- 1. REQUEST ID (12%) -->
+                                            <Column width="12%" hAlign="Center">
                                                 <Text text="REQUEST ID" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
                                             <!-- 2. SERVICES (14%) -->
@@ -3649,20 +3649,20 @@
                                             <Column width="15%" hAlign="Center">
                                                 <Text text="ROLE TITLE" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 4. ASSIGNED PERSONA (18%) -->
-                                            <Column width="18%" hAlign="Center">
+                                            <!-- 4. ASSIGNED PERSONA (17%) -->
+                                            <Column width="17%" hAlign="Center">
                                                 <Text text="ASSIGNED PERSONA" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 5. DURATION (14%) -->
-                                            <Column width="14%" hAlign="Center">
+                                            <!-- 5. DURATION (12%) -->
+                                            <Column width="12%" hAlign="Center">
                                                 <Text text="DURATION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 6. STATUS (15%) -->
-                                            <Column width="15%" hAlign="Center">
+                                            <!-- 6. STATUS (18%) -->
+                                            <Column width="18%" hAlign="Center">
                                                 <Text text="STATUS" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
-                                            <!-- 7. ACTION (10%) -->
-                                            <Column width="10%" hAlign="Center">
+                                            <!-- 7. ACTION (12%) -->
+                                            <Column width="12%" hAlign="Center">
                                                 <Text text="ACTION" wrapping="false" class="kyraSummaryColHeader kyraColHeadCenter" />
                                             </Column>
                                         </columns>

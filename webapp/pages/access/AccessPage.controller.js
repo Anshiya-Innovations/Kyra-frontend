@@ -5497,6 +5497,18 @@ sap.ui.define([
                 oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
             }
 
+            // Singleton pattern: If notification popover already exists and is open, close/toggle it cleanly
+            if (this._oNotifPopover) {
+                if (this._oNotifPopover.isOpen()) {
+                    this._oNotifPopover.close();
+                    return;
+                }
+                try {
+                    this._oNotifPopover.destroy();
+                } catch (e) {}
+                this._oNotifPopover = null;
+            }
+
             const oModel = this.getView().getModel("accessModel");
             const iUnreadCount = oModel ? (oModel.getProperty("/notificationsCount") || 0) : 0;
             const aNotifs = oModel ? (oModel.getProperty("/notificationsList") || []) : [];
@@ -5664,8 +5676,14 @@ sap.ui.define([
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oPopover.destroy()
+                    afterClose: () => {
+                        if (this._oNotifPopover === oPopover) {
+                            this._oNotifPopover = null;
+                        }
+                        oPopover.destroy();
+                    }
                 });
+                this._oNotifPopover = oPopover;
                 oPopover.addStyleClass("kyraNotificationPopover");
                 oPopover.attachBeforeOpen(() => {
                     if (oPopover._oControl) {

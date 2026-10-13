@@ -7438,10 +7438,10 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
 }
 
 .kyraNotificationPopover .sapMPopoverCont {
-    background: #FFFFFF !important;
+    background: transparent !important;
     border-radius: 16px !important;
-    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.16), 0 4px 14px rgba(15, 23, 42, 0.06) !important;
-    border: 1px solid #E2E8F0 !important;
+    box-shadow: none !important;
+    border: none !important;
     padding: 0 !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
@@ -7464,12 +7464,6 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     overflow: hidden !important;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
     border: 1px solid #E2E8F0 !important;
-}
-
-.kyraNotificationPopover .sapMPopoverCont {
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    background: #FFFFFF !important;
 }
 
 .kyra-notif-box-card {
@@ -55089,4 +55083,507 @@ div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
 .kyraNotificationPopover .kyra-notif-footer:hover,
 .kyra-notif-footer:hover {
     background: #F8FAFC !important;
+}
+
+
+/* ========================================================================== */
+/* FIX 1: LOGIN PERSONA DROPDOWN HOVER & SELECTION DESIGN SYSTEM              */
+/* (Strictly for #roleSelect / Persona Dropdown matching My Profile Hover)    */
+/* ========================================================================== */
+
+#roleSelect-picker,
+#roleSelect-selectList,
+.sapMSltPicker[id*="roleSelect"],
+.sapMSelectList[id*="roleSelect"] {
+    border-radius: 12px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+    overflow: hidden !important;
+    padding: 6px 4px !important;
+}
+
+#roleSelect-picker .sapMPopoverCont,
+#roleSelect-selectList.sapMSelectList {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    padding: 4px !important;
+    border-radius: 12px !important;
+}
+
+/* Eradicate internal floating pseudo-elements (the awkward vertical teal line inside item padding) */
+#roleSelect-picker .sapMLIB::before,
+#roleSelect-picker .sapMLIB::after,
+#roleSelect-picker .sapMSelectListItem::before,
+#roleSelect-picker .sapMSelectListItem::after,
+#roleSelect-picker li::before,
+#roleSelect-picker li::after,
+#roleSelect-selectList li::before,
+#roleSelect-selectList li::after,
+#roleSelect-selectList .sapMSelectListItem::before,
+#roleSelect-selectList .sapMSelectListItem::after,
+.sapMSltPicker[id*="roleSelect"] li::before,
+.sapMSltPicker[id*="roleSelect"] li::after,
+.sapMSelectList[id*="roleSelect"] li::before,
+.sapMSelectList[id*="roleSelect"] li::after {
+    display: none !important;
+    content: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Persona Item Clean Default State */
+#roleSelect-picker .sapMLIB,
+#roleSelect-picker li.sapMSelectListItem,
+#roleSelect-selectList li.sapMSelectListItem,
+.sapMSltPicker[id*="roleSelect"] li.sapMSelectListItem,
+.sapMSelectList[id*="roleSelect"] li.sapMSelectListItem {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    border: none !important;
+    border-left: 3.5px solid transparent !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none !important;
+    box-sizing: border-box !important;
+    margin: 2px 4px !important;
+    background-color: transparent !important;
+    background: transparent !important;
+    height: auto !important;
+    min-height: 38px !important;
+}
+
+#roleSelect-picker .sapMLIB .sapMSLITitle,
+#roleSelect-picker li.sapMSelectListItem .sapMSLITitle,
+#roleSelect-selectList li.sapMSelectListItem .sapMSLITitle,
+.sapMSltPicker[id*="roleSelect"] li .sapMSLITitle,
+.sapMSelectList[id*="roleSelect"] li .sapMSLITitle {
+    color: #1E293B !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transform: none !important;
+}
+
+/* HOVER STATE: Exact Match for My Profile Menu Item Hover Design */
+#roleSelect-picker .sapMLIB:hover,
+#roleSelect-picker li.sapMSelectListItem:hover,
+#roleSelect-selectList li.sapMSelectListItem:hover,
+.sapMSltPicker[id*="roleSelect"] li.sapMSelectListItem:hover,
+.sapMSelectList[id*="roleSelect"] li.sapMSelectListItem:hover {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border-left: 3.5px solid #00778B !important;
+    transform: translateX(2px) !important;
+    cursor: pointer !important;
+}
+
+#roleSelect-picker .sapMLIB:hover .sapMSLITitle,
+#roleSelect-picker li.sapMSelectListItem:hover .sapMSLITitle,
+#roleSelect-selectList li.sapMSelectListItem:hover .sapMSLITitle,
+.sapMSltPicker[id*="roleSelect"] li.sapMSelectListItem:hover .sapMSLITitle,
+.sapMSelectList[id*="roleSelect"] li.sapMSelectListItem:hover .sapMSLITitle {
+    color: #00778B !important;
+    font-weight: 700 !important;
+}
+
+/* SELECTED STATE: Persistent Indicator with My Profile Brand Colors */
+#roleSelect-picker .sapMLIB.sapMLIBSelected,
+#roleSelect-picker li.sapMSelectListItemBaseSelected,
+#roleSelect-picker li[aria-selected="true"],
+#roleSelect-selectList li.sapMSelectListItemBaseSelected,
+#roleSelect-selectList li[aria-selected="true"],
+.sapMSltPicker[id*="roleSelect"] li[aria-selected="true"],
+.sapMSelectList[id*="roleSelect"] li[aria-selected="true"] {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border-left: 3.5px solid #00778B !important;
+}
+
+#roleSelect-picker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+#roleSelect-picker li.sapMSelectListItemBaseSelected .sapMSLITitle,
+#roleSelect-picker li[aria-selected="true"] .sapMSLITitle,
+#roleSelect-selectList li.sapMSelectListItemBaseSelected .sapMSLITitle,
+#roleSelect-selectList li[aria-selected="true"] .sapMSLITitle,
+.sapMSltPicker[id*="roleSelect"] li[aria-selected="true"] .sapMSLITitle,
+.sapMSelectList[id*="roleSelect"] li[aria-selected="true"] .sapMSLITitle {
+    color: #00778B !important;
+    font-weight: 700 !important;
+}
+
+
+/* ========================================================================== */
+/* FIX 2: DUPLICATE ROLES TABLE (EXISTING ROLE COLUMN & PILL ALIGNMENT)       */
+/* ========================================================================== */
+
+/* Header Center Alignment */
+.kyraValTable th:last-child,
+.kyraValTable th.sapMListTblHeaderCellCenter,
+.kyraValTable th:has(.kyraColHeadCenter),
+.kyraValTable th.kyraColHeadCenter {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 10px 8px !important;
+}
+
+.kyraValTable th:last-child .sapMListTblHeaderCellInner,
+.kyraValTable th.sapMListTblHeaderCellCenter .sapMListTblHeaderCellInner,
+.kyraValTable th:has(.kyraColHeadCenter) .sapMListTblHeaderCellInner {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.kyraValTable th:last-child .sapMText,
+.kyraValTable th .kyraColHeadCenter,
+.kyraValTable th:has(.kyraColHeadCenter) .sapMText {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: #475569 !important;
+    text-align: center !important;
+    display: inline-block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* Data Cell Center Alignment */
+.kyraValTable td:last-child,
+.kyraValTable td.sapMListTblCellCenter,
+.kyraValTable td:has(.kyraBadgeCenterCell) {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 10px 8px !important;
+}
+
+.kyraValTable td .kyraBadgeCenterCell,
+html body .kyraValTable .kyraBadgeCenterCell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+}
+
+/* Existing Role Status Pills (Unified Design System) */
+.kyraRoleStatusPill,
+html body .kyraRoleStatusPill,
+html body .kyraValTable .kyraRoleStatusPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    padding: 0 14px !important;
+    border-radius: 9999px !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: fit-content !important;
+    margin: 0 auto !important;
+    gap: 6px !important;
+}
+
+.kyraRoleStatusPill .kyraRoleStatusIcon,
+.kyraRoleStatusPill .sapUiIcon,
+html body .kyraRoleStatusPill .kyraRoleStatusIcon,
+html body .kyraValTable .kyraRoleStatusPill .kyraRoleStatusIcon {
+    font-size: 13px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraRoleStatusPill .kyraRoleStatusText,
+.kyraRoleStatusPill .sapMText,
+html body .kyraRoleStatusPill .kyraRoleStatusText,
+html body .kyraValTable .kyraRoleStatusPill .kyraRoleStatusText {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    letter-spacing: 0.1px !important;
+}
+
+/* Status Pill Theme Variants */
+.kyraRoleStatusRequested,
+html body .kyraRoleStatusRequested,
+html body .kyraValTable .kyraRoleStatusRequested {
+    background-color: #FEF3C7 !important;
+    background: #FEF3C7 !important;
+    color: #B45309 !important;
+    border: 1px solid #FCD34D !important;
+    box-shadow: 0 1px 2px rgba(180, 83, 9, 0.08) !important;
+}
+
+.kyraRoleStatusRequested .kyraRoleStatusIcon,
+.kyraRoleStatusRequested .kyraRoleStatusText,
+.kyraRoleStatusRequested .sapUiIcon,
+.kyraRoleStatusRequested .sapMText {
+    color: #B45309 !important;
+}
+
+.kyraRoleStatusActive,
+html body .kyraRoleStatusActive,
+html body .kyraValTable .kyraRoleStatusActive {
+    background-color: #ECFDF5 !important;
+    background: #ECFDF5 !important;
+    color: #065F46 !important;
+    border: 1px solid #6EE7B7 !important;
+    box-shadow: 0 1px 2px rgba(4, 120, 87, 0.08) !important;
+}
+
+.kyraRoleStatusActive .kyraRoleStatusIcon,
+.kyraRoleStatusActive .kyraRoleStatusText,
+.kyraRoleStatusActive .sapUiIcon,
+.kyraRoleStatusActive .sapMText {
+    color: #065F46 !important;
+}
+
+.kyraRoleStatusRevoke,
+html body .kyraRoleStatusRevoke,
+html body .kyraValTable .kyraRoleStatusRevoke {
+    background-color: #FEF2F2 !important;
+    background: #FEF2F2 !important;
+    color: #991B1B !important;
+    border: 1px solid #FCA5A5 !important;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.08) !important;
+}
+
+.kyraRoleStatusRevoke .kyraRoleStatusIcon,
+.kyraRoleStatusRevoke .kyraRoleStatusText,
+.kyraRoleStatusRevoke .sapUiIcon,
+.kyraRoleStatusRevoke .sapMText {
+    color: #991B1B !important;
+}
+
+
+/* ========================================================================== */
+/* FIX 3: SUMMARY TABLE (STATUS & ACTION COLUMNS UNIFIED DESIGN SYSTEM)       */
+/* ========================================================================== */
+
+/* Header Center Alignment for Columns in kyraSummaryTable */
+.kyraSummaryTable th,
+.kyraSummaryTable .sapMListTblHeaderCell {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 10px 8px !important;
+}
+
+.kyraSummaryTable th .sapMListTblHeaderCellInner {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.kyraSummaryTable th .sapMText,
+.kyraSummaryTable th .kyraSummaryColHeader,
+.kyraSummaryColHeader {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    color: #475569 !important;
+    text-align: center !important;
+    display: inline-block !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* Data Cell Center Alignment in kyraSummaryTable */
+.kyraSummaryTable td,
+.kyraSummaryTable td.sapMListTblCell {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 10px 8px !important;
+}
+
+.kyraSummaryTable td .sapMFlexBox,
+.kyraSummaryTable td > div {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+}
+
+/* Summary Table Status Pills (Unified with Image 2 Design System) */
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus,
+.kyraSummaryTable .kyraSummaryStatusText,
+.kyraSummaryStatusText {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    padding: 0 14px !important;
+    border-radius: 9999px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    vertical-align: middle !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: fit-content !important;
+    margin: 0 auto !important;
+    gap: 6px !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus .sapMObjStatusIcon,
+.kyraSummaryStatusText .sapMObjStatusIcon {
+    font-size: 13px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+    color: inherit !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus .sapMObjStatusText,
+.kyraSummaryStatusText .sapMObjStatusText {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    letter-spacing: 0.1px !important;
+    color: inherit !important;
+}
+
+/* Status Pill Theme Colors (Pending / New / Existing) */
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending,
+.kyraSummaryStatusText.kyraStatusPending {
+    background-color: #FEF3C7 !important;
+    background: #FEF3C7 !important;
+    border: 1px solid #FCD34D !important;
+    color: #B45309 !important;
+    box-shadow: 0 1px 2px rgba(180, 83, 9, 0.08) !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusIcon,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusIcon,
+.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText {
+    color: #B45309 !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew,
+.kyraSummaryStatusText.kyraStatusNew {
+    background-color: #DCFCE7 !important;
+    background: #DCFCE7 !important;
+    border: 1px solid #86EFAC !important;
+    color: #15803D !important;
+    box-shadow: 0 1px 2px rgba(21, 128, 61, 0.08) !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusIcon,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusIcon,
+.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText {
+    color: #15803D !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting,
+.kyraSummaryStatusText.kyraStatusExisting {
+    background-color: #E0F2FE !important;
+    background: #E0F2FE !important;
+    border: 1px solid #BAE6FD !important;
+    color: #0369A1 !important;
+    box-shadow: 0 1px 2px rgba(3, 105, 161, 0.08) !important;
+}
+
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusIcon,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusIcon,
+.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText {
+    color: #0369A1 !important;
+}
+
+/* Action Delete Button (Centered & Styled) */
+.kyraSummaryTable .kyraSummaryDeleteBtn,
+.kyraSummaryDeleteBtn {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    margin: 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraSummaryTable .kyraSummaryDeleteBtn .sapMBtnInner,
+.kyraSummaryDeleteBtn .sapMBtnInner {
+    background: #FEE2E2 !important;
+    border: 1px solid #FECACA !important;
+    border-radius: 8px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraSummaryTable .kyraSummaryDeleteBtn .sapMBtnInner:hover,
+.kyraSummaryDeleteBtn .sapMBtnInner:hover {
+    background: #FEE2E2 !important;
+    border-color: #F87171 !important;
+    transform: scale(1.05) !important;
+}
+
+.kyraSummaryTable .kyraSummaryDeleteBtn .sapMBtnIcon,
+.kyraSummaryDeleteBtn .sapMBtnIcon {
+    color: #DC2626 !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
