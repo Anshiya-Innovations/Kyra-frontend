@@ -30012,8 +30012,10 @@ th .sapMText,
     display: none !important;
 }
 
-/* 10. Three-Dot Action Button (...): Centered, clean hover */
-.kyraActiveEntitlementsTable .fioriThreeDotBtn {
+/* 10. Three-Dot Action Button (...): Centered, clean project brand teal styling */
+.kyraActiveEntitlementsTable .fioriThreeDotBtn,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn),
+.fioriThreeDotBtn {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -30023,45 +30025,82 @@ th .sapMText,
     min-width: 32px !important;
     max-width: 32px !important;
     padding: 0 !important;
-    border: none !important;
+    border: 1px solid transparent !important;
     background: transparent !important;
     background-color: transparent !important;
     box-shadow: none !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     cursor: pointer !important;
-    transition: background-color 0.15s ease !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover {
-    background-color: rgba(0, 140, 156, 0.08) !important;
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover,
+.fioriThreeDotBtn:hover {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.15) !important;
 }
 
-.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner {
-    border: none !important;
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapMBtnInner,
+.fioriThreeDotBtn .sapMBtnInner {
+    border: 1px solid transparent !important;
     background: transparent !important;
+    background-color: transparent !important;
     padding: 0 !important;
     width: 32px !important;
     height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    border-radius: 8px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    transition: all 0.18s ease !important;
+}
+
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapMBtnInner,
+.fioriThreeDotBtn:hover .sapMBtnInner {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border-color: #008C9C !important;
 }
 
 .kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnIcon,
-.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon {
-    color: #64748B !important;
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapUiIcon,
+.fioriThreeDotBtn .sapMBtnIcon,
+.fioriThreeDotBtn .sapUiIcon {
+    color: #008C9C !important;
     font-size: 16px !important;
-    line-height: 32px !important;
+    line-height: 1 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     margin: 0 auto !important;
-    transition: color 0.15s ease !important;
+    transition: color 0.18s ease, transform 0.18s ease !important;
 }
 
 .kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapUiIcon,
-.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnIcon {
-    color: #008C9C !important;
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapMBtnIcon,
+.fioriThreeDotBtn:hover .sapUiIcon,
+.fioriThreeDotBtn:hover .sapMBtnIcon {
+    color: #006073 !important;
+}
+
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:active,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):active,
+.fioriThreeDotBtn:active {
+    background-color: #CCFBF1 !important;
+    background: #CCFBF1 !important;
+    border-color: #007280 !important;
+    transform: scale(0.96) !important;
 }
 
 /* 11. No Data Row */
@@ -30924,7 +30963,7 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
 .kyraSummaryDeleteBtn.sapMBtn,
 .kyraNotifRowDeleteBtn,
 .kyraNotifRowDeleteBtn.sapMBtn,
-.kyraActiveEntitlementsTable .kyraTableActionBtn,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn,
 .kyraActiveEntitlementsTable .kyraDestructiveBtn,
 .kyraTableActionBtn.kyraDestructiveBtn,
 .sapMListTblCell .kyraDestructiveBtn,
@@ -30953,7 +30992,7 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
 .kyraDestructiveBtn .sapMBtnInner,
 .kyraSummaryDeleteBtn .sapMBtnInner,
 .kyraNotifRowDeleteBtn .sapMBtnInner,
-.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn .sapMBtnInner,
 .kyraActiveEntitlementsTable .kyraDestructiveBtn .sapMBtnInner,
 .kyraTableActionBtn.kyraDestructiveBtn .sapMBtnInner,
 .sapMListTblCell .kyraDestructiveBtn .sapMBtnInner,
@@ -30963,7 +31002,7 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .sapMBtn:not(:hover) .sapMB
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnInner {
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraDestructiveBtn .sapMBtnInner {
     width: 32px !important;
     min-width: 32px !important;
     max-width: 32px !important;
@@ -30991,8 +31030,8 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
 .kyraSummaryDeleteBtn .sapUiIcon,
 .kyraNotifRowDeleteBtn .sapMBtnIcon,
 .kyraNotifRowDeleteBtn .sapUiIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn .sapUiIcon,
 .kyraActiveEntitlementsTable .kyraDestructiveBtn .sapMBtnIcon,
 .kyraActiveEntitlementsTable .kyraDestructiveBtn .sapUiIcon,
 .kyraTableActionBtn.kyraDestructiveBtn .sapMBtnIcon,
@@ -31005,7 +31044,7 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn .sapMBtnIcon {
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraDestructiveBtn .sapMBtnIcon {
     color: #E11D48 !important;
     font-size: 15px !important;
     line-height: 1 !important;
@@ -31021,7 +31060,7 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
 .kyraDestructiveBtn:hover .sapMBtnInner,
 .kyraSummaryDeleteBtn:hover .sapMBtnInner,
 .kyraNotifRowDeleteBtn:hover .sapMBtnInner,
-.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn:hover .sapMBtnInner,
 .kyraActiveEntitlementsTable .kyraDestructiveBtn:hover .sapMBtnInner,
 .kyraTableActionBtn.kyraDestructiveBtn:hover .sapMBtnInner,
 .sapMListTblCell .kyraDestructiveBtn:hover .sapMBtnInner,
@@ -31031,7 +31070,7 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnInner {
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraDestructiveBtn:hover .sapMBtnInner {
     background: #FEE2E2 !important;
     background-color: #FEE2E2 !important;
     border-color: #FECDD3 !important;
@@ -31042,8 +31081,8 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
 .kyraDestructiveBtn:hover .sapMBtnIcon,
 .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
 .kyraNotifRowDeleteBtn:hover .sapMBtnIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnIcon,
-.kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn:hover .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn.kyraDestructiveBtn:hover .sapUiIcon,
 .kyraActiveEntitlementsTable .kyraDestructiveBtn:hover .sapMBtnIcon,
 .kyraTableActionBtn.kyraDestructiveBtn:hover .sapMBtnIcon,
 .sapMListTblCell .kyraDestructiveBtn:hover .sapMBtnIcon,
@@ -31053,7 +31092,7 @@ html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionB
 html body .sapUiTheme-sap_horizon .kyraDestructiveBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSummaryDeleteBtn:hover .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraNotifRowDeleteBtn:hover .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:hover .sapMBtnIcon {
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraDestructiveBtn:hover .sapMBtnIcon {
     color: #BE123C !important;
 }
 
@@ -55110,5 +55149,85 @@ div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
     background: #CCFBF1 !important;
     color: #007280 !important;
     transform: scale(0.97) !important;
+}
+
+/* =========================================================================
+   MY ACCESS TABLE: THREE-DOT ACTION BUTTON (...) KYRA BRAND TEAL COLOR ENGINE
+   Ensures the overflow action menu button uses the Kyra brand teal color scheme
+   rather than destructive red styling.
+   ========================================================================= */
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn),
+.kyraActiveEntitlementsTable .fioriThreeDotBtn,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapMBtnInner,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapMBtnInner {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapUiIcon,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapMBtnIcon,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn) .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.15) !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapMBtnInner,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnInner,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapUiIcon,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapMBtnIcon,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:hover .sapUiIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapMBtnIcon,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):hover .sapUiIcon {
+    color: #006073 !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .fioriThreeDotBtn:active,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):active,
+.kyraActiveEntitlementsTable .fioriThreeDotBtn:active,
+.kyraActiveEntitlementsTable .kyraTableActionBtn:not(.kyraDestructiveBtn):active {
+    background: #CCFBF1 !important;
+    background-color: #CCFBF1 !important;
+    border-color: #007280 !important;
+    transform: scale(0.96) !important;
 }
 
