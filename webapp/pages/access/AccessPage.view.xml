@@ -2636,6 +2636,7 @@
                             icon="sap-icon://decline"
                             type="Transparent"
                             press=".onCloseAddAccessSector"
+                            class="kyraCloseIconBtn kyraAddAccessCloseBtn"
                             tooltip="Close Add Access Section" />
                     </HBox>
 

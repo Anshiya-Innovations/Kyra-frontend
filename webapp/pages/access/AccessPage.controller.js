@@ -5705,20 +5705,35 @@ sap.ui.define([
                     oDom.style.overflow = "hidden";
                     oDom.scrollTop = 0;
 
-                    // Position safety check:
-                    // Ensure it stays below the bell button, never flipped to Top off-screen
-                    const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
-                    const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
-                    if (oBellDom) {
-                        const bellRect = oBellDom.getBoundingClientRect();
-                        if (bellRect && bellRect.bottom > 0) {
-                            const iTop = Math.round(bellRect.bottom + 8);
-                            let iLeft = Math.round(bellRect.right - 440);
-                            if (iLeft + 440 > window.innerWidth - 16) {
-                                iLeft = Math.max(16, window.innerWidth - 440 - 16);
+                    // Align notification popover at the exact same anchor place as profile popover
+                    const fnGetHeaderAnchorDom = () => {
+                        const oAvatarControl = this.byId("kyraHeaderProfileAvatar");
+                        if (oAvatarControl && oAvatarControl.getDomRef && oAvatarControl.getDomRef()) {
+                            return oAvatarControl.getDomRef();
+                        }
+                        const elById = document.getElementById(this.createId("kyraHeaderProfileAvatar"));
+                        if (elById) {
+                            return elById;
+                        }
+                        const elByClass = document.querySelector(".kyraHeaderProfileAvatar") || document.querySelector(".sapFShellBarProfile") || document.querySelector(".kyraHeaderRightAvatar");
+                        if (elByClass) {
+                            return elByClass;
+                        }
+                        const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
+                        return oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
+                    };
+
+                    const oAnchorEl = fnGetHeaderAnchorDom();
+                    if (oAnchorEl) {
+                        const rect = oAnchorEl.getBoundingClientRect();
+                        if (rect && rect.bottom > 0) {
+                            const iTop = Math.round(rect.bottom + 8);
+                            let iLeft = Math.round(rect.right - 440);
+                            if (iLeft + 440 > window.innerWidth - 14) {
+                                iLeft = Math.max(14, window.innerWidth - 440 - 14);
                             }
-                            if (iLeft < 16) {
-                                iLeft = 16;
+                            if (iLeft < 14) {
+                                iLeft = 14;
                             }
                             oDom.style.setProperty("top", iTop + "px", "important");
                             oDom.style.setProperty("left", iLeft + "px", "important");
