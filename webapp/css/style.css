@@ -19644,9 +19644,10 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
     display: flex !important;
     align-items: center !important;
     height: 100% !important;
-    flex: 0 1 auto !important;
-    overflow: visible !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
     white-space: nowrap !important;
+    cursor: pointer !important;
 }
 
 /* Option Titles: Show Full Text Without Truncation */
@@ -19679,7 +19680,8 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
     max-width: 100% !important;
     display: block !important;
     flex: 1 1 auto !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* Selected state: bold brand teal, single line */
@@ -19699,7 +19701,8 @@ li.sapMMultiComboBoxItem[aria-selected="true"] .sapMSLITitle {
     text-overflow: ellipsis !important;
     line-height: 1.35 !important;
     display: block !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 
@@ -20134,10 +20137,7 @@ li.sapMMultiComboBoxItem:last-child,
     border-bottom: none !important;
 }
 
-/* Sleek vertical pill indicator on hover/select (Image 2 Design: left 8px, height 20px, teal #007684) */
-li.sapMMultiComboBoxItem::before,
-.sapMMultiComboBoxPicker li.sapMLIB::before,
-.sapMMultiComboBoxPopup li.sapMLIB::before,
+/* Sleek vertical pill indicator on hover/select for single-select dropdowns (Image 2 Design: left 8px, height 20px, teal #007684) */
 .sapMComboBoxPicker li.sapMLIB::before,
 .sapMComboBoxPicker .sapMSLI::before,
 .sapMComboBoxBasePicker li.sapMLIB::before,
@@ -20161,6 +20161,14 @@ li.sapMMultiComboBoxItem::before,
     transition: background-color 0.15s ease, opacity 0.15s ease !important;
     pointer-events: none !important;
     z-index: 5 !important;
+}
+
+/* Ensure MultiComboBox items with checkboxes do not have a colliding ::before indicator */
+li.sapMMultiComboBoxItem::before,
+.sapMMultiComboBoxPicker li.sapMLIB::before,
+.sapMMultiComboBoxPopup li.sapMLIB::before {
+    display: none !important;
+    content: none !important;
 }
 
 /* Hover State on Unselected Option: Soft mint #F0FDFA + Teal indicator + Bold teal text */
@@ -20187,9 +20195,6 @@ html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem:not(.sapMLIBSelected)
     cursor: pointer !important;
 }
 
-li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover::before,
-.sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):hover::before,
-.sapMMultiComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):hover::before,
 .sapMComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):hover::before,
 .sapMComboBoxPicker .sapMSLI:not(.sapMLIBSelected):hover::before,
 .sapMComboBoxBasePicker li.sapMLIB:not(.sapMLIBSelected):hover::before,
@@ -20223,20 +20228,17 @@ li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMSLITitleOnly,
     font-weight: 500 !important;
     transform: none !important;
     font-size: 14px !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
-/* Hover on Unselected Checkbox: Add Preview Tick Mark */
+/* Hover on Unselected Checkbox: Clean subtle highlight without layout disturbance or fake checkmark */
 li.sapMMultiComboBoxItem:not(.sapMLIBSelected):hover .sapMCbBg,
 .sapMMultiComboBoxPicker li.sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg,
 .sapMMultiComboBoxPopup li.sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg {
     border-color: #008C9C !important;
-    background-color: #E6FFFA !important;
-    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.2) !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23008C9C' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: center center !important;
-    background-size: 12px 12px !important;
+    background-color: #F0FDFA !important;
+    box-shadow: none !important;
 }
 
 /* Selected Row: Soft Mint #F0FDFA + Vertical Teal Pill #007684 + Bold Teal Text #007684 */
@@ -20595,13 +20597,13 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMSLITitle {
     line-height: 1.35 !important;
     white-space: nowrap !important;
     word-break: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     max-width: 100% !important;
     width: auto !important;
     flex: 1 1 auto !important;
     cursor: pointer !important;
-    pointer-events: none !important;
+    pointer-events: auto !important;
 }
 
 /* Selected Text: Bold teal, single line full word, zero action at selected time */
@@ -20616,12 +20618,13 @@ html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem.sapMLIBSelected .sapM
     white-space: nowrap !important;
     word-break: normal !important;
     line-height: 1.35 !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     max-width: 100% !important;
     width: auto !important;
     display: block !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* Hover State on MultiComboBox Items: clean hover background */
@@ -20631,6 +20634,7 @@ li.sapMMultiComboBoxItem:hover,
     background-color: #F0FDFA !important;
     background: #F0FDFA !important;
     min-width: 0 !important;
+    cursor: pointer !important;
 }
 
 li.sapMMultiComboBoxItem:hover .sapMSLITitle,
@@ -20640,9 +20644,11 @@ li.sapMMultiComboBoxItem:hover .sapMSLITitleOnly,
 html body .sapUiTheme-sap_horizon li.sapMMultiComboBoxItem:hover .sapMSLITitle {
     white-space: nowrap !important;
     word-break: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    pointer-events: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
     transform: none !important;
 }
 
@@ -26229,7 +26235,8 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover .sa
     font-weight: 500 !important;
     transform: none !important;
     font-size: 14px !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 .sapMMultiComboBoxPicker .sapMLIB:not(.sapMLIBSelected):hover .sapMCbBg,
@@ -26270,9 +26277,11 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected .sapMSLITitle {
     white-space: nowrap !important;
     word-break: normal !important;
     line-height: 1.35 !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    pointer-events: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* Ensure ::before indicator shows on all selected and hovered rows */
@@ -26323,10 +26332,12 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     font-size: 14px !important;
     white-space: nowrap !important;
     word-break: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
     line-height: 1.35 !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* =========================================================================
@@ -31669,6 +31680,8 @@ li.sapMMultiComboBoxItem,
 li.sapMSelectListItem,
 li.sapMSelectListItemBase,
 li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) {
+    margin: 2px 6px !important;
+    border-radius: 8px !important;
     min-height: 44px !important;
     height: auto !important;
     line-height: 1.35 !important;
@@ -31693,7 +31706,7 @@ li.sapMSelectListItemBase {
     margin: 2px 6px !important;
     border-radius: 8px !important;
     padding: 8px 14px 8px 24px !important;
-    min-height: 40px !important;
+    min-height: 44px !important;
     height: auto !important;
     position: relative !important;
     cursor: pointer !important;
@@ -31722,13 +31735,14 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI) .sapMSLITitle {
     white-space: nowrap !important;
     word-break: normal !important;
     line-height: 1.35 !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
     display: block !important;
     width: auto !important;
     flex: 1 1 auto !important;
     cursor: pointer !important;
-    pointer-events: none !important;
+    pointer-events: auto !important;
 }
 
 /* Indicator bar ::before for Select & MultiSelect */
@@ -31810,9 +31824,11 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI):not(.sapMLIBSelected):hover .sa
     transform: none !important;
     white-space: nowrap !important;
     word-break: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    pointer-events: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* Hover on SELECTED item: stays teal #007684, weight 700 */
@@ -31834,9 +31850,11 @@ li.sapMLIB:not(.kyraNotifListItem):not(.sapMCLI).sapMLIBSelected:hover .sapMSLIT
     transform: none !important;
     white-space: nowrap !important;
     word-break: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    pointer-events: none !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* Selected item state: soft mint background #F0FDFA with brand teal font #007684, zero action at selected time */
@@ -31863,7 +31881,7 @@ li.sapMSelectListItem[aria-selected="true"] {
     border-left: none !important;
     color: #007684 !important;
     height: auto !important;
-    min-height: 40px !important;
+    min-height: 44px !important;
     cursor: pointer !important;
     pointer-events: auto !important;
 }
@@ -31899,14 +31917,16 @@ li.sapMSelectListItem[aria-selected="true"] .sapMSLITitle {
     font-size: 14px !important;
     white-space: nowrap !important;
     word-break: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
     line-height: 1.35 !important;
     display: block !important;
-    pointer-events: none !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
-/* Login screen Select Box & Dropdown cursor & frame */
+/* Universal cursor stability across all dropdown controls, pickers, popups, and items */
 .sapMSlt,
 .sapMSltInner,
 .sapMSltLabel,
@@ -31920,8 +31940,55 @@ li.sapMSelectListItem[aria-selected="true"] .sapMSLITitle {
 .sapMSelectPicker,
 .sapMSelectPicker *,
 .sapMSelectList,
-.sapMSelectList * {
+.sapMSelectList *,
+.sapMSelectDropdown,
+.sapMSelectDropdown *,
+.sapMMultiComboBoxPicker,
+.sapMMultiComboBoxPicker *,
+.sapMMultiComboBoxPopup,
+.sapMMultiComboBoxPopup *,
+.sapMMultiComboBoxList,
+.sapMMultiComboBoxList *,
+.sapMComboBoxPicker,
+.sapMComboBoxPicker *,
+.sapMComboBoxBasePicker,
+.sapMComboBoxBasePicker *,
+.sapMComboBoxList,
+.sapMComboBoxList *,
+.sapMComboBoxPopup,
+.sapMComboBoxPopup *,
+.kyraDropdownBottomOnly,
+.kyraDropdownBottomOnly *,
+li.sapMMultiComboBoxItem,
+li.sapMMultiComboBoxItem *,
+li.sapMSelectListItem,
+li.sapMSelectListItem *,
+.sapMLIBSelectM,
+.sapMLIBSelectM *,
+.sapMCb,
+.sapMCb * {
     cursor: pointer !important;
+}
+
+/* Prevent horizontal jitter or scrollbar on all dropdown popovers */
+.sapMMultiComboBoxPicker .sapMPopoverScroll,
+.sapMMultiComboBoxPopup .sapMPopoverScroll,
+.sapMComboBoxPicker .sapMPopoverScroll,
+.sapMComboBoxBasePicker .sapMPopoverScroll,
+.sapMSltPicker .sapMPopoverScroll,
+.sapMSelectDropdown .sapMPopoverScroll,
+.sapMMultiComboBoxPicker .sapMList,
+.sapMMultiComboBoxPopup .sapMList,
+.sapMMultiComboBoxPicker .sapMListUl,
+.sapMMultiComboBoxPopup .sapMListUl {
+    overflow-x: hidden !important;
+    overscroll-behavior-x: none !important;
+}
+
+/* Ensure MultiComboBox items have comfortable minimum width */
+.sapMMultiComboBoxPicker,
+.sapMMultiComboBoxPopup {
+    min-width: 320px !important;
 }
 
 .sapMSltPicker,

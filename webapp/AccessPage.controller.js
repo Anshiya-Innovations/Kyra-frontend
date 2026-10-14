@@ -1504,10 +1504,6 @@ sap.ui.define([
                                             oPickerDom.querySelectorAll("[title]").forEach((el) => el.removeAttribute("title"));
                                         };
                                         fnStripTitles();
-                                        if (!oPickerDom._hasKyraTitleStripper) {
-                                            oPickerDom._hasKyraTitleStripper = true;
-                                            oPickerDom.addEventListener("mouseover", fnStripTitles, true);
-                                        }
                                     }
                                 }
                             } catch(e) {}
