@@ -5147,7 +5147,7 @@ html body .sapMBtn.kyraSodFooterCancelBtn:hover .sapMBtnInner,
     border-color: #00C3D0 !important;
     color: #008B95 !important;
     box-shadow: 0 3px 8px rgba(0, 195, 208, 0.2) !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
 }
 
 html body .sapMBtn.kyraSecondaryBtn .sapMBtnIcon,
@@ -12621,8 +12621,6 @@ div[id*="idInput-message"] {
 .fioriScopeGlassForm .sapMInputBaseContentWrapper,
 .sapMComboBox .sapMInputBaseContentWrapper,
 .sapMMultiComboBox .sapMInputBaseContentWrapper,
-.sapMSlt,
-.fioriFormSelect.sapMSlt,
 .sapMInput:not(.sapMTextArea) .sapMInputBaseContentWrapper {
     position: relative !important;
     height: 44px !important;
@@ -12644,22 +12642,60 @@ div[id*="idInput-message"] {
     overflow: hidden !important;
 }
 
+/* =========================================================================
+   KYRA ENTERPRISE SELECT BUTTON ENGINE (sap.m.Select / .sapMSlt)
+   Properly balanced padding, vertically centered label & crisp teal chevron
+   ========================================================================= */
+.sapMSlt,
+.fioriFormSelect.sapMSlt,
+.kyraDarkSelect.sapMSlt,
+.kyraAdminBuilderSelect.sapMSlt {
+    position: relative !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    line-height: normal !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease !important;
+    padding: 0 12px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
 .kyraModernSelectField .sapMInputBaseContentWrapper:hover,
 .fioriFormSelect .sapMInputBaseContentWrapper:hover,
 .sapMComboBox:hover .sapMInputBaseContentWrapper,
 .sapMMultiComboBox:hover .sapMInputBaseContentWrapper,
-.sapMSlt:hover,
 .sapMInput:not(.sapMTextArea) .sapMInputBaseContentWrapper:hover {
     border-color: #008C9C !important;
     background-color: #FAFAFA !important;
     box-shadow: none !important;
 }
 
+.sapMSlt:hover,
+.fioriFormSelect.sapMSlt:hover,
+.kyraDarkSelect.sapMSlt:hover,
+.kyraAdminBuilderSelect.sapMSlt:hover {
+    border-color: #008C9C !important;
+    background-color: #F8FAFC !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.12) !important;
+}
+
 .kyraModernSelectField.sapMInputBaseFocused .sapMInputBaseContentWrapper,
 .fioriFormSelect.sapMInputBaseFocused .sapMInputBaseContentWrapper,
 .sapMComboBox.sapMInputBaseFocused .sapMInputBaseContentWrapper,
 .sapMMultiComboBox.sapMInputBaseFocused .sapMInputBaseContentWrapper,
-.sapMSltFocused,
 .fioriSelectGlow:focus-within .sapMInputBaseContentWrapper,
 .fioriSelectGlow.sapMInputBaseFocused .sapMInputBaseContentWrapper,
 .sapMInput:not(.sapMTextArea).sapMInputBaseFocused .sapMInputBaseContentWrapper {
@@ -12667,6 +12703,80 @@ div[id*="idInput-message"] {
     background-color: #FFFFFF !important;
     box-shadow: none !important;
     outline: none !important;
+}
+
+.sapMSltFocused,
+.sapMSlt:focus,
+.sapMSlt:focus-within,
+.sapMSlt.sapMFocus,
+.fioriFormSelect.sapMSlt:focus,
+.kyraDarkSelect.sapMSlt:focus,
+.kyraAdminBuilderSelect.sapMSlt:focus {
+    border-color: #008C9C !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.18) !important;
+    outline: none !important;
+}
+
+.sapMSlt .sapMSltInner,
+.sapMSltInner {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+}
+
+.sapMSlt .sapMSltLabel,
+.sapMSltLabel {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #0F172A !important;
+    line-height: normal !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.sapMSlt .sapMSltArrow,
+.sapMSltArrow {
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #008C9C !important;
+    font-size: 13px !important;
+    width: 20px !important;
+    height: 100% !important;
+    min-width: 20px !important;
+    margin: 0 0 0 8px !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+}
+
+.sapMSlt .sapMSltArrow::before,
+.sapMSltArrow::before {
+    color: #008C9C !important;
+    font-family: "SAP-icons" !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
 }
 
 /* Disabled state: physically block any touch or click */
@@ -19036,7 +19146,7 @@ html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner {
     border-color: #01C3D0 !important;
     color: #008C9C !important;
     box-shadow: 0 3px 10px rgba(1, 195, 208, 0.25) !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
 }
 
 /* Step 5: Summary Table Action & Delete Buttons */
@@ -19417,7 +19527,7 @@ html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner {
     border-color: #01C3D0 !important;
     color: #008C9C !important;
     box-shadow: 0 4px 14px rgba(1, 195, 208, 0.28) !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
 }
 
 /* Active State: Tactile click */
@@ -19486,10 +19596,10 @@ html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnInner {
     flex-direction: row !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
-    padding: 0 14px !important;
+    height: auto !important;
+    min-height: 44px !important;
+    max-height: none !important;
+    padding: 6px 14px !important;
     margin: 2px 0 !important;
     border-radius: 6px !important;
     border: none !important;
@@ -19643,14 +19753,15 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
     margin: 0 !important;
     display: flex !important;
     align-items: center !important;
-    height: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
     flex: 1 1 auto !important;
     overflow: hidden !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
     cursor: pointer !important;
 }
 
-/* Option Titles: Show Full Text Without Truncation */
+/* Option Titles: Show Full Text Without Truncation (2-line wrap with clean ellipsis) */
 .sapMMultiComboBoxPicker .sapMSLITitle,
 .sapMMultiComboBoxPicker .sapMSLITitleOnly,
 .sapMComboBoxBasePicker .sapMSLITitle,
@@ -19669,22 +19780,26 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIB[aria-selected
     margin: 0 !important;
     padding: 0 !important;
     line-height: 1.35 !important;
-    white-space: nowrap !important;
-    word-break: normal !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
     font-size: 14px !important;
     color: #1E293B !important;
     font-weight: 500 !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    max-height: 2.7em !important;
     width: auto !important;
     max-width: 100% !important;
-    display: block !important;
     flex: 1 1 auto !important;
     cursor: pointer !important;
     pointer-events: auto !important;
 }
 
-/* Selected state: bold brand teal, single line */
+/* Selected state: bold brand teal, 2-line wrap */
 .sapMMultiComboBoxPopup .sapMLIBSelected .sapMSLITitle,
 .sapMMultiComboBoxPopup .sapMLIB[aria-selected="true"] .sapMSLITitle,
 .sapMMultiComboBoxPicker .sapMLIBSelected .sapMSLITitle,
@@ -19695,12 +19810,16 @@ li.sapMMultiComboBoxItem[aria-selected="true"] .sapMSLITitle {
     font-weight: 700 !important;
     transform: none !important;
     font-size: 14px !important;
-    white-space: nowrap !important;
-    word-break: normal !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     line-height: 1.35 !important;
-    display: block !important;
+    max-height: 2.7em !important;
     cursor: pointer !important;
     pointer-events: auto !important;
 }
@@ -21620,7 +21739,7 @@ html body .sapUiTheme-sap_horizon .kyraValidationBackBtn:hover .sapMBtnInner {
     border-color: #01C3D0 !important;
     color: #008C9C !important;
     box-shadow: 0 4px 14px rgba(1, 195, 208, 0.28) !important;
-    transform: translateY(-1px) !important;
+    transform: none !important;
 }
 
 /* Hover State Text, BDI and Icons */
@@ -21653,7 +21772,7 @@ html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:hover .sapMBtnText,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:hover .sapMBtnContent > bdi {
     color: #008C9C !important;
     fill: #008C9C !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
 }
 
 /* Active State: Tactile Push */
@@ -32054,7 +32173,7 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 36px 20px !important;
+    padding: 32px 16px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -32070,15 +32189,17 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
 }
 
 .kyraTableEmptyIconCircle {
-    width: auto !important;
-    height: auto !important;
-    min-height: 0 !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    border-bottom: none !important;
-    border-radius: 0 !important;
-    margin: 0 0 12px 0 !important;
+    width: 54px !important;
+    height: 54px !important;
+    min-width: 54px !important;
+    min-height: 54px !important;
+    max-width: 54px !important;
+    max-height: 54px !important;
+    border-radius: 50% !important;
+    background: #E6FAFC !important;
+    background-color: #E6FAFC !important;
+    border: 1px solid #CCEFF3 !important;
+    margin: 0 auto 12px auto !important;
     padding: 0 !important;
     display: flex !important;
     align-items: center !important;
@@ -32087,24 +32208,34 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
     box-sizing: border-box !important;
 }
 
-.kyraTableEmptyIcon {
-    font-size: 34px !important;
+.kyraTableEmptyIcon,
+.kyraTableEmptyIconCircle .sapUiIcon {
+    font-size: 26px !important;
     color: #008C9C !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     line-height: 1 !important;
+    margin: 0 auto !important;
+    text-align: center !important;
 }
 
-.kyraTableEmptyTitle {
-    font-size: 15.5px !important;
+.kyraTableEmptyTitle,
+.kyraTableEmptyTitle.sapMTitle,
+.kyraTableEmptyTitle .sapMTitleText,
+.kyraTableEmptyTitle .sapMTitleText > * {
+    font-size: 15px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     text-align: center !important;
+    display: block !important;
     background: transparent !important;
     background-color: transparent !important;
-    width: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box !important;
     letter-spacing: -0.01em !important;
 }
@@ -32151,7 +32282,9 @@ html body .sapUiTheme-sap_horizon .sapMDatePickerDialog {
 .sapMDatePickerDialog .sapMDialogSection {
     background: #FFFFFF !important;
     padding: 12px 14px !important;
-    border-radius: 16px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* 2. Calendar Component Root */
@@ -54602,65 +54735,104 @@ html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
 
 
 /* ── RESTRICTED LIMIT STEP INPUT & SELECT DROPDOWN (Restricted Records Table) ───────────── */
-/*  RESTRICTED LIMIT STEP INPUT & SELECT DROPDOWN (Restricted Records Table ONLY)  */
-.kyraRestrictedLimitSelect {
-    width: 100px !important;
-    max-width: 100px !important;
+/* RESTRICTED LIMIT STEP INPUT & SELECT DROPDOWN (Restricted Records Table ONLY) */
+.kyraRestrictedLimitSelect,
+.kyraRestrictedLimitSelect.sapMSlt,
+div[id*="kyraRestrictedLimitSelect"].sapMSlt,
+div[id*="kyraRestrictedLimitSelect"] {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
     display: inline-flex !important;
     align-items: center !important;
-    justify-content: center !important;
-    margin: 0 auto !important;
-    border-radius: 8px !important;
-    background: #FFFFFF !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
-}
-
-.kyraRestrictedLimitSelect .sapMSlt {
-    height: 36px !important;
-    width: 100px !important;
-    border-radius: 8px !important;
-    border: 1.5px solid #008C9C !important;
-    background: #FFFFFF !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
     justify-content: space-between !important;
-    padding: 0 12px !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 1px 2px rgba(0, 140, 156, 0.08) !important;
+    margin: 0 auto !important;
+    padding: 0 10px 0 14px !important;
+    border-radius: 8px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
 }
 
-.kyraRestrictedLimitSelect:hover .sapMSlt {
-    border-color: #00778B !important;
-    background: #F0FDFA !important;
-    box-shadow: 0 2px 5px rgba(0, 140, 156, 0.15) !important;
-}
-
-.kyraRestrictedLimitSelect.sapMFocus .sapMSlt,
-.kyraRestrictedLimitSelect .sapMSlt:focus,
-.kyraRestrictedLimitSelect .sapMSlt:focus-within {
+.kyraRestrictedLimitSelect:hover,
+.kyraRestrictedLimitSelect.sapMSlt:hover,
+div[id*="kyraRestrictedLimitSelect"]:hover {
     border-color: #008C9C !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraRestrictedLimitSelect.sapMFocus,
+.kyraRestrictedLimitSelect.sapMSltFocused,
+.kyraRestrictedLimitSelect:focus,
+.kyraRestrictedLimitSelect:focus-within,
+div[id*="kyraRestrictedLimitSelect"]:focus {
+    border-color: #008C9C !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.2) !important;
     outline: none !important;
 }
 
-.kyraRestrictedLimitSelect .sapMSltLabel {
+.kyraRestrictedLimitSelect .sapMSltInner,
+div[id*="kyraRestrictedLimitSelect"] .sapMSltInner {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraRestrictedLimitSelect .sapMSltLabel,
+div[id*="kyraRestrictedLimitSelect"] .sapMSltLabel {
     flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     text-align: center !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
-    line-height: 34px !important;
+    line-height: normal !important;
     padding: 0 !important;
     margin: 0 !important;
 }
 
-.kyraRestrictedLimitSelect .sapMSltArrow {
+.kyraRestrictedLimitSelect .sapMSltArrow,
+div[id*="kyraRestrictedLimitSelect"] .sapMSltArrow {
+    flex: 0 0 auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     color: #008C9C !important;
     font-size: 13px !important;
-    line-height: 34px !important;
-    margin-left: 4px !important;
-    flex-shrink: 0 !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.kyraRestrictedLimitSelect .sapMSltArrow::before,
+div[id*="kyraRestrictedLimitSelect"] .sapMSltArrow::before {
+    color: #008C9C !important;
+    font-family: "SAP-icons" !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
 }
 
 .kyraColHeadCenter {
@@ -54945,7 +55117,9 @@ html body .sapUiTheme-sap_horizon .sapMDatePicker-CTX.sapMPopover {
     overflow-y: hidden !important;
     background: #FFFFFF !important;
     padding: 12px 14px 16px 14px !important;
-    border-radius: 16px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
 }
 
@@ -54987,7 +55161,10 @@ html body .sapUiTheme-sap_horizon .sapMDatePicker-CTX.sapMPopover {
 html body .sapMPopover:has(.sapUiCal),
 html body .sapMPopover:has(.sapUiCalMonthView),
 html body .sapMPopover:has(.sapUiCalMonthPick),
+html body .sapMPopover:has(.sapUiCalMonthPicker),
 html body .sapMPopover:has(.sapUiCalYearPick),
+html body .sapMPopover:has(.sapUiCalYearPicker),
+html body .sapMPopover:has(div[id*="YRP"]),
 html body div[id*="-popover"]:has(.sapUiCal),
 html body div[id*="-cal--popover"],
 html body div[id*="-cal-popover"],
@@ -54997,13 +55174,13 @@ html body .sapMDatePickerDialog,
 html body .sapUiTheme-sap_horizon .sapMDatePickerPopup,
 html body .sapUiTheme-sap_horizon .sapMPopover:has(.sapUiCal),
 html body .sapUiTheme-sap_horizon div[id*="-popover"]:has(.sapUiCal) {
-    width: 360px !important;
-    min-width: 360px !important;
-    max-width: 360px !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: 350px !important;
     height: auto !important;
-    min-height: 420px !important;
-    max-height: calc(100vh - 40px) !important;
-    border-radius: 20px !important;
+    min-height: auto !important;
+    max-height: calc(100vh - 32px) !important;
+    border-radius: 18px !important;
     border: 1px solid #E2E8F0 !important;
     box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.14), 0 6px 16px -2px rgba(0, 140, 156, 0.08) !important;
     background: #FFFFFF !important;
@@ -55015,7 +55192,7 @@ html body .sapUiTheme-sap_horizon div[id*="-popover"]:has(.sapUiCal) {
     -ms-overflow-style: none !important;
 }
 
-/* 2. Popover Content & Scroll Containers: Absolute zero scrollbars */
+/* 2. Popover Content & Scroll Containers: Absolute zero scrollbars & clean single card */
 html body .sapMPopover:has(.sapUiCal) .sapMPopoverCont,
 html body .sapMPopover:has(.sapUiCal) .sapMPopoverScroll,
 html body div[id*="-popover"]:has(.sapUiCal) .sapMPopoverCont,
@@ -55036,16 +55213,19 @@ html body .sapUiTheme-sap_horizon div[id*="-popover"]:has(.sapUiCal) .sapMPopove
     min-width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 420px !important;
+    min-height: auto !important;
     max-height: none !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
     overflow-y: hidden !important;
-    padding: 16px 18px 20px 18px !important;
+    padding: 14px 16px 16px 16px !important;
     box-sizing: border-box !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     background: #FFFFFF !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 /* 3. Global Scrollbar Elimination for all Calendar & DatePicker Sub-elements */
@@ -55117,7 +55297,7 @@ html body .sapUiTheme-sap_horizon .sapUiCal {
     min-width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 380px !important;
+    min-height: auto !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
     overflow-y: hidden !important;
@@ -55127,16 +55307,49 @@ html body .sapUiTheme-sap_horizon .sapUiCal {
     box-sizing: border-box !important;
 }
 
-.sapUiCalMonthView,
-.sapMPopover:has(.sapUiCal) .sapUiCalMonthView,
-.sapMDatePicker-CTX .sapUiCalMonthView,
-div[id*="-popover"] .sapUiCalMonthView,
-div[id*="-cal--popover"] .sapUiCalMonthView,
-html body .sapUiTheme-sap_horizon .sapUiCalMonthView {
+/* Strict hiding of hidden/inactive calendar sub-views to eliminate double-view/double-slide overlap */
+.sapUiCalMonthView[style*="display: none"],
+.sapUiCalMonthView[style*="display:none"],
+.sapUiCalMonthView.sapUiCalContentHidden,
+.sapUiCalMonthPick[style*="display: none"],
+.sapUiCalMonthPick[style*="display:none"],
+.sapUiCalMonthPicker[style*="display: none"],
+.sapUiCalMonthPicker[style*="display:none"],
+.sapUiCalMonthPick.sapUiCalContentHidden,
+.sapUiCalMonthPicker.sapUiCalContentHidden,
+.sapUiCalYearPick[style*="display: none"],
+.sapUiCalYearPick[style*="display:none"],
+.sapUiCalYearPicker[style*="display: none"],
+.sapUiCalYearPicker[style*="display:none"],
+.sapUiCalYearPick.sapUiCalContentHidden,
+.sapUiCalYearPicker.sapUiCalContentHidden,
+div[id*="--YRP"][style*="display: none"],
+div[id*="--YRP"][style*="display:none"],
+div[id*="--YRP"].sapUiCalContentHidden,
+div[id*="-YRP"][style*="display: none"],
+div[id*="-YRP"][style*="display:none"],
+div[id*="-YRP"].sapUiCalContentHidden {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+}
+
+.sapUiCalMonthView:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden),
+.sapMPopover:has(.sapUiCal) .sapUiCalMonthView:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden),
+.sapMDatePicker-CTX .sapUiCalMonthView:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden),
+div[id*="-popover"] .sapUiCalMonthView:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden),
+div[id*="-cal--popover"] .sapUiCalMonthView:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden),
+html body .sapUiTheme-sap_horizon .sapUiCalMonthView:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden) {
     width: 100% !important;
     min-width: 100% !important;
     height: auto !important;
-    min-height: 330px !important;
+    min-height: 290px !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
     overflow-y: hidden !important;
@@ -55157,6 +55370,8 @@ html body .sapUiTheme-sap_horizon .sapUiCalMonthView {
     padding: 0 !important;
     margin: 0 !important;
     box-sizing: border-box !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* 5. Calendar Header (< Oct 2026 >) */
@@ -55441,57 +55656,97 @@ html body .sapUiTheme-sap_horizon .sapUiCalItem.sapUiCalItemSel {
     border-color: #008C9C !important;
 }
 
-/* 8. Slide 2: Month Picker (Months Slide - Jan .. Dec - Matches Image 2: 3 Columns x 4 Rows) */
+/* 8. Slide 2: Month Picker (Months Slide - Jan .. Dec: Clean 3 Columns x 4 Rows Grid with Equal Spacing) */
 .sapUiCalMonthPick,
 .sapUiCalMonthPicker,
+html body .sapUiCalContent > .sapUiCalMonthPicker,
+html body .sapUiTheme-sap_horizon .sapUiCalContent > .sapUiCalMonthPicker,
 html body .sapUiTheme-sap_horizon .sapUiCalMonthPick,
 html body .sapUiTheme-sap_horizon .sapUiCalMonthPicker {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
     width: 100% !important;
-    min-height: 290px !important;
+    min-height: auto !important;
     height: auto !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: space-around !important;
-    padding: 10px 4px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: repeat(4, 46px) !important;
+    gap: 12px 14px !important;
+    padding: 10px 4px 14px 4px !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
     overflow-y: hidden !important;
     background: #FFFFFF !important;
+    z-index: 1 !important;
 }
 
+/* Treat inner row containers as display: contents to ensure items flow directly into the 3x4 grid */
+.sapUiCalMonthPick > div,
+.sapUiCalMonthPicker > div,
+.sapUiCalMonthPicker div[role="row"] {
+    display: contents !important;
+}
+
+.sapUiCalMonthPicker .sapUiCalItem,
 .sapUiCalMonthPick .sapUiCalItem,
 .sapUiCalMonthPicker .sapUiCalMonth,
 .sapUiCalMonth,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPicker .sapUiCalItem,
 html body .sapUiTheme-sap_horizon .sapUiCalMonthPick .sapUiCalItem,
-html body .sapUiTheme-sap_horizon .sapUiCalMonth {
-    width: calc(33.333% - 16px) !important;
-    min-width: 80px !important;
-    max-width: 95px !important;
+html body .sapUiTheme-sap_horizon .sapUiCalMonth,
+html body .sapMPopover .sapUiCalMonthPicker .sapUiCalItem,
+html body .sapMDatePicker-CTX .sapUiCalMonthPicker .sapUiCalItem {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     height: 46px !important;
     min-height: 46px !important;
     max-height: 46px !important;
-    line-height: 46px !important;
-    border-radius: 10px !important;
+    line-height: 44px !important;
+    border-radius: 12px !important;
     font-size: 15px !important;
     font-weight: 500 !important;
     color: #1E293B !important;
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 6px 4px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 8px !important;
     cursor: pointer !important;
     border: 1.5px solid transparent !important;
-    background: transparent !important;
+    background: #F8FAFC !important;
     transition: all 0.15s ease !important;
     box-sizing: border-box !important;
+    white-space: nowrap !important;
+}
+
+.sapUiCalMonthPicker .sapUiCalItem span,
+.sapUiCalMonthPick .sapUiCalItem span,
+.sapUiCalMonthPicker .sapUiCalItem .sapUiCalItemText,
+.sapUiCalMonthPicker .sapUiCalMonth span,
+.sapUiCalMonthPicker .sapUiCalMonth .sapUiCalItemText {
+    font-size: 15px !important;
+    line-height: 1 !important;
+    color: inherit !important;
+    font-weight: inherit !important;
+    white-space: nowrap !important;
     text-align: center !important;
 }
 
+.sapUiCalMonthPicker .sapUiCalItem:hover,
 .sapUiCalMonthPick .sapUiCalItem:hover,
 .sapUiCalMonthPicker .sapUiCalMonth:hover,
 .sapUiCalMonth:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPicker .sapUiCalItem:hover,
 html body .sapUiTheme-sap_horizon .sapUiCalMonth:hover {
     background: #F0FDFA !important;
     color: #008C9C !important;
@@ -55499,93 +55754,153 @@ html body .sapUiTheme-sap_horizon .sapUiCalMonth:hover {
     font-weight: 600 !important;
 }
 
+.sapUiCalMonthPicker .sapUiCalItemNow,
 .sapUiCalMonthPick .sapUiCalItemNow,
 .sapUiCalMonthNow,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPicker .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPick .sapUiCalItemNow,
 html body .sapUiTheme-sap_horizon .sapUiCalMonthNow {
     border: 2px solid #008C9C !important;
     color: #008C9C !important;
     font-weight: 700 !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     background: rgba(0, 140, 156, 0.08) !important;
     outline: none !important;
 }
 
+.sapUiCalMonthPicker .sapUiCalItemSel,
 .sapUiCalMonthPick .sapUiCalItemSel,
 .sapUiCalMonthSel,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPicker .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalMonthPick .sapUiCalItemSel,
 html body .sapUiTheme-sap_horizon .sapUiCalMonthSel {
     background: #008C9C !important;
     background-color: #008C9C !important;
     color: #FFFFFF !important;
     border: 2px solid #008C9C !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     font-weight: 700 !important;
     box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
 }
 
+.sapUiCalMonthPicker .sapUiCalItemSel *,
 .sapUiCalMonthPick .sapUiCalItemSel *,
 .sapUiCalMonthSel * {
     color: #FFFFFF !important;
 }
 
-/* 9. Slide 3: Year Picker (Years Slide - 2020 .. 2039) */
-.sapUiCalYearPick,
-.sapUiCalYearPicker,
-html body .sapUiTheme-sap_horizon .sapUiCalYearPick,
-html body .sapUiTheme-sap_horizon .sapUiCalYearPicker {
-    width: 100% !important;
-    min-height: 290px !important;
-    height: auto !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    justify-content: space-around !important;
-    padding: 10px 4px !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-    background: #FFFFFF !important;
+.sapUiCalMonthPicker .sapUiCalItem::before,
+.sapUiCalMonthPicker .sapUiCalItem::after,
+.sapUiCalMonthPick .sapUiCalItem::before,
+.sapUiCalMonthPick .sapUiCalItem::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    outline: none !important;
 }
 
-.sapUiCalYearPick .sapUiCalItem,
-.sapUiCalYearPicker .sapUiCalYear,
-.sapUiCalYear,
-html body .sapUiTheme-sap_horizon .sapUiCalYearPick .sapUiCalItem,
-html body .sapUiTheme-sap_horizon .sapUiCalYear {
-    width: calc(25% - 8px) !important;
-    min-width: 66px !important;
-    max-width: 78px !important;
+/* 9. Slide 3: Year Picker (Years Slide - 4 Columns x 5 Rows Grid with Equal Spacing) */
+.sapUiCalYearPick,
+.sapUiCalYearPicker,
+html body .sapUiCalContent > .sapUiCalYearPicker,
+html body .sapUiTheme-sap_horizon .sapUiCalContent > .sapUiCalYearPicker,
+/* 9. Slide 3: Year Picker (Years Slide - 4 Columns x 5 Rows Grid with Equal Spacing) */
+.sapUiCalYearPick:not([id*="YRP"]),
+.sapUiCalYearPicker:not([id*="YRP"]),
+html body .sapUiCalContent > .sapUiCalYearPicker:not([id*="YRP"]),
+html body .sapUiTheme-sap_horizon .sapUiCalContent > .sapUiCalYearPicker:not([id*="YRP"]),
+html body .sapUiTheme-sap_horizon .sapUiCalYearPick:not([id*="YRP"]),
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker:not([id*="YRP"]) {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(5, 40px) !important;
+    gap: 8px 10px !important;
+    padding: 8px 4px 12px 4px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    background: #FFFFFF !important;
+    z-index: 1 !important;
+}
+
+.sapUiCalYearPick:not([id*="YRP"]) > div,
+.sapUiCalYearPicker:not([id*="YRP"]) > div,
+.sapUiCalYearPicker:not([id*="YRP"]) div[role="row"] {
+    display: contents !important;
+}
+
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItem,
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalYear,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItem,
+html body .sapMPopover .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem,
+html body .sapMDatePicker-CTX .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
     height: 40px !important;
     min-height: 40px !important;
     max-height: 40px !important;
-    line-height: 40px !important;
+    line-height: 38px !important;
     border-radius: 10px !important;
     font-size: 14px !important;
-    font-weight: 600 !important;
+    font-weight: 500 !important;
     color: #1E293B !important;
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin: 4px 4px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 4px !important;
     cursor: pointer !important;
     border: 1.5px solid transparent !important;
-    background: transparent !important;
+    background: #F8FAFC !important;
     transition: all 0.15s ease !important;
     box-sizing: border-box !important;
+    white-space: nowrap !important;
+}
+
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem span,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItem span,
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem .sapUiCalItemText,
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalYear span,
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalYear .sapUiCalItemText {
+    font-size: 14px !important;
+    line-height: 1 !important;
+    color: inherit !important;
+    font-weight: inherit !important;
+    white-space: nowrap !important;
     text-align: center !important;
 }
 
-.sapUiCalYearPick .sapUiCalItem:hover,
-.sapUiCalYearPicker .sapUiCalYear:hover,
-.sapUiCalYear:hover,
-html body .sapUiTheme-sap_horizon .sapUiCalYear:hover {
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem:hover,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItem:hover,
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalYear:hover,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem:hover {
     background: #F0FDFA !important;
     color: #008C9C !important;
     border-color: #CCEFF3 !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
 }
 
-.sapUiCalYearPick .sapUiCalItemNow,
-.sapUiCalYearNow,
-html body .sapUiTheme-sap_horizon .sapUiCalYearNow {
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItemNow,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItemNow {
     border: 2px solid #008C9C !important;
     color: #008C9C !important;
     font-weight: 700 !important;
@@ -55594,9 +55909,10 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearNow {
     outline: none !important;
 }
 
-.sapUiCalYearPick .sapUiCalItemSel,
-.sapUiCalYearSel,
-html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItemSel,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItemSel {
     background: #008C9C !important;
     background-color: #008C9C !important;
     color: #FFFFFF !important;
@@ -55606,9 +55922,148 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearSel {
     box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
 }
 
-.sapUiCalYearPick .sapUiCalItemSel *,
-.sapUiCalYearSel * {
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItemSel *,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItemSel * {
     color: #FFFFFF !important;
+}
+
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem::before,
+.sapUiCalYearPicker:not([id*="YRP"]) .sapUiCalItem::after,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItem::before,
+.sapUiCalYearPick:not([id*="YRP"]) .sapUiCalItem::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* 10. Slide 4: Year Range Picker (Year Ranges - Clean 2 Columns x 4 Rows Grid with Wide Button Tiles) */
+div[id*="--YRP"],
+div[id*="-YRP"],
+.sapUiCalYearPicker[id*="YRP"],
+html body .sapUiCalContent > div[id*="--YRP"],
+html body .sapUiTheme-sap_horizon div[id*="--YRP"],
+html body .sapUiTheme-sap_horizon .sapUiCalYearPicker[id*="YRP"] {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(4, 44px) !important;
+    gap: 12px 14px !important;
+    padding: 10px 4px 14px 4px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    background: #FFFFFF !important;
+    z-index: 1 !important;
+}
+
+div[id*="--YRP"] > div,
+div[id*="-YRP"] > div,
+.sapUiCalYearPicker[id*="YRP"] > div,
+div[id*="--YRP"] div[role="row"] {
+    display: contents !important;
+}
+
+div[id*="--YRP"] .sapUiCalItem,
+div[id*="-YRP"] .sapUiCalItem,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem,
+html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItem,
+html body .sapMPopover div[id*="--YRP"] .sapUiCalItem,
+html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    line-height: 42px !important;
+    border-radius: 12px !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #1E293B !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 10px !important;
+    cursor: pointer !important;
+    border: 1.5px solid transparent !important;
+    background: #F8FAFC !important;
+    transition: all 0.15s ease !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+}
+
+div[id*="--YRP"] .sapUiCalItem span,
+div[id*="--YRP"] .sapUiCalItem .sapUiCalItemText,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem span,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem .sapUiCalItemText {
+    font-size: 13.5px !important;
+    line-height: 1 !important;
+    color: inherit !important;
+    font-weight: inherit !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+}
+
+div[id*="--YRP"] .sapUiCalItem:hover,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:hover,
+html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItem:hover {
+    background: #F0FDFA !important;
+    color: #008C9C !important;
+    border-color: #CCEFF3 !important;
+    font-weight: 600 !important;
+}
+
+div[id*="--YRP"] .sapUiCalItemNow,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItemNow {
+    border: 2px solid #008C9C !important;
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+    background: rgba(0, 140, 156, 0.08) !important;
+    outline: none !important;
+}
+
+div[id*="--YRP"] .sapUiCalItemSel,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItemSel {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    border: 2px solid #008C9C !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
+}
+
+div[id*="--YRP"] .sapUiCalItemSel *,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel * {
+    color: #FFFFFF !important;
+}
+
+div[id*="--YRP"] .sapUiCalItem::before,
+div[id*="--YRP"] .sapUiCalItem::after,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem::before,
+.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    outline: none !important;
 }
 
 /* =========================================================================

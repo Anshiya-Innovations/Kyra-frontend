@@ -422,64 +422,49 @@ sap.ui.define([
                 // 4. Admin Persona State & Live Access Customization Data (Synced with Add Access Configuration)
                 isAdminPersona: (sessionStorage.getItem("kyra_active_role") === "Admin" || sessionStorage.getItem("kyra_active_role") === "Administrator"),
                 adminSelectedSection: "",
-                dbMigration: {
-                    targetMode: "kyra",
+                sapIntegration: {
+                    selectedApp: "sap_btp",
                     currentStep: 1,
-                    source: {
-                        engine: "postgresql",
-                        host: "postgres-primary.internal.kyra.io",
-                        port: 5432,
-                        database: "kyra_production",
-                        username: "svc_admin_reader",
-                        password: "••••••••",
+                    connected: false,
+                    statusText: "Not Connected",
+                    statusState: "None",
+                    isAppExpanded: false,
+                    hierarchy: {
+                        selectedService: "",
+                        selectedTeam: "",
+                        selectedPersona: "",
+                        availableTeams: [],
+                        availablePersonas: []
+                    },
+                    btp: {
+                        url: "https://api.cf.us10-001.hana.ondemand.com",
+                        subaccountId: "5af75fc5trial",
+                        tokenUrl: "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token",
+                        clientId: "sb-clone-01!b12345|client!b6789",
+                        clientSecret: "••••••••",
                         ssl: true,
-                        statusText: "Verified ✓",
-                        statusState: "Success",
-                        latencyText: "18ms latency",
-                        schema: "public",
-                        table: "customers"
+                        urlState: "None",
+                        subaccountState: "None",
+                        tokenUrlState: "None",
+                        clientIdState: "None",
+                        clientSecretState: "None"
                     },
-                    target: {
-                        engine: "postgresql",
-                        host: "database-1.cwpka6uuuwjw.us-east-1.rds.amazonaws.com",
-                        port: 5432,
-                        database: "Kyra",
-                        username: "root",
-                        password: "",
-                        ssl: true,
-                        statusText: "Cloud Target (Pre-configured) ✓",
-                        statusState: "Success",
-                        latencyText: "Encrypted AES-256-GCM Vault",
-                        schema: "access_management",
-                        table: "ad_group"
-                    },
-                    columnMappings: JSON.parse(JSON.stringify(DEFAULT_MIGRATION_COLUMNS)),
-                    hud: {
-                        visible: false,
-                        state: "idle",
-                        statusBadge: "Idle",
-                        progressPercent: 0,
-                        progressText: "Ready to migrate",
-                        progressState: "None",
-                        rowsTransferred: 0,
-                        latency: "--",
-                        logs: [
-                            { text: "Ready to migrate data. Click 'Migrate Data' to begin.", icon: "sap-icon://hint" }
-                        ]
-                    },
-                    summary: {
-                        statusMessage: "Extracted and loaded records directly into Kyra Cloud Database.",
-                        stateText: "Pipeline Succeeded",
-                        stateColor: "Success",
-                        extractedCount: 1250,
-                        migratedCount: 1250,
-                        duration: "1.42s",
-                        progressPercent: 100,
-                        progressText: "100% Loaded",
-                        progressState: "Success"
-                    }
+                    purchasedApps: [
+                        {
+                            id: "app_btp",
+                            name: "SAP Business Technology Platform",
+                            category: "Cloud Platform & Extension Suite",
+                            edition: "Enterprise Subscription (dev space)",
+                            status: "Purchased & Active",
+                            statusState: "Success",
+                            icon: "sap-icon://cloud",
+                            entitlements: "12 Services Active • 4GB / 8GB Runtime Quota",
+                            subaccount: "5af75fc5trial",
+                            region: "US10 (US East)"
+                        }
+                    ]
                 },
-                selectedAdminServiceName: "",
+selectedAdminServiceName: "",
                 adminSystemsAll: [
                     { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" },
                     { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "8", status: "Active", createdDate: "2025-01-12" },
@@ -567,17 +552,447 @@ sap.ui.define([
                 showAdminSystemSlide: true,
                 adminSystemSlideMode: "edit",
                 adminSystemDraft: { systemName: "SAP BTP Cloud Platform", thresholdLimit: "7", status: "Active" },
-                                adminServicesAll: [
+                adminServicesAll: [
+                    { serviceName: "xsuaa", status: "Active", selected: false },
+                    { serviceName: "identity", status: "Active", selected: false },
+                    { serviceName: "credstore", status: "Active", selected: false },
+                    { serviceName: "auditlog-management", status: "Active", selected: false },
+                    { serviceName: "uas", status: "Active", selected: false },
+                    { serviceName: "personal-data-manager-service", status: "Active", selected: false },
+                    { serviceName: "destination", status: "Active", selected: false },
+                    { serviceName: "connectivity", status: "Active", selected: false },
+                    { serviceName: "it-rt", status: "Active", selected: false },
+                    { serviceName: "sap-graph", status: "Active", selected: false },
+                    { serviceName: "saas-registry", status: "Active", selected: false },
+                    { serviceName: "service-manager", status: "Active", selected: false },
+                    { serviceName: "one-mds", status: "Active", selected: false },
+                    { serviceName: "apimanagement-trial", status: "Active", selected: false },
+                    { serviceName: "build-workzone-standard", status: "Active", selected: false },
+                    { serviceName: "html5-apps-repo", status: "Active", selected: false },
+                    { serviceName: "app-front", status: "Active", selected: false },
+                    { serviceName: "theming", status: "Active", selected: false },
+                    { serviceName: "ui5-flexibility-keyuser", status: "Active", selected: false },
+                    { serviceName: "hana-cloud", status: "Active", selected: false },
+                    { serviceName: "postgresql-db", status: "Active", selected: false },
+                    { serviceName: "redis-cache", status: "Active", selected: false },
+                    { serviceName: "process-automation-service", status: "Active", selected: false },
+                    { serviceName: "document-information-extraction-trial", status: "Active", selected: false },
+                    { serviceName: "data-attribute-recommendation-trial", status: "Active", selected: false },
+                    { serviceName: "business-entity-recognition-trial", status: "Active", selected: false },
+                    { serviceName: "service-ticket-intelligence-trial", status: "Active", selected: false },
+                    { serviceName: "document-translation", status: "Active", selected: false },
+                    { serviceName: "abap-trial", status: "Active", selected: false },
+                    { serviceName: "mobile-services", status: "Active", selected: false },
+                    { serviceName: "jobscheduler", status: "Active", selected: false },
+                    { serviceName: "autoscaler", status: "Active", selected: false },
+                    { serviceName: "application-logs", status: "Active", selected: false },
+                    { serviceName: "alert-notification", status: "Active", selected: false },
+                    { serviceName: "feature-flags", status: "Active", selected: false },
+                    { serviceName: "transport", status: "Active", selected: false },
+                    { serviceName: "cis", status: "Active", selected: false },
+                    { serviceName: "xfs-runtime-trial", status: "Active", selected: false },
                     { serviceName: "System Administrator", status: "Active", selected: false },
                     { serviceName: "System Owners", status: "Active", selected: false },
                     { serviceName: "Stakeholders", status: "Active", selected: false }
                 ],
                 adminServices: [
+                    { serviceName: "xsuaa", status: "Active", selected: false },
+                    { serviceName: "identity", status: "Active", selected: false },
+                    { serviceName: "credstore", status: "Active", selected: false },
+                    { serviceName: "auditlog-management", status: "Active", selected: false },
+                    { serviceName: "uas", status: "Active", selected: false },
+                    { serviceName: "personal-data-manager-service", status: "Active", selected: false },
+                    { serviceName: "destination", status: "Active", selected: false },
+                    { serviceName: "connectivity", status: "Active", selected: false },
+                    { serviceName: "it-rt", status: "Active", selected: false },
+                    { serviceName: "sap-graph", status: "Active", selected: false },
+                    { serviceName: "saas-registry", status: "Active", selected: false },
+                    { serviceName: "service-manager", status: "Active", selected: false },
+                    { serviceName: "one-mds", status: "Active", selected: false },
+                    { serviceName: "apimanagement-trial", status: "Active", selected: false },
+                    { serviceName: "build-workzone-standard", status: "Active", selected: false },
+                    { serviceName: "html5-apps-repo", status: "Active", selected: false },
+                    { serviceName: "app-front", status: "Active", selected: false },
+                    { serviceName: "theming", status: "Active", selected: false },
+                    { serviceName: "ui5-flexibility-keyuser", status: "Active", selected: false },
+                    { serviceName: "hana-cloud", status: "Active", selected: false },
+                    { serviceName: "postgresql-db", status: "Active", selected: false },
+                    { serviceName: "redis-cache", status: "Active", selected: false },
+                    { serviceName: "process-automation-service", status: "Active", selected: false },
+                    { serviceName: "document-information-extraction-trial", status: "Active", selected: false },
+                    { serviceName: "data-attribute-recommendation-trial", status: "Active", selected: false },
+                    { serviceName: "business-entity-recognition-trial", status: "Active", selected: false },
+                    { serviceName: "service-ticket-intelligence-trial", status: "Active", selected: false },
+                    { serviceName: "document-translation", status: "Active", selected: false },
+                    { serviceName: "abap-trial", status: "Active", selected: false },
+                    { serviceName: "mobile-services", status: "Active", selected: false },
+                    { serviceName: "jobscheduler", status: "Active", selected: false },
+                    { serviceName: "autoscaler", status: "Active", selected: false },
+                    { serviceName: "application-logs", status: "Active", selected: false },
+                    { serviceName: "alert-notification", status: "Active", selected: false },
+                    { serviceName: "feature-flags", status: "Active", selected: false },
+                    { serviceName: "transport", status: "Active", selected: false },
+                    { serviceName: "cis", status: "Active", selected: false },
+                    { serviceName: "xfs-runtime-trial", status: "Active", selected: false },
                     { serviceName: "System Administrator", status: "Active", selected: false },
                     { serviceName: "System Owners", status: "Active", selected: false },
                     { serviceName: "Stakeholders", status: "Active", selected: false }
                 ],
                 adminServiceDetailsMap: {
+                    "xsuaa": [
+                        {
+                            name: "IAM & Directory Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Identity & Access Administrator Persona" },
+                                { name: "Security Governance Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "identity": [
+                        {
+                            name: "Enterprise IAM & Directory Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Single Sign-On (SSO) Specialist Persona" },
+                                { name: "Corporate IdP Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "credstore": [
+                        {
+                            name: "Cloud Security Operations Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Cryptographic Secrets Custodian Persona" },
+                                { name: "Cloud Security Officer Persona" }
+                            ]
+                        }
+                    ],
+                    "auditlog-management": [
+                        {
+                            name: "GRC & Regulatory Compliance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Compliance & Security Trail Auditor Persona" },
+                                { name: "Forensic Audit Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "uas": [
+                        {
+                            name: "IAM & Directory Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "User Account Lifecycle Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "personal-data-manager-service": [
+                        {
+                            name: "Data Privacy & Legal Compliance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Data Privacy Officer (GDPR) Persona" },
+                                { name: "Personal Data Governance Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "destination": [
+                        {
+                            name: "Hybrid Connectivity & Network Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Destination & Endpoint Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "connectivity": [
+                        {
+                            name: "Hybrid Connectivity & Network Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Cloud Connector Network Engineer Persona" },
+                                { name: "On-Premise Tunneling Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "it-rt": [
+                        {
+                            name: "Enterprise Integration Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Cloud Integration (iFlow) Developer Persona" },
+                                { name: "Enterprise Integration Architect Persona" }
+                            ]
+                        }
+                    ],
+                    "sap-graph": [
+                        {
+                            name: "API & Graph Platform Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "SAP Graph API Architect Persona" }
+                            ]
+                        }
+                    ],
+                    "saas-registry": [
+                        {
+                            name: "Multi-Tenant Architecture Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "SaaS Provisioning Operations Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "service-manager": [
+                        {
+                            name: "Centralized Service Broker Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Service Broker Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "one-mds": [
+                        {
+                            name: "Enterprise Data Management Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Master Data Integration Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "apimanagement-trial": [
+                        {
+                            name: "API Management & Gateway Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "API Product Manager Persona" },
+                                { name: "Developer Hub Community Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "build-workzone-standard": [
+                        {
+                            name: "Digital Workplace & Portal Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Unified Launchpad Administrator Persona" },
+                                { name: "Digital Workplace Content Manager Persona" }
+                            ]
+                        }
+                    ],
+                    "html5-apps-repo": [
+                        {
+                            name: "Frontend Application Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "UI5 / Fiori Web Application Developer Persona" },
+                                { name: "HTML5 Application Release Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "app-front": [
+                        {
+                            name: "Frontend Application Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Application Frontend Hosting Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "theming": [
+                        {
+                            name: "UI/UX & Design Systems Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Corporate Brand & Theme Designer Persona" }
+                            ]
+                        }
+                    ],
+                    "ui5-flexibility-keyuser": [
+                        {
+                            name: "UI/UX & Design Systems Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Fiori Key-User Adaptation Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "hana-cloud": [
+                        {
+                            name: "Cloud Database Administration Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "SAP HANA Cloud Database Administrator Persona" },
+                                { name: "HANA Calculation View & Data Modeler Persona" }
+                            ]
+                        }
+                    ],
+                    "postgresql-db": [
+                        {
+                            name: "Cloud Database Administration Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "PostgreSQL Database Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "redis-cache": [
+                        {
+                            name: "Data Infrastructure & Caching Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "In-Memory Cache & Performance Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "process-automation-service": [
+                        {
+                            name: "Intelligent Business Automation Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Workflow & Decision Logic Architect Persona" },
+                                { name: "RPA Bot Developer & Operations Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "document-information-extraction-trial": [
+                        {
+                            name: "Cognitive Document Intelligence Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "OCR & Invoice Processing Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "data-attribute-recommendation-trial": [
+                        {
+                            name: "Enterprise Machine Learning & AI Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Predictive Recommendations Data Scientist Persona" }
+                            ]
+                        }
+                    ],
+                    "business-entity-recognition-trial": [
+                        {
+                            name: "Enterprise Machine Learning & AI Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "NLP & Entity Recognition Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "service-ticket-intelligence-trial": [
+                        {
+                            name: "Enterprise Machine Learning & AI Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Service Routing & Cognitive Triage Persona" }
+                            ]
+                        }
+                    ],
+                    "document-translation": [
+                        {
+                            name: "Cognitive Document Intelligence Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Multilingual Translation Operations Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "abap-trial": [
+                        {
+                            name: "Core Extension Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "ABAP Cloud (Steampunk) Developer Persona" }
+                            ]
+                        }
+                    ],
+                    "mobile-services": [
+                        {
+                            name: "Enterprise Mobility Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Mobile Application & Push Notifications Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "jobscheduler": [
+                        {
+                            name: "Platform Operations & Reliability Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Scheduled Job & Batch Processing Admin Persona" }
+                            ]
+                        }
+                    ],
+                    "autoscaler": [
+                        {
+                            name: "Platform Operations & Reliability Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Dynamic Autoscaling & Load Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "application-logs": [
+                        {
+                            name: "Cloud Observability & Monitoring Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Observability & Log Analytics Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "alert-notification": [
+                        {
+                            name: "Cloud Observability & Monitoring Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Incident & Alert Notification Manager Persona" }
+                            ]
+                        }
+                    ],
+                    "feature-flags": [
+                        {
+                            name: "Release Engineering & Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Progressive Delivery & Feature Flag Operator Persona" }
+                            ]
+                        }
+                    ],
+                    "transport": [
+                        {
+                            name: "Release Engineering & Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Release Manager & cTMS Transport Custodian Persona" }
+                            ]
+                        }
+                    ],
+                    "cis": [
+                        {
+                            name: "Subaccount & Tenant Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Subaccount & Entitlements Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "xfs-runtime-trial": [
+                        {
+                            name: "Core Extension Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Extension Suite Runtime Architect Persona" }
+                            ]
+                        }
+                    ],
                     "System Administrator": [
                         {
                             name: "IT Developers",
@@ -1126,6 +1541,18 @@ sap.ui.define([
             if (this._oNotificationPopover) {
                 this._oNotificationPopover.destroy();
                 this._oNotificationPopover = null;
+            }
+            if (this._oNotifPopover) {
+                try {
+                    this._oNotifPopover.destroy();
+                } catch (e) {}
+                this._oNotifPopover = null;
+            }
+            if (this._oProfilePopover) {
+                try {
+                    this._oProfilePopover.destroy();
+                } catch (e) {}
+                this._oProfilePopover = null;
             }
             if (document.body.classList.contains("kyra-add-access-open")) {
                 document.body.classList.remove("kyra-add-access-open");
@@ -5493,6 +5920,30 @@ sap.ui.define([
                 oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
             }
 
+            // Mutual exclusivity: Close profile popover smoothly if open to prevent duplicate/overlapping panels
+            if (this._oProfilePopover) {
+                try {
+                    if (this._oProfilePopover.isOpen && this._oProfilePopover.isOpen()) {
+                        this._oProfilePopover.close();
+                    }
+                } catch (e) {}
+            }
+
+            // Prevent rapid multi-trigger debounce guard
+            const iNow = Date.now();
+            if (this._iLastNotifPressTime && (iNow - this._iLastNotifPressTime < 300)) {
+                return;
+            }
+            this._iLastNotifPressTime = iNow;
+
+            // Singleton pattern: If notification popover already exists and is open, close/toggle it cleanly
+            if (this._oNotifPopover) {
+                if (this._oNotifPopover.isOpen && this._oNotifPopover.isOpen()) {
+                    this._oNotifPopover.close();
+                    return;
+                }
+            }
+
             const oModel = this.getView().getModel("accessModel");
             const iUnreadCount = oModel ? (oModel.getProperty("/notificationsCount") || 0) : 0;
             const aNotifs = oModel ? (oModel.getProperty("/notificationsList") || []) : [];
@@ -5649,6 +6100,84 @@ sap.ui.define([
                     </div>
                 `;
 
+                const fnPositionNotif = () => {
+                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                        ? oPopover._oControl 
+                        : oPopover;
+                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
+                    if (!oDom) {
+                        return;
+                    }
+                    oDom.style.width = "440px";
+                    oDom.style.minWidth = "440px";
+                    oDom.style.maxWidth = "440px";
+                    oDom.style.height = "auto";
+                    oDom.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                    oDom.style.overflow = "hidden";
+                    oDom.scrollTop = 0;
+
+                    // Align notification popover at the exact same anchor place as profile popover
+                    const fnGetHeaderAnchorDom = () => {
+                        const oAvatarControl = this.byId("kyraHeaderProfileAvatar");
+                        if (oAvatarControl && oAvatarControl.getDomRef && oAvatarControl.getDomRef()) {
+                            return oAvatarControl.getDomRef();
+                        }
+                        const elById = document.getElementById(this.createId("kyraHeaderProfileAvatar"));
+                        if (elById) {
+                            return elById;
+                        }
+                        const elByClass = document.querySelector(".kyraHeaderProfileAvatar") || document.querySelector(".sapFShellBarProfile") || document.querySelector(".kyraHeaderRightAvatar");
+                        if (elByClass) {
+                            return elByClass;
+                        }
+                        const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
+                        return oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
+                    };
+
+                    const oAnchorEl = fnGetHeaderAnchorDom();
+                    if (oAnchorEl) {
+                        const rect = oAnchorEl.getBoundingClientRect();
+                        if (rect && rect.bottom > 0) {
+                            const iTop = Math.round(rect.bottom + 8);
+                            let iLeft = Math.round(rect.right - 440);
+                            if (iLeft + 440 > window.innerWidth - 14) {
+                                iLeft = Math.max(14, window.innerWidth - 440 - 14);
+                            }
+                            if (iLeft < 14) {
+                                iLeft = 14;
+                            }
+                            oDom.style.setProperty("top", iTop + "px", "important");
+                            oDom.style.setProperty("left", iLeft + "px", "important");
+                            oDom.style.setProperty("right", "auto", "important");
+                        }
+                    }
+
+                    const oCont = oDom.querySelector(".sapMPopoverCont");
+                    if (oCont) {
+                        oCont.style.width = "440px";
+                        oCont.style.minWidth = "440px";
+                        oCont.style.maxWidth = "440px";
+                        oCont.style.height = "auto";
+                        oCont.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                        oCont.style.overflow = "hidden";
+                        oCont.scrollTop = 0;
+                    }
+                    const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                    if (oScroll) {
+                        oScroll.style.width = "440px";
+                        oScroll.style.minWidth = "440px";
+                        oScroll.style.maxWidth = "440px";
+                        oScroll.style.height = "auto";
+                        oScroll.style.maxHeight = "min(500px, calc(100vh - 70px))";
+                        oScroll.style.overflow = "hidden";
+                        oScroll.scrollTop = 0;
+                    }
+                    const oList = oDom.querySelector(".kyra-notif-list");
+                    if (oList) {
+                        oList.scrollTop = 0;
+                    }
+                };
+
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
                     contentWidth: "440px",
@@ -5656,16 +6185,30 @@ sap.ui.define([
                     horizontalScrolling: false,
                     verticalScrolling: false,
                     placement: "Bottom",
-                    showArrow: true,
+                    showArrow: false,
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oPopover.destroy()
+                    afterClose: () => {
+                        if (this._oNotifPopover === oPopover) {
+                            this._oNotifPopover = null;
+                        }
+                        oPopover.destroy();
+                    }
                 });
+                this._oNotifPopover = oPopover;
                 oPopover.addStyleClass("kyraNotificationPopover");
+
+                if (oPopover._oControl) {
+                    oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionNotif;
+                }
+
                 oPopover.attachBeforeOpen(() => {
+                    oPopover.removeStyleClass("kyraPopoverClosing");
                     if (oPopover._oControl) {
+                        oPopover._oControl.removeStyleClass("kyraPopoverClosing");
                         oPopover._oControl.addStyleClass("kyraNotificationPopover");
+                        oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionNotif;
                         if (typeof oPopover._oControl.setPlacement === "function") {
                             oPopover._oControl.setPlacement("Bottom");
                         }
@@ -5677,69 +6220,16 @@ sap.ui.define([
                         }
                     }
                 });
+
+                oPopover.attachBeforeClose(() => {
+                    oPopover.addStyleClass("kyraPopoverClosing");
+                    if (oPopover._oControl) {
+                        oPopover._oControl.addStyleClass("kyraPopoverClosing");
+                    }
+                });
+
                 oPopover.attachAfterOpen(() => {
-                    const fnReset = () => {
-                        const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
-                            ? oPopover._oControl 
-                            : oPopover;
-                        const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
-                        if (oDom) {
-                            oDom.style.width = "440px";
-                            oDom.style.minWidth = "440px";
-                            oDom.style.maxWidth = "440px";
-                            oDom.style.height = "auto";
-                            oDom.style.maxHeight = "min(500px, calc(100vh - 70px))";
-                            oDom.style.overflow = "hidden";
-                            oDom.scrollTop = 0;
-
-                            // Position safety check:
-                            // Ensure it stays below the bell button, never flipped to Top off-screen
-                            const oBellBtn = this.byId("kyraHeaderBellBtn") || oSource;
-                            const oBellDom = oBellBtn && oBellBtn.getDomRef ? oBellBtn.getDomRef() : null;
-                            if (oBellDom) {
-                                const bellRect = oBellDom.getBoundingClientRect();
-                                const iTop = parseInt(oDom.style.top || "0", 10);
-                                if (iTop < bellRect.bottom || iTop < 50) {
-                                    oDom.style.top = (bellRect.bottom + 8) + "px";
-                                }
-                                // Keep safely within screen boundaries
-                                const iLeft = parseInt(oDom.style.left || "0", 10);
-                                if (iLeft + 440 > window.innerWidth - 16 || iLeft < 16) {
-                                    oDom.style.left = Math.max(16, window.innerWidth - 440 - 20) + "px";
-                                }
-                            }
-
-                            const oCont = oDom.querySelector(".sapMPopoverCont");
-                            if (oCont) {
-                                oCont.style.width = "440px";
-                                oCont.style.minWidth = "440px";
-                                oCont.style.maxWidth = "440px";
-                                oCont.style.height = "auto";
-                                oCont.style.maxHeight = "min(500px, calc(100vh - 70px))";
-                                oCont.style.overflow = "hidden";
-                                oCont.scrollTop = 0;
-                            }
-                            const oScroll = oDom.querySelector(".sapMPopoverScroll");
-                            if (oScroll) {
-                                oScroll.style.width = "440px";
-                                oScroll.style.minWidth = "440px";
-                                oScroll.style.maxWidth = "440px";
-                                oScroll.style.height = "auto";
-                                oScroll.style.maxHeight = "min(500px, calc(100vh - 70px))";
-                                oScroll.style.overflow = "hidden";
-                                oScroll.scrollTop = 0;
-                            }
-                            const oList = oDom.querySelector(".kyra-notif-list");
-                            if (oList) {
-                                oList.scrollTop = 0;
-                            }
-                        }
-                    };
-
-                    fnReset();
-                    requestAnimationFrame(fnReset);
-                    setTimeout(fnReset, 40);
-                    setTimeout(fnReset, 120);
+                    fnPositionNotif();
                 });
 
                 this.getView().addDependent(oPopover);
@@ -12145,9 +12635,51 @@ sap.ui.define([
         },
 
         onProfilePress(oEvent) {
-            let oSource = this.byId("kyraHeaderProfileAvatar");
-            if (!oSource || !oSource.getDomRef()) {
-                oSource = (oEvent && oEvent.getSource ? oEvent.getSource() : null) || oSource;
+            let oAvatarControl = this.byId("kyraHeaderProfileAvatar");
+            if (!oAvatarControl || (oAvatarControl.getMetadata && oAvatarControl.getMetadata().getName() !== "sap.m.Avatar")) {
+                const oSrc = (oEvent && oEvent.getSource ? oEvent.getSource() : null);
+                if (oSrc && oSrc.getMetadata && oSrc.getMetadata().getName() === "sap.m.Avatar") {
+                    oAvatarControl = oSrc;
+                }
+            }
+
+            const fnGetAvatarDom = () => {
+                if (oAvatarControl && oAvatarControl.getDomRef && oAvatarControl.getDomRef()) {
+                    return oAvatarControl.getDomRef();
+                }
+                const elById = document.getElementById(this.createId("kyraHeaderProfileAvatar"));
+                if (elById) {
+                    return elById;
+                }
+                const elByClass = document.querySelector(".kyraHeaderProfileAvatar");
+                if (elByClass) {
+                    return elByClass;
+                }
+                return document.querySelector(".sapFShellBarProfile");
+            };
+
+            // Mutual exclusivity: Close notification popover smoothly if open to prevent duplicate/overlapping panels
+            if (this._oNotifPopover) {
+                try {
+                    if (this._oNotifPopover.isOpen && this._oNotifPopover.isOpen()) {
+                        this._oNotifPopover.close();
+                    }
+                } catch (e) {}
+            }
+
+            // Prevent rapid multi-trigger debounce guard
+            const iNow = Date.now();
+            if (this._iLastProfilePressTime && (iNow - this._iLastProfilePressTime < 300)) {
+                return;
+            }
+            this._iLastProfilePressTime = iNow;
+
+            // Singleton pattern: If profile popover already exists and is open, close/toggle cleanly
+            if (this._oProfilePopover) {
+                if (this._oProfilePopover.isOpen && this._oProfilePopover.isOpen()) {
+                    this._oProfilePopover.close();
+                    return;
+                }
             }
 
             const oModel = this.getView().getModel("accessModel");
@@ -12284,78 +12816,112 @@ sap.ui.define([
                     </div>
                 `;
 
+                const fnPositionProfile = () => {
+                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
+                        ? oPopover._oControl 
+                        : oPopover;
+                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
+                    if (!oDom) {
+                        return;
+                    }
+                    oDom.style.width = "300px";
+                    oDom.style.minWidth = "300px";
+                    oDom.style.maxWidth = "300px";
+                    oDom.style.height = "auto";
+                    oDom.style.maxHeight = "calc(100vh - 65px)";
+
+                    const oCont = oDom.querySelector(".sapMPopoverCont");
+                    if (oCont) {
+                        oCont.style.width = "300px";
+                        oCont.style.minWidth = "300px";
+                        oCont.style.maxWidth = "300px";
+                        oCont.style.height = "auto";
+                        oCont.style.maxHeight = "calc(100vh - 65px)";
+                    }
+                    const oScroll = oDom.querySelector(".sapMPopoverScroll");
+                    if (oScroll) {
+                        oScroll.style.width = "300px";
+                        oScroll.style.minWidth = "300px";
+                        oScroll.style.maxWidth = "300px";
+                        oScroll.style.height = "auto";
+                        oScroll.style.maxHeight = "calc(100vh - 65px)";
+                        oScroll.style.overflowY = "auto";
+                        oScroll.style.overflowX = "hidden";
+                    }
+
+                    // Align accurately under profile avatar button
+                    const oAvatarEl = fnGetAvatarDom();
+                    if (oAvatarEl) {
+                        const rect = oAvatarEl.getBoundingClientRect();
+                        if (rect && rect.bottom > 0) {
+                            const iTop = Math.round(rect.bottom + 8);
+                            let iLeft = Math.round(rect.right - 300);
+                            if (iLeft + 300 > window.innerWidth - 14) {
+                                iLeft = Math.max(14, window.innerWidth - 300 - 14);
+                            }
+                            if (iLeft < 14) {
+                                iLeft = 14;
+                            }
+                            oDom.style.setProperty("top", iTop + "px", "important");
+                            oDom.style.setProperty("left", iLeft + "px", "important");
+                            oDom.style.setProperty("right", "auto", "important");
+                        }
+                    }
+                };
+
                 const oPopover = new ResponsivePopover({
                     showHeader: false,
                     contentWidth: "300px",
                     horizontalScrolling: false,
                     verticalScrolling: true,
                     placement: "Bottom",
-                    showArrow: true,
+                    showArrow: false,
                     content: [
                         new HTML({ content: sHtmlContent, preferDOM: false })
                     ],
-                    afterClose: () => oPopover.destroy()
+                    afterClose: () => {
+                        if (this._oProfilePopover === oPopover) {
+                            this._oProfilePopover = null;
+                        }
+                        oPopover.destroy();
+                    }
                 });
+                this._oProfilePopover = oPopover;
                 oPopover.addStyleClass("kyraUserProfilePopover");
+
+                if (oPopover._oControl) {
+                    oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionProfile;
+                }
+
                 oPopover.attachBeforeOpen(() => {
+                    oPopover.removeStyleClass("kyraPopoverClosing");
                     if (oPopover._oControl) {
+                        oPopover._oControl.removeStyleClass("kyraPopoverClosing");
                         oPopover._oControl.addStyleClass("kyraUserProfilePopover");
+                        oPopover._oControl._afterAdjustPositionAndArrowHook = fnPositionProfile;
                         if (typeof oPopover._oControl.setPlacement === "function") {
                             oPopover._oControl.setPlacement("Bottom");
                         }
                     }
                 });
-                oPopover.attachAfterOpen(() => {
-                    const oTarget = (oPopover._oControl && typeof oPopover._oControl.getDomRef === "function") 
-                        ? oPopover._oControl 
-                        : oPopover;
-                    const oDom = (oTarget && oTarget.getDomRef()) || oPopover.getDomRef();
-                    if (oDom) {
-                        oDom.style.width = "300px";
-                        oDom.style.minWidth = "300px";
-                        oDom.style.maxWidth = "300px";
-                        oDom.style.height = "auto";
-                        oDom.style.maxHeight = "calc(100vh - 65px)";
 
-                        const oCont = oDom.querySelector(".sapMPopoverCont");
-                        if (oCont) {
-                            oCont.style.width = "300px";
-                            oCont.style.minWidth = "300px";
-                            oCont.style.maxWidth = "300px";
-                            oCont.style.height = "auto";
-                            oCont.style.maxHeight = "calc(100vh - 65px)";
-                        }
-                        const oScroll = oDom.querySelector(".sapMPopoverScroll");
-                        if (oScroll) {
-                            oScroll.style.width = "300px";
-                            oScroll.style.minWidth = "300px";
-                            oScroll.style.maxWidth = "300px";
-                            oScroll.style.height = "auto";
-                            oScroll.style.maxHeight = "calc(100vh - 65px)";
-                            oScroll.style.overflowY = "auto";
-                            oScroll.style.overflowX = "hidden";
-                        }
-
-                        // Align safely under profile avatar
-                        const oAvatar = (oSource && oSource.getDomRef) ? oSource.getDomRef() : null;
-                        if (oAvatar) {
-                            const rect = oAvatar.getBoundingClientRect();
-                            const iTop = parseInt(oDom.style.top || "0", 10);
-                            if (iTop < rect.bottom || iTop < 45) {
-                                oDom.style.top = (rect.bottom + 8) + "px";
-                            }
-                            const iLeft = parseInt(oDom.style.left || "0", 10);
-                            if (iLeft + 300 > window.innerWidth - 12) {
-                                oDom.style.left = Math.max(12, window.innerWidth - 300 - 16) + "px";
-                            }
-                        }
+                oPopover.attachBeforeClose(() => {
+                    oPopover.addStyleClass("kyraPopoverClosing");
+                    if (oPopover._oControl) {
+                        oPopover._oControl.addStyleClass("kyraPopoverClosing");
                     }
                 });
 
+                oPopover.attachAfterOpen(() => {
+                    fnPositionProfile();
+                });
+
                 this.getView().addDependent(oPopover);
-                if (oSource) {
-                    oPopover.openBy(oSource);
-                }
+                const oAvatarDomTarget = fnGetAvatarDom();
+                const oOpenTarget = (oAvatarControl && oAvatarControl.getDomRef && oAvatarControl.getDomRef())
+                    ? oAvatarControl 
+                    : (oAvatarDomTarget || oAvatarControl || this.byId("kyraHeaderProfileAvatar") || this.getView());
+                oPopover.openBy(oOpenTarget);
 
                 setTimeout(() => {
                     const attachClick = (id, fn) => {
@@ -12374,25 +12940,45 @@ sap.ui.define([
 
                     attachClick("kyra_menu_access", () => {
                         this._confirmDiscardAddAccess(() => {
-                            oModel.setProperty("/selectedTabKey", "myAccess");
-                            oModel.setProperty("/showAllNotificationsPage", false);
-                            oModel.setProperty("/showHelpPage", false);
-                            oModel.setProperty("/showRequestDetailsPage", false);
-                            oModel.setProperty("/showAddAccessSector", false);
-                            oModel.setProperty("/showRemoveAccessSector", false);
-                            oModel.setProperty("/showMyAccessMasterSection", false);
+                            if (typeof this.onSelectMyAccessTab === "function") {
+                                this.onSelectMyAccessTab();
+                            } else if (oModel) {
+                                oModel.setProperty("/selectedTabKey", "myAccess");
+                                oModel.setProperty("/showAllNotificationsPage", false);
+                                oModel.setProperty("/showHelpPage", false);
+                                oModel.setProperty("/showRequestDetailsPage", false);
+                                oModel.setProperty("/showAddAccessSector", false);
+                                oModel.setProperty("/showRemoveAccessSector", false);
+                                oModel.setProperty("/showMyAccessMasterSection", false);
+                            }
                         });
                     });
 
                     attachClick("kyra_menu_requests", () => {
                         this._confirmDiscardAddAccess(() => {
-                            oModel.setProperty("/selectedTabKey", "myRequests");
-                            oModel.setProperty("/showAllNotificationsPage", false);
-                            oModel.setProperty("/showHelpPage", false);
-                            oModel.setProperty("/showRequestDetailsPage", false);
-                            oModel.setProperty("/showAddAccessSector", false);
-                            oModel.setProperty("/showRemoveAccessSector", false);
-                            oModel.setProperty("/showMyAccessMasterSection", false);
+                            if (oModel) {
+                                oModel.setProperty("/selectedTabKey", "myAccess");
+                                oModel.setProperty("/showPendingSection", true);
+                                oModel.setProperty("/showApprovedSection", false);
+                                oModel.setProperty("/showAddAccessSector", false);
+                                oModel.setProperty("/showRemoveAccessSector", false);
+                                oModel.setProperty("/showMyAccessMasterSection", false);
+                                oModel.setProperty("/showRequestDetailsPage", false);
+                                oModel.setProperty("/showAllNotificationsPage", false);
+                                oModel.setProperty("/showHelpPage", false);
+                                oModel.setProperty("/showHistorySection", false);
+                                if (typeof this._updateActionCardArrows === "function") {
+                                    this._updateActionCardArrows(oModel);
+                                }
+                                if (typeof this._updateApproverSectionVisibility === "function") {
+                                    this._updateApproverSectionVisibility();
+                                }
+                                setTimeout(() => {
+                                    if (typeof this._smoothScrollTo === "function") {
+                                        this._smoothScrollTo("pendingSectionContainer", 64);
+                                    }
+                                }, 150);
+                            }
                         });
                     });
 
@@ -12420,6 +13006,7 @@ sap.ui.define([
         },
 
         _showMyProfileDetailsDialog() {
+            const that = this;
             const oModel = this.getView().getModel("accessModel");
             const sUser = (oModel ? oModel.getProperty("/activeUser") : null) || sessionStorage.getItem("kyra_active_user") || "";
             const sRole = (oModel ? oModel.getProperty("/activeRole") : null) || sessionStorage.getItem("kyra_active_role") || "";
@@ -12622,16 +13209,68 @@ sap.ui.define([
                 oDialog.open();
 
                 setTimeout(() => {
-                    that._enhanceModalDropdowns(oDialog.getDomRef());
-                    const closeFn = () => oDialog.close();
+                    const closeFn = () => {
+                        try {
+                            oDialog.close();
+                        } catch (e) {}
+                    };
+
+                    if (that && typeof that._enhanceModalDropdowns === "function") {
+                        try {
+                            that._enhanceModalDropdowns(oDialog.getDomRef());
+                        } catch (e) {}
+                    }
+
                     const closeX = document.getElementById("kyra_modal_profile_close_x");
-                    if (closeX) closeX.onclick = closeFn;
+                    if (closeX) {
+                        closeX.style.cursor = "pointer";
+                        closeX.onclick = closeFn;
+                    }
+
                     const closeBtn = document.getElementById("kyra_modal_profile_close_btn");
-                    if (closeBtn) closeBtn.onclick = closeFn;
+                    if (closeBtn) {
+                        closeBtn.style.cursor = "pointer";
+                        closeBtn.onclick = closeFn;
+                    }
+
                     const exportBtn = document.getElementById("kyra_modal_profile_export_btn");
                     if (exportBtn) {
+                        exportBtn.style.cursor = "pointer";
                         exportBtn.onclick = () => {
-                            MessageToast.show("Exporting profile summary PDF...");
+                            try {
+                                const sExportData = [
+                                    "==================================================",
+                                    "KYRA ENTERPRISE - USER PROFILE & IDENTITY OVERVIEW",
+                                    "==================================================",
+                                    `Name:                ${sUser || "Enterprise User"}`,
+                                    `Role:                ${sRole || "Approver"}`,
+                                    `User ID:             ${sUser || "N/A"}`,
+                                    `Email:               ${sUser ? (sUser.toLowerCase() + "@enterprise.local") : "user@enterprise.local"}`,
+                                    `Status:              Active Employee`,
+                                    `Department:          Digital Enterprise Engineering`,
+                                    `Organization Unit:   KYRA Foods & Beverages IT Global`,
+                                    `Cost Center:         CC-88201-GLOBAL`,
+                                    `Direct Manager:      Sarah Jenkins (Lead Architect)`,
+                                    `Security Clearance:  Level 3 Enterprise (Audited)`,
+                                    `MFA Authentication:  Enabled (FIDO2 Token)`,
+                                    `Active Entitlements: ${iAccessCount} Active System Roles`,
+                                    `Audit Compliance:    100% Audit Verified`,
+                                    `Export Timestamp:    ${new Date().toLocaleString()}`,
+                                    "=================================================="
+                                ].join("\n");
+                                const blob = new Blob([sExportData], { type: "text/plain;charset=utf-8" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = `Profile_Summary_${sUser || "User"}_${new Date().toISOString().slice(0, 10)}.txt`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                                MessageToast.show("Profile summary exported successfully.");
+                            } catch (err) {
+                                MessageToast.show("Exporting profile summary...");
+                            }
                             setTimeout(closeFn, 600);
                         };
                     }
@@ -13499,14 +14138,10 @@ sap.ui.define([
             oModel.setProperty("/adminSelectedSection", sNext);
 
             if (sNext === "databaseConfig") {
-                const sMode = oModel.getProperty("/dbMigration/targetMode") || "kyra";
-                oModel.setProperty("/dbMigration/targetMode", sMode);
-                oModel.setProperty("/dbMigration/showDetails", false);
-                oModel.setProperty("/dbMigration/currentStep", 1);
-                oModel.setProperty("/dbMigration/isSlideOpen", true);
+                if (!oModel.getProperty("/sapIntegration/currentStep")) {
+                    oModel.setProperty("/sapIntegration/currentStep", 1);
+                }
                 setTimeout(() => {
-                    this._attachCardClickEvents();
-                    this._updateStrategyCardStyles(sMode);
                     this._smoothScrollTo("adminDatabaseConfigSection", 40);
                 }, 80);
             }
@@ -17574,7 +18209,200 @@ sap.ui.define([
             }
         },
 
-        async onTestCloudConnection() {
+                onSelectSapApp(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sKey = oEvent ? oEvent.getParameter("selectedItem")?.getKey() : oModel.getProperty("/sapIntegration/selectedApp");
+            oModel.setProperty("/sapIntegration/selectedApp", sKey || "sap_btp");
+        },
+
+        async onTestSapIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sApp = oModel.getProperty("/sapIntegration/selectedApp") || "sap_btp";
+            if (sApp !== "sap_btp") {
+                MessageToast.show("Please select 'SAP Business Technology Platform (SAP BTP)' to test live integration.");
+                return;
+            }
+
+            const btp = oModel.getProperty("/sapIntegration/btp") || {};
+            let bValid = true;
+
+            // Validate URL
+            if (!btp.url || !btp.url.trim()) {
+                oModel.setProperty("/sapIntegration/btp/urlState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/urlState", "None");
+            }
+
+            // Validate Subaccount
+            if (!btp.subaccountId || !btp.subaccountId.trim()) {
+                oModel.setProperty("/sapIntegration/btp/subaccountState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/subaccountState", "None");
+            }
+
+            // Validate Token URL
+            if (!btp.tokenUrl || !btp.tokenUrl.trim()) {
+                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "None");
+            }
+
+            // Validate Client ID
+            if (!btp.clientId || !btp.clientId.trim()) {
+                oModel.setProperty("/sapIntegration/btp/clientIdState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/clientIdState", "None");
+            }
+
+            // Validate Client Secret
+            if (!btp.clientSecret || !btp.clientSecret.trim()) {
+                oModel.setProperty("/sapIntegration/btp/clientSecretState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/clientSecretState", "None");
+            }
+
+            if (!bValid) {
+                MessageToast.show("Please fill in all required integration fields (*).");
+                return;
+            }
+
+            // Show loader simulation
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Testing SAP Integration",
+                    subtitle: "Connecting to SAP BTP tenant (" + btp.subaccountId + ")..."
+                });
+            }
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+
+                oModel.setProperty("/sapIntegration/connected", true);
+                oModel.setProperty("/sapIntegration/statusText", "Connected ✓");
+                oModel.setProperty("/sapIntegration/statusState", "Success");
+                oModel.setProperty("/sapIntegration/currentStep", 2);
+
+                if (typeof this._showSlideNotification === "function") {
+                    this._showSlideNotification(
+                        "SAP BTP Connected",
+                        "Integration verified successfully for subaccount " + btp.subaccountId + ". Discovered 5 purchased enterprise applications.",
+                        "success"
+                    );
+                }
+                MessageToast.show("SAP BTP Integration Verified! Discovering purchased applications...");
+
+                setTimeout(() => {
+                    this._smoothScrollTo("sapPurchasedAppsContainer", 40);
+                }, 100);
+            } catch (err) {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                MessageToast.show("Integration test completed.");
+            }
+        },
+
+        onBackToSapConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/sapIntegration/currentStep", 1);
+            setTimeout(() => {
+                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+            }, 80);
+        },
+
+        onManageSapEntitlements() {
+            MessageToast.show("Enterprise entitlements synced with SAP BTP Cloud Foundry tenant.");
+        },
+        onToggleAppHierarchy() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const bCur = !!oModel.getProperty("/sapIntegration/isAppExpanded");
+            oModel.setProperty("/sapIntegration/isAppExpanded", !bCur);
+            if (!bCur) {
+                const sService = oModel.getProperty("/sapIntegration/hierarchy/selectedService");
+                if (sService) {
+                    this._populateBtpTeams(oModel, sService);
+                }
+            }
+        },
+
+        onSelectBtpService(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sService = oEvent ? (oEvent.getParameter("selectedItem")?.getKey() || "") : "";
+            oModel.setProperty("/sapIntegration/hierarchy/selectedService", sService);
+            oModel.setProperty("/sapIntegration/hierarchy/selectedTeam", "");
+            oModel.setProperty("/sapIntegration/hierarchy/selectedPersona", "");
+            oModel.setProperty("/sapIntegration/hierarchy/availablePersonas", []);
+
+            if (sService) {
+                this._populateBtpTeams(oModel, sService);
+                MessageToast.show("Selected Service: " + sService + ". Please select a Team.");
+            } else {
+                oModel.setProperty("/sapIntegration/hierarchy/availableTeams", []);
+            }
+        },
+
+        _populateBtpTeams(oModel, sService) {
+            const oMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const aTeams = oMap[sService] || [];
+            const aDropdownTeams = [{ key: "", text: "-- Select Team --" }];
+            aTeams.forEach(t => {
+                aDropdownTeams.push({ key: t.name, text: t.name });
+            });
+            oModel.setProperty("/sapIntegration/hierarchy/availableTeams", aDropdownTeams);
+        },
+
+        onSelectBtpTeam(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sTeam = oEvent ? (oEvent.getParameter("selectedItem")?.getKey() || "") : "";
+            oModel.setProperty("/sapIntegration/hierarchy/selectedTeam", sTeam);
+            oModel.setProperty("/sapIntegration/hierarchy/selectedPersona", "");
+
+            if (sTeam) {
+                const sService = oModel.getProperty("/sapIntegration/hierarchy/selectedService");
+                const oMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                const aTeams = oMap[sService] || [];
+                const oFoundTeam = aTeams.find(t => t.name === sTeam);
+                const aPersonas = (oFoundTeam && oFoundTeam.subClassifications) ? oFoundTeam.subClassifications : [];
+                const aDropdownPersonas = [{ key: "", text: "-- Select Persona --" }];
+                aPersonas.forEach(p => {
+                    aDropdownPersonas.push({ key: p.name, text: p.name });
+                });
+                oModel.setProperty("/sapIntegration/hierarchy/availablePersonas", aDropdownPersonas);
+                MessageToast.show("Selected Team: " + sTeam + ". Please select a Persona.");
+            } else {
+                oModel.setProperty("/sapIntegration/hierarchy/availablePersonas", []);
+            }
+        },
+
+        onSelectBtpPersona(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sPersona = oEvent ? (oEvent.getParameter("selectedItem")?.getKey() || "") : "";
+            oModel.setProperty("/sapIntegration/hierarchy/selectedPersona", sPersona);
+            if (sPersona) {
+                const sService = oModel.getProperty("/sapIntegration/hierarchy/selectedService");
+                const sTeam = oModel.getProperty("/sapIntegration/hierarchy/selectedTeam");
+                MessageToast.show("Access Hierarchy Selected: " + sService + " > " + sTeam + " > " + sPersona);
+            }
+        },
+
+
+async onTestCloudConnection() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
