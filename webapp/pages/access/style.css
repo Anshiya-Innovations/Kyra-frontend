@@ -14222,61 +14222,118 @@ html body .sapMTokenSelected .sapMTokenIcon {
 }
 
 .kyraStepStatusPillBlue {
-    background: #E2E8F0 !important;
+    background: #E0F2FE !important;
+    border: 1px solid #7DD3FC !important;
     border-radius: 9999px !important;
-    padding: 2px 8px !important;
-    margin-bottom: 3px !important;
+    padding: 0 14px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 .kyraStepStatusPillText {
-    color: #007684 !important;
-    font-size: 10px !important;
+    color: #0369A1 !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .kyraStepStatusPillRed {
     background: #FEE2E2 !important;
+    border: 1px solid #FCA5A5 !important;
     border-radius: 9999px !important;
-    padding: 2px 8px !important;
-    margin-bottom: 3px !important;
+    padding: 0 14px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 .kyraStepStatusPillTextRed {
     color: #B91C1C !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .kyraStepStatusPillAmber {
     background: #FEF3C7 !important;
+    border: 1px solid #FCD34D !important;
     border-radius: 9999px !important;
-    padding: 2px 8px !important;
-    margin-bottom: 3px !important;
+    padding: 0 14px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
 }
 
 .kyraStepStatusPillTextAmber {
     color: #B45309 !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 .kyraStepSubNote {
     font-size: 10.5px !important;
     color: #64748B !important;
-    line-height: 1.2 !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
 }
 
 .kyraStepStatusPillGray {
-    background: #F1F5F9 !important;
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
     border-radius: 9999px !important;
-    padding: 2px 8px !important;
-    margin-bottom: 3px !important;
+    padding: 0 14px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+    margin: 0 !important;
 }
 
 .kyraStepStatusPillTextGray {
     color: #64748B !important;
-    font-size: 10px !important;
+    font-size: 10.5px !important;
     font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.2px !important;
 }
 
 .kyraStepLineRed {
@@ -22633,45 +22690,233 @@ body.kyra-add-access-open .sapFShellBarAdditionalContent {
 }
 
 /* Stepper Alignment & Consistent Pill Badges */
-.kyraStepStatusPillGreen {
-    background: #DCFCE7 !important;
-    border: 1px solid #BBF7D0 !important;
+.kyraStepTitleBox {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 0 8px 0 !important;
+    padding: 0 2px !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    overflow: hidden !important;
+}
+
+.kyraStepTitle {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    line-height: 1.25 !important;
+    margin: 0 0 2px 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    display: block !important;
+}
+
+.kyraStepSubtitle {
+    font-size: 11px !important;
+    color: #64748B !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    display: block !important;
+}
+
+.kyraStepStatusPillWrap {
+    height: 28px !important;
+    min-height: 28px !important;
+    max-height: 28px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 0 8px 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraStepStatusPillGreen,
+.kyraStepStatusPillBlue,
+.kyraStepStatusPillAmber,
+.kyraStepStatusPillRed,
+.kyraStepStatusPillGray,
+.kyraStepStatusGreen {
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
     border-radius: 9999px !important;
-    padding: 2px 8px !important;
-    margin-bottom: 3px !important;
+    padding: 0 14px !important;
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraStepStatusPillGreen .sapMFlexItem,
+.kyraStepStatusPillBlue .sapMFlexItem,
+.kyraStepStatusPillAmber .sapMFlexItem,
+.kyraStepStatusPillRed .sapMFlexItem,
+.kyraStepStatusPillGray .sapMFlexItem,
+.kyraStepStatusGreen .sapMFlexItem,
+.kyraStepStatusPillGreen .sapMText,
+.kyraStepStatusPillBlue .sapMText,
+.kyraStepStatusPillAmber .sapMText,
+.kyraStepStatusPillRed .sapMText,
+.kyraStepStatusPillGray .sapMText {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: normal !important;
+    height: 100% !important;
+}
+
+.kyraStepStatusPillGreen,
+.kyraStepStatusGreen {
+    background: #DCFCE7 !important;
+    border: 1px solid #86EFAC !important;
 }
 
 .kyraStepStatusPillTextGreen {
     color: #15803D !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     font-weight: 700 !important;
-    line-height: 1.2 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.kyraStepTitleBox {
-    min-height: 38px !important;
+.kyraStepStatusPillBlue {
+    background: #E0F2FE !important;
+    border: 1px solid #7DD3FC !important;
+}
+
+.kyraStepStatusPillText {
+    color: #0369A1 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraStepStatusPillAmber {
+    background: #FEF3C7 !important;
+    border: 1px solid #FCD34D !important;
+}
+
+.kyraStepStatusPillTextAmber {
+    color: #B45309 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraStepStatusPillRed {
+    background: #FEE2E2 !important;
+    border: 1px solid #FCA5A5 !important;
+}
+
+.kyraStepStatusPillTextRed {
+    color: #B91C1C !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraStepStatusPillGray {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+}
+
+.kyraStepStatusPillTextGray {
+    color: #64748B !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.25px !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraStepTimeBox {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    margin-bottom: 2px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 2px !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    overflow: hidden !important;
 }
 
-.kyraStepStatusPillWrap {
-    min-height: 22px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-bottom: 2px !important;
+.kyraStepTime {
+    font-size: 10.5px !important;
+    color: #94A3B8 !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
 }
 
-.kyraStepTimeBox {
-    min-height: 16px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+.kyraStepSubNote {
+    font-size: 10.5px !important;
+    color: #64748B !important;
+    line-height: 1.25 !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    text-align: center !important;
 }
 
 /* Comments & Remarks Card */
@@ -50622,8 +50867,8 @@ html body .sapMDialog.kyraModernExportNotificationDialog .kyraExportNotifDesc {
     justify-content: flex-end !important;
     gap: 12px !important;
     width: 100% !important;
-    margin-top: 4px !important;
-    padding: 2px 0 !important;
+    margin-top: 14px !important;
+    padding: 4px 0 !important;
 }
 
 .kyraExportNotifCancelBtn,
@@ -50639,6 +50884,7 @@ html body .sapUiTheme-sap_horizon .kyraExportNotifDownloadBtn.sapMBtn {
     padding: 0 !important;
     border: none !important;
     background: transparent !important;
+    background-color: transparent !important;
     box-shadow: none !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -50656,40 +50902,69 @@ html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn .sapMBtnInner {
     min-height: 40px !important;
     max-height: 40px !important;
     line-height: 37px !important;
-    padding: 0 20px !important;
+    padding: 0 22px !important;
     border-radius: 9px !important;
     border: 1.5px solid #CBD5E1 !important;
     background: #FFFFFF !important;
-    color: #475569 !important;
+    background-color: #FFFFFF !important;
+    color: #334155 !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
+    font-family: inherit !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
-    transition: all 0.15s ease !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     overflow: visible !important;
+    outline: none !important;
 }
 
 .kyraExportNotifCancelBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn:hover .sapMBtnInner {
-    background: #F8FAFC !important;
-    border-color: #94A3B8 !important;
-    color: #0F172A !important;
-    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08) !important;
+.kyraExportNotifCancelBtn.sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn.sapMBtn:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+    color: #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.16) !important;
+    transform: translateY(-1px) !important;
 }
 
 .kyraExportNotifCancelBtn .sapMBtnText,
-.kyraExportNotifCancelBtn bdi {
-    color: #475569 !important;
+.kyraExportNotifCancelBtn bdi,
+.kyraExportNotifCancelBtn .sapMBtnContent {
+    color: #334155 !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
+    transition: color 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .kyraExportNotifCancelBtn:hover .sapMBtnText,
-.kyraExportNotifCancelBtn:hover bdi {
-    color: #0F172A !important;
+.kyraExportNotifCancelBtn:hover bdi,
+.kyraExportNotifCancelBtn:hover .sapMBtnContent,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn:hover .sapMBtnText,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn:hover bdi {
+    color: #008C9C !important;
+}
+
+.kyraExportNotifCancelBtn:active .sapMBtnInner,
+.kyraExportNotifCancelBtn.sapMBtn:active .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn:active .sapMBtnInner {
+    background: #CCFBF1 !important;
+    background-color: #CCFBF1 !important;
+    border-color: #007280 !important;
+    color: #007280 !important;
+    transform: scale(0.98) !important;
+    box-shadow: none !important;
+}
+
+.kyraExportNotifCancelBtn:active .sapMBtnText,
+.kyraExportNotifCancelBtn:active bdi,
+.kyraExportNotifCancelBtn:active .sapMBtnContent {
+    color: #007280 !important;
 }
 
 .kyraExportNotifDownloadBtn .sapMBtnInner,
