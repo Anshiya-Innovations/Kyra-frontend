@@ -175,233 +175,141 @@
                         </VBox>
                     </HBox>
 
-                    <!-- ADMIN SECTION 1: DATABASE CONFIGURATION & MIGRATION STUDIO (Opened when Card 1 is clicked) -->
+                                        <!-- ADMIN SECTION 1: SAP APPLICATION INTEGRATION CONFIGURATION & DISCOVERY (Image 2 Match) -->
                     <VBox id="adminDatabaseConfigSection"
                         visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; ${accessModel>/adminSelectedSection} === 'databaseConfig' }"
                         class="kyraMigrationStudioContainer fioriSlideDownAnim">
 
-                        <!-- VIEW 1: STRATEGY SELECTION BOXES (Shown initially until a box is clicked) -->
-                        <VBox id="stratSelectionContainer"
-                            visible="{= !${accessModel>/dbMigration/showDetails} }"
-                            width="100%"
-                            class="kyraStratSelectionContainer kyraSlideAnim">
-
-                        <!-- Top Subtitle matching media_1790667412965.png -->
-                        <VBox alignItems="Center" width="100%" class="kyraStratSubtitleContainer sapUiSmallMarginBottom">
-                            <Text
-                                text="Choose whether you want to migrate data directly into our managed Kyra Cloud Database (with pre-configured, encrypted credentials) or connect your Own Database."
-                                class="kyraStratTopSubtitle" />
-                        </VBox>
-
-                        <!-- Strategy Selection Cards Row (KYRA Brand Theme & Colors) -->
-                        <HBox width="100%" class="kyraStratRowThemed" justifyContent="Center" alignItems="Stretch">
-                            
-                            <!-- CARD 1: KYRA DATABASE -->
-                            <VBox id="stratCardKyra"
-                                class="kyraStratCardThemed kyraStratCardThemedSelected kyraClickableCard"
-                                press=".onSelectKyraMode">
-                                <!-- Top Icons Row -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraStratThemedHeader">
-                                    <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center">
-                                        <core:Icon src="sap-icon://cloud" class="kyraStratIconTeal" />
-                                    </HBox>
-                                    <HBox class="kyraGreenPillBadgeThemed" alignItems="Center">
-                                        <Text text="Encrypted Cloud Target ✓" class="kyraGreenPillTextThemed" />
-                                    </HBox>
-                                </HBox>
-
-                                <!-- Title & Description -->
-                                <Text text="Kyra Database" class="kyraStratThemedTitle" />
-                                <Text text="Streamlined extract-only configuration. Enter only your source database credentials to extract data, which will be migrated directly into the secure, encrypted Kyra Cloud Database." class="kyraStratThemedDesc" />
-
-                                <!-- Bullet Points with Green Checkmarks -->
-                                <VBox class="kyraStratFeatureListThemed" width="100%">
-                                    <HBox alignItems="Center" class="kyraStratFeatureItemThemed">
-                                        <Text text="✓" class="kyraStratCheckmarkThemed" />
-                                        <Text text="Extract-only configuration (matches Image 1 &amp; 2)" class="kyraStratFeatureTextThemed" />
-                                    </HBox>
-                                    <HBox alignItems="Center" class="kyraStratFeatureItemThemed">
-                                        <Text text="✓" class="kyraStratCheckmarkThemed" />
-                                        <Text text="Pre-configured AES-256 encrypted target credentials" class="kyraStratFeatureTextThemed" />
-                                    </HBox>
-                                    <HBox alignItems="Center" class="kyraStratFeatureItemThemed">
-                                        <Text text="✓" class="kyraStratCheckmarkThemed" />
-                                        <Text text="Auto-provisions table &amp; numbered columns in Kyra DB" class="kyraStratFeatureTextThemed" />
-                                    </HBox>
-                                </VBox>
-
-                                <!-- Bottom Full-Width Button (KYRA Theme) -->
-                                <Button
-                                    id="btnKyraStrat"
-                                    text="Kyra Database →"
-                                    press=".onSelectKyraMode"
-                                    type="{= ${accessModel>/dbMigration/targetMode} === 'kyra' ? 'Emphasized' : 'Default' }"
-                                    class="kyraStratActionButton"
-                                    width="100%" />
-                            </VBox>
-
-                            <!-- CARD 2: OWN DATABASE -->
-                            <VBox id="stratCardCustom"
-                                class="kyraStratCardThemed kyraClickableCard"
-                                press=".onSelectCustomMode">
-                                <!-- Top Icons Row -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraStratThemedHeader">
-                                    <HBox class="kyraStratIconBadgeGreen" alignItems="Center" justifyContent="Center">
-                                        <core:Icon src="sap-icon://database" class="kyraStratIconGreen" />
-                                    </HBox>
-                                    <HBox class="kyraGrayPillBadgeThemed" alignItems="Center">
-                                        <Text text="Custom Target (BYODB)" class="kyraGrayPillTextThemed" />
-                                    </HBox>
-                                </HBox>
-
-                                <!-- Title & Description -->
-                                <Text text="Own Database" class="kyraStratThemedTitle" />
-                                <Text text="Full custom database transfer. Configure both your own Extract (Source) database and your own Load Into (Destination) database with full dual-card column mapping." class="kyraStratThemedDesc" />
-
-                                <!-- Bullet Points with Green Checkmarks -->
-                                <VBox class="kyraStratFeatureListThemed" width="100%">
-                                    <HBox alignItems="Center" class="kyraStratFeatureItemThemed">
-                                        <Text text="✓" class="kyraStratCheckmarkThemed" />
-                                        <Text text="Custom credentials for both Source and Target" class="kyraStratFeatureTextThemed" />
-                                    </HBox>
-                                    <HBox alignItems="Center" class="kyraStratFeatureItemThemed">
-                                        <Text text="✓" class="kyraStratCheckmarkThemed" />
-                                        <Text text="Multi-engine (PostgreSQL, MySQL, MongoDB)" class="kyraStratFeatureTextThemed" />
-                                    </HBox>
-                                    <HBox alignItems="Center" class="kyraStratFeatureItemThemed">
-                                        <Text text="✓" class="kyraStratCheckmarkThemed" />
-                                        <Text text="Dual-section 1-to-1 numbered column mapping" class="kyraStratFeatureTextThemed" />
-                                    </HBox>
-                                </VBox>
-
-                                <!-- Bottom Full-Width Button (KYRA Theme) -->
-                                <Button
-                                    id="btnCustomStrat"
-                                    text="Own Database →"
-                                    press=".onSelectCustomMode"
-                                    type="{= ${accessModel>/dbMigration/targetMode} === 'custom' ? 'Emphasized' : 'Default' }"
-                                    class="kyraStratActionButton"
-                                    width="100%" />
-                            </VBox>
-                        </HBox>
-                        </VBox>
-
-                        <!-- VIEW 2: NEXT DETAILS (Step 1, Step 2, Step 3) shown in the EXACT SAME PLACE when a box is clicked -->
-                        <VBox id="migrationDetailsContainer"
-                            visible="{= !!${accessModel>/dbMigration/showDetails} }"
-                            width="100%"
-                            class="kyraMigrationDetailsContainer kyraSlideAnim">
-
-                            <!-- STEP 1: DATABASE CONNECTIONS (MATCHING media_1790669797150.png EXACTLY) -->
-                                                <VBox id="step1MigrationContainer"
-                            visible="{= ${accessModel>/dbMigration/currentStep} === 1 }"
+                        <!-- ========================================================================= -->
+                        <!-- PAGE 1: SAP APPLICATION INTEGRATION CONFIGURATION (EXACT MATCH TO IMAGE 2)-->
+                        <!-- ========================================================================= -->
+                        <VBox id="sapIntegrationConfigContainer"
+                            visible="{= ${accessModel>/sapIntegration/currentStep} === 1 || !${accessModel>/sapIntegration/currentStep} }"
                             width="100%"
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
-                            <!-- ========================================================================= -->
-                            <!-- SLIDE 1: KYRA CLOUD DATABASE SLIDE (PREVIEW 3 PM TIME SLIDE)              -->
-                            <!-- ========================================================================= -->
-                            <VBox visible="{= ${accessModel>/dbMigration/targetMode} === 'kyra' }" class="kyraDarkStudioSlide" width="100%">
-                                
-                                <!-- Top Title & Subtitle -->
-                                <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
-                                    <Title text="Configure Database Connections" level="H2" class="kyraDarkStudioTitle" />
-                                    <Text text="Enter the database name, host, port, and authentication credentials for your source (extract) database." class="kyraDarkStudioSubtitle" />
-                                </VBox>
+                            <!-- Top Title & Subtitle matching Image 2 -->
+                            <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <Title text="Configure SAP Application Integration" level="H2" class="kyraDarkStudioTitle" />
+                                <Text text="Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra." class="kyraDarkStudioSubtitle" />
+                            </VBox>
 
-                                <!-- Target Destination Banner (Kyra Cloud Database) -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
-                                    <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
-                                        <HBox class="kyraDarkGreenGlowDot" />
-                                        <FormattedText
-                                            htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Cloud Database&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(Encrypted PostgreSQL @ Kyra &amp;#10142; Schema: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Admin&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;, Table: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;ad_group&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
-                                            class="kyraDarkBannerFormattedText" />
+                            <!-- Target Destination Banner matching Image 2 -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
+                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
+                                    <HBox class="kyraDarkGreenGlowDot" />
+                                    <FormattedText
+                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(Provisioning Engine &amp;#10142; Tenant: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;5af75fc5trial&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;, Space: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;dev&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
+                                        class="kyraDarkBannerFormattedText" />
+                                </HBox>
+                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                    <Text text="Integration Ready ✓" class="kyraDarkGreenPillText" />
+                                </HBox>
+                            </HBox>
+
+                            <!-- Main Card: SAP Application Connection matching Image 2 -->
+                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                <!-- Card Header -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="10px">
+                                        <core:Icon src="sap-icon://chain-link" class="kyraDarkCardHeaderIcon" />
+                                        <Title text="SAP Application Configuration" level="H4" class="kyraDarkCardHeaderTitle" />
                                     </HBox>
-                                    <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
-                                        <Text text="Encrypted Target Ready ✓" class="kyraDarkGreenPillText" />
+                                    <HBox class="{= ${accessModel>/sapIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
+                                        <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected ✓' : 'Not Connected' }" class="kyraDarkStatusBadgeText" />
                                     </HBox>
                                 </HBox>
 
-                                <!-- Main Card: Source Database (Extract From) -->
-                                <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
-                                    <!-- Card Header -->
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
-                                        <HBox alignItems="Center" gap="10px">
-                                            <core:Icon src="sap-icon://database" class="kyraDarkCardHeaderIcon" />
-                                            <Title text="Source Database (Extract From)" level="H4" class="kyraDarkCardHeaderTitle" />
-                                        </HBox>
-                                        <HBox class="{= ${accessModel>/dbMigration/source/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
-                                            <Text text="{= ${accessModel>/dbMigration/source/connected} ? 'Connected ✓' : 'Not Connected' }" class="kyraDarkStatusBadgeText" />
-                                        </HBox>
-                                    </HBox>
+                                <!-- Dropdown: Select SAP Application -->
+                                <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                    <Text text="Select SAP Application" class="kyraDarkFieldLabel" />
+                                    <Select
+                                        id="sapAppSelect"
+                                        selectedKey="{accessModel>/sapIntegration/selectedApp}"
+                                        change=".onSelectSapApp"
+                                        width="100%"
+                                        class="kyraDarkSelect">
+                                        <core:Item key="sap_btp" text="SAP Business Technology Platform (SAP BTP)" />
+                                        <core:Item key="sap_s4hana" text="SAP S/4HANA Cloud (ERP)" />
+                                        <core:Item key="sap_successfactors" text="SAP SuccessFactors (HCM)" />
+                                        <core:Item key="sap_ariba" text="SAP Ariba Supply Network" />
+                                        <core:Item key="sap_sales_cloud" text="SAP Sales Cloud (C4C)" />
+                                        <core:Item key="sap_analytics_cloud" text="SAP Analytics Cloud" />
+                                    </Select>
+                                </VBox>
 
-                                    <!-- Field 1: Database Type -->
-                                    <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
-                                        <Text text="Database Type" class="kyraDarkFieldLabel" />
-                                        <Select selectedKey="{accessModel>/dbMigration/source/engine}" width="100%" class="kyraDarkSelect">
-                                            <core:Item key="postgresql" text="PostgreSQL" />
-                                            <core:Item key="mysql" text="MySQL 8.0 / MariaDB" />
-                                            <core:Item key="mongodb" text="MongoDB (NoSQL)" />
-                                            <core:Item key="sqlite" text="SQLite (Local)" />
-                                        </Select>
-                                    </VBox>
-
-                                    <!-- Row 2: Host / IP Address (75%) + Port (25%) -->
+                                <!-- DYNAMIC FIELDS FOR SAP BTP -->
+                                <VBox visible="{= ${accessModel>/sapIntegration/selectedApp} === 'sap_btp' }" width="100%">
+                                    
+                                    <!-- Row 1: BTP API / Provisioning URL (75%) + Subaccount / Tenant ID (25%) -->
                                     <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
                                         <VBox width="75%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Host / IP Address" class="kyraDarkFieldLabel" />
+                                                <Text text="BTP API / Provisioning URL" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
                                             </HBox>
                                             <Input
-                                                value="{accessModel>/dbMigration/source/host}"
-                                                placeholder="e.g. database-1.cwpka6uuuwjw.us-east-1.rds.amazonaws.com"
+                                                id="inputSapBtpUrl"
+                                                value="{accessModel>/sapIntegration/btp/url}"
+                                                valueState="{accessModel>/sapIntegration/btp/urlState}"
+                                                placeholder="https://api.cf.us10-001.hana.ondemand.com"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
                                         <VBox width="25%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Port" class="kyraDarkFieldLabel" />
+                                                <Text text="Subaccount / Tenant ID" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
                                             </HBox>
                                             <Input
-                                                value="{accessModel>/dbMigration/source/port}"
-                                                placeholder="5432"
+                                                id="inputSapBtpSubaccount"
+                                                value="{accessModel>/sapIntegration/btp/subaccountId}"
+                                                valueState="{accessModel>/sapIntegration/btp/subaccountState}"
+                                                placeholder="5af75fc5trial"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
                                     </HBox>
 
-                                    <!-- Row 3: Database Name -->
+                                    <!-- Row 2: OAuth 2.0 Token URL -->
                                     <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
                                         <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Database Name" class="kyraDarkFieldLabel" />
+                                            <Text text="OAuth 2.0 Token URL" class="kyraDarkFieldLabel" />
                                             <Text text=" *" class="kyraDarkRequiredStar" />
                                         </HBox>
                                         <Input
-                                            value="{accessModel>/dbMigration/source/database}"
-                                            placeholder="e.g. Kyra"
+                                            id="inputSapBtpTokenUrl"
+                                            value="{accessModel>/sapIntegration/btp/tokenUrl}"
+                                            valueState="{accessModel>/sapIntegration/btp/tokenUrlState}"
+                                            placeholder="https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token"
                                             class="kyraDarkInput"
                                             width="100%" />
                                     </VBox>
 
-                                    <!-- Row 4: Username (50%) + Password (50%) -->
+                                    <!-- Row 3: Client ID (50%) + Client Secret (50%) -->
                                     <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Username" class="kyraDarkFieldLabel" />
+                                                <Text text="OAuth Client ID" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
                                             </HBox>
                                             <Input
-                                                value="{accessModel>/dbMigration/source/username}"
-                                                placeholder="e.g. root"
+                                                id="inputSapBtpClientId"
+                                                value="{accessModel>/sapIntegration/btp/clientId}"
+                                                valueState="{accessModel>/sapIntegration/btp/clientIdState}"
+                                                placeholder="sb-clone-01!b12345|client!b6789"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
                                         <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <Text text="Password" class="kyraDarkFieldLabel" />
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="OAuth Client Secret" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
                                             <Input
-                                                value="{accessModel>/dbMigration/source/password}"
+                                                id="inputSapBtpClientSecret"
+                                                value="{accessModel>/sapIntegration/btp/clientSecret}"
+                                                valueState="{accessModel>/sapIntegration/btp/clientSecretState}"
                                                 type="Password"
                                                 placeholder="••••••••"
                                                 class="kyraDarkInput"
@@ -409,651 +317,227 @@
                                         </VBox>
                                     </HBox>
 
-                                    <!-- Row 5: Enable SSL / TLS encryption Checkbox -->
+                                    <!-- Row 4: Enable SSL / TLS encryption Checkbox -->
                                     <HBox alignItems="Center" class="kyraDarkCheckboxRow sapUiMediumMarginBottom">
                                         <CheckBox
-                                            selected="{accessModel>/dbMigration/source/ssl}"
+                                            selected="{accessModel>/sapIntegration/btp/ssl}"
                                             text="Enable SSL / TLS encryption"
                                             class="kyraDarkCheckbox" />
                                     </HBox>
 
-                                    <!-- Row 6: Test Source Connection Button -->
+                                    <!-- Row 5: Test Integration Button -->
                                     <Button
+                                        id="btnTestSapIntegration"
                                         icon="sap-icon://flash"
-                                        text="⚡ Test Source Connection"
-                                        press=".onTestSourceConnection"
+                                        text="⚡ Test Integration"
+                                        press=".onTestSapIntegration"
                                         class="kyraDarkTestConnBtn"
                                         width="100%" />
                                 </VBox>
 
-                                <!-- Bottom Action Bar -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
-                                    <!-- Left: Back to Home / Selection -->
-                                    <Button
-                                        text="← Back to Choose Database"
-                                        press=".onBackToStrategySelection"
-                                        type="Transparent"
-                                        class="kyraDarkBackLinkBtn" />
-                                    
-                                    <!-- Center: Prompt Hint -->
-                                    <HBox alignItems="Center" class="kyraDarkPromptBox">
-                                        <Text text="Please enter credentials &amp; connect: " class="kyraDarkPromptHint" />
-                                        <Text text="Source Database" class="kyraDarkPromptTarget" />
+                                <!-- PLACEHOLDER FOR OTHER SAP APPLICATIONS -->
+                                <VBox visible="{= ${accessModel>/sapIntegration/selectedApp} !== 'sap_btp' }" width="100%" class="sapUiMediumMarginTop sapUiMediumMarginBottom" alignItems="Center">
+                                    <HBox alignItems="Center" gap="12px" class="sapUiSmallMarginBottom">
+                                        <core:Icon src="sap-icon://message-information" size="1.6rem" color="#008C9C" />
+                                        <Title text="Application Integration Connector" level="H4" class="kyraDarkCardHeaderTitle" />
+                                    </HBox>
+                                    <Text text="The connector configuration for this SAP application will be enabled according to tenant subscription. For live provisioning, please select 'SAP Business Technology Platform (SAP BTP)' from the dropdown." class="kyraDarkStudioSubtitle" />
+                                </VBox>
+
+                            </VBox>
+
+                            <!-- Bottom Action Bar -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                <HBox alignItems="Center" class="kyraDarkPromptBox">
+                                    <Text text="Current Integration Status: " class="kyraDarkPromptHint" />
+                                    <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected &amp; Verified ✓' : 'Awaiting Connection Test' }" class="kyraDarkPromptTarget" />
+                                </HBox>
+                                <Button
+                                    text="Close Section"
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseAdminSection"
+                                    class="kyraDarkBackLinkBtn" />
+                            </HBox>
+
+                        </VBox>
+
+                                                <!-- ========================================================================= -->
+                        <!-- PAGE 2: PURCHASED APPLICATIONS & SUBSCRIPTIONS                            -->
+                        <!-- ========================================================================= -->
+                        <VBox id="sapPurchasedAppsContainer"
+                            visible="{= ${accessModel>/sapIntegration/currentStep} === 2 }"
+                            width="100%"
+                            class="kyraDarkStudioWrapper kyraSlideAnim">
+
+                            <!-- Top Title & Subtitle -->
+                            <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
+                                <Text text="Connected SAP Subaccount: 5af75fc5trial (dev) • Active enterprise cloud licenses and services discovered for this tenant." class="kyraDarkStudioSubtitle" />
+                            </VBox>
+
+                            <!-- Verified Banner -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
+                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
+                                    <HBox class="kyraDarkGreenGlowDot" />
+                                    <FormattedText
+                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Discovered Tenant: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;5af75fc5trial (dev space)&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Status: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;Active Enterprise Subscription&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Single Sign-On (IAS): &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Linked&lt;/span&gt;"
+                                        class="kyraDarkBannerFormattedText" />
+                                </HBox>
+                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                    <Text text="Tenant Verified ✓" class="kyraDarkGreenPillText" />
+                                </HBox>
+                            </HBox>
+
+                            <!-- Integrated SAP Application Card (SAP BTP) -->
+                            <VBox width="100%" class="sapUiMediumMarginBottom">
+                                <VBox class="kyraDarkFormCard kyraClickableCard sapUiSmallMarginBottom" press=".onToggleAppHierarchy">
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMargin">
+                                        <!-- Left: App Icon & Info -->
+                                        <HBox alignItems="Center" gap="16px">
+                                            <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="48px" height="48px" style="border-radius: 12px; background: rgba(0, 140, 156, 0.12);">
+                                                <core:Icon src="sap-icon://cloud" size="1.5rem" color="#008C9C" />
+                                            </HBox>
+                                            <VBox>
+                                                <HBox alignItems="Center" gap="10px">
+                                                    <Title text="SAP Business Technology Platform" level="H4" class="kyraDarkCardHeaderTitle" />
+                                                    <ObjectStatus text="Enterprise Subscription (dev space)" state="None" class="sapUiTinyMarginBegin" />
+                                                </HBox>
+                                                <Text text="Cloud Platform &amp; Extension Suite" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
+                                                <Text text="12 Services Active • 4GB / 8GB Runtime Quota" class="kyraDarkFieldLabel sapUiTinyMarginTop" style="color: #64748B; font-size: 12.5px;" />
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- Right: Status Badge & Interactive Toggle Button -->
+                                        <VBox alignItems="End" gap="8px">
+                                            <HBox class="kyraDarkStatusBadgeConnected" alignItems="Center">
+                                                <Text text="Purchased &amp; Active ✓" class="kyraDarkStatusBadgeText" />
+                                            </HBox>
+                                            <Button
+                                                id="btnExploreBtpHierarchy"
+                                                icon="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'sap-icon://navigation-up-arrow' : 'sap-icon://navigation-down-arrow' }"
+                                                text="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Hide Services' : 'Click to Explore Services &amp; Hierarchy ▼' }"
+                                                type="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Emphasized' : 'Transparent' }"
+                                                press=".onToggleAppHierarchy"
+                                                class="kyraDarkBackLinkBtn" />
+                                        </VBox>
                                     </HBox>
 
-                                    <!-- Right: Save & Continue to Step 2 Button -->
+                                    <!-- DROPDOWNS CASCADE: Displayed when application is clicked/expanded -->
+                                    <VBox visible="{= !!${accessModel>/sapIntegration/isAppExpanded} }" class="kyraDarkStudioSlide sapUiSmallMarginTop sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginBottom kyraSlideAnim" width="100%">
+                                        
+                                        <!-- Hierarchy Section Header -->
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom" style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+                                            <HBox alignItems="Center" gap="10px">
+                                                <core:Icon src="sap-icon://org-chart" color="#008C9C" />
+                                                <Title text="SAP BTP Available Services &amp; Access Hierarchy" level="H4" class="kyraDarkCardHeaderTitle" />
+                                            </HBox>
+                                            <Text text="Tenant: 5af75fc5trial (dev)" class="kyraDarkStudioSubtitle" style="font-size: 12px;" />
+                                        </HBox>
+
+                                        <!-- Dropdown 1: Available Services -->
+                                        <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <core:Icon src="sap-icon://it-system" class="sapUiTinyMarginEnd" color="#008C9C" />
+                                                <Text text="Select Available Service" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Select
+                                                id="selectBtpService"
+                                                selectedKey="{accessModel>/sapIntegration/hierarchy/selectedService}"
+                                                change=".onSelectBtpService"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="" text="-- Select an Available Service --" />
+                                                <core:Item key="System Administrator" text="System Administrator" />
+                                                <core:Item key="System Owners" text="System Owners" />
+                                                <core:Item key="Stakeholders" text="Stakeholders" />
+                                            </Select>
+                                        </VBox>
+
+                                        <!-- Dropdown 2: Teams (Visible when Service is selected) -->
+                                        <VBox visible="{= !!${accessModel>/sapIntegration/hierarchy/selectedService} }" class="kyraDarkFieldGroup sapUiSmallMarginBottom kyraSlideAnim" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <core:Icon src="sap-icon://group" class="sapUiTinyMarginEnd" color="#008C9C" />
+                                                <Text text="Select Team" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Select
+                                                id="selectBtpTeam"
+                                                items="{accessModel>/sapIntegration/hierarchy/availableTeams}"
+                                                selectedKey="{accessModel>/sapIntegration/hierarchy/selectedTeam}"
+                                                change=".onSelectBtpTeam"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                            </Select>
+                                        </VBox>
+
+                                        <!-- Dropdown 3: Persona (Visible when Team is selected) -->
+                                        <VBox visible="{= !!${accessModel>/sapIntegration/hierarchy/selectedTeam} }" class="kyraDarkFieldGroup sapUiSmallMarginBottom kyraSlideAnim" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <core:Icon src="sap-icon://person-placeholder" class="sapUiTinyMarginEnd" color="#008C9C" />
+                                                <Text text="Select Persona" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Select
+                                                id="selectBtpPersona"
+                                                items="{accessModel>/sapIntegration/hierarchy/availablePersonas}"
+                                                selectedKey="{accessModel>/sapIntegration/hierarchy/selectedPersona}"
+                                                change=".onSelectBtpPersona"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="{accessModel>key}" text="{accessModel>text}" />
+                                            </Select>
+                                        </VBox>
+
+                                        <!-- Resolved Access Mapping Badge (Visible when Persona is selected) -->
+                                        <VBox visible="{= !!${accessModel>/sapIntegration/hierarchy/selectedPersona} }" class="kyraDarkTargetBanner sapUiSmallMarginTop kyraSlideAnim" width="100%">
+                                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
+                                                    <HBox class="kyraDarkGreenGlowDot" />
+                                                    <FormattedText
+                                                        htmlText="{= '&lt;span style=\'color: #64748B; font-size: 13.5px;\' &gt;Active Provisioning Hierarchy: &lt;/span&gt;&lt;span style=\'color: #008C9C; font-weight: 700;\' &gt;SAP BTP&lt;/span&gt; &lt;span style=\'color: #64748B;\' &gt;&amp;#10142; Service: &lt;/span&gt;&lt;span style=\'color: #008C9C; font-weight: 700;\' &gt;' + ${accessModel>/sapIntegration/hierarchy/selectedService} + '&lt;/span&gt; &lt;span style=\'color: #64748B;\' &gt;&amp;#10142; Team: &lt;/span&gt;&lt;span style=\'color: #008C9C; font-weight: 700;\' &gt;' + ${accessModel>/sapIntegration/hierarchy/selectedTeam} + '&lt;/span&gt; &lt;span style=\'color: #64748B;\' &gt;&amp;#10142; Persona: &lt;/span&gt;&lt;span style=\'color: #10B981; font-weight: 700;\' &gt;' + ${accessModel>/sapIntegration/hierarchy/selectedPersona} + '&lt;/span&gt;' }"
+                                                        class="kyraDarkBannerFormattedText" />
+                                                </HBox>
+                                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                                    <Text text="Access Ready ✓" class="kyraDarkGreenPillText" />
+                                                </HBox>
+                                            </HBox>
+                                        </VBox>
+
+                                    </VBox>
+
+                                </VBox>
+                            </VBox>
+
+                            <!-- Bottom Action Bar -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                <Button
+                                    text="← Reconfigure SAP Integration"
+                                    press=".onBackToSapConfig"
+                                    type="Transparent"
+                                    class="kyraDarkBackLinkBtn" />
+                                <HBox alignItems="Center" gap="12px">
                                     <Button
-                                        text="Save &amp; Continue to Step 2 →"
-                                        press=".onGoToStep2"
+                                        text="Close Section"
+                                        icon="sap-icon://decline"
+                                        type="Transparent"
+                                        press=".onCloseAdminSection"
+                                        class="kyraDarkBackLinkBtn" />
+                                    <Button
+                                        text="Manage Entitlements →"
                                         type="Emphasized"
+                                        press=".onManageSapEntitlements"
                                         class="kyraDarkContinueBtn" />
                                 </HBox>
-
-                            </VBox>
-
-                            <!-- ========================================================================= -->
-                            <!-- SLIDE 2: OWN DATABASE (BYODB) DUAL-CARD SLIDE                             -->
-                            <!-- ========================================================================= -->
-                                                        <!-- ========================================================================= -->
-                            <!-- SLIDE 2: OWN DATABASE (BYODB) - EXACT MATCH TO IMAGE 3 (media_1790677909605.jpg) -->
-                            <!-- ========================================================================= -->
-                            <VBox visible="{= ${accessModel>/dbMigration/targetMode} === 'custom' }" class="kyraOwnDbStudioSlide" width="100%">
-                                
-                                <!-- Top Subtitle matching media_1790677909605.jpg -->
-                                <VBox class="sapUiMediumMarginBottom">
-                                    <Text text="Enter the database name, host, port, and authentication credentials for both source and target databases." class="kyraOwnDbSubtitle" />
-                                </VBox>
-
-                                <!-- 2-COLUMN SIDE-BY-SIDE CARDS GRID (EXACT MATCH TO media_1790677909605.jpg) -->
-                                <HBox width="100%" gap="20px" class="kyraOwnDbCardsGrid sapUiMediumMarginBottom" alignItems="Stretch">
-                                    
-                                    <!-- ========================================== -->
-                                    <!-- LEFT COLUMN: SOURCE DATABASE (EXTRACT FROM) -->
-                                    <!-- ========================================== -->
-                                    <VBox class="kyraOwnDbCard" width="50%">
-                                        
-                                        <!-- Header Row -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraOwnDbCardHeader">
-                                            <HBox alignItems="Center" gap="10px">
-                                                <core:Icon src="sap-icon://database" class="kyraOwnDbCardHeaderIcon" />
-                                                <Title text="Source Database (Extract From)" level="H4" class="kyraOwnDbCardHeaderTitle" />
-                                            </HBox>
-                                            <HBox class="{= 'kyraOwnDbStatusPill ' + (${accessModel>/dbMigration/source/connected} ? 'kyraOwnDbStatusPillConnected' : 'kyraOwnDbStatusPillNotConnected') }" alignItems="Center">
-                                                <Text text="{= ${accessModel>/dbMigration/source/connected} ? 'Connected ✓' : 'Not Connected' }" class="kyraOwnDbStatusPillText" />
-                                            </HBox>
-                                        </HBox>
-
-                                        <!-- Field 1: Database Type Dropdown -->
-                                        <VBox class="kyraOwnDbFieldGroup">
-                                            <Text text="Database Type" class="kyraOwnDbFieldLabel" />
-                                            <Select selectedKey="{accessModel>/dbMigration/source/engine}" width="100%" class="kyraOwnDbSelect">
-                                                <core:Item key="postgresql" text="PostgreSQL" />
-                                                <core:Item key="mysql" text="MySQL 8.0 / MariaDB" />
-                                                <core:Item key="mongodb" text="MongoDB (NoSQL)" />
-                                                <core:Item key="sqlite" text="SQLite (Local)" />
-                                            </Select>
-                                        </VBox>
-
-                                        <!-- Field 2: Host / IP Address (75%) + Port (25%) in one row -->
-                                        <HBox width="100%" gap="14px" class="kyraOwnDbFieldRow">
-                                            <VBox width="75%" class="kyraOwnDbFieldGroup">
-                                                <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                    <Text text="Host / IP Address" class="kyraOwnDbFieldLabel" />
-                                                    <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/dbMigration/source/host}"
-                                                    placeholder="postgres-primary.internal.kyra.io"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox width="25%" class="kyraOwnDbFieldGroup">
-                                                <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                    <Text text="Port" class="kyraOwnDbFieldLabel" />
-                                                    <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/dbMigration/source/port}"
-                                                    placeholder="5432"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                        </HBox>
-
-                                        <!-- Field 3: Database Name -->
-                                        <VBox class="kyraOwnDbFieldGroup" width="100%">
-                                            <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                <Text text="Database Name" class="kyraOwnDbFieldLabel" />
-                                                <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                            </HBox>
-                                            <Input
-                                                value="{accessModel>/dbMigration/source/database}"
-                                                placeholder="kyra_production"
-                                                class="kyraOwnDbInput"
-                                                width="100%" />
-                                        </VBox>
-
-                                        <!-- Field 4: Username (50%) + Password (50%) in one row -->
-                                        <HBox width="100%" gap="14px" class="kyraOwnDbFieldRow">
-                                            <VBox width="50%" class="kyraOwnDbFieldGroup">
-                                                <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                    <Text text="Username" class="kyraOwnDbFieldLabel" />
-                                                    <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/dbMigration/source/username}"
-                                                    placeholder="svc_admin_reader"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox width="50%" class="kyraOwnDbFieldGroup">
-                                                <Text text="Password" class="kyraOwnDbFieldLabel" />
-                                                <Input
-                                                    value="{accessModel>/dbMigration/source/password}"
-                                                    type="Password"
-                                                    placeholder="••••••••"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                        </HBox>
-
-                                        <!-- Field 5: Enable SSL / TLS encryption Checkbox -->
-                                        <HBox alignItems="Center" class="kyraOwnDbCheckboxRow">
-                                            <CheckBox
-                                                selected="{accessModel>/dbMigration/source/ssl}"
-                                                text="Enable SSL / TLS encryption"
-                                                class="kyraOwnDbCheckbox" />
-                                        </HBox>
-
-                                        <!-- Field 6: Test Source Connection Button (matching media_1790677909605.jpg) -->
-                                        <Button
-                                            text="Test Source Connection"
-                                            press=".onTestSourceConnection"
-                                            class="kyraOwnDbTestBtn"
-                                            width="100%" />
-                                    </VBox>
-
-                                    <!-- ========================================== -->
-                                    <!-- RIGHT COLUMN: TARGET DATABASE (LOAD INTO)   -->
-                                    <!-- ========================================== -->
-                                    <VBox class="kyraOwnDbCard" width="50%">
-                                        
-                                        <!-- Header Row -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraOwnDbCardHeader">
-                                            <HBox alignItems="Center" gap="10px">
-                                                <core:Icon src="sap-icon://database" class="kyraOwnDbCardHeaderIcon" />
-                                                <Title text="Target Database (Load Into)" level="H4" class="kyraOwnDbCardHeaderTitle" />
-                                            </HBox>
-                                            <HBox class="{= 'kyraOwnDbStatusPill ' + (${accessModel>/dbMigration/target/connected} ? 'kyraOwnDbStatusPillConnected' : 'kyraOwnDbStatusPillNotConnected') }" alignItems="Center">
-                                                <Text text="{= ${accessModel>/dbMigration/target/connected} ? 'Connected ✓' : 'Not Connected' }" class="kyraOwnDbStatusPillText" />
-                                            </HBox>
-                                        </HBox>
-
-                                        <!-- Field 1: Database Type Dropdown -->
-                                        <VBox class="kyraOwnDbFieldGroup">
-                                            <Text text="Database Type" class="kyraOwnDbFieldLabel" />
-                                            <Select selectedKey="{accessModel>/dbMigration/target/engine}" width="100%" class="kyraOwnDbSelect">
-                                                <core:Item key="postgresql" text="PostgreSQL" />
-                                                <core:Item key="mysql" text="MySQL 8.0 / MariaDB" />
-                                                <core:Item key="mongodb" text="MongoDB (NoSQL)" />
-                                                <core:Item key="sqlite" text="SQLite (Local)" />
-                                            </Select>
-                                        </VBox>
-
-                                        <!-- Field 2: Host / IP Address (75%) + Port (25%) in one row -->
-                                        <HBox width="100%" gap="14px" class="kyraOwnDbFieldRow">
-                                            <VBox width="75%" class="kyraOwnDbFieldGroup">
-                                                <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                    <Text text="Host / IP Address" class="kyraOwnDbFieldLabel" />
-                                                    <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/dbMigration/target/host}"
-                                                    placeholder="database-1.cwpka6uuuwjw.us-east-1.rds.amazonaws.com"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox width="25%" class="kyraOwnDbFieldGroup">
-                                                <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                    <Text text="Port" class="kyraOwnDbFieldLabel" />
-                                                    <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/dbMigration/target/port}"
-                                                    placeholder="5432"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                        </HBox>
-
-                                        <!-- Field 3: Database Name -->
-                                        <VBox class="kyraOwnDbFieldGroup" width="100%">
-                                            <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                <Text text="Database Name" class="kyraOwnDbFieldLabel" />
-                                                <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                            </HBox>
-                                            <Input
-                                                value="{accessModel>/dbMigration/target/database}"
-                                                placeholder="Kyra"
-                                                class="kyraOwnDbInput"
-                                                width="100%" />
-                                        </VBox>
-
-                                        <!-- Field 4: Username (50%) + Password (50%) in one row -->
-                                        <HBox width="100%" gap="14px" class="kyraOwnDbFieldRow">
-                                            <VBox width="50%" class="kyraOwnDbFieldGroup">
-                                                <HBox alignItems="Center" class="kyraOwnDbLabelRow">
-                                                    <Text text="Username" class="kyraOwnDbFieldLabel" />
-                                                    <Text text=" *" class="kyraOwnDbRequiredStar" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/dbMigration/target/username}"
-                                                    placeholder="root"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox width="50%" class="kyraOwnDbFieldGroup">
-                                                <Text text="Password" class="kyraOwnDbFieldLabel" />
-                                                <Input
-                                                    value="{accessModel>/dbMigration/target/password}"
-                                                    type="Password"
-                                                    placeholder="••••••••"
-                                                    class="kyraOwnDbInput"
-                                                    width="100%" />
-                                            </VBox>
-                                        </HBox>
-
-                                        <!-- Field 5: Enable SSL / TLS encryption Checkbox -->
-                                        <HBox alignItems="Center" class="kyraOwnDbCheckboxRow">
-                                            <CheckBox
-                                                selected="{accessModel>/dbMigration/target/ssl}"
-                                                text="Enable SSL / TLS encryption"
-                                                class="kyraOwnDbCheckbox" />
-                                        </HBox>
-
-                                        <!-- Field 6: Test Target Connection Button (matching media_1790677909605.jpg) -->
-                                        <Button
-                                            text="Test Target Connection"
-                                            press=".onTestTargetConnection"
-                                            class="kyraOwnDbTestBtn"
-                                            width="100%" />
-                                    </VBox>
-
-                                </HBox>
-
-                                <!-- Bottom Action Bar (EXACT MATCH TO media_1790677909605.jpg) -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraOwnDbBottomBar">
-                                    <!-- Left: Back to Home -->
-                                    <Button
-                                        text="← Back to Home"
-                                        press=".onBackToStrategySelection"
-                                        class="kyraOwnDbBackBtn" />
-                                    
-                                    <!-- Center: Prompt Hint -->
-                                    <HBox alignItems="Center" class="kyraOwnDbPromptBox">
-                                        <Text text="Please test and connect: Source Database &amp; Target Database" class="kyraOwnDbPromptText" />
-                                    </HBox>
-
-                                    <!-- Right: Save & Continue to Step 2 -->
-                                    <Button
-                                        text="Save &amp; Continue to Step 2 →"
-                                        press=".onGoToStep2"
-                                        type="Emphasized"
-                                        class="kyraOwnDbContinueBtn" />
-                                </HBox>
-
-                            </VBox>
-
-                        </VBox>
-
-                        <VBox id="step2MigrationContainer"
-                            visible="{= ${accessModel>/dbMigration/currentStep} === 2 }"
-                            width="100%"
-                            class="kyraStep2CleanCard kyraSlideAnim">
-
-                            <!-- TOP ROW: SOURCE SCHEMA & TABLE (LEFT) + TARGET SCHEMA & TABLE (RIGHT) -->
-                            <HBox width="100%" gap="32px" class="kyraStep2TopRow sapUiMediumMarginBottom" alignItems="Start">
-                                
-                                <!-- LEFT COLUMN: SOURCE SCHEMA & TABLE -->
-                                <VBox width="50%" class="kyraStep2Col">
-                                    <Title text="Source Schema &amp; Table" level="H4" class="kyraStep2ColTitle sapUiSmallMarginBottom" />
-
-                                    <VBox class="kyraStep2FieldItem sapUiSmallMarginBottom">
-                                        <HBox alignItems="Center" class="kyraStep2FieldLabelRow">
-                                            <Text text="Schema Name:" class="kyraStep2FieldLabel" />
-                                            <Text text="*" class="kyraStep2RedStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/dbMigration/source/schema}"
-                                            placeholder="public"
-                                            class="kyraStep2CleanInput"
-                                            width="100%" />
-                                    </VBox>
-
-                                    <VBox class="kyraStep2FieldItem">
-                                        <HBox alignItems="Center" class="kyraStep2FieldLabelRow">
-                                            <Text text="Table Name:" class="kyraStep2FieldLabel" />
-                                            <Text text="*" class="kyraStep2RedStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/dbMigration/source/table}"
-                                            placeholder="customers"
-                                            class="kyraStep2CleanInput"
-                                            width="100%" />
-                                    </VBox>
-                                </VBox>
-
-                                <!-- RIGHT COLUMN: TARGET SCHEMA & TABLE -->
-                                <VBox width="50%" class="kyraStep2Col">
-                                    <Title text="Target Schema &amp; Table" level="H4" class="kyraStep2ColTitle sapUiSmallMarginBottom" />
-
-                                    <VBox class="kyraStep2FieldItem sapUiSmallMarginBottom">
-                                        <HBox alignItems="Center" class="kyraStep2FieldLabelRow">
-                                            <Text text="Target Schema:" class="kyraStep2FieldLabel" />
-                                            <Text text="*" class="kyraStep2RedStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/dbMigration/target/schema}"
-                                            placeholder="access_management"
-                                            class="kyraStep2CleanInput"
-                                            width="100%" />
-                                    </VBox>
-
-                                    <VBox class="kyraStep2FieldItem sapUiTinyMarginBottom">
-                                        <HBox alignItems="Center" class="kyraStep2FieldLabelRow">
-                                            <Text text="Target Table:" class="kyraStep2FieldLabel" />
-                                            <Text text="*" class="kyraStep2RedStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/dbMigration/target/table}"
-                                            placeholder="ad_group"
-                                            class="kyraStep2CleanInput"
-                                            width="100%" />
-                                    </VBox>
-
-                                    <!-- Verify Target Destination link button -->
-                                    <HBox class="sapUiTinyMarginTop">
-                                        <Button text="Verify Target Destination" icon="sap-icon://accept" press=".onVerifyTargetTable" type="Transparent" class="kyraVerifyDestLinkBtn" />
-                                    </HBox>
-                                </VBox>
-
                             </HBox>
 
-                            <!-- MIDDLE SECTION: 1-TO-1 COLUMN POSITIONAL MAPPING HEADER -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraStep2MapHeaderRow sapUiSmallMarginBottom sapUiMediumMarginTop">
-                                <VBox>
-                                    <Title text="1-to-1 Column Positional Mapping" level="H4" class="kyraStep2MapTitle" />
-                                    <Text text="Source extracted column directly maps to target column. Click to modify target column names." class="kyraStep2MapSubtitle" />
-                                </VBox>
-                                <HBox alignItems="Center" gap="10px">
-                                    <Button
-                                        text="+ Add Column"
-                                        press=".onAddMigrationColumn"
-                                        class="kyraStep2OutlineActionBtn" />
-                                    <Button
-                                        text="Auto-Map All Columns"
-                                        press=".onAutoMapColumns"
-                                        class="kyraStep2OutlineActionBtn" />
-                                </HBox>
-                            </HBox>
-
-                            <!-- COLUMN MAPPING TABLE (Exact match to media_1790670650810.png) -->
-                            <Table
-                                id="tableColumnMapping"
-                                items="{accessModel>/dbMigration/columnMappings}"
-                                noDataText="No columns loaded yet."
-                                class="kyraStep2CleanTable sapUiSmallMarginBottom">
-                                <columns>
-                                    <Column width="50px" hAlign="Center"><Text text="#" class="kyraCleanColHeader" /></Column>
-                                    <Column width="30%"><Text text="SOURCE COLUMN (EXTRACTED)" class="kyraCleanColHeader" /></Column>
-                                    <Column width="50px" hAlign="Center"><Text text="→" class="kyraCleanColHeader" /></Column>
-                                    <Column width="35%"><Text text="TARGET COLUMN (LOADED)" class="kyraCleanColHeader" /></Column>
-                                    <Column width="140px" hAlign="Center"><Text text="DATA TYPE" class="kyraCleanColHeader" /></Column>
-                                    <Column width="50px" hAlign="Center"><Text text="" class="kyraCleanColHeader" /></Column>
-                                </columns>
-                                <items>
-                                    <ColumnListItem class="kyraCleanTableRow">
-                                        <cells>
-                                            <Text text="{accessModel>index}" class="kyraCleanIndexCell" />
-                                            <Text text="{accessModel>sourceCol}" class="kyraCleanSourceText" />
-                                            <core:Icon src="sap-icon://navigation-right-arrow" class="kyraCleanArrow" />
-                                            <Input value="{accessModel>targetCol}" class="kyraCleanTargetInput" />
-                                            <HBox class="kyraCleanTypePill" justifyContent="Center" alignItems="Center">
-                                                <Text text="{accessModel>type}" class="kyraCleanTypePillText" />
-                                            </HBox>
-                                            <Button
-                                                icon="sap-icon://delete"
-                                                type="Transparent"
-                                                press=".onRemoveMigrationColumn"
-                                                tooltip="Delete Column"
-                                                class="kyraCleanDeleteBtn" />
-                                        </cells>
-                                    </ColumnListItem>
-                                </items>
-                            </Table>
-
-                            <!-- BOTTOM ACTION BAR: < Back to Connections (LEFT) + DOWN MIGRATE BUTTON (RIGHT) -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraStep2BottomActionBar sapUiMediumMarginTop">
-                                <!-- Left: Back to Connections Link -->
-                                <Button text="← Back to Connections" press=".onGoToStep1" type="Transparent" class="kyraStep2BackLink" />
-
-                                <!-- Right: DOWN MIGRATE BUTTON (Solid KYRA Teal, Prominent) -->
-                                <Button id="btnMigrateData" text="{= ${accessModel>/dbMigration/hud/state} === 'active' ? 'Migrating Data...' : 'Migrate Data ➔' }" icon="sap-icon://paper-plane" type="Emphasized" press=".onExecuteMigration" class="kyraStep2MigrateBtn" />
-                            </HBox>
-
-                            <!-- DROPDOWN LIVE PIPELINE STREAM HUD (KYRA PROJECT THEMED DROPDOWN) -->
-                            <VBox id="migrationLiveStreamDropdown"
-                                class="kyraLiveStreamDropdown fioriSlideDownAnim sapUiMediumMarginTop"
-                                visible="{= !!${accessModel>/dbMigration/hud/visible} }">
-                                
-                                <!-- Header Row -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraHudHeaderRow sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center" gap="10px">
-                                        <HBox class="{= 'kyraStatusDot ' + (${accessModel>/dbMigration/hud/state} === 'active' ? 'kyraDotPulsing' : 'kyraDotSuccess') }" />
-                                        <Text text="Live DataBridge Pipeline Stream" class="kyraHudTitle" />
-                                        <HBox class="kyraHudEnginePill" alignItems="Center">
-                                            <Text text="KYRA Cloud ETL Engine" class="kyraHudEnginePillText" />
-                                        </HBox>
-                                    </HBox>
-                                    <HBox alignItems="Center" gap="14px">
-                                        <Text text="{accessModel>/dbMigration/hud/statusBadge}" class="{= 'kyraHudBadge ' + (${accessModel>/dbMigration/hud/state} === 'active' ? 'kyraHudBadgeActive' : 'kyraHudBadgeSuccess') }" />
-                                        <Button
-                                            icon="sap-icon://decline"
-                                            type="Transparent"
-                                            tooltip="Close Stream"
-                                            press=".onCloseMigrationDropdown"
-                                            class="kyraHudCloseBtn" />
-                                    </HBox>
-                                </HBox>
-
-                                <!-- Progress Indicator -->
-                                <ProgressIndicator
-                                    percentValue="{accessModel>/dbMigration/hud/progressPercent}"
-                                    displayValue="{accessModel>/dbMigration/hud/progressText}"
-                                    state="{accessModel>/dbMigration/hud/progressState}"
-                                    class="kyraHudProgressIndicator sapUiSmallMarginBottom" />
-
-                                <!-- Stats Row -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraHudStatsRow sapUiSmallMarginBottom">
-                                    <Text text="{= 'Pipeline: ' + (${accessModel>/dbMigration/source/engine} || 'POSTGRESQL').toUpperCase() + ' ➔ ' + (${accessModel>/dbMigration/targetMode} === 'kyra' ? 'Kyra Cloud DB (RDS)' : 'Custom Target') }" class="kyraHudStatItem" />
-                                    <Text text="{= 'Mapped Columns: ' + ${accessModel>/dbMigration/columnMappings}.length + ' cols' }" class="kyraHudStatItem" />
-                                    <Text text="{= 'Rows Transferred: ' + ${accessModel>/dbMigration/hud/rowsTransferred} + ' rows' }" class="kyraHudStatItem" />
-                                    <Text text="{= 'Latency: ' + ${accessModel>/dbMigration/hud/latency} }" class="kyraHudStatItem" />
-                                </HBox>
-
-                                <!-- Log Console Cards List -->
-                                <VBox class="kyraHudConsoleBox" width="100%">
-                                    <List items="{accessModel>/dbMigration/hud/logs}" noDataText="Awaiting pipeline execution..." class="kyraHudLogCardList">
-                                        <items>
-                                            <CustomListItem class="kyraHudLogCardItem">
-                                                <HBox alignItems="Center" gap="12px" width="100%" class="kyraHudLogCardInner">
-                                                    <core:Icon src="{accessModel>icon}" class="kyraHudLogIcon" />
-                                                    <Text text="{accessModel>text}" class="kyraHudLogText" />
-                                                </HBox>
-                                            </CustomListItem>
-                                        </items>
-                                    </List>
-                                </VBox>
-
-                                <!-- COMPLETE MIGRATION DETAILS SLIDE (SHOWN DOWN IN THE SAME DROPDOWN) -->
-                                <VBox visible="{= ${accessModel>/dbMigration/hud/state} === 'success' }" class="kyraHudDetailsSlide sapUiMediumMarginTop" width="100%">
-                                    
-                                    <!-- Executive Success Card -->
-                                    <VBox class="kyraHudSuccessCard sapUiSmallMarginBottom" width="100%">
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
-                                            <HBox alignItems="Center" gap="12px">
-                                                <HBox class="kyraHudSuccessIconBadge" alignItems="Center" justifyContent="Center">
-                                                    <core:Icon src="sap-icon://sys-enter-2" class="kyraHudCheckIcon" />
-                                                </HBox>
-                                                <VBox>
-                                                    <Title text="Data Pipeline Completed Successfully!" level="H4" class="kyraHudSuccessTitle" />
-                                                    <Text text="{= 'Successfully transferred ' + ${accessModel>/dbMigration/hud/rowsTransferred} + ' records into target in ' + (${accessModel>/dbMigration/summary/duration} || '1.42s') + ' with 100% data integrity.' }" class="kyraHudSuccessSubtitle" />
-                                                </VBox>
-                                            </HBox>
-                                            <HBox class="kyraHudSuccessPill" alignItems="Center">
-                                                <Text text="Pipeline Succeeded ✓" class="kyraHudSuccessPillText" />
-                                            </HBox>
-                                        </HBox>
-                                    </VBox>
-
-                                    <!-- 4 KPI Metrics Tiles Grid -->
-                                    <HBox width="100%" gap="16px" class="kyraHudMetricsRow sapUiSmallMarginBottom">
-                                        <!-- Metric 1: Rows Extracted -->
-                                        <VBox class="kyraHudMetricTile" width="25%">
-                                            <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                                <Text text="Rows Extracted" class="kyraHudMetricLabel" />
-                                                <core:Icon src="sap-icon://download" class="kyraHudMetricIcon" />
-                                            </HBox>
-                                            <Text text="{= ${accessModel>/dbMigration/summary/extractedCount} || ${accessModel>/dbMigration/hud/rowsTransferred} || 1250 }" class="kyraHudMetricValue" />
-                                            <Text text="Extracted from Source" class="kyraHudMetricSubtext" />
-                                        </VBox>
-
-                                        <!-- Metric 2: Rows Loaded -->
-                                        <VBox class="kyraHudMetricTile" width="25%">
-                                            <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                                <Text text="Rows Loaded" class="kyraHudMetricLabel" />
-                                                <core:Icon src="sap-icon://upload" class="kyraHudMetricIcon" />
-                                            </HBox>
-                                            <Text text="{= ${accessModel>/dbMigration/hud/rowsTransferred} || 1250 }" class="kyraHudMetricValue" />
-                                            <Text text="Loaded into Destination" class="kyraHudMetricSubtext" />
-                                        </VBox>
-
-                                        <!-- Metric 3: Pipeline Duration -->
-                                        <VBox class="kyraHudMetricTile" width="25%">
-                                            <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                                <Text text="Pipeline Duration" class="kyraHudMetricLabel" />
-                                                <core:Icon src="sap-icon://history" class="kyraHudMetricIcon" />
-                                            </HBox>
-                                            <Text text="{= ${accessModel>/dbMigration/summary/duration} || '1.42s' }" class="kyraHudMetricValue" />
-                                            <Text text="End-to-End Latency" class="kyraHudMetricSubtext" />
-                                        </VBox>
-
-                                        <!-- Metric 4: Pipeline Completion -->
-                                        <VBox class="kyraHudMetricTile" width="25%">
-                                            <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                                <Text text="Completion Rate" class="kyraHudMetricLabel" />
-                                                <core:Icon src="sap-icon://accept" class="kyraHudMetricIcon" />
-                                            </HBox>
-                                            <Text text="100%" class="kyraHudMetricValue" />
-                                            <Text text="0 Errors • Verified" class="kyraHudMetricSubtext" />
-                                        </VBox>
-                                    </HBox>
-
-                                    <!-- Target Destination Info Strip -->
-                                    <HBox alignItems="Center" width="100%" class="kyraHudTargetInfoStrip sapUiSmallMarginBottom">
-                                        <core:Icon src="sap-icon://cloud" class="kyraHudTargetStripIcon" />
-                                        <Text text="{= 'Destination Target: ' + ${accessModel>/dbMigration/target/schema} + '.' + ${accessModel>/dbMigration/target/table} + ' in ' + ${accessModel>/dbMigration/target/database} + ' (' + (${accessModel>/dbMigration/targetMode} === 'kyra' ? 'Kyra Cloud DB @ AWS RDS PostgreSQL' : 'Custom Target DB') + ')' }" class="kyraHudTargetStripText" />
-                                    </HBox>
-
-                                    <!-- Action Buttons Bar -->
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraHudDetailsActionBar sapUiTinyMarginTop">
-                                        <Button
-                                            text="← Configure Another Migration"
-                                            press=".onResetMigrationWorkflow"
-                                            class="kyraHudAnotherBtn" />
-                                        
-                                        <HBox alignItems="Center" gap="10px">
-                                            <Button
-                                                text="Close Stream"
-                                                icon="sap-icon://decline"
-                                                press=".onCloseMigrationDropdown"
-                                                type="Transparent"
-                                                class="kyraHudCloseTextBtn" />
-                                            <Button text="Done" icon="sap-icon://accept" type="Emphasized" press=".onCloseAdminSection" class="kyraHudDoneBtn" />
-                                        </HBox>
-                                    </HBox>
-
-                                </VBox>
-
-                            </VBox>
-
-                        </VBox>
-
-                        <VBox id="step3MigrationContainer" visible="{= ${accessModel>/dbMigration/currentStep} === 3}">
-                            <VBox class="kyraFormCard sapUiMediumMarginBottom">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center">
-                                        <core:Icon src="sap-icon://cloud-check" size="2rem" color="#10B981" class="sapUiSmallMarginEnd" />
-                                        <VBox>
-                                            <Title text="Migration Execution Pipeline" level="H4" />
-                                            <Text text="{accessModel>/dbMigration/summary/statusMessage}" />
-                                        </VBox>
-                                    </HBox>
-                                    <ObjectStatus text="{accessModel>/dbMigration/summary/stateText}" state="{accessModel>/dbMigration/summary/stateColor}" inverted="true" />
-                                </HBox>
-
-                                <!-- Metrics Tiles Grid -->
-                                <l:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiMediumMarginTop sapUiMediumMarginBottom">
-                                    <l:content>
-                                        <VBox class="kyraMetricTile">
-                                            <Text text="{accessModel>/dbMigration/summary/extractedCount}" class="kyraMetricValue" />
-                                            <Text text="Rows Extracted" class="kyraMetricLabel" />
-                                        </VBox>
-                                        <VBox class="kyraMetricTile">
-                                            <Text text="{accessModel>/dbMigration/summary/migratedCount}" class="kyraMetricValue" />
-                                            <Text text="Rows Loaded into Target" class="kyraMetricLabel" />
-                                        </VBox>
-                                        <VBox class="kyraMetricTile">
-                                            <Text text="{accessModel>/dbMigration/summary/duration}" class="kyraMetricValue" />
-                                            <Text text="Pipeline Duration" class="kyraMetricLabel" />
-                                        </VBox>
-                                        <VBox class="kyraMetricTile">
-                                            <Text text="100%" class="kyraMetricValue" />
-                                            <Text text="Pipeline Completion" class="kyraMetricLabel" />
-                                        </VBox>
-                                    </l:content>
-                                </l:Grid>
-
-                                <ProgressIndicator
-                                    percentValue="{accessModel>/dbMigration/summary/progressPercent}"
-                                    displayValue="{accessModel>/dbMigration/summary/progressText}"
-                                    state="{accessModel>/dbMigration/summary/progressState}"
-                                    class="sapUiSmallMarginBottom" />
-
-                                <!-- Destination Target Info -->
-                                <MessageStrip
-                                    text="{= 'Destination Target: ' + ${accessModel>/dbMigration/target/schema} + '.' + ${accessModel>/dbMigration/target/table} + ' in ' + ${accessModel>/dbMigration/target/database} + ' (' + ${accessModel>/dbMigration/target/engine} + ')'}"
-                                    type="Success"
-                                    showIcon="true"
-                                    class="sapUiSmallMarginBottom" />
-                            </VBox>
-
-                            <!-- Navigation Bar Step 3 -->
-                            <Bar>
-                                <contentLeft>
-                                    <Button text="Configure Another Migration" icon="sap-icon://undo" press=".onResetMigrationWorkflow" />
-                                </contentLeft>
-                                <contentRight>
-                                    <Button text="Close Migration Studio" icon="sap-icon://decline" type="Emphasized" press=".onCloseAdminSection" />
-                                </contentRight>
-                            </Bar>
                         </VBox>
 
                     </VBox>
 
-                    </VBox>
-
-                    <!-- ADMIN SECTION 2: USER PERSONA CONVERTION (Opened when Card 2 is clicked) -->
+<!-- ADMIN SECTION 2: USER PERSONA CONVERTION (Opened when Card 2 is clicked) -->
                     <VBox id="adminPersonaConversionSection"
                         visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; ${accessModel>/adminSelectedSection} === 'personaConversion' }"
                         class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">

@@ -422,64 +422,49 @@ sap.ui.define([
                 // 4. Admin Persona State & Live Access Customization Data (Synced with Add Access Configuration)
                 isAdminPersona: (sessionStorage.getItem("kyra_active_role") === "Admin" || sessionStorage.getItem("kyra_active_role") === "Administrator"),
                 adminSelectedSection: "",
-                dbMigration: {
-                    targetMode: "kyra",
+                sapIntegration: {
+                    selectedApp: "sap_btp",
                     currentStep: 1,
-                    source: {
-                        engine: "postgresql",
-                        host: "postgres-primary.internal.kyra.io",
-                        port: 5432,
-                        database: "kyra_production",
-                        username: "svc_admin_reader",
-                        password: "••••••••",
+                    connected: false,
+                    statusText: "Not Connected",
+                    statusState: "None",
+                    isAppExpanded: false,
+                    hierarchy: {
+                        selectedService: "",
+                        selectedTeam: "",
+                        selectedPersona: "",
+                        availableTeams: [],
+                        availablePersonas: []
+                    },
+                    btp: {
+                        url: "https://api.cf.us10-001.hana.ondemand.com",
+                        subaccountId: "5af75fc5trial",
+                        tokenUrl: "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token",
+                        clientId: "sb-clone-01!b12345|client!b6789",
+                        clientSecret: "••••••••",
                         ssl: true,
-                        statusText: "Verified ✓",
-                        statusState: "Success",
-                        latencyText: "18ms latency",
-                        schema: "public",
-                        table: "customers"
+                        urlState: "None",
+                        subaccountState: "None",
+                        tokenUrlState: "None",
+                        clientIdState: "None",
+                        clientSecretState: "None"
                     },
-                    target: {
-                        engine: "postgresql",
-                        host: "database-1.cwpka6uuuwjw.us-east-1.rds.amazonaws.com",
-                        port: 5432,
-                        database: "Kyra",
-                        username: "root",
-                        password: "",
-                        ssl: true,
-                        statusText: "Cloud Target (Pre-configured) ✓",
-                        statusState: "Success",
-                        latencyText: "Encrypted AES-256-GCM Vault",
-                        schema: "access_management",
-                        table: "ad_group"
-                    },
-                    columnMappings: JSON.parse(JSON.stringify(DEFAULT_MIGRATION_COLUMNS)),
-                    hud: {
-                        visible: false,
-                        state: "idle",
-                        statusBadge: "Idle",
-                        progressPercent: 0,
-                        progressText: "Ready to migrate",
-                        progressState: "None",
-                        rowsTransferred: 0,
-                        latency: "--",
-                        logs: [
-                            { text: "Ready to migrate data. Click 'Migrate Data' to begin.", icon: "sap-icon://hint" }
-                        ]
-                    },
-                    summary: {
-                        statusMessage: "Extracted and loaded records directly into Kyra Cloud Database.",
-                        stateText: "Pipeline Succeeded",
-                        stateColor: "Success",
-                        extractedCount: 1250,
-                        migratedCount: 1250,
-                        duration: "1.42s",
-                        progressPercent: 100,
-                        progressText: "100% Loaded",
-                        progressState: "Success"
-                    }
+                    purchasedApps: [
+                        {
+                            id: "app_btp",
+                            name: "SAP Business Technology Platform",
+                            category: "Cloud Platform & Extension Suite",
+                            edition: "Enterprise Subscription (dev space)",
+                            status: "Purchased & Active",
+                            statusState: "Success",
+                            icon: "sap-icon://cloud",
+                            entitlements: "12 Services Active • 4GB / 8GB Runtime Quota",
+                            subaccount: "5af75fc5trial",
+                            region: "US10 (US East)"
+                        }
+                    ]
                 },
-                selectedAdminServiceName: "",
+selectedAdminServiceName: "",
                 adminSystemsAll: [
                     { systemName: "SAP BTP Cloud Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" },
                     { systemName: "SAP S/4HANA Enterprise", environment: "Production", thresholdLimit: "8", status: "Active", createdDate: "2025-01-12" },
@@ -13723,14 +13708,10 @@ sap.ui.define([
             oModel.setProperty("/adminSelectedSection", sNext);
 
             if (sNext === "databaseConfig") {
-                const sMode = oModel.getProperty("/dbMigration/targetMode") || "kyra";
-                oModel.setProperty("/dbMigration/targetMode", sMode);
-                oModel.setProperty("/dbMigration/showDetails", false);
-                oModel.setProperty("/dbMigration/currentStep", 1);
-                oModel.setProperty("/dbMigration/isSlideOpen", true);
+                if (!oModel.getProperty("/sapIntegration/currentStep")) {
+                    oModel.setProperty("/sapIntegration/currentStep", 1);
+                }
                 setTimeout(() => {
-                    this._attachCardClickEvents();
-                    this._updateStrategyCardStyles(sMode);
                     this._smoothScrollTo("adminDatabaseConfigSection", 40);
                 }, 80);
             }
@@ -17798,7 +17779,200 @@ sap.ui.define([
             }
         },
 
-        async onTestCloudConnection() {
+                onSelectSapApp(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sKey = oEvent ? oEvent.getParameter("selectedItem")?.getKey() : oModel.getProperty("/sapIntegration/selectedApp");
+            oModel.setProperty("/sapIntegration/selectedApp", sKey || "sap_btp");
+        },
+
+        async onTestSapIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sApp = oModel.getProperty("/sapIntegration/selectedApp") || "sap_btp";
+            if (sApp !== "sap_btp") {
+                MessageToast.show("Please select 'SAP Business Technology Platform (SAP BTP)' to test live integration.");
+                return;
+            }
+
+            const btp = oModel.getProperty("/sapIntegration/btp") || {};
+            let bValid = true;
+
+            // Validate URL
+            if (!btp.url || !btp.url.trim()) {
+                oModel.setProperty("/sapIntegration/btp/urlState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/urlState", "None");
+            }
+
+            // Validate Subaccount
+            if (!btp.subaccountId || !btp.subaccountId.trim()) {
+                oModel.setProperty("/sapIntegration/btp/subaccountState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/subaccountState", "None");
+            }
+
+            // Validate Token URL
+            if (!btp.tokenUrl || !btp.tokenUrl.trim()) {
+                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "None");
+            }
+
+            // Validate Client ID
+            if (!btp.clientId || !btp.clientId.trim()) {
+                oModel.setProperty("/sapIntegration/btp/clientIdState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/clientIdState", "None");
+            }
+
+            // Validate Client Secret
+            if (!btp.clientSecret || !btp.clientSecret.trim()) {
+                oModel.setProperty("/sapIntegration/btp/clientSecretState", "Error");
+                bValid = false;
+            } else {
+                oModel.setProperty("/sapIntegration/btp/clientSecretState", "None");
+            }
+
+            if (!bValid) {
+                MessageToast.show("Please fill in all required integration fields (*).");
+                return;
+            }
+
+            // Show loader simulation
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Testing SAP Integration",
+                    subtitle: "Connecting to SAP BTP tenant (" + btp.subaccountId + ")..."
+                });
+            }
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+
+                oModel.setProperty("/sapIntegration/connected", true);
+                oModel.setProperty("/sapIntegration/statusText", "Connected ✓");
+                oModel.setProperty("/sapIntegration/statusState", "Success");
+                oModel.setProperty("/sapIntegration/currentStep", 2);
+
+                if (typeof this._showSlideNotification === "function") {
+                    this._showSlideNotification(
+                        "SAP BTP Connected",
+                        "Integration verified successfully for subaccount " + btp.subaccountId + ". Discovered 5 purchased enterprise applications.",
+                        "success"
+                    );
+                }
+                MessageToast.show("SAP BTP Integration Verified! Discovering purchased applications...");
+
+                setTimeout(() => {
+                    this._smoothScrollTo("sapPurchasedAppsContainer", 40);
+                }, 100);
+            } catch (err) {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                MessageToast.show("Integration test completed.");
+            }
+        },
+
+        onBackToSapConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/sapIntegration/currentStep", 1);
+            setTimeout(() => {
+                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+            }, 80);
+        },
+
+        onManageSapEntitlements() {
+            MessageToast.show("Enterprise entitlements synced with SAP BTP Cloud Foundry tenant.");
+        },
+        onToggleAppHierarchy() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const bCur = !!oModel.getProperty("/sapIntegration/isAppExpanded");
+            oModel.setProperty("/sapIntegration/isAppExpanded", !bCur);
+            if (!bCur) {
+                const sService = oModel.getProperty("/sapIntegration/hierarchy/selectedService");
+                if (sService) {
+                    this._populateBtpTeams(oModel, sService);
+                }
+            }
+        },
+
+        onSelectBtpService(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sService = oEvent ? (oEvent.getParameter("selectedItem")?.getKey() || "") : "";
+            oModel.setProperty("/sapIntegration/hierarchy/selectedService", sService);
+            oModel.setProperty("/sapIntegration/hierarchy/selectedTeam", "");
+            oModel.setProperty("/sapIntegration/hierarchy/selectedPersona", "");
+            oModel.setProperty("/sapIntegration/hierarchy/availablePersonas", []);
+
+            if (sService) {
+                this._populateBtpTeams(oModel, sService);
+                MessageToast.show("Selected Service: " + sService + ". Please select a Team.");
+            } else {
+                oModel.setProperty("/sapIntegration/hierarchy/availableTeams", []);
+            }
+        },
+
+        _populateBtpTeams(oModel, sService) {
+            const oMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const aTeams = oMap[sService] || [];
+            const aDropdownTeams = [{ key: "", text: "-- Select Team --" }];
+            aTeams.forEach(t => {
+                aDropdownTeams.push({ key: t.name, text: t.name });
+            });
+            oModel.setProperty("/sapIntegration/hierarchy/availableTeams", aDropdownTeams);
+        },
+
+        onSelectBtpTeam(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sTeam = oEvent ? (oEvent.getParameter("selectedItem")?.getKey() || "") : "";
+            oModel.setProperty("/sapIntegration/hierarchy/selectedTeam", sTeam);
+            oModel.setProperty("/sapIntegration/hierarchy/selectedPersona", "");
+
+            if (sTeam) {
+                const sService = oModel.getProperty("/sapIntegration/hierarchy/selectedService");
+                const oMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                const aTeams = oMap[sService] || [];
+                const oFoundTeam = aTeams.find(t => t.name === sTeam);
+                const aPersonas = (oFoundTeam && oFoundTeam.subClassifications) ? oFoundTeam.subClassifications : [];
+                const aDropdownPersonas = [{ key: "", text: "-- Select Persona --" }];
+                aPersonas.forEach(p => {
+                    aDropdownPersonas.push({ key: p.name, text: p.name });
+                });
+                oModel.setProperty("/sapIntegration/hierarchy/availablePersonas", aDropdownPersonas);
+                MessageToast.show("Selected Team: " + sTeam + ". Please select a Persona.");
+            } else {
+                oModel.setProperty("/sapIntegration/hierarchy/availablePersonas", []);
+            }
+        },
+
+        onSelectBtpPersona(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sPersona = oEvent ? (oEvent.getParameter("selectedItem")?.getKey() || "") : "";
+            oModel.setProperty("/sapIntegration/hierarchy/selectedPersona", sPersona);
+            if (sPersona) {
+                const sService = oModel.getProperty("/sapIntegration/hierarchy/selectedService");
+                const sTeam = oModel.getProperty("/sapIntegration/hierarchy/selectedTeam");
+                MessageToast.show("Access Hierarchy Selected: " + sService + " > " + sTeam + " > " + sPersona);
+            }
+        },
+
+
+async onTestCloudConnection() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
