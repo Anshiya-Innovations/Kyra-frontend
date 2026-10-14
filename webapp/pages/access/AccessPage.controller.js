@@ -552,17 +552,447 @@ selectedAdminServiceName: "",
                 showAdminSystemSlide: true,
                 adminSystemSlideMode: "edit",
                 adminSystemDraft: { systemName: "SAP BTP Cloud Platform", thresholdLimit: "7", status: "Active" },
-                                adminServicesAll: [
+                adminServicesAll: [
+                    { serviceName: "xsuaa", status: "Active", selected: false },
+                    { serviceName: "identity", status: "Active", selected: false },
+                    { serviceName: "credstore", status: "Active", selected: false },
+                    { serviceName: "auditlog-management", status: "Active", selected: false },
+                    { serviceName: "uas", status: "Active", selected: false },
+                    { serviceName: "personal-data-manager-service", status: "Active", selected: false },
+                    { serviceName: "destination", status: "Active", selected: false },
+                    { serviceName: "connectivity", status: "Active", selected: false },
+                    { serviceName: "it-rt", status: "Active", selected: false },
+                    { serviceName: "sap-graph", status: "Active", selected: false },
+                    { serviceName: "saas-registry", status: "Active", selected: false },
+                    { serviceName: "service-manager", status: "Active", selected: false },
+                    { serviceName: "one-mds", status: "Active", selected: false },
+                    { serviceName: "apimanagement-trial", status: "Active", selected: false },
+                    { serviceName: "build-workzone-standard", status: "Active", selected: false },
+                    { serviceName: "html5-apps-repo", status: "Active", selected: false },
+                    { serviceName: "app-front", status: "Active", selected: false },
+                    { serviceName: "theming", status: "Active", selected: false },
+                    { serviceName: "ui5-flexibility-keyuser", status: "Active", selected: false },
+                    { serviceName: "hana-cloud", status: "Active", selected: false },
+                    { serviceName: "postgresql-db", status: "Active", selected: false },
+                    { serviceName: "redis-cache", status: "Active", selected: false },
+                    { serviceName: "process-automation-service", status: "Active", selected: false },
+                    { serviceName: "document-information-extraction-trial", status: "Active", selected: false },
+                    { serviceName: "data-attribute-recommendation-trial", status: "Active", selected: false },
+                    { serviceName: "business-entity-recognition-trial", status: "Active", selected: false },
+                    { serviceName: "service-ticket-intelligence-trial", status: "Active", selected: false },
+                    { serviceName: "document-translation", status: "Active", selected: false },
+                    { serviceName: "abap-trial", status: "Active", selected: false },
+                    { serviceName: "mobile-services", status: "Active", selected: false },
+                    { serviceName: "jobscheduler", status: "Active", selected: false },
+                    { serviceName: "autoscaler", status: "Active", selected: false },
+                    { serviceName: "application-logs", status: "Active", selected: false },
+                    { serviceName: "alert-notification", status: "Active", selected: false },
+                    { serviceName: "feature-flags", status: "Active", selected: false },
+                    { serviceName: "transport", status: "Active", selected: false },
+                    { serviceName: "cis", status: "Active", selected: false },
+                    { serviceName: "xfs-runtime-trial", status: "Active", selected: false },
                     { serviceName: "System Administrator", status: "Active", selected: false },
                     { serviceName: "System Owners", status: "Active", selected: false },
                     { serviceName: "Stakeholders", status: "Active", selected: false }
                 ],
                 adminServices: [
+                    { serviceName: "xsuaa", status: "Active", selected: false },
+                    { serviceName: "identity", status: "Active", selected: false },
+                    { serviceName: "credstore", status: "Active", selected: false },
+                    { serviceName: "auditlog-management", status: "Active", selected: false },
+                    { serviceName: "uas", status: "Active", selected: false },
+                    { serviceName: "personal-data-manager-service", status: "Active", selected: false },
+                    { serviceName: "destination", status: "Active", selected: false },
+                    { serviceName: "connectivity", status: "Active", selected: false },
+                    { serviceName: "it-rt", status: "Active", selected: false },
+                    { serviceName: "sap-graph", status: "Active", selected: false },
+                    { serviceName: "saas-registry", status: "Active", selected: false },
+                    { serviceName: "service-manager", status: "Active", selected: false },
+                    { serviceName: "one-mds", status: "Active", selected: false },
+                    { serviceName: "apimanagement-trial", status: "Active", selected: false },
+                    { serviceName: "build-workzone-standard", status: "Active", selected: false },
+                    { serviceName: "html5-apps-repo", status: "Active", selected: false },
+                    { serviceName: "app-front", status: "Active", selected: false },
+                    { serviceName: "theming", status: "Active", selected: false },
+                    { serviceName: "ui5-flexibility-keyuser", status: "Active", selected: false },
+                    { serviceName: "hana-cloud", status: "Active", selected: false },
+                    { serviceName: "postgresql-db", status: "Active", selected: false },
+                    { serviceName: "redis-cache", status: "Active", selected: false },
+                    { serviceName: "process-automation-service", status: "Active", selected: false },
+                    { serviceName: "document-information-extraction-trial", status: "Active", selected: false },
+                    { serviceName: "data-attribute-recommendation-trial", status: "Active", selected: false },
+                    { serviceName: "business-entity-recognition-trial", status: "Active", selected: false },
+                    { serviceName: "service-ticket-intelligence-trial", status: "Active", selected: false },
+                    { serviceName: "document-translation", status: "Active", selected: false },
+                    { serviceName: "abap-trial", status: "Active", selected: false },
+                    { serviceName: "mobile-services", status: "Active", selected: false },
+                    { serviceName: "jobscheduler", status: "Active", selected: false },
+                    { serviceName: "autoscaler", status: "Active", selected: false },
+                    { serviceName: "application-logs", status: "Active", selected: false },
+                    { serviceName: "alert-notification", status: "Active", selected: false },
+                    { serviceName: "feature-flags", status: "Active", selected: false },
+                    { serviceName: "transport", status: "Active", selected: false },
+                    { serviceName: "cis", status: "Active", selected: false },
+                    { serviceName: "xfs-runtime-trial", status: "Active", selected: false },
                     { serviceName: "System Administrator", status: "Active", selected: false },
                     { serviceName: "System Owners", status: "Active", selected: false },
                     { serviceName: "Stakeholders", status: "Active", selected: false }
                 ],
                 adminServiceDetailsMap: {
+                    "xsuaa": [
+                        {
+                            name: "IAM & Directory Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Identity & Access Administrator Persona" },
+                                { name: "Security Governance Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "identity": [
+                        {
+                            name: "Enterprise IAM & Directory Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Single Sign-On (SSO) Specialist Persona" },
+                                { name: "Corporate IdP Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "credstore": [
+                        {
+                            name: "Cloud Security Operations Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Cryptographic Secrets Custodian Persona" },
+                                { name: "Cloud Security Officer Persona" }
+                            ]
+                        }
+                    ],
+                    "auditlog-management": [
+                        {
+                            name: "GRC & Regulatory Compliance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Compliance & Security Trail Auditor Persona" },
+                                { name: "Forensic Audit Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "uas": [
+                        {
+                            name: "IAM & Directory Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "User Account Lifecycle Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "personal-data-manager-service": [
+                        {
+                            name: "Data Privacy & Legal Compliance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Data Privacy Officer (GDPR) Persona" },
+                                { name: "Personal Data Governance Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "destination": [
+                        {
+                            name: "Hybrid Connectivity & Network Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Destination & Endpoint Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "connectivity": [
+                        {
+                            name: "Hybrid Connectivity & Network Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Cloud Connector Network Engineer Persona" },
+                                { name: "On-Premise Tunneling Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "it-rt": [
+                        {
+                            name: "Enterprise Integration Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Cloud Integration (iFlow) Developer Persona" },
+                                { name: "Enterprise Integration Architect Persona" }
+                            ]
+                        }
+                    ],
+                    "sap-graph": [
+                        {
+                            name: "API & Graph Platform Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "SAP Graph API Architect Persona" }
+                            ]
+                        }
+                    ],
+                    "saas-registry": [
+                        {
+                            name: "Multi-Tenant Architecture Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "SaaS Provisioning Operations Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "service-manager": [
+                        {
+                            name: "Centralized Service Broker Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Service Broker Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "one-mds": [
+                        {
+                            name: "Enterprise Data Management Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Master Data Integration Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "apimanagement-trial": [
+                        {
+                            name: "API Management & Gateway Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "API Product Manager Persona" },
+                                { name: "Developer Hub Community Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "build-workzone-standard": [
+                        {
+                            name: "Digital Workplace & Portal Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Unified Launchpad Administrator Persona" },
+                                { name: "Digital Workplace Content Manager Persona" }
+                            ]
+                        }
+                    ],
+                    "html5-apps-repo": [
+                        {
+                            name: "Frontend Application Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "UI5 / Fiori Web Application Developer Persona" },
+                                { name: "HTML5 Application Release Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "app-front": [
+                        {
+                            name: "Frontend Application Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Application Frontend Hosting Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "theming": [
+                        {
+                            name: "UI/UX & Design Systems Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Corporate Brand & Theme Designer Persona" }
+                            ]
+                        }
+                    ],
+                    "ui5-flexibility-keyuser": [
+                        {
+                            name: "UI/UX & Design Systems Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Fiori Key-User Adaptation Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "hana-cloud": [
+                        {
+                            name: "Cloud Database Administration Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "SAP HANA Cloud Database Administrator Persona" },
+                                { name: "HANA Calculation View & Data Modeler Persona" }
+                            ]
+                        }
+                    ],
+                    "postgresql-db": [
+                        {
+                            name: "Cloud Database Administration Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "PostgreSQL Database Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "redis-cache": [
+                        {
+                            name: "Data Infrastructure & Caching Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "In-Memory Cache & Performance Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "process-automation-service": [
+                        {
+                            name: "Intelligent Business Automation Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Workflow & Decision Logic Architect Persona" },
+                                { name: "RPA Bot Developer & Operations Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "document-information-extraction-trial": [
+                        {
+                            name: "Cognitive Document Intelligence Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "OCR & Invoice Processing Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "data-attribute-recommendation-trial": [
+                        {
+                            name: "Enterprise Machine Learning & AI Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Predictive Recommendations Data Scientist Persona" }
+                            ]
+                        }
+                    ],
+                    "business-entity-recognition-trial": [
+                        {
+                            name: "Enterprise Machine Learning & AI Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "NLP & Entity Recognition Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "service-ticket-intelligence-trial": [
+                        {
+                            name: "Enterprise Machine Learning & AI Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Service Routing & Cognitive Triage Persona" }
+                            ]
+                        }
+                    ],
+                    "document-translation": [
+                        {
+                            name: "Cognitive Document Intelligence Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Multilingual Translation Operations Lead Persona" }
+                            ]
+                        }
+                    ],
+                    "abap-trial": [
+                        {
+                            name: "Core Extension Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "ABAP Cloud (Steampunk) Developer Persona" }
+                            ]
+                        }
+                    ],
+                    "mobile-services": [
+                        {
+                            name: "Enterprise Mobility Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Mobile Application & Push Notifications Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "jobscheduler": [
+                        {
+                            name: "Platform Operations & Reliability Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Scheduled Job & Batch Processing Admin Persona" }
+                            ]
+                        }
+                    ],
+                    "autoscaler": [
+                        {
+                            name: "Platform Operations & Reliability Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Dynamic Autoscaling & Load Engineer Persona" }
+                            ]
+                        }
+                    ],
+                    "application-logs": [
+                        {
+                            name: "Cloud Observability & Monitoring Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Observability & Log Analytics Specialist Persona" }
+                            ]
+                        }
+                    ],
+                    "alert-notification": [
+                        {
+                            name: "Cloud Observability & Monitoring Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Incident & Alert Notification Manager Persona" }
+                            ]
+                        }
+                    ],
+                    "feature-flags": [
+                        {
+                            name: "Release Engineering & Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Progressive Delivery & Feature Flag Operator Persona" }
+                            ]
+                        }
+                    ],
+                    "transport": [
+                        {
+                            name: "Release Engineering & Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Release Manager & cTMS Transport Custodian Persona" }
+                            ]
+                        }
+                    ],
+                    "cis": [
+                        {
+                            name: "Subaccount & Tenant Governance Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Subaccount & Entitlements Administrator Persona" }
+                            ]
+                        }
+                    ],
+                    "xfs-runtime-trial": [
+                        {
+                            name: "Core Extension Engineering Team",
+                            selected: true,
+                            subClassifications: [
+                                { name: "Extension Suite Runtime Architect Persona" }
+                            ]
+                        }
+                    ],
                     "System Administrator": [
                         {
                             name: "IT Developers",

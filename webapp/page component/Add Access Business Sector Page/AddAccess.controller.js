@@ -35,6 +35,133 @@ sap.ui.define([
     };
 
     const oServicesRolesMap = {
+        // 1. Security, Identity & Governance
+        "xsuaa": [
+            { key: "IAM & Directory Governance Team (xsuaa)", text: "IAM & Directory Governance Team", icon: "sap-icon://shield" }
+        ],
+        "identity": [
+            { key: "Enterprise IAM & Directory Team (identity)", text: "Enterprise IAM & Directory Team", icon: "sap-icon://user-settings" }
+        ],
+        "credstore": [
+            { key: "Cloud Security Operations Team (credstore)", text: "Cloud Security Operations Team", icon: "sap-icon://key" }
+        ],
+        "auditlog-management": [
+            { key: "GRC & Regulatory Compliance Team (auditlog-management)", text: "GRC & Regulatory Compliance Team", icon: "sap-icon://inspection" }
+        ],
+        "uas": [
+            { key: "IAM & Directory Governance Team (uas)", text: "IAM & Directory Governance Team", icon: "sap-icon://customer" }
+        ],
+        "personal-data-manager-service": [
+            { key: "Data Privacy & Legal Compliance Team (personal-data-manager-service)", text: "Data Privacy & Legal Compliance Team", icon: "sap-icon://locked" }
+        ],
+
+        // 2. Integration & Connectivity
+        "destination": [
+            { key: "Hybrid Connectivity & Network Team (destination)", text: "Hybrid Connectivity & Network Team", icon: "sap-icon://connected" }
+        ],
+        "connectivity": [
+            { key: "Hybrid Connectivity & Network Team (connectivity)", text: "Hybrid Connectivity & Network Team", icon: "sap-icon://instance" }
+        ],
+        "it-rt": [
+            { key: "Enterprise Integration Engineering Team (it-rt)", text: "Enterprise Integration Engineering Team", icon: "sap-icon://process" }
+        ],
+        "sap-graph": [
+            { key: "API & Graph Platform Team (sap-graph)", text: "API & Graph Platform Team", icon: "sap-icon://tree" }
+        ],
+        "saas-registry": [
+            { key: "Multi-Tenant Architecture Team (saas-registry)", text: "Multi-Tenant Architecture Team", icon: "sap-icon://building" }
+        ],
+        "service-manager": [
+            { key: "Centralized Service Broker Team (service-manager)", text: "Centralized Service Broker Team", icon: "sap-icon://settings" }
+        ],
+        "one-mds": [
+            { key: "Enterprise Data Management Team (one-mds)", text: "Enterprise Data Management Team", icon: "sap-icon://database" }
+        ],
+        "apimanagement-trial": [
+            { key: "API Management & Gateway Team (apimanagement-trial)", text: "API Management & Gateway Team", icon: "sap-icon://developer-settings" }
+        ],
+
+        // 3. Portals, UI & Frontend
+        "build-workzone-standard": [
+            { key: "Digital Workplace & Portal Team (build-workzone-standard)", text: "Digital Workplace & Portal Team", icon: "sap-icon://grid" }
+        ],
+        "html5-apps-repo": [
+            { key: "Frontend Application Engineering Team (html5-apps-repo)", text: "Frontend Application Engineering Team", icon: "sap-icon://attachment-html" }
+        ],
+        "app-front": [
+            { key: "Frontend Application Engineering Team (app-front)", text: "Frontend Application Engineering Team", icon: "sap-icon://dimension" }
+        ],
+        "theming": [
+            { key: "UI/UX & Design Systems Team (theming)", text: "UI/UX & Design Systems Team", icon: "sap-icon://palette" }
+        ],
+        "ui5-flexibility-keyuser": [
+            { key: "UI/UX & Design Systems Team (ui5-flexibility-keyuser)", text: "UI/UX & Design Systems Team", icon: "sap-icon://customize" }
+        ],
+
+        // 4. Databases & Storage
+        "hana-cloud": [
+            { key: "Cloud Database Administration Team (hana-cloud)", text: "Cloud Database Administration Team", icon: "sap-icon://cylinder" }
+        ],
+        "postgresql-db": [
+            { key: "Cloud Database Administration Team (postgresql-db)", text: "Cloud Database Administration Team", icon: "sap-icon://database" }
+        ],
+        "redis-cache": [
+            { key: "Data Infrastructure & Caching Team (redis-cache)", text: "Data Infrastructure & Caching Team", icon: "sap-icon://speed" }
+        ],
+
+        // 5. Process Automation, AI & Machine Learning
+        "process-automation-service": [
+            { key: "Intelligent Business Automation Team (process-automation-service)", text: "Intelligent Business Automation Team", icon: "sap-icon://workflow-tasks" }
+        ],
+        "document-information-extraction-trial": [
+            { key: "Cognitive Document Intelligence Team (document-information-extraction-trial)", text: "Cognitive Document Intelligence Team", icon: "sap-icon://doc-attachment" }
+        ],
+        "data-attribute-recommendation-trial": [
+            { key: "Enterprise Machine Learning & AI Team (data-attribute-recommendation-trial)", text: "Enterprise Machine Learning & AI Team", icon: "sap-icon://electrocardiogram" }
+        ],
+        "business-entity-recognition-trial": [
+            { key: "Enterprise Machine Learning & AI Team (business-entity-recognition-trial)", text: "Enterprise Machine Learning & AI Team", icon: "sap-icon://text" }
+        ],
+        "service-ticket-intelligence-trial": [
+            { key: "Enterprise Machine Learning & AI Team (service-ticket-intelligence-trial)", text: "Enterprise Machine Learning & AI Team", icon: "sap-icon://customer-briefing" }
+        ],
+        "document-translation": [
+            { key: "Cognitive Document Intelligence Team (document-translation)", text: "Cognitive Document Intelligence Team", icon: "sap-icon://world" }
+        ],
+
+        // 6. Developer & Operations Tooling
+        "abap-trial": [
+            { key: "Core Extension Engineering Team (abap-trial)", text: "Core Extension Engineering Team", icon: "sap-icon://custom-font" }
+        ],
+        "mobile-services": [
+            { key: "Enterprise Mobility Team (mobile-services)", text: "Enterprise Mobility Team", icon: "sap-icon://iphone" }
+        ],
+        "jobscheduler": [
+            { key: "Platform Operations & Reliability Team (jobscheduler)", text: "Platform Operations & Reliability Team", icon: "sap-icon://future" }
+        ],
+        "autoscaler": [
+            { key: "Platform Operations & Reliability Team (autoscaler)", text: "Platform Operations & Reliability Team", icon: "sap-icon://resize-horizontal" }
+        ],
+        "application-logs": [
+            { key: "Cloud Observability & Monitoring Team (application-logs)", text: "Cloud Observability & Monitoring Team", icon: "sap-icon://log" }
+        ],
+        "alert-notification": [
+            { key: "Cloud Observability & Monitoring Team (alert-notification)", text: "Cloud Observability & Monitoring Team", icon: "sap-icon://bell" }
+        ],
+        "feature-flags": [
+            { key: "Release Engineering & Governance Team (feature-flags)", text: "Release Engineering & Governance Team", icon: "sap-icon://flag" }
+        ],
+        "transport": [
+            { key: "Release Engineering & Governance Team (transport)", text: "Release Engineering & Governance Team", icon: "sap-icon://shipping-status" }
+        ],
+        "cis": [
+            { key: "Subaccount & Tenant Governance Team (cis)", text: "Subaccount & Tenant Governance Team", icon: "sap-icon://cloud" }
+        ],
+        "xfs-runtime-trial": [
+            { key: "Core Extension Engineering Team (xfs-runtime-trial)", text: "Core Extension Engineering Team", icon: "sap-icon://wrench" }
+        ],
+
+        // Backward compatibility
         "System Administrator": [
             { key: "IT Developers (System Administrator)", text: "IT Developers (System Administrator)", icon: "sap-icon://developer-settings" },
             { key: "IT Administrators (System Administrator)", text: "IT Administrators (System Administrator)", icon: "sap-icon://user-settings" },
@@ -56,6 +183,145 @@ sap.ui.define([
     };
 
     const oTeamPersonasMap = {
+        // Security, Identity & Governance
+        "IAM & Directory Governance Team (xsuaa)": [
+            { key: "Identity & Access Administrator Persona (xsuaa)", text: "Identity & Access Administrator Persona", icon: "sap-icon://shield" },
+            { key: "Security Governance Specialist Persona (xsuaa)", text: "Security Governance Specialist Persona", icon: "sap-icon://shield-check" }
+        ],
+        "Enterprise IAM & Directory Team (identity)": [
+            { key: "Single Sign-On (SSO) Specialist Persona (identity)", text: "Single Sign-On (SSO) Specialist Persona", icon: "sap-icon://user-settings" },
+            { key: "Corporate IdP Administrator Persona (identity)", text: "Corporate IdP Administrator Persona", icon: "sap-icon://key-user-settings" }
+        ],
+        "Cloud Security Operations Team (credstore)": [
+            { key: "Cryptographic Secrets Custodian Persona (credstore)", text: "Cryptographic Secrets Custodian Persona", icon: "sap-icon://key" },
+            { key: "Cloud Security Officer Persona (credstore)", text: "Cloud Security Officer Persona", icon: "sap-icon://shield" }
+        ],
+        "GRC & Regulatory Compliance Team (auditlog-management)": [
+            { key: "Compliance & Security Trail Auditor Persona (auditlog-management)", text: "Compliance & Security Trail Auditor Persona", icon: "sap-icon://inspection" },
+            { key: "Forensic Audit Specialist Persona (auditlog-management)", text: "Forensic Audit Specialist Persona", icon: "sap-icon://activity-assigned-to-goal" }
+        ],
+        "IAM & Directory Governance Team (uas)": [
+            { key: "User Account Lifecycle Administrator Persona (uas)", text: "User Account Lifecycle Administrator Persona", icon: "sap-icon://customer" }
+        ],
+        "Data Privacy & Legal Compliance Team (personal-data-manager-service)": [
+            { key: "Data Privacy Officer (GDPR) Persona (personal-data-manager-service)", text: "Data Privacy Officer (GDPR) Persona", icon: "sap-icon://locked" },
+            { key: "Personal Data Governance Specialist Persona (personal-data-manager-service)", text: "Personal Data Governance Specialist Persona", icon: "sap-icon://legal" }
+        ],
+
+        // Integration & Connectivity
+        "Hybrid Connectivity & Network Team (destination)": [
+            { key: "Destination & Endpoint Administrator Persona (destination)", text: "Destination & Endpoint Administrator Persona", icon: "sap-icon://connected" }
+        ],
+        "Hybrid Connectivity & Network Team (connectivity)": [
+            { key: "Cloud Connector Network Engineer Persona (connectivity)", text: "Cloud Connector Network Engineer Persona", icon: "sap-icon://instance" },
+            { key: "On-Premise Tunneling Specialist Persona (connectivity)", text: "On-Premise Tunneling Specialist Persona", icon: "sap-icon://action" }
+        ],
+        "Enterprise Integration Engineering Team (it-rt)": [
+            { key: "Cloud Integration (iFlow) Developer Persona (it-rt)", text: "Cloud Integration (iFlow) Developer Persona", icon: "sap-icon://process" },
+            { key: "Enterprise Integration Architect Persona (it-rt)", text: "Enterprise Integration Architect Persona", icon: "sap-icon://header" }
+        ],
+        "API & Graph Platform Team (sap-graph)": [
+            { key: "SAP Graph API Architect Persona (sap-graph)", text: "SAP Graph API Architect Persona", icon: "sap-icon://tree" }
+        ],
+        "Multi-Tenant Architecture Team (saas-registry)": [
+            { key: "SaaS Provisioning Operations Lead Persona (saas-registry)", text: "SaaS Provisioning Operations Lead Persona", icon: "sap-icon://building" }
+        ],
+        "Centralized Service Broker Team (service-manager)": [
+            { key: "Service Broker Administrator Persona (service-manager)", text: "Service Broker Administrator Persona", icon: "sap-icon://settings" }
+        ],
+        "Enterprise Data Management Team (one-mds)": [
+            { key: "Master Data Integration Engineer Persona (one-mds)", text: "Master Data Integration Engineer Persona", icon: "sap-icon://database" }
+        ],
+        "API Management & Gateway Team (apimanagement-trial)": [
+            { key: "API Product Manager Persona (apimanagement-trial)", text: "API Product Manager Persona", icon: "sap-icon://developer-settings" },
+            { key: "Developer Hub Community Specialist Persona (apimanagement-trial)", text: "Developer Hub Community Specialist Persona", icon: "sap-icon://manager" }
+        ],
+
+        // Portals, UI & Frontend
+        "Digital Workplace & Portal Team (build-workzone-standard)": [
+            { key: "Unified Launchpad Administrator Persona (build-workzone-standard)", text: "Unified Launchpad Administrator Persona", icon: "sap-icon://grid" },
+            { key: "Digital Workplace Content Manager Persona (build-workzone-standard)", text: "Digital Workplace Content Manager Persona", icon: "sap-icon://manager" }
+        ],
+        "Frontend Application Engineering Team (html5-apps-repo)": [
+            { key: "UI5 / Fiori Web Application Developer Persona (html5-apps-repo)", text: "UI5 / Fiori Web Application Developer Persona", icon: "sap-icon://attachment-html" },
+            { key: "HTML5 Application Release Lead Persona (html5-apps-repo)", text: "HTML5 Application Release Lead Persona", icon: "sap-icon://developer-settings" }
+        ],
+        "Frontend Application Engineering Team (app-front)": [
+            { key: "Application Frontend Hosting Lead Persona (app-front)", text: "Application Frontend Hosting Lead Persona", icon: "sap-icon://dimension" }
+        ],
+        "UI/UX & Design Systems Team (theming)": [
+            { key: "Corporate Brand & Theme Designer Persona (theming)", text: "Corporate Brand & Theme Designer Persona", icon: "sap-icon://palette" }
+        ],
+        "UI/UX & Design Systems Team (ui5-flexibility-keyuser)": [
+            { key: "Fiori Key-User Adaptation Specialist Persona (ui5-flexibility-keyuser)", text: "Fiori Key-User Adaptation Specialist Persona", icon: "sap-icon://customize" }
+        ],
+
+        // Databases & Storage
+        "Cloud Database Administration Team (hana-cloud)": [
+            { key: "SAP HANA Cloud Database Administrator Persona (hana-cloud)", text: "SAP HANA Cloud Database Administrator Persona", icon: "sap-icon://cylinder" },
+            { key: "HANA Calculation View & Data Modeler Persona (hana-cloud)", text: "HANA Calculation View & Data Modeler Persona", icon: "sap-icon://database" }
+        ],
+        "Cloud Database Administration Team (postgresql-db)": [
+            { key: "PostgreSQL Database Specialist Persona (postgresql-db)", text: "PostgreSQL Database Specialist Persona", icon: "sap-icon://database" }
+        ],
+        "Data Infrastructure & Caching Team (redis-cache)": [
+            { key: "In-Memory Cache & Performance Engineer Persona (redis-cache)", text: "In-Memory Cache & Performance Engineer Persona", icon: "sap-icon://speed" }
+        ],
+
+        // Process Automation, AI & Machine Learning
+        "Intelligent Business Automation Team (process-automation-service)": [
+            { key: "Workflow & Decision Logic Architect Persona (process-automation-service)", text: "Workflow & Decision Logic Architect Persona", icon: "sap-icon://workflow-tasks" },
+            { key: "RPA Bot Developer & Operations Lead Persona (process-automation-service)", text: "RPA Bot Developer & Operations Lead Persona", icon: "sap-icon://robot" }
+        ],
+        "Cognitive Document Intelligence Team (document-information-extraction-trial)": [
+            { key: "OCR & Invoice Processing Specialist Persona (document-information-extraction-trial)", text: "OCR & Invoice Processing Specialist Persona", icon: "sap-icon://doc-attachment" }
+        ],
+        "Enterprise Machine Learning & AI Team (data-attribute-recommendation-trial)": [
+            { key: "Predictive Recommendations Data Scientist Persona (data-attribute-recommendation-trial)", text: "Predictive Recommendations Data Scientist Persona", icon: "sap-icon://electrocardiogram" }
+        ],
+        "Enterprise Machine Learning & AI Team (business-entity-recognition-trial)": [
+            { key: "NLP & Entity Recognition Engineer Persona (business-entity-recognition-trial)", text: "NLP & Entity Recognition Engineer Persona", icon: "sap-icon://text" }
+        ],
+        "Enterprise Machine Learning & AI Team (service-ticket-intelligence-trial)": [
+            { key: "Service Routing & Cognitive Triage Persona (service-ticket-intelligence-trial)", text: "Service Routing & Cognitive Triage Persona", icon: "sap-icon://customer-briefing" }
+        ],
+        "Cognitive Document Intelligence Team (document-translation)": [
+            { key: "Multilingual Translation Operations Lead Persona (document-translation)", text: "Multilingual Translation Operations Lead Persona", icon: "sap-icon://world" }
+        ],
+
+        // Developer & Operations Tooling
+        "Core Extension Engineering Team (abap-trial)": [
+            { key: "ABAP Cloud (Steampunk) Developer Persona (abap-trial)", text: "ABAP Cloud (Steampunk) Developer Persona", icon: "sap-icon://custom-font" }
+        ],
+        "Enterprise Mobility Team (mobile-services)": [
+            { key: "Mobile Application & Push Notifications Engineer Persona (mobile-services)", text: "Mobile Application & Push Notifications Engineer Persona", icon: "sap-icon://iphone" }
+        ],
+        "Platform Operations & Reliability Team (jobscheduler)": [
+            { key: "Scheduled Job & Batch Processing Admin Persona (jobscheduler)", text: "Scheduled Job & Batch Processing Admin Persona", icon: "sap-icon://future" }
+        ],
+        "Platform Operations & Reliability Team (autoscaler)": [
+            { key: "Dynamic Autoscaling & Load Engineer Persona (autoscaler)", text: "Dynamic Autoscaling & Load Engineer Persona", icon: "sap-icon://resize-horizontal" }
+        ],
+        "Cloud Observability & Monitoring Team (application-logs)": [
+            { key: "Observability & Log Analytics Specialist Persona (application-logs)", text: "Observability & Log Analytics Specialist Persona", icon: "sap-icon://log" }
+        ],
+        "Cloud Observability & Monitoring Team (alert-notification)": [
+            { key: "Incident & Alert Notification Manager Persona (alert-notification)", text: "Incident & Alert Notification Manager Persona", icon: "sap-icon://bell" }
+        ],
+        "Release Engineering & Governance Team (feature-flags)": [
+            { key: "Progressive Delivery & Feature Flag Operator Persona (feature-flags)", text: "Progressive Delivery & Feature Flag Operator Persona", icon: "sap-icon://flag" }
+        ],
+        "Release Engineering & Governance Team (transport)": [
+            { key: "Release Manager & cTMS Transport Custodian Persona (transport)", text: "Release Manager & cTMS Transport Custodian Persona", icon: "sap-icon://shipping-status" }
+        ],
+        "Subaccount & Tenant Governance Team (cis)": [
+            { key: "Subaccount & Entitlements Administrator Persona (cis)", text: "Subaccount & Entitlements Administrator Persona", icon: "sap-icon://cloud" }
+        ],
+        "Core Extension Engineering Team (xfs-runtime-trial)": [
+            { key: "Extension Suite Runtime Architect Persona (xfs-runtime-trial)", text: "Extension Suite Runtime Architect Persona", icon: "sap-icon://wrench" }
+        ],
+
+        // Backward compatibility
         "IT Developers (System Administrator)": [
             { key: "Frontend & UI Developer Persona (IT Developers)", text: "Frontend & UI Developer Persona (IT Developers)", icon: "sap-icon://developer-settings" },
             { key: "Backend & Systems Developer Persona (IT Developers)", text: "Backend & Systems Developer Persona (IT Developers)", icon: "sap-icon://developer-settings" }

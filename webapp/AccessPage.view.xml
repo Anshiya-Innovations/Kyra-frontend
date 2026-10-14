@@ -449,6 +449,44 @@
                                                 width="100%"
                                                 class="kyraDarkSelect">
                                                 <core:Item key="" text="-- Select an Available Service --" />
+                                                <core:Item key="xsuaa" text="xsuaa — SAP Authorization and Trust Management" />
+                                                <core:Item key="identity" text="identity — SAP Cloud Identity Services (IAS / SSO)" />
+                                                <core:Item key="credstore" text="credstore — SAP Credential Store" />
+                                                <core:Item key="auditlog-management" text="auditlog-management — Audit Log Service" />
+                                                <core:Item key="uas" text="uas — User Account and Authentication Service" />
+                                                <core:Item key="personal-data-manager-service" text="personal-data-manager-service — Data Privacy &amp; GDPR" />
+                                                <core:Item key="destination" text="destination — Outbound Connection Management" />
+                                                <core:Item key="connectivity" text="connectivity — Cloud Connector Tunneling" />
+                                                <core:Item key="it-rt" text="it-rt — SAP Integration Suite (Cloud Integration Runtime)" />
+                                                <core:Item key="sap-graph" text="sap-graph — Unified Enterprise Data Access" />
+                                                <core:Item key="saas-registry" text="saas-registry — SaaS Provisioning &amp; Tenant Management" />
+                                                <core:Item key="service-manager" text="service-manager — Centralized Service Broker" />
+                                                <core:Item key="one-mds" text="one-mds — Master Data Integration Service" />
+                                                <core:Item key="apimanagement-trial" text="apimanagement — SAP API Management" />
+                                                <core:Item key="build-workzone-standard" text="build-workzone-standard — SAP Build Work Zone" />
+                                                <core:Item key="html5-apps-repo" text="html5-apps-repo — HTML5 Application Repository" />
+                                                <core:Item key="app-front" text="app-front — Application Frontend Hosting" />
+                                                <core:Item key="theming" text="theming — UI Theme Designer" />
+                                                <core:Item key="ui5-flexibility-keyuser" text="ui5-flexibility-keyuser — UI Adaptation &amp; Key User Flexibility" />
+                                                <core:Item key="hana-cloud" text="hana-cloud — SAP HANA Cloud (In-Memory DB)" />
+                                                <core:Item key="postgresql-db" text="postgresql-db — PostgreSQL Backing Service" />
+                                                <core:Item key="redis-cache" text="redis-cache — Redis In-Memory Cache" />
+                                                <core:Item key="process-automation-service" text="process-automation-service — SAP Build Process Automation" />
+                                                <core:Item key="document-information-extraction-trial" text="document-information-extraction — OCR &amp; Invoice Processing" />
+                                                <core:Item key="data-attribute-recommendation-trial" text="data-attribute-recommendation — Machine Learning Recommendations" />
+                                                <core:Item key="business-entity-recognition-trial" text="business-entity-recognition — Unstructured Text Extraction" />
+                                                <core:Item key="service-ticket-intelligence-trial" text="service-ticket-intelligence — Customer Service Routing" />
+                                                <core:Item key="document-translation" text="document-translation — Multilingual Translation" />
+                                                <core:Item key="abap-trial" text="abap-trial — SAP BTP ABAP Environment (Steampunk)" />
+                                                <core:Item key="mobile-services" text="mobile-services — SAP Mobile Services" />
+                                                <core:Item key="jobscheduler" text="jobscheduler — Scheduled Jobs &amp; Cloud Foundry Tasks" />
+                                                <core:Item key="autoscaler" text="autoscaler — Application Dynamic Autoscaler" />
+                                                <core:Item key="application-logs" text="application-logs — Application Logging Service" />
+                                                <core:Item key="alert-notification" text="alert-notification — Technical Alert Notifications" />
+                                                <core:Item key="feature-flags" text="feature-flags — Feature Toggle Management" />
+                                                <core:Item key="transport" text="transport — SAP Cloud Transport Management (cTMS)" />
+                                                <core:Item key="cis" text="cis — Cloud Management Service" />
+                                                <core:Item key="xfs-runtime-trial" text="xfs-runtime-trial — SAP Extension Suite Runtime" />
                                                 <core:Item key="System Administrator" text="System Administrator" />
                                                 <core:Item key="System Owners" text="System Owners" />
                                                 <core:Item key="Stakeholders" text="Stakeholders" />
