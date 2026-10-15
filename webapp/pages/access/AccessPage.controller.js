@@ -313,6 +313,9 @@ sap.ui.define([
                 sBrandLogoUrl = "images/kyra_k_logo.png";
                 sShieldFocusUrl = "images/kyra_shield_focus.svg";
             }
+            const oDefaultAdminServiceMap = this._getDefaultAdminServiceDetailsMap();
+            const aInitialAdminClassifications = (oDefaultAdminServiceMap["xsuaa (Authorization and Trust Management Service)"] || []).map((t, idx) => Object.assign({}, t, { selected: idx === 0 }));
+            const oInitialAdminClassification = aInitialAdminClassifications.length > 0 ? JSON.parse(JSON.stringify(aInitialAdminClassifications[0])) : null;
             const oModel = new JSONModel({
                 brandLogoUrl: sBrandLogoUrl,
                 shieldFocusUrl: sShieldFocusUrl,
@@ -899,1000 +902,9 @@ sap.ui.define([
                                     "selected": false
                           }
                 ],
-                adminServiceDetailsMap: {
-                          "xsuaa (Authorization and Trust Management Service)": [
-                                    {
-                                              "name": "IAM & Directory Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Identity & Access Administrator (OAuth, Roles & Collections)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Security Governance Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "xsuaa": [
-                                    {
-                                              "name": "IAM & Directory Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Identity & Access Administrator (OAuth, Roles & Collections)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Security Governance Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "identity (Cloud Identity Services - IAS / IdP / SSO)": [
-                                    {
-                                              "name": "Enterprise IAM & Directory Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Single Sign-On (SSO) Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Corporate IdP Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "identity": [
-                                    {
-                                              "name": "Enterprise IAM & Directory Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Single Sign-On (SSO) Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Corporate IdP Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "credstore (SAP Credential Store)": [
-                                    {
-                                              "name": "Cloud Security Operations Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Cryptographic Secrets Custodian",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Cloud Security Officer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "credstore": [
-                                    {
-                                              "name": "Cloud Security Operations Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Cryptographic Secrets Custodian",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Cloud Security Officer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "auditlog-management (Audit Log Service)": [
-                                    {
-                                              "name": "GRC & Regulatory Compliance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Compliance & Security Trail Auditor",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Forensic Audit Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "auditlog-management": [
-                                    {
-                                              "name": "GRC & Regulatory Compliance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Compliance & Security Trail Auditor",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Forensic Audit Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "uas (User Account and Authentication Service)": [
-                                    {
-                                              "name": "IAM & Directory Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "User Account Lifecycle Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "uas": [
-                                    {
-                                              "name": "IAM & Directory Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "User Account Lifecycle Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "personal-data-manager-service (Data Privacy & GDPR Governance)": [
-                                    {
-                                              "name": "Data Privacy & Legal Compliance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Data Privacy Officer (GDPR / Regulatory)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Personal Data Governance Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "personal-data-manager-service": [
-                                    {
-                                              "name": "Data Privacy & Legal Compliance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Data Privacy Officer (GDPR / Regulatory)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Personal Data Governance Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "destination & connectivity (Destinations & Cloud Connector Tunneling)": [
-                                    {
-                                              "name": "Hybrid Connectivity & Network Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Cloud Connector Network Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "On-Premise Tunneling Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "destination": [
-                                    {
-                                              "name": "Hybrid Connectivity & Network Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Cloud Connector Network Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "On-Premise Tunneling Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "it-rt (SAP Integration Suite / Cloud Integration Runtime)": [
-                                    {
-                                              "name": "Enterprise Integration Engineering Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "iFlow / Cloud Integration Developer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Enterprise Integration Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "it-rt": [
-                                    {
-                                              "name": "Enterprise Integration Engineering Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "iFlow / Cloud Integration Developer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Enterprise Integration Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "sap-graph (Unified Enterprise Data Access)": [
-                                    {
-                                              "name": "API & Graph Platform Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "SAP Graph API Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "sap-graph": [
-                                    {
-                                              "name": "API & Graph Platform Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "SAP Graph API Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "saas-registry & service-manager (Tenant Provisioning & Service Broker)": [
-                                    {
-                                              "name": "Multi-Tenant Architecture Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "SaaS Provisioning Operations Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Service Broker Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "saas-registry": [
-                                    {
-                                              "name": "Multi-Tenant Architecture Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "SaaS Provisioning Operations Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Service Broker Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "one-mds (Master Data Integration Service)": [
-                                    {
-                                              "name": "Enterprise Data Management Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Master Data Integration Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "one-mds": [
-                                    {
-                                              "name": "Enterprise Data Management Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Master Data Integration Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "apimanagement-apiportal-trial / apimanagement-devportal-trial": [
-                                    {
-                                              "name": "API Management & Gateway Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "API Product Manager (API Portal)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Developer Hub Community Specialist (Dev Portal)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "apimanagement-trial": [
-                                    {
-                                              "name": "API Management & Gateway Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "API Product Manager (API Portal)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Developer Hub Community Specialist (Dev Portal)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "build-workzone-standard (SAP Build Work Zone / Fiori Launchpad)": [
-                                    {
-                                              "name": "Digital Workplace & Portal Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Unified Launchpad Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Digital Workplace Content Manager",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "build-workzone-standard": [
-                                    {
-                                              "name": "Digital Workplace & Portal Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Unified Launchpad Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Digital Workplace Content Manager",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "html5-apps-repo & app-front (HTML5 Repository & Frontend Hosting)": [
-                                    {
-                                              "name": "Frontend Application Engineering Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "UI5 / Fiori Web Application Developer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "HTML5 Application Release Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "html5-apps-repo": [
-                                    {
-                                              "name": "Frontend Application Engineering Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "UI5 / Fiori Web Application Developer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "HTML5 Application Release Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "theming & ui5-flexibility-keyuser (Theme Designer & UI Adaptation)": [
-                                    {
-                                              "name": "UI/UX & Design Systems Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Corporate Brand & Theme Designer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Fiori Key-User Adaptation Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "theming": [
-                                    {
-                                              "name": "UI/UX & Design Systems Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Corporate Brand & Theme Designer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Fiori Key-User Adaptation Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "hana-cloud / hana / hanatrial (SAP HANA Cloud DB & Data Lake)": [
-                                    {
-                                              "name": "Cloud Database Administration (DBA) Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "SAP HANA Cloud Database Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "HANA Calculation View & Data Modeler",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "hana-cloud": [
-                                    {
-                                              "name": "Cloud Database Administration (DBA) Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "SAP HANA Cloud Database Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "HANA Calculation View & Data Modeler",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "postgresql-db (PostgreSQL Backing Service)": [
-                                    {
-                                              "name": "Cloud Database Administration (DBA) Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "PostgreSQL Database Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "postgresql-db": [
-                                    {
-                                              "name": "Cloud Database Administration (DBA) Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "PostgreSQL Database Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "redis-cache (Redis In-Memory Cache)": [
-                                    {
-                                              "name": "Data Infrastructure & Caching Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "In-Memory Cache & Performance Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "redis-cache": [
-                                    {
-                                              "name": "Data Infrastructure & Caching Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "In-Memory Cache & Performance Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "process-automation-service (SAP Build Process Automation / Workflows & RPA)": [
-                                    {
-                                              "name": "Intelligent Business Automation Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Workflow & Decision Logic Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "RPA Bot Developer & Operations Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "process-automation-service": [
-                                    {
-                                              "name": "Intelligent Business Automation Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Workflow & Decision Logic Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "RPA Bot Developer & Operations Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "document-information-extraction-trial & document-translation": [
-                                    {
-                                              "name": "Cognitive Document Intelligence Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "OCR & Invoice Processing Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Multilingual Translation Operations Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "document-information-extraction-trial": [
-                                    {
-                                              "name": "Cognitive Document Intelligence Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "OCR & Invoice Processing Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Multilingual Translation Operations Lead",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "data-attribute-recommendation-trial / business-entity / service-ticket-intelligence": [
-                                    {
-                                              "name": "Enterprise Machine Learning & AI Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Predictive Recommendations Data Scientist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "NLP & Entity Recognition Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "data-attribute-recommendation-trial": [
-                                    {
-                                              "name": "Enterprise Machine Learning & AI Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Predictive Recommendations Data Scientist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "NLP & Entity Recognition Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "abap-trial & xfs-runtime-trial (ABAP Cloud / Steampunk & Extension Suite)": [
-                                    {
-                                              "name": "Core Extension Engineering Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "ABAP Cloud (Steampunk) Developer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Extension Suite Runtime Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "abap-trial": [
-                                    {
-                                              "name": "Core Extension Engineering Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "ABAP Cloud (Steampunk) Developer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Extension Suite Runtime Architect",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "mobile-services (SAP Mobile Services)": [
-                                    {
-                                              "name": "Enterprise Mobility Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Mobile Application & Push Notifications Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "mobile-services": [
-                                    {
-                                              "name": "Enterprise Mobility Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Mobile Application & Push Notifications Engineer",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "jobscheduler & autoscaler (Task Scheduling & Dynamic Scaling)": [
-                                    {
-                                              "name": "Platform Operations & Reliability Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Site Reliability Engineer (SRE)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Scheduled Job & Batch Processing Admin",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "jobscheduler": [
-                                    {
-                                              "name": "Platform Operations & Reliability Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Site Reliability Engineer (SRE)",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Scheduled Job & Batch Processing Admin",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "application-logs & alert-notification (Logging & Real-time Alerts)": [
-                                    {
-                                              "name": "Cloud Observability & Monitoring Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Observability & Log Analytics Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Incident & Alert Notification Manager",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "application-logs": [
-                                    {
-                                              "name": "Cloud Observability & Monitoring Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Observability & Log Analytics Specialist",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Incident & Alert Notification Manager",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "feature-flags & transport (Feature Toggles & Cloud Transport - cTMS)": [
-                                    {
-                                              "name": "Release Engineering & Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Release Manager & cTMS Transport Custodian",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Progressive Delivery / Feature Flag Operator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "feature-flags": [
-                                    {
-                                              "name": "Release Engineering & Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Release Manager & cTMS Transport Custodian",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        },
-                                                        {
-                                                                  "name": "Progressive Delivery / Feature Flag Operator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "cis (Cloud Management Service)": [
-                                    {
-                                              "name": "Subaccount & Tenant Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Subaccount & Entitlements Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ],
-                          "cis": [
-                                    {
-                                              "name": "Subaccount & Tenant Governance Team",
-                                              "selected": true,
-                                              "status": "Active",
-                                              "subClassifications": [
-                                                        {
-                                                                  "name": "Subaccount & Entitlements Administrator",
-                                                                  "status": "Active",
-                                                                  "accessPrivilege": "Not restricted"
-                                                        }
-                                              ]
-                                    }
-                          ]
-                },
-                adminClassifications: [
-                          {
-                                    "name": "IAM & Directory Governance Team",
-                                    "selected": true,
-                                    "status": "Active",
-                                    "subClassifications": [
-                                              {
-                                                        "name": "Identity & Access Administrator (OAuth, Roles & Collections)",
-                                                        "status": "Active",
-                                                        "accessPrivilege": "Not restricted"
-                                              },
-                                              {
-                                                        "name": "Security Governance Specialist",
-                                                        "status": "Active",
-                                                        "accessPrivilege": "Not restricted"
-                                              }
-                                    ]
-                          }
-                ],
-                selectedAdminClassification: {
-                          "name": "IAM & Directory Governance Team",
-                          "selected": true,
-                          "status": "Active",
-                          "subClassifications": [
-                                    {
-                                              "name": "Identity & Access Administrator (OAuth, Roles & Collections)",
-                                              "status": "Active",
-                                              "accessPrivilege": "Not restricted"
-                                    },
-                                    {
-                                              "name": "Security Governance Specialist",
-                                              "status": "Active",
-                                              "accessPrivilege": "Not restricted"
-                                    }
-                          ]
-                },
+                adminServiceDetailsMap: oDefaultAdminServiceMap,
+                adminClassifications: aInitialAdminClassifications,
+                selectedAdminClassification: oInitialAdminClassification,
 
                 adminConflictSystemOptions: [
                     { key: "", text: "-Select-" },
@@ -4205,8 +3217,13 @@ sap.ui.define([
 
             // Background loading is silent
 
+            if (bForce) {
+                window._kyraGovFetchPromise = null;
+                window._kyraCachedGovRequests = null;
+            }
+
             let aRawDbRequests = [];
-            if (window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
+            if (!bForce && window._kyraCachedGovRequests && window._kyraCachedGovRequests.length > 0) {
                 const seenCachedReqs = new Set();
                 aRawDbRequests = window._kyraCachedGovRequests.filter(r => {
                     const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
@@ -4218,7 +3235,7 @@ sap.ui.define([
             }
 
             try {
-                if (!window._kyraGovFetchPromise) {
+                if (bForce || !window._kyraGovFetchPromise) {
                     window._kyraGovFetchPromise = fetch("/odata/v4/admin-portal/GovernanceHistory", {
                         cache: "no-cache",
                         headers: {
@@ -4336,7 +3353,15 @@ sap.ui.define([
                 this._setSmartProperty(oModel, "/allSubmittedRequests", []);
                 this._setSmartProperty(oModel, "/allPendingCount", 0);
                 this._setSmartProperty(oModel, "/allProcessedCount", 0);
-                this._updateCountBadges(oModel);
+                if (typeof this._updateCountBadges === "function") {
+                    this._updateCountBadges(oModel);
+                }
+                if (typeof this._loadNotifications === "function") {
+                    this._loadNotifications(oModel, []);
+                }
+                if (typeof this._updateApproverSectionVisibility === "function") {
+                    this._updateApproverSectionVisibility();
+                }
                 this._bIsLoadingRequests = false;
                 setTimeout(() => {
                     if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
@@ -5904,6 +4929,30 @@ sap.ui.define([
                 return String(b.actualRequestId || b.requestId || "").localeCompare(String(a.actualRequestId || a.requestId || ""));
             });
             oModel.setProperty("/filteredNotificationsList", aFiltered);
+        },
+
+        _updateCountBadges(oModel) {
+            if (!oModel) {
+                oModel = this.getView() ? this.getView().getModel("accessModel") : null;
+            }
+            if (!oModel) return;
+            const aPendingAccess = oModel.getProperty("/pendingAccessRequests") || [];
+            const aPendingRevoke = oModel.getProperty("/pendingRevokeRequests") || [];
+            const aHistoryAccess = oModel.getProperty("/historyAccessRequests") || [];
+            const aHistoryRevoke = oModel.getProperty("/historyRevokeRequests") || [];
+            const aProcessed = oModel.getProperty("/processedRequests") || [];
+            const aMyPending = oModel.getProperty("/myPendingRequests") || [];
+            const aMyApproved = oModel.getProperty("/myApprovedRequests") || [];
+
+            this._setSmartProperty(oModel, "/pendingAccessCount", aPendingAccess.length);
+            this._setSmartProperty(oModel, "/pendingRevokeCount", aPendingRevoke.length);
+            this._setSmartProperty(oModel, "/historyAccessCount", aHistoryAccess.length);
+            this._setSmartProperty(oModel, "/historyRevokeCount", aHistoryRevoke.length);
+            this._setSmartProperty(oModel, "/processedCount", aProcessed.length);
+            this._setSmartProperty(oModel, "/allPendingCount", aPendingAccess.length + aPendingRevoke.length);
+            this._setSmartProperty(oModel, "/allProcessedCount", aProcessed.length);
+            this._setSmartProperty(oModel, "/myPendingCount", aMyPending.length);
+            this._setSmartProperty(oModel, "/myApprovedCount", aMyApproved.length);
         },
 
         onNavToAllNotificationsPage() {
@@ -7998,7 +7047,8 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const oDetailsMap = this._sanitizeAdminServiceDetailsMap(oModel.getProperty("/adminServiceDetailsMap"));
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             const aActiveServices = (oModel.getProperty("/adminServicesAll") || [])
                 .filter(s => s && s.status !== "Inactive")
                 .map(s => s.serviceName);
@@ -8081,7 +7131,8 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSelectedPersonas", []);
             }
 
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            const oDetailsMap = this._sanitizeAdminServiceDetailsMap(oModel.getProperty("/adminServiceDetailsMap"));
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             const oTeamPersonasMap = {};
 
             Object.keys(oDetailsMap).forEach(sServiceKey => {
@@ -12288,6 +11339,26 @@ sap.ui.define([
                 const sJustification = oItem.justification || "Business operational governance, audit compliance, and system execution privileges.";
                 const sStatus = oItem.status || "Active";
 
+                let sLoginLink = oItem.loginUrl || oItem.login_url || oItem.link || oItem.accessLink || "";
+                if (!sLoginLink) {
+                    const sSysLower = (sSys || "").toLowerCase();
+                    const sServLower = (sService || "").toLowerCase();
+                    const sRoleLower = (sRole || "").toLowerCase();
+                    if (sSysLower.includes("btp") || sSysLower.includes("technology platform") || sServLower.includes("xsuaa") || sServLower.includes("jobscheduler") || sRoleLower.includes("xsuaa") || sRoleLower.includes("manage_users") || sRoleLower.includes("manage_applications") || sRoleLower.includes("authviewer")) {
+                        sLoginLink = "https://cockpit.hanatrial.ondemand.com/trial/#/home/trial";
+                    } else if (sSysLower.includes("s/4") || sSysLower.includes("s4hana") || sSysLower.includes("enterprise")) {
+                        sLoginLink = "https://my-s4hana.s4hana.cloud.sap/ui#Shell-home";
+                    } else if (sSysLower.includes("successfactors")) {
+                        sLoginLink = "https://performancemanager.successfactors.com/login";
+                    } else if (sSysLower.includes("ariba")) {
+                        sLoginLink = "https://service.ariba.com/Authenticator.aw/ad/loginPage";
+                    } else if (sSysLower.includes("analytics")) {
+                        sLoginLink = "https://my-analytics.cloud.sap/sap/fiori/launchpad.html";
+                    } else {
+                        sLoginLink = "https://cockpit.hanatrial.ondemand.com/trial/#/home/trial";
+                    }
+                }
+
                 const sHtmlContent = `
                     <div class="kyra-role-details-modal">
                         <!-- Top Header Bar with Close X -->
@@ -12354,6 +11425,19 @@ sap.ui.define([
                                     <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">Assigned Persona</span>
                                         <span class="kyra-modal-val">${sPers}</span>
+                                    </div>
+                                    <div class="kyra-modal-grid-row">
+                                        <span class="kyra-modal-label">Link</span>
+                                        <span class="kyra-modal-val" style="word-break: break-all;">
+                                            <a href="${sLoginLink}" target="_blank" rel="noopener noreferrer" onclick="window.open('${sLoginLink}', '_blank'); return false;" style="color: #2563EB; text-decoration: underline; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" title="Open Login Page">
+                                                <span>${sLoginLink}</span>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                                </svg>
+                                            </a>
+                                        </span>
                                     </div>
                                     <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">Granted Date</span>
@@ -14392,7 +13476,48 @@ sap.ui.define([
             }
         },
 
-                        _getDefaultAdminServiceDetailsMap() {
+                                _sanitizeAdminServiceDetailsMap(oDetailsMap) {
+            const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
+            if (!oDetailsMap || typeof oDetailsMap !== "object" || Object.keys(oDetailsMap).length === 0) {
+                return JSON.parse(JSON.stringify(oDefaultMap));
+            }
+            let oCleanMap = JSON.parse(JSON.stringify(oDetailsMap));
+
+            // Check if ANY service still contains legacy conceptual teams (e.g. name contains "Team" or "Governance")
+            let bNeedsReset = false;
+            for (const sKey of Object.keys(oCleanMap)) {
+                const aTeams = oCleanMap[sKey] || [];
+                if (aTeams.some(t => t && t.name && (t.name.includes("Team") || t.name.includes("Governance")))) {
+                    bNeedsReset = true;
+                    break;
+                }
+            }
+
+            if (bNeedsReset) {
+                // Legacy conceptual teams detected! Reset to authoritative SAP BTP Role Templates & Role Collections
+                oCleanMap = JSON.parse(JSON.stringify(oDefaultMap));
+                try {
+                    const sSavedCfg = localStorage.getItem("kyra_custom_access_config");
+                    if (sSavedCfg) {
+                        const oSaved = JSON.parse(sSavedCfg);
+                        oSaved.adminServiceDetailsMap = oCleanMap;
+                        localStorage.setItem("kyra_custom_access_config", JSON.stringify(oSaved));
+                    }
+                } catch (e) {}
+                return oCleanMap;
+            }
+
+            // Ensure every service from oDefaultMap is present in oCleanMap
+            Object.keys(oDefaultMap).forEach(sKey => {
+                if (!oCleanMap[sKey] || !Array.isArray(oCleanMap[sKey]) || oCleanMap[sKey].length === 0) {
+                    oCleanMap[sKey] = JSON.parse(JSON.stringify(oDefaultMap[sKey]));
+                }
+            });
+
+            return oCleanMap;
+        },
+
+        _getDefaultAdminServiceDetailsMap() {
             const oMap = {
   "xsuaa (Authorization and Trust Management Service)": [
     {
@@ -15097,7 +14222,7 @@ sap.ui.define([
                 this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
             }
             if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object" && Object.keys(oParsed.adminServiceDetailsMap).length > 0) {
-                const oMap = JSON.parse(JSON.stringify(oParsed.adminServiceDetailsMap));
+                const oMap = this._sanitizeAdminServiceDetailsMap(oParsed.adminServiceDetailsMap);
                 Object.keys(oMap).forEach(sSrv => {
                     (oMap[sSrv] || []).forEach(oTeam => {
                         (oTeam.subClassifications || []).forEach(oSub => {
@@ -15108,12 +14233,14 @@ sap.ui.define([
                     });
                 });
                 oModel.setProperty("/adminServiceDetailsMap", oMap);
-                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
-                if (sSelectedSrv && oMap[sSelectedSrv]) {
-                    const aTeams = oMap[sSelectedSrv] || [];
-                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams));
+                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "xsuaa (Authorization and Trust Management Service)";
+                const aTeams = oMap[sSelectedSrv] || oMap[sSelectedSrv.split(' ')[0]] || [];
+                if (aTeams.length > 0) {
+                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, {
+                        selected: idx === 0
+                    }));
                     oModel.setProperty("/adminClassifications", aTeamsCopy);
-                    const oActiveTeam = aTeamsCopy.find(t => t.selected) || (aTeamsCopy.length > 0 ? aTeamsCopy[0] : null);
+                    const oActiveTeam = aTeamsCopy.find(t => t.selected) || aTeamsCopy[0];
                     oModel.setProperty("/selectedAdminClassification", oActiveTeam ? JSON.parse(JSON.stringify(oActiveTeam)) : null);
                 } else if (!sSelectedSrv) {
                     oModel.setProperty("/adminClassifications", []);
@@ -15277,7 +14404,7 @@ sap.ui.define([
             const aSystems = oModel.getProperty("/adminSystemsAll") || [];
             const aServices = oModel.getProperty("/adminServicesAll") || [];
             const oExistingMap = oModel.getProperty("/adminServiceDetailsMap");
-            const oDetailsMap = oExistingMap || {};
+            const oDetailsMap = this._sanitizeAdminServiceDetailsMap(oExistingMap);
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
 
             let aConflicts = (oModel.getProperty("/adminCustomConflictsAll") || []).map(c => Object.assign({ status: c.status || "Active" }, c, {
@@ -15771,7 +14898,7 @@ sap.ui.define([
             oModel.setProperty("/activeAdminServices", aServicesDisplay.filter(s => s.status !== "Inactive"));
             oModel.setProperty("/selectedAdminServiceName", sCurSelectedSrv);
 
-            let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            let oDetailsMap = this._sanitizeAdminServiceDetailsMap(oModel.getProperty("/adminServiceDetailsMap"));
             let bMapUpdated = false;
             aServiceKeys.forEach(sKey => {
                 if (!oDetailsMap[sKey] || oDetailsMap[sKey].length === 0) {
@@ -15781,11 +14908,9 @@ sap.ui.define([
                     }
                 }
             });
-            if (bMapUpdated || Object.keys(oDetailsMap).length === 0) {
-                oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
-            }
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
 
-            const aTeams = (oDetailsMap[sCurSelectedSrv] || oDefaultMap[sCurSelectedSrv] || []).map((t, idx) => Object.assign({ status: "Active" }, t, {
+            const aTeams = (oDetailsMap[sCurSelectedSrv] || oDetailsMap[sCurSelectedSrv.split(' ')[0]] || oDefaultMap[sCurSelectedSrv] || oDefaultMap[sCurSelectedSrv.split(' ')[0]] || []).map((t, idx) => Object.assign({ status: "Active" }, t, {
                 selected: idx === 0
             }));
             oModel.setProperty("/adminClassifications", aTeams);
@@ -16623,8 +15748,13 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminServiceName", sServiceName);
             oModel.setProperty("/isCurrentServiceUnsaved", bIsUnsaved);
 
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
-            let aTeams = oDetailsMap[sServiceName] || [];
+            const oDetailsMap = this._sanitizeAdminServiceDetailsMap(oModel.getProperty("/adminServiceDetailsMap"));
+            oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
+            let aTeams = oDetailsMap[sServiceName] || oDetailsMap[sServiceName.split(' ')[0]] || [];
+            if (aTeams.length === 0) {
+                const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
+                aTeams = oDefaultMap[sServiceName] || oDefaultMap[sServiceName.split(' ')[0]] || [];
+            }
             const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, {
                 selected: idx === 0
             }));

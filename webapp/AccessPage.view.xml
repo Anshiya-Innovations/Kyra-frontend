@@ -1873,7 +1873,7 @@
                                                 <Text text="Integrated &amp; Active ✓" class="kyraDarkGreenPillText" />
                                             </HBox>
                                         </HBox>
-                                        <Text text="{= 'Configure and manage services, teams, and personas for ' + (${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform') + '.' }" class="fioriDescriptionText sapUiTinyMarginTop" style="color: #64748B; font-size: 12px;" />
+                                        <Text text="{= 'Configure and manage services, ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'role templates, and role collections' : 'teams, and personas') + ' for ' + (${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform') + '.' }" class="fioriDescriptionText sapUiTinyMarginTop" style="color: #64748B; font-size: 12px;" />
                                     </VBox>
                                 </HBox>
                             </HBox>
@@ -1966,7 +1966,7 @@
                                                 gap="10px"
                                                 class="kyraAdminNoticeBanner sapUiSmallMarginBottom">
                                                 <core:Icon src="sap-icon://information" color="#008C9C" size="16px" />
-                                                <Text text="{= 'Service \'' + (${accessModel>/selectedAdminServiceName} || '') + '\' is in Draft mode. You can add Teams and Personas below, then click \'Save\' to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
+                                                <Text text="{= 'Service \'' + (${accessModel>/selectedAdminServiceName} || '') + '\' is in Draft mode. You can add ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Templates and Role Collections' : 'Teams and Personas') + ' below, then click \'Save\' to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
                                             </HBox>
 
                                             <!-- Clean Empty State when no Service is selected -->

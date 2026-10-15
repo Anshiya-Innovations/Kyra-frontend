@@ -11480,6 +11480,26 @@ selectedAdminServiceName: "",
                 const sJustification = oItem.justification || "Business operational governance, audit compliance, and system execution privileges.";
                 const sStatus = oItem.status || "Active";
 
+                let sLoginLink = oItem.loginUrl || oItem.login_url || oItem.link || oItem.accessLink || "";
+                if (!sLoginLink) {
+                    const sSysLower = (sSys || "").toLowerCase();
+                    const sServLower = (sService || "").toLowerCase();
+                    const sRoleLower = (sRole || "").toLowerCase();
+                    if (sSysLower.includes("btp") || sSysLower.includes("technology platform") || sServLower.includes("xsuaa") || sServLower.includes("jobscheduler") || sRoleLower.includes("xsuaa") || sRoleLower.includes("manage_users") || sRoleLower.includes("manage_applications") || sRoleLower.includes("authviewer")) {
+                        sLoginLink = "https://cockpit.hanatrial.ondemand.com/trial/#/home/trial";
+                    } else if (sSysLower.includes("s/4") || sSysLower.includes("s4hana") || sSysLower.includes("enterprise")) {
+                        sLoginLink = "https://my-s4hana.s4hana.cloud.sap/ui#Shell-home";
+                    } else if (sSysLower.includes("successfactors")) {
+                        sLoginLink = "https://performancemanager.successfactors.com/login";
+                    } else if (sSysLower.includes("ariba")) {
+                        sLoginLink = "https://service.ariba.com/Authenticator.aw/ad/loginPage";
+                    } else if (sSysLower.includes("analytics")) {
+                        sLoginLink = "https://my-analytics.cloud.sap/sap/fiori/launchpad.html";
+                    } else {
+                        sLoginLink = "https://cockpit.hanatrial.ondemand.com/trial/#/home/trial";
+                    }
+                }
+
                 const sHtmlContent = `
                     <div class="kyra-role-details-modal">
                         <!-- Top Header Bar with Close X -->
@@ -11546,6 +11566,19 @@ selectedAdminServiceName: "",
                                     <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">Assigned Persona</span>
                                         <span class="kyra-modal-val">${sPers}</span>
+                                    </div>
+                                    <div class="kyra-modal-grid-row">
+                                        <span class="kyra-modal-label">Link</span>
+                                        <span class="kyra-modal-val" style="word-break: break-all;">
+                                            <a href="${sLoginLink}" target="_blank" rel="noopener noreferrer" onclick="window.open('${sLoginLink}', '_blank'); return false;" style="color: #2563EB; text-decoration: underline; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" title="Open Login Page">
+                                                <span>${sLoginLink}</span>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                                </svg>
+                                            </a>
+                                        </span>
                                     </div>
                                     <div class="kyra-modal-grid-row">
                                         <span class="kyra-modal-label">Granted Date</span>
