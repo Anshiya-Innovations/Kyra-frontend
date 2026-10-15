@@ -57514,6 +57514,30 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active {
     stroke: #007280 !important;
 }
 
+/* ==========================================================================
+   ACCESS CUSTOMIZATION SYSTEM TABLE & DRILL-DOWN STYLES
+   ========================================================================== */
+.kyraAdminSystemLink {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px !important;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease !important;
+}
 
+.kyraAdminSystemLink:hover {
+    color: #005F6A !important;
+    text-decoration: underline !important;
+}
 
+.kyraAdminSystemsTable .kyraAdminClickableRow {
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
+}
 
+.kyraAdminSystemsTable .kyraAdminClickableRow:hover td {
+    background-color: #F8FAFC !important;
+}
