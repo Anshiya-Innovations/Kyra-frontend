@@ -423,6 +423,44 @@ sap.ui.define([
                 // 4. Admin Persona State & Live Access Customization Data (Synced with Add Access Configuration)
                 isAdminPersona: (sessionStorage.getItem("kyra_active_role") === "Admin" || sessionStorage.getItem("kyra_active_role") === "Administrator"),
                 adminSelectedSection: "",
+                selectedIntegrationType: "sap",
+                adGroupIntegration: {
+                    directoryProvider: "azure_ad",
+                    domainFqdn: "corp.kyra-enterprise.com",
+                    netbiosName: "CORP",
+                    ldapUrl: "ldaps://ad01.corp.kyra-enterprise.com:636",
+                    baseDn: "DC=corp,DC=kyra-enterprise,DC=com",
+                    serviceUser: "svc_kyra_sync@corp.kyra-enterprise.com",
+                    servicePassword: "",
+                    groupFilter: "(&(objectCategory=group)(cn=KYRA_*))",
+                    syncInterval: "15m",
+                    ssl: true,
+                    syncNested: true,
+                    connected: false,
+                    lastSyncTime: "Live",
+                    discoveredGroups: [
+                        { groupName: "KYRA_ENTERPRISE_ADMINS", type: "Security Group", scope: "Universal", memberCount: "14 members", lastSync: "Today, 15:45", status: "Active" },
+                        { groupName: "KYRA_FIN_CONTROLLERS", type: "Security Group", scope: "Universal", memberCount: "38 members", lastSync: "Today, 15:45", status: "Active" },
+                        { groupName: "KYRA_SECTOR_HEADS", type: "Security Group", scope: "Universal", memberCount: "22 members", lastSync: "Today, 15:45", status: "Active" },
+                        { groupName: "KYRA_DEV_OPS_TEAM", type: "Security Group", scope: "Universal", memberCount: "45 members", lastSync: "Today, 15:45", status: "Active" }
+                    ]
+                },
+                iamIntegration: {
+                    provider: "sap_ias",
+                    issuerUrl: "https://kyra-prod.accounts.ondemand.com",
+                    protocol: "saml2",
+                    clientId: "kyra-iam-client-9842",
+                    clientSecret: "",
+                    scimUrl: "https://kyra-prod.accounts.ondemand.com/scim/v2",
+                    scimToken: "",
+                    enforceMfa: true,
+                    jitProvisioning: true,
+                    syncPersonas: true,
+                    connected: false,
+                    linkedIdentitiesCount: "1,820",
+                    activeSessionsCount: "412",
+                    governedRolesCount: "18 Roles"
+                },
                 sapIntegration: {
                     selectedApp: "sap_btp",
                     currentStep: 1,
@@ -2064,6 +2102,21 @@ sap.ui.define([
             if (!this._bActionCardsGlobalClickBound) {
                 this._bActionCardsGlobalClickBound = true;
                 document.addEventListener("click", (e) => {
+                    const cardSubSap = e.target.closest("#cardSubSapIntegration, [id$='cardSubSapIntegration']");
+                    if (cardSubSap) {
+                        this.onSelectSapIntegration();
+                        return;
+                    }
+                    const cardSubAd = e.target.closest("#cardSubAdGroupIntegration, [id$='cardSubAdGroupIntegration']");
+                    if (cardSubAd) {
+                        this.onSelectAdGroupIntegration();
+                        return;
+                    }
+                    const cardSubIam = e.target.closest("#cardSubIamIntegration, [id$='cardSubIamIntegration']");
+                    if (cardSubIam) {
+                        this.onSelectIamIntegration();
+                        return;
+                    }
                     const cardDb = e.target.closest("#cardAdminDatabaseConfig, [id$='cardAdminDatabaseConfig']");
                     if (cardDb) {
                         this.onSelectAdminDatabaseConfig();
@@ -2350,6 +2403,9 @@ sap.ui.define([
             bindClick("cardAddAccess", this.onNavToAddAccess);
             bindClick("cardRemoveAccess", this.onNavToRemoveAccess);
             bindClick("cardAdminDatabaseConfig", this.onSelectAdminDatabaseConfig);
+            bindClick("cardSubSapIntegration", this.onSelectSapIntegration);
+            bindClick("cardSubAdGroupIntegration", this.onSelectAdGroupIntegration);
+            bindClick("cardSubIamIntegration", this.onSelectIamIntegration);
             bindClick("cardAdminPersonaConversion", this.onSelectAdminPersonaConversion);
             bindClick("cardAdminAccessCustomization", this.onSelectAdminAccessCustomization);
             bindClick("stratCardKyra", this.onSelectKyraMode);
@@ -15559,6 +15615,9 @@ sap.ui.define([
             oModel.setProperty("/adminSelectedSection", sNext);
 
             if (sNext === "databaseConfig") {
+                if (!oModel.getProperty("/selectedIntegrationType")) {
+                    oModel.setProperty("/selectedIntegrationType", "sap");
+                }
                 if (!oModel.getProperty("/sapIntegration/currentStep")) {
                     oModel.setProperty("/sapIntegration/currentStep", 1);
                 }
@@ -20004,6 +20063,74 @@ sap.ui.define([
                 const sTeam = oModel.getProperty("/sapIntegration/hierarchy/selectedTeam");
                 MessageToast.show("Access Hierarchy Selected: " + sService + " > " + sTeam + " > " + sPersona);
             }
+        },
+
+        onSelectSapIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/selectedIntegrationType", "sap");
+            if (!oModel.getProperty("/sapIntegration/currentStep")) {
+                oModel.setProperty("/sapIntegration/currentStep", 1);
+            }
+            setTimeout(() => {
+                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+            }, 60);
+        },
+
+        onSelectAdGroupIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/selectedIntegrationType", "ad_group");
+            setTimeout(() => {
+                this._smoothScrollTo("adGroupIntegrationContainer", 40);
+            }, 60);
+        },
+
+        onSelectIamIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/selectedIntegrationType", "iam");
+            setTimeout(() => {
+                this._smoothScrollTo("iamIntegrationContainer", 40);
+            }, 60);
+        },
+
+        onTestAdGroupIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/adGroupIntegration/connected", true);
+                sap.m.MessageBox.success("Active Directory & LDAP connection verified successfully!\n\nDomain: corp.kyra-enterprise.com\nLDAP Server: ldaps://ad01.corp.kyra-enterprise.com:636\nDiscovered: 4 Security Groups.", {
+                    title: "Active Directory Connected"
+                });
+            }, 750);
+        },
+
+        onSyncAdGroups() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                const sTime = new Date().toLocaleTimeString();
+                oModel.setProperty("/adGroupIntegration/lastSyncTime", sTime);
+                sap.m.MessageToast.show("Active Directory security groups synced at " + sTime);
+            }, 600);
+        },
+
+        onTestIamIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/iamIntegration/connected", true);
+                sap.m.MessageBox.success("IAM Identity Provider federation connection established successfully!\n\nIssuer: https://kyra-prod.accounts.ondemand.com\nProtocol: SAML 2.0 / SCIM 2.0\nLinked Identities: 1,820", {
+                    title: "IAM Federation Connected"
+                });
+            }, 750);
         },
 
 

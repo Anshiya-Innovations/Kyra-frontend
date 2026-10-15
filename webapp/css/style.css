@@ -57541,3 +57541,114 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active {
 .kyraAdminSystemsTable .kyraAdminClickableRow:hover td {
     background-color: #F8FAFC !important;
 }
+
+/* ==========================================================================
+   SUB-INTEGRATION TABS & CARDS (SAP, AD GROUP, IAM)
+   ========================================================================== */
+.kyraSubIntegrationTabsRow {
+    display: flex !important;
+    gap: 16px !important;
+    width: 100% !important;
+    margin-bottom: 24px !important;
+}
+
+.kyraSubIntegrationCard {
+    background: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    padding: 16px 20px 14px 20px !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+.kyraSubIntegrationCard:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+}
+
+.kyraSubIntegrationCard.kyraSubIntegrationCardActive {
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.1) !important;
+}
+
+.kyraSubIntegrationCard.kyraSubIntegrationAmber.kyraSubIntegrationCardActive {
+    border-color: #EA580C !important;
+    background: #FFFCF9 !important;
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.14) !important;
+}
+
+.kyraSubIntegrationCard.kyraSubIntegrationTeal.kyraSubIntegrationCardActive {
+    border-color: #00778B !important;
+    background: #F6FCFB !important;
+    box-shadow: 0 6px 20px rgba(0, 119, 139, 0.14) !important;
+}
+
+.kyraSubIntegrationCard.kyraSubIntegrationPurple.kyraSubIntegrationCardActive {
+    border-color: #7C3AED !important;
+    background: #FAF7FD !important;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.14) !important;
+}
+
+.kyraActionBadge.kyraBadgePurple {
+    background: #F3E8FF !important;
+    border: 1px solid #E9D5FF !important;
+}
+
+.kyraActionBadge.kyraBadgePurple .kyraBadgeIcon,
+.kyraActionBadge.kyraBadgePurple .sapUiIcon {
+    color: #7C3AED !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+}
+
+.fioriActionLinkPurple {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    color: #7C3AED !important;
+    letter-spacing: 0.1px !important;
+}
+
+.kyraSubIntegrationArrow {
+    color: #94A3B8 !important;
+    font-size: 15px !important;
+    transition: transform 0.2s ease, color 0.2s ease !important;
+}
+
+.kyraSubIntegrationArrowActive.kyraArrowAmber {
+    color: #EA580C !important;
+    font-size: 16px !important;
+}
+
+.kyraSubIntegrationArrowActive.kyraArrowTeal {
+    color: #00778B !important;
+    font-size: 16px !important;
+}
+
+.kyraSubIntegrationArrowActive.kyraArrowPurple {
+    color: #7C3AED !important;
+    font-size: 16px !important;
+}
+
+.kyraIamKpiCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 14px 18px !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
+}
+
+.kyraIamKpiNum {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+}
+
+.kyraIamKpiLabel {
+    font-size: 12px !important;
+    color: #64748B !important;
+    font-weight: 600 !important;
+}

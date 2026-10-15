@@ -87,22 +87,22 @@
                     <!-- ADMIN PERSONA VIEW: ONLY 3 ACTION CARDS + EXPANDABLE SECTIONS BELOW                -->
                     <!-- ================================================================================== -->
                     <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} }">
-                        <!-- BUTTON 1: DATABASE CONFIGURATION (AMBER THEME) -->
+                        <!-- BUTTON 1: INTEGRATION (AMBER THEME) -->
                         <VBox id="cardAdminDatabaseConfig"
                             class="{= 'fioriActionCard fioriCardPending fioriClickableCard' + (${accessModel>/adminSelectedSection} === 'databaseConfig' ? ' kyraCardExpanded' : '') }"
                             justifyContent="SpaceBetween">
                             <HBox alignItems="Center" class="fioriCardHeaderRow">
                                 <HBox class="kyraActionBadge kyraBadgeAmber">
-                                    <core:Icon src="sap-icon://database" class="kyraBadgeIcon" />
+                                    <core:Icon src="sap-icon://chain-link" class="kyraBadgeIcon" />
                                 </HBox>
                                 <VBox class="fioriCardTitleBox">
-                                    <Title text="Database Configuration" level="H5" class="fioriActionCardTitle" />
-                                    <Text text="Configure database &amp; schemas" class="fioriActionCardSub" />
+                                    <Title text="Integration" level="H5" class="fioriActionCardTitle" />
+                                    <Text text="Configure system integrations" class="fioriActionCardSub" />
                                 </VBox>
                             </HBox>
                             <HBox class="kyraCardDivider" />
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriCardFooterRow">
-                                <Text text="Database Configuration" class="fioriActionLinkAmber" />
+                                <Text text="Integration" class="fioriActionLinkAmber" />
                                 <HBox class="kyraCardCircleArrow kyraArrowAmber">
                                     <customData>
                                         <core:CustomData key="expanded" value="{= ${accessModel>/adminSelectedSection} === 'databaseConfig' ? 'true' : 'false' }" writeToDom="true" />
@@ -179,6 +179,98 @@
                     <VBox id="adminDatabaseConfigSection"
                         visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; ${accessModel>/adminSelectedSection} === 'databaseConfig' }"
                         class="kyraMigrationStudioContainer fioriSlideDownAnim">
+
+                        <!-- ========================================================================= -->
+                        <!-- 3 SUB-INTEGRATION SELECTOR BOXES: SAP Integration, AD Group Integration, IAM Integration -->
+                        <!-- ========================================================================= -->
+                        <HBox width="100%" class="kyraSubIntegrationTabsRow sapUiMediumMarginBottom" gap="16px">
+                            <!-- BOX 1: SAP INTEGRATION -->
+                            <VBox id="cardSubSapIntegration"
+                                width="33.33%"
+                                class="{= 'kyraSubIntegrationCard fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'sap' || !${accessModel>/selectedIntegrationType} ? ' kyraSubIntegrationCardActive kyraSubIntegrationAmber' : '') }"
+                                press=".onSelectSapIntegration">
+                                <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
+                                    <HBox alignItems="Center">
+                                        <HBox class="kyraActionBadge kyraBadgeAmber" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px;">
+                                            <core:Icon src="sap-icon://database" class="kyraBadgeIcon" style="font-size: 18px;" />
+                                        </HBox>
+                                        <VBox class="fioriCardTitleBox">
+                                            <Title text="SAP Integration" level="H5" class="fioriActionCardTitle" style="font-size: 15px;" />
+                                            <Text text="SAP BTP, S/4HANA &amp; Cloud ERP" class="fioriActionCardSub" style="font-size: 12px;" />
+                                        </VBox>
+                                    </HBox>
+                                    <core:Icon
+                                        src="{= (${accessModel>/selectedIntegrationType} === 'sap' || !${accessModel>/selectedIntegrationType}) ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        class="{= (${accessModel>/selectedIntegrationType} === 'sap' || !${accessModel>/selectedIntegrationType}) ? 'kyraSubIntegrationArrowActive kyraArrowAmber' : 'kyraSubIntegrationArrow' }" />
+                                </HBox>
+                                <HBox class="kyraCardDivider" style="margin: 12px 0 10px 0;" />
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                                    <Text text="SAP Application Integration" class="fioriActionLinkAmber" style="font-size: 12.5px;" />
+                                    <ObjectStatus
+                                        text="{= ${accessModel>/sapIntegration/connected} ? 'Connected ✓' : 'Config Ready' }"
+                                        state="{= ${accessModel>/sapIntegration/connected} ? 'Success' : 'Warning' }" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- BOX 2: AD GROUP INTEGRATION -->
+                            <VBox id="cardSubAdGroupIntegration"
+                                width="33.33%"
+                                class="{= 'kyraSubIntegrationCard fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'ad_group' ? ' kyraSubIntegrationCardActive kyraSubIntegrationTeal' : '') }"
+                                press=".onSelectAdGroupIntegration">
+                                <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
+                                    <HBox alignItems="Center">
+                                        <HBox class="kyraActionBadge kyraBadgeTeal" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px;">
+                                            <core:Icon src="sap-icon://group" class="kyraBadgeIcon" style="font-size: 18px;" />
+                                        </HBox>
+                                        <VBox class="fioriCardTitleBox">
+                                            <Title text="AD Group Integration" level="H5" class="fioriActionCardTitle" style="font-size: 15px;" />
+                                            <Text text="Active Directory &amp; LDAP Sync" class="fioriActionCardSub" style="font-size: 12px;" />
+                                        </VBox>
+                                    </HBox>
+                                    <core:Icon
+                                        src="{= ${accessModel>/selectedIntegrationType} === 'ad_group' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        class="{= ${accessModel>/selectedIntegrationType} === 'ad_group' ? 'kyraSubIntegrationArrowActive kyraArrowTeal' : 'kyraSubIntegrationArrow' }" />
+                                </HBox>
+                                <HBox class="kyraCardDivider" style="margin: 12px 0 10px 0;" />
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                                    <Text text="AD Group Directory Sync" class="fioriActionLinkTeal" style="font-size: 12.5px;" />
+                                    <ObjectStatus
+                                        text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected ✓' : 'Ready to Sync' }"
+                                        state="{= ${accessModel>/adGroupIntegration/connected} ? 'Success' : 'Information' }" />
+                                </HBox>
+                            </VBox>
+
+                            <!-- BOX 3: IAM INTEGRATION -->
+                            <VBox id="cardSubIamIntegration"
+                                width="33.33%"
+                                class="{= 'kyraSubIntegrationCard fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'iam' ? ' kyraSubIntegrationCardActive kyraSubIntegrationPurple' : '') }"
+                                press=".onSelectIamIntegration">
+                                <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
+                                    <HBox alignItems="Center">
+                                        <HBox class="kyraActionBadge kyraBadgePurple" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px;">
+                                            <core:Icon src="sap-icon://key" class="kyraBadgeIcon" style="font-size: 18px;" />
+                                        </HBox>
+                                        <VBox class="fioriCardTitleBox">
+                                            <Title text="IAM Integration" level="H5" class="fioriActionCardTitle" style="font-size: 15px;" />
+                                            <Text text="Identity &amp; Access Governance" class="fioriActionCardSub" style="font-size: 12px;" />
+                                        </VBox>
+                                    </HBox>
+                                    <core:Icon
+                                        src="{= ${accessModel>/selectedIntegrationType} === 'iam' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                        class="{= ${accessModel>/selectedIntegrationType} === 'iam' ? 'kyraSubIntegrationArrowActive kyraArrowPurple' : 'kyraSubIntegrationArrow' }" />
+                                </HBox>
+                                <HBox class="kyraCardDivider" style="margin: 12px 0 10px 0;" />
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%">
+                                    <Text text="IAM Federation &amp; SSO" class="fioriActionLinkPurple" style="font-size: 12.5px;" />
+                                    <ObjectStatus
+                                        text="{= ${accessModel>/iamIntegration/connected} ? 'Federated ✓' : 'Ready' }"
+                                        state="{= ${accessModel>/iamIntegration/connected} ? 'Success' : 'None' }" />
+                                </HBox>
+                            </VBox>
+                        </HBox>
+
+                        <!-- WRAPPER FOR SAP APPLICATION INTEGRATION (Visible when Box 1 is active) -->
+                        <VBox id="sapIntegrationSubSection" visible="{= ${accessModel>/selectedIntegrationType} === 'sap' || !${accessModel>/selectedIntegrationType} }" width="100%">
 
                         <!-- ========================================================================= -->
                         <!-- PAGE 1: SAP APPLICATION INTEGRATION CONFIGURATION (EXACT MATCH TO IMAGE 2)-->
@@ -521,6 +613,450 @@
                                 </HBox>
                             </HBox>
 
+                        </VBox>
+
+                        </VBox>
+
+                        <!-- ========================================================================= -->
+                        <!-- SUB-SECTION 2: AD GROUP INTEGRATION (ACTIVE DIRECTORY & LDAP SYNC)        -->
+                        <!-- ========================================================================= -->
+                        <VBox id="adGroupIntegrationContainer"
+                            visible="{= ${accessModel>/selectedIntegrationType} === 'ad_group' }"
+                            width="100%"
+                            class="kyraDarkStudioWrapper kyraSlideAnim">
+
+                            <!-- Top Title Block -->
+                            <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <Title text="Configure Active Directory (AD) Group Integration" level="H2" class="kyraDarkStudioTitle" />
+                                <Text text="Connect your enterprise Active Directory / Azure AD (Entra ID) domain, configure LDAP sync parameters, and map directory security groups to Kyra access roles." class="kyraDarkStudioSubtitle" />
+                            </VBox>
+
+                            <!-- Target Destination Banner -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
+                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
+                                    <HBox class="kyraDarkGreenGlowDot" />
+                                    <FormattedText
+                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(Directory Sync Engine &amp;#10142; Domain: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;corp.kyra-enterprise.com&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
+                                        class="kyraDarkBannerFormattedText" />
+                                </HBox>
+                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                    <Text text="Directory Sync Ready ✓" class="kyraDarkGreenPillText" />
+                                </HBox>
+                            </HBox>
+
+                            <!-- Main Card: Active Directory & LDAP Connection Configuration -->
+                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                <!-- Card Header -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="10px">
+                                        <core:Icon src="sap-icon://group" class="kyraDarkCardHeaderIcon" />
+                                        <Title text="Active Directory &amp; LDAP Configuration" level="H4" class="kyraDarkCardHeaderTitle" />
+                                    </HBox>
+                                    <HBox class="{= ${accessModel>/adGroupIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
+                                        <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected &amp; Synced ✓' : 'Awaiting Connection Test' }" class="kyraDarkStatusBadgeText" />
+                                    </HBox>
+                                </HBox>
+
+                                <!-- Dropdown: Select Directory Provider -->
+                                <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                    <Text text="Select Directory Service Provider" class="kyraDarkFieldLabel" />
+                                    <Select
+                                        id="adProviderSelect"
+                                        selectedKey="{accessModel>/adGroupIntegration/directoryProvider}"
+                                        width="100%"
+                                        class="kyraDarkSelect">
+                                        <core:Item key="azure_ad" text="Microsoft Entra ID (Azure Active Directory)" />
+                                        <core:Item key="onprem_ad" text="Microsoft Active Directory Domain Services (AD DS - On-Premises)" />
+                                        <core:Item key="openldap" text="OpenLDAP / FreeIPA Directory Service" />
+                                        <core:Item key="aws_ds" text="AWS Directory Service (AWS Managed Microsoft AD)" />
+                                    </Select>
+                                </VBox>
+
+                                <!-- Row 1: Domain Name FQDN (70%) + NetBIOS Domain (30%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="70%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Domain Name (FQDN)" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/domainFqdn}"
+                                            placeholder="corp.kyra-enterprise.com"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="30%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Domain NetBIOS Name" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/netbiosName}"
+                                            placeholder="CORP"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 2: LDAP Server URL (70%) + Base DN (30%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="70%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="LDAP / LDAPS Server URL" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/ldapUrl}"
+                                            placeholder="ldaps://ad01.corp.kyra-enterprise.com:636"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="30%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Base DN (Search Root)" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/baseDn}"
+                                            placeholder="DC=corp,DC=kyra-enterprise,DC=com"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 3: Service Account Username (50%) + Service Account Password (50%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="50%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Service Account Username / Bind DN" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/serviceUser}"
+                                            placeholder="svc_kyra_sync@corp.kyra-enterprise.com"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="50%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Service Account Password" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/servicePassword}"
+                                            type="Password"
+                                            placeholder="••••••••••••"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 4: Group Search Filter (70%) + Sync Interval (30%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="70%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Group Search LDAP Filter" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/adGroupIntegration/groupFilter}"
+                                            placeholder="(&amp;(objectCategory=group)(cn=KYRA_*))"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="30%" class="kyraDarkFieldGroup">
+                                        <Text text="Sync Frequency" class="kyraDarkFieldLabel" />
+                                        <Select
+                                            selectedKey="{accessModel>/adGroupIntegration/syncInterval}"
+                                            width="100%"
+                                            class="kyraDarkSelect">
+                                            <core:Item key="15m" text="Every 15 Minutes" />
+                                            <core:Item key="30m" text="Every 30 Minutes" />
+                                            <core:Item key="1h" text="Every 1 Hour" />
+                                            <core:Item key="realtime" text="Real-time Webhook Sync" />
+                                        </Select>
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 5: Checkboxes -->
+                                <HBox alignItems="Center" gap="24px" class="kyraDarkCheckboxRow sapUiSmallMarginBottom">
+                                    <CheckBox
+                                        selected="{accessModel>/adGroupIntegration/ssl}"
+                                        text="Enable LDAPS (SSL/TLS Certificate Validation)"
+                                        class="kyraDarkCheckbox" />
+                                    <CheckBox
+                                        selected="{accessModel>/adGroupIntegration/syncNested}"
+                                        text="Auto-sync nested security groups &amp; recursive memberships"
+                                        class="kyraDarkCheckbox" />
+                                </HBox>
+
+                                <!-- Row 6: Test AD Connection Button -->
+                                <Button
+                                    id="btnTestAdIntegration"
+                                    icon="sap-icon://flash"
+                                    text="⚡ Test AD Connection &amp; Discover Groups"
+                                    press=".onTestAdGroupIntegration"
+                                    class="kyraDarkTestConnBtn"
+                                    width="100%" />
+                            </VBox>
+
+                            <!-- Discovered AD Groups Preview Table -->
+                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="10px">
+                                        <core:Icon src="sap-icon://org-chart" class="kyraDarkCardHeaderIcon" />
+                                        <Title text="Discovered Active Directory Security Groups" level="H4" class="kyraDarkCardHeaderTitle" />
+                                    </HBox>
+                                    <Button
+                                        icon="sap-icon://refresh"
+                                        text="Sync Groups Now"
+                                        type="Transparent"
+                                        press=".onSyncAdGroups"
+                                        class="kyraDarkBackLinkBtn" />
+                                </HBox>
+
+                                <Table
+                                    items="{accessModel>/adGroupIntegration/discoveredGroups}"
+                                    fixedLayout="true"
+                                    class="sapUiNoMargin kyraAdminCleanTable">
+                                    <columns>
+                                        <Column width="35%" hAlign="Begin"><Text text="AD Group Name" class="kyraAdminColHeader" /></Column>
+                                        <Column width="20%" hAlign="Begin"><Text text="Type / Scope" class="kyraAdminColHeader" /></Column>
+                                        <Column width="18%" hAlign="Begin"><Text text="Members" class="kyraAdminColHeader" /></Column>
+                                        <Column width="15%" hAlign="Begin"><Text text="Last Synced" class="kyraAdminColHeader" /></Column>
+                                        <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem vAlign="Middle">
+                                            <cells>
+                                                <HBox alignItems="Center" gap="10px">
+                                                    <core:Icon src="sap-icon://group" color="#00778B" />
+                                                    <Text text="{accessModel>groupName}" class="kyraAdminCellBold" />
+                                                </HBox>
+                                                <Text text="{accessModel>type} ({accessModel>scope})" class="fioriDescriptionText" />
+                                                <ObjectStatus text="{accessModel>memberCount}" state="Information" />
+                                                <Text text="{accessModel>lastSync}" class="fioriDescriptionText" />
+                                                <ObjectStatus text="{accessModel>status}" state="Success" icon="sap-icon://sys-enter-2" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </VBox>
+
+                            <!-- Bottom Action Bar -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                <HBox alignItems="Center" class="kyraDarkPromptBox">
+                                    <Text text="Active Directory Sync Status: " class="kyraDarkPromptHint" />
+                                    <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected &amp; Synced ✓' : 'Awaiting Connection Test' }" class="kyraDarkPromptTarget" />
+                                </HBox>
+                                <Button
+                                    text="Close Section"
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseAdminSection"
+                                    class="kyraDarkBackLinkBtn" />
+                            </HBox>
+                        </VBox>
+
+                        <!-- ========================================================================= -->
+                        <!-- SUB-SECTION 3: IAM INTEGRATION (IDENTITY & ACCESS MANAGEMENT FEDERATION)  -->
+                        <!-- ========================================================================= -->
+                        <VBox id="iamIntegrationContainer"
+                            visible="{= ${accessModel>/selectedIntegrationType} === 'iam' }"
+                            width="100%"
+                            class="kyraDarkStudioWrapper kyraSlideAnim">
+
+                            <!-- Top Title Block -->
+                            <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <Title text="Configure IAM (Identity &amp; Access Management) Integration" level="H2" class="kyraDarkStudioTitle" />
+                                <Text text="Establish enterprise Identity Provider (IdP) federation, automated SCIM 2.0 user lifecycle provisioning, and Single Sign-On (SSO) governance." class="kyraDarkStudioSubtitle" />
+                            </VBox>
+
+                            <!-- Target Destination Banner -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
+                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
+                                    <HBox class="kyraDarkGreenGlowDot" />
+                                    <FormattedText
+                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #7C3AED; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(IAM Federation Hub &amp;#10142; IdP: &lt;/span&gt;&lt;span style='color: #7C3AED; font-weight: 700; font-size: 13.5px;'&gt;SAP Cloud Identity Services (IAS)&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
+                                        class="kyraDarkBannerFormattedText" />
+                                </HBox>
+                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                    <Text text="IAM Federation Ready ✓" class="kyraDarkGreenPillText" />
+                                </HBox>
+                            </HBox>
+
+                            <!-- Main Card: IAM Federation Configuration -->
+                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                <!-- Card Header -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="10px">
+                                        <core:Icon src="sap-icon://key" class="kyraDarkCardHeaderIcon" color="#7C3AED" />
+                                        <Title text="Identity Provider (IdP) &amp; Federation Configuration" level="H4" class="kyraDarkCardHeaderTitle" />
+                                    </HBox>
+                                    <HBox class="{= ${accessModel>/iamIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
+                                        <Text text="{= ${accessModel>/iamIntegration/connected} ? 'Federated &amp; Verified ✓' : 'Awaiting Connection Test' }" class="kyraDarkStatusBadgeText" />
+                                    </HBox>
+                                </HBox>
+
+                                <!-- Dropdown: Select IAM Provider -->
+                                <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                    <Text text="Select Identity &amp; Access Management (IAM) Provider" class="kyraDarkFieldLabel" />
+                                    <Select
+                                        id="iamProviderSelect"
+                                        selectedKey="{accessModel>/iamIntegration/provider}"
+                                        width="100%"
+                                        class="kyraDarkSelect">
+                                        <core:Item key="sap_ias" text="SAP Cloud Identity Services (IAS) - Default Enterprise IdP" />
+                                        <core:Item key="azure_ad_iam" text="Microsoft Entra ID (Azure AD IAM &amp; SSO)" />
+                                        <core:Item key="okta" text="Okta Workforce Identity Cloud" />
+                                        <core:Item key="ping" text="Ping Identity / PingFederate Enterprise" />
+                                        <core:Item key="cyberark" text="CyberArk Identity Security Platform" />
+                                    </Select>
+                                </VBox>
+
+                                <!-- Row 1: IAM Server / Issuer URL (70%) + SSO Protocol (30%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="70%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="IAM Server / Token Issuer URL" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/iamIntegration/issuerUrl}"
+                                            placeholder="https://kyra-prod.accounts.ondemand.com"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="30%" class="kyraDarkFieldGroup">
+                                        <Text text="Single Sign-On (SSO) Protocol" class="kyraDarkFieldLabel" />
+                                        <Select
+                                            selectedKey="{accessModel>/iamIntegration/protocol}"
+                                            width="100%"
+                                            class="kyraDarkSelect">
+                                            <core:Item key="saml2" text="SAML 2.0 Web SSO" />
+                                            <core:Item key="oidc" text="OpenID Connect (OIDC 1.0)" />
+                                            <core:Item key="wsfed" text="WS-Federation" />
+                                        </Select>
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 2: OAuth 2.0 Client ID (50%) + Client Secret (50%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="50%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="OAuth 2.0 / SSO Client ID" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/iamIntegration/clientId}"
+                                            placeholder="kyra-iam-client-9842"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="50%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Client Secret / Certificate" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/iamIntegration/clientSecret}"
+                                            type="Password"
+                                            placeholder="••••••••••••"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 3: SCIM 2.0 Provisioning URL (70%) + Bearer Token (30%) -->
+                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                    <VBox width="70%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="SCIM 2.0 Provisioning Endpoint URL" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/iamIntegration/scimUrl}"
+                                            placeholder="https://kyra-prod.accounts.ondemand.com/scim/v2"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                    <VBox width="30%" class="kyraDarkFieldGroup">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="SCIM Bearer Token" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                        </HBox>
+                                        <Input
+                                            value="{accessModel>/iamIntegration/scimToken}"
+                                            type="Password"
+                                            placeholder="••••••••••••"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                    </VBox>
+                                </HBox>
+
+                                <!-- Row 4: Checkboxes -->
+                                <HBox alignItems="Center" gap="24px" class="kyraDarkCheckboxRow sapUiSmallMarginBottom">
+                                    <CheckBox
+                                        selected="{accessModel>/iamIntegration/enforceMfa}"
+                                        text="Enforce Multi-Factor Authentication (MFA)"
+                                        class="kyraDarkCheckbox" />
+                                    <CheckBox
+                                        selected="{accessModel>/iamIntegration/jitProvisioning}"
+                                        text="Enable Just-In-Time (JIT) Provisioning"
+                                        class="kyraDarkCheckbox" />
+                                    <CheckBox
+                                        selected="{accessModel>/iamIntegration/syncPersonas}"
+                                        text="Sync User Personas &amp; Claims via SCIM 2.0"
+                                        class="kyraDarkCheckbox" />
+                                </HBox>
+
+                                <!-- Row 5: Test IAM Connection Button -->
+                                <Button
+                                    id="btnTestIamIntegration"
+                                    icon="sap-icon://flash"
+                                    text="⚡ Test IAM Federation &amp; Verify Token Issuer"
+                                    press=".onTestIamIntegration"
+                                    class="kyraDarkTestConnBtn"
+                                    width="100%" />
+                            </VBox>
+
+                            <!-- IAM Governance & Telemetry Cards -->
+                            <HBox width="100%" gap="16px" class="sapUiMediumMarginBottom">
+                                <VBox width="25%" class="kyraIamKpiCard">
+                                    <Text text="1,820" class="kyraIamKpiNum" style="color: #7C3AED;" />
+                                    <Text text="Federated Identities" class="kyraIamKpiLabel" />
+                                    <Text text="Synced with Corporate IdP" class="fioriDescriptionText" style="font-size: 11px; margin-top: 4px;" />
+                                </VBox>
+                                <VBox width="25%" class="kyraIamKpiCard">
+                                    <Text text="412" class="kyraIamKpiNum" style="color: #00778B;" />
+                                    <Text text="Active SSO Sessions" class="kyraIamKpiLabel" />
+                                    <Text text="Zero Trust token timeout 8h" class="fioriDescriptionText" style="font-size: 11px; margin-top: 4px;" />
+                                </VBox>
+                                <VBox width="25%" class="kyraIamKpiCard">
+                                    <Text text="18 Roles" class="kyraIamKpiNum" style="color: #EA580C;" />
+                                    <Text text="Governed Personas" class="kyraIamKpiLabel" />
+                                    <Text text="Mapped to Kyra Catalog" class="fioriDescriptionText" style="font-size: 11px; margin-top: 4px;" />
+                                </VBox>
+                                <VBox width="25%" class="kyraIamKpiCard">
+                                    <Text text="SAML 2.0 / SCIM" class="kyraIamKpiNum" style="color: #10B981; font-size: 18px;" />
+                                    <Text text="Federation Protocol" class="kyraIamKpiLabel" />
+                                    <Text text="TLS 1.3 End-to-End Encrypted" class="fioriDescriptionText" style="font-size: 11px; margin-top: 4px;" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Bottom Action Bar -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                <HBox alignItems="Center" class="kyraDarkPromptBox">
+                                    <Text text="IAM Federation Status: " class="kyraDarkPromptHint" />
+                                    <Text text="{= ${accessModel>/iamIntegration/connected} ? 'Federated &amp; Verified ✓' : 'Awaiting Connection Test' }" class="kyraDarkPromptTarget" />
+                                </HBox>
+                                <Button
+                                    text="Close Section"
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseAdminSection"
+                                    class="kyraDarkBackLinkBtn" />
+                            </HBox>
                         </VBox>
 
                     </VBox>
