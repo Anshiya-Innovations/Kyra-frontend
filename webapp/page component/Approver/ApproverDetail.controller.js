@@ -1855,14 +1855,15 @@ sap.ui.define([
                     <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                         <div>
                             <div style="font-weight: 800; font-size: 14px; color: #0F172A;">Requester (${oData.requesterId || oData.requesterUsername || ""})</div>
-                            <div style="font-size: 11.5px; color: #64748B; margin-top: 2px;">
-                                Sector: <strong style="color: #1E293B;">${oData.sector || 'Enterprise Governance'}</strong>
+                            <div style="font-size: 11.5px; color: #64748B; margin-top: 3px; display: flex; flex-direction: column; gap: 2px;">
+                                <div>Sector: <strong style="color: #1E293B;">${oData.sector || 'Enterprise Governance'}</strong></div>
+                                ${oData.function ? `<div>Function: <strong style="color: #1E293B;">${oData.function}</strong></div>` : ''}
                             </div>
                         </div>
                         <div style="text-align: right;">
                             <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #64748B; display: block; margin-bottom: 2px;">Decision Result</span>
-                            <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11.5px; ${sOverallStatus === 'Approved' ? 'background: #DCFCE7; color: #15803D; border: 1px solid #86EFAC;' : (sOverallStatus === 'Rejected' ? 'background: #FEE2E2; color: #B91C1C; border: 1px solid #FCA5A5;' : 'background: #FEF3C7; color: #B45309; border: 1px solid #FCD34D;')}">
-                                ${sOverallStatus === 'Approved' ? '✔ Approved' : (sOverallStatus === 'Rejected' ? '✕ Rejected' : '⚠ Partially Approved')}
+                            <span style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 12px; border-radius: 9999px; font-weight: 600; font-size: 11.5px; ${sOverallStatus === 'Approved' ? 'background: #DCFCE7; color: #15803D; border: 1.2px solid #86EFAC;' : (sOverallStatus === 'Rejected' ? 'background: #FEE2E2; color: #B91C1C; border: 1.2px solid #FCA5A5;' : 'background: #FEF3C7; color: #B45309; border: 1.2px solid #FCD34D;')}">
+                                ${sOverallStatus === 'Approved' ? '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#15803D"/><path d="M4.5 8.2L6.8 10.5L11.5 5.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Approved' : (sOverallStatus === 'Rejected' ? '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#DC2626"/><path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Rejected' : '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#D97706"/><path d="M8 4.5v4M8 11.5h.01" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/></svg> Partially Approved')}
                             </span>
                         </div>
                     </div>

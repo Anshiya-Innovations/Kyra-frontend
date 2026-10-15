@@ -504,6 +504,11 @@ sap.ui.define([
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
             const sOverallBadgeClass = aRejectedItems.length === 0 ? "kyra-badge-approved" : (aFinalApproved.length === 0 ? "kyra-badge-rejected" : "kyra-badge-partial");
             const sOverallIcon = aRejectedItems.length === 0 ? "✓" : (aFinalApproved.length === 0 ? "✕" : "⚠");
+            const sOverallIconSvg = aRejectedItems.length === 0
+                ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#15803D"/><path d="M4.5 8.2L6.8 10.5L11.5 5.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                : (aFinalApproved.length === 0
+                    ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#DC2626"/><path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                    : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#D97706"/><path d="M8 4.5v4M8 11.5h.01" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/></svg>`);
 
             const sApprovedCardsHtml = aFinalApproved.length > 0 ? aFinalApproved.map(e => {
                 const sReqId = e.requestId || oData.requestId || oData.id || '';
@@ -681,11 +686,15 @@ sap.ui.define([
                                 </div>
                                 <div>
                                     <div class="kyra-requester-title">Requester (${oData.requesterId || oData.requesterUsername || ''})</div>
-                                    <div class="kyra-requester-details">Sector: <strong>${oData.sector || 'HCM'}</strong> • Function: <strong>${oData.function || 'Payroll'}</strong></div>
+                                    <div class="kyra-requester-details">
+                                        <div class="kyra-requester-meta-row">Sector: <strong>${oData.sector || 'HCM'}</strong></div>
+                                        <div class="kyra-requester-meta-row">Function: <strong>${oData.function || 'Payroll'}</strong></div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="kyra-overall-decision-badge ${sOverallBadgeClass}">
-                                <span>${sOverallIcon}</span> ${sOverallStatus}
+                                <span class="kyra-overall-badge-icon">${sOverallIconSvg}</span>
+                                <span class="kyra-overall-badge-text">${sOverallStatus}</span>
                             </div>
                         </div>
 
@@ -2956,7 +2965,7 @@ sap.ui.define([
                                 new Button({
                                     text: "Cancel",
                                     press: () => oDialog.close()
-                                    }).addStyleClass("kyraSysCancelBtn sapUiTinyMarginEnd"),
+                                }).addStyleClass("kyraSysCancelBtn sapUiTinyMarginEnd"),
                                 new Button({
                                     text: "Apply Filter",
                                     type: "Emphasized",

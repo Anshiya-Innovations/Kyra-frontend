@@ -455,12 +455,17 @@ sap.ui.define([
                     return;
                 }
 
-                // 2. Default remark / comment if omitted so user is not blocked
-                aEntitlements.forEach(e => {
-                    if (!e.comment || !e.comment.trim()) {
-                        e.comment = ((e.status || "").toLowerCase().includes("reject")) ? "Rejected by Approver" : "Approved by Approver";
-                    }
-                });
+                // 2. Validation: Remarks must be entered manually - NO auto-fill! All items must have a remark entered.
+                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
+                if (aMissingRemarks.length > 0) {
+                    sap.ui.require(["sap/m/MessageBox"], (MessageBox) => {
+                        const sMsg = aMissingRemarks.length === 1
+                            ? "Remark Required: Please enter a remark for the entitlement before submitting."
+                            : "Remark Required: Please enter a remark for all " + aMissingRemarks.length + " entitlements before submitting.";
+                        MessageBox.warning(sMsg, { title: "Action Required" });
+                    });
+                    return;
+                }
 
                 this._showDecisionSummarySlide(oData, false);
             }
@@ -499,6 +504,11 @@ sap.ui.define([
             const sOverallStatus = aRejectedItems.length === 0 ? "Approved" : (aFinalApproved.length === 0 ? "Rejected" : "Partially Approved");
             const sOverallBadgeClass = aRejectedItems.length === 0 ? "kyra-badge-approved" : (aFinalApproved.length === 0 ? "kyra-badge-rejected" : "kyra-badge-partial");
             const sOverallIcon = aRejectedItems.length === 0 ? "✓" : (aFinalApproved.length === 0 ? "✕" : "⚠");
+            const sOverallIconSvg = aRejectedItems.length === 0
+                ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#15803D"/><path d="M4.5 8.2L6.8 10.5L11.5 5.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                : (aFinalApproved.length === 0
+                    ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#DC2626"/><path d="M5.5 5.5L10.5 10.5M10.5 5.5L5.5 10.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                    : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="display:inline-block; vertical-align:middle; flex-shrink:0;"><circle cx="8" cy="8" r="8" fill="#D97706"/><path d="M8 4.5v4M8 11.5h.01" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/></svg>`);
 
             const sApprovedCardsHtml = aFinalApproved.length > 0 ? aFinalApproved.map(e => {
                 const sReqId = e.requestId || oData.requestId || oData.id || '';
@@ -676,11 +686,15 @@ sap.ui.define([
                                 </div>
                                 <div>
                                     <div class="kyra-requester-title">Requester (${oData.requesterId || oData.requesterUsername || ''})</div>
-                                    <div class="kyra-requester-details">Sector: <strong>${oData.sector || 'HCM'}</strong> • Function: <strong>${oData.function || 'Payroll'}</strong></div>
+                                    <div class="kyra-requester-details">
+                                        <div class="kyra-requester-meta-row">Sector: <strong>${oData.sector || 'HCM'}</strong></div>
+                                        <div class="kyra-requester-meta-row">Function: <strong>${oData.function || 'Payroll'}</strong></div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="kyra-overall-decision-badge ${sOverallBadgeClass}">
-                                <span>${sOverallIcon}</span> ${sOverallStatus}
+                                <span class="kyra-overall-badge-icon">${sOverallIconSvg}</span>
+                                <span class="kyra-overall-badge-text">${sOverallStatus}</span>
                             </div>
                         </div>
 
@@ -1168,9 +1182,15 @@ sap.ui.define([
                         } else {
                             r.approver_status = sDecStatus;
                             r.approver_decision_status = sDecStatus;
-                            const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                            r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
+                            const hasRowConf = (dec.hasConflict !== false) && (r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim()));
+                            const isRej = sDecStatus.includes("REJECT");
+                            r.status = isRej ? "REJECTED" : (dec.nextStatus || (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1"));
                             r.db_status = r.status;
+                            if (dec.hasConflict === false) {
+                                r.has_conflict = false;
+                                r.hasConflict = false;
+                                r.conflicting_role = null;
+                            }
                         }
                     }
                 });
@@ -1203,7 +1223,8 @@ sap.ui.define([
                 info.allRows.push(r);
                 info.statuses.add(sDbStatus);
 
-                const hasRowConflict = r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim());
+                const isRowRejected = sDbStatus === "REJECTED" || (r.approver_status || "").toUpperCase() === "REJECTED";
+                const hasRowConflict = !isRowRejected && (r.has_conflict === true || r.hasConflict === true || !!(r.conflicting_role && String(r.conflicting_role).trim()));
                 if (hasRowConflict) {
                     info.hasConflict = true;
                     if (r.conflicting_role) info.conflictingRole = r.conflicting_role;
@@ -1280,9 +1301,9 @@ sap.ui.define([
 
                 if (isCompliance) {
                     // COMPLIANCE REVIEWER:
-                    // Only handles non-revocation requests WITH conflict.
+                    // Only handles non-revocation requests WITH conflict that are not already past compliance.
                     // If Compliance has already decided: goes to History (Processed), NEVER in Pending!
-                    if (!isRevocation && hasConflict) {
+                    if (hasConflict && sDbStatus !== "PENDING_IAM_1" && sDbStatus !== "PENDING_IAM_2" && sDbStatus !== "APPROVED") {
                         if (info.hasComplianceDecided) {
                             isProcessedForRole = true;
                             bRoleApproved = !info.hasComplianceRejected;
@@ -1924,9 +1945,15 @@ sap.ui.define([
                                 } else {
                                     r.approver_status = sDecStatus;
                                     r.approver_decision_status = sDecStatus;
-                                    const hasRowConf = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
-                                    r.status = sDecStatus.includes("REJECT") ? "REJECTED" : (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1");
-                                    r.db_status = r.status;
+                                    const hasRowConf = (dec.hasConflict !== false) && (r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim()));
+                            const isRej = sDecStatus.includes("REJECT");
+                            r.status = isRej ? "REJECTED" : (dec.nextStatus || (hasRowConf ? "PENDING_COMPLIANCE" : "PENDING_IAM_1"));
+                            r.db_status = r.status;
+                            if (dec.hasConflict === false) {
+                                r.has_conflict = false;
+                                r.hasConflict = false;
+                                r.conflicting_role = null;
+                            }
                                 }
                             }
                         });
@@ -2643,15 +2670,13 @@ sap.ui.define([
                     { key: "ariba", title: "SAP Ariba Supply Network", keyword: "Ariba", icon: "sap-icon://connected-dots", colorClass: "kyraSysIcon_darkteal" }
                 ];
 
-                if (bIsHistoryTab) {
-                    aSystemOptions.push({
-                        key: "custom_date",
-                        title: "Custom Date Range",
-                        keyword: "",
-                        icon: "sap-icon://date-time",
-                        colorClass: "kyraSysIcon_blue"
-                    });
-                }
+                aSystemOptions.push({
+                    key: "custom_date",
+                    title: "Custom Date Range",
+                    keyword: "",
+                    icon: "sap-icon://date-time",
+                    colorClass: "kyraSysIcon_blue"
+                });
 
                 // Multi-select state
                 const oSystemSelection = this._oAppliedSystemSelection || {
@@ -2679,8 +2704,15 @@ sap.ui.define([
                     width: "100%"
                 }).addStyleClass("kyraHistDatePicker");
 
+                if (this._approverCustomDateStart) {
+                    oStartDatePicker.setDateValue(new Date(this._approverCustomDateStart));
+                }
+                if (this._approverCustomDateEnd) {
+                    oEndDatePicker.setDateValue(new Date(this._approverCustomDateEnd));
+                }
+
                 const oCustomDateSection = new VBox({
-                    visible: false,
+                    visible: !!oSystemSelection.custom_date,
                     items: [
                         new HBox({
                             justifyContent: "SpaceBetween",
@@ -2716,9 +2748,7 @@ sap.ui.define([
                             item.container.removeStyleClass("kyraSysFilterRowSelected");
                         }
                     });
-                    if (bIsHistoryTab) {
-                        oCustomDateSection.setVisible(!!oSystemSelection.custom_date);
-                    }
+                    oCustomDateSection.setVisible(!!oSystemSelection.custom_date);
                 };
 
                 const toggleSystemKey = (sKey) => {
@@ -2782,10 +2812,12 @@ sap.ui.define([
                     }
 
                     let oDateFilter = null;
-                    if (bIsHistoryTab && oSystemSelection.custom_date) {
+                    if (oSystemSelection.custom_date) {
                         const dStart = oStartDatePicker.getDateValue();
                         const dEnd = oEndDatePicker.getDateValue() || dStart;
                         if (dStart) {
+                            this._approverCustomDateStart = dStart;
+                            this._approverCustomDateEnd = dEnd;
                             const dFrom = new Date(dStart);
                             dFrom.setHours(0, 0, 0, 0);
                             const dTo = new Date(dEnd);
@@ -2795,14 +2827,20 @@ sap.ui.define([
                                 path: "",
                                 test: (oRow) => {
                                     if (!oRow) return false;
-                                    const sValue = oRow.decisionDate || oRow.submissionDate;
+                                    const sValue = oRow.decisionDate || oRow.submissionDate || oRow.date || oRow.createdDate;
                                     if (!sValue) return false;
                                     const dItemDate = new Date(sValue);
                                     return !isNaN(dItemDate.getTime()) && dItemDate >= dFrom && dItemDate <= dTo;
                                 }
                             });
                             aSelectedTitles.push(dStart.toLocaleDateString() + " - " + dEnd.toLocaleDateString());
+                        } else {
+                            this._approverCustomDateStart = null;
+                            this._approverCustomDateEnd = null;
                         }
+                    } else {
+                        this._approverCustomDateStart = null;
+                        this._approverCustomDateEnd = null;
                     }
 
                     const aFinalFilters = [];
@@ -2888,7 +2926,7 @@ sap.ui.define([
                                 new VBox({
                                     items: [
                                         new Title({ text: bIsHistoryTab ? "Filter History & Systems" : "Filter by System", level: "H4" }).addStyleClass("kyraSysFilterTitle"),
-                                        new Text({ text: bIsHistoryTab ? "Select systems or custom date range to filter history" : "Select one or more systems to filter the results" }).addStyleClass("kyraSysFilterSubtitle")
+                                        new Text({ text: "Select systems or custom date range to filter the results" }).addStyleClass("kyraSysFilterSubtitle")
                                     ]
                                 }).addStyleClass("sapUiSmallMarginBegin")
                             ]
@@ -2914,6 +2952,8 @@ sap.ui.define([
                             press: () => {
                                 toggleSystemKey("all");
                                 oSystemSelection.custom_date = false;
+                                this._approverCustomDateStart = null;
+                                this._approverCustomDateEnd = null;
                                 oStartDatePicker.setDateValue(null);
                                 oEndDatePicker.setDateValue(null);
                                 updateSelectionUI();
@@ -2939,11 +2979,7 @@ sap.ui.define([
                     ]
                 }).addStyleClass("kyraSysFilterFooter");
 
-                const aDialogContent = [oHeader, oListContainer];
-                if (bIsHistoryTab) {
-                    aDialogContent.push(oCustomDateSection);
-                }
-                aDialogContent.push(oFooter);
+                const aDialogContent = [oHeader, oListContainer, oCustomDateSection, oFooter];
 
                 const oDialog = new Dialog({
                     showHeader: false,
