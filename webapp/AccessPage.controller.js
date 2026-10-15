@@ -1485,8 +1485,9 @@ sap.ui.define([
                         if (typeof fnOrigCreateList === "function") {
                             proto._createList = function() {
                                 const oList = fnOrigCreateList.apply(this, arguments);
-                                if (this._oList && typeof this._oList.setIncludeItemInSelection === "function") {
-                                    this._oList.setIncludeItemInSelection(true);
+                                const oTargetList = oList || this._oList;
+                                if (oTargetList && typeof oTargetList.setIncludeItemInSelection === "function") {
+                                    oTargetList.setIncludeItemInSelection(true);
                                 }
                                 return oList;
                             };
@@ -1694,10 +1695,19 @@ sap.ui.define([
 
                     // 3. Check sequential prerequisite
                     if (item.prereqProp && oModel) {
-                        const aPrereqVal = oModel.getProperty(item.prereqProp) || [];
+                        const sSys = oModel.getProperty("/currentSystemSlideName") || "";
+                        const bIsBtp = sSys === "SAP Business Technology Platform" || sSys === "SAP BTP Cloud Platform";
+                        const sEffectivePrereqProp = (bIsBtp && item.id === "inPagePersonaMultiSelect") ? "/addAccessSelectedServices" : item.prereqProp;
+                        const aPrereqVal = oModel.getProperty(sEffectivePrereqProp) || [];
                         if (!Array.isArray(aPrereqVal) || aPrereqVal.length === 0) {
                             if (oEvent && typeof oEvent.setMarked === "function") oEvent.setMarked();
-                            MessageToast.show("Please select " + item.prereqName + " first.");
+                            let sPrereqLabel = item.prereqName;
+                            if (item.id === "inPageTeamMultiSelect") {
+                                sPrereqLabel = bIsBtp ? "SAP BTP Service" : "Service / Topic";
+                            } else if (item.id === "inPagePersonaMultiSelect") {
+                                sPrereqLabel = bIsBtp ? "SAP BTP Service" : "Team Role";
+                            }
+                            MessageToast.show("Please select " + sPrereqLabel + " first.");
                             return;
                         }
                     }
@@ -1725,8 +1735,13 @@ sap.ui.define([
                                 if (oPicker) {
                                     const oPickerDom = oPicker.getDomRef();
                                     if (oPickerDom) {
-                                        oPickerDom.style.minWidth = "100%";
-                                        oPickerDom.style.width = "100%";
+                                        const oCtrlDom = oControl.getDomRef();
+                                        if (oCtrlDom && oCtrlDom.offsetWidth > 0) {
+                                            oPickerDom.style.width = oCtrlDom.offsetWidth + "px";
+                                            oPickerDom.style.minWidth = oCtrlDom.offsetWidth + "px";
+                                        } else {
+                                            oPickerDom.style.minWidth = "100%";
+                                        }
                                         const oCont = oPickerDom.querySelector(".sapMPopoverCont");
                                         if (oCont) {
                                             oCont.scrollTop = 0;
@@ -7029,6 +7044,12 @@ sap.ui.define([
             }
             this._updateSubRolesList(false);
             this._updatePersonasList(false);
+            try {
+                const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                if (oTeamSelect) oTeamSelect.setSelectedKeys([]);
+                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                if (oPersonaSelect) oPersonaSelect.setSelectedKeys([]);
+            } catch(e) {}
         },
 
         onInPageServicesSelectionFinish(oEvent) {
@@ -7039,8 +7060,12 @@ sap.ui.define([
             }
             this._updateSubRolesList(false);
             this._updatePersonasList(false);
-
-            /* manual open only */
+            try {
+                const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                if (oTeamSelect) oTeamSelect.setSelectedKeys([]);
+                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                if (oPersonaSelect) oPersonaSelect.setSelectedKeys([]);
+            } catch(e) {}
         },
 
         _updateSubRolesList(bPreserveSelections) {
@@ -7102,6 +7127,10 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSelectedRoles", aSelectedKeys);
             }
             this._updatePersonasList(false);
+            try {
+                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                if (oPersonaSelect) oPersonaSelect.setSelectedKeys([]);
+            } catch(e) {}
         },
 
         onInPageTeamSelectionFinish(oEvent) {
@@ -7111,8 +7140,10 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSelectedRoles", aSelectedKeys);
             }
             this._updatePersonasList(false);
-
-            /* manual open only */
+            try {
+                const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                if (oPersonaSelect) oPersonaSelect.setSelectedKeys([]);
+            } catch(e) {}
         },
 
         onInPagePersonaSelectionChange(oEvent) {
@@ -7134,8 +7165,12 @@ sap.ui.define([
             const oDetailsMap = this._sanitizeAdminServiceDetailsMap(oModel.getProperty("/adminServiceDetailsMap"));
             oModel.setProperty("/adminServiceDetailsMap", oDetailsMap);
             const oTeamPersonasMap = {};
+            const aSelectedServices = oModel.getProperty("/addAccessSelectedServices") || [];
 
             Object.keys(oDetailsMap).forEach(sServiceKey => {
+                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey)) {
+                    return;
+                }
                 const aTeams = oDetailsMap[sServiceKey] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name || oTeam.status === "Inactive") return;
@@ -14753,6 +14788,7 @@ sap.ui.define([
                 }, 80);
             }
             this._updateActionCardArrows(oModel);
+            this._updateSubIntegrationCards(oModel);
         },
 
         onSelectAdminPersonaConversion() {
@@ -19202,6 +19238,7 @@ sap.ui.define([
             if (!oModel.getProperty("/sapIntegration/currentStep")) {
                 oModel.setProperty("/sapIntegration/currentStep", 1);
             }
+            this._updateSubIntegrationCards(oModel);
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);
             }, 60);
@@ -19211,6 +19248,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "ad_group");
+            this._updateSubIntegrationCards(oModel);
             setTimeout(() => {
                 this._smoothScrollTo("adGroupIntegrationContainer", 40);
             }, 60);
@@ -19220,9 +19258,73 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "iam");
+            this._updateSubIntegrationCards(oModel);
             setTimeout(() => {
                 this._smoothScrollTo("iamIntegrationContainer", 40);
             }, 60);
+        },
+
+        _updateSubIntegrationCards(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const sType = oModel.getProperty("/selectedIntegrationType") || "sap";
+            const bSap = sType === "sap";
+            const bAd = sType === "ad_group";
+            const bIam = sType === "iam";
+
+            const oCardSap = this.byId("cardSubSapIntegration");
+            if (oCardSap) {
+                if (bSap) {
+                    oCardSap.addStyleClass("kyraSubIntegrationCardActive");
+                } else {
+                    oCardSap.removeStyleClass("kyraSubIntegrationCardActive");
+                }
+            }
+            const oCardAd = this.byId("cardSubAdGroupIntegration");
+            if (oCardAd) {
+                if (bAd) {
+                    oCardAd.addStyleClass("kyraSubIntegrationCardActive");
+                } else {
+                    oCardAd.removeStyleClass("kyraSubIntegrationCardActive");
+                }
+            }
+            const oCardIam = this.byId("cardSubIamIntegration");
+            if (oCardIam) {
+                if (bIam) {
+                    oCardIam.addStyleClass("kyraSubIntegrationCardActive");
+                } else {
+                    oCardIam.removeStyleClass("kyraSubIntegrationCardActive");
+                }
+            }
+
+            const oArrowSap = this.byId("arrowSubSapIntegration");
+            if (oArrowSap) {
+                oArrowSap.setSrc(bSap ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                if (bSap) {
+                    oArrowSap.addStyleClass("kyraSubIntegrationArrowActive");
+                } else {
+                    oArrowSap.removeStyleClass("kyraSubIntegrationArrowActive");
+                }
+            }
+            const oArrowAd = this.byId("arrowSubAdGroupIntegration");
+            if (oArrowAd) {
+                oArrowAd.setSrc(bAd ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                if (bAd) {
+                    oArrowAd.addStyleClass("kyraSubIntegrationArrowActive");
+                } else {
+                    oArrowAd.removeStyleClass("kyraSubIntegrationArrowActive");
+                }
+            }
+            const oArrowIam = this.byId("arrowSubIamIntegration");
+            if (oArrowIam) {
+                oArrowIam.setSrc(bIam ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                if (bIam) {
+                    oArrowIam.addStyleClass("kyraSubIntegrationArrowActive");
+                } else {
+                    oArrowIam.removeStyleClass("kyraSubIntegrationArrowActive");
+                }
+            }
         },
 
         onTestAdGroupIntegration() {

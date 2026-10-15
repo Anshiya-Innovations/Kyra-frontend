@@ -13763,7 +13763,7 @@ html body .sapMTokenSelected .sapMTokenIcon {
 
 .kyraRequestDetailsPageContainer {
     width: 100% !important;
-    max-width: 1200px !important;
+    max-width: 1440px !important;
     margin: 0 auto !important;
 }
 
@@ -14737,7 +14737,7 @@ button:focus-visible,
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
-    max-width: 1320px !important;
+    max-width: 1440px !important;
     margin: 0 auto 16px auto !important;
     box-sizing: border-box !important;
     padding: 0 4px !important;
@@ -15497,7 +15497,7 @@ html body .sapUiTheme-sap_horizon .kyraNotifPillTab[data-active="false"]:hover .
     padding: 28px 32px 32px 32px !important;
     box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04) !important;
     box-sizing: border-box !important;
-    max-width: 1200px !important;
+    max-width: 1440px !important;
     width: 100% !important;
     margin: 0 auto !important;
 }
@@ -16168,7 +16168,7 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
 
 .kyraHelpTopNavRow {
     width: 100% !important;
-    max-width: 1200px !important;
+    max-width: 1440px !important;
     margin: 0 auto 16px auto !important;
     display: flex !important;
     align-items: center !important;
@@ -16183,7 +16183,7 @@ html body .sapMBtn.kyraNotifRowDeleteBtn .sapUiIcon,
     padding: 38px 42px 30px 42px !important;
     box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04) !important;
     box-sizing: border-box !important;
-    max-width: 1200px !important;
+    max-width: 1440px !important;
     width: 100% !important;
     margin: 0 auto !important;
 }
@@ -17311,7 +17311,7 @@ html body .sapMBtn.kyraContactITFullSubmitBtn:active .sapMBtnInner {
    ========================================================================= */
 .kyraTroubleshootTopNav {
     width: 100% !important;
-    max-width: 1200px !important;
+    max-width: 1440px !important;
     margin: 0 auto 24px auto !important;
     display: flex !important;
     align-items: center !important;
@@ -22623,7 +22623,7 @@ body.kyra-add-access-open .sapFShellBarAdditionalContent {
 
 .kyraRequestDetailsPageContainer {
     width: 100% !important;
-    max-width: 1300px !important;
+    max-width: 1440px !important;
     margin: 0 auto !important;
     display: flex !important;
     flex-direction: column !important;
@@ -57784,19 +57784,28 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
     gap: 16px !important;
     width: 100% !important;
     margin-bottom: 24px !important;
+    box-sizing: border-box !important;
+    align-items: stretch !important;
 }
 
 .kyraSubIntegrationCard {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
     background: #FFFFFF !important;
     border: 1.5px solid #E2E8F0 !important;
     border-radius: 14px !important;
     padding: 16px 20px 14px 20px !important;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
     cursor: pointer !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
     position: relative !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    min-height: 110px !important;
 }
 
 .kyraSubIntegrationCard:hover {
@@ -57810,7 +57819,7 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
 
 .kyraSubIntegrationCard.kyraSubIntegrationAmber.kyraSubIntegrationCardActive {
     border-color: #EA580C !important;
-    background: #FFFCF9 !important;
+    background: #FFFBF7 !important;
     box-shadow: 0 6px 20px rgba(234, 88, 12, 0.14) !important;
 }
 
@@ -57824,6 +57833,15 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
     border-color: #7C3AED !important;
     background: #FAF7FD !important;
     box-shadow: 0 6px 20px rgba(124, 58, 237, 0.14) !important;
+}
+
+.kyraSubIntegrationFooterRow {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: auto !important;
+    box-sizing: border-box !important;
 }
 
 .kyraActionBadge.kyraBadgePurple {
@@ -57886,6 +57904,24 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
     color: #64748B !important;
     font-weight: 600 !important;
 }
+
+.kyraCardDivider {
+    height: 1px !important;
+    min-height: 1px !important;
+    background-color: #E2E8F0 !important;
+    border: none !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.kyraMigrationStudioContainer .kyraDarkStudioWrapper,
+.kyraMigrationStudioContainer .sapMFlexBox.kyraDarkStudioWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 24px 0 !important;
+    box-sizing: border-box !important;
+}
+
 
 /* =========================================================================
    KYRA WIZARD & HEADER CLOSE "X" BUTTON DESIGN
