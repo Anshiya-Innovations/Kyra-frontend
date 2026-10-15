@@ -54817,15 +54817,13 @@ html body .kyraEntitlementsSearchGroup .kyraViewAllBtn:active .sapMBtnInner {
 }
 
 
-/* ── RESTRICTED LIMIT STEP INPUT & SELECT DROPDOWN (Restricted Records Table) ───────────── */
-/* RESTRICTED LIMIT STEP INPUT & SELECT DROPDOWN (Restricted Records Table ONLY) */
-.kyraRestrictedLimitSelect,
+/* ── RESTRICTED LIMIT SELECT DROPDOWN (Restricted Records Table) ───────────── */
 .kyraRestrictedLimitSelect.sapMSlt,
-div[id*="kyraRestrictedLimitSelect"].sapMSlt,
-div[id*="kyraRestrictedLimitSelect"] {
-    width: 96px !important;
-    min-width: 96px !important;
-    max-width: 96px !important;
+div.sapMSlt[id*="kyraRestrictedLimitSelect"],
+div.sapMSlt.kyraRestrictedLimitSelect {
+    width: 90px !important;
+    min-width: 90px !important;
+    max-width: 90px !important;
     height: 36px !important;
     min-height: 36px !important;
     max-height: 36px !important;
@@ -54844,20 +54842,20 @@ div[id*="kyraRestrictedLimitSelect"] {
     cursor: pointer !important;
 }
 
-.kyraRestrictedLimitSelect:hover,
 .kyraRestrictedLimitSelect.sapMSlt:hover,
-div[id*="kyraRestrictedLimitSelect"]:hover {
+div.sapMSlt[id*="kyraRestrictedLimitSelect"]:hover {
     border-color: #008C9C !important;
     background: #F0FDFA !important;
     background-color: #F0FDFA !important;
     box-shadow: 0 2px 6px rgba(0, 140, 156, 0.15) !important;
 }
 
-.kyraRestrictedLimitSelect.sapMFocus,
-.kyraRestrictedLimitSelect.sapMSltFocused,
-.kyraRestrictedLimitSelect:focus,
-.kyraRestrictedLimitSelect:focus-within,
-div[id*="kyraRestrictedLimitSelect"]:focus {
+.kyraRestrictedLimitSelect.sapMSlt.sapMFocus,
+.kyraRestrictedLimitSelect.sapMSlt.sapMSltFocused,
+.kyraRestrictedLimitSelect.sapMSlt:focus,
+.kyraRestrictedLimitSelect.sapMSlt:focus-within,
+div.sapMSlt[id*="kyraRestrictedLimitSelect"]:focus,
+div.sapMSlt[id*="kyraRestrictedLimitSelect"]:focus-within {
     border-color: #008C9C !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
@@ -54865,8 +54863,8 @@ div[id*="kyraRestrictedLimitSelect"]:focus {
     outline: none !important;
 }
 
-.kyraRestrictedLimitSelect .sapMSltInner,
-div[id*="kyraRestrictedLimitSelect"] .sapMSltInner {
+.kyraRestrictedLimitSelect.sapMSlt .sapMSltInner,
+div.sapMSlt[id*="kyraRestrictedLimitSelect"] .sapMSltInner {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -54878,8 +54876,8 @@ div[id*="kyraRestrictedLimitSelect"] .sapMSltInner {
     background: transparent !important;
 }
 
-.kyraRestrictedLimitSelect .sapMSltLabel,
-div[id*="kyraRestrictedLimitSelect"] .sapMSltLabel {
+.kyraRestrictedLimitSelect.sapMSlt .sapMSltLabel,
+div.sapMSlt[id*="kyraRestrictedLimitSelect"] .sapMSltLabel {
     flex: 1 !important;
     display: flex !important;
     align-items: center !important;
@@ -54893,8 +54891,8 @@ div[id*="kyraRestrictedLimitSelect"] .sapMSltLabel {
     margin: 0 !important;
 }
 
-.kyraRestrictedLimitSelect .sapMSltArrow,
-div[id*="kyraRestrictedLimitSelect"] .sapMSltArrow {
+.kyraRestrictedLimitSelect.sapMSlt .sapMSltArrow,
+div.sapMSlt[id*="kyraRestrictedLimitSelect"] .sapMSltArrow {
     flex: 0 0 auto !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -54910,8 +54908,8 @@ div[id*="kyraRestrictedLimitSelect"] .sapMSltArrow {
     box-shadow: none !important;
 }
 
-.kyraRestrictedLimitSelect .sapMSltArrow::before,
-div[id*="kyraRestrictedLimitSelect"] .sapMSltArrow::before {
+.kyraRestrictedLimitSelect.sapMSlt .sapMSltArrow::before,
+div.sapMSlt[id*="kyraRestrictedLimitSelect"] .sapMSltArrow::before {
     color: #008C9C !important;
     font-family: "SAP-icons" !important;
     font-size: 13px !important;
@@ -54983,76 +54981,90 @@ div[id*="kyraRestrictedLimitSelect"] .sapMSltArrow::before {
 }
 
 /* =========================================================================
-   RESTRICTED LIMIT NUMBERS POPUP (1 to 10 - ALL 10 NUMBERS VISIBLE, NO SCROLLBAR)
+   RESTRICTED LIMIT NUMBERS POPUP (0 to 10 - CLEAN KYRA DROPDOWN)
    ========================================================================= */
-div[id*="kyraRestrictedLimitSelect"][id*="-picker"],
-div[id*="kyraRestrictedLimitSelect"].sapMPopover,
-div[id*="kyraRestrictedLimitSelect"] .sapMPopover,
-div[id*="kyraRestrictedLimitSelect-picker"],
 .sapMPopover.kyraRestrictedLimitPicker,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"],
+.sapMPopover[id*="kyraRestrictedLimitSelect"],
+div[id*="kyraRestrictedLimitSelect-picker"].sapMPopover,
+div[id*="kyraRestrictedLimitSelect"].sapMPopover,
 .kyraRestrictedLimitPicker {
-    min-width: 100px !important;
-    width: 100px !important;
-    max-width: 100px !important;
+    min-width: 90px !important;
+    width: 90px !important;
+    max-width: 96px !important;
     border-radius: 10px !important;
     border: 1.5px solid #008C9C !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 140, 156, 0.18), 0 4px 6px -4px rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 140, 156, 0.22), 0 4px 6px -4px rgba(15, 23, 42, 0.08) !important;
     overflow: hidden !important;
     background: #FFFFFF !important;
     height: auto !important;
-    max-height: 220px !important;
+    max-height: 250px !important;
     overscroll-behavior: contain !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] .sapMPopoverCont,
-div[id*="kyraRestrictedLimitSelect"] .sapMPopoverScroll,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMPopoverCont,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMPopoverScroll,
 .sapMPopover.kyraRestrictedLimitPicker .sapMPopoverCont,
 .sapMPopover.kyraRestrictedLimitPicker .sapMPopoverScroll,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMPopoverCont,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMPopoverScroll,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMPopoverCont,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMPopoverScroll,
 .kyraRestrictedLimitPicker .sapMPopoverCont,
 .kyraRestrictedLimitPicker .sapMPopoverScroll {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    height: auto !important;
+    max-height: 250px !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
     background: #FFFFFF !important;
     padding: 4px !important;
-    height: auto !important;
-    max-height: 220px !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
     scrollbar-width: thin !important;
     scrollbar-color: #008C9C #F1F5F9 !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectList,
-div[id*="kyraRestrictedLimitSelect"] [id*="selectList"],
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectList,
-div[id*="kyraRestrictedLimitSelect-selectList"],
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectList,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectList,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectList,
+div[id*="kyraRestrictedLimitSelect-selectList"],
 .kyraRestrictedLimitPicker .sapMSelectList {
-    max-height: 210px !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
     height: auto !important;
-    padding: 2px !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
     background: #FFFFFF !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-    scrollbar-width: thin !important;
-    scrollbar-color: #008C9C #F1F5F9 !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase,
-div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBase,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase,
+div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
 .kyraRestrictedLimitPicker .sapMSelectListItemBase {
     font-size: 14px !important;
     font-weight: 600 !important;
     color: #1E293B !important;
     text-align: center !important;
-    min-height: 34px !important;
-    height: 34px !important;
-    line-height: 34px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
     padding: 0 !important;
     margin: 2px 0 !important;
     border-radius: 6px !important;
@@ -55065,15 +55077,19 @@ div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
     border: none !important;
     border-left: none !important;
     position: relative !important;
+    width: 100% !important;
+    background: transparent !important;
 }
 
 /* Remove vertical tick/bar indicator on selected item */
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase::before,
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase::after,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase::before,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase::after,
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBase::before,
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBase::after,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase::before,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase::after,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase::before,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase::after,
+div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase::before,
+div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase::after,
 .kyraRestrictedLimitPicker .sapMSelectListItemBase::before,
 .kyraRestrictedLimitPicker .sapMSelectListItemBase::after {
     display: none !important;
@@ -55081,23 +55097,26 @@ div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase::after,
     border: none !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase:hover,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase:hover,
-div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase:hover,
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBase:hover,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase:hover,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase:hover,
+div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase:hover,
 .kyraRestrictedLimitPicker .sapMSelectListItemBase:hover {
     background-color: #F0FDFA !important;
     color: #008C9C !important;
+    font-weight: 700 !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase.sapMSelectListItemSelected,
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBaseSelected,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase.sapMSelectListItemSelected,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBaseSelected,
-div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBaseSelected,
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBase.sapMSelectListItemSelected,
 .sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBaseSelected,
-.kyraRestrictedLimitPicker .sapMSelectListItemBase.sapMSelectListItemSelected {
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase.sapMSelectListItemSelected,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBaseSelected,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase.sapMSelectListItemSelected,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBaseSelected,
+div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBaseSelected,
+div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase.sapMSelectListItemSelected,
+.kyraRestrictedLimitPicker .sapMSelectListItemBase.sapMSelectListItemSelected,
+.kyraRestrictedLimitPicker .sapMSelectListItemBaseSelected {
     background-color: #E6F4F6 !important;
     color: #008C9C !important;
     font-weight: 800 !important;
@@ -55106,12 +55125,12 @@ div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBaseSelected,
 }
 
 /* Custom sleek slim scrollbar for restricted limit popup */
-div[id*="kyraRestrictedLimitSelect"]::-webkit-scrollbar,
-div[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar,
-div[id*="kyraRestrictedLimitSelect-picker"]::-webkit-scrollbar,
-div[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar,
 .sapMPopover.kyraRestrictedLimitPicker::-webkit-scrollbar,
 .sapMPopover.kyraRestrictedLimitPicker *::-webkit-scrollbar,
+.sapMPopover[id*="kyraRestrictedLimitSelect"]::-webkit-scrollbar,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"]::-webkit-scrollbar,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar,
 .kyraRestrictedLimitPicker::-webkit-scrollbar,
 .kyraRestrictedLimitPicker *::-webkit-scrollbar {
     display: block !important;
@@ -55119,32 +55138,32 @@ div[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar,
     height: 4px !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-track,
-div[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-track,
 .sapMPopover.kyraRestrictedLimitPicker *::-webkit-scrollbar-track,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-track,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-track,
 .kyraRestrictedLimitPicker *::-webkit-scrollbar-track {
     background: #F1F5F9 !important;
     border-radius: 4px !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-thumb,
-div[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-thumb,
 .sapMPopover.kyraRestrictedLimitPicker *::-webkit-scrollbar-thumb,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-thumb,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-thumb,
 .kyraRestrictedLimitPicker *::-webkit-scrollbar-thumb {
     background: #008C9C !important;
     border-radius: 4px !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-thumb:hover,
-div[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-thumb:hover,
 .sapMPopover.kyraRestrictedLimitPicker *::-webkit-scrollbar-thumb:hover,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-thumb:hover,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-thumb:hover,
 .kyraRestrictedLimitPicker *::-webkit-scrollbar-thumb:hover {
     background: #007583 !important;
 }
 
-div[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-button,
-div[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-button,
 .sapMPopover.kyraRestrictedLimitPicker *::-webkit-scrollbar-button,
+.sapMPopover[id*="kyraRestrictedLimitSelect"] *::-webkit-scrollbar-button,
+.sapMPopover[id*="kyraRestrictedLimitSelect-picker"] *::-webkit-scrollbar-button,
 .kyraRestrictedLimitPicker *::-webkit-scrollbar-button {
     display: none !important;
     width: 0 !important;
@@ -56389,47 +56408,6 @@ html body .sapUiTheme-sap_horizon .sapMInputBaseIconContainer .sapMInputBaseIcon
     fill: #007583 !important;
 }
 
-
-/* Restricted Limit Dropdown: Smooth opening without viewport overflow or page jitter */
-div[id*="kyraRestrictedLimitSelect"][id*="-picker"],
-div[id*="kyraRestrictedLimitSelect"].sapMPopover,
-div[id*="kyraRestrictedLimitSelect"] .sapMPopover,
-div[id*="kyraRestrictedLimitSelect-picker"],
-.sapMPopover.kyraRestrictedLimitPicker,
-.kyraRestrictedLimitPicker {
-    min-width: 100px !important;
-    width: 100px !important;
-    max-width: 100px !important;
-    border-radius: 10px !important;
-    border: 1.5px solid #008C9C !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 140, 156, 0.18), 0 4px 6px -4px rgba(15, 23, 42, 0.08) !important;
-    background: #FFFFFF !important;
-    height: auto !important;
-    max-height: 220px !important;
-    overscroll-behavior: contain !important;
-}
-
-div[id*="kyraRestrictedLimitSelect"] .sapMSelectListItemBase,
-div[id*="kyraRestrictedLimitSelect-picker"] .sapMSelectListItemBase,
-div[id*="kyraRestrictedLimitSelect-selectList"] .sapMSelectListItemBase,
-.sapMPopover.kyraRestrictedLimitPicker .sapMSelectListItemBase,
-.kyraRestrictedLimitPicker .sapMSelectListItemBase {
-    font-size: 14px !important;
-    font-weight: 600 !important;
-    color: #1E293B !important;
-    text-align: center !important;
-    min-height: 32px !important;
-    height: 32px !important;
-    line-height: 32px !important;
-    padding: 0 !important;
-    margin: 1px 0 !important;
-    border-radius: 6px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-sizing: border-box !important;
-    cursor: pointer !important;
-}
 
 
 /* =========================================================================
