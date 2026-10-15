@@ -2636,7 +2636,9 @@
                             icon="sap-icon://decline"
                             type="Transparent"
                             press=".onCloseAddAccessSector"
-                            tooltip="Close Add Access Section" />
+                            tooltip="Close Add Access Section"
+                            ariaLabel="Close Add Access"
+                            class="kyraCloseIconBtn kyraAddAccessCloseBtn" />
                     </HBox>
 
                     <!-- ANIMATED 5-STEP MODERN PROGRESS TRACKER BAR -->

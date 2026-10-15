@@ -69,12 +69,21 @@
                 <VBox
                     visible="{addAccessModel>/step1Visible}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
-                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                        <Avatar src="sap-icon://building" backgroundColor="Accent1" displaySize="S" class="sapUiTinyMarginEnd" />
-                        <VBox>
-                            <Title text="Step 1: Business Sector and Business Function Selection" level="H4" />
-                            <Text text="Select your target enterprise sector and operational business function below." class="fioriDescriptionText" />
-                        </VBox>
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://building" backgroundColor="Accent1" displaySize="S" class="sapUiTinyMarginEnd" />
+                            <VBox>
+                                <Title text="Step 1: Business Sector and Business Function Selection" level="H4" />
+                                <Text text="Select your target enterprise sector and operational business function below." class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button
+                            icon="sap-icon://decline"
+                            type="Transparent"
+                            press=".onNavBackToPortal"
+                            tooltip="Close Add Access Section"
+                            ariaLabel="Close Add Access"
+                            class="kyraCloseIconBtn kyraAddAccessCloseBtn" />
                     </HBox>
 
                     <form:SimpleForm
@@ -133,12 +142,21 @@
                 <VBox
                     visible="{addAccessModel>/step2Visible}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
-                    <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                        <Avatar src="sap-icon://system" backgroundColor="Accent2" displaySize="S" class="sapUiTinyMarginEnd" />
-                        <VBox>
-                            <Title text="Add Access Request" level="H4" />
-                            <Text text="Configure region, multiple systems, services, team roles, and persona details." class="fioriDescriptionText" />
-                        </VBox>
+                    <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+                        <HBox alignItems="Center">
+                            <Avatar src="sap-icon://system" backgroundColor="Accent2" displaySize="S" class="sapUiTinyMarginEnd" />
+                            <VBox>
+                                <Title text="Add Access Request" level="H4" />
+                                <Text text="Configure region, multiple systems, services, team roles, and persona details." class="fioriDescriptionText" />
+                            </VBox>
+                        </HBox>
+                        <Button
+                            icon="sap-icon://decline"
+                            type="Transparent"
+                            press=".onNavBackToPortal"
+                            tooltip="Close Add Access Section"
+                            ariaLabel="Close Add Access"
+                            class="kyraCloseIconBtn kyraAddAccessCloseBtn" />
                     </HBox>
 
                     <form:SimpleForm

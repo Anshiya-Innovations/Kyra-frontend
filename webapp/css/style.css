@@ -2062,13 +2062,17 @@ html body .fioriFloatingHeader .sapFAvatar[class*="sapFAvatarColorAccent"] .sapF
     color: #059669 !important;
 }
 
-.fioriFloatingHeader .sapMBtn .sapMBtnIcon {
-    color: #64748B !important;
+.fioriFloatingHeader .sapMBtn .sapMBtnIcon,
+.fioriFloatingHeader .sapMBtn .sapUiIcon {
+    color: #008C9C !important;
+    fill: #008C9C !important;
     transition: color 0.15s ease !important;
 }
 
-.fioriFloatingHeader .sapMBtn:hover .sapMBtnIcon {
-    color: #EF4444 !important;
+.fioriFloatingHeader .sapMBtn:hover .sapMBtnIcon,
+.fioriFloatingHeader .sapMBtn:hover .sapUiIcon {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
 }
 
 /* Target System Slide Status Pill - Clean Single Rounded Pill Badge */
@@ -3491,83 +3495,109 @@ html body .sapUiTheme-sap_horizon #inPageJustificationArea .sapMTextAreaInner::p
 .kyraSummaryStatusText {
     width: auto !important;
     min-width: 0 !important;
-    max-width: none !important;
+    max-width: fit-content !important;
     height: 28px !important;
     min-height: 28px !important;
     max-height: 28px !important;
-    padding: 3px 12px !important;
+    padding: 0 14px 0 10px !important;
     border-radius: 9999px !important;
     display: inline-flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 5px !important;
+    justify-content: center !important;
+    gap: 8px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
-    text-align: left !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    vertical-align: middle !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus .sapMObjStatusIcon,
-.kyraSummaryStatusText .sapMObjStatusIcon {
-    font-size: 13px !important;
-    line-height: 1 !important;
-    margin-right: 4px !important;
-    margin-left: 0 !important;
+.kyraSummaryStatusText .sapMObjStatusIcon,
+.kyraSummaryStatusText .sapUiIcon {
+    font-size: 14px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    line-height: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
     flex-shrink: 0 !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     vertical-align: middle !important;
+    text-align: center !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus .sapMObjStatusText,
-.kyraSummaryStatusText .sapMObjStatusText {
-    font-size: 12px !important;
+.kyraSummaryStatusText .sapMObjStatusText,
+.kyraSummaryStatusText .sapMObjStatusText > bdi {
+    font-size: 12.5px !important;
     font-weight: 600 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
     vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    letter-spacing: 0.1px !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew,
 .kyraSummaryStatusText.kyraStatusNew {
     background: #DCFCE7 !important;
+    background-color: #DCFCE7 !important;
     border: 1px solid #86EFAC !important;
     color: #15803D !important;
+    box-shadow: none !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusIcon,
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusText,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusText > bdi,
 .kyraSummaryStatusText.kyraStatusNew .sapMObjStatusIcon,
-.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText {
+.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText > bdi {
     color: #15803D !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending,
 .kyraSummaryStatusText.kyraStatusPending {
     background: #FEF3C7 !important;
+    background-color: #FEF3C7 !important;
     border: 1px solid #FCD34D !important;
     color: #B45309 !important;
+    box-shadow: none !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusIcon,
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusText,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusText > bdi,
 .kyraSummaryStatusText.kyraStatusPending .sapMObjStatusIcon,
-.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText {
+.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText > bdi {
     color: #B45309 !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting,
 .kyraSummaryStatusText.kyraStatusExisting {
     background: #E0F2FE !important;
+    background-color: #E0F2FE !important;
     border: 1px solid #BAE6FD !important;
     color: #0369A1 !important;
+    box-shadow: none !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusIcon,
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusText,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusText > bdi,
 .kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusIcon,
-.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText {
+.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText > bdi {
     color: #0369A1 !important;
 }
 
@@ -4972,19 +5002,25 @@ html body .sapMBtn.kyraSubmitDecisionBtn:hover .sapMBtnInner,
 .sapMBtnEmphasized:hover .sapMBtnInner,
 .sapMBtn.sapMBtnEmphasized:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraPrimaryBtn:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 12px rgba(0, 195, 208, 0.45) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 html body .sapMBtn.kyraPrimaryBtn:active .sapMBtnInner,
 .kyraPrimaryBtn:active .sapMBtnInner,
 .sapMBtnEmphasized:active .sapMBtnInner {
-    transform: translateY(0) scale(0.98) !important;
+    background: #005A65 !important;
+    background-color: #005A65 !important;
+    border: 1.5px solid #005A65 !important;
+    border-color: #005A65 !important;
+    color: #FFFFFF !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 html body .sapMBtn.kyraPrimaryBtn .sapMBtnIcon,
@@ -5060,14 +5096,11 @@ html body .sapMBtn.kyraSubmitDecisionBtn .sapMBtnContent > bdi,
 }
 
 /* 2. SECONDARY / NORMAL BUTTON (Previous, Back, Edit, Cancel, Reset, Close) */
-html body .sapMBtn.kyraSecondaryBtn,
 html body .sapMBtn.kyraSodFooterPrevBtn,
 html body .sapMBtn.kyraBackToDashboardBtn,
 html body .sapMBtn.kyraValidationBackBtn,
 html body .sapMBtn.kyraTextBtn,
 html body .sapMBtn.kyraSodFooterCancelBtn,
-.kyraSecondaryBtn,
-.kyraSecondaryBtn.sapMBtn,
 .kyraSodFooterPrevBtn,
 .kyraSodFooterPrevBtn.sapMBtn,
 .kyraBackToDashboardBtn,
@@ -5083,9 +5116,6 @@ html body .sapMBtn.kyraSodFooterCancelBtn,
     vertical-align: middle !important;
 }
 
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnInner,
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnInner.sapMBtnIconLast,
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnInner.sapMBtnIconFirst,
 html body .sapMBtn.kyraSodFooterPrevBtn .sapMBtnInner,
 html body .sapMBtn.kyraSodFooterPrevBtn .sapMBtnInner.sapMBtnIconLast,
 html body .sapMBtn.kyraSodFooterPrevBtn .sapMBtnInner.sapMBtnIconFirst,
@@ -5093,13 +5123,11 @@ html body .sapMBtn.kyraBackToDashboardBtn .sapMBtnInner,
 html body .sapMBtn.kyraValidationBackBtn .sapMBtnInner,
 html body .sapMBtn.kyraTextBtn .sapMBtnInner,
 html body .sapMBtn.kyraSodFooterCancelBtn .sapMBtnInner,
-.kyraSecondaryBtn .sapMBtnInner,
 .kyraSodFooterPrevBtn .sapMBtnInner,
 .kyraBackToDashboardBtn .sapMBtnInner,
 .kyraValidationBackBtn .sapMBtnInner,
 .kyraTextBtn .sapMBtnInner,
 .kyraSodFooterCancelBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraTextBtn .sapMBtnInner {
     display: inline-flex !important;
     flex-direction: row !important;
@@ -5130,13 +5158,11 @@ html body .sapUiTheme-sap_horizon .kyraTextBtn .sapMBtnInner {
     position: relative !important;
 }
 
-html body .sapMBtn.kyraSecondaryBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraSodFooterPrevBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraBackToDashboardBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraValidationBackBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraTextBtn:hover .sapMBtnInner,
 html body .sapMBtn.kyraSodFooterCancelBtn:hover .sapMBtnInner,
-.kyraSecondaryBtn:hover .sapMBtnInner,
 .kyraSodFooterPrevBtn:hover .sapMBtnInner,
 .kyraBackToDashboardBtn:hover .sapMBtnInner,
 .kyraValidationBackBtn:hover .sapMBtnInner,
@@ -5150,13 +5176,9 @@ html body .sapMBtn.kyraSodFooterCancelBtn:hover .sapMBtnInner,
     transform: none !important;
 }
 
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnIcon,
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnIcon.sapMBtnIconLast,
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnIcon.sapMBtnIconFirst,
 html body .sapMBtn.kyraSodFooterPrevBtn .sapMBtnIcon,
 html body .sapMBtn.kyraBackToDashboardBtn .sapMBtnIcon,
 html body .sapMBtn.kyraValidationBackBtn .sapMBtnIcon,
-.kyraSecondaryBtn .sapMBtnIcon,
 .kyraSodFooterPrevBtn .sapMBtnIcon,
 .kyraBackToDashboardBtn .sapMBtnIcon,
 .kyraValidationBackBtn .sapMBtnIcon {
@@ -5166,24 +5188,16 @@ html body .sapMBtn.kyraValidationBackBtn .sapMBtnIcon,
     margin-right: 4px !important;
 }
 
-html body .sapMBtn.kyraSecondaryBtn:hover .sapMBtnIcon,
-.kyraSecondaryBtn:hover .sapMBtnIcon {
-    color: #008B95 !important;
-}
-
-html body .sapMBtn.kyraSecondaryBtn .sapMBtnContent > bdi,
 html body .sapMBtn.kyraSodFooterPrevBtn .sapMBtnContent > bdi,
 html body .sapMBtn.kyraBackToDashboardBtn .sapMBtnContent > bdi,
 html body .sapMBtn.kyraValidationBackBtn .sapMBtnContent > bdi,
 html body .sapMBtn.kyraTextBtn .sapMBtnContent > bdi,
 html body .sapMBtn.kyraSodFooterCancelBtn .sapMBtnContent > bdi,
-.kyraSecondaryBtn .sapMBtnContent > bdi,
 .kyraSodFooterPrevBtn .sapMBtnContent > bdi,
 .kyraBackToDashboardBtn .sapMBtnContent > bdi,
 .kyraValidationBackBtn .sapMBtnContent > bdi,
 .kyraTextBtn .sapMBtnContent > bdi,
 .kyraSodFooterCancelBtn .sapMBtnContent > bdi,
-.kyraSecondaryBtn .sapMBtnText,
 .kyraSodFooterPrevBtn .sapMBtnText,
 .kyraBackToDashboardBtn .sapMBtnText,
 .kyraValidationBackBtn .sapMBtnText,
@@ -5197,13 +5211,10 @@ html body .sapMBtn.kyraSodFooterCancelBtn .sapMBtnContent > bdi,
     transition: color 0.15s ease !important;
 }
 
-html body .sapMBtn.kyraSecondaryBtn:hover .sapMBtnText,
 html body .sapMBtn.kyraTextBtn:hover .sapMBtnText,
 html body .sapMBtn.kyraSodFooterCancelBtn:hover .sapMBtnText,
-.kyraSecondaryBtn:hover .sapMBtnText,
 .kyraTextBtn:hover .sapMBtnText,
 .kyraSodFooterCancelBtn:hover .sapMBtnText,
-html body .sapMBtn.kyraSecondaryBtn:hover .sapMBtnContent > bdi,
 html body .sapMBtn.kyraTextBtn:hover .sapMBtnContent > bdi,
 html body .sapMBtn.kyraSodFooterCancelBtn:hover .sapMBtnContent > bdi {
     color: #008B95 !important;
@@ -8229,13 +8240,13 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
 }
 
 .kyraCloseIconBtn:hover .sapMBtnInner {
-    background: #FEF2F2 !important;
-    border-color: #FECACA !important;
-    transform: translateY(-1px) !important;
+    background: #F1F5F9 !important;
+    border-color: transparent !important;
+    transform: none !important;
 }
 
 .kyraCloseIconBtn:hover .sapMBtnIcon {
-    color: #DC2626 !important;
+    color: #0F172A !important;
 }
 
 .kyraFilterDialog .sapMDialogSection {
@@ -19096,7 +19107,7 @@ html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnContent {
     justify-content: center !important;
 }
 
-/* Primary Button Hover State: Matches Primary Button (#008C9C + #01C3D0 border glow) */
+/* Primary Button Hover State: Flat, clean, invariant hover */
 .kyraPrimaryBtn:hover .sapMBtnInner,
 .kyraPrimaryBtn.sapMBtn:hover .sapMBtnInner,
 .fioriEmphasizedBtn:hover .sapMBtnInner,
@@ -19108,21 +19119,25 @@ html body .sapUiTheme-sap_horizon .sapMBtnEmphasized .sapMBtnContent {
 html body .sapUiTheme-sap_horizon .kyraPrimaryBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .fioriEmphasizedBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
     outline: none !important;
-    box-shadow: 0 3px 12px rgba(1, 195, 208, 0.35) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
-/* Primary Button Active State */
+/* Primary Button Active State: Invariant geometry without layout shift */
 .kyraPrimaryBtn:active .sapMBtnInner,
 .fioriEmphasizedBtn:active .sapMBtnInner,
 .sapMBtnEmphasized:active .sapMBtnInner {
-    transform: translateY(0) scale(0.98) !important;
-    box-shadow: 0 1px 4px rgba(0, 140, 156, 0.3) !important;
+    background: #005A65 !important;
+    background-color: #005A65 !important;
+    border: 1.5px solid #005A65 !important;
+    border-color: #005A65 !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 
@@ -19166,23 +19181,8 @@ html body .sapUiTheme-sap_horizon .sapMBtnEmphasized:hover .sapMBtnInner {
 /* SoD Row Detail Box Cards (Existing Access, New Access, Conflict Detail) */
 
 
-/* Add Access Secondary Buttons (Previous / Cancel): View All Hover Effect */
-.kyraSecondaryBtn,
-.kyraSecondaryBtn.sapMBtn,
-.kyraSecondaryBtn .sapMBtnInner {
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.kyraSecondaryBtn:hover .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
-    color: #008C9C !important;
-    box-shadow: 0 3px 10px rgba(1, 195, 208, 0.25) !important;
-    transform: none !important;
-}
+/* Add Access Secondary Buttons (Previous / Cancel): Handled by dedicated zero-flicker simple hover engine */
+
 
 /* Step 5: Summary Table Action & Delete Buttons */
 .kyraSummaryDeleteBtn .sapMBtnInner,
@@ -19507,74 +19507,8 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPopup .sapMLIBSelected {
     outline: none !important;
 }
 
-/* =========================================================================
-   SECONDARY BUTTONS (PREVIOUS / CANCEL): PROJECT RELATED CYAN HOVER SHADE
-   ========================================================================= */
-.kyraSecondaryBtn,
-.kyraSecondaryBtn.sapMBtn,
-.kyraSecondaryBtn .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner {
-    border-radius: 12px !important;
-    font-weight: 600 !important;
-    font-size: 13.5px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-    line-height: 35px !important;
-    padding: 0 20px !important;
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    cursor: pointer !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-sizing: border-box !important;
-}
+/* Secondary buttons (Previous / Cancel) managed by dedicated engine */
 
-/* Normal State: Project-Related Teal Brand Border & Text (High-Contrast & Refined) */
-.kyraSecondaryBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border: 1.5px solid #008C9C !important;
-    border-color: #008C9C !important;
-    color: #008C9C !important;
-    font-weight: 700 !important;
-    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.12) !important;
-    transform: none !important;
-}
-
-.kyraSecondaryBtn:not(:hover) .sapMBtnText,
-.kyraSecondaryBtn:not(:hover) .sapMBtnContent > bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnText,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnContent > bdi {
-    color: #008C9C !important;
-    font-weight: 700 !important;
-}
-
-/* Hover State: Project-Related Cyan Shade & Glow (Matches Image 1) */
-.kyraSecondaryBtn:hover .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
-    color: #008C9C !important;
-    box-shadow: 0 4px 14px rgba(1, 195, 208, 0.28) !important;
-    transform: none !important;
-}
-
-/* Active State: Tactile click */
-.kyraSecondaryBtn:active .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:active .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnInner {
-    background: #F8FAFC !important;
-    background-color: #F8FAFC !important;
-    border-color: #01C3D0 !important;
-    transform: translateY(0) scale(0.98) !important;
-    box-shadow: 0 1px 4px rgba(1, 195, 208, 0.2) !important;
-}
 
 
 /* =========================================================================
@@ -21666,32 +21600,24 @@ html body .sapMBtn.region-chip-btn:hover .sapUiIcon,
    8. MASTER CANCEL & SECONDARY BUTTON VISUAL ENGINE (ALL PLACES)
    ========================================================================= */
 
-/* All Secondary, Cancel, and Previous Buttons Across Every Page */
-.kyraSecondaryBtn,
-.kyraSecondaryBtn.sapMBtn,
-.kyraSecondaryBtn .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn .sapMBtnInner,
+/* All Specific Secondary, Cancel, and Previous Buttons Across Other Pages */
 .kyraSodFooterPrevBtn,
 .kyraSodFooterCancelBtn,
 .kyraBackToDashboardBtn,
 .kyraValidationBackBtn,
-.fioriWizardFooter .kyraSecondaryBtn,
-.fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraBackToDashboardBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraValidationBackBtn .sapMBtnInner {
     border-radius: 10px !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     font-size: 13.5px !important;
     height: 38px !important;
     min-height: 38px !important;
     max-height: 38px !important;
     line-height: 35px !important;
     padding: 0 20px !important;
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
     cursor: pointer !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -21700,16 +21626,10 @@ html body .sapUiTheme-sap_horizon .kyraValidationBackBtn .sapMBtnInner {
 }
 
 /* Normal State: Pure White Background, Kyra Brand Teal Border, Kyra Brand Teal Text */
-.kyraSecondaryBtn:not(:hover) .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:not(:hover) .sapMBtnInner,
 .kyraSodFooterPrevBtn:not(:hover) .sapMBtnInner,
 .kyraSodFooterCancelBtn:not(:hover) .sapMBtnInner,
 .kyraBackToDashboardBtn:not(:hover) .sapMBtnInner,
 .kyraValidationBackBtn:not(:hover) .sapMBtnInner,
-.fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn.sapMBtn:not(:hover) .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn:not(:hover) .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:not(:hover) .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraBackToDashboardBtn:not(:hover) .sapMBtnInner,
@@ -21719,20 +21639,12 @@ html body .sapUiTheme-sap_horizon .kyraValidationBackBtn:not(:hover) .sapMBtnInn
     border: 1.5px solid #008C9C !important;
     border-color: #008C9C !important;
     color: #008C9C !important;
-    font-weight: 700 !important;
-    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.12) !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
     transform: none !important;
 }
 
 /* Normal State Text, BDI and Icons */
-.kyraSecondaryBtn:not(:hover) .sapMBtnText,
-.kyraSecondaryBtn:not(:hover) .sapMBtnContent,
-.kyraSecondaryBtn:not(:hover) .sapMBtnContent > bdi,
-.kyraSecondaryBtn:not(:hover) bdi,
-.kyraSecondaryBtn:not(:hover) .sapMBtnIcon,
-.kyraSecondaryBtn:not(:hover) .sapUiIcon,
-.fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnText,
-.fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnContent > bdi,
 .kyraSodFooterCancelBtn:not(:hover) .sapMBtnText,
 .kyraSodFooterCancelBtn:not(:hover) .sapMBtnContent > bdi,
 .kyraSodFooterPrevBtn:not(:hover) .sapMBtnText,
@@ -21741,55 +21653,34 @@ html body .sapUiTheme-sap_horizon .kyraValidationBackBtn:not(:hover) .sapMBtnInn
 .kyraBackToDashboardBtn:not(:hover) .sapMBtnContent > bdi,
 .kyraValidationBackBtn:not(:hover) .sapMBtnText,
 .kyraValidationBackBtn:not(:hover) .sapMBtnContent > bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnText,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnContent > bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapUiIcon,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnText,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnContent > bdi,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn:not(:hover) .sapMBtnText,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn:not(:hover) .sapMBtnContent > bdi,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:not(:hover) .sapMBtnText,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:not(:hover) .sapMBtnContent > bdi {
     color: #008C9C !important;
     fill: #008C9C !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
 }
 
-/* Hover State: Project-Related Cyan Glow (PRESERVED HOVER ACTION) */
-.kyraSecondaryBtn:hover .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
+/* Hover State */
 .kyraSodFooterPrevBtn:hover .sapMBtnInner,
 .kyraSodFooterCancelBtn:hover .sapMBtnInner,
 .kyraBackToDashboardBtn:hover .sapMBtnInner,
 .kyraValidationBackBtn:hover .sapMBtnInner,
-.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraBackToDashboardBtn:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraValidationBackBtn:hover .sapMBtnInner {
     background: #F0FDFA !important;
     background-color: #F0FDFA !important;
-    border: 1.5px solid #01C3D0 !important;
-    border-color: #01C3D0 !important;
-    color: #008C9C !important;
-    box-shadow: 0 4px 14px rgba(1, 195, 208, 0.28) !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+    box-shadow: none !important;
     transform: none !important;
 }
 
 /* Hover State Text, BDI and Icons */
-.kyraSecondaryBtn:hover .sapMBtnText,
-.kyraSecondaryBtn:hover .sapMBtnContent,
-.kyraSecondaryBtn:hover .sapMBtnContent > bdi,
-.kyraSecondaryBtn:hover bdi,
-.kyraSecondaryBtn:hover .sapMBtnIcon,
-.kyraSecondaryBtn:hover .sapUiIcon,
-.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnText,
-.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnContent > bdi,
 .kyraSodFooterCancelBtn:hover .sapMBtnText,
 .kyraSodFooterCancelBtn:hover .sapMBtnContent > bdi,
 .kyraSodFooterPrevBtn:hover .sapMBtnText,
@@ -21798,31 +21689,25 @@ html body .sapUiTheme-sap_horizon .kyraValidationBackBtn:hover .sapMBtnInner {
 .kyraBackToDashboardBtn:hover .sapMBtnContent > bdi,
 .kyraValidationBackBtn:hover .sapMBtnText,
 .kyraValidationBackBtn:hover .sapMBtnContent > bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnText,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnContent > bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover bdi,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnIcon,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapUiIcon,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnText,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnContent > bdi,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn:hover .sapMBtnText,
 html body .sapUiTheme-sap_horizon .kyraSodFooterCancelBtn:hover .sapMBtnContent > bdi,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:hover .sapMBtnText,
 html body .sapUiTheme-sap_horizon .kyraSodFooterPrevBtn:hover .sapMBtnContent > bdi {
-    color: #008C9C !important;
-    fill: #008C9C !important;
+    color: #007684 !important;
+    fill: #007684 !important;
     font-weight: 600 !important;
 }
 
-/* Active State: Tactile Push */
-.kyraSecondaryBtn:active .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:active .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnInner {
-    background: #E6FFFA !important;
-    background-color: #E6FFFA !important;
-    border-color: #01C3D0 !important;
-    transform: translateY(0) scale(0.98) !important;
-    box-shadow: 0 1px 4px rgba(1, 195, 208, 0.2) !important;
+/* Active State */
+.kyraSodFooterPrevBtn:active .sapMBtnInner,
+.kyraSodFooterCancelBtn:active .sapMBtnInner,
+.kyraBackToDashboardBtn:active .sapMBtnInner,
+.kyraValidationBackBtn:active .sapMBtnInner {
+    background: #E0F7F6 !important;
+    background-color: #E0F7F6 !important;
+    border-color: #005F6A !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 
@@ -26864,69 +26749,89 @@ html body .sapMMultiComboBox[aria-disabled="true"] * {
     box-sizing: border-box !important;
 }
 
-.fioriWizardFooter,
-.fioriWizardFooter .sapMFlexBox,
-.fioriWizardFooter .sapMHBox,
 .kyraFooterBtnGroup,
 .kyraFooterBtnGroup.sapMFlexBox,
-.kyraFooterBtnGroup.sapMHBox {
+.kyraFooterBtnGroup.sapMHBox,
+.fioriWizardFooter.kyraFooterBtnGroup {
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: flex-end !important;
     gap: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.fioriWizardFooter .kyraSecondaryBtn,
-.kyraSecondaryBtn.sapUiSmallMarginEnd,
-.sapMBtn.kyraSecondaryBtn.sapUiSmallMarginEnd,
-.fioriWizardFooter .sapUiSmallMarginEnd,
+/* Strictly Invariant Spacing: Container gap governs button spacing; zero margin bleed */
+.kyraFooterBtnGroup .sapMBtn,
 .kyraFooterBtnGroup .kyraSecondaryBtn,
-.kyraFooterBtnGroup .sapMBtn:first-child,
-.kyraSecondaryBtn + .kyraPrimaryBtn,
-.kyraSecondaryBtn:has(+ .kyraPrimaryBtn) {
-    margin-right: 12px !important;
-    margin-bottom: 0 !important;
+.kyraFooterBtnGroup .kyraPrimaryBtn,
+.kyraFooterBtnGroup .sapUiSmallMarginEnd,
+.fioriWizardFooter > .sapMBtn,
+.fioriWizardFooter > .kyraSecondaryBtn,
+.fioriWizardFooter .kyraPrimaryBtn {
+    margin: 0 !important;
+}
+
+/* Ensure Previous button stays cleanly on the left */
+.fioriWizardFooter > .kyraSecondaryBtn:first-child {
+    margin-right: auto !important;
+    margin-left: 0 !important;
     margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 .fioriWizardFooter .kyraSecondaryBtn,
-.fioriWizardFooter .kyraPrimaryBtn {
+.fioriWizardFooter .kyraPrimaryBtn,
+.kyraFooterBtnGroup .kyraSecondaryBtn,
+.kyraFooterBtnGroup .kyraPrimaryBtn {
     height: 38px !important;
     min-height: 38px !important;
     max-height: 38px !important;
     vertical-align: middle !important;
     display: inline-flex !important;
     align-items: center !important;
+    box-sizing: border-box !important;
 }
 
-/* Secondary Button (Cancel / Previous): Clean Single Border, 0 Idle Halo */
+/* =========================================================================
+   SECONDARY BUTTONS (PREVIOUS / CANCEL): ZERO FLICKER, SIMPLE & CLEAN HOVER
+   ========================================================================= */
+
+/* 1. Outer Button Base Container - Fixed Dimensions, Zero Geometry Shift */
 .kyraSecondaryBtn,
 .kyraSecondaryBtn.sapMBtn,
 .sapMBtn.kyraSecondaryBtn,
 .fioriWizardFooter .kyraSecondaryBtn,
-.fioriWizardFooter .kyraSecondaryBtn.sapMBtn {
+.fioriWizardFooter .kyraSecondaryBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     border-color: transparent !important;
     box-shadow: none !important;
+    -webkit-box-shadow: none !important;
     padding: 0 !important;
     outline: none !important;
     height: 38px !important;
     min-height: 38px !important;
+    max-height: 38px !important;
     vertical-align: middle !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    cursor: pointer !important;
 }
 
+/* 2. Inner Button Element - Permanent Geometry & Invariant Layout (Never jumps on hover) */
 .kyraSecondaryBtn .sapMBtnInner,
 .kyraSecondaryBtn.sapMBtn .sapMBtnInner,
-.kyraSecondaryBtn:not(:hover) .sapMBtnInner,
-.kyraSecondaryBtn.sapMBtn:not(:hover) .sapMBtnInner,
 .fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner,
-.fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:not(:hover) .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:not(:hover) .sapMBtnInner {
-    box-shadow: none !important;
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn.sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     border: 1.5px solid #008C9C !important;
@@ -26937,74 +26842,145 @@ html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:not(:hove
     font-size: 13.5px !important;
     height: 38px !important;
     min-height: 38px !important;
+    max-height: 38px !important;
     line-height: 35px !important;
     padding: 0 20px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
-    transform: none !important;
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.kyraSecondaryBtn .sapMBtnText,
-.kyraSecondaryBtn .sapMBtnContent > bdi,
-.fioriWizardFooter .kyraSecondaryBtn .sapMBtnText,
-.fioriWizardFooter .kyraSecondaryBtn .sapMBtnContent > bdi {
-    color: #008C9C !important;
-    font-weight: 600 !important;
-    line-height: 35px !important;
-}
-
-.kyraSecondaryBtn:hover .sapMBtnInner,
-.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner,
-html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnInner {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border-color: #007684 !important;
-    color: #007684 !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.15) !important;
-}
-
-.kyraSecondaryBtn:hover .sapMBtnText,
-.kyraSecondaryBtn:hover .sapMBtnContent > bdi,
-.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnText,
-.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnContent > bdi {
-    color: #007684 !important;
-}
-
-/* Zero-flicker hover stabilization for all Add Access navigation buttons */
-.kyraSecondaryBtn,
-.kyraSecondaryBtn.sapMBtn,
-.kyraSecondaryBtn .sapMBtnInner,
-.kyraBackTealBtn,
-.kyraBackTealBtn.sapMBtn,
-.kyraBackTealBtn .sapMBtnInner,
-.fioriWizardFooter .kyraSecondaryBtn,
-.fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner,
-.fioriWizardFooter .sapMBtn,
-.fioriWizardFooter .sapMBtnInner {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    outline: none !important;
     transform: none !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
 }
 
+/* 3. Text and Content Normal State - Constant font-weight: 600 */
+.kyraSecondaryBtn .sapMBtnText,
+.kyraSecondaryBtn .sapMBtnContent,
+.kyraSecondaryBtn .sapMBtnContent > bdi,
+.kyraSecondaryBtn bdi,
+.kyraSecondaryBtn .sapMBtnIcon,
+.kyraSecondaryBtn .sapUiIcon,
+.fioriWizardFooter .kyraSecondaryBtn .sapMBtnText,
+.fioriWizardFooter .kyraSecondaryBtn .sapMBtnContent > bdi,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnText,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnContent > bdi,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnText,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnContent > bdi {
+    color: #008C9C !important;
+    fill: #008C9C !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    line-height: 35px !important;
+    transition: color 0.15s ease !important;
+}
+
+/* 4. Simple, Clean, 100% Flicker-Free Hover State */
+/* Subtly tints background and slightly deepens border - zero shadow, zero movement */
 .kyraSecondaryBtn:hover,
 .kyraSecondaryBtn.sapMBtn:hover,
+.fioriWizardFooter .kyraSecondaryBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: pointer !important;
+}
+
 .kyraSecondaryBtn:hover .sapMBtnInner,
 .kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
-.kyraBackTealBtn:hover,
-.kyraBackTealBtn.sapMBtn:hover,
-.kyraBackTealBtn:hover .sapMBtnInner,
-.kyraBackTealBtn.sapMBtn:hover .sapMBtnInner,
-.fioriWizardFooter .kyraSecondaryBtn:hover,
 .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnInner,
-.fioriWizardFooter .sapMBtn:hover,
-.fioriWizardFooter .sapMBtn:hover .sapMBtnInner {
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
     transform: none !important;
     outline: none !important;
+    cursor: pointer !important;
+}
+
+.kyraSecondaryBtn:hover .sapMBtnText,
+.kyraSecondaryBtn:hover .sapMBtnContent,
+.kyraSecondaryBtn:hover .sapMBtnContent > bdi,
+.kyraSecondaryBtn:hover bdi,
+.kyraSecondaryBtn:hover .sapMBtnIcon,
+.kyraSecondaryBtn:hover .sapUiIcon,
+.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnText,
+.fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnContent > bdi,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnText,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:hover .sapMBtnContent > bdi,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnText,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:hover .sapMBtnContent > bdi {
+    color: #007684 !important;
+    fill: #007684 !important;
+    font-weight: 600 !important;
+}
+
+/* 5. Clean Active / Pressed State */
+.kyraSecondaryBtn:active .sapMBtnInner,
+.kyraSecondaryBtn.sapMBtn:active .sapMBtnInner,
+.fioriWizardFooter .kyraSecondaryBtn:active .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn:active .sapMBtnInner {
+    background: #E0F7F6 !important;
+    background-color: #E0F7F6 !important;
+    border: 1.5px solid #005F6A !important;
+    border-color: #005F6A !important;
+    color: #005F6A !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.kyraSecondaryBtn:active .sapMBtnText,
+.kyraSecondaryBtn:active .sapMBtnContent > bdi,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnText,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn:active .sapMBtnContent > bdi {
+    color: #005F6A !important;
+    fill: #005F6A !important;
+    font-weight: 600 !important;
+}
+
+/* 6. Suppress UI5 Horizon pseudo-elements and isolate mouse pointer events */
+.kyraSecondaryBtn::before,
+.kyraSecondaryBtn::after,
+.kyraSecondaryBtn .sapMBtnInner::before,
+.kyraSecondaryBtn .sapMBtnInner::after,
+.fioriWizardFooter .kyraSecondaryBtn::before,
+.fioriWizardFooter .kyraSecondaryBtn::after,
+.fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner::before,
+.fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner::after,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner::before,
+html body .sapUiTheme-sap_horizon .kyraSecondaryBtn .sapMBtnInner::after,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner::before,
+html body .sapUiTheme-sap_horizon .fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner::after {
+    display: none !important;
+    content: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: static !important;
+    width: 0 !important;
+    height: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.kyraSecondaryBtn .sapMBtnInner *,
+.fioriWizardFooter .kyraSecondaryBtn .sapMBtnInner * {
+    pointer-events: none !important;
 }
 
 /* Step 3/5 Summary Table Proper Alignment & Spacing */
@@ -29930,21 +29906,23 @@ html body .sapUiTheme-sap_horizon .kyraPrimaryBtn .sapMBtnInner {
     justify-content: center !important;
     background: #008C9C !important;
     background-color: #008C9C !important;
-    border: 1px solid #008C9C !important;
+    border: 1.5px solid #008C9C !important;
     border-radius: 8px !important;
     color: #FFFFFF !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
     height: 38px !important;
     min-height: 38px !important;
-    line-height: 36px !important;
+    max-height: 38px !important;
+    line-height: 35px !important;
     min-width: 120px !important;
     padding: 0 20px !important;
     box-shadow: none !important;
     cursor: pointer !important;
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
     gap: 8px !important;
     box-sizing: border-box !important;
+    transform: none !important;
 }
 
 .kyraPrimaryBtn:hover .sapMBtnInner,
@@ -29952,10 +29930,23 @@ html body .sapUiTheme-sap_horizon .kyraPrimaryBtn .sapMBtnInner {
 html body .sapMBtn.kyraPrimaryBtn:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    border-color: #01C3D0 !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 195, 208, 0.45) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.kyraPrimaryBtn:active .sapMBtnInner,
+.kyraPrimaryBtn.sapMBtn:active .sapMBtnInner,
+html body .sapMBtn.kyraPrimaryBtn:active .sapMBtnInner {
+    background: #005A65 !important;
+    background-color: #005A65 !important;
+    border: 1.5px solid #005A65 !important;
+    border-color: #005A65 !important;
+    color: #FFFFFF !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .kyraPrimaryBtn .sapMBtnIcon,
@@ -56926,7 +56917,9 @@ html body .kyraValTable .kyraRoleStatusRevoke {
 /* Summary Table Status Pills (Unified with Image 2 Design System) */
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus,
 .kyraSummaryTable .kyraSummaryStatusText,
-.kyraSummaryStatusText {
+.kyraSummaryStatusText,
+html body .sapUiTheme-sap_horizon .kyraSummaryTable .sapMObjStatus,
+html body .sapUiTheme-sap_horizon .kyraSummaryStatusText {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -56934,7 +56927,7 @@ html body .kyraValTable .kyraRoleStatusRevoke {
     height: 28px !important;
     min-height: 28px !important;
     max-height: 28px !important;
-    padding: 0 14px !important;
+    padding: 0 14px 0 10px !important;
     border-radius: 9999px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -56944,30 +56937,42 @@ html body .kyraValTable .kyraRoleStatusRevoke {
     min-width: 0 !important;
     max-width: fit-content !important;
     margin: 0 auto !important;
-    gap: 6px !important;
+    gap: 8px !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus .sapMObjStatusIcon,
-.kyraSummaryStatusText .sapMObjStatusIcon {
-    font-size: 13px !important;
-    line-height: 1 !important;
+.kyraSummaryStatusText .sapMObjStatusIcon,
+.kyraSummaryStatusText .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraSummaryStatusText .sapMObjStatusIcon,
+html body .sapUiTheme-sap_horizon .kyraSummaryTable .sapMObjStatusIcon {
+    font-size: 14px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    line-height: 16px !important;
     margin: 0 !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     vertical-align: middle !important;
+    text-align: center !important;
     flex-shrink: 0 !important;
     color: inherit !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus .sapMObjStatusText,
-.kyraSummaryStatusText .sapMObjStatusText {
-    font-size: 12px !important;
+.kyraSummaryStatusText .sapMObjStatusText,
+.kyraSummaryStatusText .sapMObjStatusText > bdi,
+html body .sapUiTheme-sap_horizon .kyraSummaryStatusText .sapMObjStatusText,
+html body .sapUiTheme-sap_horizon .kyraSummaryTable .sapMObjStatusText {
+    font-size: 12.5px !important;
     font-weight: 600 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
     vertical-align: middle !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -56977,50 +56982,59 @@ html body .kyraValTable .kyraRoleStatusRevoke {
 
 /* Status Pill Theme Colors (Pending / New / Existing) */
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending,
-.kyraSummaryStatusText.kyraStatusPending {
+.kyraSummaryStatusText.kyraStatusPending,
+html body .sapUiTheme-sap_horizon .kyraSummaryStatusText.kyraStatusPending {
     background-color: #FEF3C7 !important;
     background: #FEF3C7 !important;
     border: 1px solid #FCD34D !important;
     color: #B45309 !important;
-    box-shadow: 0 1px 2px rgba(180, 83, 9, 0.08) !important;
+    box-shadow: none !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusIcon,
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusText,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusPending .sapMObjStatusText > bdi,
 .kyraSummaryStatusText.kyraStatusPending .sapMObjStatusIcon,
-.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText {
+.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusPending .sapMObjStatusText > bdi {
     color: #B45309 !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew,
-.kyraSummaryStatusText.kyraStatusNew {
+.kyraSummaryStatusText.kyraStatusNew,
+html body .sapUiTheme-sap_horizon .kyraSummaryStatusText.kyraStatusNew {
     background-color: #DCFCE7 !important;
     background: #DCFCE7 !important;
     border: 1px solid #86EFAC !important;
     color: #15803D !important;
-    box-shadow: 0 1px 2px rgba(21, 128, 61, 0.08) !important;
+    box-shadow: none !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusIcon,
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusText,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusNew .sapMObjStatusText > bdi,
 .kyraSummaryStatusText.kyraStatusNew .sapMObjStatusIcon,
-.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText {
+.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusNew .sapMObjStatusText > bdi {
     color: #15803D !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting,
-.kyraSummaryStatusText.kyraStatusExisting {
+.kyraSummaryStatusText.kyraStatusExisting,
+html body .sapUiTheme-sap_horizon .kyraSummaryStatusText.kyraStatusExisting {
     background-color: #E0F2FE !important;
     background: #E0F2FE !important;
     border: 1px solid #BAE6FD !important;
     color: #0369A1 !important;
-    box-shadow: 0 1px 2px rgba(3, 105, 161, 0.08) !important;
+    box-shadow: none !important;
 }
 
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusIcon,
 .kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusText,
+.kyraSummaryTable .sapMListTblCell .sapMObjStatus.kyraStatusExisting .sapMObjStatusText > bdi,
 .kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusIcon,
-.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText {
+.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText,
+.kyraSummaryStatusText.kyraStatusExisting .sapMObjStatusText > bdi {
     color: #0369A1 !important;
 }
 
@@ -57319,15 +57333,54 @@ html body .sapUiTheme-sap_horizon .kyraPopoverClosing {
 #kyraMasterTimelineDialog .kyraHistCloseBtn,
 #kyraHistoryTimelineDialog .kyraHistCloseBtn,
 #kyra_dialog_close_btn,
+.kyraDialogCloseBtn,
+.kyraModalCloseBtn,
+.sapMDialogTitle + .sapMBtn,
+.sapMDialogHeader .sapMBtn:has(.sapUiIcon),
+.sapMDialog .sapMBarRight .sapMBtn,
+.sapMDialog .sapMBtn[title*="Close"],
+.sapMDialog .sapMBtn[title*="close"],
+.sapMDialog .sapMBtn[aria-label*="Close"],
+.sapMDialog .sapMBtn[aria-label*="close"],
+.sapMPopoverHeader .sapMBtn:has(.sapUiIcon),
+.sapMPopover .sapMBarRight .sapMBtn,
 html body .kyraSysFilterCloseBtn,
 html body .kyraAddAccessCloseBtn,
+html body .kyraHistCloseBtn,
+html body .kyraExportNotifCloseBtn,
+html body .kyraCloseIconBtn,
+html body .kyraHudCloseBtn,
+html body .kyraErrorCloseBtn,
+html body .kyraDialogCloseBtn,
+html body .kyraModalCloseBtn,
+html body .kyra-system-modal-close-x,
+html body .kyra-modal-close-btn,
+html body .kyra-modal-close-x,
+html body .kyra-profile-modal-close,
+html body .kyra-signout-close-btn,
+html body .kyra-slide-notification-close,
+html body .kyra-breakdown-close-x,
+html body #kyra_btn_breakdown_close_x,
+html body #kyra_dialog_close_btn,
+html body .fioriFloatingHeader > .sapMBtn,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn,
 html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn,
 html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn,
 html body .sapUiTheme-sap_horizon .kyraHistCloseBtn,
-html body .sapUiTheme-sap_horizon .kyraCloseIconBtn {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: 1px solid transparent !important;
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon),
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1px solid rgba(0, 140, 156, 0.25) !important;
     width: 32px !important;
     min-width: 32px !important;
     max-width: 32px !important;
@@ -57336,7 +57389,7 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn {
     max-height: 32px !important;
     padding: 0 !important;
     margin: 0 !important;
-    border-radius: 9px !important;
+    border-radius: 8px !important;
     outline: none !important;
     box-shadow: none !important;
     cursor: pointer !important;
@@ -57347,6 +57400,7 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn {
     overflow: hidden !important;
     color: #008C9C !important;
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
 }
 
 /* Strictly strip all internal SAPUI5 button wrappers so there are ZERO double borders */
@@ -57498,7 +57552,7 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn .sapUiIcon {
     transform: none !important;
 }
 
-/* Hover state ONLY: Crisp single squircle with NO heavy background shade */
+/* Hover state ONLY: Solid KYRA teal #008C9C with crisp white icon */
 .kyraSysFilterCloseBtn:hover,
 .kyraAddAccessCloseBtn:hover,
 .kyraHistCloseBtn:hover,
@@ -57506,6 +57560,8 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn .sapUiIcon {
 .kyraCloseIconBtn:hover,
 .kyraHudCloseBtn:hover,
 .kyraErrorCloseBtn:hover,
+.kyraDialogCloseBtn:hover,
+.kyraModalCloseBtn:hover,
 .kyra-system-modal-close-x:hover,
 .kyra-modal-close-btn:hover,
 .kyra-modal-close-x:hover,
@@ -57514,22 +57570,52 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn .sapUiIcon {
 .kyra-slide-notification-close:hover,
 .kyra-breakdown-close-x:hover,
 #kyra_btn_breakdown_close_x:hover,
+#kyra_dialog_close_btn:hover,
 .fioriFloatingHeader > .sapMBtn:hover,
+.fioriFloatingHeader .kyraAddAccessCloseBtn:hover,
 #kyraMasterTimelineDialog .kyraHistCloseBtn:hover,
 #kyraHistoryTimelineDialog .kyraHistCloseBtn:hover,
-#kyra_dialog_close_btn:hover,
+.sapMDialogTitle + .sapMBtn:hover,
+.sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover,
+.sapMDialog .sapMBarRight .sapMBtn:hover,
+.sapMDialog .sapMBtn[title*="Close"]:hover,
+.sapMDialog .sapMBtn[title*="close"]:hover,
+.sapMDialog .sapMBtn[aria-label*="Close"]:hover,
+.sapMDialog .sapMBtn[aria-label*="close"]:hover,
+.sapMPopoverHeader .sapMBtn:has(.sapUiIcon):hover,
+.sapMPopover .sapMBarRight .sapMBtn:hover,
 html body .kyraSysFilterCloseBtn:hover,
 html body .kyraAddAccessCloseBtn:hover,
+html body .kyraHistCloseBtn:hover,
+html body .kyraExportNotifCloseBtn:hover,
+html body .kyraCloseIconBtn:hover,
+html body .kyraHudCloseBtn:hover,
+html body .kyraErrorCloseBtn:hover,
+html body .kyraDialogCloseBtn:hover,
+html body .kyraModalCloseBtn:hover,
+html body .fioriFloatingHeader > .sapMBtn:hover,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:hover,
 html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:hover,
 html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:hover,
 html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:hover,
-html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:hover,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn:hover,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn:hover {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
     border: 1px solid #008C9C !important;
-    box-shadow: none !important; /* Heavy background shade completely removed */
-    transform: none !important;  /* No scaling distortion */
-    color: #008C9C !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.32) !important;
+    transform: none !important;
+    color: #FFFFFF !important;
 }
 
 .kyraSysFilterCloseBtn:hover .sapMBtnIcon,
@@ -57542,18 +57628,51 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover {
 .kyraExportNotifCloseBtn:hover .sapUiIcon,
 .kyraCloseIconBtn:hover .sapMBtnIcon,
 .kyraCloseIconBtn:hover .sapUiIcon,
+.kyraHudCloseBtn:hover .sapMBtnIcon,
+.kyraHudCloseBtn:hover .sapUiIcon,
+.kyraErrorCloseBtn:hover .sapMBtnIcon,
+.kyraErrorCloseBtn:hover .sapUiIcon,
+.kyraDialogCloseBtn:hover .sapMBtnIcon,
+.kyraDialogCloseBtn:hover .sapUiIcon,
+.kyraModalCloseBtn:hover .sapMBtnIcon,
+.kyraModalCloseBtn:hover .sapUiIcon,
 .fioriFloatingHeader > .sapMBtn:hover .sapUiIcon,
 .fioriFloatingHeader > .sapMBtn:hover .sapMBtnIcon,
+.fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapUiIcon,
+.fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapMBtnIcon,
+.sapMDialogTitle + .sapMBtn:hover .sapUiIcon,
+.sapMDialogTitle + .sapMBtn:hover .sapMBtnIcon,
+.sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover .sapUiIcon,
+.sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover .sapMBtnIcon,
+.sapMDialog .sapMBarRight .sapMBtn:hover .sapUiIcon,
+.sapMDialog .sapMBarRight .sapMBtn:hover .sapMBtnIcon,
 html body .kyraSysFilterCloseBtn:hover .sapUiIcon,
 html body .kyraAddAccessCloseBtn:hover .sapUiIcon,
 html body .kyraHistCloseBtn:hover .sapUiIcon,
+html body .kyraExportNotifCloseBtn:hover .sapUiIcon,
 html body .kyraCloseIconBtn:hover .sapUiIcon,
+html body .kyraHudCloseBtn:hover .sapUiIcon,
+html body .kyraErrorCloseBtn:hover .sapUiIcon,
+html body .kyraDialogCloseBtn:hover .sapUiIcon,
+html body .kyraModalCloseBtn:hover .sapUiIcon,
+html body .fioriFloatingHeader > .sapMBtn:hover .sapUiIcon,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:hover .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:hover .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:hover .sapUiIcon,
-html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapUiIcon {
-    color: #008C9C !important;
-    fill: #008C9C !important;
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn:hover .sapUiIcon {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
 }
 
 .kyra-system-modal-close-x:hover svg,
@@ -57563,17 +57682,21 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapUiIcon {
 .kyra-signout-close-btn:hover svg,
 .kyra-slide-notification-close:hover svg,
 .kyra-breakdown-close-x:hover svg,
-#kyra_btn_breakdown_close_x:hover svg {
-    stroke: #008C9C !important;
+#kyra_btn_breakdown_close_x:hover svg,
+#kyra_dialog_close_btn:hover svg {
+    stroke: #FFFFFF !important;
 }
 
-/* Active / Select state: Clean single squircle without heavy shade or double borders */
+/* Active / Pressed state: Deep teal #007583 with white icon */
 .kyraSysFilterCloseBtn:active,
 .kyraAddAccessCloseBtn:active,
 .kyraHistCloseBtn:active,
+.kyraExportNotifCloseBtn:active,
 .kyraCloseIconBtn:active,
 .kyraHudCloseBtn:active,
 .kyraErrorCloseBtn:active,
+.kyraDialogCloseBtn:active,
+.kyraModalCloseBtn:active,
 .kyra-system-modal-close-x:active,
 .kyra-modal-close-btn:active,
 .kyra-modal-close-x:active,
@@ -57584,18 +57707,56 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapUiIcon {
 #kyra_btn_breakdown_close_x:active,
 #kyra_dialog_close_btn:active,
 .fioriFloatingHeader > .sapMBtn:active,
+.fioriFloatingHeader .kyraAddAccessCloseBtn:active,
 html body .kyraSysFilterCloseBtn:active,
 html body .kyraAddAccessCloseBtn:active,
+html body .kyraHistCloseBtn:active,
+html body .kyraExportNotifCloseBtn:active,
+html body .kyraCloseIconBtn:active,
+html body .kyraHudCloseBtn:active,
+html body .kyraErrorCloseBtn:active,
+html body .kyraDialogCloseBtn:active,
+html body .kyraModalCloseBtn:active,
+html body .fioriFloatingHeader > .sapMBtn:active,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:active,
 html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:active,
 html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active,
 html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:active,
-html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active {
-    background: #CCFBF1 !important;
-    background-color: #CCFBF1 !important;
-    border: 1px solid #007280 !important;
-    box-shadow: none !important;
-    transform: scale(0.96) !important;
-    color: #007280 !important;
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:active,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:active,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:active {
+    background: #007583 !important;
+    background-color: #007583 !important;
+    border: 1px solid #007583 !important;
+    border-color: #007583 !important;
+    box-shadow: 0 1px 4px rgba(0, 140, 156, 0.25) !important;
+    transform: none !important;
+    color: #FFFFFF !important;
+}
+
+.kyraSysFilterCloseBtn:active .sapMBtnIcon,
+.kyraSysFilterCloseBtn:active .sapUiIcon,
+.kyraAddAccessCloseBtn:active .sapMBtnIcon,
+.kyraAddAccessCloseBtn:active .sapUiIcon,
+.kyraHistCloseBtn:active .sapMBtnIcon,
+.kyraHistCloseBtn:active .sapUiIcon,
+.kyraCloseIconBtn:active .sapMBtnIcon,
+.kyraCloseIconBtn:active .sapUiIcon,
+.fioriFloatingHeader > .sapMBtn:active .sapUiIcon,
+.fioriFloatingHeader .kyraAddAccessCloseBtn:active .sapUiIcon,
+html body .kyraCloseIconBtn:active .sapUiIcon,
+html body .kyraCloseIconBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
 }
 
 .kyra-system-modal-close-x:active svg,
@@ -57606,7 +57767,7 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active {
 .kyra-slide-notification-close:active svg,
 .kyra-breakdown-close-x:active svg,
 #kyra_btn_breakdown_close_x:active svg {
-    stroke: #007280 !important;
+    stroke: #FFFFFF !important;
 }
 
 /* ==========================================================================
@@ -57747,3 +57908,367 @@ html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active {
     color: #64748B !important;
     font-weight: 600 !important;
 }
+
+/* =========================================================================
+   KYRA WIZARD & HEADER CLOSE "X" BUTTON DESIGN
+   KYRA Project Colour Theme (#008C9C Teal)
+   Zero transform, zero jump, crisp alignment
+   ========================================================================= */
+html body .kyraSysFilterCloseBtn,
+html body .kyraAddAccessCloseBtn,
+html body .kyraHistCloseBtn,
+html body .kyraExportNotifCloseBtn,
+html body .kyraCloseIconBtn,
+html body .kyraHudCloseBtn,
+html body .kyraErrorCloseBtn,
+html body .kyraDialogCloseBtn,
+html body .kyraModalCloseBtn,
+html body .kyra-system-modal-close-x,
+html body .kyra-modal-close-btn,
+html body .kyra-modal-close-x,
+html body .kyra-profile-modal-close,
+html body .kyra-signout-close-btn,
+html body .kyra-slide-notification-close,
+html body .kyra-breakdown-close-x,
+html body #kyra_btn_breakdown_close_x,
+html body #kyra_dialog_close_btn,
+html body .fioriFloatingHeader > .sapMBtn,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon),
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1px solid rgba(0, 140, 156, 0.25) !important;
+    border-radius: 8px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-sizing: border-box !important;
+}
+
+html body .kyraSysFilterCloseBtn .sapMBtnInner,
+html body .kyraAddAccessCloseBtn .sapMBtnInner,
+html body .kyraHistCloseBtn .sapMBtnInner,
+html body .kyraExportNotifCloseBtn .sapMBtnInner,
+html body .kyraCloseIconBtn .sapMBtnInner,
+html body .kyraHudCloseBtn .sapMBtnInner,
+html body .kyraErrorCloseBtn .sapMBtnInner,
+html body .kyraDialogCloseBtn .sapMBtnInner,
+html body .kyraModalCloseBtn .sapMBtnInner,
+html body .fioriFloatingHeader > .sapMBtn .sapMBtnInner,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon) .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn .sapMBtnInner {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+html body .kyraSysFilterCloseBtn .sapUiIcon,
+html body .kyraSysFilterCloseBtn .sapMBtnIcon,
+html body .kyraAddAccessCloseBtn .sapUiIcon,
+html body .kyraAddAccessCloseBtn .sapMBtnIcon,
+html body .kyraHistCloseBtn .sapUiIcon,
+html body .kyraHistCloseBtn .sapMBtnIcon,
+html body .kyraExportNotifCloseBtn .sapUiIcon,
+html body .kyraExportNotifCloseBtn .sapMBtnIcon,
+html body .kyraCloseIconBtn .sapUiIcon,
+html body .kyraCloseIconBtn .sapMBtnIcon,
+html body .kyraHudCloseBtn .sapUiIcon,
+html body .kyraHudCloseBtn .sapMBtnIcon,
+html body .kyraErrorCloseBtn .sapUiIcon,
+html body .kyraErrorCloseBtn .sapMBtnIcon,
+html body .kyraDialogCloseBtn .sapUiIcon,
+html body .kyraDialogCloseBtn .sapMBtnIcon,
+html body .kyraModalCloseBtn .sapUiIcon,
+html body .kyraModalCloseBtn .sapMBtnIcon,
+html body .fioriFloatingHeader > .sapMBtn .sapUiIcon,
+html body .fioriFloatingHeader > .sapMBtn .sapMBtnIcon,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn .sapUiIcon,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon) .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon) .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn .sapMBtnIcon {
+    color: #008C9C !important;
+    fill: #008C9C !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    transform: none !important;
+    transition: color 0.18s ease !important;
+}
+
+/* Hover state: KYRA project teal theme filled with crisp white icon */
+html body .kyraSysFilterCloseBtn:hover,
+html body .kyraAddAccessCloseBtn:hover,
+html body .kyraHistCloseBtn:hover,
+html body .kyraExportNotifCloseBtn:hover,
+html body .kyraCloseIconBtn:hover,
+html body .kyraHudCloseBtn:hover,
+html body .kyraErrorCloseBtn:hover,
+html body .kyraDialogCloseBtn:hover,
+html body .kyraModalCloseBtn:hover,
+html body .kyra-system-modal-close-x:hover,
+html body .kyra-modal-close-btn:hover,
+html body .kyra-modal-close-x:hover,
+html body .kyra-profile-modal-close:hover,
+html body .kyra-signout-close-btn:hover,
+html body .kyra-slide-notification-close:hover,
+html body .kyra-breakdown-close-x:hover,
+html body #kyra_btn_breakdown_close_x:hover,
+html body #kyra_dialog_close_btn:hover,
+html body .fioriFloatingHeader > .sapMBtn:hover,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:hover,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:hover,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn:hover,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn:hover {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.32) !important;
+    transform: none !important;
+}
+
+html body .kyraSysFilterCloseBtn:hover .sapMBtnInner,
+html body .kyraAddAccessCloseBtn:hover .sapMBtnInner,
+html body .kyraHistCloseBtn:hover .sapMBtnInner,
+html body .kyraExportNotifCloseBtn:hover .sapMBtnInner,
+html body .kyraCloseIconBtn:hover .sapMBtnInner,
+html body .kyraHudCloseBtn:hover .sapMBtnInner,
+html body .kyraErrorCloseBtn:hover .sapMBtnInner,
+html body .kyraDialogCloseBtn:hover .sapMBtnInner,
+html body .kyraModalCloseBtn:hover .sapMBtnInner,
+html body .fioriFloatingHeader > .sapMBtn:hover .sapMBtnInner,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn:hover .sapMBtnInner {
+    background: transparent !important;
+    border: none !important;
+    transform: none !important;
+}
+
+html body .kyraSysFilterCloseBtn:hover .sapUiIcon,
+html body .kyraSysFilterCloseBtn:hover .sapMBtnIcon,
+html body .kyraAddAccessCloseBtn:hover .sapUiIcon,
+html body .kyraAddAccessCloseBtn:hover .sapMBtnIcon,
+html body .kyraHistCloseBtn:hover .sapUiIcon,
+html body .kyraHistCloseBtn:hover .sapMBtnIcon,
+html body .kyraExportNotifCloseBtn:hover .sapUiIcon,
+html body .kyraExportNotifCloseBtn:hover .sapMBtnIcon,
+html body .kyraCloseIconBtn:hover .sapUiIcon,
+html body .kyraCloseIconBtn:hover .sapMBtnIcon,
+html body .kyraHudCloseBtn:hover .sapUiIcon,
+html body .kyraHudCloseBtn:hover .sapMBtnIcon,
+html body .kyraErrorCloseBtn:hover .sapUiIcon,
+html body .kyraErrorCloseBtn:hover .sapMBtnIcon,
+html body .kyraDialogCloseBtn:hover .sapUiIcon,
+html body .kyraDialogCloseBtn:hover .sapMBtnIcon,
+html body .kyraModalCloseBtn:hover .sapUiIcon,
+html body .kyraModalCloseBtn:hover .sapMBtnIcon,
+html body .fioriFloatingHeader > .sapMBtn:hover .sapUiIcon,
+html body .fioriFloatingHeader > .sapMBtn:hover .sapMBtnIcon,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapUiIcon,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogTitle + .sapMBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialogHeader .sapMBtn:has(.sapUiIcon):hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .sapMDialog .sapMBarRight .sapMBtn:hover .sapMBtnIcon {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+}
+
+/* Active / Pressed state: Deep teal #007583 */
+html body .kyraSysFilterCloseBtn:active,
+html body .kyraAddAccessCloseBtn:active,
+html body .kyraHistCloseBtn:active,
+html body .kyraExportNotifCloseBtn:active,
+html body .kyraCloseIconBtn:active,
+html body .kyraHudCloseBtn:active,
+html body .kyraErrorCloseBtn:active,
+html body .kyraDialogCloseBtn:active,
+html body .kyraModalCloseBtn:active,
+html body .kyra-system-modal-close-x:active,
+html body .kyra-modal-close-btn:active,
+html body .kyra-modal-close-x:active,
+html body .kyra-profile-modal-close:active,
+html body .kyra-signout-close-btn:active,
+html body .kyra-slide-notification-close:active,
+html body .kyra-breakdown-close-x:active,
+html body #kyra_btn_breakdown_close_x:active,
+html body #kyra_dialog_close_btn:active,
+html body .fioriFloatingHeader > .sapMBtn:active,
+html body .fioriFloatingHeader .kyraAddAccessCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraExportNotifCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active,
+html body .sapUiTheme-sap_horizon .kyraHudCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraErrorCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraDialogCloseBtn:active,
+html body .sapUiTheme-sap_horizon .kyraModalCloseBtn:active,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader > .sapMBtn:active,
+html body .sapUiTheme-sap_horizon .fioriFloatingHeader .kyraAddAccessCloseBtn:active {
+    background: #007583 !important;
+    background-color: #007583 !important;
+    border: 1px solid #007583 !important;
+    box-shadow: 0 1px 4px rgba(0, 140, 156, 0.25) !important;
+    transform: none !important;
+}
+
+html body .kyraSysFilterCloseBtn:active .sapUiIcon,
+html body .kyraSysFilterCloseBtn:active .sapMBtnIcon,
+html body .kyraAddAccessCloseBtn:active .sapUiIcon,
+html body .kyraAddAccessCloseBtn:active .sapMBtnIcon,
+html body .kyraHistCloseBtn:active .sapUiIcon,
+html body .kyraHistCloseBtn:active .sapMBtnIcon,
+html body .kyraCloseIconBtn:active .sapUiIcon,
+html body .kyraCloseIconBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraSysFilterCloseBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraHistCloseBtn:active .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraCloseIconBtn:active .sapMBtnIcon {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+}
+
+/* Remove default focus halos / pseudo-elements */
+html body .kyraSysFilterCloseBtn::before,
+html body .kyraSysFilterCloseBtn::after,
+html body .kyraAddAccessCloseBtn::before,
+html body .kyraAddAccessCloseBtn::after,
+html body .kyraHistCloseBtn::before,
+html body .kyraHistCloseBtn::after,
+html body .kyraCloseIconBtn::before,
+html body .kyraCloseIconBtn::after,
+html body .kyraAddAccessCloseBtn .sapMBtnInner::before,
+html body .kyraAddAccessCloseBtn .sapMBtnInner::after,
+html body .kyraCloseIconBtn .sapMBtnInner::before,
+html body .kyraCloseIconBtn .sapMBtnInner::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    outline: none !important;
+}
+

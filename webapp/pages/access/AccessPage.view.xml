@@ -2682,8 +2682,9 @@
                             icon="sap-icon://decline"
                             type="Transparent"
                             press=".onCloseAddAccessSector"
-                            class="kyraCloseIconBtn kyraAddAccessCloseBtn"
-                            tooltip="Close Add Access Section" />
+                            tooltip="Close Add Access Section"
+                            ariaLabel="Close Add Access"
+                            class="kyraCloseIconBtn kyraAddAccessCloseBtn" />
                     </HBox>
 
                     <!-- ANIMATED 5-STEP MODERN PROGRESS TRACKER BAR -->
@@ -2872,17 +2873,19 @@
                             </HBox>
                         </VBox>
 
-                        <HBox justifyContent="End" alignItems="Center" class="fioriWizardFooter kyraFooterBtnGroup sapUiSmallMarginTop" width="100%">
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="fioriWizardFooter sapUiSmallMarginTop" width="100%">
                             <Button
                                 text="Cancel"
                                 type="Default"
                                 press=".onCloseAddAccessSector"
-                                class="kyraSecondaryBtn sapUiSmallMarginEnd" />
-                            <Button
-                                text="Next"
-                                type="Emphasized"
-                                press=".onGoToAddAccessStep2"
-                                class="kyraPrimaryBtn" />
+                                class="kyraSecondaryBtn" />
+                            <HBox alignItems="Center" class="kyraFooterBtnGroup">
+                                <Button
+                                    text="Next"
+                                    type="Emphasized"
+                                    press=".onGoToAddAccessStep2"
+                                    class="kyraPrimaryBtn" />
+                            </HBox>
                         </HBox>
                     </VBox>
 
@@ -3759,7 +3762,7 @@
                                 type="Default"
                                 press=".onNavBackFromStep5"
                                 class="kyraSecondaryBtn" />
-                            <HBox alignItems="Center">
+                            <HBox alignItems="Center" class="kyraFooterBtnGroup">
                                 <Button text="Cancel Request" type="Default" press=".onCloseAddAccessSector" class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                 <Button
                                     text="Submit Access Request"
