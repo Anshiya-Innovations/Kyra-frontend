@@ -3433,6 +3433,12 @@ sap.ui.define([
                 const sIamApp1Status = (r.iam_approver_1_status || r.iam_approver_1_decision_status || "").toUpperCase();
                 const sIamApp2Status = (r.iam_approver_2_status || r.iam_approver_2_decision_status || "").toUpperCase();
 
+                const isRevocationReq = (r.access_type || r.request_type || "").toUpperCase().includes("REV") ||
+                                (r.business_function || "").toUpperCase().includes("REVOCATION") ||
+                                (r.request_number || "").toUpperCase().startsWith("REV-") ||
+                                (r.request_number || "").includes("-REV-");
+                const isDbRevoked = sDbStatus === "REVOKED" || (r.access_type || "").toUpperCase() === "REVOKED";
+
                 const isConflictRequest = r.has_conflict === true || !!(r.conflicting_role && r.conflicting_role.trim());
                 const isApproverApproved = sApproverStatus === "APPROVED" || sDbStatus === "PENDING_COMPLIANCE" || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
                 const isComplianceApproved = sComplianceStatus === "APPROVED" || (!isConflictRequest && isApproverApproved) || sDbStatus === "PENDING_IAM_1" || sDbStatus === "PENDING_IAM_2" || sDbStatus === "APPROVED";
@@ -3440,15 +3446,20 @@ sap.ui.define([
                 const isIamApp2Approved = sIamApp2Status === "APPROVED" || sDbStatus === "APPROVED";
                 const bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved || (isCompliancePersona && sComplianceStatus === "APPROVED") || (isIamApp1Persona && sIamApp1Status === "APPROVED") || (isIamApp2Persona && sIamApp2Status === "APPROVED") || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED" && (!isCompliancePersona || sComplianceStatus !== "REJECTED");
 
-                const isOverallApproved = (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && sDbStatus !== "REJECTED";
+                const isOverallApproved = !isDbRevoked && (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && sDbStatus !== "REJECTED";
                 const isOverallRejected = sDbStatus === "REJECTED" || sApproverStatus === "REJECTED" || (isConflictRequest && sComplianceStatus === "REJECTED") || sIamApp1Status === "REJECTED" || sIamApp2Status === "REJECTED";
-                const isOverallPending = !isOverallApproved && !isOverallRejected;
+                const isOverallRevoked = isDbRevoked || (isRevocationReq && isOverallApproved);
+                const isOverallPending = !isOverallApproved && !isOverallRejected && !isOverallRevoked;
 
                 let sStatusText = "Pending Approval";
                 let sState = "Warning";
                 let sIcon = "sap-icon://pending";
 
-                if (isOverallApproved) {
+                if (isOverallRevoked) {
+                    sStatusText = "Revoked";
+                    sState = "Success";
+                    sIcon = "sap-icon://sys-enter-2";
+                } else if (isOverallApproved) {
                     sStatusText = "Approved";
                     sState = "Success";
                     sIcon = "sap-icon://sys-enter-2";
@@ -3473,11 +3484,6 @@ sap.ui.define([
                     sState = "Information";
                     sIcon = "sap-icon://pending";
                 }
-
-                const isRevocationReq = (r.access_type || r.request_type || "").toUpperCase().includes("REV") ||
-                                (r.business_function || "").toUpperCase().includes("REVOCATION") ||
-                                (r.request_number || "").toUpperCase().startsWith("REV-") ||
-                                (r.request_number || "").includes("-REV-");
 
                 const sCleanItemPersona = cleanPersonaStr(r.selected_persona || r.persona || r.role_name);
                 const sCleanItemRole = cleanRoleStr(r.role_name);
@@ -3583,7 +3589,8 @@ sap.ui.define([
 
                 const bIsUserMatch = !!(r.requester_username && sActiveUser && r.requester_username.toLowerCase() === sActiveUser.toLowerCase());
                 if (bIsUserMatch) {
-                    const sKey = (r.target_system || "") + "_" + sCleanItemRole + "_" + sCleanItemPersona;
+                    const sRoleOnlyKey = (r.target_system || "").trim().toLowerCase() + ":::" + sCleanItemRole.trim().toLowerCase();
+                    const sKey = sRoleOnlyKey;
 
                     if (isExpiredReq) {
                         oReqObj.status = "Expired";
@@ -3591,22 +3598,21 @@ sap.ui.define([
                         oReqObj.statusIcon = "sap-icon://history";
                         oReqObj.isExpired = true;
                         aMyHistory.push(oReqObj);
+                    } else if (isOverallRevoked) {
+                        oReqObj.status = "Revoked";
+                        oReqObj.statusState = "Success";
+                        oReqObj.statusIcon = "sap-icon://sys-enter-2";
+                        oReqObj.duration = calculateRevokeRemainingDays(r);
+                        oReqObj.accessDuration = calculateRevokeRemainingDays(r);
+                        aMyHistory.push(oReqObj);
                     } else if (isOverallPending) {
                         aMyPending.push(oReqObj);
                         // Pending requests are strictly kept in Pending Requests queue and NOT displayed in History
                     } else if (isOverallApproved) {
-                        if (isRevocationReq) {
-                            oReqObj.status = "Revoked";
-                            oReqObj.statusState = "Success";
-                            oReqObj.statusIcon = "sap-icon://sys-enter-2";
-                            oReqObj.duration = calculateRevokeRemainingDays(r);
-                            oReqObj.accessDuration = calculateRevokeRemainingDays(r);
-                        } else {
-                            oReqObj.status = "Approved";
-                            oReqObj.statusState = "Success";
-                            oReqObj.statusIcon = "sap-icon://sys-enter-2";
-                            aMyApproved.push(oReqObj);
-                        }
+                        oReqObj.status = "Approved";
+                        oReqObj.statusState = "Success";
+                        oReqObj.statusIcon = "sap-icon://sys-enter-2";
+                        aMyApproved.push(oReqObj);
                         aMyHistory.push(oReqObj);
                     } else if (isOverallRejected) {
                         oReqObj.status = "Rejected";
@@ -3615,20 +3621,24 @@ sap.ui.define([
                         aMyHistory.push(oReqObj);
                     }
 
-                    const sRoleOnlyKey = (r.target_system || "") + ":::" + sCleanItemRole;
-
                     if (!isExpiredReq) {
-                        if (!roleStates[sKey]) {
-                            if (isRevocationReq) {
+                        if (!roleStates[sRoleOnlyKey]) {
+                            if (isOverallRevoked || isDbRevoked) {
+                                roleStates[sRoleOnlyKey] = { request: r, status: 'REVOKED' };
+                                if (this._localInFlightRevocations) {
+                                    delete this._localInFlightRevocations[sRoleOnlyKey];
+                                }
+                                try {
+                                    const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => item.requestId !== r.request_number)));
+                                    const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
+                                    localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== r.request_number)));
+                                } catch(e) {}
+                            } else if (isRevocationReq) {
                                 if (isOverallApproved) {
-                                    roleStates[sKey] = { request: r, status: 'REVOKED' };
+                                    roleStates[sRoleOnlyKey] = { request: r, status: 'REVOKED' };
                                     if (this._localInFlightRevocations) {
-                                        if (this._localInFlightRevocations[sKey] && this._localInFlightRevocations[sKey].requestId === r.request_number) {
-                                            delete this._localInFlightRevocations[sKey];
-                                        }
-                                        if (this._localInFlightRevocations[sRoleOnlyKey] && this._localInFlightRevocations[sRoleOnlyKey].requestId === r.request_number) {
-                                            delete this._localInFlightRevocations[sRoleOnlyKey];
-                                        }
+                                        delete this._localInFlightRevocations[sRoleOnlyKey];
                                     }
                                     try {
                                         const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
@@ -3637,14 +3647,9 @@ sap.ui.define([
                                         localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== r.request_number)));
                                     } catch(e) {}
                                 } else if (isOverallRejected) {
-                                    roleStates[sKey] = { request: r, status: 'ACTIVE' };
+                                    roleStates[sRoleOnlyKey] = { request: r, status: 'ACTIVE' };
                                     if (this._localInFlightRevocations) {
-                                        if (this._localInFlightRevocations[sKey] && this._localInFlightRevocations[sKey].requestId === r.request_number) {
-                                            delete this._localInFlightRevocations[sKey];
-                                        }
-                                        if (this._localInFlightRevocations[sRoleOnlyKey] && this._localInFlightRevocations[sRoleOnlyKey].requestId === r.request_number) {
-                                            delete this._localInFlightRevocations[sRoleOnlyKey];
-                                        }
+                                        delete this._localInFlightRevocations[sRoleOnlyKey];
                                     }
                                     try {
                                         const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
@@ -3653,18 +3658,18 @@ sap.ui.define([
                                         localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== r.request_number)));
                                     } catch(e) {}
                                 } else if (isOverallPending) {
-                                    roleStates[sKey] = { request: r, status: 'REVOKE_PENDING' };
+                                    roleStates[sRoleOnlyKey] = { request: r, status: 'REVOKE_PENDING' };
                                 }
                             } else {
                                 if (isOverallApproved) {
-                                    roleStates[sKey] = { request: r, status: 'ACTIVE' };
+                                    roleStates[sRoleOnlyKey] = { request: r, status: 'ACTIVE' };
                                 }
                             }
                         } else {
-                            // roleStates[sKey] already established by a newer record in reverse-chronological order
-                            if ((roleStates[sKey].status === 'REVOKE_PENDING' || roleStates[sKey].status === 'ACTIVE') && !isRevocationReq && isOverallApproved) {
-                                if (!roleStates[sKey].approvedRequest) {
-                                    roleStates[sKey].approvedRequest = r;
+                            // roleStates[sRoleOnlyKey] already established by a newer record in reverse-chronological order
+                            if ((roleStates[sRoleOnlyKey].status === 'REVOKE_PENDING' || roleStates[sRoleOnlyKey].status === 'ACTIVE') && !isRevocationReq && isOverallApproved) {
+                                if (!roleStates[sRoleOnlyKey].approvedRequest) {
+                                    roleStates[sRoleOnlyKey].approvedRequest = r;
                                 }
                             }
                         }
@@ -11306,16 +11311,11 @@ sap.ui.define([
 
                         MessageToast.show("Revocation request submitted for " + sRoleName + " on " + sSystem);
 
-                        // Update local /activeRoles so row immediately reflects Revoke Pending state
+                        // Update local models immediately: remove from Revoke list and mark Revoke Pending in Active Entitlements
                         if (oModel) {
-                            const aActiveRoles = oModel.getProperty("/activeRoles") || [];
-                            aActiveRoles.forEach(r => {
-                                if (r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName)) {
-                                    r.status = "Revoke Pending";
-                                    r.statusState = "Warning";
-                                    r.statusIcon = "sap-icon://pending";
-                                }
-                            });
+                            const aActiveRoles = (oModel.getProperty("/activeRoles") || []).filter(r => 
+                                !(r.system === sSystem && (r.teamRole === sRoleName || r.roleName === sRoleName || r.team === sRoleName))
+                            );
                             oModel.setProperty("/activeRoles", aActiveRoles);
 
                             const aUserAccess = oModel.getProperty("/userAccessList") || [];
@@ -11327,6 +11327,22 @@ sap.ui.define([
                                 }
                             });
                             oModel.setProperty("/userAccessList", aUserAccess);
+
+                            const sRoleOnlyKey = (sSystem || "").trim().toLowerCase() + ":::" + (sRoleName || "").trim().toLowerCase();
+                            if (!this._localInFlightRevocations) this._localInFlightRevocations = {};
+                            this._localInFlightRevocations[sRoleOnlyKey] = {
+                                requestId: sReqNum,
+                                system: sSystem,
+                                roleName: sRoleName,
+                                persona: sPersona,
+                                status: "REVOKE_PENDING",
+                                createdAt: new Date().toISOString()
+                            };
+                            try {
+                                const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                aStoredS.push(this._localInFlightRevocations[sRoleOnlyKey]);
+                                sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS));
+                            } catch(e) {}
 
                             if (typeof this._loadSubmittedRequests === "function") {
                                 await this._loadSubmittedRequests(oModel);
