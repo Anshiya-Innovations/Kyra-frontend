@@ -32248,9 +32248,75 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
 }
 
 /* =========================================================================
-   EMPTY TABLE STATE DESIGN (EXACT MATCH FOR USER IMAGE 1 & NOTIFICATION NO-DATA)
+   EMPTY TABLE STATE DESIGN (UNIVERSAL CENTERING FOR ALL APPLICATION TABLES)
    ========================================================================= */
-.kyraTableEmptyBox {
+/* Hide any preceding blank or dummy cells in the noData row to ensure col 1 start */
+tr.sapMListNoData td:not(.sapMListNoDataCell):not(.sapMListTblNoDataCell),
+tr[id*="-nodata"] td:not(.sapMListNoDataCell):not(.sapMListTblNoDataCell) {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+tr.sapMListNoData,
+tr[id*="-nodata"],
+.sapMListNoData,
+.sapMLIB.sapMListNoData,
+.sapMTable tr.sapMListNoData,
+.kyraActiveEntitlementsTable tr.sapMListNoData,
+.kyraPendingRequestsTable tr.sapMListNoData,
+.kyraHistoryTable tr.sapMListNoData,
+.kyraApproverTable tr.sapMListNoData,
+html body .sapUiTheme-sap_horizon tr.sapMListNoData {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 180px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    display: table-row !important;
+}
+
+td.sapMListNoDataCell,
+td.sapMListTblNoDataCell,
+td[id*="-nodata-cell"],
+.sapMListNoDataCell,
+.sapMListTblNoDataCell,
+.kyraActiveEntitlementsTable td.sapMListNoDataCell,
+.kyraPendingRequestsTable td.sapMListNoDataCell,
+.kyraHistoryTable td.sapMListNoDataCell,
+.kyraApproverTable td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon .kyraPendingRequestsTable td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon .kyraHistoryTable td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon .kyraApproverTable td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon .sapMListNoDataCell {
+    height: auto !important;
+    min-height: 180px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 32px 16px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    display: table-cell !important;
+    box-sizing: border-box !important;
+}
+
+.kyraTableEmptyBox,
+div.kyraTableEmptyBox,
+.sapMListNoData .kyraTableEmptyBox,
+.sapMListNoDataCell .kyraTableEmptyBox,
+.sapMListTblNoDataCell .kyraTableEmptyBox {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
@@ -32268,9 +32334,13 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
     box-sizing: border-box !important;
     text-align: center !important;
     gap: 8px !important;
+    float: none !important;
+    clear: both !important;
 }
 
-.kyraTableEmptyIconCircle {
+.kyraTableEmptyIconCircle,
+div.kyraTableEmptyIconCircle,
+.kyraTableEmptyBox .kyraTableEmptyIconCircle {
     width: 52px !important;
     height: 52px !important;
     min-width: 52px !important;
@@ -32289,10 +32359,12 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
     box-shadow: none !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
+    align-self: center !important;
 }
 
 .kyraTableEmptyIcon,
-.kyraTableEmptyIconCircle .sapUiIcon {
+.kyraTableEmptyIconCircle .sapUiIcon,
+.kyraTableEmptyIconCircle .sapMBtnIcon {
     font-size: 24px !important;
     color: #008C9C !important;
     display: flex !important;
@@ -32303,9 +32375,11 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
     text-align: center !important;
     width: 100% !important;
     height: 100% !important;
+    align-self: center !important;
 }
 
 .kyraTableEmptyTitle,
+div.kyraTableEmptyTitle,
 .kyraTableEmptyTitle.sapMTitle,
 .kyraTableEmptyTitle .sapMTitleText,
 .kyraTableEmptyTitle .sapMTitleText > * {
@@ -32324,27 +32398,12 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
     box-sizing: border-box !important;
     letter-spacing: -0.01em !important;
     line-height: 1.4 !important;
+    align-self: center !important;
 }
 
 .kyraTableEmptySubtitle,
 .kyraTableEmptyRefreshBtn {
     display: none !important;
-}
-
-html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td.sapMListNoDataCell,
-html body .sapUiTheme-sap_horizon .kyraPendingRequestsTable td.sapMListNoDataCell,
-html body .sapUiTheme-sap_horizon .kyraHistoryTable td.sapMListNoDataCell,
-html body .sapUiTheme-sap_horizon .kyraApproverTable td.sapMListNoDataCell,
-html body .sapUiTheme-sap_horizon td.sapMListNoDataCell,
-html body .sapUiTheme-sap_horizon .sapMListNoDataCell {
-    height: auto !important;
-    min-height: 180px !important;
-    padding: 0 !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    text-align: center !important;
-    vertical-align: middle !important;
 }
 
 /* =========================================================================
@@ -55863,7 +55922,7 @@ html body div[id*="-cal--popover"] .sapUiCalMonthPicker .sapUiCalItem {
     min-height: 44px !important;
     max-height: 44px !important;
     line-height: 44px !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     font-size: 14.5px !important;
     font-weight: 500 !important;
     color: #1E293B !important;
@@ -55875,8 +55934,8 @@ html body div[id*="-cal--popover"] .sapUiCalMonthPicker .sapUiCalItem {
     padding: 0 4px !important;
     cursor: pointer !important;
     border: 1.5px solid transparent !important;
-    background: transparent !important;
-    background-color: transparent !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
     transition: all 0.15s ease !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
@@ -56093,7 +56152,7 @@ html body div[id*="-cal--popover"] .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCa
     min-height: 40px !important;
     max-height: 40px !important;
     line-height: 38px !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     font-size: 14px !important;
     font-weight: 500 !important;
     color: #1E293B !important;
@@ -56105,8 +56164,8 @@ html body div[id*="-cal--popover"] .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCa
     padding: 0 4px !important;
     cursor: pointer !important;
     border: 1.5px solid transparent !important;
-    background: transparent !important;
-    background-color: transparent !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
     transition: all 0.15s ease !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
@@ -56323,8 +56382,8 @@ html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem {
     padding: 0 10px !important;
     cursor: pointer !important;
     border: 1.5px solid transparent !important;
-    background: transparent !important;
-    background-color: transparent !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
     transition: all 0.15s ease !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;

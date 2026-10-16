@@ -73,6 +73,7 @@ sap.ui.define([
             this._setupModernDialogs();
             this._setupDropdownPlacementEnhancement();
             this._setupJustificationFieldEnhancement();
+            this._setupTableEmptyStateAlignmentEnhancement();
 
             // Enable routing with Route Guards & Session Persistence
             const oRouter = this.getRouter();
@@ -146,6 +147,77 @@ sap.ui.define([
                     }
                 }
             });
+        },
+
+        _setupTableEmptyStateAlignmentEnhancement() {
+            // Universal empty table state centering fix across all tables:
+            // 1. Detects empty state row (tr.sapMListNoData / .kyraTableEmptyBox)
+            // 2. Ensures the noData TD spans ALL columns in the table (colSpan = total columns or 100)
+            // 3. Removes/hides any dummy cells preceding the noData cell so it starts from column 1
+            // 4. Ensures the empty indicator is centered across the 100% full width of the table
+            const alignEmptyStates = () => {
+                const aEmptyBoxes = document.querySelectorAll(".kyraTableEmptyBox, .sapMListNoData, tr[id*='-nodata']");
+                if (!aEmptyBoxes || aEmptyBoxes.length === 0) return;
+
+                aEmptyBoxes.forEach((el) => {
+                    const oRow = el.closest("tr") || (el.tagName === "TR" ? el : null);
+                    if (!oRow) return;
+
+                    const oTable = oRow.closest("table");
+                    if (!oTable) return;
+
+                    // Calculate total columns
+                    const aColEls = oTable.querySelectorAll("colgroup col, thead tr:first-child th");
+                    const iTotalCols = Math.max(aColEls.length, 1);
+
+                    const oNoDataCell = oRow.querySelector("td.sapMListNoDataCell, td.sapMListTblNoDataCell") || oRow.querySelector("td");
+                    if (oNoDataCell) {
+                        // Ensure preceding dummy/hidden cells don't offset the noData cell
+                        const aSiblings = Array.from(oRow.children);
+                        aSiblings.forEach((child) => {
+                            if (child !== oNoDataCell) {
+                                child.style.setProperty("display", "none", "important");
+                                child.style.setProperty("width", "0px", "important");
+                                child.style.setProperty("min-width", "0px", "important");
+                                child.style.setProperty("max-width", "0px", "important");
+                                child.style.setProperty("padding", "0px", "important");
+                                child.style.setProperty("margin", "0px", "important");
+                            }
+                        });
+
+                        // Set colspan to span across all columns completely
+                        if (oNoDataCell.colSpan < iTotalCols || oNoDataCell.colSpan <= 1) {
+                            oNoDataCell.colSpan = Math.max(iTotalCols, 10);
+                        }
+                        oNoDataCell.style.setProperty("width", "100%", "important");
+                        oNoDataCell.style.setProperty("display", "table-cell", "important");
+                        oNoDataCell.style.setProperty("text-align", "center", "important");
+                        oNoDataCell.style.setProperty("vertical-align", "middle", "important");
+
+                        const oBox = oNoDataCell.querySelector(".kyraTableEmptyBox");
+                        if (oBox) {
+                            oBox.style.setProperty("width", "100%", "important");
+                            oBox.style.setProperty("max-width", "100%", "important");
+                            oBox.style.setProperty("margin", "0 auto", "important");
+                            oBox.style.setProperty("display", "flex", "important");
+                            oBox.style.setProperty("flex-direction", "column", "important");
+                            oBox.style.setProperty("align-items", "center", "important");
+                            oBox.style.setProperty("justify-content", "center", "important");
+                            oBox.style.setProperty("text-align", "center", "important");
+                        }
+                    }
+                });
+            };
+
+            // Run alignment initially and observe DOM changes
+            try {
+                alignEmptyStates();
+                const oObserver = new MutationObserver(() => {
+                    alignEmptyStates();
+                });
+                oObserver.observe(document.body, { childList: true, subtree: true });
+                window.addEventListener("resize", alignEmptyStates, { passive: true });
+            } catch(e) {}
         },
 
         _setupDropdownPlacementEnhancement() {
