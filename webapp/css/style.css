@@ -32250,59 +32250,67 @@ html body .kyraNotifListCard li.sapMLIB.kyraNotifListItem.sapMLIBSelected {
 /* =========================================================================
    EMPTY TABLE STATE DESIGN (UNIVERSAL CENTERING FOR ALL APPLICATION TABLES)
    ========================================================================= */
-/* Hide any preceding blank or dummy cells in the noData row to ensure col 1 start */
-tr.sapMListNoData td:not(.sapMListNoDataCell):not(.sapMListTblNoDataCell),
-tr[id*="-nodata"] td:not(.sapMListNoDataCell):not(.sapMListTblNoDataCell) {
-    display: none !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-}
-
 tr.sapMListNoData,
 tr[id*="-nodata"],
 .sapMListNoData,
 .sapMLIB.sapMListNoData,
 .sapMTable tr.sapMListNoData,
 .kyraActiveEntitlementsTable tr.sapMListNoData,
+.kyraActiveEntitlementsTable tr[id*="-nodata"],
 .kyraPendingRequestsTable tr.sapMListNoData,
 .kyraHistoryTable tr.sapMListNoData,
 .kyraApproverTable tr.sapMListNoData,
-html body .sapUiTheme-sap_horizon tr.sapMListNoData {
+html body .sapUiTheme-sap_horizon tr.sapMListNoData,
+html body .sapUiTheme-sap_horizon tr[id*="-nodata"] {
     width: 100% !important;
-    height: auto !important;
-    min-height: 180px !important;
+    height: 120px !important;
+    min-height: 120px !important;
     text-align: center !important;
     vertical-align: middle !important;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     display: table-row !important;
+    cursor: default !important;
 }
 
+tr.sapMListNoData:hover,
+tr[id*="-nodata"]:hover,
+.kyraActiveEntitlementsTable tr.sapMListNoData:hover,
+.kyraActiveEntitlementsTable tr[id*="-nodata"]:hover {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+tr.sapMListNoData > td,
+tr[id*="-nodata"] > td,
 td.sapMListNoDataCell,
 td.sapMListTblNoDataCell,
 td[id*="-nodata-cell"],
 .sapMListNoDataCell,
 .sapMListTblNoDataCell,
+.kyraActiveEntitlementsTable tr.sapMListNoData > td,
+.kyraActiveEntitlementsTable tr[id*="-nodata"] > td,
+.kyraActiveEntitlementsTable td[id*="-nodata-cell"],
 .kyraActiveEntitlementsTable td.sapMListNoDataCell,
+.kyraActiveEntitlementsTable td.sapMListTblNoDataCell,
 .kyraPendingRequestsTable td.sapMListNoDataCell,
 .kyraHistoryTable td.sapMListNoDataCell,
 .kyraApproverTable td.sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr.sapMListNoData > td,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td[id*="-nodata-cell"],
 html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td.sapMListNoDataCell,
 html body .sapUiTheme-sap_horizon .kyraPendingRequestsTable td.sapMListNoDataCell,
 html body .sapUiTheme-sap_horizon .kyraHistoryTable td.sapMListNoDataCell,
 html body .sapUiTheme-sap_horizon .kyraApproverTable td.sapMListNoDataCell,
 html body .sapUiTheme-sap_horizon td.sapMListNoDataCell,
-html body .sapUiTheme-sap_horizon .sapMListNoDataCell {
-    height: auto !important;
-    min-height: 180px !important;
+html body .sapUiTheme-sap_horizon .sapMListNoDataCell,
+html body .sapUiTheme-sap_horizon td[id*="-nodata-cell"] {
+    height: 120px !important;
+    min-height: 120px !important;
     width: 100% !important;
     max-width: 100% !important;
-    padding: 32px 16px !important;
+    padding: 0 16px !important;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -32312,15 +32320,27 @@ html body .sapUiTheme-sap_horizon .sapMListNoDataCell {
     box-sizing: border-box !important;
 }
 
+tr.sapMListNoData:hover > td,
+tr[id*="-nodata"]:hover > td,
+.kyraActiveEntitlementsTable tr.sapMListNoData:hover > td,
+.kyraActiveEntitlementsTable tr[id*="-nodata"]:hover > td {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
 .kyraTableEmptyBox,
 div.kyraTableEmptyBox,
 .sapMListNoData .kyraTableEmptyBox,
+tr[id*="-nodata"] .kyraTableEmptyBox,
+td[id*="-nodata-cell"] .kyraTableEmptyBox,
 .sapMListNoDataCell .kyraTableEmptyBox,
 .sapMListTblNoDataCell .kyraTableEmptyBox {
     width: 100% !important;
     max-width: 100% !important;
+    height: 100% !important;
+    min-height: 120px !important;
     margin: 0 auto !important;
-    padding: 24px 16px !important;
+    padding: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -32333,7 +32353,6 @@ div.kyraTableEmptyBox,
     overflow: visible !important;
     box-sizing: border-box !important;
     text-align: center !important;
-    gap: 8px !important;
     float: none !important;
     clear: both !important;
 }
@@ -32352,10 +32371,17 @@ div.kyraTableEmptyIconCircle,
 
 .kyraTableEmptyTitle,
 div.kyraTableEmptyTitle,
+span.kyraTableEmptyTitle,
 .kyraTableEmptyTitle.sapMTitle,
+.kyraTableEmptyTitle.sapMText,
 .kyraTableEmptyTitle .sapMTitleText,
 .kyraTableEmptyTitle .sapMTitleText > *,
+.kyraActiveEntitlementsTable .kyraTableEmptyTitle,
 .kyraActiveEntitlementsTable .sapMListNoDataText,
+.kyraActiveEntitlementsTable td[id*="-nodata-cell"] .sapMText,
+.kyraActiveEntitlementsTable td[id*="-nodata-cell"] .sapMListNoDataText,
+td[id*="-nodata-cell"] .sapMText,
+td[id*="-nodata-cell"] .sapMListNoDataText,
 .sapMListNoDataText {
     font-size: 14px !important;
     font-weight: 500 !important;
@@ -32364,17 +32390,16 @@ div.kyraTableEmptyTitle,
     margin: 0 auto !important;
     padding: 0 !important;
     text-align: center !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: block !important;
     background: transparent !important;
     background-color: transparent !important;
-    width: 100% !important;
+    width: auto !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     letter-spacing: -0.01em !important;
-    line-height: 1.4 !important;
+    line-height: 1.5 !important;
     align-self: center !important;
+    white-space: normal !important;
 }
 
 .kyraTableEmptySubtitle,
@@ -47863,16 +47888,16 @@ select option:hover,
 }
 
 /* 4. TABLE DATA ROWS: EQUAL 52px HEIGHT, SUBTLE HORIZONTAL DIVIDERS, NORMAL TEXT */
-.kyraDeptUsersTable tr.sapMLIB,
-.kyraAdminCleanTable tr.sapMLIB,
-.kyraActiveEntitlementsTable tr.sapMLIB,
-.kyraApproverTable tr.sapMLIB,
-.kyraHistoryTable tr.sapMLIB,
-.kyraPendingRequestsTable tr.sapMLIB,
-.kyraValTable tr.sapMLIB,
-.kyraSummaryTable tr.sapMLIB,
-.kyraStep2CleanTable tr.sapMLIB,
-.kyraAdminServiceTable tr.sapMLIB,
+.kyraDeptUsersTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraAdminCleanTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraActiveEntitlementsTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraApproverTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraHistoryTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraPendingRequestsTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraValTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraSummaryTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraStep2CleanTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
+.kyraAdminServiceTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]),
 .kyraDeptUsersTable tr.kyraDeptUserRow {
     height: 52px !important;
     min-height: 52px !important;
@@ -47884,16 +47909,16 @@ select option:hover,
     transition: background-color 0.15s ease !important;
 }
 
-.kyraDeptUsersTable td.sapMListTblCell,
-.kyraAdminCleanTable td.sapMListTblCell,
-.kyraActiveEntitlementsTable td.sapMListTblCell,
-.kyraApproverTable td.sapMListTblCell,
-.kyraHistoryTable td.sapMListTblCell,
-.kyraPendingRequestsTable td.sapMListTblCell,
-.kyraValTable td.sapMListTblCell,
-.kyraSummaryTable td.sapMListTblCell,
-.kyraStep2CleanTable td.sapMListTblCell,
-.kyraAdminServiceTable td.sapMListTblCell {
+.kyraDeptUsersTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraAdminCleanTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraActiveEntitlementsTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraApproverTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraHistoryTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraPendingRequestsTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraValTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraSummaryTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraStep2CleanTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]),
+.kyraAdminServiceTable td.sapMListTblCell:not(.sapMListNoDataCell):not([id*="-nodata-cell"]) {
     padding: 12px 16px !important;
     border-top: none !important;
     border-left: none !important;
@@ -47931,16 +47956,16 @@ select option:hover,
 }
 
 /* 5. SUBTLE ROW HOVER EFFECT */
-.kyraDeptUsersTable tr.sapMLIB:hover td,
-.kyraAdminCleanTable tr.sapMLIB:hover td,
-.kyraActiveEntitlementsTable tr.sapMLIB:hover td,
-.kyraApproverTable tr.sapMLIB:hover td,
-.kyraHistoryTable tr.sapMLIB:hover td,
-.kyraPendingRequestsTable tr.sapMLIB:hover td,
-.kyraValTable tr.sapMLIB:hover td,
-.kyraSummaryTable tr.sapMLIB:hover td,
-.kyraStep2CleanTable tr.sapMLIB:hover td,
-.kyraAdminServiceTable tr.sapMLIB:hover td,
+.kyraDeptUsersTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraAdminCleanTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraActiveEntitlementsTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraApproverTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraHistoryTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraPendingRequestsTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraValTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraSummaryTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraStep2CleanTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
+.kyraAdminServiceTable tr.sapMLIB:not(.sapMListNoData):not([id*="-nodata"]):hover td,
 .kyraDeptUsersTable tr.kyraDeptUserRow:hover td {
     background-color: #F8FAFC !important;
 }
@@ -58615,4 +58640,216 @@ html body .kyraCloseIconBtn .sapMBtnInner::after {
     border: none !important;
     outline: none !important;
 }
+
+/* =========================================================================
+   UNIVERSAL TABLE EMPTY STATE ("No Data") - AUTHORITATIVE CENTERING
+   ========================================================================= */
+html body .kyraActiveEntitlementsTable tr.sapMListNoData,
+html body .kyraActiveEntitlementsTable tr[id*="-nodata"],
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr.sapMListNoData,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr[id*="-nodata"],
+tr.sapMListNoData,
+tr[id*="-nodata"] {
+    display: table-row !important;
+    width: 100% !important;
+    height: 120px !important;
+    min-height: 120px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: none !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    cursor: default !important;
+}
+
+html body .kyraActiveEntitlementsTable tr.sapMListNoData:hover,
+html body .kyraActiveEntitlementsTable tr[id*="-nodata"]:hover,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr.sapMListNoData:hover,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr[id*="-nodata"]:hover {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}
+
+html body .kyraActiveEntitlementsTable tr.sapMListNoData > td,
+html body .kyraActiveEntitlementsTable tr[id*="-nodata"] > td,
+html body .kyraActiveEntitlementsTable td[id*="-nodata-cell"],
+html body .kyraActiveEntitlementsTable td.sapMListNoDataCell,
+html body .kyraActiveEntitlementsTable td.sapMListTblNoDataCell,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr.sapMListNoData > td,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr[id*="-nodata"] > td,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td[id*="-nodata-cell"],
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable td.sapMListNoDataCell,
+tr.sapMListNoData > td,
+tr[id*="-nodata"] > td,
+td[id*="-nodata-cell"] {
+    display: table-cell !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 120px !important;
+    min-height: 120px !important;
+    padding: 0 16px !important;
+    border: none !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
+}
+
+html body .kyraActiveEntitlementsTable tr.sapMListNoData:hover > td,
+html body .kyraActiveEntitlementsTable tr[id*="-nodata"]:hover > td,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr.sapMListNoData:hover > td,
+html body .sapUiTheme-sap_horizon .kyraActiveEntitlementsTable tr[id*="-nodata"]:hover > td {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}
+
+html body .kyraActiveEntitlementsTable .kyraTableEmptyBox,
+html body .kyraActiveEntitlementsTable div.kyraTableEmptyBox,
+html body td[id*="-nodata-cell"] .kyraTableEmptyBox,
+.kyraTableEmptyBox {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 120px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+html body .kyraActiveEntitlementsTable .kyraTableEmptyTitle,
+html body .kyraActiveEntitlementsTable .sapMListNoDataText,
+html body td[id*="-nodata-cell"] .kyraTableEmptyTitle,
+html body td[id*="-nodata-cell"] .sapMListNoDataText,
+html body td[id*="-nodata-cell"] .sapMText,
+.kyraTableEmptyTitle,
+.sapMListNoDataText {
+    display: block !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    text-align: center !important;
+    line-height: 1.5 !important;
+    letter-spacing: -0.01em !important;
+    white-space: normal !important;
+}
+
+/* =========================================================================
+   TARGET SYSTEMS & PROCESSES DROPDOWN (inPageSystemsMultiSelect)
+   ========================================================================= */
+.kyraSystemsMultiSelectPicker,
+div[id*="inPageSystemsMultiSelect-popup"],
+div[id*="inPageSystemsMultiSelect-picker"],
+div[id*="inPageSystemsMultiSelect-popover"] {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05) !important;
+    overflow: hidden !important;
+    z-index: 200000 !important;
+    box-sizing: border-box !important;
+    transition: opacity 0.15s ease, transform 0.15s ease !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMPopoverCont,
+div[id*="inPageSystemsMultiSelect"] .sapMPopoverCont {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-radius: 12px !important;
+    padding: 6px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMPopoverArr,
+div[id*="inPageSystemsMultiSelect"] .sapMPopoverArr {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB {
+    margin: 2px 4px !important;
+    border-radius: 8px !important;
+    min-height: 44px !important;
+    padding: 6px 14px !important;
+    cursor: pointer !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB.sapMLIBSelected,
+.kyraSystemsMultiSelectPicker li.sapMMultiComboBoxItem.sapMLIBSelected,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB.sapMLIBSelected,
+div[id*="inPageSystemsMultiSelect"] li.sapMMultiComboBoxItem.sapMLIBSelected {
+    background-color: #F0FDFA !important;
+    background: #F0FDFA !important;
+    border-radius: 8px !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
+.kyraSystemsMultiSelectPicker li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB.sapMLIBSelected .sapMSLITitle,
+div[id*="inPageSystemsMultiSelect"] li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
+    color: #007684 !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB.sapMLIBSelected .sapMCbBg,
+.kyraSystemsMultiSelectPicker li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB.sapMLIBSelected .sapMCbBg,
+div[id*="inPageSystemsMultiSelect"] li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: 1.5px solid #007684 !important;
+    border-radius: 5px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-size: 14px 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB:not(.sapMLIBSelected):hover,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB:not(.sapMLIBSelected):hover {
+    background-color: #F8FAFC !important;
+    border-radius: 8px !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle {
+    color: #0F172A !important;
+    font-weight: 500 !important;
+}
+
+.kyraSystemsMultiSelectPicker .sapMLIB:not(.sapMLIBSelected) .sapMCbBg,
+div[id*="inPageSystemsMultiSelect"] .sapMLIB:not(.sapMLIBSelected) .sapMCbBg {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 5px !important;
+    background-image: none !important;
+}
+
+
+
 

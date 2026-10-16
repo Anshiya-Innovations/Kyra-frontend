@@ -2214,7 +2214,7 @@
                         noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
-                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                            <VBox class="kyraTableEmptyBox" width="100%" alignItems="Center" justifyContent="Center">
                                 <Text text="No Data" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
@@ -2473,7 +2473,7 @@
                         noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
-                            <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
+                            <VBox class="kyraTableEmptyBox" width="100%" alignItems="Center" justifyContent="Center">
                                 <Text text="No Data" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
