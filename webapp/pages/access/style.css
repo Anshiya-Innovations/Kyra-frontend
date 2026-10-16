@@ -37587,16 +37587,17 @@ div.kyraStratCardThemedSelected {
 
 
 /* ==========================================================================
-   DARK NAVY CONSOLE DESIGN (MATCHING media_1790669797150.png EXACTLY)
+   KYRA SAP APPLICATION INTEGRATION CONSOLE (MATCHING REFERENCE EXACTLY)
    ========================================================================== */
 
-.kyraDarkStudioWrapper {
-    background: #080D1A !important;
-    background-color: #080D1A !important;
-    border: 1px solid #1E2D4A !important;
+.kyraDarkStudioWrapper,
+.sapMFlexBox.kyraDarkStudioWrapper {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
     border-radius: 16px !important;
-    padding: 32px 36px !important;
-    box-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.6) !important;
+    padding: 28px 32px !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05) !important;
     box-sizing: border-box !important;
     max-width: 1040px !important;
     width: 100% !important;
@@ -37616,15 +37617,15 @@ div.kyraStratCardThemedSelected {
 
 .kyraDarkStudioTitle .sapMTitle,
 .kyraDarkStudioTitle {
-    color: #FFFFFF !important;
-    font-size: 21px !important;
+    color: #0F172A !important;
+    font-size: 22px !important;
     font-weight: 700 !important;
     letter-spacing: -0.015em !important;
     margin-bottom: 4px !important;
 }
 
 .kyraDarkStudioSubtitle {
-    color: #94A3B8 !important;
+    color: #64748B !important;
     font-size: 13.5px !important;
     line-height: 1.55 !important;
     font-weight: 400 !important;
@@ -37632,16 +37633,17 @@ div.kyraStratCardThemedSelected {
 
 /* Target Destination Banner */
 .kyraDarkTargetBanner {
-    background: #0D1B2E !important;
-    background-color: #0D1B2E !important;
-    border: 1px solid #1E2D4A !important;
-    border-radius: 8px !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #99F6E4 !important;
+    border-radius: 10px !important;
     padding: 12px 18px !important;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
+    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.06) !important;
 }
 
 .kyraDarkTargetBannerLeft {
@@ -37656,8 +37658,8 @@ div.kyraStratCardThemedSelected {
     min-width: 9px !important;
     min-height: 9px !important;
     border-radius: 50% !important;
-    background: #10B981 !important;
-    box-shadow: 0 0 10px #10B981, 0 0 4px #10B981 !important;
+    background: #008C9C !important;
+    box-shadow: 0 0 0 4px rgba(0, 140, 156, 0.2) !important;
 }
 
 .kyraDarkBannerFormattedText {
@@ -37665,44 +37667,44 @@ div.kyraStratCardThemedSelected {
 }
 
 .kyraDarkGreenPillBadge {
-    background: rgba(16, 185, 129, 0.12) !important;
-    background-color: rgba(16, 185, 129, 0.12) !important;
-    border: 1px solid #059669 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #10B981 !important;
     border-radius: 9999px !important;
     padding: 4px 14px !important;
     white-space: nowrap !important;
 }
 
 .kyraDarkGreenPillText {
-    color: #34D399 !important;
+    color: #059669 !important;
     font-size: 12px !important;
     font-weight: 600 !important;
     letter-spacing: 0.02em !important;
 }
 
 .kyraDarkGrayPillBadge {
-    background: rgba(148, 163, 184, 0.12) !important;
-    background-color: rgba(148, 163, 184, 0.12) !important;
-    border: 1px solid #475569 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
     border-radius: 9999px !important;
     padding: 4px 14px !important;
     white-space: nowrap !important;
 }
 
 .kyraDarkGrayPillText {
-    color: #94A3B8 !important;
+    color: #64748B !important;
     font-size: 12px !important;
     font-weight: 600 !important;
 }
 
 /* Main Form Card */
 .kyraDarkFormCard {
-    background: #111D35 !important;
-    background-color: #111D35 !important;
-    border: 1px solid #1E2E4A !important;
-    border-radius: 12px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 14px !important;
     padding: 24px 28px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
     width: 100% !important;
 }
@@ -37716,40 +37718,42 @@ div.kyraStratCardThemedSelected {
 }
 
 .kyraDarkCardHeaderIcon {
-    color: #CBD5E1 !important;
-    font-size: 16px !important;
+    color: #008C9C !important;
+    font-size: 18px !important;
+    margin-right: 8px !important;
 }
 
 .kyraDarkCardHeaderTitle .sapMTitle,
 .kyraDarkCardHeaderTitle {
-    color: #FFFFFF !important;
-    font-size: 15.5px !important;
+    color: #0F172A !important;
+    font-size: 16px !important;
     font-weight: 700 !important;
 }
 
 /* Status Badges */
 .kyraDarkStatusBadgeNotConnected {
-    background: #182642 !important;
-    border: 1px solid #2B3D5E !important;
-    border-radius: 6px !important;
-    padding: 4px 12px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
-.kyraDarkStatusBadgeConnected {
-    background: rgba(16, 185, 129, 0.16) !important;
-    border: 1px solid #10B981 !important;
-    border-radius: 6px !important;
-    padding: 4px 12px !important;
-}
-
-.kyraDarkStatusBadgeText {
-    color: #94A3B8 !important;
-    font-size: 12px !important;
+.kyraDarkStatusBadgeNotConnected .kyraDarkStatusBadgeText {
+    color: #64748B !important;
+    font-size: 13px !important;
     font-weight: 500 !important;
 }
 
+.kyraDarkStatusBadgeConnected {
+    background: #ECFDF5 !important;
+    border: 1.5px solid #10B981 !important;
+    border-radius: 9999px !important;
+    padding: 3px 12px !important;
+}
+
 .kyraDarkStatusBadgeConnected .kyraDarkStatusBadgeText {
-    color: #34D399 !important;
+    color: #059669 !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
 }
 
@@ -37769,18 +37773,18 @@ div.kyraStratCardThemedSelected {
 }
 
 .kyraDarkFieldLabel {
-    color: #CBD5E1 !important;
+    color: #0F172A !important;
     font-size: 13px !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     margin-bottom: 6px !important;
     display: block !important;
 }
 
 .kyraDarkRequiredStar {
-    color: #38BDF8 !important;
+    color: #008C9C !important;
     font-size: 13px !important;
     font-weight: 700 !important;
-    margin-left: 2px !important;
+    margin-left: 3px !important;
 }
 
 .kyraDarkFieldRow {
@@ -37790,98 +37794,464 @@ div.kyraStratCardThemedSelected {
     box-sizing: border-box !important;
 }
 
-/* Inputs & Select Elements inside Dark Console */
-.kyraDarkInput .sapMInputBaseInner,
-.kyraDarkSelect .sapMSlt {
-    background: #0A1224 !important;
-    background-color: #0A1224 !important;
-    border: 1px solid #1E2D4A !important;
-    border-radius: 6px !important;
-    color: #FFFFFF !important;
+/* Auto-Fill Credentials Button */
+.kyraDarkAutoFillBtn.sapMBtn,
+.kyraDarkAutoFillBtn {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+
+.kyraDarkAutoFillBtn .sapMBtnInner {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #008C9C !important;
+    padding: 0 !important;
+    height: auto !important;
+    line-height: normal !important;
+}
+
+.kyraDarkAutoFillBtn .sapMBtnContent,
+.kyraDarkAutoFillBtn bdi,
+.kyraDarkAutoFillBtn .sapUiIcon {
+    color: #008C9C !important;
+    font-weight: 600 !important;
     font-size: 13.5px !important;
-    height: 40px !important;
-    padding: 0 14px !important;
+}
+
+.kyraDarkAutoFillBtn:hover .sapMBtnInner,
+.kyraDarkAutoFillBtn:hover .sapMBtnContent,
+.kyraDarkAutoFillBtn:hover bdi,
+.kyraDarkAutoFillBtn:hover .sapUiIcon {
+    color: #007684 !important;
+}
+
+/* Inputs & Select Elements inside Light Console */
+.kyraDarkInput,
+.kyraDarkInput.sapMInputBase,
+.kyraDarkInput .sapMInputBaseContentWrapper {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    height: 42px !important;
     box-sizing: border-box !important;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: none !important;
+    width: 100% !important;
     transition: border-color 0.16s ease, box-shadow 0.16s ease !important;
 }
 
-.kyraDarkInput .sapMInputBaseInner::placeholder {
-    color: #64748B !important;
-    opacity: 0.8 !important;
-}
-
-.kyraDarkInput .sapMInputBaseInner:focus,
-.kyraDarkSelect .sapMSlt:focus {
-    border-color: #38BDF8 !important;
-    box-shadow: 0 0 0 1px #38BDF8, inset 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    background-color: #0C162E !important;
-}
-
-.kyraDarkSelect .sapMSltLabel {
-    color: #FFFFFF !important;
+.kyraDarkInput:not(.kyraDarkTextArea) .sapMInputBaseInner {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: #0F172A !important;
     font-size: 13.5px !important;
-    line-height: 38px !important;
+    font-weight: 400 !important;
+    height: 40px !important;
+    line-height: 40px !important;
+    padding: 0 14px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
 }
 
-.kyraDarkSelect .sapMSltArrow {
+.kyraDarkInput .sapMInputBaseInner::placeholder {
     color: #94A3B8 !important;
+    opacity: 1 !important;
 }
 
-/* Checkbox */
-.kyraDarkCheckboxRow {
-    margin: 10px 0 20px 0 !important;
-    display: flex !important;
-    align-items: center !important;
+.kyraDarkInput:not(.kyraDarkTextArea).sapMInputBase:focus-within,
+.kyraDarkInput:not(.kyraDarkTextArea):focus-within .sapMInputBaseContentWrapper {
+    border-color: #008C9C !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
 }
 
-.kyraDarkCheckbox .sapMCbLabel {
-    color: #CBD5E1 !important;
+/* Service Key JSON TextArea: 3 Lines Capacity */
+.kyraDarkTextArea.sapMTextArea,
+.kyraDarkTextArea,
+.kyraDarkTextArea .sapMInputBaseContentWrapper {
+    height: auto !important;
+    min-height: 76px !important;
+    max-height: 130px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    padding: 8px 12px !important;
+    width: 100% !important;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease !important;
+}
+
+.kyraDarkTextArea .sapMInputBaseInner {
+    height: 60px !important;
+    min-height: 60px !important;
+    line-height: 20px !important;
     font-size: 13px !important;
-    font-weight: 500 !important;
+    font-family: inherit !important;
+    color: #0F172A !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    resize: vertical !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
 }
 
-.kyraDarkCheckbox .sapMCbBg {
-    background-color: #0A1224 !important;
-    border: 1px solid #1E2D4A !important;
-    border-radius: 4px !important;
+.kyraDarkTextArea .sapMInputBaseInner::placeholder {
+    color: #94A3B8 !important;
+    opacity: 1 !important;
+    line-height: 20px !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg {
-    background-color: #2563EB !important;
-    border-color: #2563EB !important;
+.kyraDarkTextArea:focus-within,
+.kyraDarkTextArea.sapMFocus .sapMInputBaseContentWrapper,
+.kyraDarkTextArea .sapMInputBaseContentWrapper:focus-within {
+    border-color: #008C9C !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
 }
 
-/* Test Connection Button (âš¡ Test Source Connection) */
-.kyraDarkTestConnBtn.sapMBtn,
-.kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
-    background: #15223D !important;
-    background-color: #15223D !important;
-    border: 1px solid #233554 !important;
+/* Select Dropdown */
+.kyraDarkSelect,
+.kyraDarkSelect.sapMSlt,
+.kyraDarkSelect .sapMSlt {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
     border-radius: 8px !important;
     height: 42px !important;
     line-height: 40px !important;
-    color: #93C5FD !important;
-    font-weight: 600 !important;
-    font-size: 13.5px !important;
+    padding: 0 14px !important;
+    box-sizing: border-box !important;
     width: 100% !important;
-    transition: all 0.18s ease !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease !important;
+}
+
+.kyraDarkSelect:focus-within,
+.kyraDarkSelect.sapMSlt:focus {
+    border-color: #008C9C !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraDarkSelect .sapMSltLabel {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 400 !important;
+    line-height: 40px !important;
+}
+
+.kyraDarkSelect .sapMSltArrow {
+    color: #008C9C !important;
+    line-height: 40px !important;
+}
+
+/* Row 4: Checkbox & Switch Row - Crisp Horizontal Baseline Alignment */
+.kyraDarkCheckboxRow {
+    margin: 16px 0 20px 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-height: 32px !important;
+    box-sizing: border-box !important;
+}
+
+.sapUiSizeCompact .kyraDarkCheckbox.sapMCb,
+.kyraDarkCheckbox.sapMCb,
+.kyraDarkCheckbox {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    position: relative !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    line-height: 24px !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
+}
+
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbBg,
+.kyraDarkCheckbox.sapMCb .sapMCbBg,
+.kyraDarkCheckbox .sapMCbBg {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    transform: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    margin: 0 10px 0 0 !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    transition: border-color 0.15s ease, background-color 0.15s ease !important;
+}
+
+.kyraDarkCheckbox:hover .sapMCbBg,
+.kyraDarkCheckbox.sapMCb:hover .sapMCbBg {
+    border-color: #008C9C !important;
+}
+
+.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg,
+.kyraDarkCheckbox.sapMCbChecked .sapMCbBg,
+.kyraDarkCheckbox[aria-checked="true"] .sapMCbBg,
+.kyraDarkCheckbox .sapMCbBg.sapMCbMarkChecked {
+    background-color: #008C9C !important;
+    border-color: #008C9C !important;
+}
+
+.kyraDarkCheckbox .sapMCbMark,
+.kyraDarkCheckbox .sapMCbBg::before,
+.kyraDarkCheckbox .sapMCbMarkChecked::before {
+    color: #FFFFFF !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCb .sapMCbLabel,
+.kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCbHasLabel .sapMCbLabel {
+    position: relative !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 18px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+}
+
+/* Switch & Label Container */
+.kyraDarkSwitchContainer {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 24px !important;
+    gap: 10px !important;
+}
+
+/* Toggle Switch: Clean Modern Pill Capsule */
+.sapUiSizeCompact .kyraDarkSwitch.sapMSwt,
+.kyraDarkStudioWrapper .sapMSwt,
+.kyraDarkSwitch.sapMSwt,
+.kyraDarkSwitch.sapMSwtCont .sapMSwt {
+    border-radius: 9999px !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    max-height: 22px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    cursor: pointer !important;
+    position: relative !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+/* Uniform Background - ON State (Pure solid teal #008C9C, NO split blue color) */
+.sapUiSizeCompact .kyraDarkSwitch.sapMSwtOn,
+.kyraDarkStudioWrapper .sapMSwt.sapMSwtOn,
+.kyraDarkSwitch.sapMSwt.sapMSwtOn,
+.kyraDarkSwitch.sapMSwtOn .sapMSwtInner,
+.kyraDarkSwitch.sapMSwtCont .sapMSwt.sapMSwtOn {
+    background-color: #008C9C !important;
+    background: #008C9C !important;
+    border-color: #008C9C !important;
+    border: none !important;
+}
+
+/* Uniform Background - OFF State (Clean light slate #CBD5E1) */
+.sapUiSizeCompact .kyraDarkSwitch.sapMSwtOff,
+.kyraDarkStudioWrapper .sapMSwt.sapMSwtOff,
+.kyraDarkSwitch.sapMSwt.sapMSwtOff,
+.kyraDarkSwitch.sapMSwtOff .sapMSwtInner,
+.kyraDarkSwitch.sapMSwtCont .sapMSwt.sapMSwtOff {
+    background-color: #CBD5E1 !important;
+    background: #CBD5E1 !important;
+    border-color: #CBD5E1 !important;
+    border: none !important;
+}
+
+.kyraDarkStudioWrapper .sapMSwtInner,
+.kyraDarkSwitch .sapMSwtInner {
+    border-radius: 9999px !important;
+    height: 100% !important;
+    width: 100% !important;
+    border: none !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+}
+
+/* Sliding Circular Handle */
+.sapUiSizeCompact .kyraDarkSwitch .sapMSwtHandle,
+.kyraDarkStudioWrapper .sapMSwtHandle,
+.kyraDarkSwitch .sapMSwtHandle {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    top: 2px !important;
+    bottom: 2px !important;
+    margin: 0 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-radius: 50% !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28) !important;
+    cursor: pointer !important;
+    position: absolute !important;
+    transition: left 0.18s ease-in-out, right 0.18s ease-in-out !important;
+}
+
+/* Handle ON Position: cleanly on the right */
+.sapUiSizeCompact .kyraDarkSwitch.sapMSwtOn .sapMSwtHandle,
+.kyraDarkStudioWrapper .sapMSwt.sapMSwtOn .sapMSwtHandle,
+.kyraDarkSwitch.sapMSwtOn .sapMSwtHandle {
+    left: 24px !important;
+    right: auto !important;
+}
+
+/* Handle OFF Position: cleanly on the left */
+.sapUiSizeCompact .kyraDarkSwitch.sapMSwtOff .sapMSwtHandle,
+.kyraDarkStudioWrapper .sapMSwt.sapMSwtOff .sapMSwtHandle,
+.kyraDarkSwitch.sapMSwtOff .sapMSwtHandle {
+    left: 2px !important;
+    right: auto !important;
+}
+
+/* Hide conflicting internal letters (eliminates text peeking or colliding under handle) */
+.kyraDarkSwitch .sapMSwtText,
+.kyraDarkSwitch .sapMSwtLabel,
+.kyraDarkSwitch .sapMSwtTextOn,
+.kyraDarkSwitch .sapMSwtTextOff {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+.kyraDarkSwitchLabel {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 24px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    display: inline-block !important;
+}
+
+/* Suppress floating valueStateMessage popups under textarea */
+#inputSapBtpServiceKey-message,
+div[id*="inputSapBtpServiceKey-message"],
+.kyraDarkTextArea-message {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+}
+
+/* Row 5: Action Button (⚡ Test & Save Automatic Provisioning Integration) */
+.kyraDarkTestConnBtn.sapMBtn,
+.kyraDarkTestConnBtn {
+    height: 44px !important;
+    width: 100% !important;
+    margin-top: 6px !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraDarkTestConnBtn.sapMBtn .sapMBtnInner,
+.kyraDarkTestConnBtn .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
+    border-radius: 8px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.kyraDarkTestConnBtn .sapMBtnIcon,
+.kyraDarkTestConnBtn.sapMBtn .sapMBtnIcon,
+.kyraDarkTestConnBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    margin-right: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnContent,
 .kyraDarkTestConnBtn.sapMBtn bdi {
-    color: #93C5FD !important;
+    color: #FFFFFF !important;
     font-weight: 600 !important;
-    font-size: 13.5px !important;
+    font-size: 14px !important;
 }
 
-.kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnInner {
-    background: #1E3056 !important;
-    background-color: #1E3056 !important;
-    border-color: #3B82F6 !important;
-    color: #BFDBFE !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+.kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnInner,
+.kyraDarkTestConnBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
+}
+
+.kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnContent,
+.kyraDarkTestConnBtn.sapMBtn:hover bdi,
+.kyraDarkTestConnBtn:hover .sapUiIcon {
+    color: #FFFFFF !important;
 }
 
 /* Bottom Action Bar */
@@ -37890,7 +38260,7 @@ div.kyraStratCardThemedSelected {
     align-items: center !important;
     justify-content: space-between !important;
     padding-top: 18px !important;
-    border-top: 1px solid #1E2E4A !important;
+    border-top: 1px solid #E2E8F0 !important;
     margin-top: 12px !important;
     width: 100% !important;
     box-sizing: border-box !important;
@@ -37901,7 +38271,7 @@ div.kyraStratCardThemedSelected {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    color: #94A3B8 !important;
+    color: #64748B !important;
     font-size: 13.5px !important;
     font-weight: 500 !important;
     padding: 0 8px !important;
@@ -37910,7 +38280,7 @@ div.kyraStratCardThemedSelected {
 }
 
 .kyraDarkBackLinkBtn.sapMBtn:hover .sapMBtnInner {
-    color: #FFFFFF !important;
+    color: #0F172A !important;
 }
 
 .kyraDarkBackLinkBtn.sapMBtn .sapMBtnContent,
@@ -37925,12 +38295,12 @@ div.kyraStratCardThemedSelected {
 }
 
 .kyraDarkPromptHint {
-    color: #94A3B8 !important;
+    color: #64748B !important;
     font-size: 13px !important;
 }
 
 .kyraDarkPromptTarget {
-    color: #FFFFFF !important;
+    color: #008C9C !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     margin-left: 4px !important;
@@ -37939,9 +38309,9 @@ div.kyraStratCardThemedSelected {
 /* Continue to Step 2 Button */
 .kyraDarkContinueBtn.sapMBtn,
 .kyraDarkContinueBtn.sapMBtn .sapMBtnInner {
-    background: #2563EB !important;
-    background-color: #2563EB !important;
-    border: 1px solid #1D4ED8 !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #007684 !important;
     border-radius: 6px !important;
     color: #FFFFFF !important;
     font-size: 13.5px !important;
@@ -37949,7 +38319,7 @@ div.kyraStratCardThemedSelected {
     height: 40px !important;
     line-height: 38px !important;
     padding: 0 20px !important;
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35) !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.35) !important;
     transition: all 0.18s ease !important;
 }
 
@@ -37961,10 +38331,10 @@ div.kyraStratCardThemedSelected {
 }
 
 .kyraDarkContinueBtn.sapMBtn:hover .sapMBtnInner {
-    background: #1D4ED8 !important;
-    background-color: #1D4ED8 !important;
-    border-color: #1E40AF !important;
-    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45) !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #005F6B !important;
+    box-shadow: 0 6px 18px rgba(0, 140, 156, 0.45) !important;
     transform: translateY(-1px) !important;
 }
 
@@ -38262,69 +38632,136 @@ div.kyraStratCardThemedSelected {
     overflow: visible !important;
 }
 
+.sapUiSizeCompact .kyraDarkCheckbox.sapMCb,
+.kyraDarkCheckbox.sapMCb,
 .kyraDarkCheckbox {
-    overflow: visible !important;
-}
-
-.kyraDarkCheckbox .sapMCbLabel {
-    color: #1E293B !important;
-    font-size: 13.5px !important;
-    font-weight: 600 !important;
-    margin-left: 8px !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    position: relative !important;
+    height: 24px !important;
+    min-height: 24px !important;
     line-height: 24px !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
 }
 
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbBg,
+.kyraDarkCheckbox.sapMCb .sapMCbBg,
 .kyraDarkCheckbox .sapMCbBg {
-    background-color: #F8FAFC !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    transform: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    margin: 0 10px 0 0 !important;
+    background-color: #FFFFFF !important;
     border: 1.5px solid #CBD5E1 !important;
     border-radius: 4px !important;
-    width: 20px !important;
-    height: 20px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    transition: border-color 0.15s ease, background-color 0.15s ease !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg {
+.kyraDarkCheckbox:hover .sapMCbBg,
+.kyraDarkCheckbox.sapMCb:hover .sapMCbBg {
+    border-color: #008C9C !important;
+}
+
+.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg,
+.kyraDarkCheckbox.sapMCbChecked .sapMCbBg,
+.kyraDarkCheckbox[aria-checked="true"] .sapMCbBg,
+.kyraDarkCheckbox .sapMCbBg.sapMCbMarkChecked {
     background-color: #008C9C !important;
     border-color: #008C9C !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbMark {
+.kyraDarkCheckbox .sapMCbMark,
+.kyraDarkCheckbox .sapMCbBg::before,
+.kyraDarkCheckbox .sapMCbMarkChecked::before {
     color: #FFFFFF !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Test Connection Button (âš¡ Test Source Connection - KYRA Teal Mint Outline) */
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCb .sapMCbLabel,
+.kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCbHasLabel .sapMCbLabel {
+    position: relative !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 18px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+}
+
+/* Test Connection Button (⚡ Test & Save Automatic Provisioning Integration) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border: 1.5px solid #008C9C !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
     border-radius: 8px !important;
     height: 44px !important;
-    line-height: 42px !important;
-    color: #008C9C !important;
-    font-weight: 700 !important;
+    line-height: 44px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
     font-size: 14px !important;
     width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     transition: all 0.18s ease !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.12) !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnContent,
-.kyraDarkTestConnBtn.sapMBtn bdi {
-    color: #008C9C !important;
-    font-weight: 700 !important;
+.kyraDarkTestConnBtn.sapMBtn bdi,
+.kyraDarkTestConnBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
     font-size: 14px !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border-color: #007684 !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: none !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.28) !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.35) !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnContent,
-.kyraDarkTestConnBtn.sapMBtn:hover bdi {
+.kyraDarkTestConnBtn.sapMBtn:hover bdi,
+.kyraDarkTestConnBtn:hover .sapUiIcon {
     color: #FFFFFF !important;
 }
 
@@ -40728,27 +41165,79 @@ div.kyraStratCardThemedSelected {
 /* Status Badges */
 .kyraDarkStatusBadgeNotConnected {
     background: #F1F5F9 !important;
+    background-color: #F1F5F9 !important;
     border: 1px solid #CBD5E1 !important;
-    border-radius: 6px !important;
-    padding: 4px 12px !important;
+    border-radius: 9999px !important;
+    padding: 3px 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
 }
 
 .kyraDarkStatusBadgeConnected {
     background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
     border: 1px solid #10B981 !important;
-    border-radius: 6px !important;
-    padding: 4px 12px !important;
+    border-radius: 9999px !important;
+    padding: 3px 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
 }
 
-.kyraDarkStatusBadgeText {
+.kyraDarkStatusBadgeIconNotConnected,
+.kyraDarkStatusBadgeIconNotConnected.sapUiIcon {
     color: #64748B !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraDarkStatusBadgeIconConnected,
+.kyraDarkStatusBadgeIconConnected.sapUiIcon {
+    color: #059669 !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraDarkStatusBadgeText,
+.kyraDarkStatusBadgeNotConnected .kyraDarkStatusBadgeText {
+    color: #475569 !important;
     font-size: 12px !important;
     font-weight: 600 !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
 }
 
 .kyraDarkStatusBadgeConnected .kyraDarkStatusBadgeText {
     color: #047857 !important;
     font-weight: 700 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
 }
 
 /* Field Group & Labels */
@@ -40867,76 +41356,145 @@ div.kyraStratCardThemedSelected {
 
 /* Checkbox */
 .kyraDarkCheckboxRow {
-    margin: 12px 0 20px 0 !important;
+    margin: 14px 0 20px 0 !important;
     display: flex !important;
+    flex-direction: row !important;
     align-items: center !important;
-    min-height: 32px !important;
-    overflow: visible !important;
+    justify-content: space-between !important;
+    min-height: 28px !important;
+    width: 100% !important;
 }
 
+.sapUiSizeCompact .kyraDarkCheckbox.sapMCb,
+.kyraDarkCheckbox.sapMCb,
 .kyraDarkCheckbox {
-    overflow: visible !important;
-}
-
-.kyraDarkCheckbox .sapMCbLabel {
-    color: #1E293B !important;
-    font-size: 13.5px !important;
-    font-weight: 600 !important;
-    margin-left: 8px !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    position: relative !important;
+    height: 24px !important;
+    min-height: 24px !important;
     line-height: 24px !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
 }
 
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbBg,
+.kyraDarkCheckbox.sapMCb .sapMCbBg,
 .kyraDarkCheckbox .sapMCbBg {
-    background-color: #F8FAFC !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    transform: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    margin: 0 10px 0 0 !important;
+    background-color: #FFFFFF !important;
     border: 1.5px solid #CBD5E1 !important;
     border-radius: 4px !important;
-    width: 20px !important;
-    height: 20px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+    transition: border-color 0.15s ease, background-color 0.15s ease !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg {
+.kyraDarkCheckbox:hover .sapMCbBg,
+.kyraDarkCheckbox.sapMCb:hover .sapMCbBg {
+    border-color: #008C9C !important;
+}
+
+.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg,
+.kyraDarkCheckbox.sapMCbChecked .sapMCbBg,
+.kyraDarkCheckbox[aria-checked="true"] .sapMCbBg,
+.kyraDarkCheckbox .sapMCbBg.sapMCbMarkChecked {
     background-color: #008C9C !important;
     border-color: #008C9C !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbMark {
+.kyraDarkCheckbox .sapMCbMark,
+.kyraDarkCheckbox .sapMCbBg::before,
+.kyraDarkCheckbox .sapMCbMarkChecked::before {
     color: #FFFFFF !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Test Connection Button (âš¡ Test Source Connection - KYRA Teal Mint Outline) */
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCb .sapMCbLabel,
+.kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCbHasLabel .sapMCbLabel {
+    position: relative !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 18px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+}
+
+/* Test Connection Button (⚡ Test & Save Automatic Provisioning Integration) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border: 1.5px solid #008C9C !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
     border-radius: 8px !important;
     height: 44px !important;
-    line-height: 42px !important;
-    color: #008C9C !important;
-    font-weight: 700 !important;
+    line-height: 44px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
     font-size: 14px !important;
     width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     transition: all 0.18s ease !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.12) !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnContent,
-.kyraDarkTestConnBtn.sapMBtn bdi {
-    color: #008C9C !important;
-    font-weight: 700 !important;
+.kyraDarkTestConnBtn.sapMBtn bdi,
+.kyraDarkTestConnBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
     font-size: 14px !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border-color: #007684 !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: none !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.28) !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.35) !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnContent,
-.kyraDarkTestConnBtn.sapMBtn:hover bdi {
+.kyraDarkTestConnBtn.sapMBtn:hover bdi,
+.kyraDarkTestConnBtn:hover .sapUiIcon {
     color: #FFFFFF !important;
 }
 
@@ -41524,91 +42082,141 @@ div.kyraStratCardThemedSelected {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
+    justify-content: space-between !important;
     min-height: 28px !important;
     width: 100% !important;
 }
 
+.sapUiSizeCompact .kyraDarkCheckbox.sapMCb,
 .kyraDarkCheckbox.sapMCb,
 .kyraDarkCheckbox {
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    height: auto !important;
+    position: relative !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    line-height: 24px !important;
     padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
 }
 
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbBg,
+.kyraDarkCheckbox.sapMCb .sapMCbBg,
 .kyraDarkCheckbox .sapMCbBg {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    inset: auto !important;
+    transform: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    width: 20px !important;
-    height: 20px !important;
-    min-width: 20px !important;
-    min-height: 20px !important;
-    background-color: #F8FAFC !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    margin: 0 10px 0 0 !important;
+    background-color: #FFFFFF !important;
     border: 1.5px solid #CBD5E1 !important;
     border-radius: 4px !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
+    flex-shrink: 0 !important;
     cursor: pointer !important;
-    transition: all 0.15s ease !important;
+    transition: border-color 0.15s ease, background-color 0.15s ease !important;
 }
 
-.kyraDarkCheckbox .sapMCbLabel {
-    color: #1E293B !important;
-    font-size: 13.5px !important;
-    font-weight: 500 !important;
-    margin-left: 10px !important;
-    line-height: 20px !important;
-    cursor: pointer !important;
-    display: inline-block !important;
+.kyraDarkCheckbox:hover .sapMCbBg,
+.kyraDarkCheckbox.sapMCb:hover .sapMCbBg {
+    border-color: #008C9C !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg {
+.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbBg,
+.kyraDarkCheckbox.sapMCbChecked .sapMCbBg,
+.kyraDarkCheckbox[aria-checked="true"] .sapMCbBg,
+.kyraDarkCheckbox .sapMCbBg.sapMCbMarkChecked {
     background-color: #008C9C !important;
     border-color: #008C9C !important;
 }
 
-.kyraDarkCheckbox.sapMCbMarkChecked .sapMCbMark {
+.kyraDarkCheckbox .sapMCbMark,
+.kyraDarkCheckbox .sapMCbBg::before,
+.kyraDarkCheckbox .sapMCbMarkChecked::before {
     color: #FFFFFF !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Test Source Connection Button in Kyra Slide */
+.sapUiSizeCompact .kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCb .sapMCbLabel,
+.kyraDarkCheckbox .sapMCbLabel,
+.kyraDarkCheckbox.sapMCbHasLabel .sapMCbLabel {
+    position: relative !important;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0 !important;
+    padding-inline-start: 0 !important;
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    line-height: 18px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    white-space: nowrap !important;
+}
+
+/* Test Connection Button (⚡ Test & Save Automatic Provisioning Integration) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    border: 1.5px solid #008C9C !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
     border-radius: 8px !important;
     height: 44px !important;
-    line-height: 42px !important;
-    color: #008C9C !important;
-    font-weight: 700 !important;
+    line-height: 44px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
     font-size: 14px !important;
     width: 100% !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.12) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     transition: all 0.18s ease !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn .sapMBtnContent,
-.kyraDarkTestConnBtn.sapMBtn bdi {
-    color: #008C9C !important;
-    font-weight: 700 !important;
+.kyraDarkTestConnBtn.sapMBtn bdi,
+.kyraDarkTestConnBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
     font-size: 14px !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border-color: #007684 !important;
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: none !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.28) !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.35) !important;
 }
 
 .kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnContent,
-.kyraDarkTestConnBtn.sapMBtn:hover bdi {
+.kyraDarkTestConnBtn.sapMBtn:hover bdi,
+.kyraDarkTestConnBtn:hover .sapUiIcon {
     color: #FFFFFF !important;
 }
 
@@ -42981,7 +43589,7 @@ div.kyraStratCardThemedSelected {
     box-shadow: 0 0 0 2px rgba(0, 140, 156, 0.2) !important;
 }
 
-/* Test Connection Button: Full Width, Subtle Mint, Teal Border & Hover Glow */
+/* Test Connection Button: Full Width, Solid KYRA Teal Button (Matches Reference) */
 .kyraDarkTestConnBtn.sapMBtn,
 .kyraDarkTestConnBtn {
     height: 44px !important;
@@ -42991,17 +43599,18 @@ div.kyraStratCardThemedSelected {
     background: transparent !important;
 }
 
-.kyraDarkTestConnBtn .sapMBtnInner {
+.kyraDarkTestConnBtn .sapMBtnInner,
+.kyraDarkTestConnBtn.sapMBtn .sapMBtnInner {
     height: 44px !important;
-    line-height: 42px !important;
-    border: 1.5px solid #008C9C !important;
+    line-height: 44px !important;
+    border: none !important;
     border-radius: 8px !important;
-    background: #F0FDFA !important;
-    background-color: #F0FDFA !important;
-    color: #008C9C !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
     font-size: 14px !important;
-    font-weight: 700 !important;
-    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.15) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
     transition: all 0.2s ease !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -43011,16 +43620,17 @@ div.kyraStratCardThemedSelected {
 .kyraDarkTestConnBtn .sapMBtnContent,
 .kyraDarkTestConnBtn bdi,
 .kyraDarkTestConnBtn .sapUiIcon {
-    color: #008C9C !important;
-    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
 }
 
-.kyraDarkTestConnBtn:hover .sapMBtnInner {
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border-color: #007684 !important;
+.kyraDarkTestConnBtn:hover .sapMBtnInner,
+.kyraDarkTestConnBtn.sapMBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border: none !important;
     color: #FFFFFF !important;
-    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.3) !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.35) !important;
 }
 
 .kyraDarkTestConnBtn:hover .sapMBtnContent,

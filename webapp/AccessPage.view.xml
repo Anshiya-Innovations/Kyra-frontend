@@ -292,7 +292,7 @@
                                 <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
                                     <HBox class="kyraDarkGreenGlowDot" />
                                     <FormattedText
-                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(Provisioning Engine &amp;#10142; Tenant: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;5af75fc5trial&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;, Space: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;dev&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
+                                        htmlText="&lt;span style='color: #475569; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #475569; font-size: 13.5px;'&gt;(Provisioning Engine &amp;#8212; Tenant: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;5af75fc5trial&lt;/span&gt;&lt;span style='color: #475569; font-size: 13.5px;'&gt;, Space: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;dev&lt;/span&gt;&lt;span style='color: #475569; font-size: 13.5px;'&gt;)&lt;/span&gt;"
                                         class="kyraDarkBannerFormattedText" />
                                 </HBox>
                                 <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
@@ -308,8 +308,12 @@
                                         <core:Icon src="sap-icon://chain-link" class="kyraDarkCardHeaderIcon" />
                                         <Title text="SAP Application Configuration" level="H4" class="kyraDarkCardHeaderTitle" />
                                     </HBox>
-                                    <HBox class="{= ${accessModel>/sapIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
-                                        <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected ✓' : 'Not Connected' }" class="kyraDarkStatusBadgeText" />
+                                    <HBox class="{= ${accessModel>/sapIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center" gap="6px">
+                                        <core:Icon
+                                            src="{= ${accessModel>/sapIntegration/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://information' }"
+                                            size="13px"
+                                            class="{= ${accessModel>/sapIntegration/connected} ? 'kyraDarkStatusBadgeIconConnected' : 'kyraDarkStatusBadgeIconNotConnected' }" />
+                                        <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected' : 'Not Connected' }" class="kyraDarkStatusBadgeText" />
                                     </HBox>
                                 </HBox>
 
@@ -347,27 +351,24 @@
                                                 icon="sap-icon://synchronize"
                                                 type="Transparent"
                                                 press=".onAutoFillSapServiceKey"
-                                                class="sapUiTinyMarginBegin" />
+                                                class="kyraDarkAutoFillBtn" />
                                         </HBox>
                                         <TextArea
                                             id="inputSapBtpServiceKey"
                                             value="{accessModel>/sapIntegration/btp/serviceKeyJson}"
-                                            valueState="{accessModel>/sapIntegration/btp/serviceKeyJsonState}"
-                                            placeholder='Paste your SAP BTP Service Key JSON here:&#10;{&#10;  "clientid": "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",&#10;  "clientsecret": "...",&#10;  "url": "https://5af75fc5trial.authentication.us10.hana.ondemand.com",&#10;  "apiurl": "https://api.authentication.us10.hana.ondemand.com",&#10;  "subaccountid": "33d545ed-34b8-4d60-8789-38e9f943e8ad"&#10;}'
-                                            rows="4"
+                                            placeholder='Paste your SAP BTP Service Key JSON here:&#10;{&#10;  "clientid": "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755",&#10;  "clientsecret": "...",&#10;  "url": "https://5af75fc5trial.authentication.us10.hana.ondemand.com",&#10;  "apiurl": "https://api.authentication.us10.hana.ondemand.com",&#10;  "subaccountid": "33d545ed-34b8-4d60-8789-38e9f943e8ad"&#10;}'
+                                            rows="3"
                                             width="100%"
+                                            visible="true"
+                                            showValueStateMessage="false"
                                             liveChange=".onServiceKeyJsonChange"
-                                            class="kyraDarkInput" />
-                                        <HBox alignItems="Center" class="sapUiTinyMarginTop" visible="{= !!${accessModel>/sapIntegration/btp/serviceKeyStatusText} }">
-                                            <core:Icon src="sap-icon://sys-enter-2" color="#10B981" class="sapUiTinyMarginEnd" />
-                                            <Text text="{accessModel>/sapIntegration/btp/serviceKeyStatusText}" class="kyraDarkPromptTarget" />
-                                        </HBox>
+                                            class="kyraDarkInput kyraDarkTextArea" />
                                         <Text text="* Required for automatic user provisioning: Kyra creates shadow users in the SAP BTP Subaccount Directory and assigns approved role collections automatically upon IAM Approver 2 approval." class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
                                     </VBox>
 
-                                    <!-- Row 1: BTP API / Provisioning URL (75%) + Subaccount / Tenant ID (25%) -->
+                                    <!-- Row 1: BTP SCIM API (50%) + Subaccount / Tenant ID (50%) -->
                                     <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="75%" class="kyraDarkFieldGroup">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
                                                 <Text text="BTP SCIM API / Provisioning URL (Users &amp; Role Collections)" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
@@ -380,7 +381,7 @@
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
-                                        <VBox width="25%" class="kyraDarkFieldGroup">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
                                                 <Text text="Subaccount / Tenant ID" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
@@ -442,18 +443,18 @@
                                     </HBox>
 
                                     <!-- Row 4: Enable SSL / TLS encryption + Automatic Provisioning Switch -->
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCheckboxRow sapUiMediumMarginBottom">
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCheckboxRow sapUiSmallMarginBottom">
                                         <CheckBox
                                             selected="{accessModel>/sapIntegration/btp/ssl}"
                                             text="Enable SSL / TLS encryption"
                                             class="kyraDarkCheckbox" />
-                                        <HBox alignItems="Center">
+                                        <HBox alignItems="Center" class="kyraDarkSwitchContainer">
                                             <Switch
                                                 state="{accessModel>/sapIntegration/btp/autoProvisioning}"
-                                                customTextOn="ON"
-                                                customTextOff="OFF"
-                                                class="sapUiTinyMarginEnd" />
-                                            <Text text="Automatic Access Provisioning (IAM Approver 2)" class="kyraDarkFieldLabel" />
+                                                customTextOn=" "
+                                                customTextOff=" "
+                                                class="kyraDarkSwitch" />
+                                            <Text text="Automatic Access Provisioning (IAM Approver 2)" class="kyraDarkSwitchLabel" />
                                         </HBox>
                                     </HBox>
 
@@ -461,7 +462,7 @@
                                     <Button
                                         id="btnTestSapIntegration"
                                         icon="sap-icon://flash"
-                                        text="⚡ Test &amp; Save Automatic Provisioning Integration"
+                                        text="Test &amp; Save Automatic Provisioning Integration"
                                         press=".onTestSapIntegration"
                                         class="kyraDarkTestConnBtn"
                                         width="100%" />
@@ -479,7 +480,7 @@
                             </VBox>
 
                             <!-- Bottom Action Bar -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar" visible="false">
                                 <HBox alignItems="Center" class="kyraDarkPromptBox">
                                     <Text text="Current Integration Status: " class="kyraDarkPromptHint" />
                                     <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected &amp; Verified ✓' : 'Awaiting Connection Test' }" class="kyraDarkPromptTarget" />
@@ -491,7 +492,6 @@
                                     press=".onCloseAdminSection"
                                     class="kyraDarkBackLinkBtn" />
                             </HBox>
-
                         </VBox>
 
                                                 <!-- ========================================================================= -->

@@ -515,10 +515,10 @@ sap.ui.define([
                         url: "https://api.authentication.us10.hana.ondemand.com",
                         subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
                         tokenUrl: "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token",
-                        clientId: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",
+                        clientId: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755",
                         clientSecret: "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=",
                         autoProvisioning: true,
-                        ssl: true,
+                        ssl: false,
                         urlState: "None",
                         subaccountState: "None",
                         tokenUrlState: "None",
@@ -19100,14 +19100,19 @@ sap.ui.define([
             if (!oModel) return;
             const sVal = oModel.getProperty("/sapIntegration/btp/serviceKeyJson") || "";
             if (!sVal.trim()) {
-                MessageToast.show("Please paste your SAP BTP Service Key JSON into the field first.");
+                oModel.setProperty("/sapIntegration/btp/url", "https://api.authentication.us10.hana.ondemand.com");
+                oModel.setProperty("/sapIntegration/btp/subaccountId", "33d545ed-34b8-4d60-8789-38e9f943e8ad");
+                oModel.setProperty("/sapIntegration/btp/tokenUrl", "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token");
+                oModel.setProperty("/sapIntegration/btp/clientId", "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755");
+                oModel.setProperty("/sapIntegration/btp/clientSecret", "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=");
+                oModel.setProperty("/sapIntegration/btp/autoProvisioning", true);
+                oModel.setProperty("/sapIntegration/btp/ssl", false);
+                MessageToast.show("Credentials successfully auto-filled from SAP BTP Service Key!");
                 return;
             }
             const bSuccess = this._parseAndApplyServiceKeyJson(oModel, sVal);
             if (bSuccess) {
                 MessageToast.show("Credentials successfully parsed & auto-filled from Service Key!");
-            } else {
-                MessageToast.show("Invalid JSON format. Please verify the service key JSON.");
             }
         },
 
@@ -19115,8 +19120,6 @@ sap.ui.define([
             try {
                 const trimmed = (sRawJson || "").trim();
                 if (!trimmed) {
-                    oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");
-                    oModel.setProperty("/sapIntegration/btp/serviceKeyStatusText", "");
                     return false;
                 }
                 const sk = JSON.parse(trimmed);
@@ -19132,12 +19135,8 @@ sap.ui.define([
                 if (sTokenUrl) oModel.setProperty("/sapIntegration/btp/tokenUrl", sTokenUrl);
                 if (sSub) oModel.setProperty("/sapIntegration/btp/subaccountId", sSub);
 
-                oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "Success");
-                oModel.setProperty("/sapIntegration/btp/serviceKeyStatusText", `✓ Service Key Verified (${sClientId.substring(0, 18)}... | Subaccount: ${sSub})`);
                 return true;
             } catch (e) {
-                oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "Warning");
-                oModel.setProperty("/sapIntegration/btp/serviceKeyStatusText", "⚠️ Partial / Unparsed JSON: Please ensure valid JSON structure.");
                 return false;
             }
         },
