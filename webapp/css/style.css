@@ -41240,6 +41240,204 @@ div[id*="inputSapBtpServiceKey-message"],
     white-space: nowrap !important;
 }
 
+/* BTP Card Enterprise Subscription Badge matching Image 1 */
+.kyraDarkEnterpriseBadge {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1px solid #99F6E4 !important;
+    border-radius: 6px !important;
+    padding: 2px 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.kyraDarkEnterpriseBadgeText {
+    color: #008C9C !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+}
+
+/* Purchased & Active Badge with Dropdown Icon matching Image 1 */
+.kyraDarkStatusBadgePurchasedActive {
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    border: 1.5px solid #10B981 !important;
+    border-radius: 9999px !important;
+    padding: 4px 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraDarkStatusBadgePurchasedActiveText {
+    color: #047857 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+.kyraDarkStatusBadgePurchasedActiveIcon,
+.kyraDarkStatusBadgePurchasedActiveIcon.sapUiIcon {
+    color: #047857 !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Clean White Outline Buttons matching Image 1 */
+.kyraDarkOutlineBtn.sapMBtn,
+.kyraDarkOutlineBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.kyraDarkOutlineBtn .sapMBtnInner,
+.kyraDarkOutlineBtn.sapMBtn .sapMBtnInner {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    line-height: 34px !important;
+    padding: 0 16px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraDarkOutlineBtn .sapMBtnContent,
+.kyraDarkOutlineBtn bdi,
+.kyraDarkOutlineBtn .sapUiIcon {
+    color: #334155 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.kyraDarkOutlineBtn:hover .sapMBtnInner {
+    border-color: #008C9C !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+}
+
+.kyraDarkOutlineBtn:hover .sapMBtnContent,
+.kyraDarkOutlineBtn:hover bdi,
+.kyraDarkOutlineBtn:hover .sapUiIcon {
+    color: #008C9C !important;
+}
+
+/* Solid Teal Primary Action Button matching Image 1 */
+.kyraDarkPrimaryActionBtn.sapMBtn,
+.kyraDarkPrimaryActionBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.kyraDarkPrimaryActionBtn .sapMBtnInner,
+.kyraDarkPrimaryActionBtn.sapMBtn .sapMBtnInner {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    line-height: 38px !important;
+    padding: 0 20px !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyraDarkPrimaryActionBtn .sapMBtnContent,
+.kyraDarkPrimaryActionBtn bdi {
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+}
+
+.kyraDarkPrimaryActionBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
+}
+
+/* Live Quotas Table Pill Badges matching Image 1 */
+.kyraQuotaUsagePill {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 9999px !important;
+    padding: 4px 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.kyraQuotaUsagePillText {
+    color: #007684 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.kyraQuotaCapacityPill {
+    background: #ECFDF5 !important;
+    background-color: #ECFDF5 !important;
+    border: 1.5px solid #10B981 !important;
+    border-radius: 9999px !important;
+    padding: 4px 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraQuotaCapacityPillText {
+    color: #047857 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.kyraQuotaCapacityIcon,
+.kyraQuotaCapacityIcon.sapUiIcon {
+    color: #047857 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.kyraQuotaAccountLimitText {
+    color: #1E293B !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
 /* Field Group & Labels */
 .kyraDarkFieldGroup {
     display: flex !important;
@@ -41352,6 +41550,114 @@ div[id*="inputSapBtpServiceKey-message"],
 .kyraDarkSelect .sapMSltArrow {
     color: #008C9C !important;
     line-height: 40px !important;
+}
+
+/* Select SAP Application Dropdown ComboBox matching Business Sector */
+#sapAppSelect.sapMComboBox,
+.kyraDarkSelect.sapMComboBox {
+    width: 100% !important;
+    height: 42px !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#sapAppSelect .sapMInputBaseContentWrapper,
+.kyraDarkSelect.sapMComboBox .sapMInputBaseContentWrapper {
+    height: 42px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    padding: 0 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: all 0.16s ease !important;
+}
+
+#sapAppSelect:hover .sapMInputBaseContentWrapper,
+.kyraDarkSelect.sapMComboBox:hover .sapMInputBaseContentWrapper {
+    border-color: #008C9C !important;
+}
+
+#sapAppSelect.sapMFocus .sapMInputBaseContentWrapper,
+#sapAppSelect .sapMInputBaseContentWrapper:focus-within,
+.kyraDarkSelect.sapMComboBox.sapMFocus .sapMInputBaseContentWrapper,
+.kyraDarkSelect.sapMComboBox .sapMInputBaseContentWrapper:focus-within {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.2) !important;
+    background-color: #FFFFFF !important;
+}
+
+#sapAppSelect .sapMInputBaseInner,
+#sapAppSelect input.sapMInputBaseInner,
+.kyraDarkSelect.sapMComboBox .sapMInputBaseInner,
+.kyraDarkSelect.sapMComboBox input.sapMInputBaseInner {
+    color: #0F172A !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 40px !important;
+    height: 40px !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+#sapAppSelect input::placeholder,
+#sapAppSelect .sapMInputBaseInner::placeholder,
+.kyraDarkSelect.sapMComboBox input::placeholder,
+.kyraDarkSelect.sapMComboBox .sapMInputBaseInner::placeholder {
+    color: #64748B !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    opacity: 1 !important;
+}
+
+#sapAppSelect .sapMInputBaseIconContainer,
+.kyraDarkSelect.sapMComboBox .sapMInputBaseIconContainer {
+    width: 24px !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+}
+
+#sapAppSelect .sapMInputBaseIcon,
+#sapAppSelect .sapMComboBoxIcon,
+#sapAppSelect .sapUiIcon,
+.kyraDarkSelect.sapMComboBox .sapMInputBaseIcon,
+.kyraDarkSelect.sapMComboBox .sapMComboBoxIcon,
+.kyraDarkSelect.sapMComboBox .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+}
+
+/* SAP Application Dropdown Popover List Items */
+div[id*="sapAppSelect"] .sapMLIB,
+div[id*="sapAppSelect"] li.sapMComboBoxItem {
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    color: #0F172A !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: background-color 0.15s ease !important;
+}
+
+div[id*="sapAppSelect"] .sapMLIB:hover,
+div[id*="sapAppSelect"] li.sapMComboBoxItem:hover {
+    background-color: #F8FAFC !important;
+    color: #008C9C !important;
+}
+
+div[id*="sapAppSelect"] .sapMLIB.sapMLIBSelected,
+div[id*="sapAppSelect"] li.sapMComboBoxItem.sapMLIBSelected {
+    background-color: #F0FDFA !important;
+    color: #007684 !important;
+    font-weight: 600 !important;
 }
 
 /* Checkbox */
@@ -59355,110 +59661,7 @@ html body td[id*="-nodata-cell"] .sapMText,
     white-space: normal !important;
 }
 
-/* =========================================================================
-   TARGET SYSTEMS & PROCESSES DROPDOWN (inPageSystemsMultiSelect)
-   ========================================================================= */
-.kyraSystemsMultiSelectPicker,
-div[id*="inPageSystemsMultiSelect-popup"],
-div[id*="inPageSystemsMultiSelect-picker"],
-div[id*="inPageSystemsMultiSelect-popover"] {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border: 1px solid #CBD5E1 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05) !important;
-    overflow: hidden !important;
-    z-index: 200000 !important;
-    box-sizing: border-box !important;
-    transition: opacity 0.15s ease, transform 0.15s ease !important;
-}
 
-.kyraSystemsMultiSelectPicker .sapMPopoverCont,
-div[id*="inPageSystemsMultiSelect"] .sapMPopoverCont {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border-radius: 12px !important;
-    padding: 6px !important;
-    box-sizing: border-box !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMPopoverArr,
-div[id*="inPageSystemsMultiSelect"] .sapMPopoverArr {
-    display: none !important;
-    visibility: hidden !important;
-    width: 0 !important;
-    height: 0 !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB {
-    margin: 2px 4px !important;
-    border-radius: 8px !important;
-    min-height: 44px !important;
-    padding: 6px 14px !important;
-    cursor: pointer !important;
-    border: none !important;
-    display: flex !important;
-    align-items: center !important;
-    transition: background-color 0.15s ease !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB.sapMLIBSelected,
-.kyraSystemsMultiSelectPicker li.sapMMultiComboBoxItem.sapMLIBSelected,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB.sapMLIBSelected,
-div[id*="inPageSystemsMultiSelect"] li.sapMMultiComboBoxItem.sapMLIBSelected {
-    background-color: #F0FDFA !important;
-    background: #F0FDFA !important;
-    border-radius: 8px !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB.sapMLIBSelected .sapMSLITitle,
-.kyraSystemsMultiSelectPicker li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB.sapMLIBSelected .sapMSLITitle,
-div[id*="inPageSystemsMultiSelect"] li.sapMMultiComboBoxItem.sapMLIBSelected .sapMSLITitle {
-    color: #007684 !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB.sapMLIBSelected .sapMCbBg,
-.kyraSystemsMultiSelectPicker li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB.sapMLIBSelected .sapMCbBg,
-div[id*="inPageSystemsMultiSelect"] li.sapMMultiComboBoxItem.sapMLIBSelected .sapMCbBg {
-    background: #007684 !important;
-    background-color: #007684 !important;
-    border: 1.5px solid #007684 !important;
-    border-radius: 5px !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: center center !important;
-    background-size: 14px 14px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB:not(.sapMLIBSelected):hover,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB:not(.sapMLIBSelected):hover {
-    background-color: #F8FAFC !important;
-    border-radius: 8px !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB:not(.sapMLIBSelected):hover .sapMSLITitle {
-    color: #0F172A !important;
-    font-weight: 500 !important;
-}
-
-.kyraSystemsMultiSelectPicker .sapMLIB:not(.sapMLIBSelected) .sapMCbBg,
-div[id*="inPageSystemsMultiSelect"] .sapMLIB:not(.sapMLIBSelected) .sapMCbBg {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 5px !important;
-    background-image: none !important;
-}
 
 
 

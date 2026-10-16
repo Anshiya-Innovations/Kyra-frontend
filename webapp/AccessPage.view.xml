@@ -320,19 +320,21 @@
                                 <!-- Dropdown: Select SAP Application -->
                                 <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
                                     <Text text="Select SAP Application" class="kyraDarkFieldLabel" />
-                                    <Select
+                                    <ComboBox
                                         id="sapAppSelect"
                                         selectedKey="{accessModel>/sapIntegration/selectedApp}"
+                                        selectionChange=".onSelectSapApp"
                                         change=".onSelectSapApp"
+                                        placeholder="Select SAP Application..."
                                         width="100%"
-                                        class="kyraDarkSelect">
+                                        class="kyraDarkSelect fioriFormSelect kyraModernSelectField fioriSelectGlow">
                                         <core:Item key="sap_btp" text="SAP Business Technology Platform (SAP BTP)" />
                                         <core:Item key="sap_s4hana" text="SAP S/4HANA Cloud (ERP)" />
                                         <core:Item key="sap_successfactors" text="SAP SuccessFactors (HCM)" />
                                         <core:Item key="sap_ariba" text="SAP Ariba Supply Network" />
                                         <core:Item key="sap_sales_cloud" text="SAP Sales Cloud (C4C)" />
                                         <core:Item key="sap_analytics_cloud" text="SAP Analytics Cloud" />
-                                    </Select>
+                                    </ComboBox>
                                 </VBox>
 
                                 <!-- DYNAMIC FIELDS FOR SAP BTP -->
@@ -533,7 +535,9 @@
                                             <VBox>
                                                 <HBox alignItems="Center" gap="10px">
                                                     <Title text="SAP Business Technology Platform" level="H4" class="kyraDarkCardHeaderTitle" />
-                                                    <ObjectStatus text="Enterprise Subscription (dev space)" state="None" class="sapUiTinyMarginBegin" />
+                                                    <HBox class="kyraDarkEnterpriseBadge" alignItems="Center">
+                                                        <Text text="Enterprise Subscription (dev space)" class="kyraDarkEnterpriseBadgeText" />
+                                                    </HBox>
                                                 </HBox>
                                                 <Text text="Cloud Platform &amp; Extension Suite" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
                                                 <Text text="12 Services Active • 4GB / 8GB Runtime Quota" class="kyraDarkFieldLabel sapUiTinyMarginTop" style="color: #64748B; font-size: 12.5px;" />
@@ -542,16 +546,16 @@
 
                                         <!-- Right: Status Badge & Interactive Toggle Button -->
                                         <VBox alignItems="End" gap="8px">
-                                            <HBox class="kyraDarkStatusBadgeConnected" alignItems="Center">
-                                                <Text text="Purchased &amp; Active ✓" class="kyraDarkStatusBadgeText" />
+                                            <HBox class="kyraDarkStatusBadgePurchasedActive" alignItems="Center" gap="4px">
+                                                <Text text="Purchased &amp; Active" class="kyraDarkStatusBadgePurchasedActiveText" />
+                                                <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraDarkStatusBadgePurchasedActiveIcon" />
                                             </HBox>
-                                             <Button
+                                            <Button
                                                 id="btnExploreBtpHierarchy"
-                                                icon="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'sap-icon://navigation-up-arrow' : 'sap-icon://navigation-down-arrow' }"
                                                 text="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Hide Live Quotas' : 'Click to View Live Resource Quotas ▼' }"
-                                                type="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Emphasized' : 'Transparent' }"
+                                                type="Default"
                                                 press=".onToggleAppHierarchy"
-                                                class="kyraDarkBackLinkBtn" />
+                                                class="kyraDarkOutlineBtn" />
                                         </VBox>
                                     </HBox>
 
@@ -559,11 +563,11 @@
                                     <VBox visible="{= !!${accessModel>/sapIntegration/isAppExpanded} }" class="kyraDarkStudioSlide sapUiSmallMarginTop sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginBottom kyraSlideAnim" width="100%">
                                         
                                         <!-- Table Section Header with Live Telemetry Badge and Refresh Button -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom" style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom" style="border-top: 1px solid #E2E8F0; padding-top: 14px;">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://chart-axis" color="#008C9C" />
                                                 <Title text="Cloud Foundry Live Quotas &amp; Resource Utilization" level="H4" class="kyraDarkCardHeaderTitle" />
-                                                <HBox class="kyraDarkGreenPillBadge sapUiTinyMarginBegin" alignItems="Center">
+                                                <HBox class="kyraDarkGreenPillBadge sapUiTinyMarginBegin" alignItems="Center" gap="6px">
                                                     <HBox class="kyraDarkGreenGlowDot" />
                                                     <Text text="Live Telemetry" class="kyraDarkGreenPillText" />
                                                 </HBox>
@@ -573,9 +577,9 @@
                                                 <Button
                                                     icon="sap-icon://refresh"
                                                     text="Refresh Quotas"
-                                                    type="Transparent"
+                                                    type="Default"
                                                     press=".onRefreshSapQuotas"
-                                                    class="kyraDarkBackLinkBtn"
+                                                    class="kyraDarkOutlineBtn"
                                                     tooltip="Refresh live Cloud Foundry metrics" />
                                             </HBox>
                                         </HBox>
@@ -588,38 +592,43 @@
                                             class="sapUiNoMargin kyraAdminCleanTable kyraLiveQuotaTable">
                                             <columns>
                                                 <Column width="32%" hAlign="Begin">
-                                                    <Text text="Resource" class="kyraAdminColHeader" />
+                                                    <Text text="RESOURCE" class="kyraAdminColHeader" />
                                                 </Column>
                                                 <Column width="20%" hAlign="Begin">
-                                                    <Text text="Account Limit" class="kyraAdminColHeader" />
+                                                    <Text text="ACCOUNT LIMIT" class="kyraAdminColHeader" />
                                                 </Column>
-                                                <Column width="28%" hAlign="Begin">
-                                                    <Text text="Current Usage" class="kyraAdminColHeader" />
+                                                <Column width="26%" hAlign="Begin">
+                                                    <Text text="CURRENT USAGE" class="kyraAdminColHeader" />
                                                 </Column>
-                                                <Column width="20%" hAlign="Begin">
-                                                    <Text text="Remaining Capacity" class="kyraAdminColHeader" />
+                                                <Column width="22%" hAlign="Begin">
+                                                    <Text text="REMAINING CAPACITY" class="kyraAdminColHeader" />
                                                 </Column>
                                             </columns>
                                             <items>
-                                                <ColumnListItem vAlign="Middle">
+                                                <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
                                                     <cells>
-                                                        <HBox alignItems="Center" gap="10px">
-                                                            <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="34px" height="34px" style="border-radius: 8px; background: rgba(0, 140, 156, 0.1);">
-                                                                <core:Icon src="{accessModel>icon}" color="#008C9C" size="1.05rem" />
+                                                        <HBox alignItems="Center" gap="12px">
+                                                            <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="36px" height="36px" style="border-radius: 8px; background: rgba(0, 140, 156, 0.1);">
+                                                                <core:Icon src="{accessModel>icon}" color="#008C9C" size="1.1rem" />
                                                             </HBox>
                                                             <VBox>
                                                                 <Text text="{accessModel>resource}" class="kyraAdminCellBold" />
-                                                                <Text text="{accessModel>subtext}" class="fioriDescriptionText" style="font-size: 11px; color: #94A3B8;" visible="{= !!${accessModel>subtext} }" />
+                                                                <Text text="{accessModel>subtext}" class="fioriDescriptionText" style="font-size: 11.5px; color: #64748B;" visible="{= !!${accessModel>subtext} }" />
                                                             </VBox>
                                                         </HBox>
                                                         <HBox alignItems="Center">
-                                                            <Text text="{accessModel>accountLimit}" class="kyraAdminCellBold" />
-                                                        </HBox>
-                                                        <HBox alignItems="Center" gap="6px">
-                                                            <ObjectStatus text="{accessModel>currentUsage}" state="{accessModel>usageState}" />
+                                                            <Text text="{accessModel>accountLimit}" class="kyraQuotaAccountLimitText" />
                                                         </HBox>
                                                         <HBox alignItems="Center">
-                                                            <ObjectStatus text="{accessModel>remainingCapacity}" state="Success" icon="sap-icon://sys-enter-2" />
+                                                            <HBox class="kyraQuotaUsagePill" alignItems="Center">
+                                                                <Text text="{accessModel>currentUsage}" class="kyraQuotaUsagePillText" />
+                                                            </HBox>
+                                                        </HBox>
+                                                        <HBox alignItems="Center">
+                                                            <HBox class="kyraQuotaCapacityPill" alignItems="Center" gap="6px">
+                                                                <core:Icon src="sap-icon://sys-enter-2" size="12px" class="kyraQuotaCapacityIcon" />
+                                                                <Text text="{accessModel>remainingCapacity}" class="kyraQuotaCapacityPillText" />
+                                                            </HBox>
                                                         </HBox>
                                                     </cells>
                                                 </ColumnListItem>
@@ -636,20 +645,20 @@
                                 <Button
                                     text="← Reconfigure SAP Integration"
                                     press=".onBackToSapConfig"
-                                    type="Transparent"
-                                    class="kyraDarkBackLinkBtn" />
+                                    type="Default"
+                                    class="kyraDarkOutlineBtn" />
                                 <HBox alignItems="Center" gap="12px">
                                     <Button
                                         text="Close Section"
                                         icon="sap-icon://decline"
-                                        type="Transparent"
+                                        type="Default"
                                         press=".onCloseAdminSection"
-                                        class="kyraDarkBackLinkBtn" />
+                                        class="kyraDarkOutlineBtn" />
                                     <Button
                                         text="Manage Entitlements →"
                                         type="Emphasized"
                                         press=".onManageSapEntitlements"
-                                        class="kyraDarkContinueBtn" />
+                                        class="kyraDarkPrimaryActionBtn" />
                                 </HBox>
                             </HBox>
 

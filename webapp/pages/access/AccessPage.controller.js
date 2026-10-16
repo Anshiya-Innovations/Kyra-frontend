@@ -465,7 +465,7 @@ sap.ui.define([
                     governedRolesCount: "18 Roles"
                 },
                 sapIntegration: {
-                    selectedApp: "sap_btp",
+                    selectedApp: "",
                     currentStep: 1,
                     connected: false,
                     statusText: "Not Connected",
@@ -6712,8 +6712,14 @@ sap.ui.define([
             const oSource = (oEvent && oEvent.getSource) ? oEvent.getSource() : this.byId("inPageSystemsMultiSelect");
 
             let aSelectedKeys = [];
-            if (oSource && oSource.getSelectedKeys) {
+            if (oSource && typeof oSource.getSelectedKeys === "function") {
                 aSelectedKeys = (oSource.getSelectedKeys() || []).slice();
+            } else if (oSource && typeof oSource.getSelectedKey === "function") {
+                const sKey = oSource.getSelectedKey();
+                if (sKey) aSelectedKeys = [sKey];
+            } else if (oEvent && typeof oEvent.getParameter === "function" && oEvent.getParameter("selectedItem")) {
+                const sKey = oEvent.getParameter("selectedItem")?.getKey();
+                if (sKey) aSelectedKeys = [sKey];
             } else {
                 aSelectedKeys = (oModel.getProperty("/addAccessSelectedSystems") || []).slice();
             }
@@ -19084,8 +19090,23 @@ sap.ui.define([
                 onSelectSapApp(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const sKey = oEvent ? oEvent.getParameter("selectedItem")?.getKey() : oModel.getProperty("/sapIntegration/selectedApp");
-            oModel.setProperty("/sapIntegration/selectedApp", sKey || "sap_btp");
+            let sKey = "";
+            if (oEvent && typeof oEvent.getParameter === "function") {
+                const oItem = oEvent.getParameter("selectedItem");
+                if (oItem && typeof oItem.getKey === "function") {
+                    sKey = oItem.getKey();
+                }
+            }
+            if (!sKey && oEvent && typeof oEvent.getSource === "function") {
+                const oSource = oEvent.getSource();
+                if (oSource && typeof oSource.getSelectedKey === "function") {
+                    sKey = oSource.getSelectedKey();
+                }
+            }
+            if (!sKey && oModel) {
+                sKey = oModel.getProperty("/sapIntegration/selectedApp") || "";
+            }
+            oModel.setProperty("/sapIntegration/selectedApp", sKey || "");
         },
 
         onServiceKeyJsonChange(oEvent) {
@@ -19098,6 +19119,7 @@ sap.ui.define([
         onAutoFillSapServiceKey() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+            oModel.setProperty("/sapIntegration/selectedApp", "sap_btp");
             const sVal = oModel.getProperty("/sapIntegration/btp/serviceKeyJson") || "";
             if (!sVal.trim()) {
                 oModel.setProperty("/sapIntegration/btp/url", "https://api.authentication.us10.hana.ondemand.com");
