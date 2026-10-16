@@ -2211,13 +2211,11 @@
                         id="myAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
+                        noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
-                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
-                                </HBox>
-                                <Title text="No active access found" level="H4" class="kyraTableEmptyTitle" />
+                                <Text text="No Data" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
                         <columns>
@@ -2472,13 +2470,11 @@
                         id="myAccessMasterSectionTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
+                        noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" alignItems="Center" justifyContent="Center">
-                                <HBox class="kyraTableEmptyIconCircle" justifyContent="Center" alignItems="Center">
-                                    <core:Icon src="sap-icon://user-settings" class="kyraTableEmptyIcon" />
-                                </HBox>
-                                <Title text="No active entitlements found" level="H4" class="kyraTableEmptyTitle" />
+                                <Text text="No Data" class="kyraTableEmptyTitle" />
                             </VBox>
                         </noData>
                         <columns>

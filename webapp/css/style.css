@@ -32341,56 +32341,32 @@ div.kyraTableEmptyBox,
 .kyraTableEmptyIconCircle,
 div.kyraTableEmptyIconCircle,
 .kyraTableEmptyBox .kyraTableEmptyIconCircle {
-    width: 52px !important;
-    height: 52px !important;
-    min-width: 52px !important;
-    min-height: 52px !important;
-    max-width: 52px !important;
-    max-height: 52px !important;
-    border-radius: 50% !important;
-    background: #E6FAFC !important;
-    background-color: #E6FAFC !important;
-    border: 1.5px solid #CCEFF3 !important;
-    margin: 0 auto 10px auto !important;
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    flex-shrink: 0 !important;
-    align-self: center !important;
+    display: none !important;
 }
 
 .kyraTableEmptyIcon,
 .kyraTableEmptyIconCircle .sapUiIcon,
 .kyraTableEmptyIconCircle .sapMBtnIcon {
-    font-size: 24px !important;
-    color: #008C9C !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1 !important;
-    margin: 0 auto !important;
-    text-align: center !important;
-    width: 100% !important;
-    height: 100% !important;
-    align-self: center !important;
+    display: none !important;
 }
 
 .kyraTableEmptyTitle,
 div.kyraTableEmptyTitle,
 .kyraTableEmptyTitle.sapMTitle,
 .kyraTableEmptyTitle .sapMTitleText,
-.kyraTableEmptyTitle .sapMTitleText > * {
-    font-size: 14.5px !important;
-    font-weight: 600 !important;
-    color: #1E293B !important;
+.kyraTableEmptyTitle .sapMTitleText > *,
+.kyraActiveEntitlementsTable .sapMListNoDataText,
+.sapMListNoDataText {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #64748B !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     margin: 0 auto !important;
     padding: 0 !important;
     text-align: center !important;
-    display: block !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     background: transparent !important;
     background-color: transparent !important;
     width: 100% !important;
