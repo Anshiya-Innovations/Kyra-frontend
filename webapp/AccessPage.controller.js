@@ -6713,11 +6713,25 @@ sap.ui.define([
 
             let aSelectedKeys = [];
             if (oSource && oSource.getSelectedKeys) {
-                aSelectedKeys = oSource.getSelectedKeys() || [];
-                oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
+                aSelectedKeys = (oSource.getSelectedKeys() || []).slice();
             } else {
-                aSelectedKeys = oModel.getProperty("/addAccessSelectedSystems") || [];
+                aSelectedKeys = (oModel.getProperty("/addAccessSelectedSystems") || []).slice();
             }
+
+            // If event provides changedItem (checkbox click), guarantee it is captured
+            if (oEvent && typeof oEvent.getParameter === "function") {
+                const oChangedItem = oEvent.getParameter("changedItem");
+                const bSelected = oEvent.getParameter("selected");
+                if (oChangedItem && typeof oChangedItem.getKey === "function") {
+                    const sKey = oChangedItem.getKey();
+                    if (bSelected && !aSelectedKeys.includes(sKey)) {
+                        aSelectedKeys.push(sKey);
+                    } else if (bSelected === false && aSelectedKeys.includes(sKey)) {
+                        aSelectedKeys = aSelectedKeys.filter(k => k !== sKey);
+                    }
+                }
+            }
+            oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
 
             const bHasSystems = Array.isArray(aSelectedKeys) && aSelectedKeys.length > 0;
             oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);

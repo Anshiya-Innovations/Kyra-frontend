@@ -50,7 +50,7 @@
                     <Button
                         text="{= 'Access (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyAccessCount} || 0) : (${accessModel>/pendingAccessCount} || 0)) + ')' }"
                         icon="sap-icon://key"
-                        type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'accessRequests' ? 'Emphasized' : 'Transparent' }"
+                        type="{= (${accessModel>/approverSelectedTab} || ${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectAccessRequestsTab"
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Access Requests' : 'Pending Access Requests' }"
                         class="kyraTabPillBtn" />
@@ -58,7 +58,7 @@
                         text="{= 'Revoke (' + (${accessModel>/showApprovalHistory} ? (${accessModel>/historyRevokeCount} || 0) : (${accessModel>/pendingRevokeCount} || 0)) + ')' }"
                         icon="sap-icon://delete"
                         visible="{= !${accessModel>/isCompliance} }"
-                        type="{= (${accessModel>/showApprovalHistory} ? (${accessModel>/approverHistoryTab} || 'accessRequests') : (${accessModel>/approverPendingTab} || 'accessRequests')) === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
+                        type="{= (${accessModel>/approverSelectedTab} || ${accessModel>/approverPendingTab} || 'accessRequests') === 'revokeRequests' ? 'Emphasized' : 'Transparent' }"
                         press=".onSelectRevokeRequestsTab"
                         tooltip="{= ${accessModel>/showApprovalHistory} ? 'History Revocation Requests' : 'Pending Revocation Requests' }"
                         class="kyraTabPillBtn" />
@@ -98,7 +98,7 @@
                 <!-- CLASSIFICATION 1: ACCESS REQUESTS -->
                 <Table
                     id="approvalAccessTable"
-                    visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' }"
+                    visible="{= (${accessModel>/approverSelectedTab} || ${accessModel>/approverPendingTab} || 'accessRequests') === 'accessRequests' }"
                     items="{accessModel>/pendingAccessRequests}"
                     fixedLayout="true"
                     growing="true"
@@ -151,7 +151,7 @@
                 <!-- CLASSIFICATION 2: REVOCATION REQUESTS -->
                 <Table
                     id="approvalRevokeTable"
-                    visible="{= (${accessModel>/approverPendingTab} || 'accessRequests') === 'revokeRequests' }"
+                    visible="{= (${accessModel>/approverSelectedTab} || ${accessModel>/approverPendingTab} || 'accessRequests') === 'revokeRequests' }"
                     items="{accessModel>/pendingRevokeRequests}"
                     fixedLayout="true"
                     growing="true"

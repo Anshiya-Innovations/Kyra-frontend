@@ -370,107 +370,127 @@ sap.ui.define([
                         const iTop = Math.round(rect.bottom + scrollY - offsetParentTop + 3);
                         const iWidth = Math.round(rect.width || oOpenerDom.offsetWidth);
 
-                        oPickerDom.style.setProperty("position", "absolute", "important");
-                        oPickerDom.style.setProperty("left", iLeft + "px", "important");
-                        oPickerDom.style.setProperty("top", iTop + "px", "important");
-                        oPickerDom.style.setProperty("right", "auto", "important");
-                        oPickerDom.style.setProperty("bottom", "auto", "important");
-                        oPickerDom.style.setProperty("transform", "none", "important");
-                        oPickerDom.style.setProperty("margin", "0", "important");
+                        if (!oPickerDom._kyraBaseInitialized) {
+                            oPickerDom._kyraBaseInitialized = true;
+                            oPickerDom.style.setProperty("position", "absolute", "important");
+                            oPickerDom.style.setProperty("right", "auto", "important");
+                            oPickerDom.style.setProperty("bottom", "auto", "important");
+                            oPickerDom.style.setProperty("transform", "none", "important");
+                            oPickerDom.style.setProperty("margin", "0", "important");
+                            oPickerDom.style.setProperty("z-index", "200000", "important");
 
-                        if (iWidth > 0) {
+                            oPickerDom.classList.remove("sapMPopoverTop");
+                            oPickerDom.classList.add("sapMPopoverBottom");
+
+                            // Ensure arrow indicator is hidden
+                            const oArr = oPickerDom.querySelector(".sapMPopoverArr");
+                            if (oArr) oArr.style.setProperty("display", "none", "important");
+
+                            // Single sleek vertical scrollbar setup (max-height 236px to show exactly 5 items cleanly in front)
+                            const oScrollDom = oPickerDom.querySelector(".sapMPopoverScroll");
+                            const oContDom = oPickerDom.querySelector(".sapMPopoverCont");
+
+                            if (oScrollDom) {
+                                oScrollDom.style.setProperty("overflow-x", "hidden", "important");
+                                oScrollDom.style.setProperty("overflow-y", "auto", "important");
+                                oScrollDom.style.setProperty("max-height", "236px", "important");
+                                oScrollDom.style.setProperty("scrollbar-width", "thin", "important");
+                                oScrollDom.style.setProperty("scrollbar-color", "#007684 #F0FDFA", "important");
+                                if (oContDom) {
+                                    oContDom.style.setProperty("overflow", "visible", "important");
+                                    oContDom.style.setProperty("scrollbar-width", "none", "important");
+                                }
+
+                                if (!oScrollDom._kyraScrollClickAttached) {
+                                    oScrollDom._kyraScrollClickAttached = true;
+                                    oScrollDom.addEventListener("mousedown", (ev) => {
+                                        const rect = oScrollDom.getBoundingClientRect();
+                                        if (ev.clientX >= rect.right - 18 && ev.clientX <= rect.right) {
+                                            if (ev.clientY <= rect.top + 20) {
+                                                oScrollDom.scrollBy({ top: -45, behavior: "smooth" });
+                                                ev.preventDefault();
+                                            } else if (ev.clientY >= rect.bottom - 20) {
+                                                oScrollDom.scrollBy({ top: 45, behavior: "smooth" });
+                                                ev.preventDefault();
+                                            }
+                                        }
+                                    });
+                                }
+                            } else if (oContDom) {
+                                oContDom.style.setProperty("overflow-x", "hidden", "important");
+                                oContDom.style.setProperty("overflow-y", "auto", "important");
+                                oContDom.style.setProperty("max-height", "236px", "important");
+                                oContDom.style.setProperty("scrollbar-width", "thin", "important");
+                                oContDom.style.setProperty("scrollbar-color", "#007684 #F0FDFA", "important");
+
+                                if (!oContDom._kyraScrollClickAttached) {
+                                    oContDom._kyraScrollClickAttached = true;
+                                    oContDom.addEventListener("mousedown", (ev) => {
+                                        const rect = oContDom.getBoundingClientRect();
+                                        if (ev.clientX >= rect.right - 18 && ev.clientX <= rect.right) {
+                                            if (ev.clientY <= rect.top + 20) {
+                                                oContDom.scrollBy({ top: -45, behavior: "smooth" });
+                                                ev.preventDefault();
+                                            } else if (ev.clientY >= rect.bottom - 20) {
+                                                oContDom.scrollBy({ top: 45, behavior: "smooth" });
+                                                ev.preventDefault();
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+
+                            const aInnerLists = oPickerDom.querySelectorAll(".sapMListUl, .sapMList, .sapMSelectList, .sapMSelectDropdown");
+                            aInnerLists.forEach(el => {
+                                el.style.setProperty("overflow", "visible", "important");
+                                el.style.setProperty("overflow-x", "hidden", "important");
+                                el.style.setProperty("scrollbar-width", "none", "important");
+                                el.style.setProperty("width", "100%", "important");
+                                el.style.setProperty("box-sizing", "border-box", "important");
+                            });
+
+                            const aItems = oPickerDom.querySelectorAll("li.sapMLIB, .sapMMultiComboBoxItem, .sapMSLI");
+                            aItems.forEach(el => {
+                                el.removeAttribute("title");
+                            });
+                        }
+
+                        if (oPickerDom._kyraLastLeft !== iLeft) {
+                            oPickerDom.style.setProperty("left", iLeft + "px", "important");
+                            oPickerDom._kyraLastLeft = iLeft;
+                        }
+                        if (oPickerDom._kyraLastTop !== iTop) {
+                            oPickerDom.style.setProperty("top", iTop + "px", "important");
+                            oPickerDom._kyraLastTop = iTop;
+                        }
+                        if (iWidth > 0 && oPickerDom._kyraLastWidth !== iWidth) {
                             oPickerDom.style.setProperty("width", iWidth + "px", "important");
                             oPickerDom.style.setProperty("min-width", iWidth + "px", "important");
                             oPickerDom.style.setProperty("max-width", iWidth + "px", "important");
+                            oPickerDom._kyraLastWidth = iWidth;
                         }
-                        oPickerDom.style.setProperty("z-index", "200000", "important");
-
-                        oPickerDom.classList.remove("sapMPopoverTop");
-                        oPickerDom.classList.add("sapMPopoverBottom");
-
-                        // Ensure arrow indicator is hidden
-                        const oArr = oPickerDom.querySelector(".sapMPopoverArr");
-                        if (oArr) oArr.style.setProperty("display", "none", "important");
-
-                        // Single sleek vertical scrollbar setup (max-height 236px to show exactly 5 items cleanly in front)
-                        const oScrollDom = oPickerDom.querySelector(".sapMPopoverScroll");
-                        const oContDom = oPickerDom.querySelector(".sapMPopoverCont");
-
-                        if (oScrollDom) {
-                            oScrollDom.style.setProperty("overflow-x", "hidden", "important");
-                            oScrollDom.style.setProperty("overflow-y", "auto", "important");
-                            oScrollDom.style.setProperty("max-height", "236px", "important");
-                            oScrollDom.style.setProperty("scrollbar-width", "thin", "important");
-                            oScrollDom.style.setProperty("scrollbar-color", "#007684 #F0FDFA", "important");
-                            if (oContDom) {
-                                oContDom.style.setProperty("overflow", "visible", "important");
-                                oContDom.style.setProperty("scrollbar-width", "none", "important");
-                            }
-
-                            // Ensure clicking the scrollbar up arrow scrolls UP, and clicking down arrow scrolls DOWN
-                            if (!oScrollDom._kyraScrollClickAttached) {
-                                oScrollDom._kyraScrollClickAttached = true;
-                                oScrollDom.addEventListener("mousedown", (ev) => {
-                                    const rect = oScrollDom.getBoundingClientRect();
-                                    if (ev.clientX >= rect.right - 18 && ev.clientX <= rect.right) {
-                                        if (ev.clientY <= rect.top + 20) {
-                                            oScrollDom.scrollBy({ top: -45, behavior: "smooth" });
-                                            ev.preventDefault();
-                                        } else if (ev.clientY >= rect.bottom - 20) {
-                                            oScrollDom.scrollBy({ top: 45, behavior: "smooth" });
-                                            ev.preventDefault();
-                                        }
-                                    }
-                                });
-                            }
-                        } else if (oContDom) {
-                            oContDom.style.setProperty("overflow-x", "hidden", "important");
-                            oContDom.style.setProperty("overflow-y", "auto", "important");
-                            oContDom.style.setProperty("max-height", "236px", "important");
-                            oContDom.style.setProperty("scrollbar-width", "thin", "important");
-                            oContDom.style.setProperty("scrollbar-color", "#007684 #F0FDFA", "important");
-
-                            if (!oContDom._kyraScrollClickAttached) {
-                                oContDom._kyraScrollClickAttached = true;
-                                oContDom.addEventListener("mousedown", (ev) => {
-                                    const rect = oContDom.getBoundingClientRect();
-                                    if (ev.clientX >= rect.right - 18 && ev.clientX <= rect.right) {
-                                        if (ev.clientY <= rect.top + 20) {
-                                            oContDom.scrollBy({ top: -45, behavior: "smooth" });
-                                            ev.preventDefault();
-                                        } else if (ev.clientY >= rect.bottom - 20) {
-                                            oContDom.scrollBy({ top: 45, behavior: "smooth" });
-                                            ev.preventDefault();
-                                        }
-                                    }
-                                });
-                            }
-                        }
-
-                        const aInnerLists = oPickerDom.querySelectorAll(".sapMListUl, .sapMList, .sapMSelectList, .sapMSelectDropdown");
-                        aInnerLists.forEach(el => {
-                            el.style.setProperty("overflow", "visible", "important");
-                            el.style.setProperty("overflow-x", "hidden", "important");
-                            el.style.setProperty("scrollbar-width", "none", "important");
-                            el.style.setProperty("width", "100%", "important");
-                            el.style.setProperty("box-sizing", "border-box", "important");
-                        });
-
-                        // Ensure no hover popup/tooltip appears on list items
-                        const aItems = oPickerDom.querySelectorAll("li.sapMLIB, .sapMMultiComboBoxItem, .sapMSLI");
-                        aItems.forEach(el => {
-                            el.removeAttribute("title");
-                        });
                     } catch(e) {}
                 };
 
                 const startAlignmentLoop = (oControl, oPicker) => {
                     let rafId = null;
+                    let lastL = null;
+                    let lastT = null;
+                    let lastW = null;
                     const loop = () => {
                         const bIsOpen = (typeof oControl.isOpen === "function" ? oControl.isOpen() : true) &&
                                         (!oPicker || typeof oPicker.isOpen !== "function" || oPicker.isOpen());
                         if (bIsOpen) {
-                            positionPickerDirectly(oControl, oPicker);
+                            const oOpenerDom = typeof oControl.getDomRef === "function" ? oControl.getDomRef() : null;
+                            if (oOpenerDom) {
+                                const r = oOpenerDom.getBoundingClientRect();
+                                if (r.left !== lastL || r.bottom !== lastT || r.width !== lastW) {
+                                    lastL = r.left;
+                                    lastT = r.bottom;
+                                    lastW = r.width;
+                                    positionPickerDirectly(oControl, oPicker);
+                                }
+                            }
                             rafId = requestAnimationFrame(loop);
                         }
                     };
@@ -654,9 +674,7 @@ sap.ui.define([
                                 } catch(e) {}
                             };
 
-                            setTimeout(scrollContainerDownIfNeeded, 60);
-                            setTimeout(scrollContainerDownIfNeeded, 150);
-                            setTimeout(scrollContainerDownIfNeeded, 280);
+                            setTimeout(scrollContainerDownIfNeeded, 120);
 
                             // Keep dropdown anchored if window is resized or scrolled while open
                             window.addEventListener("scroll", triggerReposition, { passive: true, capture: true });
@@ -667,6 +685,13 @@ sap.ui.define([
                             if (stopLoop) {
                                 stopLoop();
                                 stopLoop = null;
+                            }
+                            const oPickerDom = getPickerDom(oPicker);
+                            if (oPickerDom) {
+                                oPickerDom._kyraBaseInitialized = false;
+                                oPickerDom._kyraLastLeft = null;
+                                oPickerDom._kyraLastTop = null;
+                                oPickerDom._kyraLastWidth = null;
                             }
                             window.removeEventListener("scroll", triggerReposition, { capture: true });
                             window.removeEventListener("resize", triggerReposition);

@@ -268,7 +268,7 @@ sap.ui.define([
         },
 
         onSelectPendingQueue() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
                 const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
                 const isCompliance = sActiveRole.includes("compliance");
@@ -277,14 +277,16 @@ sap.ui.define([
                 oModel.setProperty("/isCompliancePersona", isCompliance);
                 oModel.setProperty("/showApprovalHistory", false);
                 sessionStorage.removeItem("kyra_show_approval_history");
-                if (isCompliance) {
-                    oModel.setProperty("/approverPendingTab", "accessRequests");
-                }
+                // Preserve current sub-tab selection (Access vs Revoke) without resetting or moving automatically
+                const sCurrentTab = oModel.getProperty("/approverSelectedTab") || oModel.getProperty("/approverPendingTab") || "accessRequests";
+                oModel.setProperty("/approverSelectedTab", sCurrentTab);
+                oModel.setProperty("/approverPendingTab", sCurrentTab);
+                oModel.setProperty("/approverHistoryTab", sCurrentTab);
             }
         },
 
         onSelectHistoryLog() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
                 const sActiveRole = (sessionStorage.getItem("kyra_active_role") || "Approver").toLowerCase();
                 const isCompliance = sActiveRole.includes("compliance");
@@ -293,33 +295,35 @@ sap.ui.define([
                 oModel.setProperty("/isCompliancePersona", isCompliance);
                 oModel.setProperty("/showApprovalHistory", true);
                 sessionStorage.setItem("kyra_show_approval_history", "true");
-                if (!oModel.getProperty("/approverHistoryTab")) {
-                    oModel.setProperty("/approverHistoryTab", "accessRequests");
-                }
+                // Preserve current sub-tab selection (Access vs Revoke) without resetting or moving automatically
+                const sCurrentTab = oModel.getProperty("/approverSelectedTab") || oModel.getProperty("/approverHistoryTab") || oModel.getProperty("/approverPendingTab") || "accessRequests";
+                oModel.setProperty("/approverSelectedTab", sCurrentTab);
+                oModel.setProperty("/approverPendingTab", sCurrentTab);
+                oModel.setProperty("/approverHistoryTab", sCurrentTab);
                 this._updateDisplayedHistoryRequests();
             }
         },
 
         onSelectAccessRequestsTab() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
+                oModel.setProperty("/approverSelectedTab", "accessRequests");
+                oModel.setProperty("/approverPendingTab", "accessRequests");
+                oModel.setProperty("/approverHistoryTab", "accessRequests");
                 if (oModel.getProperty("/showApprovalHistory")) {
-                    oModel.setProperty("/approverHistoryTab", "accessRequests");
                     this._updateDisplayedHistoryRequests();
-                } else {
-                    oModel.setProperty("/approverPendingTab", "accessRequests");
                 }
             }
         },
 
         onSelectRevokeRequestsTab() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (oModel) {
+                oModel.setProperty("/approverSelectedTab", "revokeRequests");
+                oModel.setProperty("/approverPendingTab", "revokeRequests");
+                oModel.setProperty("/approverHistoryTab", "revokeRequests");
                 if (oModel.getProperty("/showApprovalHistory")) {
-                    oModel.setProperty("/approverHistoryTab", "revokeRequests");
                     this._updateDisplayedHistoryRequests();
-                } else {
-                    oModel.setProperty("/approverPendingTab", "revokeRequests");
                 }
             }
         },
@@ -350,7 +354,7 @@ sap.ui.define([
                 const aProcessed = oModel.getProperty("/processedRequests") || [];
                 this._setSmartProperty(oModel, "/displayedHistoryRequests", aProcessed);
             } else {
-                const sTab = oModel.getProperty("/approverHistoryTab") || "accessRequests";
+                const sTab = oModel.getProperty("/approverSelectedTab") || oModel.getProperty("/approverHistoryTab") || oModel.getProperty("/approverPendingTab") || "accessRequests";
                 const aAccess = oModel.getProperty("/historyAccessRequests") || oModel.getProperty("/processedAccessRequests") || [];
                 const aRevoke = oModel.getProperty("/historyRevokeRequests") || oModel.getProperty("/processedRevokeRequests") || [];
                 this._setSmartProperty(oModel, "/displayedHistoryRequests", sTab === "revokeRequests" ? aRevoke : aAccess);
