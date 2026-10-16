@@ -334,18 +334,49 @@
                                 <!-- DYNAMIC FIELDS FOR SAP BTP -->
                                 <VBox visible="{= ${accessModel>/sapIntegration/selectedApp} === 'sap_btp' }" width="100%">
                                     
+                                    <!-- Automatic Access Provisioning Input Field (Service Key JSON) -->
+                                    <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkLabelRow sapUiTinyMarginBottom">
+                                            <HBox alignItems="Center">
+                                                <core:Icon src="sap-icon://key" class="sapUiTinyMarginEnd" color="#008C9C" />
+                                                <Text text="SAP BTP Service Key JSON (Required for Automatic Access Provisioning)" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Button
+                                                text="Auto-Fill Credentials"
+                                                icon="sap-icon://synchronize"
+                                                type="Transparent"
+                                                press=".onAutoFillSapServiceKey"
+                                                class="sapUiTinyMarginBegin" />
+                                        </HBox>
+                                        <TextArea
+                                            id="inputSapBtpServiceKey"
+                                            value="{accessModel>/sapIntegration/btp/serviceKeyJson}"
+                                            valueState="{accessModel>/sapIntegration/btp/serviceKeyJsonState}"
+                                            placeholder='Paste your SAP BTP Service Key JSON here:&#10;{&#10;  "clientid": "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",&#10;  "clientsecret": "...",&#10;  "url": "https://5af75fc5trial.authentication.us10.hana.ondemand.com",&#10;  "apiurl": "https://api.authentication.us10.hana.ondemand.com",&#10;  "subaccountid": "33d545ed-34b8-4d60-8789-38e9f943e8ad"&#10;}'
+                                            rows="4"
+                                            width="100%"
+                                            liveChange=".onServiceKeyJsonChange"
+                                            class="kyraDarkInput" />
+                                        <HBox alignItems="Center" class="sapUiTinyMarginTop" visible="{= !!${accessModel>/sapIntegration/btp/serviceKeyStatusText} }">
+                                            <core:Icon src="sap-icon://sys-enter-2" color="#10B981" class="sapUiTinyMarginEnd" />
+                                            <Text text="{accessModel>/sapIntegration/btp/serviceKeyStatusText}" class="kyraDarkPromptTarget" />
+                                        </HBox>
+                                        <Text text="* Required for automatic user provisioning: Kyra creates shadow users in the SAP BTP Subaccount Directory and assigns approved role collections automatically upon IAM Approver 2 approval." class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
+                                    </VBox>
+
                                     <!-- Row 1: BTP API / Provisioning URL (75%) + Subaccount / Tenant ID (25%) -->
                                     <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
                                         <VBox width="75%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="BTP API / Provisioning URL" class="kyraDarkFieldLabel" />
+                                                <Text text="BTP SCIM API / Provisioning URL (Users &amp; Role Collections)" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
                                             </HBox>
                                             <Input
                                                 id="inputSapBtpUrl"
                                                 value="{accessModel>/sapIntegration/btp/url}"
                                                 valueState="{accessModel>/sapIntegration/btp/urlState}"
-                                                placeholder="https://api.cf.us10-001.hana.ondemand.com"
+                                                placeholder="https://api.authentication.us10.hana.ondemand.com"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -358,7 +389,7 @@
                                                 id="inputSapBtpSubaccount"
                                                 value="{accessModel>/sapIntegration/btp/subaccountId}"
                                                 valueState="{accessModel>/sapIntegration/btp/subaccountState}"
-                                                placeholder="5af75fc5trial"
+                                                placeholder="33d545ed-34b8-4d60-8789-38e9f943e8ad"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -390,7 +421,7 @@
                                                 id="inputSapBtpClientId"
                                                 value="{accessModel>/sapIntegration/btp/clientId}"
                                                 valueState="{accessModel>/sapIntegration/btp/clientIdState}"
-                                                placeholder="sb-clone-01!b12345|client!b6789"
+                                                placeholder="sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -410,19 +441,27 @@
                                         </VBox>
                                     </HBox>
 
-                                    <!-- Row 4: Enable SSL / TLS encryption Checkbox -->
-                                    <HBox alignItems="Center" class="kyraDarkCheckboxRow sapUiMediumMarginBottom">
+                                    <!-- Row 4: Enable SSL / TLS encryption + Automatic Provisioning Switch -->
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCheckboxRow sapUiMediumMarginBottom">
                                         <CheckBox
                                             selected="{accessModel>/sapIntegration/btp/ssl}"
                                             text="Enable SSL / TLS encryption"
                                             class="kyraDarkCheckbox" />
+                                        <HBox alignItems="Center">
+                                            <Switch
+                                                state="{accessModel>/sapIntegration/btp/autoProvisioning}"
+                                                customTextOn="ON"
+                                                customTextOff="OFF"
+                                                class="sapUiTinyMarginEnd" />
+                                            <Text text="Automatic Access Provisioning (IAM Approver 2)" class="kyraDarkFieldLabel" />
+                                        </HBox>
                                     </HBox>
 
-                                    <!-- Row 5: Test Integration Button -->
+                                    <!-- Row 5: Test & Save Integration Button -->
                                     <Button
                                         id="btnTestSapIntegration"
                                         icon="sap-icon://flash"
-                                        text="⚡ Test Integration"
+                                        text="⚡ Test &amp; Save Automatic Provisioning Integration"
                                         press=".onTestSapIntegration"
                                         class="kyraDarkTestConnBtn"
                                         width="100%" />
