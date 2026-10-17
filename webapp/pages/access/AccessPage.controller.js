@@ -20230,8 +20230,9 @@ sap.ui.define([
                 "sap/m/Title",
                 "sap/m/Button",
                 "sap/ui/core/Icon",
-                "sap/m/MessageToast"
-            ], (FieldHelpData, Dialog, VBox, HBox, Text, Title, Button, Icon, MessageToast) => {
+                "sap/m/MessageToast",
+                "sap/m/OverflowToolbarLayoutData"
+            ], (FieldHelpData, Dialog, VBox, HBox, Text, Title, Button, Icon, MessageToast, OverflowToolbarLayoutData) => {
                 let oHelp = null;
                 if (FieldHelpData && typeof FieldHelpData.getFieldHelp === "function") {
                     oHelp = FieldHelpData.getFieldHelp(sFieldKey);
@@ -20267,7 +20268,7 @@ sap.ui.define([
                         oTxt.addStyleClass("kyraInfoStepText");
 
                         const oCard = new HBox({
-                            alignItems: "Start",
+                            alignItems: "Center",
                             items: [oNum, oTxt]
                         });
                         oCard.addStyleClass("kyraInfoStepCard");
@@ -20276,15 +20277,17 @@ sap.ui.define([
                 }
 
                 // Example Container
-                const oExLabel = new Text({ text: "EXAMPLE / SAMPLE FORMAT:" });
+                const oExLabel = new Text({ text: "EXAMPLE / SAMPLE FORMAT" });
                 oExLabel.addStyleClass("kyraInfoExampleLabel");
 
                 const oExCopyBtn = new Button({
-                    text: "Copy Example",
+                    text: "Copy",
                     icon: "sap-icon://copy",
                     type: "Transparent",
+                    tooltip: "Copy example value",
                     press: () => fnCopyExample(oHelp.example)
                 });
+                oExCopyBtn.addStyleClass("kyraInfoExampleCopyBtn");
 
                 const oExHeader = new HBox({
                     justifyContent: "SpaceBetween",
@@ -20302,54 +20305,40 @@ sap.ui.define([
                 oExampleContainer.addStyleClass("kyraInfoExampleContainer");
 
                 // Tip Box
-                const oTipIcon = new Icon({ src: "sap-icon://hint", color: "#166534", size: "16px" });
+                const oTipIcon = new Icon({ src: "sap-icon://hint", size: "16px" });
+                oTipIcon.addStyleClass("kyraInfoTipIcon");
+
                 const oTipTxt = new Text({ text: oHelp.tip || "Ensure all required parameters are verified before connecting.", wrapping: true });
+                oTipTxt.addStyleClass("kyraInfoTipText");
+
                 const oTipBox = new HBox({
                     alignItems: "Center",
-                    gap: "10px",
                     items: [oTipIcon, oTipTxt]
                 });
                 oTipBox.addStyleClass("kyraInfoTipBox");
 
-                // Steps title
+                // Steps section header
+                const oStepsIcon = new Icon({ src: "sap-icon://bullet-text", size: "15px", color: "#008C9C" });
                 const oStepsTitle = new Title({
-                    text: "How to obtain this data (Step-by-Step Instructions):",
+                    text: "Step-by-Step Instructions:",
                     level: "H5"
                 });
                 oStepsTitle.addStyleClass("kyraInfoSectionTitle");
 
-                // Inline Bottom Action Row
-                const oInlineBottomRow = new HBox({
-                    justifyContent: "SpaceBetween",
+                const oStepsHeaderRow = new HBox({
                     alignItems: "Center",
-                    width: "100%",
-                    class: "sapUiSmallMarginTop",
-                    items: [
-                        new Button({
-                            text: "Copy Sample Value",
-                            icon: "sap-icon://copy",
-                            type: "Default",
-                            press: () => fnCopyExample(oHelp.example)
-                        }),
-                        new Button({
-                            text: "Close Guide",
-                            icon: "sap-icon://decline",
-                            type: "Emphasized",
-                            press: () => {
-                                if (oDialog) oDialog.close();
-                            }
-                        })
-                    ]
+                    gap: "8px",
+                    items: [oStepsIcon, oStepsTitle]
                 });
+                oStepsHeaderRow.addStyleClass("kyraInfoSectionHeaderRow");
 
                 // Dialog Content Body
                 const oBodyBox = new VBox({
                     items: [
-                        oStepsTitle,
+                        oStepsHeaderRow,
                         new VBox({ items: aStepItems }),
                         oExampleContainer,
-                        oTipBox,
-                        oInlineBottomRow
+                        oTipBox
                     ]
                 });
                 oBodyBox.addStyleClass("kyraInfoDialogBody");
@@ -20396,7 +20385,7 @@ sap.ui.define([
 
                 const oDialog = new Dialog({
                     customHeader: oCustomHeader,
-                    contentWidth: "640px",
+                    contentWidth: "660px",
                     contentHeight: "auto",
                     verticalScrolling: true,
                     horizontalScrolling: false,
@@ -20406,17 +20395,19 @@ sap.ui.define([
                     },
                     content: [oBodyBox],
                     beginButton: new Button({
-                        text: "Copy Example",
+                        text: "Copy Sample Value",
                         icon: "sap-icon://copy",
                         type: "Default",
+                        layoutData: new OverflowToolbarLayoutData({ priority: "NeverOverflow" }),
                         press: () => fnCopyExample(oHelp.example)
-                    }),
+                    }).addStyleClass("kyraInfoDialogFooterCopyBtn"),
                     endButton: new Button({
-                        text: "Close",
+                        text: "Close Guide",
                         type: "Emphasized",
                         icon: "sap-icon://decline",
+                        layoutData: new OverflowToolbarLayoutData({ priority: "NeverOverflow" }),
                         press: () => oDialog.close()
-                    }),
+                    }).addStyleClass("kyraInfoDialogFooterCloseBtn"),
                     afterClose: () => {
                         oDialog.destroy();
                     }

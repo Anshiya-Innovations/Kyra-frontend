@@ -37780,11 +37780,655 @@ div.kyraStratCardThemedSelected {
     display: block !important;
 }
 
+.kyraDarkLabelRow .kyraDarkFieldLabel {
+    margin-bottom: 0 !important;
+}
+
 .kyraDarkRequiredStar {
     color: #008C9C !important;
     font-size: 13px !important;
     font-weight: 700 !important;
     margin-left: 3px !important;
+}
+
+/* Information Icon matching third uploaded image (solid dark circle with 'i') */
+.kyraFieldInfoIcon {
+    color: #0F172A !important;
+    font-size: 14px !important;
+    margin-left: 6px !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
+    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraFieldInfoIcon:hover {
+    color: #008C9C !important;
+    transform: scale(1.25) !important;
+    filter: drop-shadow(0 2px 5px rgba(0, 140, 156, 0.4)) !important;
+}
+
+/* ========================================================================= */
+/* KYRA FIELD INFO POPUP MODAL DIALOG STYLES (LIGHT THEME)                  */
+/* ========================================================================= */
+.kyraInfoDialog.sapMDialog {
+    width: 660px !important;
+    max-width: 95vw !important;
+    max-height: 85vh !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 140, 156, 0.18) !important;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.kyraInfoDialog .sapMDialogHeader {
+    height: auto !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    border-bottom: none !important;
+    background: transparent !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.kyraInfoDialog .sapMDialogSection {
+    background: #FFFFFF !important;
+    padding: 0 !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    max-height: calc(85vh - 145px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin !important;
+    scrollbar-color: #008C9C #F8FAFC !important;
+}
+
+.kyraInfoDialog .sapMDialogSection::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+.kyraInfoDialog .sapMDialogSection::-webkit-scrollbar-track {
+    background: #F8FAFC !important;
+}
+.kyraInfoDialog .sapMDialogSection::-webkit-scrollbar-thumb {
+    background: #008C9C !important;
+    border-radius: 9999px !important;
+}
+.kyraInfoDialog .sapMDialogSection::-webkit-scrollbar-thumb:hover {
+    background: #007684 !important;
+}
+
+.kyraInfoDialog .sapMDialogFooter,
+.kyraInfoDialog > footer,
+.sapMDialog.kyraInfoDialog .sapMDialogFooter {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    align-self: stretch !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-top: 1px solid #E2E8F0 !important;
+    padding: 0 24px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+.kyraInfoDialog .sapMDialogFooter .sapMOverflowToolbar,
+.kyraInfoDialog .sapMDialogFooter .sapMIBar-CTR,
+.kyraInfoDialog .sapMDialogFooter .sapMIBar,
+.kyraInfoDialog .sapMDialogFooter .sapMTB {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    gap: 12px !important;
+}
+
+.kyraInfoDialog .sapMDialogFooter .sapMBarSpacer,
+.kyraInfoDialog .sapMDialogFooter .sapMTBSpacer {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+/* Completely eliminate SAPUI5 overflow 3-dots ('...') button */
+.kyraInfoDialog .sapMDialogFooter .sapMOvrflwBtn,
+.kyraInfoDialog .sapMDialogFooter [id$="-overflowButton"],
+.kyraInfoDialog .sapMDialogFooter .sapMBarOverflowButton,
+.kyraInfoDialog .sapMDialogFooter .sapMOverflowToolbarOverflowButton,
+.kyraInfoDialog .sapMDialogFooter [data-sap-ui-icon-content=""],
+.kyraInfoDialog .sapMDialogFooter button[title="More"],
+.kyraInfoDialog .sapMDialogFooter button:has(.sapUiIcon[data-sap-ui-icon-content=""]),
+.kyraInfoDialog .sapMDialogFooter button:has([data-sap-ui-icon-content*="overflow"]) {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0px !important;
+    height: 0px !important;
+    min-width: 0px !important;
+    max-width: 0px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    border: none !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    opacity: 0 !important;
+}
+
+/* Secondary Button: Copy Sample Value (Same row, right aligned) */
+.kyraInfoDialogFooterCopyBtn.sapMBtn,
+.kyraInfoDialogFooterCopyBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    margin: 0 !important;
+    margin-right: 12px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    align-self: center !important;
+}
+
+.kyraInfoDialogFooterCopyBtn .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding: 0 16px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraInfoDialogFooterCopyBtn .sapMBtnText,
+.kyraInfoDialogFooterCopyBtn bdi {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+
+.kyraInfoDialogFooterCopyBtn .sapMBtnIcon,
+.kyraInfoDialogFooterCopyBtn .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 13.5px !important;
+}
+
+.kyraInfoDialogFooterCopyBtn:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    border-color: #007684 !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.15) !important;
+}
+
+.kyraInfoDialogFooterCopyBtn:active .sapMBtnInner {
+    transform: scale(0.98) !important;
+    background: #E6F7F9 !important;
+}
+
+/* Primary Button: Close Guide (Same row, right aligned) */
+.kyraInfoDialogFooterCloseBtn.sapMBtn,
+.kyraInfoDialogFooterCloseBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    align-self: center !important;
+}
+
+.kyraInfoDialogFooterCloseBtn .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding: 0 18px !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraInfoDialogFooterCloseBtn .sapMBtnText,
+.kyraInfoDialogFooterCloseBtn bdi {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+}
+
+.kyraInfoDialogFooterCloseBtn .sapMBtnIcon,
+.kyraInfoDialogFooterCloseBtn .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+}
+
+.kyraInfoDialogFooterCloseBtn:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    box-shadow: 0 4px 10px rgba(0, 140, 156, 0.35) !important;
+}
+
+.kyraInfoDialogFooterCloseBtn:active .sapMBtnInner {
+    transform: scale(0.98) !important;
+}
+
+.kyraInfoDialogFooterCopyBtn::before,
+.kyraInfoDialogFooterCopyBtn::after,
+.kyraInfoDialogFooterCloseBtn::before,
+.kyraInfoDialogFooterCloseBtn::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Light Theme Header */
+.kyraInfoDialogHeader {
+    background: linear-gradient(135deg, #F0FDFA 0%, #FFFFFF 100%) !important;
+    border-top: 4px solid #008C9C !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    padding: 20px 24px 18px 24px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* ========================================================================= */
+/* KYRA FIELD INFO MODAL - CLOSE BUTTON (SIMPLE, SMALL, PROPERLY ALIGNED)    */
+/* ========================================================================= */
+.kyraInfoDialogCloseBtn,
+.kyraInfoDialogCloseBtn.sapMBtn,
+.kyraInfoDialogCloseBtn.sapMBtnTransparent,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtnTransparent {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    max-width: 30px !important;
+    max-height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    overflow: visible !important;
+}
+
+/* Clear SAPUI5 Horizon default pseudo-element overlays & focus rings */
+.kyraInfoDialogCloseBtn::before,
+.kyraInfoDialogCloseBtn::after,
+.kyraInfoDialogCloseBtn .sapMBtnInner::before,
+.kyraInfoDialogCloseBtn .sapMBtnInner::after,
+.kyraInfoDialogCloseBtn:hover::before,
+.kyraInfoDialogCloseBtn:hover::after,
+.kyraInfoDialogCloseBtn:hover .sapMBtnInner::before,
+.kyraInfoDialogCloseBtn:hover .sapMBtnInner::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Base button container state (Simple, small, crisp rounded square) */
+.kyraInfoDialogCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtnTransparent .sapMBtnInner {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    max-width: 30px !important;
+    max-height: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    outline: none !important;
+    transition: all 0.18s ease !important;
+}
+
+/* 'X' icon styling */
+.kyraInfoDialogCloseBtn .sapMBtnIcon,
+.kyraInfoDialogCloseBtn .sapUiIcon,
+.kyraInfoDialogCloseBtn .sapUiIcon::before,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtnTransparent .sapMBtnIcon {
+    color: #008C9C !important;
+    -webkit-text-fill-color: #008C9C !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-shadow: none !important;
+    transition: color 0.18s ease !important;
+}
+
+/* Clean Simple Hover State */
+.kyraInfoDialogCloseBtn:hover,
+.kyraInfoDialogCloseBtn.sapMBtn:hover,
+.kyraInfoDialogCloseBtn.sapMBtnTransparent:hover {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+}
+
+.kyraInfoDialogCloseBtn:hover .sapMBtnInner,
+.kyraInfoDialogCloseBtn.sapMBtn:hover .sapMBtnInner,
+.kyraInfoDialogCloseBtn.sapMBtnTransparent:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover > .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtnTransparent:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.2) !important;
+    transform: none !important;
+}
+
+.kyraInfoDialogCloseBtn:hover .sapMBtnIcon,
+.kyraInfoDialogCloseBtn:hover .sapUiIcon,
+.kyraInfoDialogCloseBtn:hover .sapUiIcon::before,
+.kyraInfoDialogCloseBtn:hover span,
+.kyraInfoDialogCloseBtn.sapMBtn:hover .sapMBtnIcon,
+.kyraInfoDialogCloseBtn.sapMBtn:hover .sapUiIcon,
+.kyraInfoDialogCloseBtn.sapMBtn:hover .sapUiIcon::before,
+.kyraInfoDialogCloseBtn.sapMBtnTransparent:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover .sapUiIcon::before,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn.sapMBtnTransparent:hover .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover > .sapMBtnInner .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover > .sapMBtnInner .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover > .sapMBtnInner .sapUiIcon::before {
+    color: #007684 !important;
+    -webkit-text-fill-color: #007684 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+.kyraInfoDialogCloseBtn:active .sapMBtnInner {
+    background: #E6F7F9 !important;
+    border-color: #007684 !important;
+    transform: scale(0.96) !important;
+}
+
+.kyraInfoSystemBadge {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 4px 12px !important;
+    border-radius: 9999px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.kyraInfoBadgeAws {
+    background: #FFFBEB !important;
+    color: #D97706 !important;
+    border: 1px solid rgba(217, 119, 6, 0.3) !important;
+}
+
+.kyraInfoBadgeSap {
+    background: #E6F7F9 !important;
+    color: #007684 !important;
+    border: 1px solid rgba(0, 140, 156, 0.3) !important;
+}
+
+.kyraInfoBadgeEmail {
+    background: #EFF6FF !important;
+    color: #2563EB !important;
+    border: 1px solid rgba(37, 99, 235, 0.3) !important;
+}
+
+.kyraInfoDialogTitle {
+    color: #0F172A !important;
+    font-size: 19px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
+    margin: 8px 0 4px 0 !important;
+}
+
+.kyraInfoDialogSubtitle {
+    color: #475569 !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    margin-top: 4px !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.kyraInfoDialogBody {
+    padding: 20px 24px 24px 24px !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+.kyraInfoSectionHeaderRow {
+    margin-bottom: 14px !important;
+}
+
+.kyraInfoSectionTitle {
+    color: #0F172A !important;
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.2px !important;
+    margin: 0 !important;
+}
+
+.kyraInfoStepCard {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 16px 20px !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.kyraInfoStepCard:hover {
+    border-color: #008C9C !important;
+    background: #F0FDFA !important;
+    box-shadow: 0 3px 10px rgba(0, 140, 156, 0.08) !important;
+}
+
+.kyraInfoStepNum {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 30px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    text-align: center !important;
+    box-shadow: none !important;
+}
+
+.kyraInfoStepText {
+    color: #1E293B !important;
+    font-size: 13.5px !important;
+    line-height: 1.5 !important;
+    flex: 1 !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+
+.kyraInfoStepPath {
+    font-weight: 700 !important;
+    color: #008C9C !important;
+}
+
+.kyraInfoExampleContainer {
+    background: #F8FAFC !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    margin: 16px 0 12px 0 !important;
+    border: 1px solid #CBD5E1 !important;
+    border-left: 4px solid #008C9C !important;
+    box-sizing: border-box !important;
+}
+
+.kyraInfoExampleLabel {
+    color: #475569 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+}
+
+.kyraInfoExampleCopyBtn.sapMBtn,
+.kyraInfoExampleCopyBtn {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+}
+
+.kyraInfoExampleCopyBtn .sapMBtnInner {
+    background: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 6px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 10px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraInfoExampleCopyBtn .sapMBtnText {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 11.5px !important;
+}
+
+.kyraInfoExampleCopyBtn .sapMBtnIcon {
+    color: #008C9C !important;
+    font-size: 12px !important;
+}
+
+.kyraInfoExampleCopyBtn:hover .sapMBtnInner {
+    background: #E6F7F9 !important;
+    border-color: #008C9C !important;
+}
+
+.kyraInfoExampleValue {
+    font-family: 'Consolas', 'Courier New', monospace !important;
+    color: #0F172A !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    word-break: break-all !important;
+    white-space: pre-wrap !important;
+    margin-top: 8px !important;
+    user-select: all !important;
+    display: block !important;
+    background: #FFFFFF !important;
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.kyraInfoTipBox {
+    background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%) !important;
+    border: 1px solid #A7F3D0 !important;
+    border-left: 4px solid #10B981 !important;
+    border-radius: 10px !important;
+    padding: 12px 16px !important;
+    margin-top: 12px !important;
+    margin-bottom: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.kyraInfoTipIcon {
+    color: #059669 !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraInfoTipText {
+    color: #065F46 !important;
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+    font-weight: 500 !important;
+    flex: 1 !important;
 }
 
 .kyraDarkFieldRow {
@@ -59050,8 +59694,10 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
 /* ==========================================================================
    SUB-INTEGRATION TABS & CARDS (SAP, AD GROUP, IAM)
    ========================================================================== */
-.kyraSubIntegrationTabsRow {
+.kyraSubIntegrationTabsRow,
+.sapMFlexBox.kyraSubIntegrationTabsRow {
     display: flex !important;
+    flex-direction: row !important;
     gap: 16px !important;
     width: 100% !important;
     margin-bottom: 24px !important;
@@ -59059,14 +59705,28 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
     align-items: stretch !important;
 }
 
-.kyraSubIntegrationCard {
+.kyraSubIntegrationTabsRow > .sapMFlexItem,
+.kyraSubIntegrationTabsRow .sapMFlexItem,
+html body .sapUiTheme-sap_horizon .kyraSubIntegrationTabsRow > .sapMFlexItem {
     flex: 1 1 0 !important;
-    width: 0 !important;
+    width: 50% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    box-sizing: border-box !important;
+}
+
+.kyraSubIntegrationCard,
+.sapMFlexBox.kyraSubIntegrationCard,
+html body .sapUiTheme-sap_horizon .kyraSubIntegrationCard {
+    flex: 1 1 auto !important;
+    width: 100% !important;
     min-width: 0 !important;
     background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
     border: 1.5px solid #E2E8F0 !important;
     border-radius: 14px !important;
-    padding: 16px 20px 14px 20px !important;
+    padding: 18px 22px 16px 22px !important;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
     cursor: pointer !important;
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -59076,34 +59736,247 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
-    min-height: 110px !important;
+    min-height: 115px !important;
 }
 
 .kyraSubIntegrationCard:hover {
     transform: translateY(-2px) !important;
+    border-color: #CBD5E1 !important;
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
 }
 
 .kyraSubIntegrationCard.kyraSubIntegrationCardActive {
+    border-width: 2px !important;
     box-shadow: 0 6px 20px rgba(15, 23, 42, 0.1) !important;
 }
 
+.kyraSubIntegrationCard.kyraSubIntegrationAmber:hover,
 .kyraSubIntegrationCard.kyraSubIntegrationAmber.kyraSubIntegrationCardActive {
     border-color: #EA580C !important;
     background: #FFFBF7 !important;
     box-shadow: 0 6px 20px rgba(234, 88, 12, 0.14) !important;
 }
 
-.kyraSubIntegrationCard.kyraSubIntegrationTeal.kyraSubIntegrationCardActive {
-    border-color: #00778B !important;
-    background: #F6FCFB !important;
-    box-shadow: 0 6px 20px rgba(0, 119, 139, 0.14) !important;
-}
-
+.kyraSubIntegrationCard.iamApprover1CardTrigger:hover,
+.kyraSubIntegrationCard.iamApprover1CardTrigger.kyraSubIntegrationCardActive,
+.kyraSubIntegrationCard.kyraSubIntegrationPurple:hover,
 .kyraSubIntegrationCard.kyraSubIntegrationPurple.kyraSubIntegrationCardActive {
     border-color: #7C3AED !important;
     background: #FAF7FD !important;
     box-shadow: 0 6px 20px rgba(124, 58, 237, 0.14) !important;
+}
+
+.kyraSubIntegrationCard.iamApprover2CardTrigger:hover,
+.kyraSubIntegrationCard.iamApprover2CardTrigger.kyraSubIntegrationCardActive,
+.kyraSubIntegrationCard.kyraSubIntegrationTeal:hover,
+.kyraSubIntegrationCard.kyraSubIntegrationTeal.kyraSubIntegrationCardActive {
+    border-color: #008C9C !important;
+    background: #F0FDFA !important;
+    box-shadow: 0 6px 20px rgba(0, 140, 156, 0.14) !important;
+}
+
+.iamApprover1CardTrigger:hover .fioriActionCardTitle,
+.iamApprover1CardTrigger.kyraSubIntegrationCardActive .fioriActionCardTitle {
+    color: #7C3AED !important;
+}
+
+.iamApprover2CardTrigger:hover .fioriActionCardTitle,
+.iamApprover2CardTrigger.kyraSubIntegrationCardActive .fioriActionCardTitle {
+    color: #008C9C !important;
+}
+
+.iamApprover1CardTrigger:hover .kyraSubIntegrationArrow,
+.iamApprover1CardTrigger.kyraSubIntegrationCardActive .kyraSubIntegrationArrow {
+    color: #7C3AED !important;
+    transform: scale(1.1) !important;
+}
+
+.iamApprover2CardTrigger:hover .kyraSubIntegrationArrow,
+.iamApprover2CardTrigger.kyraSubIntegrationCardActive .kyraSubIntegrationArrow {
+    color: #008C9C !important;
+    transform: scale(1.1) !important;
+}
+
+/* Guide Prompt Box (When neither approver is selected) */
+.kyraIamPromptGuideBox,
+.sapMFlexBox.kyraIamPromptGuideBox {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border: 1.5px dashed #CBD5E1 !important;
+    border-radius: 14px !important;
+    padding: 28px 24px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    margin-bottom: 20px !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraIamPromptGuideBox:hover {
+    border-color: #94A3B8 !important;
+    background: #F1F5F9 !important;
+}
+
+.kyraIamPromptGuideIcon,
+.kyraIamPromptGuideIcon.sapUiIcon {
+    color: #7C3AED !important;
+    font-size: 26px !important;
+    margin-bottom: 8px !important;
+}
+
+.kyraIamPromptGuideTitle,
+.kyraIamPromptGuideTitle.sapMTitle {
+    color: #1E293B !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    margin: 0 0 6px 0 !important;
+}
+
+.kyraIamPromptGuideSubtitle,
+.kyraIamPromptGuideSubtitle.sapMText {
+    color: #64748B !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    max-width: 620px !important;
+    line-height: 1.5 !important;
+    margin: 0 0 16px 0 !important;
+}
+
+.kyraIamPromptBtnRow {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    margin-top: 4px !important;
+}
+
+/* Purple Action Button: Configure IAM Approver 1 */
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1,
+.kyraApproverPromptBtn1.sapMBtn,
+.kyraApproverPromptBtn1 {
+    height: 40px !important;
+    min-height: 40px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1 .sapMBtnInner,
+.kyraApproverPromptBtn1 .sapMBtnInner {
+    background: #7C3AED !important;
+    background-color: #7C3AED !important;
+    border: 1.5px solid #7C3AED !important;
+    border-radius: 9px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 20px !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1 .sapMBtnText,
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1 bdi,
+.kyraApproverPromptBtn1 .sapMBtnText,
+.kyraApproverPromptBtn1 bdi {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    letter-spacing: 0.2px !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1 .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1 .sapUiIcon,
+.kyraApproverPromptBtn1 .sapMBtnIcon,
+.kyraApproverPromptBtn1 .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 15px !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1:hover .sapMBtnInner,
+.kyraApproverPromptBtn1:hover .sapMBtnInner {
+    background: #6D28D9 !important;
+    background-color: #6D28D9 !important;
+    border-color: #6D28D9 !important;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.38) !important;
+    transform: translateY(-1px) !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn1:active .sapMBtnInner,
+.kyraApproverPromptBtn1:active .sapMBtnInner {
+    background: #5B21B6 !important;
+    background-color: #5B21B6 !important;
+    border-color: #5B21B6 !important;
+    transform: translateY(0) !important;
+}
+
+/* Teal Action Button: Configure IAM Approver 2 */
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2,
+.kyraApproverPromptBtn2.sapMBtn,
+.kyraApproverPromptBtn2 {
+    height: 40px !important;
+    min-height: 40px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2 .sapMBtnInner,
+.kyraApproverPromptBtn2 .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 9px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 20px !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2 .sapMBtnText,
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2 bdi,
+.kyraApproverPromptBtn2 .sapMBtnText,
+.kyraApproverPromptBtn2 bdi {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    letter-spacing: 0.2px !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2 .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2 .sapUiIcon,
+.kyraApproverPromptBtn2 .sapMBtnIcon,
+.kyraApproverPromptBtn2 .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 15px !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2:hover .sapMBtnInner,
+.kyraApproverPromptBtn2:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+    border-color: #007684 !important;
+    box-shadow: 0 6px 16px rgba(0, 140, 156, 0.38) !important;
+    transform: translateY(-1px) !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraApproverPromptBtn2:active .sapMBtnInner,
+.kyraApproverPromptBtn2:active .sapMBtnInner {
+    background: #005F6A !important;
+    background-color: #005F6A !important;
+    border-color: #005F6A !important;
+    transform: translateY(0) !important;
 }
 
 .kyraSubIntegrationFooterRow {
