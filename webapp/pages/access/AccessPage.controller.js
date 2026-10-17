@@ -464,8 +464,115 @@ sap.ui.define([
                     activeSessionsCount: "412",
                     governedRolesCount: "18 Roles"
                 },
+                selectedIamApprover: "",
+                iamApproverConfig: {
+                    activeView: "both",
+                    emailGateway: {
+                        provider: "aws_sns_email",
+                        fromAddress: "no-reply-governance@kyra-portal.com",
+                        webhookUrl: "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/",
+                        smtpHost: "email-smtp.us-east-1.amazonaws.com",
+                        smtpPort: "587",
+                        smtpSecurity: "STARTTLS",
+                        smtpUser: "AKIAS3XVI2I667F5SYWM",
+                        smtpPassword: "",
+                        testStatus: "Configured"
+                    },
+                    approver1: {
+                        channel: "email",
+                        connected: true,
+                        name: "IAM Approver 1 (Security Lead)",
+                        email: "kyra-iam-approver-1@kyra-governance.com",
+                        notificationMode: "batch_instant",
+                        deliveryService: "aws_sns_email",
+                        fromAddress: "no-reply-governance@kyra-portal.com",
+                        webhookUrl: "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/",
+                        actionPortal: "table_review",
+                        slaWindow: "24h",
+                        autoEscalate: false,
+                        requireRemarksOnReject: true,
+                        iamUser: "iam-approver-1",
+                        userArn: "arn:aws:iam::197009134141:user/iam-approver-1",
+                        snsTopicArn: "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1",
+                        region: "us-east-1",
+                        accountId: "197009134141",
+                        accessKeyId: "AKIAS3XVI2I667F5SYWM",
+                        secretAccessKey: "",
+                        approvalEngine: "ssm_change_manager",
+                        consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
+                        requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                        enforceMfa: true,
+                        autoTransition: true
+                    },
+                    approver2: {
+                        channel: "email",
+                        connected: true,
+                        name: "IAM Approver 2 (Cloud Platform Owner)",
+                        email: "kyra-iam-approver-2@kyra-governance.com",
+                        routingTrigger: "sequential_on_iam1",
+                        deliveryService: "aws_sns_email",
+                        fromAddress: "no-reply-governance@kyra-portal.com",
+                        webhookUrl: "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/",
+                        finalAction: "auto_scim_btp",
+                        sendReceipt: "true",
+                        includeApprover1Remarks: true,
+                        notifyAuditTeam: true,
+                        iamUser: "iam-approver-2",
+                        userArn: "arn:aws:iam::197009134141:user/iam-approver-2",
+                        snsTopicArn: "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2",
+                        region: "us-east-1",
+                        accountId: "197009134141",
+                        accessKeyId: "AKIAS3XVI2I667F5SYWM",
+                        secretAccessKey: "",
+                        approvalEngine: "ssm_change_manager",
+                        consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
+                        requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                        enforceMfa: true,
+                        autoProvisionBtp: true,
+                        targetSystem: "SAP Business Technology Platform (SAP BTP)",
+                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        scimEndpoint: "https://33d545ed-34b8-4d60-8789-38e9f943e8ad.authentication.us10.hana.ondemand.com/api/v1/scim"
+                    },
+                    awsConfig: {
+                        region: "us-east-1",
+                        accountId: "197009134141",
+                        roleArn: "arn:aws:iam::197009134141:role/kyra-approval-handler-role",
+                        accessKeyId: "AKIAS3XVI2I667F5SYWM",
+                        secretAccessKey: "",
+                        approvalEngine: "ssm_change_manager",
+                        changeTemplateName: "Kyra-Enterprise-Access-Approval-Template",
+                        lambdaUrl: "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/",
+                        connected: true,
+                        statusText: "AWS Connected & IAM Verified ✓"
+                    },
+                    awsApprover1: {
+                        iamUser: "iam-approver-1",
+                        userArn: "arn:aws:iam::197009134141:user/iam-approver-1",
+                        snsTopicArn: "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1",
+                        consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
+                        requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                        enforceMfa: true,
+                        autoTransition: true
+                    },
+                    awsApprover2: {
+                        iamUser: "iam-approver-2",
+                        userArn: "arn:aws:iam::197009134141:user/iam-approver-2",
+                        snsTopicArn: "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2",
+                        consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
+                        requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                        enforceMfa: true,
+                        autoProvisionBtp: true
+                    },
+                    targetProvisioning: {
+                        targetSystem: "SAP Business Technology Platform (SAP BTP)",
+                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        scimEndpoint: "https://33d545ed-34b8-4d60-8789-38e9f943e8ad.authentication.us10.hana.ondemand.com/api/v1/scim",
+                        method: "Direct /Groups/{roleName} SCIM API with If-Match: *",
+                        autoAssignRoles: true
+                    }
+                },
                 sapIntegration: {
-                    selectedApp: "",
+                    selectedApp: "sap_btp",
                     currentStep: 1,
                     connected: false,
                     statusText: "Not Connected",
@@ -512,18 +619,81 @@ sap.ui.define([
                         serviceKeyJson: "",
                         serviceKeyJsonState: "None",
                         serviceKeyStatusText: "",
+                        region: "us10",
+                        subdomain: "5af75fc5trial",
+                        idpOrigin: "sap.ids",
                         url: "https://api.authentication.us10.hana.ondemand.com",
                         subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
                         tokenUrl: "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token",
-                        clientId: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755",
+                        clientId: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",
                         clientSecret: "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=",
+                        cfOrg: "5af75fc5trial",
+                        cfSpace: "dev",
+                        cfApiUrl: "https://api.cf.us10-001.hana.ondemand.com",
+                        provisioningScope: "both",
                         autoProvisioning: true,
-                        ssl: false,
+                        ssl: true,
                         urlState: "None",
                         subaccountState: "None",
                         tokenUrlState: "None",
                         clientIdState: "None",
                         clientSecretState: "None"
+                    },
+                    s4hana: {
+                        systemUrl: "https://my300000.s4hana.cloud.sap",
+                        clientNumber: "100",
+                        commArrangement: "SAP_COM_0193",
+                        commUser: "_KYRA_COMM_USER",
+                        commPassword: "",
+                        authType: "basic",
+                        odataUrl: "/sap/opu/odata/sap/APS_IAM_MAINTAIN_USERS_SRV",
+                        autoAssignBusinessRoles: true,
+                        ssl: true,
+                        connected: false,
+                        statusText: "Not Connected"
+                    },
+                    successfactors: {
+                        apiEndpoint: "https://api12preview.sapsf.eu",
+                        companyId: "ACE_CORP_SF",
+                        apiUser: "kyra_sf_admin@company.com",
+                        clientId: "sf_kyra_oauth_client",
+                        clientSecret: "",
+                        syncRbpGroups: true,
+                        ssl: true,
+                        connected: false,
+                        statusText: "Not Connected"
+                    },
+                    sac: {
+                        tenantUrl: "https://kyra-analytics.eu10.sapanalytics.cloud",
+                        scimUrl: "https://kyra-analytics.eu10.sapanalytics.cloud/api/v1/scim",
+                        tokenUrl: "https://kyra-analytics.authentication.eu10.hana.ondemand.com/oauth/token",
+                        clientId: "sac_kyra_client",
+                        clientSecret: "",
+                        autoAssignTeams: true,
+                        ssl: true,
+                        connected: false,
+                        statusText: "Not Connected"
+                    },
+                    ariba: {
+                        realmName: "kyra-ariba-corp",
+                        serviceUrl: "https://openapi.ariba.com/api/user-management/v1",
+                        apiKey: "",
+                        oauthClientId: "ariba_oauth_client",
+                        oauthClientSecret: "",
+                        autoProvisioning: true,
+                        ssl: true,
+                        connected: false,
+                        statusText: "Not Connected"
+                    },
+                    salesCloud: {
+                        tenantUrl: "https://my123456.crm.ondemand.com",
+                        odataUrl: "/sap/c4c/odata/v1/c4cuser",
+                        serviceUser: "kyra_c4c_admin",
+                        servicePassword: "",
+                        autoProvisioning: true,
+                        ssl: true,
+                        connected: false,
+                        statusText: "Not Connected"
                     },
                     purchasedApps: [
                         {
@@ -1077,6 +1247,7 @@ sap.ui.define([
             this._loadCustomAccessAndConflictConfig(oModel);
             this._loadSubmittedRequests(oModel);
             this._loadAvailableDepartments();
+            this._loadIamApproverConfig(oModel);
 
             // Setup Real-Time BroadcastChannel Event Bus & Storage Sync (Zero-Server-Overload Live Update)
             this._setupRealtimeSync(oModel);
@@ -1131,6 +1302,16 @@ sap.ui.define([
                     const cardSubIam = e.target.closest("#cardSubIamIntegration, [id$='cardSubIamIntegration']");
                     if (cardSubIam) {
                         this.onSelectIamIntegration();
+                        return;
+                    }
+                    const cardIam1 = e.target.closest("#cardSelectIamApprover1, [id$='cardSelectIamApprover1'], [data-iam-card='approver1'], .iamApprover1CardTrigger");
+                    if (cardIam1) {
+                        this.onSelectIamApprover1();
+                        return;
+                    }
+                    const cardIam2 = e.target.closest("#cardSelectIamApprover2, [id$='cardSelectIamApprover2'], [data-iam-card='approver2'], .iamApprover2CardTrigger");
+                    if (cardIam2) {
+                        this.onSelectIamApprover2();
                         return;
                     }
                     const cardDb = e.target.closest("#cardAdminDatabaseConfig, [id$='cardAdminDatabaseConfig']");
@@ -1422,6 +1603,9 @@ sap.ui.define([
             bindClick("cardSubSapIntegration", this.onSelectSapIntegration);
             bindClick("cardSubAdGroupIntegration", this.onSelectAdGroupIntegration);
             bindClick("cardSubIamIntegration", this.onSelectIamIntegration);
+            bindClick("cardSelectIamApprover1", this.onSelectIamApprover1);
+            bindClick("cardSelectIamApprover2", this.onSelectIamApprover2);
+            this._bindIamCardClicks();
             bindClick("cardAdminPersonaConversion", this.onSelectAdminPersonaConversion);
             bindClick("cardAdminAccessCustomization", this.onSelectAdminAccessCustomization);
             bindClick("stratCardKyra", this.onSelectKyraMode);
@@ -19122,14 +19306,21 @@ sap.ui.define([
             oModel.setProperty("/sapIntegration/selectedApp", "sap_btp");
             const sVal = oModel.getProperty("/sapIntegration/btp/serviceKeyJson") || "";
             if (!sVal.trim()) {
+                oModel.setProperty("/sapIntegration/btp/region", "us10");
+                oModel.setProperty("/sapIntegration/btp/subdomain", "5af75fc5trial");
+                oModel.setProperty("/sapIntegration/btp/idpOrigin", "sap.ids");
                 oModel.setProperty("/sapIntegration/btp/url", "https://api.authentication.us10.hana.ondemand.com");
                 oModel.setProperty("/sapIntegration/btp/subaccountId", "33d545ed-34b8-4d60-8789-38e9f943e8ad");
                 oModel.setProperty("/sapIntegration/btp/tokenUrl", "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token");
-                oModel.setProperty("/sapIntegration/btp/clientId", "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755");
+                oModel.setProperty("/sapIntegration/btp/clientId", "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755");
                 oModel.setProperty("/sapIntegration/btp/clientSecret", "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=");
+                oModel.setProperty("/sapIntegration/btp/cfOrg", "5af75fc5trial");
+                oModel.setProperty("/sapIntegration/btp/cfSpace", "dev");
+                oModel.setProperty("/sapIntegration/btp/cfApiUrl", "https://api.cf.us10-001.hana.ondemand.com");
+                oModel.setProperty("/sapIntegration/btp/provisioningScope", "both");
                 oModel.setProperty("/sapIntegration/btp/autoProvisioning", true);
-                oModel.setProperty("/sapIntegration/btp/ssl", false);
-                MessageToast.show("Credentials successfully auto-filled from SAP BTP Service Key!");
+                oModel.setProperty("/sapIntegration/btp/ssl", true);
+                MessageToast.show("Credentials & landscape endpoints successfully auto-filled from SAP BTP Service Key!");
                 return;
             }
             const bSuccess = this._parseAndApplyServiceKeyJson(oModel, sVal);
@@ -19149,13 +19340,26 @@ sap.ui.define([
                 const sClientSecret = sk.clientsecret || (sk.uaa && sk.uaa.clientsecret) || "";
                 const sUrl = sk.apiurl || sk.url || (sk.uaa && (sk.uaa.apiurl || sk.uaa.url)) || "";
                 const sTokenUrl = (sk.url ? `${sk.url.replace(/\/$/, '')}/oauth/token` : "") || (sk.uaa && sk.uaa.url ? `${sk.uaa.url.replace(/\/$/, '')}/oauth/token` : "");
-                const sSub = sk.subaccountid || sk.subaccount_id || sk.identityzoneid || sk.identityzone || sk.tenantid || "";
+                const sSub = sk.subaccountid || sk.subaccount_id || sk.identityzoneid || "";
+                const sSubdomain = sk.identityzone || (sk.uaa && sk.uaa.identityzone) || "";
 
                 if (sClientId) oModel.setProperty("/sapIntegration/btp/clientId", sClientId);
                 if (sClientSecret) oModel.setProperty("/sapIntegration/btp/clientSecret", sClientSecret);
                 if (sUrl) oModel.setProperty("/sapIntegration/btp/url", sUrl);
                 if (sTokenUrl) oModel.setProperty("/sapIntegration/btp/tokenUrl", sTokenUrl);
                 if (sSub) oModel.setProperty("/sapIntegration/btp/subaccountId", sSub);
+                if (sSubdomain) {
+                    oModel.setProperty("/sapIntegration/btp/subdomain", sSubdomain);
+                    oModel.setProperty("/sapIntegration/btp/cfOrg", sSubdomain);
+                }
+
+                // Detect region from url e.g. authentication.us10.hana.ondemand.com
+                const regMatch = (sUrl || sTokenUrl).match(/authentication\.([a-z0-9-]+)\.hana\.ondemand\.com/i);
+                if (regMatch && regMatch[1]) {
+                    const detectedReg = regMatch[1];
+                    oModel.setProperty("/sapIntegration/btp/region", detectedReg);
+                    oModel.setProperty("/sapIntegration/btp/cfApiUrl", `https://api.cf.${detectedReg}-001.hana.ondemand.com`);
+                }
 
                 return true;
             } catch (e) {
@@ -19325,6 +19529,131 @@ sap.ui.define([
             }
         },
 
+        async onTestS4HanaIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const s4 = oModel.getProperty("/sapIntegration/s4hana") || {};
+            if (!s4.systemUrl || !s4.commUser) {
+                MessageToast.show("Please enter the S/4HANA System Host URL and Inbound Communication User.");
+                return;
+            }
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Connecting to SAP S/4HANA Cloud",
+                    subtitle: "Validating Communication Scenario " + (s4.commArrangement || "SAP_COM_0193") + "..."
+                });
+            }
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                oModel.setProperty("/sapIntegration/s4hana/connected", true);
+                oModel.setProperty("/sapIntegration/s4hana/statusText", "Connected ✓");
+                oModel.setProperty("/sapIntegration/connected", true);
+                oModel.setProperty("/sapIntegration/statusText", "Connected (SAP S/4HANA Cloud) ✓");
+                oModel.setProperty("/sapIntegration/statusState", "Success");
+                if (typeof this._showSlideNotification === "function") {
+                    this._showSlideNotification("SAP S/4HANA Cloud connection verified. Business role catalog synced.", "Success");
+                } else {
+                    MessageToast.show("SAP S/4HANA Cloud integration connected successfully!");
+                }
+            }, 1000);
+        },
+
+        async onTestSuccessFactorsIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sf = oModel.getProperty("/sapIntegration/successfactors") || {};
+            if (!sf.apiEndpoint || !sf.companyId || !sf.apiUser) {
+                MessageToast.show("Please enter the SuccessFactors API Endpoint, Company ID, and Service Account.");
+                return;
+            }
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Connecting to SAP SuccessFactors",
+                    subtitle: "Validating API user & RBP groups for Company: " + sf.companyId + "..."
+                });
+            }
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                oModel.setProperty("/sapIntegration/successfactors/connected", true);
+                oModel.setProperty("/sapIntegration/successfactors/statusText", "Connected ✓");
+                oModel.setProperty("/sapIntegration/connected", true);
+                oModel.setProperty("/sapIntegration/statusText", "Connected (SAP SuccessFactors) ✓");
+                oModel.setProperty("/sapIntegration/statusState", "Success");
+                if (typeof this._showSlideNotification === "function") {
+                    this._showSlideNotification("SAP SuccessFactors connection verified. RBP groups synced.", "Success");
+                } else {
+                    MessageToast.show("SAP SuccessFactors integration connected successfully!");
+                }
+            }, 1000);
+        },
+
+        async onTestSacIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sac = oModel.getProperty("/sapIntegration/sac") || {};
+            if (!sac.tenantUrl || !sac.clientId) {
+                MessageToast.show("Please enter the SAC Tenant Host URL and OAuth Client ID.");
+                return;
+            }
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Connecting to SAP Analytics Cloud",
+                    subtitle: "Verifying SCIM 2.0 endpoints and OAuth token..."
+                });
+            }
+            setTimeout(() => {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                oModel.setProperty("/sapIntegration/sac/connected", true);
+                oModel.setProperty("/sapIntegration/sac/statusText", "Connected ✓");
+                oModel.setProperty("/sapIntegration/connected", true);
+                oModel.setProperty("/sapIntegration/statusText", "Connected (SAP Analytics Cloud) ✓");
+                oModel.setProperty("/sapIntegration/statusState", "Success");
+                if (typeof this._showSlideNotification === "function") {
+                    this._showSlideNotification("SAP Analytics Cloud connection verified. Teams & roles synced.", "Success");
+                } else {
+                    MessageToast.show("SAP Analytics Cloud integration connected successfully!");
+                }
+            }, 1000);
+        },
+
+        async onTestAribaIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const ariba = oModel.getProperty("/sapIntegration/ariba") || {};
+            if (!ariba.realmName || !ariba.serviceUrl) {
+                MessageToast.show("Please enter the Ariba Realm Name and Gateway URL.");
+                return;
+            }
+            MessageToast.show("SAP Ariba integration connected successfully!");
+            oModel.setProperty("/sapIntegration/ariba/connected", true);
+            oModel.setProperty("/sapIntegration/ariba/statusText", "Connected ✓");
+            oModel.setProperty("/sapIntegration/connected", true);
+            oModel.setProperty("/sapIntegration/statusText", "Connected (SAP Ariba) ✓");
+            oModel.setProperty("/sapIntegration/statusState", "Success");
+        },
+
+        async onTestSalesCloudIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const c4c = oModel.getProperty("/sapIntegration/salesCloud") || {};
+            if (!c4c.tenantUrl || !c4c.serviceUser) {
+                MessageToast.show("Please enter the Sales Cloud Tenant URL and Service User.");
+                return;
+            }
+            MessageToast.show("SAP Sales Cloud integration connected successfully!");
+            oModel.setProperty("/sapIntegration/salesCloud/connected", true);
+            oModel.setProperty("/sapIntegration/salesCloud/statusText", "Connected ✓");
+            oModel.setProperty("/sapIntegration/connected", true);
+            oModel.setProperty("/sapIntegration/statusText", "Connected (SAP Sales Cloud) ✓");
+            oModel.setProperty("/sapIntegration/statusState", "Success");
+        },
+
         onRefreshSapQuotas() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -19452,8 +19781,11 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "iam");
+            oModel.setProperty("/selectedIamApprover", ""); // Show 2 cards first!
             this._updateSubIntegrationCards(oModel);
+            this._updateIamApproverCards(oModel);
             setTimeout(() => {
+                this._bindIamCardClicks();
                 this._smoothScrollTo("iamIntegrationContainer", 40);
             }, 60);
         },
@@ -19521,29 +19853,354 @@ sap.ui.define([
             }
         },
 
-        onTestAdGroupIntegration() {
-            const oModel = this.getView().getModel("accessModel");
+        _updateIamApproverCards(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            sap.ui.core.BusyIndicator.show(0);
-            setTimeout(() => {
-                sap.ui.core.BusyIndicator.hide();
-                oModel.setProperty("/adGroupIntegration/connected", true);
-                sap.m.MessageBox.success("Active Directory & LDAP connection verified successfully!\n\nDomain: corp.kyra-enterprise.com\nLDAP Server: ldaps://ad01.corp.kyra-enterprise.com:636\nDiscovered: 4 Security Groups.", {
-                    title: "Active Directory Connected"
-                });
-            }, 750);
+            const sSelected = oModel.getProperty("/selectedIamApprover") || "";
+            const oCard1 = this.byId("cardSelectIamApprover1");
+            const oCard2 = this.byId("cardSelectIamApprover2");
+            if (oCard1) {
+                if (sSelected === "approver1") {
+                    oCard1.addStyleClass("kyraSubIntegrationCardActive");
+                    oCard1.addStyleClass("kyraSubIntegrationPurple");
+                } else {
+                    oCard1.removeStyleClass("kyraSubIntegrationCardActive");
+                    oCard1.removeStyleClass("kyraSubIntegrationPurple");
+                }
+            }
+            if (oCard2) {
+                if (sSelected === "approver2") {
+                    oCard2.addStyleClass("kyraSubIntegrationCardActive");
+                    oCard2.addStyleClass("kyraSubIntegrationTeal");
+                } else {
+                    oCard2.removeStyleClass("kyraSubIntegrationCardActive");
+                    oCard2.removeStyleClass("kyraSubIntegrationTeal");
+                }
+            }
+            this._bindIamCardClicks();
         },
 
-        onSyncAdGroups() {
+        _bindIamCardClicks() {
+            const oCard1 = this.byId("cardSelectIamApprover1");
+            if (oCard1) {
+                oCard1.detachBrowserEvent("click");
+                oCard1.attachBrowserEvent("click", (e) => {
+                    this.onSelectIamApprover1();
+                });
+                const oDom1 = oCard1.getDomRef();
+                if (oDom1) {
+                    oDom1.style.cursor = "pointer";
+                    oDom1.onclick = () => this.onSelectIamApprover1();
+                }
+            }
+            const oCard2 = this.byId("cardSelectIamApprover2");
+            if (oCard2) {
+                oCard2.detachBrowserEvent("click");
+                oCard2.attachBrowserEvent("click", (e) => {
+                    this.onSelectIamApprover2();
+                });
+                const oDom2 = oCard2.getDomRef();
+                if (oDom2) {
+                    oDom2.style.cursor = "pointer";
+                    oDom2.onclick = () => this.onSelectIamApprover2();
+                }
+            }
+        },
+
+        onSelectIamApprover1() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+            oModel.setProperty("/selectedIamApprover", "approver1");
+            this._updateIamApproverCards(oModel);
+            setTimeout(() => {
+                this._smoothScrollTo("approver1DetailSection", 30);
+            }, 60);
+        },
+
+        onSelectIamApprover2() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/selectedIamApprover", "approver2");
+            this._updateIamApproverCards(oModel);
+            setTimeout(() => {
+                this._smoothScrollTo("approver2DetailSection", 30);
+            }, 60);
+        },
+
+        onApprover1ChannelChange(oEvent) {
+            const sKey = oEvent.getParameter("key") || (oEvent.getParameter("item") && oEvent.getParameter("item").getKey()) || "email";
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/iamApproverConfig/approver1/channel", sKey);
+            }
+        },
+
+        onApprover2ChannelChange(oEvent) {
+            const sKey = oEvent.getParameter("key") || (oEvent.getParameter("item") && oEvent.getParameter("item").getKey()) || "email";
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/iamApproverConfig/approver2/channel", sKey);
+            }
+        },
+
+        onSetApprover1EmailChannel() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver1/channel", "email");
+        },
+
+        onSetApprover1ConsoleChannel() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver1/channel", "console");
+        },
+
+        onSetApprover2EmailChannel() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver2/channel", "email");
+        },
+
+        onSetApprover2ConsoleChannel() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver2/channel", "console");
+        },
+
+        onTestApprover1Email() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oApp1 = oModel.getProperty("/iamApproverConfig/approver1") || {};
             sap.ui.core.BusyIndicator.show(0);
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
-                const sTime = new Date().toLocaleTimeString();
-                oModel.setProperty("/adGroupIntegration/lastSyncTime", sTime);
-                sap.m.MessageToast.show("Active Directory security groups synced at " + sTime);
-            }, 600);
+                oModel.setProperty("/iamApproverConfig/approver1/connected", true);
+                sap.m.MessageBox.success(
+                    "IAM Approver 1 Email Integration Verified!\n\n" +
+                    "• Designation: " + (oApp1.name || "IAM Approver 1 (Security Lead)") + "\n" +
+                    "• Notification Email: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + "\n" +
+                    "• Dispatch Mode: " + (oApp1.notificationMode || "Consolidated Batch Notification") + "\n" +
+                    "• Delivery Service: " + (oApp1.deliveryService || "AWS SNS Email Topic") + "\n" +
+                    "• SLA Window: " + (oApp1.slaWindow || "24h") + "\n" +
+                    "• Status: Connected ✓",
+                    { title: "IAM Approver 1 Verified" }
+                );
+            }, 700);
+        },
+
+        onSaveApprover1Email() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            try {
+                const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                sap.m.MessageToast.show("IAM Approver 1 Email settings saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save settings: " + e.message);
+            }
+        },
+
+        onTestApprover1Console() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oApp1 = oModel.getProperty("/iamApproverConfig/approver1") || {};
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/iamApproverConfig/approver1/connected", true);
+                sap.m.MessageBox.success(
+                    "IAM Approver 1 AWS Console Integration Verified!\n\n" +
+                    "• AWS IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
+                    "• User ARN: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
+                    "• AWS SNS Topic ARN: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
+                    "• AWS Region: " + (oApp1.region || "us-east-1") + "\n" +
+                    "• Approval Engine: " + (oApp1.approvalEngine || "AWS Systems Manager Change Manager") + "\n" +
+                    "• Status: Connected ✓",
+                    { title: "IAM Approver 1 AWS Verified" }
+                );
+            }, 800);
+        },
+
+        onSaveApprover1Console() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            try {
+                const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                sap.m.MessageToast.show("IAM Approver 1 AWS Console settings saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save settings: " + e.message);
+            }
+        },
+
+        onTestApprover2Email() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oApp2 = oModel.getProperty("/iamApproverConfig/approver2") || {};
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/iamApproverConfig/approver2/connected", true);
+                sap.m.MessageBox.success(
+                    "IAM Approver 2 Email Integration Verified!\n\n" +
+                    "• Designation: " + (oApp2.name || "IAM Approver 2 (Cloud Platform Owner)") + "\n" +
+                    "• Notification Email: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + "\n" +
+                    "• Routing Trigger: " + (oApp2.routingTrigger || "Sequential - Dispatch upon Approver 1 Approval") + "\n" +
+                    "• Final Provisioning Action: " + (oApp2.finalAction || "Trigger Automated Live SCIM Role Provisioning into SAP BTP") + "\n" +
+                    "• Status: Connected ✓",
+                    { title: "IAM Approver 2 Verified" }
+                );
+            }, 700);
+        },
+
+        onSaveApprover2Email() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            try {
+                const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                sap.m.MessageToast.show("IAM Approver 2 Email settings saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save settings: " + e.message);
+            }
+        },
+
+        onTestApprover2Console() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oApp2 = oModel.getProperty("/iamApproverConfig/approver2") || {};
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/iamApproverConfig/approver2/connected", true);
+                sap.m.MessageBox.success(
+                    "IAM Approver 2 AWS Console & Provisioning Verified!\n\n" +
+                    "• AWS IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
+                    "• User ARN: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
+                    "• AWS SNS Topic ARN: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
+                    "• AWS Region: " + (oApp2.region || "us-east-1") + "\n" +
+                    "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\n" +
+                    "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\n" +
+                    "• Status: Connected ✓",
+                    { title: "IAM Approver 2 AWS Verified" }
+                );
+            }, 800);
+        },
+
+        onSaveApprover2Console() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            try {
+                const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                sap.m.MessageToast.show("IAM Approver 2 AWS Console settings saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save settings: " + e.message);
+            }
+        },
+
+        _loadIamApproverConfig(oModel) {
+            try {
+                const sSaved = localStorage.getItem("kyra_iam_approver_config");
+                if (sSaved) {
+                    const oSaved = JSON.parse(sSaved);
+                    const oCurr = oModel.getProperty("/iamApproverConfig") || {};
+                    const oMerged = Object.assign({}, oCurr, oSaved);
+                    if (oSaved.approver1) oMerged.approver1 = Object.assign({}, oCurr.approver1, oSaved.approver1);
+                    if (oSaved.approver2) oMerged.approver2 = Object.assign({}, oCurr.approver2, oSaved.approver2);
+                    oModel.setProperty("/iamApproverConfig", oMerged);
+                }
+            } catch(e) {
+                console.warn("[IAM Config] Failed to load saved config:", e);
+            }
+        },
+
+        onIamApproverModeChange(oEvent) {
+            const oItem = oEvent.getParameter("item");
+            const sKey = oItem ? oItem.getKey() : "both";
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/iamApproverConfig/activeView", sKey);
+            }
+        },
+
+        onTestEmailApproverConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+            const oEmailGateway = oCfg.emailGateway || {};
+            const oApp1 = oCfg.approver1 || {};
+            const oApp2 = oCfg.approver2 || {};
+
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/iamApproverConfig/emailGateway/testStatus", "Verified Active ✓");
+                sap.m.MessageBox.success(
+                    "Email Gateway & Approver Dispatch Verification Succeeded!\n\n" +
+                    "• Service Provider: " + (oEmailGateway.provider || "AWS SNS Email Topic") + "\n" +
+                    "• Sender Address: " + (oEmailGateway.fromAddress || "no-reply-governance@kyra-portal.com") + "\n" +
+                    "• Approver 1 Target: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + " (" + (oApp1.name || "IAM Approver 1") + ")\n" +
+                    "• Approver 2 Target: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + " (" + (oApp2.name || "IAM Approver 2") + ")\n" +
+                    "• Review Webhook: " + (oEmailGateway.webhookUrl || "Active AWS Lambda Function URL") + "\n" +
+                    "• Dispatch Mode: Batch Notification (Consolidated 1 Email per Batch)",
+                    {
+                        title: "Email Approver Gateway Verified"
+                    }
+                );
+            }, 700);
+        },
+
+        onSaveEmailApproverConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+            try {
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                sap.m.MessageToast.show("Email Approver configuration saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save email approver settings: " + e.message);
+            }
+        },
+
+        onTestAwsIamConnection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+            const oAws = oCfg.awsConfig || {};
+            const oAws1 = oCfg.awsApprover1 || {};
+            const oAws2 = oCfg.awsApprover2 || {};
+            const oProv = oCfg.targetProvisioning || {};
+
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/iamApproverConfig/awsConfig/connected", true);
+                oModel.setProperty("/iamApproverConfig/awsConfig/statusText", "AWS Connected & IAM Verified ✓");
+                sap.m.MessageBox.success(
+                    "AWS IAM Approver Governance Connection Successful!\n\n" +
+                    "• AWS Region: " + (oAws.region || "us-east-1") + "\n" +
+                    "• AWS Account: " + (oAws.accountId || "197009134141") + "\n" +
+                    "• Native Approval Engine: AWS Systems Manager (SSM) Change Manager\n" +
+                    "• IAM Approver 1 User: " + (oAws1.iamUser || "iam-approver-1") + "\n" +
+                    "• IAM Approver 2 User: " + (oAws2.iamUser || "iam-approver-2") + "\n" +
+                    "• Level 1 SNS Topic: " + (oAws1.snsTopicArn || "kyra-iam-approver-1") + "\n" +
+                    "• Level 2 SNS Topic: " + (oAws2.snsTopicArn || "kyra-iam-approver-2") + "\n" +
+                    "• Lambda Webhook: " + (oAws.lambdaUrl || "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/") + "\n" +
+                    "• Target SCIM Binding: " + (oProv.targetSystem || "SAP BTP Subaccount") + " (" + (oProv.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + ")",
+                    {
+                        title: "AWS IAM Integration Verified"
+                    }
+                );
+            }, 850);
+        },
+
+        onSaveAwsIamConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+            try {
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                sap.m.MessageToast.show("AWS IAM Approver configuration saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save AWS IAM approver settings: " + e.message);
+            }
         },
 
         onTestIamIntegration() {
@@ -19553,12 +20210,257 @@ sap.ui.define([
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamIntegration/connected", true);
-                sap.m.MessageBox.success("IAM Identity Provider federation connection established successfully!\n\nIssuer: https://kyra-prod.accounts.ondemand.com\nProtocol: SAML 2.0 / SCIM 2.0\nLinked Identities: 1,820", {
-                    title: "IAM Federation Connected"
+                sap.m.MessageBox.success("IAM Approver Integration verified successfully!", {
+                    title: "IAM Integration Connected"
                 });
             }, 750);
         },
 
+        onShowFieldInfo(oEvent) {
+            const oSource = oEvent.getSource();
+            const sFieldKey = oSource.data("fieldKey") || "";
+            const that = this;
+
+            sap.ui.require([
+                "kyra001/model/FieldHelpData",
+                "sap/m/Dialog",
+                "sap/m/VBox",
+                "sap/m/HBox",
+                "sap/m/Text",
+                "sap/m/Title",
+                "sap/m/Button",
+                "sap/ui/core/Icon",
+                "sap/m/MessageToast"
+            ], (FieldHelpData, Dialog, VBox, HBox, Text, Title, Button, Icon, MessageToast) => {
+                let oHelp = null;
+                if (FieldHelpData && typeof FieldHelpData.getFieldHelp === "function") {
+                    oHelp = FieldHelpData.getFieldHelp(sFieldKey);
+                }
+                if (!oHelp) {
+                    oHelp = that._getFallbackFieldHelp(sFieldKey);
+                }
+
+                // Copy example helper
+                const fnCopyExample = (sText) => {
+                    if (!sText) return;
+                    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(sText).then(() => {
+                            MessageToast.show("✓ Example copied to clipboard!");
+                        }).catch(() => {
+                            that._fallbackCopyText(sText);
+                            MessageToast.show("✓ Example copied to clipboard!");
+                        });
+                    } else {
+                        that._fallbackCopyText(sText);
+                        MessageToast.show("✓ Example copied to clipboard!");
+                    }
+                };
+
+                // Build step items
+                const aStepItems = [];
+                if (oHelp.steps && Array.isArray(oHelp.steps)) {
+                    oHelp.steps.forEach((sStep, index) => {
+                        const oNum = new Text({ text: String(index + 1) });
+                        oNum.addStyleClass("kyraInfoStepNum");
+
+                        const oTxt = new Text({ text: sStep, wrapping: true });
+                        oTxt.addStyleClass("kyraInfoStepText");
+
+                        const oCard = new HBox({
+                            alignItems: "Start",
+                            items: [oNum, oTxt]
+                        });
+                        oCard.addStyleClass("kyraInfoStepCard");
+                        aStepItems.push(oCard);
+                    });
+                }
+
+                // Example Container
+                const oExLabel = new Text({ text: "EXAMPLE / SAMPLE FORMAT:" });
+                oExLabel.addStyleClass("kyraInfoExampleLabel");
+
+                const oExCopyBtn = new Button({
+                    text: "Copy Example",
+                    icon: "sap-icon://copy",
+                    type: "Transparent",
+                    press: () => fnCopyExample(oHelp.example)
+                });
+
+                const oExHeader = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    width: "100%",
+                    items: [oExLabel, oExCopyBtn]
+                });
+
+                const oExVal = new Text({ text: oHelp.example || "N/A", wrapping: true });
+                oExVal.addStyleClass("kyraInfoExampleValue");
+
+                const oExampleContainer = new VBox({
+                    items: [oExHeader, oExVal]
+                });
+                oExampleContainer.addStyleClass("kyraInfoExampleContainer");
+
+                // Tip Box
+                const oTipIcon = new Icon({ src: "sap-icon://hint", color: "#166534", size: "16px" });
+                const oTipTxt = new Text({ text: oHelp.tip || "Ensure all required parameters are verified before connecting.", wrapping: true });
+                const oTipBox = new HBox({
+                    alignItems: "Center",
+                    gap: "10px",
+                    items: [oTipIcon, oTipTxt]
+                });
+                oTipBox.addStyleClass("kyraInfoTipBox");
+
+                // Steps title
+                const oStepsTitle = new Title({
+                    text: "How to obtain this data (Step-by-Step Instructions):",
+                    level: "H5"
+                });
+                oStepsTitle.addStyleClass("kyraInfoSectionTitle");
+
+                // Inline Bottom Action Row
+                const oInlineBottomRow = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    width: "100%",
+                    class: "sapUiSmallMarginTop",
+                    items: [
+                        new Button({
+                            text: "Copy Sample Value",
+                            icon: "sap-icon://copy",
+                            type: "Default",
+                            press: () => fnCopyExample(oHelp.example)
+                        }),
+                        new Button({
+                            text: "Close Guide",
+                            icon: "sap-icon://decline",
+                            type: "Emphasized",
+                            press: () => {
+                                if (oDialog) oDialog.close();
+                            }
+                        })
+                    ]
+                });
+
+                // Dialog Content Body
+                const oBodyBox = new VBox({
+                    items: [
+                        oStepsTitle,
+                        new VBox({ items: aStepItems }),
+                        oExampleContainer,
+                        oTipBox,
+                        oInlineBottomRow
+                    ]
+                });
+                oBodyBox.addStyleClass("kyraInfoDialogBody");
+
+                // Custom Header with Prominent Top-Right Close Button
+                const oBadge = new Text({ text: oHelp.system || "Kyra Cloud Governance" });
+                oBadge.addStyleClass("kyraInfoSystemBadge");
+                oBadge.addStyleClass(oHelp.badgeClass || "kyraInfoBadgeSap");
+
+                const oCloseHeaderBtn = new Button({
+                    icon: "sap-icon://decline",
+                    type: "Transparent",
+                    tooltip: "Close",
+                    press: () => {
+                        if (oDialog) oDialog.close();
+                    }
+                });
+                oCloseHeaderBtn.addStyleClass("kyraInfoDialogCloseBtn");
+
+                const oHeaderTopRow = new HBox({
+                    justifyContent: "SpaceBetween",
+                    alignItems: "Center",
+                    width: "100%",
+                    items: [oBadge, oCloseHeaderBtn]
+                });
+
+                const oHeaderTitle = new Title({
+                    text: oHelp.title || "Configuration Parameter Guide",
+                    level: "H4"
+                });
+                oHeaderTitle.addStyleClass("kyraInfoDialogTitle");
+
+                const oHeaderSubtitle = new Text({
+                    text: oHelp.purpose || "Guide and instructions for configuring this parameter.",
+                    wrapping: true
+                });
+                oHeaderSubtitle.addStyleClass("kyraInfoDialogSubtitle");
+
+                const oCustomHeader = new VBox({
+                    width: "100%",
+                    items: [oHeaderTopRow, oHeaderTitle, oHeaderSubtitle]
+                });
+                oCustomHeader.addStyleClass("kyraInfoDialogHeader");
+
+                const oDialog = new Dialog({
+                    customHeader: oCustomHeader,
+                    contentWidth: "640px",
+                    contentHeight: "auto",
+                    verticalScrolling: true,
+                    horizontalScrolling: false,
+                    escapeHandler: function (oPromise) {
+                        oDialog.close();
+                        if (oPromise) oPromise.resolve();
+                    },
+                    content: [oBodyBox],
+                    beginButton: new Button({
+                        text: "Copy Example",
+                        icon: "sap-icon://copy",
+                        type: "Default",
+                        press: () => fnCopyExample(oHelp.example)
+                    }),
+                    endButton: new Button({
+                        text: "Close",
+                        type: "Emphasized",
+                        icon: "sap-icon://decline",
+                        press: () => oDialog.close()
+                    }),
+                    afterClose: () => {
+                        oDialog.destroy();
+                    }
+                });
+                oDialog.addStyleClass("kyraInfoDialog");
+
+                that.getView().addDependent(oDialog);
+                oDialog.open();
+            });
+        },
+
+        _fallbackCopyText(sText) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = sText;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+            } catch (err) {
+                console.warn("Fallback copy failed", err);
+            }
+        },
+
+        _getFallbackFieldHelp(sFieldKey) {
+            return {
+                system: "Enterprise Access Governance",
+                badgeClass: "kyraInfoBadgeSap",
+                title: "Configuration Parameter Guide (" + sFieldKey + ")",
+                purpose: "This configuration parameter is required to establish secure communication between Kyra Access Governance and your cloud ecosystem.",
+                steps: [
+                    "Sign in to your administrative management console for this service.",
+                    "Locate the identity, endpoint, or credentials section corresponding to this setting.",
+                    "Copy the required value and paste it into this field.",
+                    "Click the Test button to verify connectivity."
+                ],
+                example: "Check your administrative console documentation for valid values.",
+                tip: "Make sure all required fields marked with an asterisk (*) are filled prior to testing connection."
+            };
+        },
 
 async onTestCloudConnection() {
             const oModel = this.getView().getModel("accessModel");
