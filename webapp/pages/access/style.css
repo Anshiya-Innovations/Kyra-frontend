@@ -59724,20 +59724,27 @@ html body .sapUiTheme-sap_horizon .kyraAddAccessCloseBtn:active .sapMBtnIcon {
 /* ==========================================================================
    ACCESS CUSTOMIZATION SYSTEM TABLE & DRILL-DOWN STYLES
    ========================================================================== */
-.kyraAdminSystemLink {
+.kyraAdminSystemLink,
+.kyraAdminSystemLink.sapMLnk,
+html body .sapMLnk.kyraAdminSystemLink,
+html body .sapUiTheme-sap_horizon .kyraAdminSystemLink {
     color: #008C9C !important;
     font-weight: 700 !important;
     font-size: 13.5px !important;
     text-align: center !important;
     cursor: pointer !important;
-    text-decoration: underline !important;
-    text-underline-offset: 3px !important;
-    transition: color 0.15s ease, text-decoration-color 0.15s ease !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
+    transition: color 0.15s ease !important;
 }
 
-.kyraAdminSystemLink:hover {
+.kyraAdminSystemLink:hover,
+.kyraAdminSystemLink.sapMLnk:hover,
+html body .sapMLnk.kyraAdminSystemLink:hover,
+html body .sapUiTheme-sap_horizon .kyraAdminSystemLink:hover {
     color: #005F6A !important;
-    text-decoration: underline !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
 }
 
 .kyraAdminSystemsTable .kyraAdminClickableRow {
@@ -61051,20 +61058,19 @@ html body td[id*="-nodata-cell"] .sapMText,
 
 .kyraAdminHeaderNavCard,
 .sapMFlexBox.kyraAdminHeaderNavCard {
-    padding: 14px 20px !important;
+    padding: 16px 22px !important;
     background: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 12px !important;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
     box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
 }
 
 .kyraAdminHeaderDivider {
-    width: 1px !important;
-    min-width: 1px !important;
-    height: 32px !important;
-    background: #E2E8F0 !important;
-    margin: 0 4px !important;
+    display: none !important;
 }
 
 .kyraAdminHeaderInfoCol,
@@ -61072,6 +61078,7 @@ html body td[id*="-nodata-cell"] .sapMText,
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
+    gap: 4px !important;
 }
 
 .kyraAdminBreadcrumbTitleRow,
@@ -61117,7 +61124,7 @@ html body td[id*="-nodata-cell"] .sapMText,
     font-size: 16px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
-    line-height: 1 !important;
+    line-height: 1.2 !important;
     margin: 0 !important;
     padding: 0 !important;
     display: inline-flex !important;
@@ -61130,8 +61137,8 @@ html body td[id*="-nodata-cell"] .sapMText,
     color: #64748B !important;
     font-size: 12.5px !important;
     line-height: 1.4 !important;
-    margin-top: 6px !important;
-    margin-bottom: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Badge Clean Styling: Crisp Dot, Soft Emerald Background, Perfect Alignment */
@@ -61185,6 +61192,121 @@ html body td[id*="-nodata-cell"] .sapMText,
     padding: 0 !important;
 }
 
+/* ADMIN STEP 2: PROJECT SIMPLE BACK BUTTON ON RIGHT */
+.kyraAdminHeaderNavCard .kyraSimpleBackBtn,
+.sapMFlexBox.kyraAdminHeaderNavCard .kyraSimpleBackBtn {
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+}
+
+/* ADMIN STEP 2: CLEAN SIMPLE RIGHT-SIDE BACK BUTTON */
+.kyraAdminHeaderBackBtn,
+.kyraAdminHeaderBackBtn.sapMBtn,
+html body .sapMBtn.kyraAdminHeaderBackBtn,
+html body .sapUiTheme-sap_horizon .kyraAdminHeaderBackBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraAdminHeaderBackBtn .sapMBtnInner,
+.kyraAdminHeaderBackBtn.sapMBtn .sapMBtnInner,
+html body .sapMBtn.kyraAdminHeaderBackBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraAdminHeaderBackBtn .sapMBtnInner {
+    height: 36px !important;
+    min-height: 36px !important;
+    line-height: 34px !important;
+    padding: 0 16px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    color: #334155 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+.kyraAdminHeaderBackBtn .sapMBtnIcon,
+.kyraAdminHeaderBackBtn .sapUiIcon,
+html body .sapMBtn.kyraAdminHeaderBackBtn .sapMBtnIcon,
+html body .sapMBtn.kyraAdminHeaderBackBtn .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraAdminHeaderBackBtn .sapMBtnIcon {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    color: #64748B !important;
+    margin-right: 6px !important;
+    margin-left: 0 !important;
+    padding: 0 !important;
+    transition: color 0.18s ease, transform 0.18s ease !important;
+}
+
+.kyraAdminHeaderBackBtn .sapMBtnText,
+.kyraAdminHeaderBackBtn .sapMBtnContent,
+.kyraAdminHeaderBackBtn bdi,
+html body .sapMBtn.kyraAdminHeaderBackBtn .sapMBtnText,
+html body .sapMBtn.kyraAdminHeaderBackBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraAdminHeaderBackBtn .sapMBtnText {
+    color: #334155 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transition: color 0.18s ease !important;
+}
+
+.kyraAdminHeaderBackBtn:hover .sapMBtnInner,
+.kyraAdminHeaderBackBtn.sapMBtn:hover .sapMBtnInner,
+html body .sapMBtn.kyraAdminHeaderBackBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraAdminHeaderBackBtn:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+    color: #008C9C !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.12) !important;
+}
+
+.kyraAdminHeaderBackBtn:hover .sapUiIcon,
+.kyraAdminHeaderBackBtn:hover .sapMBtnIcon,
+html body .sapMBtn.kyraAdminHeaderBackBtn:hover .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraAdminHeaderBackBtn:hover .sapMBtnIcon {
+    color: #008C9C !important;
+    transform: translateX(-2px) !important;
+}
+
+.kyraAdminHeaderBackBtn:hover .sapMBtnText,
+.kyraAdminHeaderBackBtn:hover bdi,
+html body .sapMBtn.kyraAdminHeaderBackBtn:hover .sapMBtnText,
+html body .sapMBtn.kyraAdminHeaderBackBtn:hover bdi {
+    color: #008C9C !important;
+}
+
+.kyraAdminHeaderBackBtn:active .sapMBtnInner,
+.kyraAdminHeaderBackBtn.sapMBtn:active .sapMBtnInner,
+html body .sapMBtn.kyraAdminHeaderBackBtn:active .sapMBtnInner {
+    background: #CCFBF1 !important;
+    background-color: #CCFBF1 !important;
+    border-color: #007684 !important;
+    transform: scale(0.98) !important;
+}
+
 /* ========================================================================== */
 /* SERVICE TABLE ACTIONS COLUMN: PERFECT CENTER ALIGNMENT                     */
 /* ========================================================================== */
@@ -61195,7 +61317,11 @@ td.kyraColActions,
 .sapMListTblCell.kyraColActions,
 .sapMListTblHeaderCell.kyraColActions,
 .kyraAdminServiceTable td:last-child,
-.kyraAdminServiceTable th:last-child {
+.kyraAdminServiceTable th:last-child,
+#adminSystemsTable td:last-child,
+#adminSystemsTable th:last-child,
+.kyraAdminSystemsTable td:last-child,
+.kyraAdminSystemsTable th:last-child {
     text-align: center !important;
     padding-left: 10px !important;
     padding-right: 10px !important;
@@ -61203,6 +61329,8 @@ td.kyraColActions,
 
 .kyraAdminServiceTable th.kyraColActions .sapMColumnHeaderContent,
 .kyraAdminServiceTable th:last-child .sapMColumnHeaderContent,
+#adminSystemsTable th:last-child .sapMColumnHeaderContent,
+.kyraAdminSystemsTable th:last-child .sapMColumnHeaderContent,
 th.kyraColActions .sapMColumnHeaderContent {
     display: flex !important;
     align-items: center !important;
@@ -61214,6 +61342,8 @@ th.kyraColActions .sapMColumnHeaderContent {
 
 .kyraAdminServiceTable th.kyraColActions .kyraAdminColHeader,
 .kyraAdminServiceTable th:last-child .kyraAdminColHeader,
+#adminSystemsTable th:last-child .kyraAdminColHeader,
+.kyraAdminSystemsTable th:last-child .kyraAdminColHeader,
 th.kyraColActions .kyraAdminColHeader {
     text-align: center !important;
     margin: 0 auto !important;
@@ -61225,6 +61355,8 @@ th.kyraColActions .kyraAdminColHeader {
 .sapMFlexBox.kyraServiceActionGroup,
 .kyraAdminServiceTable td.kyraColActions .kyraAdminRowActionGroup,
 .kyraAdminServiceTable td:last-child .kyraAdminRowActionGroup,
+#adminSystemsTable td:last-child .kyraAdminRowActionGroup,
+.kyraAdminSystemsTable td:last-child .kyraAdminRowActionGroup,
 td.kyraColActions .kyraAdminRowActionGroup,
 .sapMListTblCell.kyraColActions .kyraAdminRowActionGroup {
     display: flex !important;
@@ -61237,6 +61369,8 @@ td.kyraColActions .kyraAdminRowActionGroup,
 
 .kyraServiceActionGroup .kyraAdminSystemEditBtn,
 .kyraAdminServiceTable td:last-child .kyraAdminSystemEditBtn,
+#adminSystemsTable td:last-child .kyraAdminSystemEditBtn,
+.kyraAdminSystemsTable td:last-child .kyraAdminSystemEditBtn,
 td.kyraColActions .kyraAdminSystemEditBtn {
     margin: 0 auto !important;
     display: inline-flex !important;

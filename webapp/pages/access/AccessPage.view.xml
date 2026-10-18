@@ -3038,7 +3038,7 @@
                                     <Column width="16%" hAlign="Center"><Text text="THRESHOLD LIMIT" class="kyraAdminColHeader" /></Column>
                                     <Column width="18%" hAlign="Center"><Text text="STATUS" class="kyraAdminColHeader" /></Column>
                                     <Column width="20%" hAlign="Center"><Text text="CREATED DATE" class="kyraAdminColHeader" /></Column>
-                                    <Column width="18%" hAlign="Center"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
+                                    <Column width="18%" hAlign="Center" class="kyraColActions"><Text text="ACTIONS" class="kyraAdminColHeader" /></Column>
                                 </columns>
                                 <items>
                                     <ColumnListItem vAlign="Middle" type="Active" press=".onSelectAdminSystemToServices" class="kyraAdminTableRow kyraAdminClickableRow">
@@ -3053,17 +3053,12 @@
                                                 <Text text="{accessModel>status}" class="kyraAdminPillText" />
                                             </HBox>
                                             <Text text="{accessModel>createdDate}" class="kyraAdminCellText" />
-                                            <HBox alignItems="Center" justifyContent="Center" class="kyraAdminRowActionGroup">
+                                            <HBox alignItems="Center" justifyContent="Center" width="100%" class="kyraAdminRowActionGroup kyraServiceActionGroup">
                                                 <Button
                                                     icon="sap-icon://edit"
                                                     press=".onEditAdminSystem"
                                                     class="kyraAdminSystemEditBtn"
                                                     tooltip="Edit System" />
-                                                <Button
-                                                    icon="sap-icon://delete"
-                                                    press=".onDeleteAdminSystem"
-                                                    class="kyraAdminSystemDeleteBtn"
-                                                    tooltip="Delete System" />
                                             </HBox>
                                         </cells>
                                     </ColumnListItem>
@@ -3243,41 +3238,40 @@
 
                             <!-- Top Navigation Header / Breadcrumb Card -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraAdminWhiteCard kyraAdminHeaderNavCard sapUiSmallMarginBottom">
-                                <HBox alignItems="Center" gap="14px">
-                                    <Button
-                                        icon="sap-icon://nav-back"
-                                        text="Back to Systems"
-                                        type="Transparent"
-                                        press=".onBackToAdminSystems"
-                                        class="kyraDarkBackLinkBtn"
-                                        tooltip="Return to Systems list" />
-                                    <VBox class="kyraAdminHeaderDivider" />
-                                    <VBox justifyContent="Center" class="kyraAdminHeaderInfoCol">
-                                        <HBox alignItems="Center" gap="8px" class="kyraAdminBreadcrumbTitleRow">
-                                            <Link
-                                                text="Systems"
-                                                press=".onBackToAdminSystems"
-                                                class="fioriDescriptionText kyraAdminBreadcrumbLink"
-                                                tooltip="Back to Systems" />
-                                            <core:Icon
-                                                src="sap-icon://navigation-right-arrow"
-                                                size="10px"
-                                                color="#94A3B8"
-                                                class="kyraAdminBreadcrumbArrow" />
-                                            <Title
-                                                text="{= ${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform' }"
-                                                level="H4"
-                                                class="kyraAdminCardTitle kyraAdminHeaderTitleText" />
-                                            <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
-                                                <HBox class="kyraDarkGreenGlowDot" />
-                                                <Text text="Integrated &amp; Active ✓" class="kyraDarkGreenPillText" />
-                                            </HBox>
+                                <!-- Left: System Breadcrumb, Title, Active Badge, and Subtitle -->
+                                <VBox justifyContent="Center" class="kyraAdminHeaderInfoCol">
+                                    <HBox alignItems="Center" gap="8px" class="kyraAdminBreadcrumbTitleRow">
+                                        <Link
+                                            text="Systems"
+                                            press=".onBackToAdminSystems"
+                                            class="fioriDescriptionText kyraAdminBreadcrumbLink"
+                                            tooltip="Back to Systems" />
+                                        <core:Icon
+                                            src="sap-icon://navigation-right-arrow"
+                                            size="10px"
+                                            color="#94A3B8"
+                                            class="kyraAdminBreadcrumbArrow" />
+                                        <Title
+                                            text="{= ${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform' }"
+                                            level="H4"
+                                            class="kyraAdminCardTitle kyraAdminHeaderTitleText" />
+                                        <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                            <HBox class="kyraDarkGreenGlowDot" />
+                                            <Text text="Integrated &amp; Active ✓" class="kyraDarkGreenPillText" />
                                         </HBox>
-                                        <Text
-                                            text="{= 'Configure and manage services, ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'role templates, and role collections' : 'teams, and personas') + ' for ' + (${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform') + '.' }"
-                                            class="fioriDescriptionText kyraAdminHeaderSubtitleText" />
-                                    </VBox>
-                                </HBox>
+                                    </HBox>
+                                    <Text
+                                        text="{= 'Configure and manage services, ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'role templates, and role collections' : 'teams, and personas') + ' for ' + (${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform') + '.' }"
+                                        class="fioriDescriptionText kyraAdminHeaderSubtitleText" />
+                                </VBox>
+
+                                <!-- Right: Project Simple Back Button -->
+                                <Button
+                                    text="Back"
+                                    type="Default"
+                                    press=".onBackToAdminSystems"
+                                    class="kyraSimpleBackBtn"
+                                    tooltip="Back to Systems" />
                             </HBox>
 
                             <!-- 2. UNIFIED CARD: SERVICE [LEFT] &amp; SERVICE DETAILS [RIGHT] -->
