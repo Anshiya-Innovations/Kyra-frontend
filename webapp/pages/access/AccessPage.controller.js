@@ -1304,14 +1304,24 @@ sap.ui.define([
                         this.onSelectIamIntegration();
                         return;
                     }
+                    const linkIam2 = e.target.closest(".iamApprover2Link, [id$='cardSelectIamApprover2'] .fioriActionLinkTeal");
+                    if (linkIam2) {
+                        this.onOpenIamApprover2(e);
+                        return;
+                    }
+                    const linkIam1 = e.target.closest(".iamApprover1Link, [id$='cardSelectIamApprover1'] .fioriActionLinkAmber");
+                    if (linkIam1) {
+                        this.onOpenIamApprover1(e);
+                        return;
+                    }
                     const cardIam1 = e.target.closest("#cardSelectIamApprover1, [id$='cardSelectIamApprover1'], [data-iam-card='approver1'], .iamApprover1CardTrigger");
                     if (cardIam1) {
-                        this.onSelectIamApprover1();
+                        this.onSelectIamApprover1(e);
                         return;
                     }
                     const cardIam2 = e.target.closest("#cardSelectIamApprover2, [id$='cardSelectIamApprover2'], [data-iam-card='approver2'], .iamApprover2CardTrigger");
                     if (cardIam2) {
-                        this.onSelectIamApprover2();
+                        this.onSelectIamApprover2(e);
                         return;
                     }
                     const cardDb = e.target.closest("#cardAdminDatabaseConfig, [id$='cardAdminDatabaseConfig']");
@@ -1603,9 +1613,8 @@ sap.ui.define([
             bindClick("cardSubSapIntegration", this.onSelectSapIntegration);
             bindClick("cardSubAdGroupIntegration", this.onSelectAdGroupIntegration);
             bindClick("cardSubIamIntegration", this.onSelectIamIntegration);
-            bindClick("cardSelectIamApprover1", this.onSelectIamApprover1);
-            bindClick("cardSelectIamApprover2", this.onSelectIamApprover2);
             this._bindIamCardClicks();
+            this._updateIamApproverCards();
             bindClick("cardAdminPersonaConversion", this.onSelectAdminPersonaConversion);
             bindClick("cardAdminAccessCustomization", this.onSelectAdminAccessCustomization);
             bindClick("stratCardKyra", this.onSelectKyraMode);
@@ -19781,9 +19790,10 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "iam");
-            oModel.setProperty("/selectedIamApprover", ""); // Show 2 cards first!
+            oModel.setProperty("/selectedIamApprover", ""); // No auto-select!
             this._updateSubIntegrationCards(oModel);
             this._updateIamApproverCards(oModel);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._bindIamCardClicks();
                 this._smoothScrollTo("iamIntegrationContainer", 40);
@@ -19847,8 +19857,10 @@ sap.ui.define([
                 oArrowIam.setSrc(bIam ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
                 if (bIam) {
                     oArrowIam.addStyleClass("kyraSubIntegrationArrowActive");
+                    oArrowIam.addStyleClass("kyraArrowAmber");
                 } else {
                     oArrowIam.removeStyleClass("kyraSubIntegrationArrowActive");
+                    oArrowIam.removeStyleClass("kyraArrowAmber");
                 }
             }
         },
@@ -19859,12 +19871,17 @@ sap.ui.define([
             const sSelected = oModel.getProperty("/selectedIamApprover") || "";
             const oCard1 = this.byId("cardSelectIamApprover1");
             const oCard2 = this.byId("cardSelectIamApprover2");
+            const oArrow1 = this.byId("arrowIamApprover1");
+            const oArrow2 = this.byId("arrowIamApprover2");
+
             if (oCard1) {
                 if (sSelected === "approver1") {
                     oCard1.addStyleClass("kyraSubIntegrationCardActive");
-                    oCard1.addStyleClass("kyraSubIntegrationPurple");
+                    oCard1.addStyleClass("kyraSubIntegrationAmber");
+                    oCard1.removeStyleClass("kyraSubIntegrationPurple");
                 } else {
                     oCard1.removeStyleClass("kyraSubIntegrationCardActive");
+                    oCard1.removeStyleClass("kyraSubIntegrationAmber");
                     oCard1.removeStyleClass("kyraSubIntegrationPurple");
                 }
             }
@@ -19877,54 +19894,130 @@ sap.ui.define([
                     oCard2.removeStyleClass("kyraSubIntegrationTeal");
                 }
             }
+
+            if (oArrow1) {
+                oArrow1.setSrc(sSelected === "approver1" ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                if (sSelected === "approver1") {
+                    oArrow1.addStyleClass("kyraSubIntegrationArrowActive");
+                    oArrow1.addStyleClass("kyraArrowAmber");
+                    oArrow1.removeStyleClass("kyraArrowPurple");
+                } else {
+                    oArrow1.removeStyleClass("kyraSubIntegrationArrowActive");
+                    oArrow1.removeStyleClass("kyraArrowAmber");
+                    oArrow1.removeStyleClass("kyraArrowPurple");
+                }
+            }
+            if (oArrow2) {
+                oArrow2.setSrc(sSelected === "approver2" ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
+                if (sSelected === "approver2") {
+                    oArrow2.addStyleClass("kyraSubIntegrationArrowActive");
+                    oArrow2.addStyleClass("kyraArrowTeal");
+                } else {
+                    oArrow2.removeStyleClass("kyraSubIntegrationArrowActive");
+                    oArrow2.removeStyleClass("kyraArrowTeal");
+                }
+            }
             this._bindIamCardClicks();
         },
 
         _bindIamCardClicks() {
-            const oCard1 = this.byId("cardSelectIamApprover1");
-            if (oCard1) {
-                oCard1.detachBrowserEvent("click");
-                oCard1.attachBrowserEvent("click", (e) => {
-                    this.onSelectIamApprover1();
-                });
-                const oDom1 = oCard1.getDomRef();
-                if (oDom1) {
-                    oDom1.style.cursor = "pointer";
-                    oDom1.onclick = () => this.onSelectIamApprover1();
+            const bindCard = (sCardId, fnToggle) => {
+                const oCard = this.byId(sCardId);
+                if (!oCard) return;
+                const oDom = oCard.getDomRef();
+                if (oDom) {
+                    oDom.style.cursor = "pointer";
+                    oDom.onclick = (e) => {
+                        if (e && e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "BUTTON")) {
+                            return;
+                        }
+                        if (e && typeof e.stopPropagation === "function") {
+                            e.stopPropagation();
+                        }
+                        fnToggle.call(this, e);
+                    };
                 }
+            };
+            bindCard("cardSelectIamApprover1", this.onSelectIamApprover1);
+            bindCard("cardSelectIamApprover2", this.onSelectIamApprover2);
+        },
+
+        onSelectIamApprover1(oEvent) {
+            if (oEvent && typeof oEvent.stopPropagation === "function") {
+                oEvent.stopPropagation();
             }
-            const oCard2 = this.byId("cardSelectIamApprover2");
-            if (oCard2) {
-                oCard2.detachBrowserEvent("click");
-                oCard2.attachBrowserEvent("click", (e) => {
-                    this.onSelectIamApprover2();
-                });
-                const oDom2 = oCard2.getDomRef();
-                if (oDom2) {
-                    oDom2.style.cursor = "pointer";
-                    oDom2.onclick = () => this.onSelectIamApprover2();
-                }
+            const nNow = Date.now();
+            if (this._nLastIamApproverToggle && (nNow - this._nLastIamApproverToggle) < 350) {
+                return;
+            }
+            this._nLastIamApproverToggle = nNow;
+
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sCurrent = oModel.getProperty("/selectedIamApprover") || "";
+            const sNext = sCurrent === "approver1" ? "" : "approver1";
+            oModel.setProperty("/selectedIamApprover", sNext);
+            this._updateIamApproverCards(oModel);
+            if (sNext === "approver1") {
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._smoothScrollTo("approver1DetailSection", 30);
+                }, 100);
             }
         },
 
-        onSelectIamApprover1() {
+        onSelectIamApprover2(oEvent) {
+            if (oEvent && typeof oEvent.stopPropagation === "function") {
+                oEvent.stopPropagation();
+            }
+            const nNow = Date.now();
+            if (this._nLastIamApproverToggle && (nNow - this._nLastIamApproverToggle) < 350) {
+                return;
+            }
+            this._nLastIamApproverToggle = nNow;
+
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sCurrent = oModel.getProperty("/selectedIamApprover") || "";
+            const sNext = sCurrent === "approver2" ? "" : "approver2";
+            oModel.setProperty("/selectedIamApprover", sNext);
+            this._updateIamApproverCards(oModel);
+            if (sNext === "approver2") {
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._smoothScrollTo("approver2DetailSection", 30);
+                }, 100);
+            }
+        },
+
+        onOpenIamApprover1(oEvent) {
+            if (oEvent && typeof oEvent.stopPropagation === "function") {
+                oEvent.stopPropagation();
+            }
+            this._nLastIamApproverToggle = Date.now();
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIamApprover", "approver1");
             this._updateIamApproverCards(oModel);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._smoothScrollTo("approver1DetailSection", 30);
-            }, 60);
+            }, 100);
         },
 
-        onSelectIamApprover2() {
+        onOpenIamApprover2(oEvent) {
+            if (oEvent && typeof oEvent.stopPropagation === "function") {
+                oEvent.stopPropagation();
+            }
+            this._nLastIamApproverToggle = Date.now();
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIamApprover", "approver2");
             this._updateIamApproverCards(oModel);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._smoothScrollTo("approver2DetailSection", 30);
-            }, 60);
+            }, 100);
         },
 
         onApprover1ChannelChange(oEvent) {
