@@ -282,8 +282,8 @@
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Top Title & Subtitle matching Image 2 with Manage Entitlements Button -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" gap="16px" class="kyraDarkTitleHeaderRow kyraDarkTitleBlock sapUiSmallMarginBottom">
-                                <VBox class="sapUiNoMargin">
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" gap="20px" class="kyraDarkTitleHeaderRow kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <VBox class="kyraHeaderTitleCol sapUiNoMargin">
                                     <Title text="Configure SAP Application Integration" level="H2" class="kyraDarkStudioTitle" />
                                     <Text text="Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra." class="kyraDarkStudioSubtitle" />
                                 </VBox>
@@ -1665,26 +1665,7 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- Guide Prompt when neither approver card is selected -->
-                            <VBox visible="{= !${accessModel>/selectedIamApprover} }" class="kyraIamPromptGuideBox sapUiMediumMarginBottom" alignItems="Center" justifyContent="Center">
-                                <core:Icon src="sap-icon://cursor-arrow" size="28px" class="kyraIamPromptGuideIcon" />
-                                <Title text="Select an IAM Approver to Configure" level="H4" class="kyraIamPromptGuideTitle" />
-                                <Text text="Click either the IAM Approver 1 or IAM Approver 2 card above to configure their Email Integration and AWS Console Integration separately." class="kyraIamPromptGuideSubtitle" />
-                                <HBox alignItems="Center" justifyContent="Center" gap="16px" class="kyraIamPromptBtnRow">
-                                    <Button
-                                        text="Configure IAM Approver 1"
-                                        icon="sap-icon://employee"
-                                        type="Default"
-                                        class="kyraApproverPromptBtn1"
-                                        press=".onOpenIamApprover1" />
-                                    <Button
-                                        text="Configure IAM Approver 2"
-                                        icon="sap-icon://shield"
-                                        type="Default"
-                                        class="kyraApproverPromptBtn2"
-                                        press=".onOpenIamApprover2" />
-                                </HBox>
-                            </VBox>
+
 
                             <!-- ========================================================================= -->
                             <!-- LEVEL 2: DETAIL CONFIGURATION FOR IAM APPROVER 1 -->
@@ -2402,11 +2383,11 @@
                             </VBox>
 
                             <!-- Bottom Divider & Action Bar -->
-                            <HBox class="kyraCardDivider sapUiSmallMarginTop sapUiSmallMarginBottom" />
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                            <HBox visible="{= !!${accessModel>/selectedIamApprover} }" class="kyraCardDivider sapUiSmallMarginTop sapUiSmallMarginBottom" />
+                            <HBox visible="{= !!${accessModel>/selectedIamApprover} }" justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
                                 <HBox alignItems="Center" class="kyraDarkPromptBox">
                                     <Text text="Active Approver Scope: " class="kyraDarkPromptHint" />
-                                    <Text text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'IAM Approver 1 (Level 1 Reviewer)' : (${accessModel>/selectedIamApprover} === 'approver2' ? 'IAM Approver 2 (Level 2 Final Reviewer)' : 'None Selected — Click an Approver Card Above') }" class="kyraDarkPromptTarget" />
+                                    <Text text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'IAM Approver 2 (Level 2 Final Reviewer)' : 'IAM Approver 1 (Level 1 Reviewer)' }" class="kyraDarkPromptTarget" />
                                 </HBox>
                                 <Button
                                     text="Close Section"

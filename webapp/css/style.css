@@ -41701,8 +41701,13 @@ div[id*="inputSapBtpServiceKey-message"],
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
-    gap: 16px !important;
+    gap: 20px !important;
     margin-bottom: 22px !important;
+}
+
+.kyraHeaderTitleCol {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
 }
 
 .kyraDarkStudioTitle .sapMTitle,
@@ -41995,12 +42000,16 @@ div[id*="inputSapBtpServiceKey-message"],
     color: #008C9C !important;
 }
 
-/* Solid Teal Primary Action Button matching Image 1 */
+/* Solid Teal Primary Action Button (Clean crisp button, no background shade/glow) */
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn,
+html body .kyraDarkPrimaryActionBtn.sapMBtn,
+html body .kyraDarkPrimaryActionBtn,
 .kyraDarkPrimaryActionBtn.sapMBtn,
 .kyraDarkPrimaryActionBtn {
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
     padding: 0 !important;
     margin: 0 !important;
     background: transparent !important;
@@ -42008,37 +42017,101 @@ div[id*="inputSapBtpServiceKey-message"],
     flex-shrink: 0 !important;
     white-space: nowrap !important;
     cursor: pointer !important;
-}
-
-.kyraDarkPrimaryActionBtn .sapMBtnInner,
-.kyraDarkPrimaryActionBtn.sapMBtn .sapMBtnInner {
-    height: 38px !important;
-    min-height: 38px !important;
-    max-height: 38px !important;
-    line-height: 38px !important;
-    padding: 0 20px !important;
-    background: #008C9C !important;
-    background-color: #008C9C !important;
-    border: none !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: all 0.15s ease !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    filter: none !important;
+    overflow: visible !important;
+    outline: none !important;
 }
 
-.kyraDarkPrimaryActionBtn .sapMBtnContent,
-.kyraDarkPrimaryActionBtn bdi {
-    color: #FFFFFF !important;
-    font-size: 13.5px !important;
-    font-weight: 600 !important;
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn::before,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn::after,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn .sapMBtnInner::before,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn .sapMBtnInner::after,
+.kyraDarkPrimaryActionBtn::before,
+.kyraDarkPrimaryActionBtn::after,
+.kyraDarkPrimaryActionBtn .sapMBtnInner::before,
+.kyraDarkPrimaryActionBtn .sapMBtnInner::after {
+    display: none !important;
+    content: none !important;
+    box-shadow: none !important;
+    background: none !important;
 }
 
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn.sapMBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMBtn.kyraDarkPrimaryActionBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized.kyraDarkPrimaryActionBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn.sapMBtnEmphasized:not(:hover) .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn:not(:hover) .sapMBtnInner,
+html body .kyraDarkPrimaryActionBtn .sapMBtnInner,
+html body .kyraDarkPrimaryActionBtn.sapMBtn .sapMBtnInner,
+.kyraDarkPrimaryActionBtn .sapMBtnInner,
+.kyraDarkPrimaryActionBtn.sapMBtn .sapMBtnInner {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    line-height: 42px !important;
+    padding: 0 24px !important;
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
+    border-radius: 11px !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    filter: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.15s ease !important;
+    cursor: pointer !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn.sapMBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .sapMBtnEmphasized.kyraDarkPrimaryActionBtn:hover .sapMBtnInner,
+html body .kyraDarkPrimaryActionBtn:hover .sapMBtnInner,
 .kyraDarkPrimaryActionBtn:hover .sapMBtnInner {
     background: #007684 !important;
     background-color: #007684 !important;
-    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.35) !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn:active .sapMBtnInner,
+html body .kyraDarkPrimaryActionBtn:active .sapMBtnInner,
+.kyraDarkPrimaryActionBtn:active .sapMBtnInner {
+    background: #006b77 !important;
+    background-color: #006b77 !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+}
+
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn .sapMBtnContent,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraDarkPrimaryActionBtn .sapMBtnText,
+html body .kyraDarkPrimaryActionBtn .sapMBtnContent,
+html body .kyraDarkPrimaryActionBtn bdi,
+html body .kyraDarkPrimaryActionBtn .sapMBtnText,
+.kyraDarkPrimaryActionBtn .sapMBtnContent,
+.kyraDarkPrimaryActionBtn bdi,
+.kyraDarkPrimaryActionBtn .sapMBtnText {
+    color: #FFFFFF !important;
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    font-family: inherit !important;
+    letter-spacing: -0.01em !important;
+    line-height: 42px !important;
+    text-shadow: none !important;
 }
 
 /* Live Quotas Table Pill Badges matching Image 1 */

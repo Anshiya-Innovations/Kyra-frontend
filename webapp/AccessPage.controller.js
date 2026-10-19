@@ -15317,9 +15317,8 @@ sap.ui.define([
                 if (!oModel.getProperty("/selectedIntegrationType")) {
                     oModel.setProperty("/selectedIntegrationType", "sap");
                 }
-                if (!oModel.getProperty("/sapIntegration/currentStep")) {
-                    oModel.setProperty("/sapIntegration/currentStep", 1);
-                }
+                oModel.setProperty("/sapIntegration/currentStep", 1);
+                oModel.setProperty("/sapIntegration/isAppExpanded", false);
                 setTimeout(() => {
                     this._smoothScrollTo("adminDatabaseConfigSection", 40);
                 }, 80);
@@ -15517,6 +15516,8 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/adminSelectedSection", "");
+                oModel.setProperty("/sapIntegration/currentStep", 1);
+                oModel.setProperty("/sapIntegration/isAppExpanded", false);
                 this._updateActionCardArrows(oModel);
             }
         },
@@ -19734,9 +19735,9 @@ sap.ui.define([
                 oModel.setProperty("/sapIntegration/connected", true);
                 oModel.setProperty("/sapIntegration/statusText", "Connected & Auto-Provisioning Active ✓");
                 oModel.setProperty("/sapIntegration/statusState", "Success");
-                oModel.setProperty("/sapIntegration/currentStep", 2);
+                oModel.setProperty("/sapIntegration/currentStep", 1);
                 oModel.setProperty("/sapIntegration/lastQuotaSync", sSyncTime);
-                oModel.setProperty("/sapIntegration/isAppExpanded", true);
+                oModel.setProperty("/sapIntegration/isAppExpanded", false);
 
                 // Automatically analyze and populate integrated SAP BTP system into Access Customization
                 const aIntegratedSystems = [
@@ -19781,7 +19782,7 @@ sap.ui.define([
                 MessageToast.show("SAP BTP Provisioning Verified & Saved! 27 Services and Teams active.");
 
                 setTimeout(() => {
-                    this._smoothScrollTo("sapPurchasedAppsContainer", 40);
+                    this._smoothScrollTo("sapIntegrationConfigContainer", 40);
                 }, 100);
             } catch (err) {
                 if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
@@ -19932,6 +19933,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/sapIntegration/currentStep", 1);
+            oModel.setProperty("/sapIntegration/isAppExpanded", false);
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);
             }, 80);
@@ -19941,7 +19943,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/sapIntegration/currentStep", 2);
-                oModel.setProperty("/sapIntegration/isAppExpanded", true);
+                oModel.setProperty("/sapIntegration/isAppExpanded", false);
             }
             if (typeof this._smoothScrollTo === "function") {
                 setTimeout(() => {
@@ -20030,9 +20032,8 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "sap");
-            if (!oModel.getProperty("/sapIntegration/currentStep")) {
-                oModel.setProperty("/sapIntegration/currentStep", 1);
-            }
+            oModel.setProperty("/sapIntegration/currentStep", 1);
+            oModel.setProperty("/sapIntegration/isAppExpanded", false);
             this._updateSubIntegrationCards(oModel);
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);
@@ -20053,7 +20054,7 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "iam");
-            oModel.setProperty("/selectedIamApprover", ""); // No auto-select!
+            oModel.setProperty("/selectedIamApprover", ""); // No auto open
             this._updateSubIntegrationCards(oModel);
             this._updateIamApproverCards(oModel);
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
