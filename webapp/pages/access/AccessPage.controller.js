@@ -3447,6 +3447,17 @@ sap.ui.define([
             }
 
             try {
+                // Periodically synchronize live SAP BTP Cockpit manual revocations (throttled to at most once per 15s)
+                const nowBtpTime = Date.now();
+                if (sActiveUser && (bForce || (nowBtpTime - (window._lastBtpSyncTime || 0) > 15000))) {
+                    window._lastBtpSyncTime = nowBtpTime;
+                    try {
+                        await fetch("/api/sync-btp?user=" + encodeURIComponent(sActiveUser), {
+                            signal: (typeof AbortSignal !== "undefined" && AbortSignal.timeout) ? AbortSignal.timeout(4000) : undefined
+                        }).catch(() => {});
+                    } catch (eSync) {}
+                }
+
                 if (bForce || !window._kyraGovFetchPromise) {
                     window._kyraGovFetchPromise = fetch("/odata/v4/admin-portal/GovernanceHistory", {
                         cache: "no-cache",
@@ -3868,7 +3879,19 @@ sap.ui.define([
                             }
                         } else {
                             // roleStates[sRoleOnlyKey] already established by a newer record in reverse-chronological order
-                            if ((roleStates[sRoleOnlyKey].status === 'REVOKE_PENDING' || roleStates[sRoleOnlyKey].status === 'ACTIVE') && !isRevocationReq && isOverallApproved) {
+                            if (isDbRevoked || isOverallRevoked) {
+                                // The entitlement is REVOKED in DB -> role must be REVOKED, never left as REVOKE_PENDING!
+                                roleStates[sRoleOnlyKey] = { request: r, status: 'REVOKED' };
+                                if (this._localInFlightRevocations) {
+                                    delete this._localInFlightRevocations[sRoleOnlyKey];
+                                }
+                                try {
+                                    const aStoredS = JSON.parse(sessionStorage.getItem("kyra_pending_revocations") || "[]");
+                                    sessionStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredS.filter(item => item.requestId !== r.request_number)));
+                                    const aStoredL = JSON.parse(localStorage.getItem("kyra_pending_revocations") || "[]");
+                                    localStorage.setItem("kyra_pending_revocations", JSON.stringify(aStoredL.filter(item => item.requestId !== r.request_number)));
+                                } catch(e) {}
+                            } else if ((roleStates[sRoleOnlyKey].status === 'REVOKE_PENDING' || roleStates[sRoleOnlyKey].status === 'ACTIVE') && !isRevocationReq && isOverallApproved) {
                                 if (!roleStates[sRoleOnlyKey].approvedRequest) {
                                     roleStates[sRoleOnlyKey].approvedRequest = r;
                                 }
@@ -4979,16 +5002,19 @@ sap.ui.define([
                             system: sSys,
                             roleName: sPersona,
                             persona: sPersona,
-                            type: "approved",
-                            category: "Access Decisions",
-                            title: "Access Request Fully Approved",
-                            description: `Your access request ${sReqNum} for ${sSys} (${sPersona}) has received final approval from IAM Approver 2 and access is granted.`,
+                            type: isRevocationReq ? "revoked" : "approved",
+                            isRevocation: isRevocationReq,
+                            category: isRevocationReq ? "Revocation Decisions" : "Access Decisions",
+                            title: isRevocationReq ? "Access Revocation Approved" : "Access Request Fully Approved",
+                            description: isRevocationReq
+                                ? `Your revocation request ${sReqNum} for ${sSys} (${sPersona}) has received final approval and access has been revoked.`
+                                : `Your access request ${sReqNum} for ${sSys} (${sPersona}) has received final approval from IAM Approver 2 and access is granted.`,
                             approverComment: r.iam_approver_2_comment || r.comments || "",
                             timestamp: formatTimeAgo(r.iam_approver_2_decision_created_at || r.iam_approver_2_created_at || r.updated_at || sCreatedTime),
                             rawTimestamp: parseRawTimestamp(r.iam_approver_2_decision_created_at || r.iam_approver_2_created_at || r.updated_at || sCreatedTime),
                             stagePriority: 5,
-                            icon: "sap-icon://sys-enter-2",
-                            state: "Success",
+                            icon: isRevocationReq ? "sap-icon://decline" : "sap-icon://sys-enter-2",
+                            state: isRevocationReq ? "Warning" : "Success",
                             unread: aSavedStatusMap[sIam2Id] !== undefined ? aSavedStatusMap[sIam2Id] : true
                         });
                     }
@@ -7356,8 +7382,15 @@ sap.ui.define([
             });
 
             let aAllSubRoles = [];
+            const oSeenAllRoles = new Set();
             Object.keys(oServicesRolesMap).forEach(sServiceKey => {
-                aAllSubRoles = aAllSubRoles.concat(oServicesRolesMap[sServiceKey] || []);
+                (oServicesRolesMap[sServiceKey] || []).forEach(r => {
+                    const sNorm = (r.key || r.text || "").trim().toLowerCase();
+                    if (sNorm && !oSeenAllRoles.has(sNorm)) {
+                        oSeenAllRoles.add(sNorm);
+                        aAllSubRoles.push(r);
+                    }
+                });
             });
 
             const aSelectedServices = oModel.getProperty("/addAccessSelectedServices") || [];
@@ -7373,10 +7406,16 @@ sap.ui.define([
             }
 
             let aCombinedRoles = [];
+            const oSeenCombRoles = new Set();
             aSelectedServices.forEach(sServiceKey => {
-                if (oServicesRolesMap[sServiceKey]) {
-                    aCombinedRoles = aCombinedRoles.concat(oServicesRolesMap[sServiceKey]);
-                }
+                const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(' ')[0]] || [];
+                aRolesForSvc.forEach(r => {
+                    const sNorm = (r.key || r.text || "").trim().toLowerCase();
+                    if (sNorm && !oSeenCombRoles.has(sNorm)) {
+                        oSeenCombRoles.add(sNorm);
+                        aCombinedRoles.push(r);
+                    }
+                });
             });
 
             oModel.setProperty("/addAccessSubRolesList", aCombinedRoles);
@@ -7430,7 +7469,7 @@ sap.ui.define([
             const aSelectedServices = oModel.getProperty("/addAccessSelectedServices") || [];
 
             Object.keys(oDetailsMap).forEach(sServiceKey => {
-                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey)) {
+                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey) && !aSelectedServices.some(s => s.split(' ')[0] === sServiceKey.split(' ')[0])) {
                     return;
                 }
                 const aTeams = oDetailsMap[sServiceKey] || [];
@@ -7454,8 +7493,15 @@ sap.ui.define([
             });
 
             let aAllPersonas = [];
+            const oSeenAllPers = new Set();
             Object.values(oTeamPersonasMap).forEach(arr => {
-                aAllPersonas = aAllPersonas.concat(arr);
+                (arr || []).forEach(p => {
+                    const sNorm = (p.key || p.text || "").trim().toLowerCase();
+                    if (sNorm && !oSeenAllPers.has(sNorm)) {
+                        oSeenAllPers.add(sNorm);
+                        aAllPersonas.push(p);
+                    }
+                });
             });
 
             const aSelectedRoles = oModel.getProperty("/addAccessSelectedRoles") || [];
@@ -7466,18 +7512,25 @@ sap.ui.define([
             }
 
             let aCombinedPersonas = [];
+            const oSeenCombPers = new Set();
             aSelectedRoles.forEach(sRoleKey => {
-                if (oTeamPersonasMap[sRoleKey]) {
-                    aCombinedPersonas = aCombinedPersonas.concat(oTeamPersonasMap[sRoleKey]);
-                } else {
+                let aTargetPersonas = oTeamPersonasMap[sRoleKey];
+                if (!aTargetPersonas) {
                     const sRoleShort = sRoleKey.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
                     const sMatchedKey = Object.keys(oTeamPersonasMap).find(k =>
                         k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sRoleShort
                     );
-                    if (sMatchedKey && oTeamPersonasMap[sMatchedKey]) {
-                        aCombinedPersonas = aCombinedPersonas.concat(oTeamPersonasMap[sMatchedKey]);
+                    if (sMatchedKey) {
+                        aTargetPersonas = oTeamPersonasMap[sMatchedKey];
                     }
                 }
+                (aTargetPersonas || []).forEach(p => {
+                    const sNorm = (p.key || p.text || "").trim().toLowerCase();
+                    if (sNorm && !oSeenCombPers.has(sNorm)) {
+                        oSeenCombPers.add(sNorm);
+                        aCombinedPersonas.push(p);
+                    }
+                });
             });
 
             oModel.setProperty("/addAccessPersonasList", aCombinedPersonas);
@@ -7595,17 +7648,31 @@ sap.ui.define([
             });
 
             const findParentRoleForPersona = (sPersonaKey, aAvailableRoles) => {
+                // Pass 1: exact match with a role currently in aAvailableRoles
                 for (const [sRole, aPersonas] of Object.entries(oRoleToPersonas)) {
-                    if (aPersonas.includes(sPersonaKey)) {
-                        if (aAvailableRoles.includes(sRole)) return sRole;
+                    if (aAvailableRoles.includes(sRole) && aPersonas.includes(sPersonaKey)) {
                         return sRole;
                     }
                 }
+                // Pass 2: clean name match with a role in aAvailableRoles
+                const sCleanP = cleanPersonaName(sPersonaKey).toLowerCase();
+                for (const [sRole, aPersonas] of Object.entries(oRoleToPersonas)) {
+                    if (aAvailableRoles.includes(sRole) && aPersonas.some(p => cleanPersonaName(p).toLowerCase() === sCleanP)) {
+                        return sRole;
+                    }
+                }
+                // Pass 3: tag in parentheses e.g. "Persona (RoleTag)"
                 const m = sPersonaKey.match(/\((.*?)\)/);
                 if (m && m[1]) {
-                    const sTag = m[1].trim();
-                    const found = aAvailableRoles.find(r => r.includes(sTag));
+                    const sTag = m[1].trim().toLowerCase();
+                    const found = aAvailableRoles.find(r => r.toLowerCase().includes(sTag));
                     if (found) return found;
+                }
+                // Pass 4: any role in oRoleToPersonas that has this persona
+                for (const [sRole, aPersonas] of Object.entries(oRoleToPersonas)) {
+                    if (aPersonas.includes(sPersonaKey) || aPersonas.some(p => cleanPersonaName(p).toLowerCase() === sCleanP)) {
+                        return sRole;
+                    }
                 }
                 return aAvailableRoles[0] || "";
             };
@@ -7686,13 +7753,106 @@ sap.ui.define([
                     oAddedKeys.add(sItemKey);
 
                     let sRoleTitle = sRole;
-                    let sTopic = "System Administrator";
+                    let sTopic = "";
                     const match = sRole.match(/^(.*?)\s*\((.*?)\)$/);
-                    if (match) {
+                    if (match && match[2] && match[2].trim()) {
                         sRoleTitle = match[1].trim();
                         sTopic = match[2].trim();
-                    } else if (aSysServices.length > 0) {
-                        sTopic = aSysServices[0];
+                    }
+
+                    // Match helpers: exact role match takes highest priority
+                    const fnTeamRoleMatches = (oTeam) => {
+                        if (!oTeam || !oTeam.name) return false;
+                        const sTName = oTeam.name.trim().toLowerCase();
+                        const sRName = (sRoleTitle || sRole || "").trim().toLowerCase();
+                        return sTName === sRName || sTName.replace(/\s*\([^)]*\)/g, "").trim() === sRName;
+                    };
+
+                    const fnPersonaMatches = (oTeam) => {
+                        if (!oTeam) return false;
+                        const aSubs = oTeam.subClassifications || [];
+                        const sPName = (sCleanPers || sPers || "").trim().toLowerCase();
+                        return aSubs.some(sub => {
+                            const subName = (sub.name || "").trim().toLowerCase();
+                            return subName === sPName || subName.replace(/\s*\([^)]*\)/g, "").trim() === sPName;
+                        });
+                    };
+
+                    // 1. Priority 1: Exact team/role match within selected target services (aSysServices)
+                    if (!sTopic && aSysServices && aSysServices.length > 0) {
+                        for (const sSvcCandidate of aSysServices) {
+                            const aTeams = oLiveDetailsMap[sSvcCandidate] || oLiveDetailsMap[sSvcCandidate.split(' ')[0]] || [];
+                            if (aTeams.some(fnTeamRoleMatches)) {
+                                sTopic = sSvcCandidate;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 2. Priority 2: Persona match within selected target services (aSysServices)
+                    if (!sTopic && aSysServices && aSysServices.length > 0) {
+                        for (const sSvcCandidate of aSysServices) {
+                            const aTeams = oLiveDetailsMap[sSvcCandidate] || oLiveDetailsMap[sSvcCandidate.split(' ')[0]] || [];
+                            if (aTeams.some(fnPersonaMatches)) {
+                                sTopic = sSvcCandidate;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 3. Priority 3: Exact team/role match across ALL services in oLiveDetailsMap
+                    if (!sTopic) {
+                        const aAllSvcKeys = Object.keys(oLiveDetailsMap).sort((a, b) => (b.includes("(") ? 1 : 0) - (a.includes("(") ? 1 : 0));
+                        for (const sSvcCandidate of aAllSvcKeys) {
+                            const aTeams = oLiveDetailsMap[sSvcCandidate] || [];
+                            if (aTeams.some(fnTeamRoleMatches)) {
+                                sTopic = sSvcCandidate;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 4. Priority 4: Persona match across ALL services in oLiveDetailsMap
+                    if (!sTopic) {
+                        const aAllSvcKeys = Object.keys(oLiveDetailsMap).sort((a, b) => (b.includes("(") ? 1 : 0) - (a.includes("(") ? 1 : 0));
+                        for (const sSvcCandidate of aAllSvcKeys) {
+                            const aTeams = oLiveDetailsMap[sSvcCandidate] || [];
+                            if (aTeams.some(fnPersonaMatches)) {
+                                sTopic = sSvcCandidate;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 5. Priority 5: Check default admin service map
+                    if (!sTopic) {
+                        const oDefMap = this._getDefaultAdminServiceDetailsMap();
+                        const aAllDefKeys = Object.keys(oDefMap).sort((a, b) => (b.includes("(") ? 1 : 0) - (a.includes("(") ? 1 : 0));
+                        for (const sSvcCandidate of aAllDefKeys) {
+                            const aTeams = oDefMap[sSvcCandidate] || [];
+                            if (aTeams.some(fnTeamRoleMatches)) {
+                                sTopic = sSvcCandidate;
+                                break;
+                            }
+                        }
+                    }
+
+                    // 6. Fallback if not resolved
+                    if (!sTopic) {
+                        if (aSysServices && aSysServices.length === 1) {
+                            sTopic = aSysServices[0];
+                        } else {
+                            sTopic = (typeof deriveServiceTopicFromRole === "function" ? deriveServiceTopicFromRole(sRoleTitle, "") : "") || (aSysServices && aSysServices[0]) || "System Administrator";
+                        }
+                    }
+
+                    // Ensure canonical full service name is used if available
+                    const oCanonicalSvc = (oModel.getProperty("/adminServicesAll") || []).find(s => {
+                        const sName = s && s.serviceName;
+                        return sName && (sName === sTopic || sName.startsWith(sTopic + " ") || sName.split(' ')[0] === sTopic);
+                    });
+                    if (oCanonicalSvc && oCanonicalSvc.serviceName) {
+                        sTopic = oCanonicalSvc.serviceName;
                     }
 
                     // Assign a truly unique Request ID for each item row
@@ -13837,7 +13997,7 @@ sap.ui.define([
             }
         },
 
-                                _sanitizeAdminServiceDetailsMap(oDetailsMap) {
+        _sanitizeAdminServiceDetailsMap(oDetailsMap) {
             const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
             if (!oDetailsMap || typeof oDetailsMap !== "object" || Object.keys(oDetailsMap).length === 0) {
                 return JSON.parse(JSON.stringify(oDefaultMap));
@@ -13868,11 +14028,44 @@ sap.ui.define([
                 return oCleanMap;
             }
 
+            // Remove redundant short keys if full descriptive canonical key exists
+            Object.keys(oCleanMap).forEach(k => {
+                if (!k.includes("(")) {
+                    const bHasFull = Object.keys(oCleanMap).some(other => other.includes("(") && (other.startsWith(k + " ") || other.startsWith(k + " /") || other.startsWith(k + " &")));
+                    if (bHasFull) {
+                        delete oCleanMap[k];
+                    }
+                }
+            });
+
             // Ensure every service from oDefaultMap is present in oCleanMap
             Object.keys(oDefaultMap).forEach(sKey => {
                 if (!oCleanMap[sKey] || !Array.isArray(oCleanMap[sKey]) || oCleanMap[sKey].length === 0) {
                     oCleanMap[sKey] = JSON.parse(JSON.stringify(oDefaultMap[sKey]));
                 }
+            });
+
+            // Strictly deduplicate teams and personas within each service
+            Object.keys(oCleanMap).forEach(sKey => {
+                const aTeams = oCleanMap[sKey] || [];
+                const seenTeams = new Set();
+                oCleanMap[sKey] = aTeams.filter(t => {
+                    if (!t || !t.name) return false;
+                    const tNorm = t.name.trim().toLowerCase();
+                    if (seenTeams.has(tNorm)) return false;
+                    seenTeams.add(tNorm);
+                    if (Array.isArray(t.subClassifications)) {
+                        const seenPers = new Set();
+                        t.subClassifications = t.subClassifications.filter(p => {
+                            if (!p || !p.name) return false;
+                            const pNorm = p.name.trim().toLowerCase();
+                            if (seenPers.has(pNorm)) return false;
+                            seenPers.add(pNorm);
+                            return true;
+                        });
+                    }
+                    return true;
+                });
             });
 
             return oCleanMap;
@@ -14539,12 +14732,6 @@ sap.ui.define([
     }
   ]
 };
-            for (const k of Object.keys(oMap)) {
-                const short = k.split(' ')[0].trim();
-                if (!oMap[short]) {
-                    oMap[short] = JSON.parse(JSON.stringify(oMap[k]));
-                }
-            }
             return oMap;
         },
 
@@ -14781,7 +14968,17 @@ sap.ui.define([
 
             // Filter only Active Systems and Services for Add Access Step 3
             const aActiveSystems = aSystems.filter(s => s && s.status !== "Inactive");
-            const aActiveServices = aServices.filter(s => s && s.status === "Active" && !s.isUnsaved);
+            const aRawActiveServices = aServices.filter(s => s && s.status === "Active" && !s.isUnsaved);
+            const aActiveServices = [];
+            const oSeenActiveSvc = new Set();
+            aRawActiveServices.forEach(s => {
+                const sName = (s.serviceName || "").trim();
+                const sNorm = sName.toLowerCase();
+                if (sNorm && !oSeenActiveSvc.has(sNorm)) {
+                    oSeenActiveSvc.add(sNorm);
+                    aActiveServices.push(s);
+                }
+            });
             oModel.setProperty("/activeAdminSystems", aActiveSystems);
             oModel.setProperty("/activeAdminServices", aActiveServices);
 
@@ -14812,20 +15009,31 @@ sap.ui.define([
             // 2. Rebuild Live Team Roles (addAccessSubRolesList), Personas (addAccessPersonasList),
             //    and 2nd & 3rd Conflict Builder Dropdown Options (ONLY currently active and available Personas from the Add Access section!)
             const aSubRolesList = [];
+            const oSeenSubRole = new Set();
             const aPersonasList = [];
+            const oSeenPersonaList = new Set();
             const aPersonaDropdownOptions = [];
             const oSeenPersonaOpt = new Set();
             const aActiveServiceNames = aActiveServices.map(s => s.serviceName);
 
-            Object.keys(oDetailsMap).forEach(sService => {
-                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService);
+            // Filter to canonical service keys
+            const aServiceKeysToIterate = Object.keys(oDetailsMap).filter(k => {
+                if (k.includes("(")) return true;
+                const hasFullKey = Object.keys(oDetailsMap).some(other => other.includes("(") && (other.startsWith(k + " ") || other.startsWith(k + " /") || other.startsWith(k + " &")));
+                return !hasFullKey;
+            });
+
+            aServiceKeysToIterate.forEach(sService => {
+                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService) || aActiveServiceNames.some(s => s.startsWith(sService + " ") || s === sService);
                 const aTeams = oDetailsMap[sService] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name) return;
                     const sTeamName = oTeam.name.trim();
+                    const sNormTeam = sTeamName.toLowerCase();
                     const bTeamActive = bServiceActive && oTeam.status !== "Inactive";
 
-                    if (bTeamActive) {
+                    if (bTeamActive && !oSeenSubRole.has(sNormTeam)) {
+                        oSeenSubRole.add(sNormTeam);
                         aSubRolesList.push({
                             key: sTeamName,
                             text: sTeamName,
@@ -14842,8 +15050,10 @@ sap.ui.define([
                         if (!sPersName.includes("(") && sCleanTeamShort) {
                             sPersName = sPersName + " (" + sCleanTeamShort + ")";
                         }
+                        const sNormPers = sPersName.toLowerCase();
                         // Only add Personas that are currently active and available in Add Access!
-                        if (bTeamActive && oPers.status !== "Inactive") {
+                        if (bTeamActive && oPers.status !== "Inactive" && !oSeenPersonaList.has(sNormPers)) {
+                            oSeenPersonaList.add(sNormPers);
                             const sPriv = oPers.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted");
                             aPersonasList.push({
                                 key: sPersName,
@@ -15245,6 +15455,16 @@ sap.ui.define([
                     selected: idx === 0
                 }));
             }
+
+            // Strictly deduplicate aCurrentServices by serviceName
+            const seenCurrentSvc = new Set();
+            aCurrentServices = aCurrentServices.filter(s => {
+                if (!s || !s.serviceName) return false;
+                const sNorm = s.serviceName.trim().toLowerCase();
+                if (seenCurrentSvc.has(sNorm)) return false;
+                seenCurrentSvc.add(sNorm);
+                return true;
+            });
 
             let sCurSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
             if (!sCurSelectedSrv || !aCurrentServices.some(s => s.serviceName === sCurSelectedSrv)) {
