@@ -641,6 +641,23 @@ sap.ui.define([], function () {
             tip: "Combine with the 'Auto-escalate' checkbox to ensure urgent access requests don't get blocked if Approver 1 is unavailable."
         },
 
+        // Cloud Platform Provider Selection (Common to both Approvers)
+        "iam_cloud_provider": {
+            system: "Multi-Cloud IAM",
+            badgeClass: "kyraInfoBadgeAws",
+            title: "Select Cloud Identity & IAM Platform Provider",
+            purpose: "Specifies which enterprise cloud identity platform hosts your approvers (AWS IAM, Microsoft Azure Entra ID, GCP Cloud IAM, Okta, or SAP IAS). This selection is common and applies to both IAM Approver 1 and IAM Approver 2.",
+            steps: [
+                "Select 'Amazon Web Services (AWS IAM & Identity Center)' if approvers operate in AWS.",
+                "Select 'Microsoft Azure (Microsoft Entra ID / Azure IAM)' if approvers operate in Azure or Office 365.",
+                "Select 'Google Cloud Platform (GCP Cloud IAM)' if your enterprise runs on Google Cloud.",
+                "Select 'Okta / Ping Identity Enterprise Governance' for dedicated identity provider hubs.",
+                "Select 'SAP Cloud Identity Services (SAP IAS)' for direct SAP BTP cloud identity."
+            ],
+            example: "Amazon Web Services (AWS IAM & Identity Center)",
+            tip: "This common setting adjusts console integration settings and labels across both IAM Approvers simultaneously."
+        },
+
         // Approver 1 AWS Console
         "iam1_aws_username": {
             system: "AWS IAM Console",

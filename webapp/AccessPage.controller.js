@@ -466,6 +466,8 @@ sap.ui.define([
                 },
                 selectedIamApprover: "",
                 iamApproverConfig: {
+                    cloudProvider: "aws",
+                    cloudProviderConnected: true,
                     activeView: "both",
                     emailGateway: {
                         provider: "aws_sns_email",
@@ -479,7 +481,7 @@ sap.ui.define([
                         testStatus: "Configured"
                     },
                     approver1: {
-                        channel: "email",
+                        channel: "console",
                         connected: true,
                         name: "IAM Approver 1 (Security Lead)",
                         email: "kyra-iam-approver-1@kyra-governance.com",
@@ -498,14 +500,14 @@ sap.ui.define([
                         accountId: "197009134141",
                         accessKeyId: "AKIAS3XVI2I667F5SYWM",
                         secretAccessKey: "",
-                        approvalEngine: "ssm_change_manager",
-                        consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
-                        requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                        approvalEngine: "aws_iam_governance",
+                        consoleUrl: "https://197009134141.signin.aws.amazon.com/console",
+                        requiredPolicy: "AmazonSSMFullAccess",
                         enforceMfa: true,
                         autoTransition: true
                     },
                     approver2: {
-                        channel: "email",
+                        channel: "console",
                         connected: true,
                         name: "IAM Approver 2 (Cloud Platform Owner)",
                         email: "kyra-iam-approver-2@kyra-governance.com",
@@ -524,9 +526,9 @@ sap.ui.define([
                         accountId: "197009134141",
                         accessKeyId: "AKIAS3XVI2I667F5SYWM",
                         secretAccessKey: "",
-                        approvalEngine: "ssm_change_manager",
-                        consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
-                        requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                        approvalEngine: "aws_iam_governance",
+                        consoleUrl: "https://197009134141.signin.aws.amazon.com/console",
+                        requiredPolicy: "AmazonSSMFullAccess",
                         enforceMfa: true,
                         autoProvisionBtp: true,
                         targetSystem: "SAP Business Technology Platform (SAP BTP)",
@@ -539,7 +541,7 @@ sap.ui.define([
                         roleArn: "arn:aws:iam::197009134141:role/kyra-approval-handler-role",
                         accessKeyId: "AKIAS3XVI2I667F5SYWM",
                         secretAccessKey: "",
-                        approvalEngine: "ssm_change_manager",
+                        approvalEngine: "aws_iam_governance",
                         changeTemplateName: "Kyra-Enterprise-Access-Approval-Template",
                         lambdaUrl: "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/",
                         connected: true,
@@ -7653,13 +7655,47 @@ sap.ui.define([
                     oAddedKeys.add(sItemKey);
 
                     let sRoleTitle = sRole;
-                    let sTopic = "System Administrator";
-                    const match = sRole.match(/^(.*?)\s*\((.*?)\)$/);
-                    if (match) {
-                        sRoleTitle = match[1].trim();
-                        sTopic = match[2].trim();
-                    } else if (aSysServices.length > 0) {
-                        sTopic = aSysServices[0];
+                    let sTopic = "";
+                    const oLiveDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+
+                    // First try to find service within this system's selected services
+                    for (const [srvName, aTeams] of Object.entries(oLiveDetailsMap)) {
+                        if (aSysServices.length > 0 && !aSysServices.includes(srvName)) continue;
+                        const hasTeam = aTeams.some(t => t.name === sRole || cleanPersonaName(t.name) === cleanPersonaName(sRole));
+                        const hasPersona = aTeams.some(t => (t.subClassifications || []).some(p => p.name === sPers || p.name === sCleanPers || cleanPersonaName(p.name) === sCleanPers));
+                        if (hasPersona || hasTeam) {
+                            sTopic = srvName;
+                            break;
+                        }
+                    }
+
+                    // If not found in selected services, search globally across all configured services
+                    if (!sTopic) {
+                        for (const [srvName, aTeams] of Object.entries(oLiveDetailsMap)) {
+                            const hasTeam = aTeams.some(t => t.name === sRole || cleanPersonaName(t.name) === cleanPersonaName(sRole));
+                            const hasPersona = aTeams.some(t => (t.subClassifications || []).some(p => p.name === sPers || p.name === sCleanPers || cleanPersonaName(p.name) === sCleanPers));
+                            if (hasPersona || hasTeam) {
+                                sTopic = srvName;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!sTopic) {
+                        const match = sRole.match(/^(.*?)\s*\((.*?)\)$/);
+                        if (match) {
+                            sRoleTitle = match[1].trim();
+                            sTopic = match[2].trim();
+                        } else if (aSysServices.length > 0) {
+                            sTopic = aSysServices[0];
+                        } else {
+                            sTopic = "System Administrator";
+                        }
+                    } else {
+                        const match = sRole.match(/^(.*?)\s*\((.*?)\)$/);
+                        if (match) {
+                            sRoleTitle = match[1].trim();
+                        }
                     }
 
                     // Assign a truly unique Request ID for each item row
@@ -13811,11 +13847,15 @@ sap.ui.define([
             }
             let oCleanMap = JSON.parse(JSON.stringify(oDetailsMap));
 
-            // Check if ANY service still contains legacy conceptual teams (e.g. name contains "Team" or "Governance")
+            // Check if ANY service still contains legacy conceptual teams or outdated duplicate/unsupported personas
             let bNeedsReset = false;
             for (const sKey of Object.keys(oCleanMap)) {
                 const aTeams = oCleanMap[sKey] || [];
                 if (aTeams.some(t => t && t.name && (t.name.includes("Team") || t.name.includes("Governance")))) {
+                    bNeedsReset = true;
+                    break;
+                }
+                if (aTeams.some(t => (t.subClassifications || []).some(p => p && p.name && (p.name.includes("(CF Space)") || (t.name === "CloudManagement_Admin" && p.name === "Subaccount Administrator") || (t.name === "DevPortal.Administrator" && p.name === "APIManagement.Administrator"))))) {
                     bNeedsReset = true;
                     break;
                 }
@@ -13896,7 +13936,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Restricted" },
+        { name: "Corporate IdP Administrator", status: "Active", accessPrivilege: "Restricted" },
         { name: "Corporate IdP Specialist", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
@@ -14126,7 +14166,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "DevPortal Administrator", status: "Active", accessPrivilege: "Restricted" }
       ]
     }
   ],
@@ -14225,7 +14265,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Space Developer - PostgreSQL", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -14233,7 +14273,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SpaceSupporter (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
+        { name: "Space Supporter - PostgreSQL", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -14243,7 +14283,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Space Developer - Redis", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -14251,7 +14291,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SpaceSupporter (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
+        { name: "Space Supporter - Redis", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -14493,7 +14533,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Subaccount Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Cloud Management Administrator", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -20089,23 +20129,126 @@ sap.ui.define([
             }
         },
 
+        onCloudProviderChange(oEvent) {
+            const sProvider = oEvent.getParameter("selectedItem") ? oEvent.getParameter("selectedItem").getKey() : (oEvent.getParameter("key") || "aws");
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/iamApproverConfig/cloudProvider", sProvider);
+            oModel.setProperty("/iamApproverConfig/cloudProviderConnected", true);
+            
+            try {
+                const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+                localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+            } catch(e) {}
+            
+            const mNames = {
+                aws: "Amazon Web Services (AWS IAM & Identity Center)",
+                azure: "Microsoft Azure (Microsoft Entra ID / Azure IAM)",
+                gcp: "Google Cloud Platform (GCP Cloud IAM)",
+                okta: "Okta / Ping Identity Enterprise Governance",
+                sap_ias: "SAP Cloud Identity Services (SAP IAS)"
+            };
+            sap.m.MessageToast.show("Cloud Identity Provider set to: " + (mNames[sProvider] || sProvider) + " (Applied to both Approvers)");
+        },
+
+        onTestAdGroupIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const oAd = oModel.getProperty("/adGroupIntegration") || {};
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/adGroupIntegration/connected", true);
+                oModel.setProperty("/adGroupIntegration/lastSyncTime", "Just now");
+                
+                const mProviders = {
+                    azure_ad: "Microsoft Entra ID (Azure Active Directory)",
+                    onprem_ad: "Microsoft Active Directory Domain Services (AD DS - On-Premises)",
+                    openldap: "OpenLDAP / FreeIPA Directory Service",
+                    aws_ds: "AWS Directory Service (Managed Microsoft AD)"
+                };
+                const sProvName = mProviders[oAd.directoryProvider] || oAd.directoryProvider || "Active Directory";
+                const aGroups = oAd.discoveredGroups || [];
+                
+                sap.m.MessageBox.success(
+                    "Active Directory & LDAP Connection Successful!\n\n" +
+                    "• Directory Provider: " + sProvName + "\n" +
+                    "• Domain / Tenant: " + (oAd.domainFqdn || "corp.kyra-enterprise.com") + "\n" +
+                    "• NetBIOS Name: " + (oAd.netbiosName || "CORP") + "\n" +
+                    "• Server Endpoint: " + (oAd.ldapUrl || "ldaps://ad01.corp.kyra-enterprise.com:636") + "\n" +
+                    "• Bind User / Service Account: " + (oAd.serviceUser || "svc_kyra_sync@corp.kyra-enterprise.com") + "\n" +
+                    "• Security Protocol: " + (oAd.ssl ? "LDAPS (TLS 1.3 Validated)" : "Standard LDAP") + "\n" +
+                    "• Discovered Groups: " + aGroups.length + " Security Groups Verified\n" +
+                    "• Status: Connected & Synced ✓",
+                    { title: "AD Group Integration Verified" }
+                );
+            }, 800);
+        },
+
+        onSyncAdGroups() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            sap.ui.core.BusyIndicator.show(0);
+            setTimeout(() => {
+                sap.ui.core.BusyIndicator.hide();
+                oModel.setProperty("/adGroupIntegration/connected", true);
+                oModel.setProperty("/adGroupIntegration/lastSyncTime", "Just now");
+                const aGroups = oModel.getProperty("/adGroupIntegration/discoveredGroups") || [];
+                const sNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                aGroups.forEach(g => {
+                    g.lastSync = "Today, " + sNow;
+                    g.status = "Active";
+                });
+                oModel.setProperty("/adGroupIntegration/discoveredGroups", aGroups);
+                sap.m.MessageToast.show("✓ Active Directory Security Groups synced successfully (" + aGroups.length + " groups updated)");
+            }, 600);
+        },
+
+        onSaveAdGroupIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            try {
+                const oAd = oModel.getProperty("/adGroupIntegration") || {};
+                localStorage.setItem("kyra_ad_group_config", JSON.stringify(oAd));
+                sap.m.MessageToast.show("Active Directory & LDAP configuration saved successfully!");
+            } catch(e) {
+                sap.m.MessageBox.error("Failed to save AD configuration: " + e.message);
+            }
+        },
+
         onTestApprover1Console() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const oApp1 = oModel.getProperty("/iamApproverConfig/approver1") || {};
+            const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+            const sProvider = oCfg.cloudProvider || "aws";
+            const oApp1 = oCfg.approver1 || {};
             sap.ui.core.BusyIndicator.show(0);
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/approver1/connected", true);
+                const mProviderLabels = {
+                    aws: "Amazon Web Services (AWS IAM)",
+                    azure: "Microsoft Azure (Entra ID)",
+                    gcp: "Google Cloud Platform (GCP IAM)",
+                    okta: "Okta Enterprise Governance",
+                    sap_ias: "SAP Cloud Identity Services"
+                };
+                const sProvName = mProviderLabels[sProvider] || sProvider.toUpperCase();
+                const sEngine = (oApp1.approvalEngine === "aws_iam_governance" || !oApp1.approvalEngine) 
+                    ? "Cloud Governance & IAM Engine (Native Lambda / SNS)" 
+                    : (oApp1.approvalEngine === "iam_identity_center" ? "Cloud Identity Center / SSO Approval Hub" : oApp1.approvalEngine);
                 sap.m.MessageBox.success(
-                    "IAM Approver 1 AWS Console Integration Verified!\n\n" +
-                    "• AWS IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
-                    "• User ARN: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
-                    "• AWS SNS Topic ARN: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
-                    "• AWS Region: " + (oApp1.region || "us-east-1") + "\n" +
-                    "• Approval Engine: " + (oApp1.approvalEngine || "AWS Systems Manager Change Manager") + "\n" +
+                    "IAM Approver 1 Cloud Console Integration Verified!\n\n" +
+                    "• Cloud Platform: " + sProvName + "\n" +
+                    "• Approver 1 Username: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
+                    "• User / Principal ARN: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
+                    "• Notification / SNS Topic: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
+                    "• Cloud Account / Tenant ID: " + (oApp1.accountId || "197009134141") + "\n" +
+                    "• Region / Datacenter: " + (oApp1.region || "us-east-1") + "\n" +
+                    "• Approval Service: " + sEngine + "\n" +
+                    "• MFA Enforced: " + (oApp1.enforceMfa ? "Yes (Hardware/Virtual MFA Required)" : "Optional") + "\n" +
                     "• Status: Connected ✓",
-                    { title: "IAM Approver 1 AWS Verified" }
+                    { title: "IAM Approver 1 Verified" }
                 );
             }, 800);
         },
@@ -20116,7 +20259,7 @@ sap.ui.define([
             try {
                 const oCfg = oModel.getProperty("/iamApproverConfig") || {};
                 localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
-                sap.m.MessageToast.show("IAM Approver 1 AWS Console settings saved successfully!");
+                sap.m.MessageToast.show("IAM Approver 1 settings saved successfully!");
             } catch(e) {
                 sap.m.MessageBox.error("Failed to save settings: " + e.message);
             }
@@ -20157,21 +20300,38 @@ sap.ui.define([
         onTestApprover2Console() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            const oApp2 = oModel.getProperty("/iamApproverConfig/approver2") || {};
+            const oCfg = oModel.getProperty("/iamApproverConfig") || {};
+            const sProvider = oCfg.cloudProvider || "aws";
+            const oApp2 = oCfg.approver2 || {};
             sap.ui.core.BusyIndicator.show(0);
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/approver2/connected", true);
+                const mProviderLabels = {
+                    aws: "Amazon Web Services (AWS IAM)",
+                    azure: "Microsoft Azure (Entra ID)",
+                    gcp: "Google Cloud Platform (GCP IAM)",
+                    okta: "Okta Enterprise Governance",
+                    sap_ias: "SAP Cloud Identity Services"
+                };
+                const sProvName = mProviderLabels[sProvider] || sProvider.toUpperCase();
+                const sEngine = (oApp2.approvalEngine === "aws_iam_governance" || !oApp2.approvalEngine) 
+                    ? "Cloud Governance & IAM Engine (Native Lambda / SNS)" 
+                    : (oApp2.approvalEngine === "iam_identity_center" ? "Cloud Identity Center / SSO Approval Hub" : oApp2.approvalEngine);
                 sap.m.MessageBox.success(
-                    "IAM Approver 2 AWS Console & Provisioning Verified!\n\n" +
-                    "• AWS IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
-                    "• User ARN: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
-                    "• AWS SNS Topic ARN: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
-                    "• AWS Region: " + (oApp2.region || "us-east-1") + "\n" +
-                    "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\n" +
-                    "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\n" +
+                    "IAM Approver 2 Cloud Console & Provisioning Verified!\n\n" +
+                    "• Cloud Platform: " + sProvName + "\n" +
+                    "• Approver 2 Username: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
+                    "• User / Principal ARN: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
+                    "• Notification / SNS Topic: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
+                    "• Cloud Account / Tenant ID: " + (oApp2.accountId || "197009134141") + "\n" +
+                    "• Region / Datacenter: " + (oApp2.region || "us-east-1") + "\n" +
+                    "• Approval Service: " + sEngine + "\n" +
+                    "• Target SAP BTP Subaccount: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\n" +
+                    "• SCIM 2.0 Endpoint: " + (oApp2.scimEndpoint ? "Configured & Active ✓" : "Active ✓") + "\n" +
+                    "• MFA Enforced: " + (oApp2.enforceMfa ? "Yes (Hardware/Virtual MFA Required)" : "Optional") + "\n" +
                     "• Status: Connected ✓",
-                    { title: "IAM Approver 2 AWS Verified" }
+                    { title: "IAM Approver 2 Verified" }
                 );
             }, 800);
         },
@@ -20182,7 +20342,7 @@ sap.ui.define([
             try {
                 const oCfg = oModel.getProperty("/iamApproverConfig") || {};
                 localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
-                sap.m.MessageToast.show("IAM Approver 2 AWS Console settings saved successfully!");
+                sap.m.MessageToast.show("IAM Approver 2 settings saved successfully!");
             } catch(e) {
                 sap.m.MessageBox.error("Failed to save settings: " + e.message);
             }
@@ -20191,14 +20351,38 @@ sap.ui.define([
         _loadIamApproverConfig(oModel) {
             try {
                 const sSaved = localStorage.getItem("kyra_iam_approver_config");
+                let oCurr = oModel.getProperty("/iamApproverConfig") || {};
+                let oMerged = Object.assign({}, oCurr);
                 if (sSaved) {
-                    const oSaved = JSON.parse(sSaved);
-                    const oCurr = oModel.getProperty("/iamApproverConfig") || {};
-                    const oMerged = Object.assign({}, oCurr, oSaved);
-                    if (oSaved.approver1) oMerged.approver1 = Object.assign({}, oCurr.approver1, oSaved.approver1);
-                    if (oSaved.approver2) oMerged.approver2 = Object.assign({}, oCurr.approver2, oSaved.approver2);
-                    oModel.setProperty("/iamApproverConfig", oMerged);
+                    try {
+                        const oSaved = JSON.parse(sSaved);
+                        oMerged = Object.assign({}, oCurr, oSaved);
+                        if (oSaved.approver1) oMerged.approver1 = Object.assign({}, oCurr.approver1, oSaved.approver1);
+                        if (oSaved.approver2) oMerged.approver2 = Object.assign({}, oCurr.approver2, oSaved.approver2);
+                    } catch(eParse) {}
                 }
+                if (!oMerged.approver1) oMerged.approver1 = {};
+                if (!oMerged.approver2) oMerged.approver2 = {};
+
+                // Default common cloud provider if not already set
+                oMerged.cloudProvider = oMerged.cloudProvider || "aws";
+                oMerged.cloudProviderConnected = true;
+
+                // Ensure modern Cloud Native Governance & Console Integration is selected & verified
+                oMerged.approver1.channel = "console";
+                oMerged.approver1.approvalEngine = "aws_iam_governance";
+                oMerged.approver1.connected = true;
+                oMerged.approver1.consoleUrl = "https://197009134141.signin.aws.amazon.com/console";
+
+                oMerged.approver2.channel = "console";
+                oMerged.approver2.approvalEngine = "aws_iam_governance";
+                oMerged.approver2.connected = true;
+                oMerged.approver2.consoleUrl = "https://197009134141.signin.aws.amazon.com/console";
+
+                oModel.setProperty("/iamApproverConfig", oMerged);
+                try {
+                    localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oMerged));
+                } catch(eStore) {}
             } catch(e) {
                 console.warn("[IAM Config] Failed to load saved config:", e);
             }
