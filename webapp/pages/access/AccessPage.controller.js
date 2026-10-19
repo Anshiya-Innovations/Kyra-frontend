@@ -5018,6 +5018,39 @@ sap.ui.define([
                         });
                     }
                 }
+
+                // 6. Notification: Access Revoked in SAP BTP Cockpit or through direct revocation
+                if (sDbStatus === "REVOKED") {
+                    const isBtpProviderRevoke = (r.approver_comment && r.approver_comment.includes("SAP BTP Cockpit")) || 
+                                                (r.comments && r.comments.includes("SAP BTP Cockpit"));
+                    const sRevokeNotifId = "notif-direct-revoked-" + sReqNum;
+                    if (!oDeletedSet.has(sRevokeNotifId) && !oAddedNotifIds.has(sRevokeNotifId)) {
+                        oAddedNotifIds.add(sRevokeNotifId);
+                        aNotifications.push({
+                            id: sRevokeNotifId,
+                            scope: "my",
+                            requesterId: sActiveUser,
+                            requestId: sReqNum,
+                            system: sSys,
+                            roleName: sPersona,
+                            persona: sPersona,
+                            type: "revoked",
+                            isRevocation: true,
+                            category: isBtpProviderRevoke ? "Provider Actions" : "Revocation Notices",
+                            title: isBtpProviderRevoke ? "Access Revoked in SAP BTP Cockpit" : "Entitlement Access Revoked",
+                            description: isBtpProviderRevoke
+                                ? `Your access to ${sSys} (${sPersona}) was revoked directly by the system administrator in SAP BTP Cockpit.`
+                                : `Your access to ${sSys} (${sPersona}) for request ${sReqNum} has been revoked.`,
+                            approverComment: r.approver_comment || (isBtpProviderRevoke ? "Revoked directly in SAP BTP Cockpit" : "Access Revoked"),
+                            timestamp: formatTimeAgo(r.updated_at || sCreatedTime),
+                            rawTimestamp: parseRawTimestamp(r.updated_at || sCreatedTime),
+                            stagePriority: 6,
+                            icon: "sap-icon://decline",
+                            state: "Warning",
+                            unread: aSavedStatusMap[sRevokeNotifId] !== undefined ? aSavedStatusMap[sRevokeNotifId] : true
+                        });
+                    }
+                }
             });
 
             // Include any saved custom notifications strictly matching current user context
