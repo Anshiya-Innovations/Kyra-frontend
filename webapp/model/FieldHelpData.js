@@ -535,8 +535,27 @@ sap.ui.define([], function () {
         },
 
         // =========================================================================
-        // IAM APPROVER 1 INTEGRATION (EMAIL & AWS CONSOLE)
+        // IAM APPROVER 1 INTEGRATION (EMAIL & CLOUD IAM CONSOLE)
         // =========================================================================
+        "iam1_provider_select": {
+            system: "Multi-Cloud IAM & Governance",
+            badgeClass: "kyraInfoBadgeAws",
+            title: "Select IAM Provider / Platform",
+            purpose: "Designates the enterprise Identity and Access Management (IAM) or Cloud Governance platform used by IAM Approver 1 to review and authorize access requests.",
+            steps: [
+                "Select 'Amazon Web Services (AWS IAM & Identity Center)' for AWS-native IAM, IAM Identity Center (SSO), and Systems Manager workflows.",
+                "Select 'Microsoft Entra ID (Azure Active Directory & PIM)' for Azure Privileged Identity Management and Entra Governance reviews.",
+                "Select 'Google Cloud Platform (GCP IAM & Privileged Access Manager)' for GCP PAM access approvals.",
+                "Select 'SAP Cloud Identity Services (IAS / IAG / BTP)' for SAP Cloud Identity Access Governance and BTP role reviews.",
+                "Select 'Okta Identity Governance (OIG / Access Requests)' for Okta self-service review and Slack/Teams integrated approvals.",
+                "Select 'ServiceNow (Access Management & IT Service Governance)' for enterprise ITSM Change and Request workflows.",
+                "Select 'SailPoint (Identity Security Cloud / IdentityIQ)' for enterprise IGA and Segregation of Duties certification.",
+                "Select 'Oracle Cloud Infrastructure (OCI IAM Domains)' for Oracle Cloud access governance.",
+                "Select 'CyberArk (Privileged Access Management - PAM)' for dual-authorization privileged access vaulting."
+            ],
+            example: "Amazon Web Services (AWS IAM & Identity Center)",
+            tip: "Choosing an IAM provider automatically populates the appropriate governance engine, region, and portal URL endpoints for this approver."
+        },
         "iam1_email_name": {
             system: "IAM Governance",
             badgeClass: "kyraInfoBadgeEmail",
@@ -797,8 +816,27 @@ sap.ui.define([], function () {
         },
 
         // =========================================================================
-        // IAM APPROVER 2 INTEGRATION (EMAIL & AWS CONSOLE)
+        // IAM APPROVER 2 INTEGRATION (EMAIL & CLOUD IAM CONSOLE)
         // =========================================================================
+        "iam2_provider_select": {
+            system: "Multi-Cloud IAM & Governance",
+            badgeClass: "kyraInfoBadgeAws",
+            title: "Select IAM Provider / Platform",
+            purpose: "Designates the enterprise Identity and Access Management (IAM) or Cloud Governance platform used by IAM Approver 2 to review and authorize access requests.",
+            steps: [
+                "Select 'Amazon Web Services (AWS IAM & Identity Center)' for AWS-native IAM, IAM Identity Center (SSO), and Systems Manager workflows.",
+                "Select 'Microsoft Entra ID (Azure Active Directory & PIM)' for Azure Privileged Identity Management and Entra Governance reviews.",
+                "Select 'Google Cloud Platform (GCP IAM & Privileged Access Manager)' for GCP PAM access approvals.",
+                "Select 'SAP Cloud Identity Services (IAS / IAG / BTP)' for SAP Cloud Identity Access Governance and BTP role reviews.",
+                "Select 'Okta Identity Governance (OIG / Access Requests)' for Okta self-service review and Slack/Teams integrated approvals.",
+                "Select 'ServiceNow (Access Management & IT Service Governance)' for enterprise ITSM Change and Request workflows.",
+                "Select 'SailPoint (Identity Security Cloud / IdentityIQ)' for enterprise IGA and Segregation of Duties certification.",
+                "Select 'Oracle Cloud Infrastructure (OCI IAM Domains)' for Oracle Cloud access governance.",
+                "Select 'CyberArk (Privileged Access Management - PAM)' for dual-authorization privileged access vaulting."
+            ],
+            example: "Amazon Web Services (AWS IAM & Identity Center)",
+            tip: "Choosing an IAM provider automatically populates the appropriate governance engine, region, and portal URL endpoints for this approver."
+        },
         "iam2_email_name": {
             system: "IAM Governance",
             badgeClass: "kyraInfoBadgeEmail",

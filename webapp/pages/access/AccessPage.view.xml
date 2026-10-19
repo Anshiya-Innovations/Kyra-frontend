@@ -1649,7 +1649,7 @@
                                             class="kyraPersonaSegmentedBtn">
                                             <items>
                                                 <SegmentedButtonItem key="email" text="Email Integration" icon="sap-icon://email" />
-                                                <SegmentedButtonItem key="console" text="Console Integration (AWS)" icon="sap-icon://cloud" />
+                                                <SegmentedButtonItem key="console" text="Console Integration (Cloud &amp; IAM)" icon="sap-icon://cloud" />
                                             </items>
                                         </SegmentedButton>
                                     </HBox>
@@ -1667,6 +1667,32 @@
                                                 text="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Email Verified ✓' : 'Awaiting Test' }"
                                                 state="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Success' : 'Warning' }" />
                                         </HBox>
+
+                                        <!-- Dropdown: Select IAM Provider / Platform -->
+                                        <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Select IAM Provider / Platform" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam1_provider_select" tooltip="Select IAM or Cloud Governance platform" />
+                                            </HBox>
+                                            <Select
+                                                id="approver1IamProviderSelectEmail"
+                                                selectedKey="{accessModel>/iamApproverConfig/approver1/provider}"
+                                                change=".onApprover1ProviderChange"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="aws" text="Amazon Web Services (AWS IAM &amp; Identity Center)" />
+                                                <core:Item key="azure" text="Microsoft Entra ID (Azure Active Directory &amp; PIM)" />
+                                                <core:Item key="gcp" text="Google Cloud Platform (GCP IAM &amp; Privileged Access Manager)" />
+                                                <core:Item key="sap" text="SAP Cloud Identity Services (IAS / IAG / BTP)" />
+                                                <core:Item key="okta" text="Okta Identity Governance (OIG / Access Requests)" />
+                                                <core:Item key="servicenow" text="ServiceNow (Access Management &amp; IT Service Governance)" />
+                                                <core:Item key="sailpoint" text="SailPoint (Identity Security Cloud / IdentityIQ)" />
+                                                <core:Item key="oci" text="Oracle Cloud Infrastructure (OCI IAM Domains)" />
+                                                <core:Item key="cyberark" text="CyberArk (Privileged Access Management - PAM)" />
+                                                <core:Item key="ping" text="Ping Identity (PingFederate / PingOne Cloud)" />
+                                            </Select>
+                                        </VBox>
 
                                         <!-- Row 1: Name, Email, Notification Mode (3 equal columns) -->
                                         <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
@@ -1809,26 +1835,52 @@
                                     </VBox>
                                 </VBox>
 
-                                <!-- 1B: APPROVER 1 CONSOLE INTEGRATION (AWS) -->
+                                <!-- 1B: APPROVER 1 CONSOLE INTEGRATION (CLOUD & IAM) -->
                                 <VBox visible="{= ${accessModel>/iamApproverConfig/approver1/channel} === 'console' }" width="100%">
                                     <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
                                         <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://cloud" class="kyraDarkCardHeaderIcon" color="#FF9900" />
-                                                <Title text="Option 2: IAM Approver 1 — AWS Management Console Integration" level="H4" class="kyraDarkCardHeaderTitle" />
+                                                <Title text="Option 2: IAM Approver 1 — Cloud Console &amp; IAM Provider Integration" level="H4" class="kyraDarkCardHeaderTitle" />
                                             </HBox>
                                             <ObjectStatus
-                                                text="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'AWS Console Integrated ✓' : 'Awaiting Test' }"
+                                                text="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Cloud Console Integrated ✓' : 'Awaiting Test' }"
                                                 state="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Success' : 'Warning' }" />
                                         </HBox>
+
+                                        <!-- Dropdown: Select IAM Provider / Platform -->
+                                        <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Select IAM Provider / Platform" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam1_provider_select" tooltip="Select IAM or Cloud Governance platform" />
+                                            </HBox>
+                                            <Select
+                                                id="approver1IamProviderSelectConsole"
+                                                selectedKey="{accessModel>/iamApproverConfig/approver1/provider}"
+                                                change=".onApprover1ProviderChange"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="aws" text="Amazon Web Services (AWS IAM &amp; Identity Center)" />
+                                                <core:Item key="azure" text="Microsoft Entra ID (Azure Active Directory &amp; PIM)" />
+                                                <core:Item key="gcp" text="Google Cloud Platform (GCP IAM &amp; Privileged Access Manager)" />
+                                                <core:Item key="sap" text="SAP Cloud Identity Services (IAS / IAG / BTP)" />
+                                                <core:Item key="okta" text="Okta Identity Governance (OIG / Access Requests)" />
+                                                <core:Item key="servicenow" text="ServiceNow (Access Management &amp; IT Service Governance)" />
+                                                <core:Item key="sailpoint" text="SailPoint (Identity Security Cloud / IdentityIQ)" />
+                                                <core:Item key="oci" text="Oracle Cloud Infrastructure (OCI IAM Domains)" />
+                                                <core:Item key="cyberark" text="CyberArk (Privileged Access Management - PAM)" />
+                                                <core:Item key="ping" text="Ping Identity (PingFederate / PingOne Cloud)" />
+                                            </Select>
+                                        </VBox>
 
                                         <!-- Row 1: IAM User, User ARN, SNS Topic ARN (3 equal columns) -->
                                         <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
                                             <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
                                                 <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                    <Text text="Approver 1 AWS IAM / SSO Username" class="kyraDarkFieldLabel" />
+                                                    <Text text="Approver 1 IAM / SSO Username" class="kyraDarkFieldLabel" />
                                                     <Text text=" *" class="kyraDarkRequiredStar" />
-                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam1_aws_username" tooltip="How to get AWS IAM Username" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam1_aws_username" tooltip="How to get IAM Username" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver1/iamUser}"
@@ -2009,7 +2061,7 @@
                                             class="kyraPersonaSegmentedBtn">
                                             <items>
                                                 <SegmentedButtonItem key="email" text="Email Integration" icon="sap-icon://email" />
-                                                <SegmentedButtonItem key="console" text="Console Integration (AWS)" icon="sap-icon://cloud" />
+                                                <SegmentedButtonItem key="console" text="Console Integration (Cloud &amp; IAM)" icon="sap-icon://cloud" />
                                             </items>
                                         </SegmentedButton>
                                     </HBox>
@@ -2027,6 +2079,32 @@
                                                 text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Email Verified ✓' : 'Awaiting Test' }"
                                                 state="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Success' : 'Warning' }" />
                                         </HBox>
+
+                                        <!-- Dropdown: Select IAM Provider / Platform -->
+                                        <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Select IAM Provider / Platform" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_provider_select" tooltip="Select IAM or Cloud Governance platform" />
+                                            </HBox>
+                                            <Select
+                                                id="approver2IamProviderSelectEmail"
+                                                selectedKey="{accessModel>/iamApproverConfig/approver2/provider}"
+                                                change=".onApprover2ProviderChange"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="aws" text="Amazon Web Services (AWS IAM &amp; Identity Center)" />
+                                                <core:Item key="azure" text="Microsoft Entra ID (Azure Active Directory &amp; PIM)" />
+                                                <core:Item key="gcp" text="Google Cloud Platform (GCP IAM &amp; Privileged Access Manager)" />
+                                                <core:Item key="sap" text="SAP Cloud Identity Services (IAS / IAG / BTP)" />
+                                                <core:Item key="okta" text="Okta Identity Governance (OIG / Access Requests)" />
+                                                <core:Item key="servicenow" text="ServiceNow (Access Management &amp; IT Service Governance)" />
+                                                <core:Item key="sailpoint" text="SailPoint (Identity Security Cloud / IdentityIQ)" />
+                                                <core:Item key="oci" text="Oracle Cloud Infrastructure (OCI IAM Domains)" />
+                                                <core:Item key="cyberark" text="CyberArk (Privileged Access Management - PAM)" />
+                                                <core:Item key="ping" text="Ping Identity (PingFederate / PingOne Cloud)" />
+                                            </Select>
+                                        </VBox>
 
                                         <!-- Row 1: Name, Email, Routing Trigger (3 equal columns) -->
                                         <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
@@ -2168,26 +2246,52 @@
                                     </VBox>
                                 </VBox>
 
-                                <!-- 2B: APPROVER 2 CONSOLE INTEGRATION (AWS) -->
+                                <!-- 2B: APPROVER 2 CONSOLE INTEGRATION (CLOUD & IAM) -->
                                 <VBox visible="{= ${accessModel>/iamApproverConfig/approver2/channel} === 'console' }" width="100%">
                                     <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
                                         <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://cloud" class="kyraDarkCardHeaderIcon" color="#FF9900" />
-                                                <Title text="Option 2: IAM Approver 2 — AWS Management Console &amp; Provisioning" level="H4" class="kyraDarkCardHeaderTitle" />
+                                                <Title text="Option 2: IAM Approver 2 — Cloud Console &amp; IAM Provider Integration" level="H4" class="kyraDarkCardHeaderTitle" />
                                             </HBox>
                                             <ObjectStatus
-                                                text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'AWS Console Integrated ✓' : 'Awaiting Test' }"
+                                                text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Cloud Console Integrated ✓' : 'Awaiting Test' }"
                                                 state="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Success' : 'Warning' }" />
                                         </HBox>
+
+                                        <!-- Dropdown: Select IAM Provider / Platform -->
+                                        <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Select IAM Provider / Platform" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_provider_select" tooltip="Select IAM or Cloud Governance platform" />
+                                            </HBox>
+                                            <Select
+                                                id="approver2IamProviderSelectConsole"
+                                                selectedKey="{accessModel>/iamApproverConfig/approver2/provider}"
+                                                change=".onApprover2ProviderChange"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="aws" text="Amazon Web Services (AWS IAM &amp; Identity Center)" />
+                                                <core:Item key="azure" text="Microsoft Entra ID (Azure Active Directory &amp; PIM)" />
+                                                <core:Item key="gcp" text="Google Cloud Platform (GCP IAM &amp; Privileged Access Manager)" />
+                                                <core:Item key="sap" text="SAP Cloud Identity Services (IAS / IAG / BTP)" />
+                                                <core:Item key="okta" text="Okta Identity Governance (OIG / Access Requests)" />
+                                                <core:Item key="servicenow" text="ServiceNow (Access Management &amp; IT Service Governance)" />
+                                                <core:Item key="sailpoint" text="SailPoint (Identity Security Cloud / IdentityIQ)" />
+                                                <core:Item key="oci" text="Oracle Cloud Infrastructure (OCI IAM Domains)" />
+                                                <core:Item key="cyberark" text="CyberArk (Privileged Access Management - PAM)" />
+                                                <core:Item key="ping" text="Ping Identity (PingFederate / PingOne Cloud)" />
+                                            </Select>
+                                        </VBox>
 
                                         <!-- Row 1: IAM User, User ARN, SNS Topic ARN (3 equal columns) -->
                                         <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
                                             <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
                                                 <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                    <Text text="Approver 2 AWS IAM / SSO Username" class="kyraDarkFieldLabel" />
+                                                    <Text text="Approver 2 IAM / SSO Username" class="kyraDarkFieldLabel" />
                                                     <Text text=" *" class="kyraDarkRequiredStar" />
-                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_username" tooltip="How to get AWS IAM Username" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_username" tooltip="How to get IAM Username" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/iamUser}"

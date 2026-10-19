@@ -480,6 +480,7 @@ sap.ui.define([
                     },
                     approver1: {
                         channel: "email",
+                        provider: "aws",
                         connected: true,
                         name: "IAM Approver 1 (Security Lead)",
                         email: "kyra-iam-approver-1@kyra-governance.com",
@@ -506,6 +507,7 @@ sap.ui.define([
                     },
                     approver2: {
                         channel: "email",
+                        provider: "aws",
                         connected: true,
                         name: "IAM Approver 2 (Cloud Platform Owner)",
                         email: "kyra-iam-approver-2@kyra-governance.com",
@@ -20320,6 +20322,176 @@ sap.ui.define([
             if (oModel) oModel.setProperty("/iamApproverConfig/approver2/channel", "console");
         },
 
+        onApprover1ProviderChange(oEvent) {
+            const sProvider = oEvent.getSource().getSelectedKey();
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/iamApproverConfig/approver1/provider", sProvider);
+
+            const mDefaults = {
+                aws: {
+                    approvalEngine: "ssm_change_manager",
+                    region: "us-east-1",
+                    consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
+                    requiredPolicy: "AWSSystemsManagerChangeManagerApproverAccess",
+                    iamUser: "iam-approver-1"
+                },
+                azure: {
+                    approvalEngine: "entra_pim",
+                    region: "Global (Azure Entra)",
+                    consoleUrl: "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ActivationMenuBlade/~/pendingrequests",
+                    requiredPolicy: "Privileged Role Administrator / Approver",
+                    iamUser: "iam-approver-1@kyra-enterprise.onmicrosoft.com"
+                },
+                gcp: {
+                    approvalEngine: "gcp_pam",
+                    region: "us-central1",
+                    consoleUrl: "https://console.cloud.google.com/iam-admin/pam/approvals",
+                    requiredPolicy: "roles/privilegedaccessmanager.approver",
+                    iamUser: "iam-approver-1@kyra-cloud.iam.gserviceaccount.com"
+                },
+                sap: {
+                    approvalEngine: "sap_iag",
+                    region: "us10",
+                    consoleUrl: "https://iag.authentication.us10.hana.ondemand.com/access-governance/approvals",
+                    requiredPolicy: "Access_Approver_RoleCollection",
+                    iamUser: "iam-approver-1@kyra-sap.com"
+                },
+                okta: {
+                    approvalEngine: "okta_oig",
+                    region: "okta-preview",
+                    consoleUrl: "https://kyra.okta.com/enduser/access-requests",
+                    requiredPolicy: "Okta Access Request Reviewer",
+                    iamUser: "iam-approver-1@kyra-governance.okta.com"
+                },
+                servicenow: {
+                    approvalEngine: "servicenow_itsm",
+                    region: "Enterprise Cloud",
+                    consoleUrl: "https://kyra-enterprise.service-now.com/nav_to.do?uri=sysapproval_approver_list.do",
+                    requiredPolicy: "itil / approver_user",
+                    iamUser: "iam-approver-1"
+                },
+                sailpoint: {
+                    approvalEngine: "sailpoint_isc",
+                    region: "Cloud SaaS",
+                    consoleUrl: "https://kyra.identitynow.com/ui/a/approvals",
+                    requiredPolicy: "Governance Certifier / Approver",
+                    iamUser: "iam-approver-1"
+                },
+                oci: {
+                    approvalEngine: "oci_governance",
+                    region: "us-ashburn-1",
+                    consoleUrl: "https://cloud.oracle.com/identity/domains/governance/requests",
+                    requiredPolicy: "IdentityDomainApproverGroup",
+                    iamUser: "iam-approver-1"
+                },
+                cyberark: {
+                    approvalEngine: "cyberark_pam",
+                    region: "PAM Vault",
+                    consoleUrl: "https://kyra.privilegecloud.cyberark.com/PasswordVault/v10/Approvals",
+                    requiredPolicy: "Vault Safe Reviewer / Dual-Auth",
+                    iamUser: "iam-approver-1"
+                },
+                ping: {
+                    approvalEngine: "ping_one",
+                    region: "PingOne US",
+                    consoleUrl: "https://admin.pingone.com/web-portal/approvals",
+                    requiredPolicy: "Identity Approver Administrator",
+                    iamUser: "iam-approver-1"
+                }
+            };
+            const def = mDefaults[sProvider];
+            if (def) {
+                if (def.approvalEngine) oModel.setProperty("/iamApproverConfig/approver1/approvalEngine", def.approvalEngine);
+                if (def.consoleUrl) oModel.setProperty("/iamApproverConfig/approver1/consoleUrl", def.consoleUrl);
+                if (def.requiredPolicy) oModel.setProperty("/iamApproverConfig/approver1/requiredPolicy", def.requiredPolicy);
+                if (def.region) oModel.setProperty("/iamApproverConfig/approver1/region", def.region);
+            }
+            const oSelect = oEvent.getSource();
+            const sProviderText = oSelect && oSelect.getSelectedItem() ? oSelect.getSelectedItem().getText() : sProvider;
+            sap.m.MessageToast.show("IAM Approver 1 provider set to: " + sProviderText);
+        },
+
+        onApprover2ProviderChange(oEvent) {
+            const sProvider = oEvent.getSource().getSelectedKey();
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/iamApproverConfig/approver2/provider", sProvider);
+
+            const mDefaults = {
+                aws: {
+                    approvalEngine: "ssm_change_manager",
+                    region: "us-east-1",
+                    consoleUrl: "https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests",
+                    targetSystem: "SAP Business Technology Platform"
+                },
+                azure: {
+                    approvalEngine: "entra_pim",
+                    region: "Global (Azure Entra)",
+                    consoleUrl: "https://entra.microsoft.com/#view/Microsoft_Azure_PIMCommon/ActivationMenuBlade/~/pendingrequests",
+                    targetSystem: "Microsoft Azure Cloud / SAP BTP"
+                },
+                gcp: {
+                    approvalEngine: "gcp_pam",
+                    region: "us-central1",
+                    consoleUrl: "https://console.cloud.google.com/iam-admin/pam/approvals",
+                    targetSystem: "Google Cloud Platform / SAP BTP"
+                },
+                sap: {
+                    approvalEngine: "sap_iag",
+                    region: "us10",
+                    consoleUrl: "https://iag.authentication.us10.hana.ondemand.com/access-governance/approvals",
+                    targetSystem: "SAP Business Technology Platform (BTP)"
+                },
+                okta: {
+                    approvalEngine: "okta_oig",
+                    region: "okta-preview",
+                    consoleUrl: "https://kyra.okta.com/enduser/access-requests",
+                    targetSystem: "Okta Universal Directory / SAP BTP"
+                },
+                servicenow: {
+                    approvalEngine: "servicenow_itsm",
+                    region: "Enterprise Cloud",
+                    consoleUrl: "https://kyra-enterprise.service-now.com/nav_to.do?uri=sysapproval_approver_list.do",
+                    targetSystem: "ServiceNow CMDB / SAP BTP"
+                },
+                sailpoint: {
+                    approvalEngine: "sailpoint_isc",
+                    region: "Cloud SaaS",
+                    consoleUrl: "https://kyra.identitynow.com/ui/a/approvals",
+                    targetSystem: "SailPoint Identity Governance / SAP BTP"
+                },
+                oci: {
+                    approvalEngine: "oci_governance",
+                    region: "us-ashburn-1",
+                    consoleUrl: "https://cloud.oracle.com/identity/domains/governance/requests",
+                    targetSystem: "Oracle Cloud Infrastructure / SAP BTP"
+                },
+                cyberark: {
+                    approvalEngine: "cyberark_pam",
+                    region: "PAM Vault",
+                    consoleUrl: "https://kyra.privilegecloud.cyberark.com/PasswordVault/v10/Approvals",
+                    targetSystem: "CyberArk Vault / SAP BTP"
+                },
+                ping: {
+                    approvalEngine: "ping_one",
+                    region: "PingOne US",
+                    consoleUrl: "https://admin.pingone.com/web-portal/approvals",
+                    targetSystem: "PingOne Directory / SAP BTP"
+                }
+            };
+            const def = mDefaults[sProvider];
+            if (def) {
+                if (def.approvalEngine) oModel.setProperty("/iamApproverConfig/approver2/approvalEngine", def.approvalEngine);
+                if (def.consoleUrl) oModel.setProperty("/iamApproverConfig/approver2/consoleUrl", def.consoleUrl);
+                if (def.targetSystem) oModel.setProperty("/iamApproverConfig/approver2/targetSystem", def.targetSystem);
+                if (def.region) oModel.setProperty("/iamApproverConfig/approver2/region", def.region);
+            }
+            const oSelect = oEvent.getSource();
+            const sProviderText = oSelect && oSelect.getSelectedItem() ? oSelect.getSelectedItem().getText() : sProvider;
+            sap.m.MessageToast.show("IAM Approver 2 provider set to: " + sProviderText);
+        },
+
         onTestApprover1Email() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -20328,8 +20500,22 @@ sap.ui.define([
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/approver1/connected", true);
+                const mProviderNames = {
+                    aws: "Amazon Web Services (AWS IAM & Identity Center)",
+                    azure: "Microsoft Entra ID (Azure Active Directory & PIM)",
+                    gcp: "Google Cloud Platform (GCP PAM)",
+                    sap: "SAP Cloud Identity Services (IAS / IAG / BTP)",
+                    okta: "Okta Identity Governance (OIG)",
+                    servicenow: "ServiceNow ITSM Governance",
+                    sailpoint: "SailPoint Identity Security Cloud",
+                    oci: "Oracle Cloud Infrastructure (OCI IAM)",
+                    cyberark: "CyberArk Privileged Access Manager",
+                    ping: "Ping Identity"
+                };
+                const sProvName = mProviderNames[oApp1.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
                     "IAM Approver 1 Email Integration Verified!\n\n" +
+                    "• IAM Provider: " + sProvName + "\n" +
                     "• Designation: " + (oApp1.name || "IAM Approver 1 (Security Lead)") + "\n" +
                     "• Notification Email: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + "\n" +
                     "• Dispatch Mode: " + (oApp1.notificationMode || "Consolidated Batch Notification") + "\n" +
@@ -20361,15 +20547,29 @@ sap.ui.define([
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/approver1/connected", true);
+                const mProviderNames = {
+                    aws: "Amazon Web Services (AWS IAM & Identity Center)",
+                    azure: "Microsoft Entra ID (Azure Active Directory & PIM)",
+                    gcp: "Google Cloud Platform (GCP PAM)",
+                    sap: "SAP Cloud Identity Services (IAS / IAG / BTP)",
+                    okta: "Okta Identity Governance (OIG)",
+                    servicenow: "ServiceNow ITSM Governance",
+                    sailpoint: "SailPoint Identity Security Cloud",
+                    oci: "Oracle Cloud Infrastructure (OCI IAM)",
+                    cyberark: "CyberArk Privileged Access Manager",
+                    ping: "Ping Identity"
+                };
+                const sProvName = mProviderNames[oApp1.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 1 AWS Console Integration Verified!\n\n" +
-                    "• AWS IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
-                    "• User ARN: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
-                    "• AWS SNS Topic ARN: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
-                    "• AWS Region: " + (oApp1.region || "us-east-1") + "\n" +
-                    "• Approval Engine: " + (oApp1.approvalEngine || "AWS Systems Manager Change Manager") + "\n" +
+                    "IAM Approver 1 Cloud Console Integration Verified!\n\n" +
+                    "• IAM Provider: " + sProvName + "\n" +
+                    "• IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
+                    "• User ARN / Principal ID: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
+                    "• Notification Endpoint: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
+                    "• Region / Realm: " + (oApp1.region || "us-east-1") + "\n" +
+                    "• Approval Engine: " + (oApp1.approvalEngine || "Cloud Governance Engine") + "\n" +
                     "• Status: Connected ✓",
-                    { title: "IAM Approver 1 AWS Verified" }
+                    { title: "IAM Approver 1 Console Verified" }
                 );
             }, 800);
         },
@@ -20380,7 +20580,7 @@ sap.ui.define([
             try {
                 const oCfg = oModel.getProperty("/iamApproverConfig") || {};
                 localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
-                sap.m.MessageToast.show("IAM Approver 1 AWS Console settings saved successfully!");
+                sap.m.MessageToast.show("IAM Approver 1 Cloud Console settings saved successfully!");
             } catch(e) {
                 sap.m.MessageBox.error("Failed to save settings: " + e.message);
             }
@@ -20394,8 +20594,22 @@ sap.ui.define([
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/approver2/connected", true);
+                const mProviderNames = {
+                    aws: "Amazon Web Services (AWS IAM & Identity Center)",
+                    azure: "Microsoft Entra ID (Azure Active Directory & PIM)",
+                    gcp: "Google Cloud Platform (GCP PAM)",
+                    sap: "SAP Cloud Identity Services (IAS / IAG / BTP)",
+                    okta: "Okta Identity Governance (OIG)",
+                    servicenow: "ServiceNow ITSM Governance",
+                    sailpoint: "SailPoint Identity Security Cloud",
+                    oci: "Oracle Cloud Infrastructure (OCI IAM)",
+                    cyberark: "CyberArk Privileged Access Manager",
+                    ping: "Ping Identity"
+                };
+                const sProvName = mProviderNames[oApp2.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
                     "IAM Approver 2 Email Integration Verified!\n\n" +
+                    "• IAM Provider: " + sProvName + "\n" +
                     "• Designation: " + (oApp2.name || "IAM Approver 2 (Cloud Platform Owner)") + "\n" +
                     "• Notification Email: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + "\n" +
                     "• Routing Trigger: " + (oApp2.routingTrigger || "Sequential - Dispatch upon Approver 1 Approval") + "\n" +
@@ -20426,16 +20640,30 @@ sap.ui.define([
             setTimeout(() => {
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/approver2/connected", true);
+                const mProviderNames = {
+                    aws: "Amazon Web Services (AWS IAM & Identity Center)",
+                    azure: "Microsoft Entra ID (Azure Active Directory & PIM)",
+                    gcp: "Google Cloud Platform (GCP PAM)",
+                    sap: "SAP Cloud Identity Services (IAS / IAG / BTP)",
+                    okta: "Okta Identity Governance (OIG)",
+                    servicenow: "ServiceNow ITSM Governance",
+                    sailpoint: "SailPoint Identity Security Cloud",
+                    oci: "Oracle Cloud Infrastructure (OCI IAM)",
+                    cyberark: "CyberArk Privileged Access Manager",
+                    ping: "Ping Identity"
+                };
+                const sProvName = mProviderNames[oApp2.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 2 AWS Console & Provisioning Verified!\n\n" +
-                    "• AWS IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
-                    "• User ARN: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
-                    "• AWS SNS Topic ARN: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
-                    "• AWS Region: " + (oApp2.region || "us-east-1") + "\n" +
+                    "IAM Approver 2 Cloud Console & Provisioning Verified!\n\n" +
+                    "• IAM Provider: " + sProvName + "\n" +
+                    "• IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
+                    "• User ARN / Principal ID: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
+                    "• Notification Endpoint: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
+                    "• Region / Realm: " + (oApp2.region || "us-east-1") + "\n" +
                     "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\n" +
                     "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\n" +
                     "• Status: Connected ✓",
-                    { title: "IAM Approver 2 AWS Verified" }
+                    { title: "IAM Approver 2 Console Verified" }
                 );
             }, 800);
         },
@@ -20446,7 +20674,7 @@ sap.ui.define([
             try {
                 const oCfg = oModel.getProperty("/iamApproverConfig") || {};
                 localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
-                sap.m.MessageToast.show("IAM Approver 2 AWS Console settings saved successfully!");
+                sap.m.MessageToast.show("IAM Approver 2 Cloud Console settings saved successfully!");
             } catch(e) {
                 sap.m.MessageBox.error("Failed to save settings: " + e.message);
             }
