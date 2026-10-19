@@ -19725,6 +19725,16 @@ sap.ui.define([
         },
 
         onManageSapEntitlements() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/sapIntegration/currentStep", 2);
+                oModel.setProperty("/sapIntegration/isAppExpanded", true);
+            }
+            if (typeof this._smoothScrollTo === "function") {
+                setTimeout(() => {
+                    this._smoothScrollTo("sapPurchasedAppsContainer", 40);
+                }, 80);
+            }
             MessageToast.show("Enterprise entitlements synced with SAP BTP Cloud Foundry tenant.");
         },
         onToggleAppHierarchy() {

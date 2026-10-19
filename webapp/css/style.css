@@ -41695,6 +41695,16 @@ div[id*="inputSapBtpServiceKey-message"],
     margin-bottom: 22px !important;
 }
 
+.kyraDarkTitleHeaderRow,
+.sapMHBox.kyraDarkTitleHeaderRow {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 16px !important;
+    margin-bottom: 22px !important;
+}
+
 .kyraDarkStudioTitle .sapMTitle,
 .kyraDarkStudioTitle {
     color: #0F172A !important;
@@ -41995,6 +42005,9 @@ div[id*="inputSapBtpServiceKey-message"],
     margin: 0 !important;
     background: transparent !important;
     border: none !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
 }
 
 .kyraDarkPrimaryActionBtn .sapMBtnInner,
