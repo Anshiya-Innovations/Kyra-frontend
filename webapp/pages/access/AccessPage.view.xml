@@ -1343,125 +1343,237 @@
                                     </Select>
                                 </VBox>
 
-                                <!-- Row 1: Domain Name FQDN (70%) + NetBIOS Domain (30%) -->
-                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                    <VBox width="70%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Domain Name (FQDN)" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/domainFqdn}"
-                                            placeholder="corp.kyra-enterprise.com"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                    <VBox width="30%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Domain NetBIOS Name" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/netbiosName}"
-                                            placeholder="CORP"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                </HBox>
+                                                                <!-- DYNAMIC FIELDS A: MICROSOFT ENTRA ID (AZURE AD) CLOUD DIRECTORY -->
+                                <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'azure_ad' || !${accessModel>/adGroupIntegration/directoryProvider} }" width="100%">
+                                    <!-- Row 1: Directory (Tenant) ID + Primary Domain / FQDN -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Directory (Tenant) ID" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                id="azureAdTenantId"
+                                                value="{${accessModel>/adGroupIntegration/azureTenantId}}"
+                                                placeholder="b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Primary Domain / FQDN" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                id="azureAdDomainFqdn"
+                                                value="{${accessModel>/adGroupIntegration/domainFqdn}}"
+                                                placeholder="bharathmohanraj12gmail.onmicrosoft.com"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
 
-                                <!-- Row 2: LDAP Server URL (70%) + Base DN (30%) -->
-                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                    <VBox width="70%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="LDAP / LDAPS Server URL" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/ldapUrl}"
-                                            placeholder="ldaps://ad01.corp.kyra-enterprise.com:636"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                    <VBox width="30%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Base DN (Search Root)" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/baseDn}"
-                                            placeholder="DC=corp,DC=kyra-enterprise,DC=com"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                </HBox>
+                                    <!-- Row 2: Application (Client) ID + Client Secret -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Application (Client) ID" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                id="azureAdClientId"
+                                                value="{${accessModel>/adGroupIntegration/azureClientId}}"
+                                                placeholder="6897baed-5616-4bff-bcab-8b249feea9a6"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Client Secret Value" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                id="azureAdClientSecret"
+                                                value="{${accessModel>/adGroupIntegration/azureClientSecret}}"
+                                                type="Password"
+                                                placeholder="••••••••••••••••••••••••"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
 
-                                <!-- Row 3: Service Account Username (50%) + Service Account Password (50%) -->
-                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                    <VBox width="50%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Service Account Username / Bind DN" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/serviceUser}"
-                                            placeholder="svc_kyra_sync@corp.kyra-enterprise.com"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                    <VBox width="50%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Service Account Password" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/servicePassword}"
-                                            type="Password"
-                                            placeholder="••••••••••••"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                </HBox>
+                                    <!-- Row 3: Target AD Security Group Object ID + Group Display Name -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Target AD Security Group Object ID" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                id="azureAdGroupId"
+                                                value="{${accessModel>/adGroupIntegration/azureGroupId}}"
+                                                placeholder="14740ac6-2647-4a81-b15f-009b800f7305"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="AD Group Display Name" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                id="azureAdGroupName"
+                                                value="{${accessModel>/adGroupIntegration/azureGroupName}}"
+                                                placeholder="Kyra-Access-Group"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
 
-                                <!-- Row 4: Group Search Filter (70%) + Sync Interval (30%) -->
-                                <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                    <VBox width="70%" class="kyraDarkFieldGroup">
-                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                            <Text text="Group Search LDAP Filter" class="kyraDarkFieldLabel" />
-                                            <Text text=" *" class="kyraDarkRequiredStar" />
-                                        </HBox>
-                                        <Input
-                                            value="{accessModel>/adGroupIntegration/groupFilter}"
-                                            placeholder="(&amp;(objectCategory=group)(cn=KYRA_*))"
-                                            class="kyraDarkInput"
-                                            width="100%" />
-                                    </VBox>
-                                    <VBox width="30%" class="kyraDarkFieldGroup">
-                                        <Text text="Sync Frequency" class="kyraDarkFieldLabel" />
-                                        <Select
-                                            selectedKey="{accessModel>/adGroupIntegration/syncInterval}"
-                                            width="100%"
-                                            class="kyraDarkSelect">
-                                            <core:Item key="15m" text="Every 15 Minutes" />
-                                            <core:Item key="30m" text="Every 30 Minutes" />
-                                            <core:Item key="1h" text="Every 1 Hour" />
-                                            <core:Item key="realtime" text="Real-time Webhook Sync" />
-                                        </Select>
-                                    </VBox>
-                                </HBox>
+                                    <!-- Row 4: Sync Frequency & Auto-sync nested -->
+                                    <HBox width="100%" gap="16px" alignItems="Center" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <Text text="Sync Frequency" class="kyraDarkFieldLabel" />
+                                            <Select
+                                                selectedKey="{${accessModel>/adGroupIntegration/syncInterval}}"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="15m" text="Every 15 Minutes" />
+                                                <core:Item key="30m" text="Every 30 Minutes" />
+                                                <core:Item key="1h" text="Every 1 Hour" />
+                                                <core:Item key="realtime" text="Real-time Webhook Sync" />
+                                            </Select>
+                                        </VBox>
+                                        <VBox width="50%" class="kyraDarkFieldGroup sapUiSmallMarginTop">
+                                            <CheckBox
+                                                selected="{${accessModel>/adGroupIntegration/syncNested}}"
+                                                text="Auto-sync nested security groups &amp; recursive memberships"
+                                                class="kyraDarkCheckbox" />
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
 
-                                <!-- Row 5: Checkboxes -->
-                                <HBox alignItems="Center" gap="24px" class="kyraDarkCheckboxRow sapUiSmallMarginBottom">
-                                    <CheckBox
-                                        selected="{accessModel>/adGroupIntegration/ssl}"
-                                        text="Enable LDAPS (SSL/TLS Certificate Validation)"
-                                        class="kyraDarkCheckbox" />
-                                    <CheckBox
-                                        selected="{accessModel>/adGroupIntegration/syncNested}"
-                                        text="Auto-sync nested security groups &amp; recursive memberships"
-                                        class="kyraDarkCheckbox" />
-                                </HBox>
+                                <!-- DYNAMIC FIELDS B: ON-PREMISES ACTIVE DIRECTORY & OPENLDAP -->
+                                <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} !== 'azure_ad' &amp;&amp; !!${accessModel>/adGroupIntegration/directoryProvider} }" width="100%">
+                                    <!-- Row 1: Domain Name FQDN (70%) + NetBIOS Domain (30%) -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="70%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Domain Name (FQDN)" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/domainFqdn}}"
+                                                placeholder="corp.kyra-enterprise.com"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="30%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Domain NetBIOS Name" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/netbiosName}}"
+                                                placeholder="CORP"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
 
-                                <!-- Row 6: Test AD Connection Button -->
+                                    <!-- Row 2: LDAP Server URL (70%) + Base DN (30%) -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="70%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="LDAP / LDAPS Server URL" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/ldapUrl}}"
+                                                placeholder="ldaps://ad01.corp.kyra-enterprise.com:636"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="30%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Base DN (Search Root)" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/baseDn}}"
+                                                placeholder="DC=corp,DC=kyra-enterprise,DC=com"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
+
+                                    <!-- Row 3: Service Account Username (50%) + Service Account Password (50%) -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Service Account Username / Bind DN" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/serviceUser}}"
+                                                placeholder="svc_kyra_sync@corp.kyra-enterprise.com"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="50%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Service Account Password" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/servicePassword}}"
+                                                type="Password"
+                                                placeholder="••••••••••••"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                    </HBox>
+
+                                    <!-- Row 4: Group Search Filter (70%) + Sync Interval (30%) -->
+                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                        <VBox width="70%" class="kyraDarkFieldGroup">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Group Search LDAP Filter" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                            </HBox>
+                                            <Input
+                                                value="{${accessModel>/adGroupIntegration/groupFilter}}"
+                                                placeholder="(&amp;(objectCategory=group)(cn=KYRA_*))"
+                                                class="kyraDarkInput"
+                                                width="100%" />
+                                        </VBox>
+                                        <VBox width="30%" class="kyraDarkFieldGroup">
+                                            <Text text="Sync Frequency" class="kyraDarkFieldLabel" />
+                                            <Select
+                                                selectedKey="{${accessModel>/adGroupIntegration/syncInterval}}"
+                                                width="100%"
+                                                class="kyraDarkSelect">
+                                                <core:Item key="15m" text="Every 15 Minutes" />
+                                                <core:Item key="30m" text="Every 30 Minutes" />
+                                                <core:Item key="1h" text="Every 1 Hour" />
+                                                <core:Item key="realtime" text="Real-time Webhook Sync" />
+                                            </Select>
+                                        </VBox>
+                                    </HBox>
+
+                                    <!-- Row 5: Checkboxes -->
+                                    <HBox alignItems="Center" gap="24px" class="kyraDarkCheckboxRow sapUiSmallMarginBottom">
+                                        <CheckBox
+                                            selected="{${accessModel>/adGroupIntegration/ssl}}"
+                                            text="Enable LDAPS (SSL/TLS Certificate Validation)"
+                                            class="kyraDarkCheckbox" />
+                                        <CheckBox
+                                            selected="{${accessModel>/adGroupIntegration/syncNested}}"
+                                            text="Auto-sync nested security groups &amp; recursive memberships"
+                                            class="kyraDarkCheckbox" />
+                                    </HBox>
+                                </VBox>
+
                                 <Button
                                     id="btnTestAdIntegration"
                                     icon="sap-icon://flash"
