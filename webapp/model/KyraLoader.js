@@ -314,12 +314,15 @@
                 oOverlay.classList.add("kyra-active");
             }
 
-            // Watchdog: ensures database saves continue fully without premature cutoff (default 35s for submission)
+            // Watchdog: ensures operations continue fully without premature cutoff while preventing endless runs
             const iEffectiveDuration = (options && typeof options.duration === "number" && options.duration > 0)
                 ? options.duration
-                : 35000;
+                : 20000;
 
             _oTimerWatchdog = setTimeout(() => {
+                window._kyraSubmittingAddAccess = false;
+                window._kyraSubmittingRequest = false;
+                window._kyraLoginTransition = false;
                 this.forceHide();
             }, iEffectiveDuration);
         },
@@ -330,6 +333,10 @@
          * @param {Object|string} options
          */
         showSuccess(options) {
+            window._kyraSubmittingAddAccess = false;
+            window._kyraSubmittingRequest = false;
+            window._kyraLoginTransition = false;
+
             if (typeof options === "string") {
                 options = { subtitle: options };
             }
@@ -404,6 +411,11 @@
          * @param {boolean} [force] If true, forcibly hides immediately regardless of active count.
          */
         hide(callback, force) {
+            if (force) {
+                window._kyraSubmittingAddAccess = false;
+                window._kyraSubmittingRequest = false;
+                window._kyraLoginTransition = false;
+            }
             if (!force && (window._kyraSubmittingAddAccess || window._kyraSubmittingRequest || window._kyraLoginTransition)) {
                 return;
             }

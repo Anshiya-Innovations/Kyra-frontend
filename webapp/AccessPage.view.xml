@@ -3613,7 +3613,7 @@
                             <Avatar src="sap-icon://table-view" class="kyraMasterViewAvatar" displaySize="S" />
                             <VBox class="kyraCardHeaderTextCol">
                                 <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
-                                <Text text="First 10 active entitlements and granted role assignments." class="fioriDescriptionText" />
+                                <Text text="{= ${accessModel>/showAllActiveEntitlements} ? 'All active entitlements and granted role assignments.' : 'First 5 active entitlements and granted role assignments.' }" class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
                         <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
@@ -3624,19 +3624,19 @@
                                 liveChange=".onSearchMyAccess"
                                 class="kyraAdminSearchField kyraEntitlementsSearchField" />
                             <Button
-                                text="View All"
-                                icon="sap-icon://grid"
+                                text="{= ${accessModel>/showAllActiveEntitlements} ? 'View Less' : 'View All' }"
+                                icon="{= ${accessModel>/showAllActiveEntitlements} ? 'sap-icon://navigation-up-arrow' : 'sap-icon://grid' }"
                                 type="Emphasized"
                                 press=".onNavToMyAccessMasterPage"
                                 class="kyraViewAllBtn"
-                                tooltip="View all active system access and entitlements in complete view" />
+                                tooltip="{= ${accessModel>/showAllActiveEntitlements} ? 'Show first 5 entitlements' : 'View all active system access and entitlements in complete view' }" />
                         </HBox>
                     </HBox>
 
                     <Table
                         id="myAccessTable"
                         fixedLayout="true"
-                        items="{accessModel>/userAccessList}"
+                        items="{accessModel>/displayedUserAccessList}"
                         noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>

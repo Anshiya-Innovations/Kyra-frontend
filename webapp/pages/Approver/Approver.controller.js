@@ -894,6 +894,7 @@ sap.ui.define([
                     duration: 20000
                 });
             }
+            try {
             const sDate = new Date().toISOString().split("T")[0];
             const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
 
@@ -1146,7 +1147,17 @@ sap.ui.define([
             } else {
                 MessageToast.show("Decision submitted for User Id " + oData.requestId);
             }
-            oModel.setProperty("/showRequestDetailView", false);
+            } catch (err) {
+                console.error("Error submitting decision:", err);
+                if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                    window.KyraLoader.forceHide();
+                } else if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide(null, true);
+                }
+                sap.m.MessageToast.show("Error submitting decision: " + (err.message || err));
+            } finally {
+                oModel.setProperty("/showRequestDetailView", false);
+            }
         },
 
         _buildApproverHistoryAndPending(aRawRecords) {

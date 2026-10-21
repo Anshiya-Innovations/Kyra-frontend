@@ -2579,7 +2579,7 @@ sap.ui.define([
             if (this.getView() && typeof this.getView().setVisible === "function") {
                 this.getView().setVisible(true);
             }
-            if (window._kyraLoginTransition || (window.KyraLoader && typeof window.KyraLoader.show === "function" && !window.KyraLoader.isShowing())) {
+            if (window._kyraLoginTransition) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Loading KYRA Access Management...",
@@ -4261,7 +4261,7 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/requestHistory", aDisplayedHistory);
             this._setSmartProperty(oModel, "/myHistoryRequests", aDisplayedHistory);
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
-            this._setSmartProperty(oModel, "/displayedUserAccessList", aUniqueUserAccessList);
+            this._updateDisplayedUserAccess();
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
 
             let iRevokedHistory = 0;
@@ -9712,17 +9712,12 @@ sap.ui.define([
 
             window._kyraSubmittingAddAccess = false;
             window._kyraSubmittingRequest = false;
-            if (oLoader && typeof oLoader.showSuccess === "function") {
-                oLoader.showSuccess({
-                    title: "Access Request Submitted",
-                    subtitle: `Successfully recorded ${aValidItems.length} access item(s) into database.`,
-                    duration: 1800,
-                    onComplete: fnShowFinalModal
-                });
-            } else {
-                if (oLoader && typeof oLoader.hide === "function") {
-                    oLoader.hide(null, true);
-                }
+            if (oLoader && typeof oLoader.forceHide === "function") {
+                oLoader.forceHide();
+            } else if (oLoader && typeof oLoader.hide === "function") {
+                oLoader.hide(null, true);
+            }
+            fnShowFinalModal();
                 fnShowFinalModal();
             }
         },
@@ -10649,28 +10644,12 @@ sap.ui.define([
         },
 
         onNavToMyAccessMasterPage() {
-            this._confirmDiscardAddAccess(() => {
-                const oModel = this.getView().getModel("accessModel");
-                if (!oModel) return;
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
 
-                const bCurr = oModel.getProperty("/showMyAccessMasterSection");
-                oModel.setProperty("/showMyAccessMasterSection", !bCurr);
-                oModel.setProperty("/showPendingSection", false);
-                oModel.setProperty("/showApprovedSection", false);
-                oModel.setProperty("/showAddAccessSector", false);
-                oModel.setProperty("/showRemoveAccessSector", false);
-                oModel.setProperty("/showRequestDetailsPage", false);
-
-                if (!bCurr) {
-                    setTimeout(() => {
-                        const oPage = this.byId("accessPortalPage");
-                        const oTarget = this.byId("myAccessMasterSectionContainer");
-                        if (oPage && oTarget) {
-                            oPage.scrollToElement(oTarget, 400);
-                        }
-                    }, 100);
-                }
-            });
+            const bCurr = !!oModel.getProperty("/showAllActiveEntitlements");
+            oModel.setProperty("/showAllActiveEntitlements", !bCurr);
+            this._updateDisplayedUserAccess();
         },
 
         onCloseMyAccessMasterSection() {
@@ -10684,26 +10663,35 @@ sap.ui.define([
             this.onNavToMyAccessMasterPage();
         },
 
+        _updateDisplayedUserAccess() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const aAll = oModel.getProperty("/userAccessList") || [];
+            const bShowAll = !!oModel.getProperty("/showAllActiveEntitlements");
+            const sQuery = (this._sMyAccessSearchQuery || "").toLowerCase().trim();
+
+            let aList = aAll;
+            if (sQuery.length > 0) {
+                aList = aAll.filter(item => {
+                    const sSys = (item.system || "").toLowerCase();
+                    const sServ = (item.services || item.serviceTopic || "").toLowerCase();
+                    const sRole = (item.teamRole || item.roleName || item.team || "").toLowerCase();
+                    const sPers = (item.persona || "").toLowerCase();
+                    const sStat = (item.status || "").toLowerCase();
+                    return sSys.includes(sQuery) || sServ.includes(sQuery) || sRole.includes(sQuery) || sPers.includes(sQuery) || sStat.includes(sQuery);
+                });
+            } else if (!bShowAll) {
+                aList = aAll.slice(0, 5);
+            }
+
+            this._setSmartProperty(oModel, "/displayedUserAccessList", aList);
+        },
+
         onSearchMyAccess(oEvent) {
             const sQuery = (oEvent.getParameter("newValue") !== undefined ? oEvent.getParameter("newValue") : (oEvent.getParameter("query") || "")).toLowerCase().trim();
             this._sMyAccessSearchQuery = sQuery;
-            const aFilters = [];
-            if (sQuery.length > 0) {
-                aFilters.push(new sap.ui.model.Filter([
-                    new sap.ui.model.Filter("system", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("services", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("serviceTopic", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("teamRole", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("roleName", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("team", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("persona", sap.ui.model.FilterOperator.Contains, sQuery),
-                    new sap.ui.model.Filter("status", sap.ui.model.FilterOperator.Contains, sQuery)
-                ], false));
-            }
-            const oTable = this.byId("myAccessTable");
-            if (oTable && oTable.getBinding("items")) {
-                oTable.getBinding("items").filter(aFilters);
-            }
+            this._updateDisplayedUserAccess();
         },
 
         onSearchRequests(oEvent) {
@@ -11817,6 +11805,13 @@ sap.ui.define([
                             }]
                         };
 
+                        if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                            window.KyraLoader.show({
+                                title: "Submitting Revocation Request...",
+                                subtitle: "Processing entitlement revocation and updating records...",
+                                duration: 15000
+                            });
+                        }
                         const res = await fetch("/odata/v4/auth/submitAccessRequest", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -11927,6 +11922,11 @@ sap.ui.define([
                         console.error("Revocation error:", err);
                         MessageToast.show("Failed to submit revocation request: " + (err.message || err));
                     } finally {
+                        if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                            window.KyraLoader.forceHide();
+                        } else if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide(null, true);
+                        }
                         if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                             sap.ui.core.BusyIndicator.hide();
                         }

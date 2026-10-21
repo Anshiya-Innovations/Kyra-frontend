@@ -1330,6 +1330,7 @@ sap.ui.define([
 
                 if (!response.ok || (data.error && data.error.message)) {
                     window._kyraSubmittingAddAccess = false;
+                    window._kyraSubmittingRequest = false;
                     const sErrMsg = (data.error && data.error.message) ? data.error.message : "Failed to persist request into database.";
                     if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
                         window.KyraLoader.hide();
@@ -1354,8 +1355,11 @@ sap.ui.define([
                 try { localStorage.setItem("kyra_last_db_mutation", String(Date.now())); } catch(e) {}
             } catch (err) {
                 window._kyraSubmittingAddAccess = false;
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
+                window._kyraSubmittingRequest = false;
+                if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                    window.KyraLoader.forceHide();
+                } else if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide(null, true);
                 } else if (window.hideKyraLoading) {
                     window.hideKyraLoading();
                 }

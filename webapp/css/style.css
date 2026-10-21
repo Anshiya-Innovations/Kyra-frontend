@@ -6552,13 +6552,14 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     flex-shrink: 0 !important;
 }
 
-.kyra-btn-outline {
+.kyra-btn-outline,
+#kyra_btn_export_log {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background: #FFFFFF;
-    border: 1px solid #CBD5E1;
-    color: #334155;
+    border: 1.5px solid #008C9C;
+    color: #00778B;
     font-size: 13px;
     font-weight: 600;
     border-radius: 8px;
@@ -6568,10 +6569,19 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     outline: none;
 }
 
-.kyra-btn-outline:hover {
-    background: #F8FAFC;
-    border-color: #94A3B8;
-    color: #0F172A;
+.kyra-btn-outline:hover,
+#kyra_btn_export_log:hover {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.18) !important;
+}
+
+.kyra-btn-outline:hover svg,
+#kyra_btn_export_log:hover svg {
+    stroke: #007684 !important;
 }
 
 .kyra-btn-primary {
