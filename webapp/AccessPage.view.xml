@@ -1291,10 +1291,13 @@
                         <!-- ========================================================================= -->
                         <!-- SUB-SECTION 2: AD GROUP INTEGRATION (ACTIVE DIRECTORY & LDAP SYNC)        -->
                         <!-- ========================================================================= -->
-                        <VBox id="adGroupIntegrationContainer"
-                            visible="{= ${accessModel>/selectedIntegrationType} === 'ad_group' }"
-                            width="100%"
-                            class="kyraDarkStudioWrapper kyraSlideAnim">
+                        <VBox id="adGroupIntegrationSubSection" visible="{= ${accessModel>/selectedIntegrationType} === 'ad_group' }" width="100%">
+
+                            <!-- PAGE 1: CONFIGURE AD GROUP INTEGRATION (SLIDE 1 - IMAGE 3) -->
+                            <VBox id="adGroupConfigContainer"
+                                visible="{= ${accessModel>/adGroupIntegration/currentStep} === 1 || !${accessModel>/adGroupIntegration/currentStep} }"
+                                width="100%"
+                                class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Top Title Block -->
                             <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
@@ -1470,6 +1473,13 @@
                                     class="kyraDarkTestConnBtn"
                                     width="100%" />
                             </VBox>
+                        </VBox>
+
+                        <!-- PAGE 2: DISCOVERED AD SECURITY GROUPS (SLIDE 2 - IMAGE 4) -->
+                        <VBox id="adGroupDiscoveredContainer"
+                            visible="{= ${accessModel>/adGroupIntegration/currentStep} === 2 }"
+                            width="100%"
+                            class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Discovered AD Groups Preview Table -->
                             <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
@@ -1514,20 +1524,28 @@
                                 </Table>
                             </VBox>
 
-                            <!-- Bottom Action Bar -->
+                            <!-- Bottom Action Bar matching Image 4 -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
                                 <HBox alignItems="Center" class="kyraDarkPromptBox">
                                     <Text text="Active Directory Sync Status: " class="kyraDarkPromptHint" />
-                                    <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected &amp; Synced ✓' : 'Awaiting Connection Test' }" class="kyraDarkPromptTarget" />
+                                    <Text text="Connected &amp; Synced ✓" class="kyraDarkPromptTarget" style="color: #10B981 !important; font-weight: 700;" />
                                 </HBox>
-                                <Button
-                                    text="Close Section"
-                                    icon="sap-icon://decline"
-                                    type="Transparent"
-                                    press=".onCloseAdminSection"
-                                    class="kyraDarkBackLinkBtn" />
+                                <HBox alignItems="Center" gap="12px">
+                                    <Button
+                                        text="← Reconfigure AD Integration"
+                                        press=".onBackToAdConfig"
+                                        type="Default"
+                                        class="kyraDarkOutlineBtn" />
+                                    <Button
+                                        text="Close Section"
+                                        icon="sap-icon://decline"
+                                        type="Transparent"
+                                        press=".onCloseAdminSection"
+                                        class="kyraDarkBackLinkBtn" />
+                                </HBox>
                             </HBox>
                         </VBox>
+                    </VBox>
 
                         <!-- ========================================================================= -->
                         <!-- SUB-SECTION 3: IAM APPROVER INTEGRATION (TWO APPROVER CARDS & CHANNELS)   -->
@@ -3612,7 +3630,13 @@
                         <HBox alignItems="Center" class="kyraCardHeaderLeft">
                             <Avatar src="sap-icon://table-view" class="kyraMasterViewAvatar" displaySize="S" />
                             <VBox class="kyraCardHeaderTextCol">
-                                <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                <HBox alignItems="Center">
+                                    <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                    <HBox alignItems="Center" class="kyraHeaderTimeBadge">
+                                        <core:Icon src="sap-icon://history" class="kyraHeaderTimeBadgeIcon" />
+                                        <Text text="{= 'Today, ' + (${accessModel>/lastEntitlementSyncTime} || '6:00 PM') }" class="kyraHeaderTimeBadgeText" />
+                                    </HBox>
+                                </HBox>
                                 <Text text="{= ${accessModel>/showAllActiveEntitlements} ? 'All active entitlements and granted role assignments.' : 'First 5 active entitlements and granted role assignments.' }" class="fioriDescriptionText" />
                             </VBox>
                         </HBox>

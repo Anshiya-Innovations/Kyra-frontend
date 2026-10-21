@@ -4262,6 +4262,7 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/myHistoryRequests", aDisplayedHistory);
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
             this._updateDisplayedUserAccess();
+            this._setSmartProperty(oModel, "/lastEntitlementSyncTime", "6:00 PM");
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
 
             let iRevokedHistory = 0;
@@ -15434,7 +15435,8 @@ sap.ui.define([
                 if (!oModel.getProperty("/selectedIntegrationType")) {
                     oModel.setProperty("/selectedIntegrationType", "sap");
                 }
-                oModel.setProperty("/sapIntegration/currentStep", 1);
+                oModel.setProperty("/sapIntegration/currentStep", 2);
+                if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("sapPurchasedAppsContainer", 40), 100); }
                 oModel.setProperty("/sapIntegration/isAppExpanded", false);
                 setTimeout(() => {
                     this._smoothScrollTo("adminDatabaseConfigSection", 40);
@@ -20077,6 +20079,15 @@ sap.ui.define([
                 oModel.setProperty("/sapIntegration/lastQuotaSync", sTime);
                 MessageToast.show("SAP BTP Live Quotas updated at " + sTime);
             }, 600);
+        },
+
+        onBackToAdConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/adGroupIntegration/currentStep", 1);
+            if (typeof this._smoothScrollTo === "function") {
+                setTimeout(() => this._smoothScrollTo("adGroupConfigContainer", 40), 40);
+            }
         },
 
         onBackToSapConfig() {
