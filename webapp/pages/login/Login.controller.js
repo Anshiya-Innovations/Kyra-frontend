@@ -60,8 +60,8 @@ sap.ui.define([
                 isBusy: false,
                 hasError: false,
                 errorMessage: "",
-                idLabel: "User ID",
-                idPlaceholder: "Enter your User ID",
+                idLabel: "Email ID",
+                idPlaceholder: "Enter your Email ID (e.g. user@company.com)",
                 idState: "None",
                 idStateText: ""
             });
@@ -185,8 +185,8 @@ sap.ui.define([
                 oModel.setProperty("/userId", "");
                 oModel.setProperty("/hasError", false);
                 oModel.setProperty("/errorMessage", "");
-                oModel.setProperty("/idLabel", "User ID");
-                oModel.setProperty("/idPlaceholder", "Enter your User ID");
+                oModel.setProperty("/idLabel", "Email ID");
+                oModel.setProperty("/idPlaceholder", "Enter your Email ID (e.g. user@company.com)");
                 oModel.setProperty("/idState", "None");
                 oModel.setProperty("/idStateText", "");
             }
@@ -207,25 +207,8 @@ sap.ui.define([
             const sSelectedRole = oSelectedItem ? oSelectedItem.getKey() : "";
             const oModel = this.getView().getModel("login");
 
-            let sLabel = "User ID";
-            let sPlaceholder = "Enter your User ID";
-
-            if (sSelectedRole === "Admin" || sSelectedRole === "Administrator") {
-                sLabel = "Admin ID";
-                sPlaceholder = "Enter your Admin ID";
-            } else if (sSelectedRole === "Approver") {
-                sLabel = "Approver ID";
-                sPlaceholder = "Enter your Approver ID";
-            } else if (sSelectedRole === "Compliance Review" || sSelectedRole === "Compliance Approver") {
-                sLabel = "Compliance Review ID";
-                sPlaceholder = "Enter your Compliance Review ID";
-            } else if (sSelectedRole === "Requester" || sSelectedRole === "Review") {
-                sLabel = "Requester ID";
-                sPlaceholder = "Enter your Requester ID";
-            } else {
-                sLabel = "User ID";
-                sPlaceholder = "Enter your User ID";
-            }
+            const sLabel = "Email ID";
+            const sPlaceholder = "Enter your Email ID (e.g. user@company.com)";
 
             oModel.setProperty("/selectedRole", sSelectedRole);
             oModel.setProperty("/idLabel", sLabel);
@@ -570,7 +553,7 @@ sap.ui.define([
             fetch("/odata/v4/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: sUserId, password: "Pass@123", role: sEffectiveTitle })
+                body: JSON.stringify({ username: sUserId, email: sUserId, password: "Pass@123", role: sEffectiveTitle })
             }).then(async (oRes) => {
                 let oData = null;
                 try { oData = await oRes.json(); } catch(e) {}

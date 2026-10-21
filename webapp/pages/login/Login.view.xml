@@ -156,11 +156,12 @@
                             <!-- Dynamic ID Input Field -->
                             <VBox class="kyraFormGroup" width="100%">
                                 <HBox alignItems="Center" class="kyraLabelRow">
-                                    <core:Icon src="sap-icon://employee" class="kyraLabelIcon" />
+                                    <core:Icon src="sap-icon://email" class="kyraLabelIcon" />
                                     <Label text="{login>/idLabel}" labelFor="idInput" class="kyraFormLabel" />
                                 </HBox>
                                 <Input
                                     id="idInput"
+                                    type="Email"
                                     value="{login>/userId}"
                                     placeholder="{login>/idPlaceholder}"
                                     valueState="{login>/idState}"
