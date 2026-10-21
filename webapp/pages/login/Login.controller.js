@@ -507,11 +507,13 @@ sap.ui.define([
                     }
                 };
 
-                // Dismiss loader immediately and navigate directly without showing intermediate success popup card
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
+                // Seamlessly maintain the loading screen during navigation until AccessPage data is rendered
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading KYRA Governance Dashboard...",
+                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        duration: 25000
+                    });
                 }
                 fnNavigateToAccessPage();
             };
@@ -543,8 +545,8 @@ sap.ui.define([
             // Strict Database Authentication against connected backend
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                 window.KyraLoader.show({
-                    title: "Signing In...",
-                    subtitle: "Authenticating credentials against database...",
+                    title: "Loading KYRA Governance Dashboard...",
+                    subtitle: "Pre-loading active roles, entitlements, and governance records...",
                     duration: 20000
                 });
             }

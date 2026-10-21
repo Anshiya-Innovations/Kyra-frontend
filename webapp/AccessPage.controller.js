@@ -5,8 +5,9 @@ sap.ui.define([
     "sap/m/MessageBox",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "kyra001/model/KyraDialog"
-], (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator, KyraDialog) => {
+    "kyra001/model/KyraDialog",
+    "kyra001/model/KyraLoader"
+], (Controller, JSONModel, MessageToast, MessageBox, Filter, FilterOperator, KyraDialog, KyraLoader) => {
     "use strict";
 
     const DEFAULT_MIGRATION_COLUMNS = [
@@ -2572,6 +2573,13 @@ sap.ui.define([
             // Authenticated: make AccessPage view visible and proceed
             if (this.getView() && typeof this.getView().setVisible === "function") {
                 this.getView().setVisible(true);
+            }
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function" && !window.KyraLoader.isShowing()) {
+                window.KyraLoader.show({
+                    title: "Loading KYRA Governance Dashboard...",
+                    subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                    duration: 20000
+                });
             }
             const oModel = this.getView().getModel("accessModel");
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
@@ -9393,13 +9401,16 @@ sap.ui.define([
 
             // Show unified SAP Fiori loading screen with #008C9C spinner during Add Access submit
             window._kyraSubmittingAddAccess = true;
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Submitting Access Request…",
-                    subtitle: "Persisting access request to PostgreSQL database…",
-                    duration: 30000,
-                    forceShow: true
+            window._kyraSubmittingRequest = true;
+            const oLoader = (typeof KyraLoader !== "undefined" && KyraLoader) || window.KyraLoader;
+            if (oLoader && typeof oLoader.show === "function") {
+                oLoader.show({
+                    title: "Submitting Access Request...",
+                    subtitle: "Processing entitlements and persisting governance records...",
+                    duration: 35000
                 });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Submitting Access Request...", "Processing entitlements and persisting governance records...", 35000);
             }
 
             const aActiveConflicts = oModel.getProperty("/activeSodConflictsList") || [];
@@ -9493,8 +9504,9 @@ sap.ui.define([
 
             } catch (err) {
                 window._kyraSubmittingAddAccess = false;
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
+                window._kyraSubmittingRequest = false;
+                if (oLoader && typeof oLoader.forceHide === "function") {
+                    oLoader.forceHide();
                 } else if (window.hideKyraLoading) {
                     window.hideKyraLoading();
                 }
@@ -9657,15 +9669,19 @@ sap.ui.define([
                 }
             };
 
-            if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
-                window.KyraLoader.showSuccess({
+            window._kyraSubmittingAddAccess = false;
+            window._kyraSubmittingRequest = false;
+            if (oLoader && typeof oLoader.showSuccess === "function") {
+                oLoader.showSuccess({
                     title: "Access Request Submitted",
                     subtitle: `Successfully recorded ${aValidItems.length} access item(s) into database.`,
                     duration: 1800,
-                    forceShow: true,
                     onComplete: fnShowFinalModal
                 });
             } else {
+                if (oLoader && typeof oLoader.hide === "function") {
+                    oLoader.hide(null, true);
+                }
                 fnShowFinalModal();
             }
         },

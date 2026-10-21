@@ -2,8 +2,9 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
-    "sap/m/MessageBox"
-], (Controller, JSONModel, MessageToast, MessageBox) => {
+    "sap/m/MessageBox",
+    "kyra001/model/KyraLoader"
+], (Controller, JSONModel, MessageToast, MessageBox, KyraLoader) => {
     "use strict";
 
     const oFunctionsMap = {
@@ -1279,13 +1280,16 @@ sap.ui.define([
 
             // Show unified SAP Fiori loading screen with #008C9C spinner during Add Access submit
             window._kyraSubmittingAddAccess = true;
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show({
-                    title: "Submitting Access Request…",
-                    subtitle: "Persisting access request to PostgreSQL database…",
-                    duration: 30000,
-                    forceShow: true
+            window._kyraSubmittingRequest = true;
+            const oLoader = (typeof KyraLoader !== "undefined" && KyraLoader) || window.KyraLoader;
+            if (oLoader && typeof oLoader.show === "function") {
+                oLoader.show({
+                    title: "Submitting Access Request...",
+                    subtitle: "Processing entitlements and persisting governance records...",
+                    duration: 35000
                 });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Submitting Access Request...", "Processing entitlements and persisting governance records...", 35000);
             }
 
             const sUser = sessionStorage.getItem("kyra_active_user") || "";
@@ -1407,8 +1411,10 @@ sap.ui.define([
                 });
             };
 
-            if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
-                window.KyraLoader.showSuccess({
+            window._kyraSubmittingAddAccess = false;
+            window._kyraSubmittingRequest = false;
+            if (oLoader && typeof oLoader.showSuccess === "function") {
+                oLoader.showSuccess({
                     title: "Request Stored in Database",
                     subtitle: `Successfully recorded ${aItemsToSubmit.length} access item(s) into database.`,
                     duration: 1800,
