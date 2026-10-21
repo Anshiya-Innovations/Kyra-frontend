@@ -185,11 +185,13 @@ sap.ui.define([
             if (oModel) {
                 const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
                 const sRoleLower = sActiveRole.toLowerCase();
-                const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "" || !!oModel.getProperty("/isRequester"));
-                const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+                const isCompliance = sRoleLower.includes("compliance") || !!oModel.getProperty("/isCompliance");
+                const isApprover = sRoleLower.includes("approver") || isCompliance || !!oModel.getProperty("/isApproverPersona");
+                const bIsAdmin = !isApprover && (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+                const bIsRequester = !isApprover && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "");
 
                 // STRICT: When active persona is Requester or Admin, NEVER show approver section
-                if (bIsRequester || bIsAdmin) {
+                if (bIsRequester || bIsAdmin || !isApprover) {
                     oModel.setProperty("/showApproverSection", false);
                     oModel.setProperty("/isApproverPersona", false);
                     oModel.setProperty("/isCompliance", false);
@@ -213,10 +215,11 @@ sap.ui.define([
                     return;
                 }
 
-                const isCompliance = sRoleLower.includes("compliance");
-                const isApprover = sRoleLower.includes("approver") || isCompliance;
-                const bShowApproverSection = isApprover;
+                const bShowApproverSection = true;
 
+                oModel.setProperty("/isRequester", false);
+                oModel.setProperty("/isAdminPersona", false);
+                oModel.setProperty("/isAdmin", false);
                 oModel.setProperty("/isCompliance", isCompliance);
                 oModel.setProperty("/isComplianceReviewer", isCompliance);
                 oModel.setProperty("/isCompliancePersona", isCompliance);
@@ -225,6 +228,9 @@ sap.ui.define([
 
                 const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
                 if (oCompModel && oCompModel !== oModel) {
+                    oCompModel.setProperty("/isRequester", false);
+                    oCompModel.setProperty("/isAdminPersona", false);
+                    oCompModel.setProperty("/isAdmin", false);
                     oCompModel.setProperty("/isCompliance", isCompliance);
                     oCompModel.setProperty("/isComplianceReviewer", isCompliance);
                     oCompModel.setProperty("/isCompliancePersona", isCompliance);
@@ -1879,6 +1885,12 @@ sap.ui.define([
 
             // ── STEP 1: INSTANT HYDRATION (0 ms) from memory or storage ──────────
             let aInitialData = window._kyraCachedGovRequests;
+            if (!aInitialData || !aInitialData.length) {
+                const aModelReqs = oModel.getProperty("/allSubmittedRequests") || oModel.getProperty("/pendingRequests");
+                if (aModelReqs && aModelReqs.length > 0) {
+                    aInitialData = aModelReqs;
+                }
+            }
             if (!aInitialData || !aInitialData.length) {
                 try {
                     const sSaved = sessionStorage.getItem("kyra_cached_gov_requests") || localStorage.getItem("kyra_cached_gov_requests");

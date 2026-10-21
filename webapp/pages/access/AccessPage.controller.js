@@ -2545,6 +2545,10 @@ sap.ui.define([
         },
 
         async _onRouteMatched() {
+            if (this._bRouteMatchedExecuting) {
+                return;
+            }
+            this._bRouteMatchedExecuting = true;
             const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
             if (!bAuthenticated) {
                 // Instantly hide AccessPage view so unauthenticated users never see an empty dashboard
@@ -2572,6 +2576,7 @@ sap.ui.define([
                         }
                     }
                 } catch(e) {}
+                this._bRouteMatchedExecuting = false;
                 return;
             }
 
@@ -2628,6 +2633,8 @@ sap.ui.define([
                 oModel.setProperty("/showMyAccessMasterSection", false);
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
+                oModel.setProperty("/showHistorySection", false);
+                oModel.setProperty("/showApprovalHistory", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -2693,6 +2700,8 @@ sap.ui.define([
                 }
 
                 if (bShowApproverSection) {
+                    oModel.setProperty("/isRequester", false);
+                    oModel.setProperty("/showApproverSection", true);
                     this._updateApproverSectionVisibility();
                     setTimeout(() => {
                         try {
@@ -2734,16 +2743,16 @@ sap.ui.define([
                 } catch (err) {
                     console.error("Error loading dashboard data on route match:", err);
                 } finally {
-                    if (bIsLoginTransition || window._kyraLoginTransition) {
+                    // Proper dashboard and tables must be fully populated and rendered before loading screen stops
+                    setTimeout(() => {
                         window._kyraLoginTransition = false;
-                        setTimeout(() => {
-                            if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
-                                window.KyraLoader.forceHide();
-                            } else if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                                window.KyraLoader.hide(null, true);
-                            }
-                        }, 350);
-                    }
+                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide();
+                        } else if (window.hideKyraLoading) {
+                            window.hideKyraLoading();
+                        }
+                        this._bRouteMatchedExecuting = false;
+                    }, 500);
                 }
             }
 
@@ -3457,15 +3466,13 @@ sap.ui.define([
             }
 
             try {
-                // Periodically synchronize live SAP BTP Cockpit manual revocations (throttled to at most once per 15s)
+                // Periodically synchronize live SAP BTP Cockpit manual revocations (non-blocking in background)
                 const nowBtpTime = Date.now();
                 if (sActiveUser && (bForce || (nowBtpTime - (window._lastBtpSyncTime || 0) > 15000))) {
                     window._lastBtpSyncTime = nowBtpTime;
-                    try {
-                        await fetch("/api/sync-btp?user=" + encodeURIComponent(sActiveUser), {
-                            signal: (typeof AbortSignal !== "undefined" && AbortSignal.timeout) ? AbortSignal.timeout(4000) : undefined
-                        }).catch(() => {});
-                    } catch (eSync) {}
+                    fetch("/api/sync-btp?user=" + encodeURIComponent(sActiveUser), {
+                        signal: (typeof AbortSignal !== "undefined" && AbortSignal.timeout) ? AbortSignal.timeout(4000) : undefined
+                    }).catch(() => {});
                 }
 
                 if (bForce || !window._kyraGovFetchPromise) {
@@ -6555,25 +6562,18 @@ sap.ui.define([
             if (!oModel) return;
             const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
             const sRoleLower = sActiveRole.toLowerCase();
-            const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "" || !!oModel.getProperty("/isRequester"));
-            const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance"));
+            const bIsAdmin = !bIsApproverOrCompliance && (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+            const bIsRequester = !bIsApproverOrCompliance && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "");
 
-            // STRICT GUARANTEE: On ANY Requester or Admin page, NEVER show User Requests!
-            if (bIsRequester || bIsAdmin) {
-                oModel.setProperty("/showApproverSection", false);
-                const oApproverContainer = this.byId("approverSectionContainer");
-                if (oApproverContainer) {
-                    oApproverContainer.setVisible(false);
-                }
-                const oApproverView = this.byId("approverSectionView");
-                if (oApproverView) {
-                    oApproverView.setVisible(false);
-                }
-                return;
+            if (bIsApproverOrCompliance) {
+                oModel.setProperty("/isRequester", false);
+                oModel.setProperty("/isAdminPersona", false);
+                oModel.setProperty("/isAdmin", false);
             }
 
-            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance"));
-            if (!bIsApproverOrCompliance) {
+            // STRICT GUARANTEE: On ANY Requester or Admin page, NEVER show User Requests!
+            if (bIsRequester || bIsAdmin || !bIsApproverOrCompliance) {
                 oModel.setProperty("/showApproverSection", false);
                 const oApproverContainer = this.byId("approverSectionContainer");
                 if (oApproverContainer) {
@@ -6588,9 +6588,11 @@ sap.ui.define([
 
             // PERMANENT FIX: For Approver or Compliance persona, showApproverSection is ALWAYS true
             oModel.setProperty("/showApproverSection", true);
+            oModel.setProperty("/isRequester", false);
             const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
             if (oCompModel && oCompModel !== oModel) {
                 oCompModel.setProperty("/showApproverSection", true);
+                oCompModel.setProperty("/isRequester", false);
             }
 
             const sSelectedTab = oModel.getProperty("/selectedTabKey") || "myAccess";
@@ -6620,13 +6622,20 @@ sap.ui.define([
             const oApproverView = this.byId("approverSectionView");
             if (oApproverView) {
                 oApproverView.setVisible(bVisible);
-                if (!oApproverView.getModel("accessModel")) {
-                    oApproverView.setModel(oModel, "accessModel");
-                }
+                oApproverView.setModel(oModel, "accessModel");
                 try {
                     const oApproverCtrl = oApproverView.getController();
-                    if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
-                        oApproverCtrl._syncModelAndRequests();
+                    if (oApproverCtrl) {
+                        if (oApproverCtrl.getView && typeof oApproverCtrl.getView().setVisible === "function") {
+                            oApproverCtrl.getView().setVisible(bVisible);
+                        }
+                        const oCardRoot = oApproverCtrl.byId && oApproverCtrl.byId("kyraApproverCardRoot");
+                        if (oCardRoot && typeof oCardRoot.setVisible === "function") {
+                            oCardRoot.setVisible(bVisible);
+                        }
+                        if (typeof oApproverCtrl._syncModelAndRequests === "function") {
+                            oApproverCtrl._syncModelAndRequests();
+                        }
                     }
                 } catch(e) {}
             }
@@ -13906,7 +13915,12 @@ sap.ui.define([
             if (oAccessModel) {
                 oAccessModel.setProperty("/activeUser", "");
                 oAccessModel.setProperty("/activeRole", "Requester");
+                oAccessModel.setProperty("/isRequester", false);
+                oAccessModel.setProperty("/isAdminPersona", false);
+                oAccessModel.setProperty("/isAdmin", false);
                 oAccessModel.setProperty("/isApproverPersona", false);
+                oAccessModel.setProperty("/showApproverSection", false);
+                oAccessModel.setProperty("/showHistorySection", false);
                 oAccessModel.setProperty("/isAuthenticated", false);
                 oAccessModel.setProperty("/showAddAccessSector", false);
                 oAccessModel.setProperty("/showRemoveAccessSector", false);

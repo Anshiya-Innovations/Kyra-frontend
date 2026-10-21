@@ -437,6 +437,7 @@ sap.ui.define([
                     oAccessModel.setProperty("/showMyAccessMasterSection", false);
                     oAccessModel.setProperty("/showPendingSection", false);
                     oAccessModel.setProperty("/showApprovedSection", false);
+                    oAccessModel.setProperty("/showHistorySection", false);
                     oAccessModel.setProperty("/showAllNotificationsPage", false);
                     oAccessModel.setProperty("/showHelpPage", false);
                     oAccessModel.setProperty("/showRequestDetailsPage", false);
@@ -460,6 +461,7 @@ sap.ui.define([
                     oAccessModel.setProperty("/isAdmin", bIsAdmin);
                     oAccessModel.setProperty("/isAdminPersona", bIsAdmin);
                     oAccessModel.setProperty("/adminSelectedSection", "");
+                    oAccessModel.setProperty("/isRequester", bIsRequester);
                     oAccessModel.setProperty("/isApproverPersona", bIsApprover);
                     oAccessModel.setProperty("/isCompliance", isCompliance);
                     oAccessModel.setProperty("/isComplianceReviewer", isCompliance);
