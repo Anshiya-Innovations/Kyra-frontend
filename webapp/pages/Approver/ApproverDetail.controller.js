@@ -2075,9 +2075,6 @@ sap.ui.define([
             } else if (window.showKyraLoading) {
                 window.showKyraLoading("Submitting Access Decision...", "Recording decision and updating governance audit log...");
             }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
-            }
 
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
             const sActiveRoleLower = sActiveRole.toLowerCase();

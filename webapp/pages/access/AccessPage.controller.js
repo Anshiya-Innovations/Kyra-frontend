@@ -1362,7 +1362,7 @@ sap.ui.define([
             if (typeof BroadcastChannel !== "undefined") {
                 try {
                     const syncChannel = new BroadcastChannel("kyra_db_sync_channel");
-                    syncChannel.postMessage({ type: "NEW_REQUEST_SUBMITTED", timestamp: Date.now() });
+                    syncChannel.postMessage({ type: "NEW_REQUEST_SUBMITTED", senderId: this._instanceId, timestamp: Date.now() });
                     syncChannel.close();
                 } catch(e) { console.warn("BroadcastChannel post error:", e); }
             }

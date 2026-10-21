@@ -803,9 +803,6 @@ sap.ui.define([
             } else if (window.showKyraLoading) {
                 window.showKyraLoading("Loading Request Tracking...", "Retrieving live governance status from database...");
             }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
-            }
 
             const oCleanData = Object.assign({}, oData || {});
             delete oCleanData.requestId;

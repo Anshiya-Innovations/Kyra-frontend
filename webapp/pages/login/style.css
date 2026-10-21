@@ -11393,6 +11393,25 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn .sapMBtnInner:focus {
     background-color: #008C9C !important;
 }
 
+/* STRICT SUPPRESSION: While KyraLoader is active, hide ANY and ALL secondary UI5 native busy indicators */
+body.kyra-loader-active #sap-ui-busyindicator,
+body.kyra-loader-active .sapUiLocalBusyIndicator,
+body.kyra-loader-active .sapUiBusy,
+body.kyra-loader-active .sapUiBusyBlockLayer,
+body:has(.kyraLoadingOverlay.kyra-active) #sap-ui-busyindicator,
+body:has(.kyraLoadingOverlay.kyra-active) .sapUiLocalBusyIndicator,
+body:has(.kyraLoadingOverlay.kyra-active) .sapUiBusy,
+body:has(.kyraLoadingOverlay.kyra-active) .sapUiBusyBlockLayer,
+.kyraLoadingOverlay.kyra-active ~ #sap-ui-busyindicator,
+.kyraLoadingOverlay.kyra-active ~ .sapUiLocalBusyIndicator,
+.kyraLoadingOverlay.kyra-active ~ * .sapUiLocalBusyIndicator {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+
 /* STRICT EXCEPTION: Absolutely NO loading indicators or overlays inside Add Access */
 #addAccessSectionContainer .sapUiLocalBusyIndicator,
 #addAccessSectionContainer .sapUiBusy,

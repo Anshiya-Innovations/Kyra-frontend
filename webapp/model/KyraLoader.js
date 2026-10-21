@@ -1,10 +1,15 @@
 (function (root, factory) {
+    const oInstance = factory();
+    if (root) {
+        root.KyraLoader = oInstance;
+        root.KyraLoading = oInstance;
+    }
     if (typeof sap !== "undefined" && sap.ui && sap.ui.define) {
-        sap.ui.define([], factory);
+        sap.ui.define([], function() {
+            return oInstance;
+        });
     } else if (typeof module === "object" && module.exports) {
-        module.exports = factory();
-    } else {
-        root.KyraLoader = factory();
+        module.exports = oInstance;
     }
 })(typeof window !== "undefined" ? window : this, function() {
     "use strict";
@@ -17,17 +22,6 @@
     let _oTimerWatchdog = null;
     let _oSuccessTimer = null;
     let _bStylesInjected = false;
-
-    /**
-     * Determines whether the user is currently inside the Add Access page,
-     * including any of its slides, dropdowns, forms, target systems, or child sections.
-     * Admin page operations and explicit submit operations are strictly allowed.
-     * @param {Object} [options]
-     * @returns {boolean}
-     */
-    function isAddAccess(options) {
-        return false;
-    }
 
     /**
      * Injects the SAP Fiori light-theme CSS styles for the centralized KyraLoader.
@@ -178,36 +172,50 @@
             .sapMBusyDialog .sapUiLocalBusyIndicatorDot {
                 background-color: #008C9C !important;
             }
+
+            /* STRICT SUPPRESSION: While KyraLoader is active, hide ANY and ALL secondary UI5 native busy indicators */
+            body.kyra-loader-active #sap-ui-busyindicator,
+            body.kyra-loader-active .sapUiLocalBusyIndicator,
+            body.kyra-loader-active .sapUiBusy,
+            body.kyra-loader-active .sapUiBusyBlockLayer,
+            body:has(.kyraLoadingOverlay.kyra-active) #sap-ui-busyindicator,
+            body:has(.kyraLoadingOverlay.kyra-active) .sapUiLocalBusyIndicator,
+            body:has(.kyraLoadingOverlay.kyra-active) .sapUiBusy,
+            body:has(.kyraLoadingOverlay.kyra-active) .sapUiBusyBlockLayer,
+            .kyraLoadingOverlay.kyra-active ~ #sap-ui-busyindicator,
+            .kyraLoadingOverlay.kyra-active ~ .sapUiLocalBusyIndicator,
+            .kyraLoadingOverlay.kyra-active ~ * .sapUiLocalBusyIndicator {
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
         `;
         document.head.appendChild(oStyle);
     }
 
     /**
-     * Resolves the KYRA logo URL via SAPUI5 require or static fallback.
-     */
-    function getLogoUrl() {
-        let sLogoUrl = "images/kyra_k_logo.png";
-        try {
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.require && sap.ui.require.toUrl) {
-                sLogoUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
-            }
-        } catch (e) {}
-        return sLogoUrl;
-    }
-
-    /**
      * Ensures the centralized DOM overlay element exists in document.body.
+     * Enforces singleton state by removing any orphan duplicate overlays.
      */
     function ensureDom() {
         if (typeof document === "undefined" || !document.body) return null;
         ensureStyles();
-        if (!_oOverlay) {
-            _oOverlay = document.getElementById("kyra_loading_overlay");
+
+        // Enforce strict DOM singleton: remove any duplicate or orphan loading overlays
+        const aOverlays = document.querySelectorAll(".kyraLoadingOverlay, #kyra_loading_overlay");
+        if (aOverlays && aOverlays.length > 1) {
+            for (let i = 1; i < aOverlays.length; i++) {
+                if (aOverlays[i] && aOverlays[i].parentNode) {
+                    aOverlays[i].parentNode.removeChild(aOverlays[i]);
+                }
+            }
         }
+        _oOverlay = document.getElementById("kyra_loading_overlay");
+
         if (!_oOverlay) {
             ensureStyles();
 
-            const sLogoUrl = getLogoUrl();
             _oOverlay = document.createElement("div");
             _oOverlay.id = "kyra_loading_overlay";
             _oOverlay.className = "kyraLoadingOverlay";
@@ -246,8 +254,6 @@
          * @param {Object|string} [options] Optional title/text or options object.
          */
         show(options) {
-            // universal loading enabled
-
             _iActiveCount = 1;
 
             if (_oTimerWatchdog) {
@@ -259,7 +265,17 @@
                 _oSuccessTimer = null;
             }
 
-                        const oOverlay = ensureDom();
+            // Immediately suppress and hide any native SAP UI5 BusyIndicator
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                try {
+                    sap.ui.core.BusyIndicator.hide();
+                } catch(e) {}
+            }
+            if (typeof document !== "undefined" && document.body) {
+                document.body.classList.add("kyra-loader-active");
+            }
+
+            const oOverlay = ensureDom();
             if (oOverlay) {
                 let sTitle = "Loading KYRA Governance Dashboard...";
                 let sText = "Pre-loading active roles, entitlements, and governance records...";
@@ -298,10 +314,10 @@
                 oOverlay.classList.add("kyra-active");
             }
 
-            // Watchdog: ensures database saves continue fully without premature cutoff (default 20s)
+            // Watchdog: ensures database saves continue fully without premature cutoff (default 35s for submission)
             const iEffectiveDuration = (options && typeof options.duration === "number" && options.duration > 0)
                 ? options.duration
-                : 20000;
+                : 35000;
 
             _oTimerWatchdog = setTimeout(() => {
                 this.forceHide();
@@ -314,8 +330,6 @@
          * @param {Object|string} options
          */
         showSuccess(options) {
-            // universal loading enabled
-
             if (typeof options === "string") {
                 options = { subtitle: options };
             }
@@ -333,6 +347,16 @@
             if (_oSuccessTimer) {
                 clearTimeout(_oSuccessTimer);
                 _oSuccessTimer = null;
+            }
+
+            // Ensure native UI5 indicator remains suppressed during success transition
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                try {
+                    sap.ui.core.BusyIndicator.hide();
+                } catch(e) {}
+            }
+            if (typeof document !== "undefined" && document.body) {
+                document.body.classList.add("kyra-loader-active");
             }
 
             const oOverlay = ensureDom();
@@ -355,6 +379,7 @@
 
                 if (_oLoadingText) {
                     _oLoadingText.textContent = sSubtitle;
+                    _oLoadingText.style.display = sSubtitle ? "block" : "none";
                 }
 
                 oOverlay.classList.add("kyra-active");
@@ -394,6 +419,9 @@
             if (_oOverlay) {
                 _oOverlay.classList.remove("kyra-active");
             }
+            if (typeof document !== "undefined" && document.body) {
+                document.body.classList.remove("kyra-loader-active");
+            }
             if (typeof callback === "function") {
                 try { callback(); } catch (e) {}
             }
@@ -421,12 +449,25 @@
 
         /**
          * Sets up universal hooks:
-         * Connects sap.ui.core.BusyIndicator to use the centralized Fiori loading screen.
-         * Enforces strict Add Access exclusion so BusyIndicator never appears inside Add Access.
+         * Suppresses sap.ui.core.BusyIndicator whenever KyraLoader is showing or request submission is in flight,
+         * ensuring only a single unified loading indicator ever displays.
          */
         setupGlobalHooks() {
             ensureStyles();
-            // Do NOT hijack sap.ui.core.BusyIndicator globally - prevents unwanted repetitive full-screen popups
+            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                const oBI = sap.ui.core.BusyIndicator;
+                if (!oBI._kyraPatched) {
+                    oBI._kyraPatched = true;
+                    const fnOrigShow = oBI.show;
+                    oBI.show = function(iDelay) {
+                        // Suppress native UI5 BusyIndicator when KyraLoader is active or request submit is in flight
+                        if (KyraLoader.isShowing() || window._kyraSubmittingAddAccess || window._kyraSubmittingRequest) {
+                            return;
+                        }
+                        return fnOrigShow.apply(this, arguments);
+                    };
+                }
+            }
         },
 
         async wrap(pPromise) {
