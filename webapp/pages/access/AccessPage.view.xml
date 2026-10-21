@@ -1626,6 +1626,45 @@
                                 </Table>
                             </VBox>
 
+                            <!-- Synced AD Group Members & Persona Mapping Table -->
+                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%" visible="{= !!${accessModel>/adGroupIntegration/syncedUsers} &amp;&amp; ${accessModel>/adGroupIntegration/syncedUsers}.length &gt; 0 }">
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="10px">
+                                        <core:Icon src="sap-icon://user-settings" class="kyraDarkCardHeaderIcon" />
+                                        <Title text="Synced AD Group Members &amp; Kyra Persona Assignments" level="H4" class="kyraDarkCardHeaderTitle" />
+                                    </HBox>
+                                    <ObjectStatus text="{= ${accessModel>/adGroupIntegration/syncedUsers}.length + ' Users Synchronized' }" state="Success" icon="sap-icon://sys-enter-2" />
+                                </HBox>
+                                <Table
+                                    items="{accessModel>/adGroupIntegration/syncedUsers}"
+                                    fixedLayout="true"
+                                    class="sapUiNoMargin kyraAdminCleanTable">
+                                    <columns>
+                                        <Column width="26%" hAlign="Begin"><Text text="User Full Name" class="kyraAdminColHeader" /></Column>
+                                        <Column width="20%" hAlign="Begin"><Text text="Login ID / Username" class="kyraAdminColHeader" /></Column>
+                                        <Column width="24%" hAlign="Begin"><Text text="Directory Email" class="kyraAdminColHeader" /></Column>
+                                        <Column width="18%" hAlign="Begin"><Text text="Assigned Persona" class="kyraAdminColHeader" /></Column>
+                                        <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem vAlign="Middle">
+                                            <cells>
+                                                <HBox alignItems="Center" gap="8px">
+                                                    <core:Icon src="{= ${accessModel>targetPersona} === 'Approver' ? 'sap-icon://manager' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'sap-icon://activity-assigned-to-goal' : (${accessModel>targetPersona} === 'Admin' ? 'sap-icon://user-settings' : 'sap-icon://employee')) }" color="#00778B" />
+                                                    <Text text="{accessModel>fullName}" class="kyraAdminCellBold" />
+                                                </HBox>
+                                                <Text text="{accessModel>username}" class="fioriDescriptionText" />
+                                                <Text text="{accessModel>email}" class="fioriDescriptionText" />
+                                                <ObjectStatus
+                                                    text="{accessModel>targetPersona}"
+                                                    state="{= ${accessModel>targetPersona} === 'Approver' ? 'Warning' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'Error' : (${accessModel>targetPersona} === 'Admin' ? 'None' : 'Information')) }" />
+                                                <ObjectStatus text="Active &amp; Synced" state="Success" icon="sap-icon://sys-enter-2" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </VBox>
+
                             <!-- Bottom Action Bar -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
                                 <HBox alignItems="Center" class="kyraDarkPromptBox">

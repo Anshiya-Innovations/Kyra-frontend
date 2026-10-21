@@ -19805,6 +19805,7 @@ sap.ui.define([
 
             try {
                 let groups = [];
+                let users = [];
                 let sMsg = "";
 
                 try {
@@ -19824,6 +19825,9 @@ sap.ui.define([
                         const val = (data && data.value) ? data.value : data;
                         if (val && val.groupsJson) {
                             try { groups = JSON.parse(val.groupsJson); } catch (e) {}
+                        }
+                        if (val && val.usersJson) {
+                            try { users = JSON.parse(val.usersJson); } catch (e) {}
                         }
                         sMsg = (val && val.message) ? val.message : "";
                     }
@@ -19851,6 +19855,7 @@ sap.ui.define([
 
                 oModel.setProperty("/adGroupIntegration/connected", true);
                 oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
+                oModel.setProperty("/adGroupIntegration/syncedUsers", users);
                 oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
 
                 const successText = sMsg || ("✓ Successfully connected to Microsoft Entra ID! Discovered group '" + sGroupName + "'.");
