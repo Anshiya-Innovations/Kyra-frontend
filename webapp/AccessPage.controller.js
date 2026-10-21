@@ -2577,8 +2577,8 @@ sap.ui.define([
             if (window._kyraLoginTransition || (window.KyraLoader && typeof window.KyraLoader.show === "function" && !window.KyraLoader.isShowing())) {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
-                        title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        title: "Loading KYRA Access Management...",
+                        subtitle: "Loading user profile, entitlements, and access records...",
                         duration: 35000
                     });
                 }

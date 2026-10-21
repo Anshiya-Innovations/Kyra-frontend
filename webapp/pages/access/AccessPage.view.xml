@@ -65,7 +65,7 @@
                                     <Image src="{= ${accessModel>/brandLogoUrl} || 'images/kyra_k_logo.png' }" width="30px" height="36px" densityAware="false" class="kyraBannerLogoImg" alt="KYRA Logo" />
                                 </HBox>
                                 <VBox class="kyraBannerTextGroup">
-                                    <Title text="Enterprise Identity &amp; Access Governance" level="H2" class="fioriWelcomeTitle" />
+                                    <Title text="KYRA Access Management" level="H2" class="fioriWelcomeTitle" />
                                     <HBox alignItems="Center" class="kyraBannerPersonaRow">
                                         <Text text="Active Persona:" class="fioriWelcomeSubtitle" />
                                         <Text text="{= ${accessModel>/isAdminPersona} ? 'Administrator' : ${accessModel>/activeRole} }" class="kyraHeaderRolePill" />

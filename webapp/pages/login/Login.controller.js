@@ -521,8 +521,8 @@ sap.ui.define([
                 window._kyraLoginTransition = true;
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
-                        title: "Loading KYRA Governance Dashboard...",
-                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        title: "Loading KYRA Access Management...",
+                        subtitle: "Loading user profile, entitlements, and access records...",
                         duration: 35000
                     });
                 }
@@ -560,8 +560,8 @@ sap.ui.define([
             window._kyraLoginTransition = true;
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                 window.KyraLoader.show({
-                    title: "Loading KYRA Governance Dashboard...",
-                    subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                    title: "Authenticating User...",
+                    subtitle: "Verifying credentials and access permissions with database...",
                     duration: 35000
                 });
             }

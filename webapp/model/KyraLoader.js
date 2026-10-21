@@ -44,7 +44,7 @@
         oStyle.id = "kyra_fiori_loader_styles";
         oStyle.textContent = `
             /* =========================================================================
-               KYRA ENTERPRISE - GOVERNANCE DASHBOARD LOADING SCREEN
+               KYRA ACCESS MANAGEMENT LOADING SCREEN
                Modern minimal rounded card, #008C9C teal spinner, frosted glass backdrop
                ========================================================================= */
 
@@ -229,8 +229,8 @@
                         <div class="kyraLoadingSpinner"></div>
                     </div>
                     <div id="kyra_loading_text_container" class="kyraLoadingTextContainer">
-                        <div id="kyra_loading_title" class="kyraLoadingTitle">Loading KYRA Governance Dashboard...</div>
-                        <div id="kyra_loading_text" class="kyraLoadingText">Pre-loading active roles, entitlements, and governance records...</div>
+                        <div id="kyra_loading_title" class="kyraLoadingTitle">Loading KYRA Access Management...</div>
+                        <div id="kyra_loading_text" class="kyraLoadingText">Loading user profile, entitlements, and access records...</div>
                     </div>
                 </div>
             `;
@@ -277,8 +277,8 @@
 
             const oOverlay = ensureDom();
             if (oOverlay) {
-                let sTitle = "Loading KYRA Governance Dashboard...";
-                let sText = "Pre-loading active roles, entitlements, and governance records...";
+                let sTitle = "Loading KYRA Access Management...";
+                let sText = "Loading user profile, entitlements, and access records...";
 
                 if (typeof options === "string" && options.trim()) {
                     sTitle = options.trim();
@@ -289,7 +289,7 @@
                     else if (options.message) sText = options.message;
 
                     if (options.title && !options.subtitle && !options.text && !options.message) {
-                        sText = "Pre-loading active roles, entitlements, and governance records...";
+                        sText = "Processing request and synchronizing access records...";
                     }
                 }
 
