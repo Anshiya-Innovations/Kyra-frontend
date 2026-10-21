@@ -32492,8 +32492,25 @@ html body .sapUiTheme-sap_horizon .sapUiCalHeadNext,
 .sapUiCalHead .sapMBtn,
 .sapUiCalHead .sapUiIcon {
     color: #008C9C !important;
-    border-radius: 8px !important;
     transition: all 0.15s ease !important;
+}
+
+.sapUiCalHeadPrev,
+.sapUiCalHeadNext,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadPrev,
+html body .sapUiTheme-sap_horizon .sapUiCalHeadNext {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    border: 1px solid #E2E8F0 !important;
+    background: #F8FAFC !important;
+    color: #008C9C !important;
+    cursor: pointer !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .sapUiCalHeadPrev:hover,
@@ -32501,7 +32518,10 @@ html body .sapUiTheme-sap_horizon .sapUiCalHeadNext,
 html body .sapUiTheme-sap_horizon .sapUiCalHeadPrev:hover,
 html body .sapUiTheme-sap_horizon .sapUiCalHeadNext:hover {
     background: #F0FDFA !important;
-    color: #007583 !important;
+    border-color: #008C9C !important;
+    color: #008C9C !important;
+    transform: scale(1.06) !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.18) !important;
 }
 
 .sapUiCalHeadPrev .sapUiIcon,
@@ -58044,13 +58064,33 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearPicker:not([id*="YRP"]) .sapUiCal
     outline: none !important;
 }
 
-/* 10. Slide 4: Year Range Picker (Year Ranges - Clean 2 Columns x 4 Rows Grid with Wide Button Tiles) */
-div[id*="--YRP"]:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden):not([aria-hidden="true"]),
-div[id*="-YRP"]:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden):not([aria-hidden="true"]),
-.sapUiCalYearPicker[id*="YRP"]:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden):not([aria-hidden="true"]),
-html body .sapUiCalContent > div[id*="--YRP"]:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden):not([aria-hidden="true"]),
-html body .sapUiTheme-sap_horizon div[id*="--YRP"]:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden):not([aria-hidden="true"]),
-html body .sapUiTheme-sap_horizon .sapUiCalYearPicker[id*="YRP"]:not([style*="display: none"]):not([style*="display:none"]):not(.sapUiCalContentHidden):not([aria-hidden="true"]) {
+/* =========================================================================
+   10. Slide 4: Year Range Picker (Year Ranges - Modern 2 Columns x 4 Rows Grid)
+   Includes .sapUiYRP, .sapUiCalYearRangePicker, .sapUiYearRangePicker, [id*="YRP"], [id*="yearRange"]
+   ========================================================================= */
+.sapUiYRP,
+.sapUiCalYearRangePicker,
+.sapUiYearRangePicker,
+.sapUiCalYearRange,
+div[id*="--YRP"],
+div[id*="-YRP"],
+div[id*="YRP"],
+div[id*="yrp"],
+div[id*="YearRange"],
+div[id*="yearRange"],
+.sapUiCalYearPicker[id*="YRP"],
+html body .sapUiCalContent > .sapUiYRP,
+html body .sapUiCalContent > div[id*="YRP"],
+html body .sapUiCalContent > div[id*="yearRange"],
+html body .sapMPopover .sapUiYRP,
+html body .sapMPopover .sapUiCalYearRangePicker,
+html body .sapMPopover div[id*="YRP"],
+html body .sapMPopover div[id*="yearRange"],
+html body .sapMDatePicker-CTX .sapUiYRP,
+html body .sapMDatePicker-CTX div[id*="YRP"],
+html body .sapUiTheme-sap_horizon .sapUiYRP,
+html body .sapUiTheme-sap_horizon div[id*="YRP"],
+html body .sapUiTheme-sap_horizon div[id*="yearRange"] {
     position: static !important;
     left: auto !important;
     top: auto !important;
@@ -58064,49 +58104,63 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearPicker[id*="YRP"]:not([style*="di
     min-height: auto !important;
     height: auto !important;
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    grid-template-rows: repeat(4, 44px) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(4, 46px) !important;
     gap: 12px 14px !important;
-    padding: 10px 4px 14px 4px !important;
+    padding: 10px 6px 14px 6px !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
-    overflow-x: hidden !important;
-    overflow-y: hidden !important;
     background: #FFFFFF !important;
     z-index: 1 !important;
 }
 
-div[id*="--YRP"] div:not(.sapUiCalItem),
-div[id*="-YRP"] div:not(.sapUiCalItem),
-div[id*="--YRP"] > div,
-div[id*="-YRP"] > div,
-.sapUiCalYearPicker[id*="YRP"] > div,
-div[id*="--YRP"] div[role="row"],
-div[id*="-YRP"] div[role="row"],
-div[id*="--YRP"] .sapUiCalItems,
-div[id*="-YRP"] .sapUiCalItems {
+.sapUiYRP div:not(.sapUiCalItem),
+.sapUiCalYearRangePicker div:not(.sapUiCalItem),
+.sapUiYearRangePicker div:not(.sapUiCalItem),
+div[id*="YRP"] div:not(.sapUiCalItem),
+div[id*="yearRange"] div:not(.sapUiCalItem),
+.sapUiYRP > div,
+.sapUiCalYearRangePicker > div,
+div[id*="YRP"] > div,
+div[id*="yearRange"] > div,
+.sapUiYRP div[role="row"],
+div[id*="YRP"] div[role="row"],
+.sapUiYRP .sapUiCalItems,
+div[id*="YRP"] .sapUiCalItems {
     display: contents !important;
     width: 100% !important;
 }
 
+/* Individual Year Range Item Tile */
+.sapUiYRP .sapUiCalItem,
+.sapUiCalYearRangePicker .sapUiCalItem,
+.sapUiYearRangePicker .sapUiCalItem,
+.sapUiCalYearRange,
 div[id*="--YRP"] .sapUiCalItem,
 div[id*="-YRP"] .sapUiCalItem,
+div[id*="YRP"] .sapUiCalItem,
+div[id*="yrp"] .sapUiCalItem,
+div[id*="YearRange"] .sapUiCalItem,
+div[id*="yearRange"] .sapUiCalItem,
 .sapUiCalYearPicker[id*="YRP"] .sapUiCalItem,
-html body div[id*="--YRP"] .sapUiCalItem,
-html body div[id*="-YRP"] .sapUiCalItem,
-html body .sapUiCalYearPicker[id*="YRP"] .sapUiCalItem,
-html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItem,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItem,
-html body .sapMPopover div[id*="-YRP"] .sapUiCalItem,
-html body .sapMPopover .sapUiCalYearPicker[id*="YRP"] .sapUiCalItem,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem {
+html body div[id*="YRP"] .sapUiCalItem,
+html body .sapUiYRP .sapUiCalItem,
+html body .sapMPopover .sapUiYRP .sapUiCalItem,
+html body .sapMPopover .sapUiCalYearRangePicker .sapUiCalItem,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItem,
+html body .sapMPopover div[id*="yearRange"] .sapUiCalItem,
+html body .sapMDatePicker-CTX .sapUiYRP .sapUiCalItem,
+html body .sapMDatePicker-CTX div[id*="YRP"] .sapUiCalItem,
+html body .sapUiTheme-sap_horizon .sapUiYRP .sapUiCalItem,
+html body .sapUiTheme-sap_horizon div[id*="YRP"] .sapUiCalItem,
+html body .sapUiTheme-sap_horizon div[id*="yearRange"] .sapUiCalItem {
     width: 100% !important;
-    min-width: 100% !important;
+    min-width: 0 !important;
     max-width: 100% !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-    line-height: 42px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    line-height: 44px !important;
     border-radius: 12px !important;
     font-size: 13.5px !important;
     font-weight: 500 !important;
@@ -58118,20 +58172,25 @@ html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem {
     margin: 0 !important;
     padding: 0 10px !important;
     cursor: pointer !important;
-    border: 1.5px solid transparent !important;
+    border: 1.5px solid #E2E8F0 !important;
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
-    transition: all 0.15s ease !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     box-sizing: border-box !important;
     white-space: nowrap !important;
+    user-select: none !important;
 }
 
-div[id*="--YRP"] .sapUiCalItem span,
-div[id*="--YRP"] .sapUiCalItem .sapUiCalItemText,
-div[id*="-YRP"] .sapUiCalItem span,
-div[id*="-YRP"] .sapUiCalItem .sapUiCalItemText,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem span,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem .sapUiCalItemText {
+/* Inner Text Label */
+.sapUiYRP .sapUiCalItem span,
+.sapUiYRP .sapUiCalItem .sapUiCalItemText,
+.sapUiCalYearRangePicker .sapUiCalItem span,
+.sapUiCalYearRangePicker .sapUiCalItem .sapUiCalItemText,
+div[id*="YRP"] .sapUiCalItem span,
+div[id*="YRP"] .sapUiCalItem .sapUiCalItemText,
+div[id*="yearRange"] .sapUiCalItem span,
+div[id*="yearRange"] .sapUiCalItem .sapUiCalItemText {
     font-size: 13.5px !important;
     line-height: 1 !important;
     color: inherit !important;
@@ -58140,56 +58199,70 @@ div[id*="-YRP"] .sapUiCalItem .sapUiCalItemText,
     text-align: center !important;
 }
 
+/* Year Range Hover / Focus Action */
+.sapUiYRP .sapUiCalItem:hover,
+.sapUiYRP .sapUiCalItem:focus,
+.sapUiYRP .sapUiCalItem:active,
+.sapUiCalYearRangePicker .sapUiCalItem:hover,
+.sapUiCalYearRangePicker .sapUiCalItem:focus,
+.sapUiYearRangePicker .sapUiCalItem:hover,
+.sapUiYearRangePicker .sapUiCalItem:focus,
 div[id*="--YRP"] .sapUiCalItem:hover,
 div[id*="--YRP"] .sapUiCalItem:focus,
-div[id*="--YRP"] .sapUiCalItem:active,
 div[id*="-YRP"] .sapUiCalItem:hover,
 div[id*="-YRP"] .sapUiCalItem:focus,
-div[id*="-YRP"] .sapUiCalItem:active,
+div[id*="YRP"] .sapUiCalItem:hover,
+div[id*="YRP"] .sapUiCalItem:focus,
+div[id*="yearRange"] .sapUiCalItem:hover,
+div[id*="yearRange"] .sapUiCalItem:focus,
 .sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:hover,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:focus,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:active,
-html body div[id*="--YRP"] .sapUiCalItem:hover,
-html body div[id*="-YRP"] .sapUiCalItem:hover,
-html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItem:hover,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItem:hover,
-html body .sapMPopover div[id*="-YRP"] .sapUiCalItem:hover,
-html body .sapMPopover .sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:hover,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem:hover,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItem:focus,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem:focus {
+html body .sapMPopover .sapUiYRP .sapUiCalItem:hover,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItem:hover,
+html body .sapMPopover div[id*="yearRange"] .sapUiCalItem:hover,
+html body .sapMDatePicker-CTX .sapUiYRP .sapUiCalItem:hover,
+html body .sapMDatePicker-CTX div[id*="YRP"] .sapUiCalItem:hover,
+html body .sapUiTheme-sap_horizon .sapUiYRP .sapUiCalItem:hover,
+html body .sapUiTheme-sap_horizon div[id*="YRP"] .sapUiCalItem:hover,
+html body .sapUiTheme-sap_horizon div[id*="yearRange"] .sapUiCalItem:hover {
     background: #F0FDFA !important;
     background-color: #F0FDFA !important;
     color: #008C9C !important;
-    border: 1.5px solid #CCEFF3 !important;
+    border: 1.5px solid #008C9C !important;
     font-weight: 600 !important;
     cursor: pointer !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.18) !important;
 }
 
-div[id*="--YRP"] .sapUiCalItem:hover span,
-div[id*="--YRP"] .sapUiCalItem:hover .sapUiCalItemText,
-div[id*="-YRP"] .sapUiCalItem:hover span,
-div[id*="-YRP"] .sapUiCalItem:hover .sapUiCalItemText,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:hover span,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem:hover .sapUiCalItemText,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItem:hover span,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItem:hover .sapUiCalItemText,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem:hover span,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItem:hover .sapUiCalItemText {
+.sapUiYRP .sapUiCalItem:hover span,
+.sapUiYRP .sapUiCalItem:hover .sapUiCalItemText,
+.sapUiCalYearRangePicker .sapUiCalItem:hover span,
+div[id*="YRP"] .sapUiCalItem:hover span,
+div[id*="yearRange"] .sapUiCalItem:hover span,
+html body .sapMPopover .sapUiYRP .sapUiCalItem:hover span,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItem:hover span {
     color: #008C9C !important;
     font-weight: 600 !important;
 }
 
+/* Current Range (Now) - e.g. 2016 - 2035 */
+.sapUiYRP .sapUiCalItemNow,
+.sapUiCalYearRangePicker .sapUiCalItemNow,
+.sapUiYearRangePicker .sapUiCalItemNow,
 div[id*="--YRP"] .sapUiCalItemNow,
 div[id*="-YRP"] .sapUiCalItemNow,
+div[id*="YRP"] .sapUiCalItemNow,
+div[id*="yrp"] .sapUiCalItemNow,
+div[id*="YearRange"] .sapUiCalItemNow,
+div[id*="yearRange"] .sapUiCalItemNow,
 .sapUiCalYearPicker[id*="YRP"] .sapUiCalItemNow,
-html body div[id*="--YRP"] .sapUiCalItemNow,
-html body div[id*="-YRP"] .sapUiCalItemNow,
-html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItemNow,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItemNow,
-html body .sapMPopover div[id*="-YRP"] .sapUiCalItemNow,
-html body .sapMPopover .sapUiCalYearPicker[id*="YRP"] .sapUiCalItemNow,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItemNow {
+html body div[id*="YRP"] .sapUiCalItemNow,
+html body .sapUiYRP .sapUiCalItemNow,
+html body .sapMPopover .sapUiYRP .sapUiCalItemNow,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItemNow,
+html body .sapMDatePicker-CTX .sapUiYRP .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon .sapUiYRP .sapUiCalItemNow,
+html body .sapUiTheme-sap_horizon div[id*="YRP"] .sapUiCalItemNow {
     border: 2px solid #008C9C !important;
     color: #008C9C !important;
     font-weight: 700 !important;
@@ -58200,63 +58273,85 @@ html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItemNow {
     box-shadow: none !important;
 }
 
+.sapUiYRP .sapUiCalItemNow:hover,
+.sapUiCalYearRangePicker .sapUiCalItemNow:hover,
 div[id*="--YRP"] .sapUiCalItemNow:hover,
 div[id*="-YRP"] .sapUiCalItemNow:hover,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItemNow:hover,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItemNow:hover,
-html body .sapMPopover div[id*="-YRP"] .sapUiCalItemNow:hover,
-html body .sapMPopover .sapUiCalYearPicker[id*="YRP"] .sapUiCalItemNow:hover,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItemNow:hover,
-html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItemNow:hover {
+div[id*="YRP"] .sapUiCalItemNow:hover,
+div[id*="yearRange"] .sapUiCalItemNow:hover,
+html body .sapMPopover .sapUiYRP .sapUiCalItemNow:hover,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItemNow:hover,
+html body .sapUiTheme-sap_horizon .sapUiYRP .sapUiCalItemNow:hover {
     background: #F0FDFA !important;
     background-color: #F0FDFA !important;
-    border: 2px solid #008C9C !important;
-    color: #008C9C !important;
+    border: 2px solid #007583 !important;
+    color: #007583 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 140, 156, 0.22) !important;
 }
 
+/* Selected Range - e.g. 2036 - 2055 */
+.sapUiYRP .sapUiCalItemSel,
+.sapUiCalYearRangePicker .sapUiCalItemSel,
+.sapUiYearRangePicker .sapUiCalItemSel,
 div[id*="--YRP"] .sapUiCalItemSel,
 div[id*="-YRP"] .sapUiCalItemSel,
+div[id*="YRP"] .sapUiCalItemSel,
+div[id*="yrp"] .sapUiCalItemSel,
+div[id*="YearRange"] .sapUiCalItemSel,
+div[id*="yearRange"] .sapUiCalItemSel,
 .sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel,
-html body div[id*="--YRP"] .sapUiCalItemSel,
-html body div[id*="-YRP"] .sapUiCalItemSel,
-html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItemSel,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItemSel,
-html body .sapMPopover div[id*="-YRP"] .sapUiCalItemSel,
-html body .sapMPopover .sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItemSel {
+html body div[id*="YRP"] .sapUiCalItemSel,
+html body .sapUiYRP .sapUiCalItemSel,
+html body .sapMPopover .sapUiYRP .sapUiCalItemSel,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItemSel,
+html body .sapMPopover div[id*="yearRange"] .sapUiCalItemSel,
+html body .sapMDatePicker-CTX .sapUiYRP .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon .sapUiYRP .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon div[id*="YRP"] .sapUiCalItemSel,
+html body .sapUiTheme-sap_horizon div[id*="yearRange"] .sapUiCalItemSel {
     background: #008C9C !important;
     background-color: #008C9C !important;
     color: #FFFFFF !important;
     border: 2px solid #008C9C !important;
     border-radius: 12px !important;
     font-weight: 700 !important;
-    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.35) !important;
+    box-shadow: 0 4px 14px rgba(0, 140, 156, 0.35) !important;
 }
 
+.sapUiYRP .sapUiCalItemSel:hover,
+.sapUiCalYearRangePicker .sapUiCalItemSel:hover,
 div[id*="--YRP"] .sapUiCalItemSel:hover,
 div[id*="-YRP"] .sapUiCalItemSel:hover,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel:hover,
-html body .sapMPopover div[id*="--YRP"] .sapUiCalItemSel:hover,
-html body .sapMPopover div[id*="-YRP"] .sapUiCalItemSel:hover,
-html body .sapMPopover .sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel:hover,
-html body .sapMDatePicker-CTX div[id*="--YRP"] .sapUiCalItemSel:hover,
-html body .sapUiTheme-sap_horizon div[id*="--YRP"] .sapUiCalItemSel:hover {
+div[id*="YRP"] .sapUiCalItemSel:hover,
+div[id*="yearRange"] .sapUiCalItemSel:hover,
+html body .sapMPopover .sapUiYRP .sapUiCalItemSel:hover,
+html body .sapMPopover div[id*="YRP"] .sapUiCalItemSel:hover,
+html body .sapUiTheme-sap_horizon .sapUiYRP .sapUiCalItemSel:hover {
     background: #007583 !important;
     background-color: #007583 !important;
     color: #FFFFFF !important;
     border-color: #007583 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(0, 140, 156, 0.45) !important;
 }
 
-div[id*="--YRP"] .sapUiCalItemSel *,
-div[id*="-YRP"] .sapUiCalItemSel *,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItemSel * {
+.sapUiYRP .sapUiCalItemSel *,
+.sapUiCalYearRangePicker .sapUiCalItemSel *,
+div[id*="YRP"] .sapUiCalItemSel *,
+div[id*="yearRange"] .sapUiCalItemSel * {
     color: #FFFFFF !important;
 }
 
-div[id*="--YRP"] .sapUiCalItem::before,
-div[id*="--YRP"] .sapUiCalItem::after,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem::before,
-.sapUiCalYearPicker[id*="YRP"] .sapUiCalItem::after {
+/* Pseudo element cleanup */
+.sapUiYRP .sapUiCalItem::before,
+.sapUiYRP .sapUiCalItem::after,
+.sapUiCalYearRangePicker .sapUiCalItem::before,
+.sapUiCalYearRangePicker .sapUiCalItem::after,
+div[id*="YRP"] .sapUiCalItem::before,
+div[id*="YRP"] .sapUiCalItem::after,
+div[id*="yearRange"] .sapUiCalItem::before,
+div[id*="yearRange"] .sapUiCalItem::after {
     display: none !important;
     content: none !important;
     border: none !important;
