@@ -304,7 +304,14 @@ sap.ui.define([
             }
             window.scrollTo(0, 0);
 
-            // Review page loads instantly
+            const sArgReqId = (oEvent.getParameter("arguments") && oEvent.getParameter("arguments").requestId) || "";
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Request Details...",
+                    subtitle: sArgReqId ? `Retrieving request details and approval workflow for ${sArgReqId}...` : "Retrieving request details and approval workflow...",
+                    duration: 15000
+                });
+            }
 
             try {
                 const sReqId = oEvent.getParameter("arguments").requestId;
@@ -1650,6 +1657,9 @@ sap.ui.define([
 
         onCloseRequestSummaryView() {
             this._bIsDetailViewActive = false;
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            }
             try {
                 const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
                 if (oRouter) {
@@ -3417,6 +3427,9 @@ sap.ui.define([
 
         onCancelRequestSummaryView() {
             this._bIsDetailViewActive = false;
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            }
             sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
             this.getOwnerComponent().getRouter().navTo("AccessPage");
         }

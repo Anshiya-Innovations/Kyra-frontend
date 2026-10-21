@@ -399,7 +399,14 @@ sap.ui.define([
         onOpenRequestSummaryDialog(oEvent) {
             const oItem = oEvent.getSource();
             const oData = oItem.getBindingContext("accessModel").getObject();
-            // Navigation is instant
+            const sReqId = oData ? (oData.requestId || oData.requestNumber || "") : "";
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Request Details...",
+                    subtitle: sReqId ? `Retrieving request details and approval workflow for ${sReqId}...` : "Retrieving request details and approval workflow...",
+                    duration: 15000
+                });
+            }
             this.getOwnerComponent().getRouter().navTo("ApproverDetail", {
                 requestId: oData.requestId
             });

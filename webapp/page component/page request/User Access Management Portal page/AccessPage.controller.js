@@ -9736,7 +9736,15 @@ selectedAdminServiceName: "",
 
             const sReqNum = (oItem && (oItem.requestId || oItem.requestNumber)) || "REQ-GENERAL";
 
-            // Open tracking directly without full-screen loader
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Request Details...",
+                    subtitle: `Retrieving live tracking and audit data for ${sReqNum}...`,
+                    duration: 15000
+                });
+            } else if (window.showKyraLoading) {
+                window.showKyraLoading("Loading Request Details...", `Retrieving live tracking and audit data for ${sReqNum}...`, 15000);
+            }
 
             try {
                 // 2. Fetch fresh live database records with a smooth minimum delay for loader visibility
