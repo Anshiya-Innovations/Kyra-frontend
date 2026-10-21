@@ -143,10 +143,12 @@ sap.ui.define([
 
             oRouter.initialize();
 
-            // Safety timeout: dismiss initial HTML loader after 5s if no controller dismissed it
+            // Safety timeout: dismiss initial HTML loader after 5s if no active transition/submit in flight
             setTimeout(() => {
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
+                if (!window._kyraLoginTransition && !window._kyraSubmittingAddAccess && !window._kyraSubmittingRequest) {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    }
                 }
             }, 5000);
         },

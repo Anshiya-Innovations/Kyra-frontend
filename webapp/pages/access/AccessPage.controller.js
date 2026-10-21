@@ -2539,7 +2539,7 @@ sap.ui.define([
             }
         },
 
-        _onRouteMatched() {
+        async _onRouteMatched() {
             const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
             if (!bAuthenticated) {
                 // Instantly hide AccessPage view so unauthenticated users never see an empty dashboard
@@ -2574,12 +2574,14 @@ sap.ui.define([
             if (this.getView() && typeof this.getView().setVisible === "function") {
                 this.getView().setVisible(true);
             }
-            if (window.KyraLoader && typeof window.KyraLoader.show === "function" && !window.KyraLoader.isShowing()) {
-                window.KyraLoader.show({
-                    title: "Loading KYRA Governance Dashboard...",
-                    subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                    duration: 20000
-                });
+            if (window._kyraLoginTransition || (window.KyraLoader && typeof window.KyraLoader.show === "function" && !window.KyraLoader.isShowing())) {
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading KYRA Governance Dashboard...",
+                        subtitle: "Pre-loading active roles, entitlements, and governance records...",
+                        duration: 35000
+                    });
+                }
             }
             const oModel = this.getView().getModel("accessModel");
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
@@ -2710,9 +2712,33 @@ sap.ui.define([
                         oCompModel.setProperty("/selectedTabKey", "myAccess");
                         oCompModel.setProperty("/showRequestDetailsPage", false);
                     }
-                    this._loadSubmittedRequests(oModel, true);
-                } else {
-                    this._loadSubmittedRequests(oModel, true);
+                }
+
+                const bIsLoginTransition = !!window._kyraLoginTransition;
+                try {
+                    await this._loadSubmittedRequests(oModel, !bIsLoginTransition, true);
+                    if (typeof this._loadNotifications === "function") {
+                        this._loadNotifications(oModel);
+                    }
+                    if (typeof this._updateApproverSectionVisibility === "function") {
+                        this._updateApproverSectionVisibility();
+                    }
+                    if (typeof this._updateCountBadges === "function") {
+                        this._updateCountBadges(oModel);
+                    }
+                } catch (err) {
+                    console.error("Error loading dashboard data on route match:", err);
+                } finally {
+                    if (bIsLoginTransition || window._kyraLoginTransition) {
+                        window._kyraLoginTransition = false;
+                        setTimeout(() => {
+                            if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                                window.KyraLoader.forceHide();
+                            } else if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                                window.KyraLoader.hide(null, true);
+                            }
+                        }, 350);
+                    }
                 }
             }
 
@@ -3371,13 +3397,15 @@ sap.ui.define([
                                sessionStorage.getItem("kyra_show_approval_history") === "true";
             if (bIsHistory) {
                 bSilent = true;
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
-                }
-                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                    sap.ui.core.BusyIndicator.hide();
+                if (!window._kyraLoginTransition) {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
+                    if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                        sap.ui.core.BusyIndicator.hide();
+                    }
                 }
             }
 
@@ -3564,10 +3592,12 @@ sap.ui.define([
                 }
                 this._bIsLoadingRequests = false;
                 setTimeout(() => {
-                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                        window.KyraLoader.hide();
-                    } else if (window.hideKyraLoading) {
-                        window.hideKyraLoading();
+                    if (!window._kyraLoginTransition) {
+                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                            window.KyraLoader.hide();
+                        } else if (window.hideKyraLoading) {
+                            window.hideKyraLoading();
+                        }
                     }
                 }, 200);
                 return;
@@ -4475,10 +4505,12 @@ sap.ui.define([
             }
             // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
             setTimeout(() => {
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                } else if (window.hideKyraLoading) {
-                    window.hideKyraLoading();
+                if (!window._kyraLoginTransition) {
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
+                    }
                 }
             }, 200);
         },

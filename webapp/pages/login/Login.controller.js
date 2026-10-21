@@ -507,20 +507,34 @@ sap.ui.define([
                     }
                 };
 
-                // Seamlessly maintain the loading screen during navigation until AccessPage data is rendered
+                // Reset cached requests so AccessPage fetches fresh database data for this user
+                window._kyraCachedGovRequests = null;
+                window._kyraGovFetchPromise = null;
+                try {
+                    sessionStorage.removeItem("kyra_cached_gov_requests");
+                    localStorage.removeItem("kyra_cached_gov_requests");
+                    sessionStorage.removeItem("kyra_show_approval_history");
+                    sessionStorage.removeItem("kyra_select_tab");
+                } catch(e) {}
+
+                // Seamlessly maintain the loading screen during navigation until AccessPage inside data is rendered
+                window._kyraLoginTransition = true;
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Loading KYRA Governance Dashboard...",
                         subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                        duration: 25000
+                        duration: 35000
                     });
                 }
                 fnNavigateToAccessPage();
             };
 
             const handleLoginError = (oError) => {
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
+                window._kyraLoginTransition = false;
+                if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                    window.KyraLoader.forceHide();
+                } else if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide(null, true);
                 } else if (window.hideKyraLoading) {
                     window.hideKyraLoading();
                 }
@@ -543,11 +557,12 @@ sap.ui.define([
             };
 
             // Strict Database Authentication against connected backend
+            window._kyraLoginTransition = true;
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                 window.KyraLoader.show({
                     title: "Loading KYRA Governance Dashboard...",
                     subtitle: "Pre-loading active roles, entitlements, and governance records...",
-                    duration: 20000
+                    duration: 35000
                 });
             }
             fetch("/odata/v4/auth/login", {

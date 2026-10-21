@@ -404,7 +404,7 @@
          * @param {boolean} [force] If true, forcibly hides immediately regardless of active count.
          */
         hide(callback, force) {
-            if (!force && (window._kyraSubmittingAddAccess || window._kyraSubmittingRequest)) {
+            if (!force && (window._kyraSubmittingAddAccess || window._kyraSubmittingRequest || window._kyraLoginTransition)) {
                 return;
             }
             _iActiveCount = 0;
@@ -461,7 +461,7 @@
                     const fnOrigShow = oBI.show;
                     oBI.show = function(iDelay) {
                         // Suppress native UI5 BusyIndicator when KyraLoader is active or request submit is in flight
-                        if (KyraLoader.isShowing() || window._kyraSubmittingAddAccess || window._kyraSubmittingRequest) {
+                        if (KyraLoader.isShowing() || window._kyraSubmittingAddAccess || window._kyraSubmittingRequest || window._kyraLoginTransition) {
                             return;
                         }
                         return fnOrigShow.apply(this, arguments);
