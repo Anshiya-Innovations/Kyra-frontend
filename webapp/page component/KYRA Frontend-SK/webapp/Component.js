@@ -122,6 +122,25 @@ sap.ui.define([
                 }
             });
 
+            // Target Display Guard: strictly intercept any protected target display when unauthenticated
+            if (oRouter.getTargets && typeof oRouter.getTargets().attachDisplay === "function") {
+                oRouter.getTargets().attachDisplay((oEvent) => {
+                    const sTargetName = oEvent.getParameter("name");
+                    const bAuth = AuthManager.isAuthenticated();
+                    if (!bAuth && sTargetName && sTargetName !== "TargetLogin") {
+                        console.warn("[Kyra Target Guard] Intercepted unauthenticated target display:", sTargetName);
+                        oRouter.getTargets().display("TargetLogin");
+                    }
+                });
+            }
+
+            // If starting unauthenticated, immediately display TargetLogin so no other target can be first page
+            if (!bIsAuthenticated) {
+                if (oRouter.getTargets && typeof oRouter.getTargets().display === "function") {
+                    oRouter.getTargets().display("TargetLogin");
+                }
+            }
+
             oRouter.initialize();
 
             // Safety timeout: dismiss initial HTML loader after 5s if no controller dismissed it
@@ -147,6 +166,8 @@ sap.ui.define([
                 }
             });
         },
+
+
 
         _setupDropdownPlacementEnhancement() {
             // Global positioning & behavior enhancement:
@@ -407,7 +428,6 @@ sap.ui.define([
                                 oContDom.style.setProperty("scrollbar-width", "none", "important");
                             }
 
-                            // Ensure clicking the scrollbar up arrow scrolls UP, and clicking down arrow scrolls DOWN
                             if (!oScrollDom._kyraScrollClickAttached) {
                                 oScrollDom._kyraScrollClickAttached = true;
                                 oScrollDom.addEventListener("mousedown", (ev) => {
@@ -818,7 +838,6 @@ sap.ui.define([
         },
 
         _setupModernBusyIndicator() {
-            // Setup global fetch and BusyIndicator hooks for unified project-themed loading slide
             if (window.KyraLoader && typeof window.KyraLoader.setupGlobalHooks === "function") {
                 window.KyraLoader.setupGlobalHooks();
             }

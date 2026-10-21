@@ -15,6 +15,38 @@ sap.ui.define([], () => {
     // 24 hours session validity
     const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
+    /**
+     * Detects whether the current page load was triggered by a user reload/refresh (F5),
+     * as opposed to a fresh browser launch, navigation, or reopened window/tab.
+     * @returns {boolean} True if this load is a page reload (F5 / Refresh)
+     */
+    function isPageReload() {
+        try {
+            const navEntries = (typeof performance !== "undefined" && typeof performance.getEntriesByType === "function") 
+                ? performance.getEntriesByType("navigation") : null;
+            if (navEntries && navEntries.length > 0) {
+                return navEntries[0].type === "reload";
+            }
+            if (typeof performance !== "undefined" && performance.navigation) {
+                return performance.navigation.type === 1; // TYPE_RELOAD
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    let bInitialCheckDone = false;
+    function checkInitialLaunchSession() {
+        if (bInitialCheckDone) {
+            return;
+        }
+        bInitialCheckDone = true;
+        // If this is a fresh browser launch or URL navigation (NOT an F5 page reload),
+        // completely clear any leftover session state from previous browser sessions so the user MUST log in.
+        if (!isPageReload()) {
+            AuthManager.clearSession();
+        }
+    }
+
     function getCookie(name) {
         if (typeof document === "undefined") {
             return null;
@@ -115,7 +147,10 @@ sap.ui.define([], () => {
          * @returns {boolean} True if authenticated and valid
          */
         isAuthenticated() {
-            // 1. Check current tab sessionStorage
+            // Guard: on fresh launch / browser reopen, purges previous sessions so login is strictly required
+            checkInitialLaunchSession();
+
+            // 1. Check current tab active sessionStorage
             const bSessionAuth = sessionStorage.getItem(AUTH_KEYS.IS_AUTHENTICATED) === "true";
             const sSessionUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER);
             const sSessionTime = sessionStorage.getItem(AUTH_KEYS.AUTH_TIMESTAMP);
@@ -125,33 +160,6 @@ sap.ui.define([], () => {
                     this.clearSession();
                     return false;
                 }
-                return true;
-            }
-
-            // 2. Check session cookie (new tab in same browser)
-            // Session cookie exists if user is logged in within the same browser session.
-            // It does NOT exist in a different browser, incognito, or after the browser was closed.
-            const sCookieUser = getCookie("kyra_session_user");
-            if (sCookieUser) {
-                const sCookieTime = getCookie("kyra_session_time");
-                if (sCookieTime && (Date.now() - parseInt(sCookieTime, 10)) > SESSION_EXPIRY_MS) {
-                    this.clearSession();
-                    return false;
-                }
-                const sRole = getCookie("kyra_session_role") || "Requester";
-                const sUuid = getCookie("kyra_session_uuid") || "dev-user-001-uuid";
-                const sToken = getCookie("kyra_session_token") || "";
-
-                // Hydrate sessionStorage for this new tab
-                sessionStorage.setItem(AUTH_KEYS.IS_AUTHENTICATED, "true");
-                sessionStorage.setItem(AUTH_KEYS.ACTIVE_USER, sCookieUser);
-                sessionStorage.setItem(AUTH_KEYS.ACTIVE_ROLE, sRole);
-                sessionStorage.setItem(AUTH_KEYS.ACTIVE_UUID, sUuid);
-                sessionStorage.setItem(AUTH_KEYS.AUTH_TOKEN, sToken);
-                sessionStorage.setItem(AUTH_KEYS.AUTH_TIMESTAMP, sCookieTime || String(Date.now()));
-                sessionStorage.setItem("kyra_user_id", sCookieUser);
-                sessionStorage.setItem("kyra_active_user", sCookieUser);
-                sessionStorage.setItem("kyra_active_role", sRole);
                 return true;
             }
 

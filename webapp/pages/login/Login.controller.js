@@ -176,6 +176,9 @@ sap.ui.define([
                 return;
             }
 
+            if (this.getView() && typeof this.getView().setVisible === "function") {
+                this.getView().setVisible(true);
+            }
             const oModel = this.getView().getModel("login");
             if (oModel) {
                 oModel.setProperty("/selectedRole", "");
@@ -539,7 +542,11 @@ sap.ui.define([
 
             // Strict Database Authentication against connected backend
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                window.KyraLoader.show();
+                window.KyraLoader.show({
+                    title: "Signing In...",
+                    subtitle: "Authenticating credentials against database...",
+                    duration: 20000
+                });
             }
             fetch("/odata/v4/auth/login", {
                 method: "POST",

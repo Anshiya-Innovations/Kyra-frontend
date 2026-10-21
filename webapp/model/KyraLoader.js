@@ -18,61 +18,6 @@ sap.ui.define([], function() {
      * @returns {boolean}
      */
     function isAddAccess(options) {
-        try {
-            if (typeof window === "undefined") return false;
-
-            // Explicit bypass for Add Access Submit time
-            if (options && options.forceShow === true) {
-                return false;
-            }
-            if (window._kyraSubmittingAddAccess === true) {
-                return false;
-            }
-
-            // Admin page is strictly excluded from Add Access restriction
-            const sHash = (window.location && window.location.hash) || "";
-            if (sHash.toLowerCase().includes("admin")) {
-                return false;
-            }
-
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.getCore) {
-                const oCore = sap.ui.getCore();
-                const oComp = oCore.getComponent && oCore.getComponent("container");
-                const oModel = oComp && oComp.getModel && oComp.getModel("accessModel");
-                if (oModel && typeof oModel.getProperty === "function") {
-                    if (oModel.getProperty("/isAdminPersona") === true || oModel.getProperty("/isAdmin") === true) {
-                        return false;
-                    }
-                }
-            }
-
-            if (window._kyraInAddAccess === true) return true;
-
-            if (sHash.toLowerCase().includes("addaccess")) {
-                return true;
-            }
-
-            const oAddAccessSec = document.getElementById("addAccessSectionContainer");
-            if (oAddAccessSec) {
-                const sDisplay = window.getComputedStyle(oAddAccessSec).display;
-                const sVisibility = window.getComputedStyle(oAddAccessSec).visibility;
-                if (sDisplay !== "none" && sVisibility !== "hidden") {
-                    return true;
-                }
-            }
-
-            // Check if active target is Add Access via SAPUI5 model
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.getCore) {
-                const oCore = sap.ui.getCore();
-                const oComp = oCore.getComponent && oCore.getComponent("container");
-                const oModel = oComp && oComp.getModel && oComp.getModel("accessModel");
-                if (oModel && typeof oModel.getProperty === "function") {
-                    if (oModel.getProperty("/showAddAccessSector") === true) {
-                        return true;
-                    }
-                }
-            }
-        } catch (e) {}
         return false;
     }
 
@@ -226,19 +171,7 @@ sap.ui.define([], function() {
                 background-color: #008C9C !important;
             }
 
-            /* STRICT EXCEPTION: Absolutely NO loading indicators or overlays inside Add Access */
-            #addAccessSectionContainer .sapUiLocalBusyIndicator,
-            #addAccessSectionContainer .sapUiBusy,
-            #addAccessSectionContainer .sapUiBusyBlockLayer,
-            #addAccessSectionContainer .kyraLoadingOverlay,
-            [id*="addAccess"] .sapUiLocalBusyIndicator,
-            [id*="AddAccess"] .sapUiLocalBusyIndicator,
-            [id*="addAccessSection"] .sapUiLocalBusyIndicator {
-                display: none !important;
-                visibility: hidden !important;
-                opacity: 0 !important;
-                pointer-events: none !important;
-            }
+            /* Loading indicator styles */
         `;
         document.head.appendChild(oStyle);
     }
@@ -307,13 +240,7 @@ sap.ui.define([], function() {
          * @param {Object|string} [options] Optional title/text or options object.
          */
         show(options) {
-            if (isAddAccess(options)) {
-                this.forceHide();
-                if (options && typeof options.onComplete === "function") {
-                    try { options.onComplete(); } catch (e) {}
-                }
-                return;
-            }
+            // universal loading enabled
 
             _iActiveCount = 1;
 
@@ -384,13 +311,7 @@ sap.ui.define([], function() {
          * @param {Object|string} options
          */
         showSuccess(options) {
-            if (isAddAccess(options)) {
-                this.forceHide();
-                if (options && typeof options.onComplete === "function") {
-                    try { options.onComplete(); } catch (e) {}
-                }
-                return;
-            }
+            // universal loading enabled
 
             if (typeof options === "string") {
                 options = { subtitle: options };

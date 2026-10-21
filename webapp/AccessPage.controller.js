@@ -316,6 +316,31 @@ sap.ui.define([
             const oDefaultAdminServiceMap = this._getDefaultAdminServiceDetailsMap();
             const aInitialAdminClassifications = (oDefaultAdminServiceMap["xsuaa (Authorization and Trust Management Service)"] || []).map((t, idx) => Object.assign({}, t, { selected: idx === 0 }));
             const oInitialAdminClassification = aInitialAdminClassifications.length > 0 ? JSON.parse(JSON.stringify(aInitialAdminClassifications[0])) : null;
+            const aInitialConflictOptions = [];
+            const oInitialConflictSeen = new Set();
+            Object.keys(oDefaultAdminServiceMap).forEach(sSrv => {
+                const aTeams = oDefaultAdminServiceMap[sSrv] || [];
+                aTeams.forEach(oT => {
+                    if (!oT || !oT.name) return;
+                    const sTeamName = oT.name.trim();
+                    if (sTeamName && !oInitialConflictSeen.has(sTeamName)) {
+                        oInitialConflictSeen.add(sTeamName);
+                        aInitialConflictOptions.push({ key: sTeamName, text: sTeamName });
+                    }
+                    const sCleanShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    (oT.subClassifications || []).forEach(oP => {
+                        if (!oP || !oP.name) return;
+                        let sPName = oP.name.trim();
+                        if (!sPName.includes("(") && sCleanShort) {
+                            sPName = sPName + " (" + sCleanShort + ")";
+                        }
+                        if (sPName && !oInitialConflictSeen.has(sPName)) {
+                            oInitialConflictSeen.add(sPName);
+                            aInitialConflictOptions.push({ key: sPName, text: sPName });
+                        }
+                    });
+                });
+            });
             const oModel = new JSONModel({
                 brandLogoUrl: sBrandLogoUrl,
                 shieldFocusUrl: sShieldFocusUrl,
@@ -1093,85 +1118,14 @@ sap.ui.define([
                     { key: "SAP SuccessFactors", text: "SAP SuccessFactors" },
                     { key: "SAP Ariba Supply Network", text: "SAP Ariba Supply Network" }
                 ],
+                adminAllConfiguredRolesAndPersonas: aInitialConflictOptions,
                 adminPrimaryPersonaOptions: [
                     { key: "", text: "-Select-" },
-                    { key: "Frontend & UI Developer", text: "Frontend & UI Developer" },
-                    { key: "Backend & Systems Developer", text: "Backend & Systems Developer" },
-                    { key: "Cloud Infrastructure Administrator", text: "Cloud Infrastructure Administrator" },
-                    { key: "Database & IAM Administrator", text: "Database & IAM Administrator" },
-                    { key: "Principal Systems Engineer", text: "Principal Systems Engineer" },
-                    { key: "DevOps & Platform Lead", text: "DevOps & Platform Lead" },
-                    { key: "Security Audit & GRC", text: "Security Audit & GRC" },
-                    { key: "Cybersecurity Operations", text: "Cybersecurity Operations" },
-                    { key: "Technical Product Manager", text: "Technical Product Manager" },
-                    { key: "Solution Architecture Owner", text: "Solution Architecture Owner" },
-                    { key: "Product Suite Engineer", text: "Product Suite Engineer" },
-                    { key: "Integration Engineering Lead", text: "Integration Engineering Lead" },
-                    { key: "Business Strategy Lead", text: "Business Strategy Lead" },
-                    { key: "Enterprise Process Owner", text: "Enterprise Process Owner" },
-                    { key: "Department Resource Manager", text: "Department Resource Manager" },
-                    { key: "People Operations Lead", text: "People Operations Lead" },
-                    { key: "Regulatory Compliance Officer", text: "Regulatory Compliance Officer" },
-                    { key: "Data Privacy Auditor", text: "Data Privacy Auditor" },
-                    { key: "Entitlement & Role Custodian", text: "Entitlement & Role Custodian" },
-                    { key: "Access Governance Approver", text: "Access Governance Approver" },
-                    { key: "Information Security Risk Manager", text: "Information Security Risk Manager" },
-                    { key: "Risk & Assessment Analyst", text: "Risk & Assessment Analyst" },
-                    { key: "Identity Management Specialist", text: "Identity Management Specialist" },
-                    { key: "Governance Risk Compliance Lead", text: "Governance Risk Compliance Lead" }
+                    ...aInitialConflictOptions
                 ],
                 adminConflictingPersonaOptions: [
                     { key: "", text: "-Select-" },
-                    { key: "Frontend & UI Developer", text: "Frontend & UI Developer" },
-                    { key: "Backend & Systems Developer", text: "Backend & Systems Developer" },
-                    { key: "Cloud Infrastructure Administrator", text: "Cloud Infrastructure Administrator" },
-                    { key: "Database & IAM Administrator", text: "Database & IAM Administrator" },
-                    { key: "Principal Systems Engineer", text: "Principal Systems Engineer" },
-                    { key: "DevOps & Platform Lead", text: "DevOps & Platform Lead" },
-                    { key: "Security Audit & GRC", text: "Security Audit & GRC" },
-                    { key: "Cybersecurity Operations", text: "Cybersecurity Operations" },
-                    { key: "Technical Product Manager", text: "Technical Product Manager" },
-                    { key: "Solution Architecture Owner", text: "Solution Architecture Owner" },
-                    { key: "Product Suite Engineer", text: "Product Suite Engineer" },
-                    { key: "Integration Engineering Lead", text: "Integration Engineering Lead" },
-                    { key: "Business Strategy Lead", text: "Business Strategy Lead" },
-                    { key: "Enterprise Process Owner", text: "Enterprise Process Owner" },
-                    { key: "Department Resource Manager", text: "Department Resource Manager" },
-                    { key: "People Operations Lead", text: "People Operations Lead" },
-                    { key: "Regulatory Compliance Officer", text: "Regulatory Compliance Officer" },
-                    { key: "Data Privacy Auditor", text: "Data Privacy Auditor" },
-                    { key: "Entitlement & Role Custodian", text: "Entitlement & Role Custodian" },
-                    { key: "Access Governance Approver", text: "Access Governance Approver" },
-                    { key: "Information Security Risk Manager", text: "Information Security Risk Manager" },
-                    { key: "Risk & Assessment Analyst", text: "Risk & Assessment Analyst" },
-                    { key: "Identity Management Specialist", text: "Identity Management Specialist" },
-                    { key: "Governance Risk Compliance Lead", text: "Governance Risk Compliance Lead" }
-                ],
-                adminAllConfiguredRolesAndPersonas: [
-                    { key: "Frontend & UI Developer", text: "Frontend & UI Developer" },
-                    { key: "Backend & Systems Developer", text: "Backend & Systems Developer" },
-                    { key: "Cloud Infrastructure Administrator", text: "Cloud Infrastructure Administrator" },
-                    { key: "Database & IAM Administrator", text: "Database & IAM Administrator" },
-                    { key: "Principal Systems Engineer", text: "Principal Systems Engineer" },
-                    { key: "DevOps & Platform Lead", text: "DevOps & Platform Lead" },
-                    { key: "Security Audit & GRC", text: "Security Audit & GRC" },
-                    { key: "Cybersecurity Operations", text: "Cybersecurity Operations" },
-                    { key: "Technical Product Manager", text: "Technical Product Manager" },
-                    { key: "Solution Architecture Owner", text: "Solution Architecture Owner" },
-                    { key: "Product Suite Engineer", text: "Product Suite Engineer" },
-                    { key: "Integration Engineering Lead", text: "Integration Engineering Lead" },
-                    { key: "Business Strategy Lead", text: "Business Strategy Lead" },
-                    { key: "Enterprise Process Owner", text: "Enterprise Process Owner" },
-                    { key: "Department Resource Manager", text: "Department Resource Manager" },
-                    { key: "People Operations Lead", text: "People Operations Lead" },
-                    { key: "Regulatory Compliance Officer", text: "Regulatory Compliance Officer" },
-                    { key: "Data Privacy Auditor", text: "Data Privacy Auditor" },
-                    { key: "Entitlement & Role Custodian", text: "Entitlement & Role Custodian" },
-                    { key: "Access Governance Approver", text: "Access Governance Approver" },
-                    { key: "Information Security Risk Manager", text: "Information Security Risk Manager" },
-                    { key: "Risk & Assessment Analyst", text: "Risk & Assessment Analyst" },
-                    { key: "Identity Management Specialist", text: "Identity Management Specialist" },
-                    { key: "Governance Risk Compliance Lead", text: "Governance Risk Compliance Lead" }
+                    ...aInitialConflictOptions
                 ],
                 showCustomConflictSlide: false,
                 newConflictDraft: {
@@ -2587,6 +2541,10 @@ sap.ui.define([
         _onRouteMatched() {
             const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
             if (!bAuthenticated) {
+                // Instantly hide AccessPage view so unauthenticated users never see an empty dashboard
+                if (this.getView() && typeof this.getView().setVisible === "function") {
+                    this.getView().setVisible(false);
+                }
                 const oRouter = this.getOwnerComponent() ? this.getOwnerComponent().getRouter() : null;
                 if (oRouter) {
                     oRouter.navTo("Login", {}, true);
@@ -2595,16 +2553,25 @@ sap.ui.define([
                     }
                 }
                 try {
-                    const oApp = (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
-                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
-                    if (oApp) {
-                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
-                        if (oInnerApp && typeof oInnerApp.to === "function") {
-                            oInnerApp.to("Login");
+                    const oComponent = this.getOwnerComponent();
+                    if (oComponent) {
+                        const sLoginViewId = oComponent.createId("Login");
+                        const oRoot = oComponent.getRootControl();
+                        const oApp = oRoot && ((typeof oRoot.to === "function") ? oRoot : (oRoot.byId && oRoot.byId("app")));
+                        if (oApp && typeof oApp.to === "function") {
+                            const oLoginPage = oApp.getPage ? oApp.getPage(sLoginViewId) : null;
+                            if (oLoginPage) {
+                                oApp.to(sLoginViewId);
+                            }
                         }
                     }
                 } catch(e) {}
                 return;
+            }
+
+            // Authenticated: make AccessPage view visible and proceed
+            if (this.getView() && typeof this.getView().setVisible === "function") {
+                this.getView().setVisible(true);
             }
             const oModel = this.getView().getModel("accessModel");
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
@@ -7894,14 +7861,29 @@ sap.ui.define([
 
                     // Standard matching helper for System + Persona + Role granularity
                     const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").replace(/\s+persona\b/gi, "").replace(/[^a-zA-Z0-9]/g, "").trim().toLowerCase();
-                    const isSameSys = (sysA, sysB) => String(sysA || "").trim().toLowerCase() === String(sysB || "").trim().toLowerCase();
+                    const canonicalSys = (s) => {
+                        const str = String(s || "").trim().toLowerCase();
+                        if (!str) return "";
+                        if (str.includes("btp") || str.includes("business technology platform")) return "btp";
+                        if (str.includes("s/4") || str.includes("s4") || str.includes("hana")) return "s4hana";
+                        if (str.includes("successfactors") || str.includes("success factors")) return "successfactors";
+                        if (str.includes("ariba")) return "ariba";
+                        if (str.includes("active directory") || str.includes("iam")) return "iam";
+                        if (str.includes("governance") || str.includes("kyra")) return "governance";
+                        return str.replace(/[^a-z0-9]/g, "");
+                    };
+                    const isSameSys = (sysA, sysB) => {
+                        const cA = canonicalSys(sysA);
+                        const cB = canonicalSys(sysB);
+                        return !!(cA && cB && cA === cB);
+                    };
                     const isMatch = (itemA, itemB) => {
-                        const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
-                        const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
+                        const sA = itemA.system || itemA.target_system || itemA.targetSystem || itemA.systemName || "";
+                        const sB = itemB.system || itemB.target_system || itemB.targetSystem || itemB.systemName || "";
                         if (!isSameSys(sA, sB)) return false;
 
-                        const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                        const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
+                        const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || itemA.team || itemA.teamName || "");
+                        const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || itemB.team || itemB.teamName || "");
                         const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
                         const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
 
@@ -8055,15 +8037,16 @@ sap.ui.define([
                     }
                 }
                 
-                let sSecGroup = "SEC-PRIVILEGED-ACCESS";
-                let sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
-                if (sSys.includes("BTP")) {
+                let sSecGroup = item.securityGroup || item.selectedSecurityGroups || "SEC-PRIVILEGED-ACCESS";
+                let sAdGroup = item.adGroupName || item.adGroup || "AD-KYRA-PRIVILEGED-GRP";
+                const cSys = (typeof canonicalSys === "function" ? canonicalSys(sSys) : "") || (sSys.toLowerCase().includes("btp") ? "btp" : "");
+                if (cSys === "btp" || sSys.includes("BTP") || sSys.includes("Business Technology Platform")) {
                     sSecGroup = "SEC-BTP-ADMIN-ACCESS";
                     sAdGroup = "AD-KYRA-BTP-ENG-GRP";
-                } else if (sSys.includes("Ariba")) {
+                } else if (cSys === "ariba" || sSys.includes("Ariba")) {
                     sSecGroup = "SEC-ARIBA-PROCURE-ACCESS";
                     sAdGroup = "AD-KYRA-ARIBA-GRP";
-                } else if (sSys.includes("SuccessFactors")) {
+                } else if (cSys === "successfactors" || sSys.includes("SuccessFactors")) {
                     sSecGroup = "SEC-SF-HR-ACCESS";
                     sAdGroup = "AD-KYRA-SF-GRP";
                 }
@@ -8127,6 +8110,18 @@ sap.ui.define([
                 return str || s;
             };
 
+            const canonicalSys = (s) => {
+                const str = String(s || "").trim().toLowerCase();
+                if (!str) return "";
+                if (str.includes("btp") || str.includes("business technology platform")) return "btp";
+                if (str.includes("s/4") || str.includes("s4") || str.includes("hana")) return "s4hana";
+                if (str.includes("successfactors") || str.includes("success factors")) return "successfactors";
+                if (str.includes("ariba")) return "ariba";
+                if (str.includes("active directory") || str.includes("iam")) return "iam";
+                if (str.includes("governance") || str.includes("kyra")) return "governance";
+                return str.replace(/[^a-z0-9]/g, "");
+            };
+
             const isRestrictedPersona = (sPers, oItem) => {
                 return this._isRestrictedPersona(sPers, oItem);
             };
@@ -8139,9 +8134,12 @@ sap.ui.define([
                 let sTeam = cleanPersonaName(item.team || item.teamRole || item.roleTitle || item.roleName || "");
                 const sPersona = cleanPersonaName(item.persona || item.selectedPersona || "");
 
-                // Auto-resolve missing Service or Team from adminServiceDetailsMap
+                // Auto-resolve missing Service or Team from adminServiceDetailsMap or default map
+                let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
+                if (!oDetailsMap || Object.keys(oDetailsMap).length === 0) {
+                    oDetailsMap = this._getDefaultAdminServiceDetailsMap();
+                }
                 if (!sServices || sServices === "undefined") {
-                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                     for (const [srvName, aTeams] of Object.entries(oDetailsMap)) {
                         if (aTeams.some(t => (t.subClassifications || []).some(p => this._cleanPersonaForComparison(p.name) === this._cleanPersonaForComparison(sPersona)))) {
                             sServices = srvName;
@@ -8152,7 +8150,6 @@ sap.ui.define([
                 if (!sServices) sServices = "System Administrator";
 
                 if (!sTeam || sTeam === "undefined") {
-                    const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
                     for (const aTeams of Object.values(oDetailsMap)) {
                         const foundTeam = aTeams.find(t => (t.subClassifications || []).some(p => this._cleanPersonaForComparison(p.name) === this._cleanPersonaForComparison(sPersona)));
                         if (foundTeam) {
@@ -8162,15 +8159,16 @@ sap.ui.define([
                     }
                 }
                 
-                let sSecGroup = "SEC-PRIVILEGED-ACCESS";
-                let sAdGroup = "AD-KYRA-PRIVILEGED-GRP";
-                if (sSys.includes("BTP")) {
+                let sSecGroup = item.securityGroup || item.selectedSecurityGroups || "SEC-PRIVILEGED-ACCESS";
+                let sAdGroup = item.adGroupName || item.adGroup || "AD-KYRA-PRIVILEGED-GRP";
+                const cSys = canonicalSys(sSys);
+                if (cSys === "btp" || sSys.includes("BTP") || sSys.includes("Business Technology Platform")) {
                     sSecGroup = "SEC-BTP-ADMIN-ACCESS";
                     sAdGroup = "AD-KYRA-BTP-ENG-GRP";
-                } else if (sSys.includes("Ariba")) {
+                } else if (cSys === "ariba" || sSys.includes("Ariba")) {
                     sSecGroup = "SEC-ARIBA-PROCURE-ACCESS";
                     sAdGroup = "AD-KYRA-ARIBA-GRP";
-                } else if (sSys.includes("SuccessFactors")) {
+                } else if (cSys === "successfactors" || sSys.includes("SuccessFactors")) {
                     sSecGroup = "SEC-SF-HR-ACCESS";
                     sAdGroup = "AD-KYRA-SF-GRP";
                 }
@@ -8204,21 +8202,42 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel || !aSummaryItems) return;
 
+            const canonicalSys = (s) => {
+                const str = String(s || "").trim().toLowerCase();
+                if (!str) return "";
+                if (str.includes("btp") || str.includes("business technology platform")) return "btp";
+                if (str.includes("s/4") || str.includes("s4") || str.includes("hana")) return "s4hana";
+                if (str.includes("successfactors") || str.includes("success factors")) return "successfactors";
+                if (str.includes("ariba")) return "ariba";
+                if (str.includes("active directory") || str.includes("iam")) return "iam";
+                if (str.includes("governance") || str.includes("kyra")) return "governance";
+                return str.replace(/[^a-z0-9]/g, "");
+            };
+
+            const isSameSys = (sysA, sysB) => {
+                const cA = canonicalSys(sysA);
+                const cB = canonicalSys(sysB);
+                return !!(cA && cB && cA === cB);
+            };
+
             const aActiveAccess = (oModel.getProperty("/userAccessList") || oModel.getProperty("/activeRoles") || [])
                 .filter(acc => {
                     const sStatus = (acc.status || "").toLowerCase();
-                    return sStatus.includes("active") || sStatus.includes("approved") || sStatus === "success";
+                    const sType = (acc.accessType || acc.type || acc.access_type || "").toLowerCase();
+                    const isRev = sType.includes("rev") || acc.isRevocation === true || sStatus.includes("revoke");
+                    const isActive = sStatus.includes("active") || sStatus.includes("approved") || sStatus === "success";
+                    return isActive && !isRev;
                 });
 
             const aPendingRequests = (oModel.getProperty("/myPendingRequests") || oModel.getProperty("/pendingAccessRequests") || [])
                 .filter(p => {
                     const sStatus = (p.status || "").toLowerCase();
-                    const isRevoke = p.type === "Revocation" || p.type === "Revoke" || p.isRevocation === true || sStatus.includes("revoke");
-                    return (sStatus.includes("pending") || sStatus.includes("submitted")) && !isRevoke;
+                    const sType = (p.type || p.requestType || p.accessType || "").toLowerCase();
+                    const isRevoke = sType.includes("rev") || p.isRevocation === true || sStatus.includes("revoke");
+                    return (sStatus.includes("pending") || sStatus.includes("submitted")) && !isRevoke && !sStatus.includes("reject");
                 });
 
             const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").replace(/\s+persona\b/gi, "").replace(/[^a-zA-Z0-9]/g, "").trim().toLowerCase();
-            const isSameSys = (sysA, sysB) => String(sysA || "").trim().toLowerCase() === String(sysB || "").trim().toLowerCase();
             const cleanPersonaName = (s) => {
                 if (!s) return "";
                 let str = String(s).trim();
@@ -8228,19 +8247,19 @@ sap.ui.define([
             };
             
             const getEntitlementKey = (sys, role, persona) => {
-                const sSys = cleanStr(sys);
+                const sSys = canonicalSys(sys);
                 const sRole = cleanStr(role);
                 const sPers = cleanStr(persona);
                 return `${sSys}:::${sRole}:::${sPers || sRole}`;
             };
 
             const isMatch = (itemA, itemB) => {
-                const sA = itemA.system || itemA.target_system || itemA.targetSystem || "";
-                const sB = itemB.system || itemB.target_system || itemB.targetSystem || "";
+                const sA = itemA.system || itemA.target_system || itemA.targetSystem || itemA.systemName || "";
+                const sB = itemB.system || itemB.target_system || itemB.targetSystem || itemB.systemName || "";
                 if (!isSameSys(sA, sB)) return false;
 
-                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || "");
-                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || "");
+                const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || itemA.team || itemA.teamName || "");
+                const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || itemB.team || itemB.teamName || "");
                 const persA = cleanStr(itemA.persona || itemA.selected_persona || itemA.selectedPersona || "");
                 const persB = cleanStr(itemB.persona || itemB.selected_persona || itemB.selectedPersona || "");
 
@@ -8272,9 +8291,9 @@ sap.ui.define([
 
             // 1. Process items in the current summary cart
             aSummaryItems.forEach((item) => {
-                const sSys = item.system || "";
-                const sRole = item.roleTitle || item.roleName || "";
-                const sTopic = item.topic || item.sector || "";
+                const sSys = item.system || item.systemName || "";
+                const sRole = item.roleTitle || item.roleName || item.team || "";
+                const sTopic = item.topic || item.sector || item.services || "";
                 const sSector = item.sector || "";
                 const sPersona = item.persona || item.selectedPersona || sRole;
 
@@ -8322,11 +8341,12 @@ sap.ui.define([
                     return isMatch(pr, item);
                 });
 
-                const sServices = item.services || item.serviceTopic || sTopic || "";
+                const sServices = item.services || item.serviceTopic || sTopic || "System Administrator";
                 const sTeam = cleanPersonaName(item.team || item.teamRole || item.roleTitle || item.roleName || sRole || "");
                 const sPersonaClean = cleanPersonaName(sPersona || item.persona || item.selectedPersona || "");
-                const sSecGrp = "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP";
-                const sAdGrp = "AD-KYRA-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP";
+                const cSys = canonicalSys(sSys);
+                const sSecGrp = (cSys === "btp") ? "SEC-BTP-ADMIN-ACCESS" : ((cSys === "ariba") ? "SEC-ARIBA-PROCURE-ACCESS" : ((cSys === "successfactors") ? "SEC-SF-HR-ACCESS" : "SEC-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP"));
+                const sAdGrp = (cSys === "btp") ? "AD-KYRA-BTP-ENG-GRP" : ((cSys === "ariba") ? "AD-KYRA-ARIBA-GRP" : ((cSys === "successfactors") ? "AD-KYRA-SF-GRP" : "AD-KYRA-" + sSys.toUpperCase().replace(/[^A-Z0-9]/g, "_") + "-GRP"));
 
                 if (bFoundInRevokePending) {
                     aDuplicateRoles.push({
@@ -8411,7 +8431,7 @@ sap.ui.define([
                 aActiveAccess.forEach(acc => {
                     const sysAcc = acc.system || acc.target_system || acc.targetSystem || "";
                     if (isSameSys(sysAcc, sSys)) {
-                        const sRole = acc.roleName || acc.role_name || acc.roleTitle || "";
+                        const sRole = acc.roleName || acc.role_name || acc.roleTitle || acc.team || "";
                         const sPers = acc.persona || acc.selected_persona || sRole;
                         uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
                     }
@@ -8423,7 +8443,7 @@ sap.ui.define([
                         p.entitlements.forEach(e => {
                             const sysE = e.system || e.target_system || e.targetSystem || "";
                             if (isSameSys(sysE, sSys)) {
-                                const sRole = e.roleName || e.role_name || e.roleTitle || "";
+                                const sRole = e.roleName || e.role_name || e.roleTitle || e.team || "";
                                 const sPers = e.persona || e.selected_persona || e.selectedPersona || sRole;
                                 uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
                             }
@@ -8431,7 +8451,7 @@ sap.ui.define([
                     } else {
                         const sysP = p.system || p.target_system || p.targetSystem || "";
                         if (isSameSys(sysP, sSys)) {
-                            const sRole = p.roleName || p.role_name || p.roleTitle || "";
+                            const sRole = p.roleName || p.role_name || p.roleTitle || p.team || "";
                             const sPers = p.persona || p.selected_persona || p.selectedPersona || sRole;
                             uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
                         }
@@ -8443,8 +8463,7 @@ sap.ui.define([
 
                 // Dynamically fetch system threshold limit configured by admin
                 const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
-                const cleanSysName = (s) => String(s || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-                const oSysCfg = aAdminSystems.find(s => s && (isSameSys(s.systemName, sSys) || cleanSysName(s.systemName) === cleanSysName(sSys)));
+                const oSysCfg = aAdminSystems.find(s => s && (isSameSys(s.systemName, sSys) || canonicalSys(s.systemName) === canonicalSys(sSys)));
                 let iSysLimit = 5;
                 if (oSysCfg && oSysCfg.thresholdLimit) {
                     const parsedLimit = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
@@ -8455,9 +8474,10 @@ sap.ui.define([
 
                 if (iTotalUniqueCount > iSysLimit) {
                     const iPct = Math.round((iTotalUniqueCount / iSysLimit) * 100);
+                    const sSector = oSystemSector[sSys] || oModel.getProperty("/selectedSector") || oModel.getProperty("/activeUserSector") || "Information Technology & Security";
                     aThresholdLimits.push({
                         system: sSys,
-                        sector: oSystemSector[sSys] || "Enterprise Access",
+                        sector: sSector,
                         thresholdLimit: String(iSysLimit),
                         actualCount: iTotalUniqueCount,
                         limit: iTotalUniqueCount + "/" + iSysLimit,
@@ -8473,7 +8493,7 @@ sap.ui.define([
             const aUniqueDuplicateRoles = [];
             const seenDupKeys = new Set();
             aDuplicateRoles.forEach(dup => {
-                const k = `${dup.system || dup.systemName}:::${dup.team || dup.roleName}:::${dup.persona || dup.selectedPersona}:::${dup.existingRoles || dup.existingStatus}`;
+                const k = `${canonicalSys(dup.system || dup.systemName)}:::${dup.team || dup.roleName}:::${dup.persona || dup.selectedPersona}:::${dup.existingRoles || dup.existingStatus}`;
                 if (!seenDupKeys.has(k)) {
                     seenDupKeys.add(k);
                     aUniqueDuplicateRoles.push(dup);
@@ -8694,10 +8714,19 @@ sap.ui.define([
             }
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
-            const aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+            let aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+            if (!aCustomAll || aCustomAll.length === 0) {
+                try {
+                    const sStored = localStorage.getItem("kyra_custom_sod_matrix") || localStorage.getItem("kyra_custom_access_config");
+                    if (sStored) {
+                        const parsed = JSON.parse(sStored);
+                        aCustomAll = Array.isArray(parsed) ? parsed : (parsed.adminCustomConflictsAll || []);
+                    }
+                } catch(e) {}
+            }
             const aModelSod = oModel.getProperty("/sodMatrix") || [];
 
-            // Combine all sources: custom conflicts from admin and backend sodMatrix
+            // Combine all sources: custom conflicts from admin, backend sodMatrix, and localStorage
             const ruleMap = new Map();
             const addRuleToMap = (r) => {
                 if (!r || r.status === "Inactive") return;
@@ -8818,38 +8847,43 @@ sap.ui.define([
 
                 const itemPersona = cleanPersonaName(item.persona || item.selectedPersona || item.selected_persona || "");
                 const itemRole = cleanPersonaName(item.roleName || item.role_name || item.team || item.teamName || item.roleTitle || "");
+                const itemServices = cleanPersonaName(item.services || item.serviceTopic || item.topic || "");
 
                 const normItemPers = normalizeForMatching(itemPersona);
                 const normItemRole = normalizeForMatching(itemRole);
+                const normItemSvc = normalizeForMatching(itemServices);
                 const normTargetPers = normalizeForMatching(parsedTarget.persona);
                 const normTargetTeam = normalizeForMatching(parsedTarget.team);
                 const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-                // Case 1: Target specifically designates a Persona with Team (e.g. "Backend & Systems Developer (IT Developers)")
-                if (parsedTarget.team && parsedTarget.persona !== parsedTarget.team) {
-                    const bPersMatch = (normItemPers === normTargetPers) ||
-                        (normItemPers && normTargetPers && (normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers)));
-                    if (!bPersMatch) return false;
-
-                    if (normTargetTeam && normItemRole) {
-                        const bTeamMatch = (normItemRole === normTargetTeam) ||
-                            (normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole));
-                        if (!bTeamMatch) return false;
-                    }
-                    return true;
-                }
-
-                // Case 2: Target is just a Persona or Role Name without parentheses
-                if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
-                    return true;
-                }
-                if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
-                    return true;
-                }
-                if (normTargetRaw && (
-                    (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) ||
-                    (normItemRole && (normItemRole === normTargetRaw || normItemRole.includes(normTargetRaw) || normTargetRaw.includes(normItemRole)))
+                // Direct Persona match (e.g. "Subaccount Administrator" or "Usage and Cost Viewer")
+                if (normItemPers && normTargetPers && (
+                    normItemPers === normTargetPers ||
+                    normItemPers.includes(normTargetPers) ||
+                    normTargetPers.includes(normItemPers)
                 )) {
+                    return true;
+                }
+
+                // Match against raw full string (e.g. "Subaccount Administrator (CloudManagement_Admin)")
+                if (normTargetRaw) {
+                    if (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) return true;
+                    if (normItemRole && (normItemRole === normTargetRaw || normItemRole.includes(normTargetRaw) || normTargetRaw.includes(normItemRole))) return true;
+                }
+
+                // Match Target Team against Item Role or Persona
+                if (normTargetTeam) {
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) return true;
+                    if (normItemPers && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) return true;
+                }
+
+                // Match Target Persona against Item Role
+                if (normTargetPers && normItemRole && (normItemRole === normTargetPers || normItemRole.includes(normTargetPers) || normTargetPers.includes(normItemRole))) {
+                    return true;
+                }
+
+                // Service topic match
+                if (normTargetTeam && normItemSvc && (normItemSvc.includes(normTargetTeam) || normTargetTeam.includes(normItemSvc))) {
                     return true;
                 }
 
@@ -8862,13 +8896,13 @@ sap.ui.define([
                 const sSysA = itemA.system || itemA.target_system || itemA.targetSystem || "";
                 const sSysB = itemB.system || itemB.target_system || itemB.targetSystem || "";
 
-                if (!isSameSystem(sSysA, sSysB)) return null;
-
-                const sRuleSys = rule.system || "";
-                if (sRuleSys && sRuleSys !== "All Systems") {
+                const sRuleSys = (rule.system || "").trim();
+                const bAllSystems = !sRuleSys || sRuleSys.toLowerCase() === "all systems";
+                if (!bAllSystems) {
                     if (!isSameSystem(sRuleSys, sSysA) || !isSameSystem(sRuleSys, sSysB)) {
                         return null;
                     }
+                    if (!isSameSystem(sSysA, sSysB)) return null;
                 }
 
                 if (isSameAccess(itemA, itemB)) return null;
@@ -13939,9 +13973,17 @@ sap.ui.define([
                 "cybersecurity operations",
                 "identity management specialist",
                 "solution architecture owner",
-                "integration engineering lead"
+                "integration engineering lead",
+                "subaccount administrator",
+                "security administrator",
+                "user and role administrator",
+                "identity services administrator",
+                "identity services user administrator",
+                "credentialstore operator",
+                "useraccount admin",
+                "data privacy officer"
             ];
-            return aAllowedRestrictedPersonas.some(r => this._cleanPersonaForComparison(r) === sClean);
+            return aAllowedRestrictedPersonas.some(r => this._cleanPersonaForComparison(r) === sClean || sClean.includes(this._cleanPersonaForComparison(r)));
         },
 
         _isRestrictedPersona(sPers, oItem) {
@@ -13956,9 +13998,12 @@ sap.ui.define([
             const sTargetClean = this._cleanPersonaForComparison(sPers || (oItem && (oItem.persona || oItem.selectedPersona)));
             if (!sTargetClean) return false;
 
-            // 2. Check dynamic adminServiceDetailsMap configuration
+            // 2. Check dynamic adminServiceDetailsMap configuration (or fallback to default map)
             if (oModel) {
-                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+                let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
+                if (!oDetailsMap || Object.keys(oDetailsMap).length === 0) {
+                    oDetailsMap = this._getDefaultAdminServiceDetailsMap();
+                }
                 for (const sSrv of Object.keys(oDetailsMap)) {
                     const aTeams = oDetailsMap[sSrv] || [];
                     for (const oTeam of aTeams) {
@@ -18737,7 +18782,6 @@ sap.ui.define([
             if (!oModel) return;
 
             // 1. Target System dropdown: Latest updated, currently available & active systems ONLY
-            // Permanently includes "-Select-" placeholder at index 0 and "All Systems" at index 1
             const aSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
             const aActiveSystems = aSystems.filter(s => s && s.status !== "Inactive");
             const aSystemOpts = [
@@ -18763,47 +18807,70 @@ sap.ui.define([
             }
             oModel.setProperty("/adminConflictSystemOptions", aSystemOpts);
 
-            // 2. 2nd & 3rd Dropdowns: ONLY active and available Personas from the Add Access section!
-            const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap") || {};
+            // 2. 2nd & 3rd Dropdowns: BOTH active Teams and Personas
+            let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
+            if (!oDetailsMap || Object.keys(oDetailsMap).length === 0) {
+                oDetailsMap = this._getDefaultAdminServiceDetailsMap();
+            }
             const aServices = oModel.getProperty("/adminServicesAll") || [];
             const aActiveServiceNames = aServices.filter(s => s.status !== "Inactive").map(s => s.serviceName);
 
-            const aPersonaDropdownOptions = [];
-            const oSeenPersonaOpt = new Set();
+            const aOptions = [];
+            const oSeenOpt = new Set();
 
             Object.keys(oDetailsMap).forEach(sService => {
-                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService);
+                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService) || aActiveServiceNames.some(s => s.startsWith(sService + " ") || s === sService);
                 const aTeams = oDetailsMap[sService] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name) return;
                     const sTeamName = oTeam.name.trim();
                     const bTeamActive = bServiceActive && oTeam.status !== "Inactive";
+                    if (!bTeamActive) return;
 
+                    // Add Team directly
+                    if (!oSeenOpt.has(sTeamName)) {
+                        oSeenOpt.add(sTeamName);
+                        aOptions.push({ key: sTeamName, text: sTeamName });
+                    }
+
+                    // Add Personas under Team
                     const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
                     const aPersonas = oTeam.subClassifications || [];
                     aPersonas.forEach(oPers => {
                         if (!oPers || !oPers.name) return;
+                        if (oPers.status === "Inactive") return;
                         let sPersName = oPers.name.trim();
                         if (!sPersName.includes("(") && sCleanTeamShort) {
                             sPersName = sPersName + " (" + sCleanTeamShort + ")";
                         }
-                        if (bTeamActive && oPers.status !== "Inactive") {
-                            if (!oSeenPersonaOpt.has(sPersName)) {
-                                oSeenPersonaOpt.add(sPersName);
-                                aPersonaDropdownOptions.push({ key: sPersName, text: sPersName });
-                            }
+                        if (!oSeenOpt.has(sPersName)) {
+                            oSeenOpt.add(sPersName);
+                            aOptions.push({ key: sPersName, text: sPersName });
                         }
                     });
                 });
             });
 
-            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
+            // Ensure existing custom conflicts have their roles/personas available
+            const aConflictsAll = oModel.getProperty("/adminCustomConflictsAll") || [];
+            aConflictsAll.forEach(c => {
+                if (c.role1 && !oSeenOpt.has(c.role1)) {
+                    oSeenOpt.add(c.role1);
+                    aOptions.push({ key: c.role1, text: c.role1 });
+                }
+                if (c.role2 && !oSeenOpt.has(c.role2)) {
+                    oSeenOpt.add(c.role2);
+                    aOptions.push({ key: c.role2, text: c.role2 });
+                }
+            });
 
-            // 2nd Dropdown Options: "-Select-" + active personas
+            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aOptions);
+
+            // 2nd Dropdown Options: "-Select-" + all active teams & personas
             const aPrimaryOptions = [
                 { key: "", text: "-Select-" }
             ];
-            aPersonaDropdownOptions.forEach(p => {
+            aOptions.forEach(p => {
                 aPrimaryOptions.push({ key: p.key, text: p.text });
             });
             oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
@@ -18811,11 +18878,11 @@ sap.ui.define([
             const oDraft = oModel.getProperty("/newConflictDraft") || {};
             const sCurrentRole1 = oDraft.role1 || "";
 
-            // 3rd Dropdown Options: "-Select-" + active personas EXCLUDING role1
+            // 3rd Dropdown Options: "-Select-" + all active teams & personas EXCLUDING role1
             const aConflictingOptions = [
                 { key: "", text: "-Select-" }
             ];
-            aPersonaDropdownOptions.forEach(p => {
+            aOptions.forEach(p => {
                 if (!sCurrentRole1 || p.key !== sCurrentRole1) {
                     aConflictingOptions.push({ key: p.key, text: p.text });
                 }
@@ -18828,13 +18895,15 @@ sap.ui.define([
             }
 
             if (oDraft.role1 && oDraft.role2) {
-                if (!oDraft.description) {
+                if (!oDraft.description || oDraft._autoGeneratedReason) {
                     oDraft.description = this._generateDefaultConflictReason(oDraft.system, oDraft.role1, oDraft.role2);
+                    oDraft._autoGeneratedReason = true;
                     oModel.setProperty("/newConflictDraft/description", oDraft.description);
                 }
             } else {
-                if (!oDraft.description) {
+                if (!oDraft.description || oDraft._autoGeneratedReason) {
                     oDraft.description = "";
+                    oDraft._autoGeneratedReason = false;
                     oModel.setProperty("/newConflictDraft/description", "");
                 }
             }
@@ -18918,11 +18987,11 @@ sap.ui.define([
             let sRole2 = oDraft.role2 || "";
 
             // Dynamic exclusion: Ensure 3rd dropdown (Conflicting Team / Persona) does NOT include role1
-            const aAllPersonas = oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || [];
+            const aAllOptions = oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || [];
             const aConflictingOptions = [
                 { key: "", text: "-Select-" }
             ];
-            aAllPersonas.forEach(p => {
+            aAllOptions.forEach(p => {
                 if (!sRole1 || p.key !== sRole1) {
                     aConflictingOptions.push({ key: p.key, text: p.text });
                 }
@@ -18936,10 +19005,13 @@ sap.ui.define([
                 oModel.setProperty("/newConflictDraft/role2", "");
             }
 
-            // Automatically recalculate default reason based on selected roles
-            const sNewReason = this._generateDefaultConflictReason(sSys, sRole1, sRole2);
-            oDraft.description = sNewReason;
-            oModel.setProperty("/newConflictDraft/description", sNewReason);
+            // Automatically recalculate default reason based on selected roles if not manually customized
+            if (!oDraft.description || oDraft._autoGeneratedReason) {
+                const sNewReason = this._generateDefaultConflictReason(sSys, sRole1, sRole2);
+                oDraft.description = sNewReason;
+                oDraft._autoGeneratedReason = true;
+                oModel.setProperty("/newConflictDraft/description", sNewReason);
+            }
         },
 
         onAddNewConflictDraft() {
@@ -19021,9 +19093,15 @@ sap.ui.define([
                 oSavedConflict.id = aAll[iEditIdx].id || oSavedConflict.id;
                 aAll[iEditIdx] = oSavedConflict;
             } else {
-                const iExistingIdx = aAll.findIndex(c =>
-                    c.system === sSystem && c.role1 === sRole1 && c.role2 === sRole2
-                );
+                const sSysNorm = sSystem.trim().toLowerCase();
+            const sR1Norm = sRole1.trim().toLowerCase();
+            const sR2Norm = sRole2.trim().toLowerCase();
+            const iExistingIdx = aAll.findIndex(c => {
+                const cSys = (c.system || "all systems").trim().toLowerCase();
+                const cR1 = (c.role1 || "").trim().toLowerCase();
+                const cR2 = (c.role2 || "").trim().toLowerCase();
+                return cSys === sSysNorm && ((cR1 === sR1Norm && cR2 === sR2Norm) || (cR1 === sR2Norm && cR2 === sR1Norm));
+            });
                 if (iExistingIdx >= 0) {
                     oSavedConflict.id = aAll[iExistingIdx].id || oSavedConflict.id;
                     aAll[iExistingIdx] = oSavedConflict;

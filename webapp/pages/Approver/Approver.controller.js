@@ -877,6 +877,13 @@ sap.ui.define([
             if (!oModel) {
                 return;
             }
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Submitting Decision…",
+                    subtitle: "Persisting decision to PostgreSQL database…",
+                    duration: 20000
+                });
+            }
             const sDate = new Date().toISOString().split("T")[0];
             const sStatusIcon = sOverallState === "Success" ? "sap-icon://sys-enter-2" : (sOverallState === "Error" ? "sap-icon://error" : "sap-icon://warning");
 
@@ -1120,7 +1127,15 @@ sap.ui.define([
             await this._reloadAllRequests(oModel);
             this._notifyDatabaseMutation();
 
-            MessageToast.show("Decision submitted for User Id " + oData.requestId);
+            if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
+                window.KyraLoader.showSuccess({
+                    title: "Decision Submitted",
+                    subtitle: "Decision persisted to database successfully.",
+                    duration: 1600
+                });
+            } else {
+                MessageToast.show("Decision submitted for User Id " + oData.requestId);
+            }
             oModel.setProperty("/showRequestDetailView", false);
         },
 
