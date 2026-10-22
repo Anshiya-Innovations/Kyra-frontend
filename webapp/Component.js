@@ -35,11 +35,20 @@ sap.ui.define([
             const sActiveUser = bIsAuthenticated ? oUserInfo.userId : "";
             const sActiveRole = bIsAuthenticated ? oUserInfo.role : "Requester";
             const bIsApprover = bIsAuthenticated ? oUserInfo.isApproverPersona : false;
+            const bIsAdmin = bIsAuthenticated ? oUserInfo.isAdminPersona : false;
+            const bIsRequester = bIsAuthenticated ? oUserInfo.isRequester : false;
+            const bIsCompliance = bIsAuthenticated ? oUserInfo.isCompliance : false;
 
             const oGlobalAccessModel = new JSONModel({
                 activeUser: sActiveUser,
+                userId: sActiveUser,
                 activeRole: sActiveRole,
                 isApproverPersona: bIsApprover,
+                isAdmin: bIsAdmin,
+                isAdminPersona: bIsAdmin,
+                isRequester: bIsRequester,
+                isCompliance: bIsCompliance,
+                isComplianceReviewer: bIsCompliance,
                 isAuthenticated: bIsAuthenticated,
                 pendingRequests: [],
                 processedRequests: [],

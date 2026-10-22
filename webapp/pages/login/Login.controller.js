@@ -369,7 +369,7 @@ sap.ui.define([
                 const userUuid = oResult && oResult.userUuid ? oResult.userUuid : "dev-user-001-uuid";
                 const sCanonicalUser = (oResult && (oResult.userId || oResult.username)) ? (oResult.userId || oResult.username) : sUserId.toLowerCase();
 
-                AuthManager.setSession(sCanonicalUser, sEffectiveTitle, userUuid, null, bRemember);
+                AuthManager.setSession(sCanonicalUser, sEffectiveTitle, userUuid, null, bRemember, oResult);
                 sessionStorage.setItem("kyra_active_user", sCanonicalUser);
                 sessionStorage.setItem("kyra_user_id", sCanonicalUser);
                 sessionStorage.setItem("kyra_active_user_uuid", userUuid);
