@@ -4657,13 +4657,29 @@
                         <!-- SUB-STEP 3.1: TARGET SYSTEMS SLIDE CONFIGURATION -->
                         <VBox visible="{= ${accessModel>/addAccessConfigSubStep} === 1 || !${accessModel>/addAccessConfigSubStep} }">
                             
+                                                        <!-- NO APPLICATIONS INTEGRATED EMPTY STATE (Shown when selected region has no integrated apps) -->
+                            <VBox visible="{= ${accessModel>/hasRegionalSystems} === false }" class="fioriTableCard sapUiResponsivePadding sapUiMediumMarginBottom" alignItems="Center">
+                                <HBox justifyContent="Center" class="sapUiMediumMarginTop sapUiSmallMarginBottom">
+                                    <Avatar src="sap-icon://globe" displaySize="L" class="kyraEmptyStateAvatar" />
+                                </HBox>
+                                <Title text="No Applications Integrated in this Region" level="H3" class="sapUiTinyMarginBottom" />
+                                <Text text="{= 'No system or cloud applications are currently integrated for ' + (${accessModel>/addAccessRegion} ? ('\'' + ${accessModel>/addAccessRegion} + '\'') : 'the selected region') + '.' }" textAlign="Center" class="fioriDescriptionText sapUiTinyMarginBottom" />
+                                <Text text="Active system integrations are currently available for North America (US East VA) and Asia (Singapore)." textAlign="Center" class="fioriDescriptionText sapUiMediumMarginBottom" />
+                                <Button
+                                    text="Back to Region Selection"
+                                    type="Emphasized"
+                                    icon="sap-icon://nav-back"
+                                    press=".onGoToAddAccessStep2"
+                                    class="kyraPrimaryBtn sapUiSmallMarginBottom" />
+                            </VBox>
+
                             <form:SimpleForm
                                 editable="false"
                                 layout="ColumnLayout"
                                 columnsM="2"
                                 columnsL="2"
                                 singleContainerFullWidth="false"
-                                visible="{= !${accessModel>/isEditingFromSummary} }"
+                                visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }"
                                 class="sapUiSmallMarginBottom">
                                 <form:content>
                                     <core:Title text="Target Systems &amp; Process Selection" />
@@ -4684,7 +4700,7 @@
                             </form:SimpleForm>
 
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                            <VBox id="targetSystemSlideCard" visible="{accessModel>/hasSelectedTargetSystems}" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                            <VBox id="targetSystemSlideCard" visible="{= ${accessModel>/hasSelectedTargetSystems} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">
@@ -4706,31 +4722,31 @@
                                     columnsL="2"
                                     singleContainerFullWidth="false">
                                     <form:content>
-                                        <core:Title text="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? ('Entitlements &amp; Role Collections for ' + (${accessModel>/currentSystemSlideName} || '')) : ('Entitlements &amp; Personas for ' + (${accessModel>/currentSystemSlideName} || '')) }" />
+                                        <core:Title text="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? ('Entitlements &amp; Role Collections for ' + (${accessModel>/currentSystemSlideName} || '')) : ('Entitlements &amp; Personas for ' + (${accessModel>/currentSystemSlideName} || '')) }" />
                                         
                                         <!-- FIELD 1: SERVICE / TOPIC (Left Column, Row 1) -->
-                                        <Label text="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? 'SAP BTP Service' : 'Service / Topic' }" required="true" />
+                                        <Label text="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'SAP BTP Service' : 'Service / Topic' }" required="true" />
                                         <MultiComboBox
                                             id="inPageServicesMultiSelect"
                                             selectedKeys="{accessModel>/addAccessSelectedServices}"
                                             selectionChange=".onInPageServicesSelectionChange"
                                             selectionFinish=".onInPageServicesSelectionFinish"
                                             items="{accessModel>/activeAdminServices}"
-                                            placeholder="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? 'Select SAP BTP services for this system...' : 'Select service topics for this system...' }"
+                                            placeholder="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Select SAP BTP services for this system...' : 'Select service topics for this system...' }"
                                             width="100%"
                                             class="fioriFormSelect">
                                             <core:Item key="{accessModel>serviceName}" text="{accessModel>serviceName}" />
                                         </MultiComboBox>
 
                                         <!-- FIELD 2: TEAM ROLE / ROLE TEMPLATE (Left Column, Row 2) -->
-                                        <Label text="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? 'Role Template' : 'Team Role' }" required="true" />
+                                        <Label text="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Role Template' : 'Team Role' }" required="true" />
                                         <MultiComboBox
                                             id="inPageTeamMultiSelect"
                                             selectedKeys="{accessModel>/addAccessSelectedRoles}"
                                             selectionChange=".onInPageTeamSelectionChange"
                                             selectionFinish=".onInPageTeamSelectionFinish"
                                             items="{accessModel>/addAccessSubRolesList}"
-                                            placeholder="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? 'Select role templates for this system...' : 'Select team roles for this system...' }"
+                                            placeholder="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Select role templates for this system...' : 'Select team roles for this system...' }"
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                             class="fioriFormSelect">
@@ -4738,13 +4754,13 @@
                                         </MultiComboBox>
 
                                         <!-- FIELD 3: ASSIGNED PERSONA / ROLE COLLECTION (Right Column, Row 1) -->
-                                        <Label text="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? 'Role Collection' : 'Assigned Persona' }" required="true" />
+                                        <Label text="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Role Collection' : 'Assigned Persona' }" required="true" />
                                         <MultiComboBox
                                             id="inPagePersonaMultiSelect"
                                             selectedKeys="{accessModel>/addAccessSelectedPersonas}"
                                             selectionChange=".onInPagePersonaSelectionChange"
                                             items="{accessModel>/addAccessPersonasList}"
-                                            placeholder="{= (${accessModel>/currentSystemSlideName} === 'SAP Business Technology Platform' || ${accessModel>/currentSystemSlideName} === 'SAP BTP Cloud Platform') ? 'Select role collections for this system...' : 'Select personas for this system...' }"
+                                            placeholder="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Select role collections for this system...' : 'Select personas for this system...' }"
                                             width="100%"
                                             enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
                                             class="fioriFormSelect">
@@ -4782,6 +4798,7 @@
                                         text="Next"
                                         type="Emphasized"
                                         visible="{= !${accessModel>/isEditingFromSummary} }"
+                                        enabled="{= ${accessModel>/hasRegionalSystems} !== false }"
                                         press=".onStep3Slide1Continue"
                                         class="kyraPrimaryBtn" />
                                 </HBox>

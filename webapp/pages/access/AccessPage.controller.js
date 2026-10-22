@@ -778,13 +778,26 @@ sap.ui.define([
                 },
                 selectedAdminServiceName: "xsuaa (Authorization and Trust Management Service)",
                 adminSystemsAll: [
-                          {
-                                    "systemName": "SAP Business Technology Platform",
-                                    "environment": "Cloud",
-                                    "thresholdLimit": "5",
-                                    "status": "Active",
-                                    "createdDate": "2025-01-10"
-                          }
+                    {
+                        systemName: "SAP Business Technology Platform (US East VA)",
+                        region: "us10",
+                        regionName: "North America",
+                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        environment: "Cloud",
+                        thresholdLimit: "5",
+                        status: "Active",
+                        createdDate: "2025-01-10"
+                    },
+                    {
+                        systemName: "SAP Business Technology Platform (Singapore)",
+                        region: "ap21",
+                        regionName: "Asia",
+                        subaccountId: "c47846a0-2a37-40c4-b9f2-c59802307b00",
+                        environment: "Cloud",
+                        thresholdLimit: "5",
+                        status: "Active",
+                        createdDate: "2025-01-10"
+                    }
                 ],
                 adminBusinessSectorsAll: [
                     { sectorName: "Finance & Enterprise Performance", status: "Active", selected: false },
@@ -855,13 +868,26 @@ sap.ui.define([
                     { regionCode: "OC", regionName: "Oceania / Australia", status: "Active", creationDate: "2025-01-15" }
                 ],
                 adminSystems: [
-                          {
-                                    "systemName": "SAP Business Technology Platform",
-                                    "environment": "Cloud",
-                                    "thresholdLimit": "5",
-                                    "status": "Active",
-                                    "createdDate": "2025-01-10"
-                          }
+                    {
+                        systemName: "SAP Business Technology Platform (US East VA)",
+                        region: "us10",
+                        regionName: "North America",
+                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        environment: "Cloud",
+                        thresholdLimit: "5",
+                        status: "Active",
+                        createdDate: "2025-01-10"
+                    },
+                    {
+                        systemName: "SAP Business Technology Platform (Singapore)",
+                        region: "ap21",
+                        regionName: "Asia",
+                        subaccountId: "c47846a0-2a37-40c4-b9f2-c59802307b00",
+                        environment: "Cloud",
+                        thresholdLimit: "5",
+                        status: "Active",
+                        createdDate: "2025-01-10"
+                    }
                 ],
                 showAdminSystemSlide: true,
                 adminCustomizationStep: 1,
@@ -1913,7 +1939,7 @@ sap.ui.define([
                     // 3. Check sequential prerequisite
                     if (item.prereqProp && oModel) {
                         const sSys = oModel.getProperty("/currentSystemSlideName") || "";
-                        const bIsBtp = sSys === "SAP Business Technology Platform" || sSys === "SAP BTP Cloud Platform";
+                        const bIsBtp = (sSys || "").includes("SAP Business Technology Platform") || (sSys || "").includes("SAP BTP");
                         const sEffectivePrereqProp = (bIsBtp && item.id === "inPagePersonaMultiSelect") ? "/addAccessSelectedServices" : item.prereqProp;
                         const aPrereqVal = oModel.getProperty(sEffectivePrereqProp) || [];
                         if (!Array.isArray(aPrereqVal) || aPrereqVal.length === 0) {
@@ -2591,6 +2617,7 @@ sap.ui.define([
 
             const sJoinedRegionNames = aSelected.map(r => r.name).join(", ");
             oModel.setProperty("/addAccessRegion", sJoinedRegionNames);
+            this._filterSystemsForSelectedRegions(oModel);
         },
 
         onRemoveMapRegionChip(oEvent) {
@@ -7023,6 +7050,9 @@ sap.ui.define([
                 return;
             }
 
+            // Dynamically evaluate active systems for selected regions
+            this._filterSystemsForSelectedRegions(oModel);
+
             oModel.setProperty("/isEditingFromSummary", false);
             oModel.setProperty("/addAccessStep", 3);
             oModel.setProperty("/addAccessConfigSubStep", 1);
@@ -7317,6 +7347,16 @@ sap.ui.define([
         onStep3Slide1Continue() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            if (oModel.getProperty("/hasRegionalSystems") === false) {
+                KyraDialog.show({
+                    type: "warning",
+                    title: "No Applications Available",
+                    message: "No applications or systems are integrated in the selected region. Please go back to Region Selection and select North America or Asia.",
+                    buttonText: "Close"
+                });
+                return;
+            }
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
             if (aSystems.length === 0) {
@@ -15158,7 +15198,11 @@ sap.ui.define([
                     aActiveServices.push(s);
                 }
             });
-            oModel.setProperty("/activeAdminSystems", aActiveSystems);
+            if (oModel.getProperty("/addAccessStep") >= 2) {
+                this._filterSystemsForSelectedRegions(oModel);
+            } else {
+                oModel.setProperty("/activeAdminSystems", aActiveSystems);
+            }
             oModel.setProperty("/activeAdminServices", aActiveServices);
 
             // 1. Rebuild System Options for Custom Conflict Builder: placeholder + All Systems (always present) + live active systems
