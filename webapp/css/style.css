@@ -61767,15 +61767,19 @@ td.kyraColActions .kyraAdminSystemEditBtn {
 /* ==========================================================================
    INTEGRATIONS LIST PANEL & ROWS (EXACT MATCH TO IMAGE 2)
    ========================================================================== */
-#adminDatabaseConfigSection.kyraMigrationStudioContainer,
-.sapMFlexBox#adminDatabaseConfigSection.kyraMigrationStudioContainer,
-html body #adminDatabaseConfigSection {
+.kyraAdminIntegrationSection,
+.sapMFlexBox.kyraAdminIntegrationSection,
+html body .sapUiTheme-sap_horizon .kyraAdminIntegrationSection,
+html body [id$="adminDatabaseConfigSection"] {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin-top: 20px !important;
+    margin-top: 18px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .kyraIntegrationsPanelCard,
@@ -61785,11 +61789,12 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationsPanelCard {
     background-color: #FFFFFF !important;
     border: 1px solid #E2E8F0 !important;
     border-radius: 16px !important;
-    padding: 22px 28px 24px 28px !important;
+    padding: 24px 28px !important;
     box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
     box-sizing: border-box !important;
     width: 100% !important;
-    margin-bottom: 24px !important;
+    max-width: 100% !important;
+    margin: 0 0 20px 0 !important;
 }
 
 .kyraIntegrationsPanelTitle,
@@ -61807,7 +61812,7 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationsPanelTitle {
 .sapMFlexBox.kyraIntegrationsList {
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
+    gap: 8px !important;
     width: 100% !important;
 }
 
@@ -61819,29 +61824,30 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationListItem {
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
-    padding: 10px 16px !important;
+    padding: 12px 18px !important;
     border-radius: 12px !important;
     background: transparent !important;
     background-color: transparent !important;
     border: 1px solid transparent !important;
     box-sizing: border-box !important;
     cursor: pointer !important;
-    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease !important;
-    min-height: 58px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    min-height: 64px !important;
 }
 
 .kyraIntegrationListItem:hover,
 html body .sapUiTheme-sap_horizon .kyraIntegrationListItem:hover {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
+    border-color: #E2E8F0 !important;
 }
 
 .kyraIntegrationListItem.kyraIntegrationListItemActive,
-.kyraIntegrationListItem.kyraSubIntegrationCardActive,
-html body .sapUiTheme-sap_horizon .kyraIntegrationListItem.kyraIntegrationListItemActive,
-html body .sapUiTheme-sap_horizon .kyraIntegrationListItem.kyraSubIntegrationCardActive {
+html body .sapUiTheme-sap_horizon .kyraIntegrationListItem.kyraIntegrationListItemActive {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.08) !important;
 }
 
 .kyraIntegrationItemLeft,
@@ -61850,6 +61856,7 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationListItem.kyraSubIntegrationCar
     flex-direction: row !important;
     align-items: center !important;
     gap: 16px !important;
+    flex: 1 1 auto !important;
 }
 
 .kyraIntegrationBadge {
@@ -61868,7 +61875,7 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationListItem.kyraSubIntegrationCar
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    gap: 2px !important;
+    gap: 3px !important;
 }
 
 .kyraIntegrationTitle,
@@ -61896,7 +61903,8 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationSub {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 16px !important;
+    gap: 18px !important;
+    flex-shrink: 0 !important;
 }
 
 .kyraIntegrationStatusDot {
@@ -61913,13 +61921,14 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationSub {
 .sapMFlexBox.kyraIntegrationPillBadge {
     background-color: #ECFDF5 !important;
     background: #ECFDF5 !important;
-    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
     border-radius: 9999px !important;
-    padding: 4px 14px !important;
+    padding: 5px 16px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
+    min-width: 108px !important;
 }
 
 .kyraIntegrationPillText,
@@ -61931,6 +61940,7 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationPillText {
     line-height: 1.2 !important;
     margin: 0 !important;
     white-space: nowrap !important;
+    text-align: center !important;
 }
 
 .kyraIntegrationArrowIcon,
@@ -61942,4 +61952,22 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationPillText {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+}
+
+/* Ensure all sub-section slides inside kyraAdminIntegrationSection align with full width and matching styles */
+.kyraAdminIntegrationSection .kyraDarkStudioWrapper,
+.sapMFlexBox.kyraAdminIntegrationSection .kyraDarkStudioWrapper,
+html body [id$="adminDatabaseConfigSection"] .kyraDarkStudioWrapper,
+html body .kyraAdminIntegrationSection .kyraDarkStudioWrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 24px 0 !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 16px !important;
+    padding: 24px 28px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
 }

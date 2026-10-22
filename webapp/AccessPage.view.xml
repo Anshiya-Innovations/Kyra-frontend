@@ -178,12 +178,13 @@
                                         <!-- ADMIN SECTION 1: SAP APPLICATION INTEGRATION CONFIGURATION & DISCOVERY (Image 2 Match) -->
                     <VBox id="adminDatabaseConfigSection"
                         visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; ${accessModel>/adminSelectedSection} === 'databaseConfig' }"
-                        class="kyraMigrationStudioContainer fioriSlideDownAnim">
+                        class="kyraAdminIntegrationSection fioriSlideDownAnim">
 
                         <!-- ========================================================================= -->
                         <!-- INTEGRATIONS CARD CONTAINER & LIST (Exact Match to Image 2)               -->
                         <!-- ========================================================================= -->
-                        <VBox class="kyraIntegrationsPanelCard sapUiMediumMarginBottom" width="100%">
+                        <VBox class="kyraIntegrationsPanelCard sapUiMediumMarginBottom" width="100%"
+                            visible="{= !${accessModel>/selectedIntegrationType} }">
                             <!-- Section Title -->
                             <Title text="Integrations" level="H4" class="kyraIntegrationsPanelTitle" />
 
@@ -191,7 +192,7 @@
                             <VBox class="kyraIntegrationsList" width="100%">
                                 <!-- ROW 1: SAP INTEGRATION -->
                                 <HBox id="cardSubSapIntegration"
-                                    class="{= 'kyraIntegrationListItem fioriClickableCard' + ((${accessModel>/selectedIntegrationType} === 'sap' || !${accessModel>/selectedIntegrationType}) ? ' kyraIntegrationListItemActive' : '') }"
+                                    class="{= 'kyraIntegrationListItem fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'sap' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
                                     justifyContent="SpaceBetween"
                                     width="100%"
@@ -276,7 +277,7 @@
                         </VBox>
 
                         <!-- WRAPPER FOR SAP APPLICATION INTEGRATION (Visible when Box 1 is active) -->
-                        <VBox id="sapIntegrationSubSection" visible="{= ${accessModel>/selectedIntegrationType} === 'sap' || !${accessModel>/selectedIntegrationType} }" width="100%">
+                        <VBox id="sapIntegrationSubSection" visible="{= ${accessModel>/selectedIntegrationType} === 'sap' }" width="100%">
 
                         <!-- ========================================================================= -->
                         <!-- PAGE 1: SAP APPLICATION INTEGRATION CONFIGURATION (EXACT MATCH TO IMAGE 2)-->
@@ -292,11 +293,19 @@
                                     <Title text="Configure SAP Application Integration" level="H2" class="kyraDarkStudioTitle" />
                                     <Text text="Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra." class="kyraDarkStudioSubtitle" />
                                 </VBox>
-                                <Button
-                                    text="Manage Entitlements →"
-                                    type="Emphasized"
-                                    press=".onManageSapEntitlements"
-                                    class="kyraDarkPrimaryActionBtn" />
+                                <HBox alignItems="Center" gap="10px">
+                                    <Button
+                                        text="← Back to Integrations"
+                                        icon="sap-icon://nav-back"
+                                        type="Transparent"
+                                        press=".onBackToIntegrationsList"
+                                        class="kyraDarkOutlineBtn" />
+                                    <Button
+                                        text="Manage Entitlements →"
+                                        type="Emphasized"
+                                        press=".onManageSapEntitlements"
+                                        class="kyraDarkPrimaryActionBtn" />
+                                </HBox>
                             </HBox>
 
                             <!-- Target Destination Banner matching Image 2 -->
@@ -1035,11 +1044,19 @@
                             width="100%"
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
-                            <!-- Top Title & Subtitle -->
-                            <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
-                                <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
-                                <Text text="Connected SAP Subaccount: 5af75fc5trial (dev) • Active enterprise cloud licenses and services discovered for this tenant." class="kyraDarkStudioSubtitle" />
-                            </VBox>
+                            <!-- Top Title & Subtitle with Back Button -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <VBox class="kyraHeaderTitleCol sapUiNoMargin">
+                                    <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
+                                    <Text text="Connected SAP Subaccount: 5af75fc5trial (dev) • Active enterprise cloud licenses and services discovered for this tenant." class="kyraDarkStudioSubtitle" />
+                                </VBox>
+                                <Button
+                                    text="← Back to Integrations"
+                                    icon="sap-icon://nav-back"
+                                    type="Transparent"
+                                    press=".onBackToIntegrationsList"
+                                    class="kyraDarkOutlineBtn" />
+                            </HBox>
 
                             <!-- Verified Banner -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
@@ -1173,11 +1190,18 @@
 
                             <!-- Bottom Action Bar -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
-                                <Button
-                                    text="← Reconfigure SAP Integration"
-                                    press=".onBackToSapConfig"
-                                    type="Default"
-                                    class="kyraDarkOutlineBtn" />
+                                <HBox alignItems="Center" gap="10px">
+                                    <Button
+                                        text="← Back to Integrations"
+                                        press=".onBackToIntegrationsList"
+                                        type="Default"
+                                        class="kyraDarkOutlineBtn" />
+                                    <Button
+                                        text="Reconfigure SAP Integration"
+                                        press=".onBackToSapConfig"
+                                        type="Default"
+                                        class="kyraDarkOutlineBtn" />
+                                </HBox>
                                 <Button
                                     text="Close Section"
                                     icon="sap-icon://decline"

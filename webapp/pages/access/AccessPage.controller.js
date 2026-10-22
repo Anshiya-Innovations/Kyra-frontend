@@ -452,7 +452,7 @@ sap.ui.define([
                 // 4. Admin Persona State & Live Access Customization Data (Synced with Add Access Configuration)
                 isAdminPersona: (sessionStorage.getItem("kyra_active_role") === "Admin" || sessionStorage.getItem("kyra_active_role") === "Administrator"),
                 adminSelectedSection: "",
-                selectedIntegrationType: "sap",
+                selectedIntegrationType: "",
                 adGroupIntegration: {
                     directoryProvider: "azure_ad",
                     // Microsoft Entra ID
@@ -15457,11 +15457,8 @@ sap.ui.define([
             oModel.setProperty("/adminSelectedSection", sNext);
 
             if (sNext === "databaseConfig") {
-                if (!oModel.getProperty("/selectedIntegrationType")) {
-                    oModel.setProperty("/selectedIntegrationType", "sap");
-                }
-                oModel.setProperty("/sapIntegration/currentStep", 2);
-                if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("sapPurchasedAppsContainer", 40), 100); }
+                // By default show ONLY the Integrations list card (no sub-slide open)
+                oModel.setProperty("/selectedIntegrationType", "");
                 oModel.setProperty("/sapIntegration/isAppExpanded", false);
                 setTimeout(() => {
                     this._smoothScrollTo("adminDatabaseConfigSection", 40);
@@ -15659,11 +15656,29 @@ sap.ui.define([
         onCloseAdminSection() {
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
+                if (oModel.getProperty("/selectedIntegrationType")) {
+                    oModel.setProperty("/selectedIntegrationType", "");
+                    this._updateSubIntegrationCards(oModel);
+                    setTimeout(() => {
+                        this._smoothScrollTo("adminDatabaseConfigSection", 40);
+                    }, 40);
+                    return;
+                }
                 oModel.setProperty("/adminSelectedSection", "");
                 oModel.setProperty("/sapIntegration/currentStep", 1);
                 oModel.setProperty("/sapIntegration/isAppExpanded", false);
                 this._updateActionCardArrows(oModel);
             }
+        },
+
+        onBackToIntegrationsList() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/selectedIntegrationType", "");
+            this._updateSubIntegrationCards(oModel);
+            setTimeout(() => {
+                this._smoothScrollTo("adminDatabaseConfigSection", 40);
+            }, 40);
         },
 
         onSearchAdminSystems(oEvent) {
@@ -20501,48 +20516,87 @@ sap.ui.define([
         },
 
         onSelectSapIntegration() {
+            const now = Date.now();
+            if (this._lastSubNavClick && (now - this._lastSubNavClick < 350)) {
+                return;
+            }
+            this._lastSubNavClick = now;
+
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            oModel.setProperty("/selectedIntegrationType", "sap");
-            const curStep = oModel.getProperty("/sapIntegration/currentStep") || 2;
-            oModel.setProperty("/sapIntegration/currentStep", curStep);
-            oModel.setProperty("/sapIntegration/isAppExpanded", false);
+
+            const sCurrent = oModel.getProperty("/selectedIntegrationType") || "";
+            if (sCurrent === "sap") {
+                oModel.setProperty("/selectedIntegrationType", "");
+            } else {
+                oModel.setProperty("/selectedIntegrationType", "sap");
+                oModel.setProperty("/sapIntegration/currentStep", 2);
+                oModel.setProperty("/sapIntegration/isAppExpanded", false);
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._smoothScrollTo("sapPurchasedAppsContainer", 40);
+                }, 80);
+            }
             this._updateSubIntegrationCards(oModel);
-            setTimeout(() => {
-                const sTargetId = (curStep === 2) ? "sapPurchasedAppsContainer" : "sapIntegrationConfigContainer";
-                this._smoothScrollTo(sTargetId, 40);
-            }, 60);
         },
 
         onSelectAdGroupIntegration() {
+            const now = Date.now();
+            if (this._lastSubNavClick && (now - this._lastSubNavClick < 350)) {
+                return;
+            }
+            this._lastSubNavClick = now;
+
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            oModel.setProperty("/selectedIntegrationType", "ad_group");
+
+            const sCurrent = oModel.getProperty("/selectedIntegrationType") || "";
+            if (sCurrent === "ad_group") {
+                oModel.setProperty("/selectedIntegrationType", "");
+            } else {
+                oModel.setProperty("/selectedIntegrationType", "ad_group");
+                if (!oModel.getProperty("/adGroupIntegration/currentStep")) {
+                    oModel.setProperty("/adGroupIntegration/currentStep", 1);
+                }
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._smoothScrollTo("adGroupConfigContainer", 40);
+                }, 80);
+            }
             this._updateSubIntegrationCards(oModel);
-            setTimeout(() => {
-                this._smoothScrollTo("adGroupIntegrationContainer", 40);
-            }, 60);
         },
 
         onSelectIamIntegration() {
+            const now = Date.now();
+            if (this._lastSubNavClick && (now - this._lastSubNavClick < 350)) {
+                return;
+            }
+            this._lastSubNavClick = now;
+
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-            oModel.setProperty("/selectedIntegrationType", "iam");
-            oModel.setProperty("/selectedIamApprover", ""); // No auto open
+
+            const sCurrent = oModel.getProperty("/selectedIntegrationType") || "";
+            if (sCurrent === "iam") {
+                oModel.setProperty("/selectedIntegrationType", "");
+            } else {
+                oModel.setProperty("/selectedIntegrationType", "iam");
+                oModel.setProperty("/selectedIamApprover", "");
+                this._updateIamApproverCards(oModel);
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._bindIamCardClicks();
+                    this._smoothScrollTo("iamIntegrationContainer", 40);
+                }, 80);
+            }
             this._updateSubIntegrationCards(oModel);
-            this._updateIamApproverCards(oModel);
-            try { sap.ui.getCore().applyChanges(); } catch (e) {}
-            setTimeout(() => {
-                this._bindIamCardClicks();
-                this._smoothScrollTo("iamIntegrationContainer", 40);
-            }, 60);
         },
 
         _updateSubIntegrationCards(oModel) {
             if (!oModel) oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const sType = oModel.getProperty("/selectedIntegrationType") || "sap";
+            const sType = oModel.getProperty("/selectedIntegrationType") || "";
             const bSap = sType === "sap";
             const bAd = sType === "ad_group";
             const bIam = sType === "iam";
