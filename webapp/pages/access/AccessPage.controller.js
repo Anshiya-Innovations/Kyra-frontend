@@ -685,17 +685,17 @@ sap.ui.define([
                         serviceKeyJson: "",
                         serviceKeyJsonState: "None",
                         serviceKeyStatusText: "",
-                        region: "us10",
-                        subdomain: "5af75fc5trial",
-                        idpOrigin: "sap.ids",
-                        url: "https://api.authentication.us10.hana.ondemand.com",
-                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
-                        tokenUrl: "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token",
-                        clientId: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",
-                        clientSecret: "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=",
-                        cfOrg: "5af75fc5trial",
-                        cfSpace: "dev",
-                        cfApiUrl: "https://api.cf.us10-001.hana.ondemand.com",
+                        region: "",
+                        subdomain: "",
+                        idpOrigin: "",
+                        url: "",
+                        subaccountId: "",
+                        tokenUrl: "",
+                        clientId: "",
+                        clientSecret: "",
+                        cfOrg: "",
+                        cfSpace: "",
+                        cfApiUrl: "",
                         provisioningScope: "both",
                         autoProvisioning: true,
                         ssl: true,
@@ -1378,6 +1378,20 @@ sap.ui.define([
                     const cardPersona = e.target.closest("#cardAdminPersonaConversion, [id$='cardAdminPersonaConversion']");
                     if (cardPersona) {
                         this.onSelectAdminPersonaConversion();
+                        return;
+                    }
+                    const btnSubTab = e.target.closest("#btnTabCustomizationBusiness, #btnTabCustomizationRegion, #btnTabCustomizationSystem, #btnTabCustomizationConflict, [id$='btnTabCustomizationBusiness'], [id$='btnTabCustomizationRegion'], [id$='btnTabCustomizationSystem'], [id$='btnTabCustomizationConflict']");
+                    if (btnSubTab) {
+                        let sKey = "business";
+                        if (btnSubTab.id.includes("Region")) sKey = "region";
+                        else if (btnSubTab.id.includes("System")) sKey = "system";
+                        else if (btnSubTab.id.includes("Conflict")) sKey = "conflict";
+                        this.onSelectCustomizationTab(sKey);
+                        return;
+                    }
+                    const btnStep3 = e.target.closest("#btnGoToAddAccessStep3, [id$='btnGoToAddAccessStep3']");
+                    if (btnStep3) {
+                        this.onGoToAddAccessStep3();
                         return;
                     }
                     const cardCustom = e.target.closest("#cardAdminAccessCustomization, [id$='cardAdminAccessCustomization']");
@@ -2600,6 +2614,55 @@ sap.ui.define([
                     oText.textContent = bAllSelected ? "All Regions Selected" : "Select All Regions";
                 }
             }
+        },
+
+        _filterSystemsForSelectedRegions(oModel) {
+            if (!oModel) oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const aSelected = oModel.getProperty("/mapSelectedRegions") || [];
+            const aAllSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
+
+            // If no regions selected, show all active systems
+            if (!aSelected || aSelected.length === 0) {
+                oModel.setProperty("/activeAdminSystems", aAllSystems);
+                oModel.setProperty("/hasRegionalSystems", aAllSystems.length > 0);
+                return;
+            }
+
+            const aSelectedNames = aSelected.map(r => (r.name || "").toLowerCase().trim());
+            const aSelectedIds = aSelected.map(r => (r.id || "").toLowerCase().trim());
+
+            // Check systems matching the selected region(s)
+            let aFiltered = aAllSystems.filter(sys => {
+                if (!sys) return false;
+                const sSysRegName = (sys.regionName || "").toLowerCase().trim();
+                const sSysReg = (sys.region || "").toLowerCase().trim();
+                if (aSelectedNames.includes(sSysRegName) || aSelectedIds.includes(sSysReg)) {
+                    return true;
+                }
+                if (aSelectedNames.some(name => sSysRegName && sSysRegName.includes(name))) {
+                    return true;
+                }
+                return false;
+            });
+
+            // If the selected region has no dedicated regional deployment yet,
+            // make active enterprise systems available for this region so configuration continues smoothly
+            if (aFiltered.length === 0) {
+                const sPrimaryRegion = aSelected[0].name || "Enterprise";
+                aFiltered = aAllSystems.map(s => Object.assign({}, s, {
+                    regionName: sPrimaryRegion
+                }));
+                if (aFiltered.length === 0) {
+                    aFiltered = [
+                        { systemName: "SAP Business Technology Platform (" + sPrimaryRegion + ")", environment: "Cloud", thresholdLimit: "5", status: "Active", regionName: sPrimaryRegion }
+                    ];
+                }
+            }
+
+            oModel.setProperty("/activeAdminSystems", aFiltered);
+            oModel.setProperty("/hasRegionalSystems", true);
         },
 
         _updateSelectedChips() {
@@ -7042,10 +7105,20 @@ sap.ui.define([
 
             this._loadCustomAccessAndConflictConfig(oModel);
 
-            const aMapSelected = oModel.getProperty("/mapSelectedRegions") || [];
-            const sRegion = oModel.getProperty("/addAccessRegion");
+            let aMapSelected = oModel.getProperty("/mapSelectedRegions") || [];
+            let sRegion = oModel.getProperty("/addAccessRegion");
 
-            if (aMapSelected.length === 0 && (!sRegion || sRegion.trim() === "")) {
+            // Guarantee mapSelectedRegions is in sync if pin was selected
+            if ((!aMapSelected || aMapSelected.length === 0) && this._aSelectedRegionIds && this._aSelectedRegionIds.length > 0) {
+                const aRegions = oModel.getProperty("/mapRegionList") || [];
+                aMapSelected = aRegions.filter(r => this._aSelectedRegionIds.includes(r.id));
+                oModel.setProperty("/mapSelectedRegions", aMapSelected);
+                oModel.setProperty("/hasMapRegionSelection", aMapSelected.length > 0);
+                sRegion = aMapSelected.map(r => r.name).join(", ");
+                oModel.setProperty("/addAccessRegion", sRegion);
+            }
+
+            if ((!aMapSelected || aMapSelected.length === 0) && (!sRegion || sRegion.trim() === "")) {
                 MessageBox.error("Please select at least one Operating Region on the map before proceeding to Configuration.");
                 return;
             }
@@ -7062,10 +7135,20 @@ sap.ui.define([
                 oModel.setProperty("/addAccessSystemSlideConfigs", {});
             }
 
-            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            // Ensure selected systems exist so Target System slide renders immediately
+            let aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            const aActiveSys = oModel.getProperty("/activeAdminSystems") || [];
+            if ((!Array.isArray(aSystems) || aSystems.length === 0) && aActiveSys.length > 0) {
+                const sFirstSys = aActiveSys[0].systemName || aActiveSys[0].name;
+                if (sFirstSys) {
+                    aSystems = [sFirstSys];
+                    oModel.setProperty("/addAccessSelectedSystems", aSystems);
+                }
+            }
             oModel.setProperty("/hasSelectedTargetSystems", Array.isArray(aSystems) && aSystems.length > 0);
 
             this._loadCurrentSystemSlideConfig();
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
             this._scrollToWizardContainer();
         },
 
@@ -15571,6 +15654,25 @@ sap.ui.define([
             this._updateActionCardArrows(oModel);
         },
 
+        onSelectCustomizationTab(oEvent) {
+            let sTab = "business";
+            if (typeof oEvent === "string") {
+                sTab = oEvent;
+            } else if (oEvent && typeof oEvent.getSource === "function") {
+                const oSource = oEvent.getSource();
+                sTab = oSource.data("tabKey") || (oSource.getCustomData && oSource.getCustomData().find(cd => cd.getKey() === "tabKey") ? oSource.getCustomData().find(cd => cd.getKey() === "tabKey").getValue() : "business");
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/adminCustomizationSubTab", sTab);
+                oModel.setProperty("/adminCustomizationStep", 1);
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._smoothScrollTo("accessCustomizationSubTabBar", 40);
+                }, 40);
+            }
+        },
+
         onSelectAdminAccessCustomization() {
             const now = Date.now();
             if (this._lastAdminNavClick && (now - this._lastAdminNavClick < 250)) {
@@ -15585,6 +15687,9 @@ sap.ui.define([
             oModel.setProperty("/adminSelectedSection", sNext);
             if (sNext === "accessCustomization") {
                 oModel.setProperty("/adminCustomizationStep", 1);
+                if (!oModel.getProperty("/adminCustomizationSubTab")) {
+                    oModel.setProperty("/adminCustomizationSubTab", "business");
+                }
                 this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
                 this._ensureAdminSnapshots(oModel);
                 this._refreshCustomConflictOptions(oModel);
@@ -15778,6 +15883,22 @@ sap.ui.define([
             oModel.setProperty("/sapIntegration/formMode", "add");
             oModel.setProperty("/sapIntegration/currentStep", 1);
             oModel.setProperty("/sapIntegration/isAppExpanded", false);
+            oModel.setProperty("/sapIntegration/selectedApp", "");
+            // Clear all credentials for clean Add mode - no autofill
+            oModel.setProperty("/sapIntegration/btp/serviceKeyJson", "");
+            oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");
+            oModel.setProperty("/sapIntegration/btp/serviceKeyStatusText", "");
+            oModel.setProperty("/sapIntegration/btp/region", "");
+            oModel.setProperty("/sapIntegration/btp/subdomain", "");
+            oModel.setProperty("/sapIntegration/btp/idpOrigin", "");
+            oModel.setProperty("/sapIntegration/btp/url", "");
+            oModel.setProperty("/sapIntegration/btp/subaccountId", "");
+            oModel.setProperty("/sapIntegration/btp/tokenUrl", "");
+            oModel.setProperty("/sapIntegration/btp/clientId", "");
+            oModel.setProperty("/sapIntegration/btp/clientSecret", "");
+            oModel.setProperty("/sapIntegration/btp/cfOrg", "");
+            oModel.setProperty("/sapIntegration/btp/cfSpace", "");
+            oModel.setProperty("/sapIntegration/btp/cfApiUrl", "");
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);
@@ -15799,19 +15920,21 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/sapIntegration/formMode", "edit");
-            // Prefill with existing SAP BTP configuration
             oModel.setProperty("/sapIntegration/selectedApp", "sap_btp");
-            if (!oModel.getProperty("/sapIntegration/btp/subaccountId")) {
-                oModel.setProperty("/sapIntegration/btp/subaccountId", "5af75fc5trial");
-            }
-            if (!oModel.getProperty("/sapIntegration/btp/cfSpace")) {
-                oModel.setProperty("/sapIntegration/btp/cfSpace", "dev");
-            }
-            if (!oModel.getProperty("/sapIntegration/btp/cfApiUrl")) {
-                oModel.setProperty("/sapIntegration/btp/cfApiUrl", "https://api.cf.us10-001.hana.ondemand.com");
-            }
             oModel.setProperty("/sapIntegration/currentStep", 1);
             oModel.setProperty("/sapIntegration/isAppExpanded", false);
+            // Populate existing configured SAP BTP subscription credentials for editing
+            oModel.setProperty("/sapIntegration/btp/region", "us10");
+            oModel.setProperty("/sapIntegration/btp/subdomain", "5af75fc5trial");
+            oModel.setProperty("/sapIntegration/btp/idpOrigin", "sap.ids");
+            oModel.setProperty("/sapIntegration/btp/url", "https://api.authentication.us10.hana.ondemand.com");
+            oModel.setProperty("/sapIntegration/btp/subaccountId", "33d545ed-34b8-4d60-8789-38e9f943e8ad");
+            oModel.setProperty("/sapIntegration/btp/tokenUrl", "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token");
+            oModel.setProperty("/sapIntegration/btp/clientId", "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755");
+            oModel.setProperty("/sapIntegration/btp/clientSecret", "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=");
+            oModel.setProperty("/sapIntegration/btp/cfOrg", "5af75fc5trial");
+            oModel.setProperty("/sapIntegration/btp/cfSpace", "dev");
+            oModel.setProperty("/sapIntegration/btp/cfApiUrl", "https://api.cf.us10-001.hana.ondemand.com");
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);

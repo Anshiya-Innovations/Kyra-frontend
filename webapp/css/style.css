@@ -61971,3 +61971,89 @@ html body .kyraAdminIntegrationSection .kyraDarkStudioWrapper {
     box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
     box-sizing: border-box !important;
 }
+
+/* ========================================================================= */
+/* ACCESS CUSTOMIZATION SUB-NAV TAB BAR (IMAGE 2 MATCH)                      */
+/* ========================================================================= */
+.kyraAccessCustomizationTabBar,
+.sapMFlexBox.kyraAccessCustomizationTabBar,
+html body [id$="accessCustomizationSubTabBar"] {
+    background: #CBD5E1 !important;
+    background-color: #CBD5E1 !important;
+    border: 1px solid #94A3B8 !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    margin-bottom: 22px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.kyraCustomizationTabBtn,
+.kyraCustomizationTabBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraCustomizationTabBtn.sapMBtn {
+    background: #3B82F6 !important;
+    background-color: #3B82F6 !important;
+    border: 1px solid #2563EB !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    font-size: 14.5px !important;
+    letter-spacing: 0.2px !important;
+    padding: 0 20px !important;
+    height: 44px !important;
+    min-width: 130px !important;
+    flex: 1 !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25) !important;
+}
+
+.kyraCustomizationTabBtn .sapMBtnInner,
+.kyraCustomizationTabBtn.sapMBtn .sapMBtnInner {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 100% !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraCustomizationTabBtn .sapMBtnContent,
+.kyraCustomizationTabBtn .sapMBtnCustomText,
+.kyraCustomizationTabBtn .sapMBtnIcon,
+.kyraCustomizationTabBtn .sapMBtnInner .sapMBtnContent {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    font-size: 14.5px !important;
+    line-height: 42px !important;
+}
+
+.kyraCustomizationTabBtn:hover,
+.kyraCustomizationTabBtn.sapMBtn:hover {
+    background: #2563EB !important;
+    background-color: #2563EB !important;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Active tab state */
+.kyraCustomizationTabBtnActive,
+.kyraCustomizationTabBtnActive.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraCustomizationTabBtnActive.sapMBtn {
+    background: #1D4ED8 !important;
+    background-color: #1D4ED8 !important;
+    border: 2px solid #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.55), 0 4px 12px rgba(29, 78, 216, 0.5) !important;
+}
+
+.kyraCustomizationTabBtnActive .sapMBtnContent,
+.kyraCustomizationTabBtnActive .sapMBtnCustomText,
+.kyraCustomizationTabBtnActive .sapMBtnInner .sapMBtnContent {
+    font-weight: 700 !important;
+}

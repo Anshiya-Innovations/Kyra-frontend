@@ -287,27 +287,11 @@
                             width="100%"
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
-                            <!-- Top Title & Subtitle matching Image 2 with Manage Entitlements Button -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" gap="20px" class="kyraDarkTitleHeaderRow kyraDarkTitleBlock sapUiSmallMarginBottom">
-                                <VBox class="kyraHeaderTitleCol sapUiNoMargin">
-                                    <Title text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Edit SAP Application Integration' : 'Add SAP Application Integration' }" level="H2" class="kyraDarkStudioTitle" />
-                                    <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle" />
-                                </VBox>
-                                <HBox alignItems="Center" gap="10px">
-                                    <Button
-                                        id="btnBackFromSapConfigTop"
-                                        text="Back"
-                                        icon="sap-icon://nav-back"
-                                        type="Transparent"
-                                        press=".onBackToPurchasedApps"
-                                        class="kyraAdminHeaderBackBtn" />
-                                    <Button
-                                        text="View Purchased Applications →"
-                                        type="Emphasized"
-                                        press=".onManageSapEntitlements"
-                                        class="kyraDarkPrimaryActionBtn" />
-                                </HBox>
-                            </HBox>
+                            <!-- Top Title & Subtitle (Fully removed top back and view buttons) -->
+                            <VBox width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <Title text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Edit SAP Application Integration' : 'Add SAP Application Integration' }" level="H2" class="kyraDarkStudioTitle" />
+                                <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle" />
+                            </VBox>
 
                             <!-- Target Destination Banner matching Image 2 -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
@@ -430,7 +414,7 @@
                                             <Input
                                                 id="inputSapBtpSubdomain"
                                                 value="{accessModel>/sapIntegration/btp/subdomain}"
-                                                placeholder="5af75fc5trial"
+                                                placeholder="Enter Subaccount Subdomain (e.g. 5af75fc5trial)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -448,7 +432,7 @@
                                                 id="inputSapBtpUrl"
                                                 value="{accessModel>/sapIntegration/btp/url}"
                                                 valueState="{accessModel>/sapIntegration/btp/urlState}"
-                                                placeholder="https://api.authentication.us10.hana.ondemand.com"
+                                                placeholder="Enter SCIM API URL (e.g. https://api.authentication.us10.hana.ondemand.com)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -462,7 +446,7 @@
                                                 id="inputSapBtpSubaccount"
                                                 value="{accessModel>/sapIntegration/btp/subaccountId}"
                                                 valueState="{accessModel>/sapIntegration/btp/subaccountState}"
-                                                placeholder="33d545ed-34b8-4d60-8789-38e9f943e8ad"
+                                                placeholder="Enter Subaccount / Tenant ID (e.g. 33d545ed-34b8-4d60-8789-38e9f943e8ad)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -480,7 +464,7 @@
                                                 id="inputSapBtpTokenUrl"
                                                 value="{accessModel>/sapIntegration/btp/tokenUrl}"
                                                 valueState="{accessModel>/sapIntegration/btp/tokenUrlState}"
-                                                placeholder="https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token"
+                                                placeholder="Enter OAuth Token URL (e.g. https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -493,7 +477,7 @@
                                             <ComboBox
                                                 id="inputSapBtpIdpOrigin"
                                                 selectedKey="{accessModel>/sapIntegration/btp/idpOrigin}"
-                                                placeholder="Select IdP Origin..."
+                                                placeholder="Select Identity Provider (IdP) Origin (e.g. sap.ids - SAP ID Service)..."
                                                 width="100%"
                                                 class="kyraDarkSelect fioriFormSelect">
                                                 <core:Item key="sap.ids" text="sap.ids - SAP ID Service (Default)" />
@@ -516,7 +500,7 @@
                                                 id="inputSapBtpClientId"
                                                 value="{accessModel>/sapIntegration/btp/clientId}"
                                                 valueState="{accessModel>/sapIntegration/btp/clientIdState}"
-                                                placeholder="sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755"
+                                                placeholder="Enter OAuth Client ID (e.g. sb-na-581e795c...)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -531,7 +515,7 @@
                                                 value="{accessModel>/sapIntegration/btp/clientSecret}"
                                                 valueState="{accessModel>/sapIntegration/btp/clientSecretState}"
                                                 type="Password"
-                                                placeholder="••••••••••••••••"
+                                                placeholder="Enter OAuth Client Secret..."
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -547,7 +531,7 @@
                                             <Input
                                                 id="inputSapBtpCfOrg"
                                                 value="{accessModel>/sapIntegration/btp/cfOrg}"
-                                                placeholder="5af75fc5trial"
+                                                placeholder="Enter Cloud Foundry Org Name (e.g. 5af75fc5trial)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -559,7 +543,7 @@
                                             <Input
                                                 id="inputSapBtpCfSpace"
                                                 value="{accessModel>/sapIntegration/btp/cfSpace}"
-                                                placeholder="dev"
+                                                placeholder="Enter Cloud Foundry Space Name (e.g. dev)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -574,7 +558,7 @@
                                             <Input
                                                 id="inputSapBtpCfApi"
                                                 value="{accessModel>/sapIntegration/btp/cfApiUrl}"
-                                                placeholder="https://api.cf.us10-001.hana.ondemand.com"
+                                                placeholder="Enter Cloud Foundry API Endpoint (e.g. https://api.cf.us10-001.hana.ondemand.com)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
@@ -3106,6 +3090,63 @@
                         width="100%">
 
                         <!-- ========================================================================= -->
+                        <!-- IMAGE 2 SUB-NAVIGATION TAB BAR: [ Bussiness ] [ Reagion ] [ system ] [ conflict ] -->
+                        <!-- ========================================================================= -->
+                        <HBox id="accessCustomizationSubTabBar" width="100%" alignItems="Center" class="kyraAccessCustomizationTabBar sapUiSmallMarginBottom">
+                            <!-- 1. BUSSINESS TAB -->
+                            <Button
+                                id="btnTabCustomizationBusiness"
+                                text="Bussiness"
+                                icon="sap-icon://business-objects-mobile"
+                                type="Default"
+                                press=".onSelectCustomizationTab"
+                                class="{= 'kyraCustomizationTabBtn' + (!${accessModel>/adminCustomizationSubTab} || ${accessModel>/adminCustomizationSubTab} === 'business' ? ' kyraCustomizationTabBtnActive' : '') }">
+                                <customData>
+                                    <core:CustomData key="tabKey" value="business" writeToDom="true" />
+                                </customData>
+                            </Button>
+
+                            <!-- 2. REAGION TAB -->
+                            <Button
+                                id="btnTabCustomizationRegion"
+                                text="Reagion"
+                                icon="sap-icon://locate-me"
+                                type="Default"
+                                press=".onSelectCustomizationTab"
+                                class="{= 'kyraCustomizationTabBtn' + (${accessModel>/adminCustomizationSubTab} === 'region' ? ' kyraCustomizationTabBtnActive' : '') }">
+                                <customData>
+                                    <core:CustomData key="tabKey" value="region" writeToDom="true" />
+                                </customData>
+                            </Button>
+
+                            <!-- 3. SYSTEM TAB -->
+                            <Button
+                                id="btnTabCustomizationSystem"
+                                text="system"
+                                icon="sap-icon://it-system"
+                                type="Default"
+                                press=".onSelectCustomizationTab"
+                                class="{= 'kyraCustomizationTabBtn' + (${accessModel>/adminCustomizationSubTab} === 'system' ? ' kyraCustomizationTabBtnActive' : '') }">
+                                <customData>
+                                    <core:CustomData key="tabKey" value="system" writeToDom="true" />
+                                </customData>
+                            </Button>
+
+                            <!-- 4. CONFLICT TAB -->
+                            <Button
+                                id="btnTabCustomizationConflict"
+                                text="conflict"
+                                icon="sap-icon://alert"
+                                type="Default"
+                                press=".onSelectCustomizationTab"
+                                class="{= 'kyraCustomizationTabBtn' + (${accessModel>/adminCustomizationSubTab} === 'conflict' ? ' kyraCustomizationTabBtnActive' : '') }">
+                                <customData>
+                                    <core:CustomData key="tabKey" value="conflict" writeToDom="true" />
+                                </customData>
+                            </Button>
+                        </HBox>
+
+                        <!-- ========================================================================= -->
                         <!-- STEP 1: SYSTEMS LIST & GOVERNANCE VIEW (Services are CUT from this step)  -->
                         <!-- ========================================================================= -->
                         <VBox id="adminAccessCustomizationSystemsStep"
@@ -3119,7 +3160,7 @@
                         <!-- ============================================================== -->
                         <!-- 2. UNIFIED CARD: BUSINESS SECTORS [LEFT] &amp; BUSINESS FUNCTION DETAILS [RIGHT] (MATCHING SERVICES &amp; SYSTEM PLACE DESIGN) -->
                         <!-- ============================================================== -->
-                        <VBox class="kyraAdminWhiteCard kyraAdminUnifiedServiceCard sapUiSmallMarginBottom" width="100%">
+                        <VBox class="kyraAdminWhiteCard kyraAdminUnifiedServiceCard sapUiSmallMarginBottom" width="100%" visible="{= !${accessModel>/adminCustomizationSubTab} || ${accessModel>/adminCustomizationSubTab} === 'business' }">
                             <HBox width="100%" justifyContent="SpaceBetween" alignItems="Stretch" class="kyraAdminBottomSplitRow kyraAdminUnifiedServiceRow">
                                 <!-- Left Panel: Business Sectors -->
                                 <VBox width="45%" class="kyraAdminServiceLeftPanel" justifyContent="SpaceBetween">
@@ -3274,7 +3315,7 @@
 
                         <!-- ============================================================== -->
                         <!-- NEW SECTION: REGION FULL-WIDTH TABLE (Image 3)                 -->
-                        <VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%">
+                        <VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%" visible="{= ${accessModel>/adminCustomizationSubTab} === 'region' }">
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                 <HBox alignItems="Center">
                                     <core:Icon src="sap-icon://locate-me" size="18px" color="#008C9C" class="sapUiTinyMarginEnd" />
@@ -3330,7 +3371,7 @@
 
 
                         <!-- 1. TOP FULL-WIDTH CARD: SYSTEM (6) -->
-                        <VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%">
+                        <VBox class="kyraAdminWhiteCard sapUiSmallMarginBottom" width="100%" visible="{= ${accessModel>/adminCustomizationSubTab} === 'system' }">
                             <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraAdminCardHeaderRow">
                                 <Title text="{= 'System (' + (${accessModel>/adminSystems} ? ${accessModel>/adminSystems}.length : 0) + ')' }" level="H4" class="kyraAdminCardTitle" />
                                 <HBox alignItems="Center" class="kyraAdminHeaderActions">
@@ -4643,6 +4684,7 @@
                                     press=".onCloseAddAccessSector"
                                     class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                 <Button
+                                    id="btnGoToAddAccessStep3"
                                     text="Next"
                                     type="Emphasized"
                                     press=".onGoToAddAccessStep3"
