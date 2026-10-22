@@ -1023,6 +1023,7 @@ sap.ui.define([
                 roleName: e.roleName,
                 selectedPersona: e.selectedPersona || oData.persona,
                 status: (e.status || "").toLowerCase().includes("reject") ? "REJECTED" : "APPROVED",
+                comments: (e.comment || e.comments || "").trim(),
                 hasConflict: bHasConflict
             }));
 

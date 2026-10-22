@@ -1264,7 +1264,397 @@ sap.ui.define([], function () {
             ],
             example: "Auto-Create Shadow User in SAP BTP Directory if Missing",
             tip: "Kyra queries the SCIM /Users endpoint first, creates the user record if absent, and then attaches the role collections."
-        }
+        },
+        "ad_provider_select": {
+          "system": "Directory Services",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Select Directory Service Provider",
+          "purpose": "Chooses the enterprise identity repository or directory service provider (Cloud, AWS Managed, On-Premises, or OpenLDAP) that Kyra synchronizes security groups and users from.",
+          "steps": [
+                    "Identify where your enterprise user directory and security access groups are hosted.",
+                    "Select 'Microsoft Entra ID (Azure Active Directory)' if your enterprise uses Microsoft 365, Azure AD, or cloud-native security groups managed via Microsoft Graph API.",
+                    "Select 'AWS Directory Service (AWS Managed Microsoft AD)' if your organization runs Microsoft Active Directory hosted and managed natively in Amazon Web Services (AWS).",
+                    "Select 'Microsoft Active Directory Domain Services (AD DS - On-Premises)' if your corporate domain controllers run on Windows Server in your on-premises datacenter or private cloud.",
+                    "Select 'OpenLDAP / FreeIPA Directory Service' if your organization uses standard Linux/Unix LDAP servers or Red Hat FreeIPA.",
+                    "Selecting a provider immediately updates the configuration form below with the exact parameters and step-by-step guidance for that directory platform."
+          ],
+          "example": "Microsoft Entra ID (Azure Active Directory)",
+          "tip": "Kyra securely queries and maps directory groups to Kyra approval personas and target roles, ensuring your existing corporate directory remains the single source of truth."
+},
+        "ad_azure_tenant_id": {
+          "system": "Microsoft Entra ID",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Directory (Tenant) ID",
+          "purpose": "Uniquely identifies your Microsoft Entra ID (Azure AD) tenant in the Microsoft Cloud. Kyra uses this GUID to route OAuth 2.0 token requests to your organization's directory instance.",
+          "steps": [
+                    "Open your browser and navigate to the Microsoft Entra Admin Center (https://entra.microsoft.com) or Azure Portal (https://portal.azure.com).",
+                    "Sign in with your Global Administrator or Cloud Application Administrator credentials.",
+                    "In the left navigation menu, expand 'Identity' and select 'Overview'.",
+                    "In the 'Basic information' tile at the center of the page, locate the row labeled 'Tenant ID'.",
+                    "Click the 'Copy to clipboard' icon next to the 36-character GUID.",
+                    "Paste the copied Tenant ID into this field in Kyra."
+          ],
+          "example": "b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe",
+          "tip": "The Tenant ID is also visible in Azure Portal under Azure Active Directory > Overview > Tenant ID."
+},
+        "ad_azure_domain_fqdn": {
+          "system": "Microsoft Entra ID",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Primary Domain / FQDN",
+          "purpose": "The verified primary domain name or default '*.onmicrosoft.com' namespace associated with your Microsoft Entra ID tenant.",
+          "steps": [
+                    "In Microsoft Entra Admin Center (https://entra.microsoft.com), navigate to 'Identity' > 'Settings' > 'Domain names'.",
+                    "Locate the domain marked with a green checkmark as 'Primary' (e.g., 'company.com' or 'yourtenant.onmicrosoft.com').",
+                    "Copy the domain name string exactly as shown.",
+                    "Paste the domain name into this field."
+          ],
+          "example": "bharathmohanraj12gmail.onmicrosoft.com",
+          "tip": "If you have a custom domain (e.g. corp.kyra.com), enter your custom domain name. Otherwise, use your initial tenant onmicrosoft.com domain."
+},
+        "ad_azure_client_id": {
+          "system": "Microsoft Entra ID",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Application (Client) ID",
+          "purpose": "The unique identifier of the App Registration created in Microsoft Entra ID for Kyra. Authorizes Kyra to call Microsoft Graph API to read directory groups and user memberships.",
+          "steps": [
+                    "In Microsoft Entra Admin Center (https://entra.microsoft.com), navigate to 'Identity' > 'Applications' > 'App registrations'.",
+                    "Select your registered application (e.g., 'Kyra-Access-Governance'). If not yet created, click '+ New registration', enter 'Kyra-Access-Governance', select 'Accounts in this organizational directory only', and click 'Register'.",
+                    "On the application Overview page, locate 'Application (client) ID'.",
+                    "Click the 'Copy to clipboard' icon next to the 36-character GUID.",
+                    "Ensure the app has Microsoft Graph API Application permissions: 'GroupMember.Read.All' and 'User.Read.All', and click 'Grant admin consent'."
+          ],
+          "example": "6897baed-5616-4bff-bcab-8b249feea9a6",
+          "tip": "Always ensure an admin has clicked 'Grant admin consent for [Tenant]' under API Permissions > Microsoft Graph, otherwise Graph API calls will return 403 Forbidden."
+},
+        "ad_azure_client_secret": {
+          "system": "Microsoft Entra ID",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Client Secret Value",
+          "purpose": "The cryptographic password/secret string used by Kyra to authenticate with Microsoft Entra ID during client credentials OAuth token exchange.",
+          "steps": [
+                    "In your App Registration page in Microsoft Entra Admin Center, click 'Certificates & secrets' in the left menu.",
+                    "Click on the 'Client secrets' tab, then click '+ New client secret'.",
+                    "Enter a description (e.g. 'Kyra Integration Secret'), choose an expiration period (e.g. 12 or 24 months), and click 'Add'.",
+                    "CRITICAL: Immediately copy the value from the 'Value' column (NOT the Secret ID column). Microsoft masks this value permanently once you leave the page.",
+                    "Paste the secret value into this field."
+          ],
+          "example": "naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=",
+          "tip": "Always copy the 'Value' column, never the 'Secret ID' column. If you lose the secret, generate a new one under Certificates & secrets."
+},
+        "ad_azure_group_id": {
+          "system": "Microsoft Entra ID",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Target AD Security Group Object ID",
+          "purpose": "The unique directory Object ID (GUID) of the security group in Microsoft Entra ID whose members Kyra discovers, syncs, and governs.",
+          "steps": [
+                    "In Microsoft Entra Admin Center (https://entra.microsoft.com), navigate to 'Identity' > 'Groups' > 'All groups'.",
+                    "Search for or click on your designated security group (e.g., 'Kyra-Access-Group').",
+                    "On the group's Overview page, locate the 'Object ID' field.",
+                    "Click the 'Copy to clipboard' icon next to the Object ID GUID.",
+                    "Paste the Object ID into this field in Kyra."
+          ],
+          "example": "14740ac6-2647-4a81-b15f-009b800f7305",
+          "tip": "Members added or removed from this group in Microsoft Entra ID will automatically sync to Kyra according to your configured sync frequency."
+},
+        "ad_azure_group_name": {
+          "system": "Microsoft Entra ID",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "AD Group Display Name",
+          "purpose": "The human-readable name of the target security group as defined in Microsoft Entra ID. Used for UI labels, audit logging, and access review reporting.",
+          "steps": [
+                    "In Microsoft Entra Admin Center, navigate to 'Identity' > 'Groups' > 'All groups'.",
+                    "View the 'Group name' column for your security group.",
+                    "Enter the exact display name into this field."
+          ],
+          "example": "Kyra-Access-Group",
+          "tip": "Match the name exactly as it appears in Entra ID (e.g., 'Kyra-Access-Group' or 'KYRA_ENTERPRISE_ADMINS')."
+},
+        "ad_aws_directory_id": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "AWS Directory ID",
+          "purpose": "The unique identifier (starting with 'd-') assigned by AWS to your AWS Managed Microsoft Active Directory or Simple AD instance.",
+          "steps": [
+                    "Sign in to the AWS Management Console (https://console.aws.amazon.com).",
+                    "Ensure you are in the AWS Region where your directory is deployed (e.g., us-east-1 N. Virginia).",
+                    "In the top search bar, type 'Directory Service' and open the AWS Directory Service console.",
+                    "In the left navigation menu, click 'Directories'.",
+                    "In the directories table, locate your directory (e.g., 'corp.kyra-aws.internal').",
+                    "Copy the 'Directory ID' value (e.g., 'd-90671234ab').",
+                    "Paste the Directory ID into this field."
+          ],
+          "example": "d-90671234ab",
+          "tip": "AWS Directory IDs always start with the lowercase letter 'd-' followed by a 10-character hexadecimal string."
+},
+        "ad_aws_dns_name": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "Directory DNS Name (FQDN)",
+          "purpose": "The fully qualified domain name (FQDN) configured for your AWS Managed Microsoft AD domain controllers.",
+          "steps": [
+                    "In the AWS Directory Service console, navigate to 'Directories'.",
+                    "Click into your directory to view its Directory Details.",
+                    "Locate the 'Directory DNS name' field in the Directory details section.",
+                    "Copy the domain name string (e.g., 'corp.kyra-aws.internal' or 'corp.example.com').",
+                    "Paste the DNS name into this field."
+          ],
+          "example": "corp.kyra-aws.internal",
+          "tip": "This is the active Kerberos realm and DNS zone hosted by your AWS domain controllers in your AWS VPC."
+},
+        "ad_aws_netbios": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "AWS Directory NetBIOS Name",
+          "purpose": "The short, pre-Windows 2000 NetBIOS domain name used for NT authentication and group prefixing in AWS Managed Microsoft AD.",
+          "steps": [
+                    "In the AWS Directory Service console, click on your directory.",
+                    "In the 'Directory details' panel, locate the 'Directory NetBIOS name' field.",
+                    "Copy the uppercase NetBIOS name string (e.g., 'CORP' or 'KYRA').",
+                    "Paste the NetBIOS name into this field."
+          ],
+          "example": "CORP",
+          "tip": "The NetBIOS name is typically 1 to 15 uppercase characters without dots (e.g., 'CORP', 'AWS', 'KYRA')."
+},
+        "ad_aws_region": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "AWS Region",
+          "purpose": "The AWS geographical region where your AWS Directory Service cluster and VPC domain controllers are provisioned.",
+          "steps": [
+                    "Look at the top-right corner of the AWS Management Console navigation bar.",
+                    "Note the selected Region code (e.g., 'N. Virginia us-east-1', 'Oregon us-west-2', 'Ireland eu-west-1', 'Mumbai ap-south-1').",
+                    "Select or enter the matching AWS Region technical code into this field."
+          ],
+          "example": "us-east-1 (N. Virginia)",
+          "tip": "Ensure your Kyra server or VPC peering route has network access to the VPC in this AWS region."
+},
+        "ad_aws_dns_ips": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "Directory DNS Server IP Addresses",
+          "purpose": "The private VPC IP addresses of the two dedicated AWS Managed Microsoft AD domain controller nodes. Kyra connects to these IPs for LDAPS directory queries.",
+          "steps": [
+                    "In the AWS Directory Service console, click into your directory.",
+                    "In the 'Networking & security' section, locate 'DNS addresses'.",
+                    "Note the two private IPv4 addresses assigned to your domain controllers (e.g., '10.0.1.10, 10.0.2.20').",
+                    "Copy both IP addresses separated by a comma and space.",
+                    "Paste the IP addresses into this field."
+          ],
+          "example": "10.0.1.10, 10.0.2.20",
+          "tip": "AWS creates two domain controllers in separate Availability Zones for high availability. Providing both ensures automatic failover."
+},
+        "ad_aws_service_user": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "Service Account / Admin Username",
+          "purpose": "The administrative account or dedicated service account username authorized to bind to the directory and enumerate Active Directory security groups.",
+          "steps": [
+                    "You can use the default directory administrator account 'Admin', or create a dedicated service account in your AWS Managed Microsoft AD OU (e.g., 'svc_kyra_sync').",
+                    "Ensure the service account belongs to the 'Domain Users' group with read permissions on security groups and user objects.",
+                    "Enter the username into this field."
+          ],
+          "example": "Admin",
+          "tip": "For production environments, best practice is to create a dedicated service user (e.g. 'svc_kyra_sync') rather than using the master 'Admin' account."
+},
+        "ad_aws_service_password": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "Service Account Password",
+          "purpose": "The password for the AWS Directory Service administrator or dedicated service account used for secure LDAP bind authentication.",
+          "steps": [
+                    "Enter the secure password established when the AWS Directory was provisioned, or the password set for your dedicated service account in Active Directory Users and Computers.",
+                    "The password is encrypted and stored securely within Kyra."
+          ],
+          "example": "••••••••••••••••",
+          "tip": "AWS Directory Service passwords require uppercase, lowercase, numbers, and special symbols and must be at least 8 to 64 characters long."
+},
+        "ad_aws_group_name": {
+          "system": "AWS Directory Service",
+          "badgeClass": "kyraInfoBadgeAws",
+          "title": "Target AD Security Group Name",
+          "purpose": "The name of the security group created inside your AWS Managed Microsoft AD Organizational Unit (OU) whose members Kyra discovers and manages.",
+          "steps": [
+                    "Connect to an EC2 instance joined to your AWS Managed Microsoft AD domain, or open Active Directory Users and Computers (ADUC).",
+                    "Navigate to your corporate OU (e.g., 'corp.kyra-aws.internal' > 'CORP' > 'Groups').",
+                    "Locate or create your target security group (e.g., 'Kyra-Access-Group').",
+                    "Enter the group's name into this field."
+          ],
+          "example": "Kyra-Access-Group",
+          "tip": "Kyra will discover all members assigned to this security group and map them to their corresponding access personas."
+},
+        "ad_onprem_domain_fqdn": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Domain Name (FQDN)",
+          "purpose": "The fully qualified corporate domain name of your on-premises Windows Server Active Directory domain (e.g. corp.kyra-enterprise.com).",
+          "steps": [
+                    "On a domain controller or domain-joined Windows PC, open PowerShell or Command Prompt.",
+                    "Run the command: 'echo %USERDNSDOMAIN%' or '(Get-ADDomain).DNSRoot'.",
+                    "Copy the returned domain FQDN and paste it into this field."
+          ],
+          "example": "corp.kyra-enterprise.com",
+          "tip": "Ensure your network or VPN tunnel can resolve this internal DNS domain name."
+},
+        "ad_onprem_netbios": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "NetBIOS Domain Name",
+          "purpose": "The legacy NetBIOS domain name of your on-premises Active Directory domain, used for DOWN-LEVEL logon names (DOMAIN\\Username).",
+          "steps": [
+                    "On a domain-joined machine, run 'echo %USERDOMAIN%' in Command Prompt.",
+                    "Enter the uppercase NetBIOS name into this field."
+          ],
+          "example": "CORP",
+          "tip": "Commonly matches the first part of your domain name (e.g. 'CORP' for 'corp.kyra-enterprise.com')."
+},
+        "ad_onprem_ldap_url": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Domain Controller Host / LDAPS URL",
+          "purpose": "The network hostname or IP address and secure LDAPS port (636) used to establish encrypted SSL/TLS communication with your domain controller.",
+          "steps": [
+                    "Identify the fully qualified hostname of your primary or secondary domain controller (e.g., 'dc01.corp.kyra-enterprise.com').",
+                    "Ensure TCP port 636 (LDAPS) is accessible through your firewall or VPN.",
+                    "Enter the full LDAPS connection URL into this field."
+          ],
+          "example": "ldaps://dc01.corp.kyra-enterprise.com:636",
+          "tip": "Using 'ldaps://' with port 636 guarantees that credentials and directory query results are strongly encrypted over TLS."
+},
+        "ad_onprem_base_dn": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Base DN (Distinguished Name)",
+          "purpose": "The root Distinguished Name (DN) search base where Kyra begins scanning for users, groups, and organizational units in Active Directory.",
+          "steps": [
+                    "Construct the Base DN from your domain name components (e.g., 'corp.kyra-enterprise.com' becomes 'DC=corp,DC=kyra-enterprise,DC=com').",
+                    "Alternatively, run '(Get-ADDomain).DistinguishedName' in Active Directory PowerShell module.",
+                    "Enter the Base DN string into this field."
+          ],
+          "example": "DC=corp,DC=kyra-enterprise,DC=com",
+          "tip": "To scope searches to a specific department or OU, you can specify an OU Base DN like 'OU=Governance,DC=corp,DC=kyra-enterprise,DC=com'."
+},
+        "ad_onprem_service_user": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Bind Service Account (UPN / DN)",
+          "purpose": "The service account identity used to authenticate (bind) to Active Directory and execute LDAP searches.",
+          "steps": [
+                    "Create a dedicated service account in Active Directory (e.g. 'svc_kyra_sync').",
+                    "Enter the User Principal Name (UPN) or Distinguished Name (DN) into this field.",
+                    "Standard Domain User privileges are sufficient for group and member discovery."
+          ],
+          "example": "svc_kyra_sync@corp.kyra-enterprise.com",
+          "tip": "You can format this as a UPN (svc_kyra_sync@corp.kyra-enterprise.com) or as a Distinguished Name (CN=svc_kyra_sync,OU=ServiceAccounts,DC=corp,DC=kyra-enterprise,DC=com)."
+},
+        "ad_onprem_service_password": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Bind Account Password",
+          "purpose": "The password for the Active Directory bind service account.",
+          "steps": [
+                    "Enter the password configured for your bind service account in Active Directory Users and Computers.",
+                    "The password is stored securely and never exposed in client logs."
+          ],
+          "example": "••••••••••••••••",
+          "tip": "Set the service account's password to 'Password never expires' in Active Directory to prevent scheduled sync interruptions."
+},
+        "ad_onprem_group_name": {
+          "system": "Active Directory (On-Premises)",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Target AD Security Group Name / DN",
+          "purpose": "The name or Distinguished Name of the on-premises Active Directory security group containing governed users.",
+          "steps": [
+                    "Open Active Directory Users and Computers (dsa.msc).",
+                    "Locate the target security group (e.g., 'Kyra-Access-Group' or 'KYRA_EMPLOYEES').",
+                    "Enter the sAMAccountName or CN of the group into this field."
+          ],
+          "example": "Kyra-Access-Group",
+          "tip": "Enter either the simple group name ('Kyra-Access-Group') or full DN ('CN=Kyra-Access-Group,OU=Groups,DC=corp,DC=kyra-enterprise,DC=com')."
+},
+        "ad_ldap_url": {
+          "system": "OpenLDAP / FreeIPA",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "LDAP / LDAPS Server Host URL",
+          "purpose": "The hostname and port of your OpenLDAP, 389 Directory Server, or FreeIPA directory instance.",
+          "steps": [
+                    "Identify your LDAP server's public or internal DNS hostname or IP address.",
+                    "Specify port 636 for secure LDAPS, or port 389 with StartTLS.",
+                    "Enter the connection URL."
+          ],
+          "example": "ldaps://ldap.corp.kyra-enterprise.com:636",
+          "tip": "Always use LDAPS (port 636) to safeguard directory data in transit."
+},
+        "ad_ldap_base_dn": {
+          "system": "OpenLDAP / FreeIPA",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Base DN (Search Base)",
+          "purpose": "The starting point for LDAP search operations in your directory tree.",
+          "steps": [
+                    "Locate the root suffix or base DN configured in your slapd.conf or cn=config file (e.g. 'dc=kyra,dc=enterprise,dc=com').",
+                    "Enter the Base DN into this field."
+          ],
+          "example": "dc=kyra,dc=enterprise,dc=com",
+          "tip": "Case-insensitive in standard LDAP, but preserving standard lowercase is recommended."
+},
+        "ad_ldap_bind_dn": {
+          "system": "OpenLDAP / FreeIPA",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Bind DN (Admin / Manager DN)",
+          "purpose": "The Distinguished Name of the LDAP administrative entry or service account used to authenticate and read entries.",
+          "steps": [
+                    "Enter the full Distinguished Name for your bind account (e.g., 'cn=admin,dc=kyra,dc=enterprise,dc=com' or 'uid=kyra_sync,cn=sysaccounts,cn=etc,dc=kyra,dc=enterprise,dc=com')."
+          ],
+          "example": "cn=admin,dc=kyra,dc=enterprise,dc=com",
+          "tip": "In FreeIPA, you can create a dedicated bind account under System Accounts."
+},
+        "ad_ldap_bind_password": {
+          "system": "OpenLDAP / FreeIPA",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Bind Password",
+          "purpose": "The password for the LDAP bind DN account.",
+          "steps": [
+                    "Enter the secret password for the specified bind DN."
+          ],
+          "example": "••••••••••••••••",
+          "tip": "The password is used solely for initial authenticated bind requests."
+},
+        "ad_ldap_filter": {
+          "system": "OpenLDAP / FreeIPA",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "User & Group Search Filter",
+          "purpose": "Standard RFC 4515 LDAP search filter used to identify active users and group members.",
+          "steps": [
+                    "Specify an LDAP search filter matching your schema object classes (e.g. 'inetOrgPerson', 'posixGroup', or 'groupOfNames').",
+                    "Enter the filter syntax."
+          ],
+          "example": "(&(objectClass=inetOrgPerson)(memberOf=cn=kyra-access-group,ou=groups,dc=kyra,dc=enterprise,dc=com))",
+          "tip": "Use standard LDAP filter syntax: '(&(objectClass=inetOrgPerson)(status=active))'."
+},
+        "ad_ldap_group_name": {
+          "system": "OpenLDAP / FreeIPA",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Target Group Name / DN",
+          "purpose": "The CN or Distinguished Name of the target group in OpenLDAP / FreeIPA.",
+          "steps": [
+                    "Identify the target group in your LDAP tree (e.g. 'cn=kyra-access-group,ou=groups,dc=kyra,dc=enterprise,dc=com').",
+                    "Enter the group name or full DN."
+          ],
+          "example": "kyra-access-group",
+          "tip": "Kyra reads the 'member' or 'memberUid' attribute of this entry to discover group membership."
+},
+        "ad_sync_interval": {
+          "system": "Directory Services",
+          "badgeClass": "kyraInfoBadgeSap",
+          "title": "Directory Synchronization Frequency",
+          "purpose": "Defines the polling schedule on which Kyra connects to your directory provider to detect newly added or removed users and security group membership changes.",
+          "steps": [
+                    "Select 'Every 15 Minutes' for rapid updates when onboarding or offboarding employees frequently.",
+                    "Select 'Every 30 Minutes' or 'Every 1 Hour' for balanced enterprise directory sync with minimal network overhead.",
+                    "Select 'Real-time Webhook Sync' if your cloud identity provider supports Microsoft Graph Change Notifications or AWS EventBridge webhooks."
+          ],
+          "example": "Every 15 Minutes",
+          "tip": "You can also manually trigger an instant synchronization at any time using the 'Sync Groups Now' button on Page 2."
+},
     };
 
     return {
