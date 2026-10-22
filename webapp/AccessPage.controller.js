@@ -20482,11 +20482,13 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "sap");
-            oModel.setProperty("/sapIntegration/currentStep", 1);
+            const curStep = oModel.getProperty("/sapIntegration/currentStep") || 2;
+            oModel.setProperty("/sapIntegration/currentStep", curStep);
             oModel.setProperty("/sapIntegration/isAppExpanded", false);
             this._updateSubIntegrationCards(oModel);
             setTimeout(() => {
-                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+                const sTargetId = (curStep === 2) ? "sapPurchasedAppsContainer" : "sapIntegrationConfigContainer";
+                this._smoothScrollTo(sTargetId, 40);
             }, 60);
         },
 
@@ -20526,56 +20528,45 @@ sap.ui.define([
             const oCardSap = this.byId("cardSubSapIntegration");
             if (oCardSap) {
                 if (bSap) {
+                    oCardSap.addStyleClass("kyraIntegrationListItemActive");
                     oCardSap.addStyleClass("kyraSubIntegrationCardActive");
                 } else {
+                    oCardSap.removeStyleClass("kyraIntegrationListItemActive");
                     oCardSap.removeStyleClass("kyraSubIntegrationCardActive");
                 }
             }
             const oCardAd = this.byId("cardSubAdGroupIntegration");
             if (oCardAd) {
                 if (bAd) {
+                    oCardAd.addStyleClass("kyraIntegrationListItemActive");
                     oCardAd.addStyleClass("kyraSubIntegrationCardActive");
                 } else {
+                    oCardAd.removeStyleClass("kyraIntegrationListItemActive");
                     oCardAd.removeStyleClass("kyraSubIntegrationCardActive");
                 }
             }
             const oCardIam = this.byId("cardSubIamIntegration");
             if (oCardIam) {
                 if (bIam) {
+                    oCardIam.addStyleClass("kyraIntegrationListItemActive");
                     oCardIam.addStyleClass("kyraSubIntegrationCardActive");
                 } else {
+                    oCardIam.removeStyleClass("kyraIntegrationListItemActive");
                     oCardIam.removeStyleClass("kyraSubIntegrationCardActive");
                 }
             }
 
             const oArrowSap = this.byId("arrowSubSapIntegration");
             if (oArrowSap) {
-                oArrowSap.setSrc(bSap ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
-                if (bSap) {
-                    oArrowSap.addStyleClass("kyraSubIntegrationArrowActive");
-                } else {
-                    oArrowSap.removeStyleClass("kyraSubIntegrationArrowActive");
-                }
+                oArrowSap.setSrc("sap-icon://navigation-right-arrow");
             }
             const oArrowAd = this.byId("arrowSubAdGroupIntegration");
             if (oArrowAd) {
-                oArrowAd.setSrc(bAd ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
-                if (bAd) {
-                    oArrowAd.addStyleClass("kyraSubIntegrationArrowActive");
-                } else {
-                    oArrowAd.removeStyleClass("kyraSubIntegrationArrowActive");
-                }
+                oArrowAd.setSrc("sap-icon://navigation-right-arrow");
             }
             const oArrowIam = this.byId("arrowSubIamIntegration");
             if (oArrowIam) {
-                oArrowIam.setSrc(bIam ? "sap-icon://navigation-down-arrow" : "sap-icon://navigation-right-arrow");
-                if (bIam) {
-                    oArrowIam.addStyleClass("kyraSubIntegrationArrowActive");
-                    oArrowIam.addStyleClass("kyraArrowAmber");
-                } else {
-                    oArrowIam.removeStyleClass("kyraSubIntegrationArrowActive");
-                    oArrowIam.removeStyleClass("kyraArrowAmber");
-                }
+                oArrowIam.setSrc("sap-icon://navigation-right-arrow");
             }
         },
 
