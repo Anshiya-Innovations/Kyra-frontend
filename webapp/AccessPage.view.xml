@@ -86,7 +86,7 @@
                     <!-- ================================================================================== -->
                     <!-- ADMIN PERSONA VIEW: ONLY 3 ACTION CARDS + EXPANDABLE SECTIONS BELOW                -->
                     <!-- ================================================================================== -->
-                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !${accessModel>/selectedIntegrationType} }">
+                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) }">
                         <!-- BUTTON 1: INTEGRATION (AMBER THEME) -->
                         <VBox id="cardAdminDatabaseConfig"
                             class="{= 'fioriActionCard fioriCardPending fioriClickableCard' + (${accessModel>/adminSelectedSection} === 'databaseConfig' ? ' kyraCardExpanded' : '') }"
