@@ -19896,6 +19896,17 @@ sap.ui.define([
                     }
 
                     oModel.setProperty("/adGroupIntegration/connected", true);
+                // Persist AD Group integration to PostgreSQL database with dynamic column adaptation
+                try {
+                    fetch("/odata/v4/admin-portal/saveDynamicAdGroupIntegration", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            provider: sProvider,
+                            configJson: JSON.stringify(ad)
+                        })
+                    }).catch(e => console.warn("[AD DB PERSIST ERROR]", e.message));
+                } catch(eAdDb) {}
                     oModel.setProperty("/adGroupIntegration/currentStep", 2);
                     if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
                     oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
@@ -20174,6 +20185,17 @@ sap.ui.define([
 
                 const sSyncTime = new Date().toLocaleTimeString();
                 oModel.setProperty("/sapIntegration/connected", true);
+                // Persist SAP application integration to PostgreSQL database
+                try {
+                    fetch("/odata/v4/admin-portal/saveSapAppIntegration", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            appName: sApp,
+                            configJson: JSON.stringify(btp)
+                        })
+                    }).catch(e => console.warn("[SAP DB PERSIST ERROR]", e.message));
+                } catch(eSapDb) {}
                 oModel.setProperty("/sapIntegration/statusText", "Connected & Auto-Provisioning Active ✓");
                 oModel.setProperty("/sapIntegration/statusState", "Success");
                 oModel.setProperty("/sapIntegration/currentStep", 1);
@@ -20972,6 +20994,21 @@ sap.ui.define([
             try {
                 const oCfg = oModel.getProperty("/iamApproverConfig") || {};
                 localStorage.setItem("kyra_iam_approver_config", JSON.stringify(oCfg));
+                // Persist IAM Approver configuration to PostgreSQL database with dynamic column adaptation
+                try {
+                    const sChan = (oCfg.approver1 && oCfg.approver1.channel) || "console";
+                    const sProv = (oCfg.approver1 && oCfg.approver1.provider) || "aws";
+                    const cfgPayload = (sChan === "console") ? (oCfg.awsConfig || oCfg.approver1 || {}) : (oCfg.approver1 || {});
+                    fetch("/odata/v4/admin-portal/saveDynamicIamApproverIntegration", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            provider: sProv,
+                            channel: sChan,
+                            configJson: JSON.stringify(cfgPayload)
+                        })
+                    }).catch(e => console.warn("[IAM DB PERSIST ERROR]", e.message));
+                } catch(eIamDb) {}
                 sap.m.MessageToast.show("IAM Approver 1 Email settings saved successfully!");
             } catch(e) {
                 sap.m.MessageBox.error("Failed to save settings: " + e.message);
