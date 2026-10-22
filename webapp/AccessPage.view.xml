@@ -51,8 +51,8 @@
             <VBox id="accessMainContentBox" class="fioriMainContentBox fioriBottomPaddingBox">
                 <!-- WRAPPER FOR NORMAL PORTAL CONTENT -->
                 <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} &amp;&amp; !${accessModel>/showTroubleshootPage} }">
-                    <!-- Enterprise Top Header Banner -->
-                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom">
+                    <!-- Enterprise Top Header Banner (Hidden during Add / Edit SAP Integration time) -->
+                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom" visible="{= !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) }">
                         <!-- Security Shield Focus Background Emblem (Center Pulse Effect) -->
                         <HBox class="kyraBannerShieldFocus" alignItems="Center" justifyContent="Center">
                             <Image src="{= ${accessModel>/shieldFocusUrl} || 'images/kyra_shield_focus.svg' }" class="kyraShieldFocusImg" densityAware="false" alt="Security Shield" />
@@ -86,7 +86,7 @@
                     <!-- ================================================================================== -->
                     <!-- ADMIN PERSONA VIEW: ONLY 3 ACTION CARDS + EXPANDABLE SECTIONS BELOW                -->
                     <!-- ================================================================================== -->
-                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} }">
+                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !${accessModel>/selectedIntegrationType} }">
                         <!-- BUTTON 1: INTEGRATION (AMBER THEME) -->
                         <VBox id="cardAdminDatabaseConfig"
                             class="{= 'fioriActionCard fioriCardPending fioriClickableCard' + (${accessModel>/adminSelectedSection} === 'databaseConfig' ? ' kyraCardExpanded' : '') }"
@@ -290,18 +290,19 @@
                             <!-- Top Title & Subtitle matching Image 2 with Manage Entitlements Button -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" gap="20px" class="kyraDarkTitleHeaderRow kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
-                                    <Title text="Configure SAP Application Integration" level="H2" class="kyraDarkStudioTitle" />
-                                    <Text text="Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra." class="kyraDarkStudioSubtitle" />
+                                    <Title text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Edit SAP Application Integration' : 'Add SAP Application Integration' }" level="H2" class="kyraDarkStudioTitle" />
+                                    <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle" />
                                 </VBox>
                                 <HBox alignItems="Center" gap="10px">
                                     <Button
-                                        text="← Back to Integrations"
+                                        id="btnBackFromSapConfigTop"
+                                        text="Back"
                                         icon="sap-icon://nav-back"
                                         type="Transparent"
-                                        press=".onBackToIntegrationsList"
-                                        class="kyraDarkOutlineBtn" />
+                                        press=".onBackToPurchasedApps"
+                                        class="kyraAdminHeaderBackBtn" />
                                     <Button
-                                        text="Manage Entitlements →"
+                                        text="View Purchased Applications →"
                                         type="Emphasized"
                                         press=".onManageSapEntitlements"
                                         class="kyraDarkPrimaryActionBtn" />
@@ -1022,17 +1023,19 @@
                             </VBox>
 
                             <!-- Bottom Action Bar -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar" visible="false">
-                                <HBox alignItems="Center" class="kyraDarkPromptBox">
-                                    <Text text="Current Integration Status: " class="kyraDarkPromptHint" />
-                                    <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected &amp; Verified ✓' : 'Awaiting Connection Test' }" class="kyraDarkPromptTarget" />
-                                </HBox>
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                <Button
+                                    id="btnBackFromSapConfigBottom"
+                                    text="Back"
+                                    icon="sap-icon://nav-back"
+                                    press=".onBackToPurchasedApps"
+                                    class="kyraAdminHeaderBackBtn" />
                                 <Button
                                     text="Close Section"
                                     icon="sap-icon://decline"
-                                    type="Transparent"
+                                    type="Default"
                                     press=".onCloseAdminSection"
-                                    class="kyraDarkBackLinkBtn" />
+                                    class="kyraDarkOutlineBtn" />
                             </HBox>
                         </VBox>
 
@@ -1045,17 +1048,19 @@
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Top Title & Subtitle with Back Button -->
+                            <!-- Top Title & Subtitle with Add Integration Button -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
                                     <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
                                     <Text text="Connected SAP Subaccount: 5af75fc5trial (dev) • Active enterprise cloud licenses and services discovered for this tenant." class="kyraDarkStudioSubtitle" />
                                 </VBox>
                                 <Button
-                                    text="← Back to Integrations"
-                                    icon="sap-icon://nav-back"
-                                    type="Transparent"
-                                    press=".onBackToIntegrationsList"
-                                    class="kyraDarkOutlineBtn" />
+                                    id="btnAddIntegration"
+                                    text="Add Integration"
+                                    icon="sap-icon://add"
+                                    type="Emphasized"
+                                    press=".onAddIntegration"
+                                    class="kyraDarkPrimaryActionBtn" />
                             </HBox>
 
                             <!-- Verified Banner -->
@@ -1092,18 +1097,28 @@
                                             </VBox>
                                         </HBox>
 
-                                        <!-- Right: Status Badge & Interactive Toggle Button -->
+                                        <!-- Right: Status Badge & Interactive Action Buttons (Edit + Quotas) -->
                                         <VBox alignItems="End" gap="8px">
                                             <HBox class="kyraDarkStatusBadgePurchasedActive" alignItems="Center" gap="4px">
                                                 <Text text="Purchased &amp; Active" class="kyraDarkStatusBadgePurchasedActiveText" />
                                                 <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraDarkStatusBadgePurchasedActiveIcon" />
                                             </HBox>
-                                            <Button
-                                                id="btnExploreBtpHierarchy"
-                                                text="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Hide Live Quotas' : 'Click to View Live Resource Quotas ▼' }"
-                                                type="Default"
-                                                press=".onToggleAppHierarchy"
-                                                class="kyraDarkOutlineBtn" />
+                                            <HBox alignItems="Center" gap="8px">
+                                                <Button
+                                                    id="btnEditSapIntegration"
+                                                    icon="sap-icon://edit"
+                                                    text="Edit"
+                                                    type="Default"
+                                                    press=".onEditSapIntegration"
+                                                    class="kyraDarkOutlineBtn"
+                                                    tooltip="Edit SAP Integration Configuration" />
+                                                <Button
+                                                    id="btnExploreBtpHierarchy"
+                                                    text="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Hide Live Quotas' : 'Click to View Live Resource Quotas ▼' }"
+                                                    type="Default"
+                                                    press=".onToggleAppHierarchy"
+                                                    class="kyraDarkOutlineBtn" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
@@ -1190,18 +1205,12 @@
 
                             <!-- Bottom Action Bar -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
-                                <HBox alignItems="Center" gap="10px">
-                                    <Button
-                                        text="← Back to Integrations"
-                                        press=".onBackToIntegrationsList"
-                                        type="Default"
-                                        class="kyraDarkOutlineBtn" />
-                                    <Button
-                                        text="Reconfigure SAP Integration"
-                                        press=".onBackToSapConfig"
-                                        type="Default"
-                                        class="kyraDarkOutlineBtn" />
-                                </HBox>
+                                <Button
+                                    id="btnBackFromPurchasedApps"
+                                    text="Back"
+                                    icon="sap-icon://nav-back"
+                                    press=".onBackToIntegrationsList"
+                                    class="kyraAdminHeaderBackBtn" />
                                 <Button
                                     text="Close Section"
                                     icon="sap-icon://decline"

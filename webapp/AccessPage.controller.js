@@ -626,8 +626,19 @@ sap.ui.define([
                         autoAssignRoles: true
                     }
                 },
+                newIntegration: {
+                    category: "sap",
+                    appKey: "sap_s4hana",
+                    displayName: "",
+                    environment: "production",
+                    apiUrl: "",
+                    authType: "oauth2",
+                    clientId: "",
+                    clientSecret: ""
+                },
                 sapIntegration: {
                     selectedApp: "sap_btp",
+                    mode: "add",
                     currentStep: 1,
                     connected: false,
                     statusText: "Not Connected",
@@ -1273,6 +1284,31 @@ sap.ui.define([
             if (!this._bActionCardsGlobalClickBound) {
                 this._bActionCardsGlobalClickBound = true;
                 document.addEventListener("click", (e) => {
+                    const btnAdd = e.target.closest("#btnAddIntegration, [id$='btnAddIntegration']");
+                    if (btnAdd) {
+                        this.onAddIntegration();
+                        return;
+                    }
+                    const btnEdit = e.target.closest("#btnEditSapIntegration, [id$='btnEditSapIntegration']");
+                    if (btnEdit) {
+                        this.onEditSapIntegration(e);
+                        return;
+                    }
+                    const btnBackAdd = e.target.closest("#btnBackFromAddIntegrationTop, [id$='btnBackFromAddIntegrationTop'], #btnBackFromAddIntegrationBottom, [id$='btnBackFromAddIntegrationBottom']");
+                    if (btnBackAdd) {
+                        this.onBackToPurchasedApps();
+                        return;
+                    }
+                    const btnBackApps = e.target.closest("#btnBackFromPurchasedApps, [id$='btnBackFromPurchasedApps']");
+                    if (btnBackApps) {
+                        this.onBackToIntegrationsList();
+                        return;
+                    }
+                    const btnBackConfig = e.target.closest("#btnBackFromSapConfigTop, [id$='btnBackFromSapConfigTop'], #btnBackFromSapConfigBottom, [id$='btnBackFromSapConfigBottom']");
+                    if (btnBackConfig) {
+                        this.onBackToPurchasedApps();
+                        return;
+                    }
                     const cardSubSap = e.target.closest("#cardSubSapIntegration, [id$='cardSubSapIntegration']");
                     if (cardSubSap) {
                         this.onSelectSapIntegration();
@@ -15681,6 +15717,63 @@ sap.ui.define([
             }, 40);
         },
 
+        onBackToPurchasedApps() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/sapIntegration/currentStep", 2);
+            oModel.setProperty("/sapIntegration/isAppExpanded", false);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("sapPurchasedAppsContainer", 40);
+            }, 40);
+        },
+
+        onAddIntegration() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/sapIntegration/formMode", "add");
+            oModel.setProperty("/sapIntegration/currentStep", 1);
+            oModel.setProperty("/sapIntegration/isAppExpanded", false);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+            }, 40);
+        },
+
+        onEditSapIntegration(oEvent) {
+            if (oEvent) {
+                if (typeof oEvent.stopPropagation === "function") {
+                    oEvent.stopPropagation();
+                }
+                if (typeof oEvent.preventDefault === "function") {
+                    oEvent.preventDefault();
+                }
+                if (oEvent.cancelBubble !== undefined) {
+                    oEvent.cancelBubble = true;
+                }
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/sapIntegration/formMode", "edit");
+            // Prefill with existing SAP BTP configuration
+            oModel.setProperty("/sapIntegration/selectedApp", "sap_btp");
+            if (!oModel.getProperty("/sapIntegration/btp/subaccountId")) {
+                oModel.setProperty("/sapIntegration/btp/subaccountId", "5af75fc5trial");
+            }
+            if (!oModel.getProperty("/sapIntegration/btp/cfSpace")) {
+                oModel.setProperty("/sapIntegration/btp/cfSpace", "dev");
+            }
+            if (!oModel.getProperty("/sapIntegration/btp/cfApiUrl")) {
+                oModel.setProperty("/sapIntegration/btp/cfApiUrl", "https://api.cf.us10-001.hana.ondemand.com");
+            }
+            oModel.setProperty("/sapIntegration/currentStep", 1);
+            oModel.setProperty("/sapIntegration/isAppExpanded", false);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+            }, 40);
+        },
+
         onSearchAdminSystems(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -20213,7 +20306,7 @@ sap.ui.define([
                 } catch(eSapDb) {}
                 oModel.setProperty("/sapIntegration/statusText", "Connected & Auto-Provisioning Active ✓");
                 oModel.setProperty("/sapIntegration/statusState", "Success");
-                oModel.setProperty("/sapIntegration/currentStep", 1);
+                oModel.setProperty("/sapIntegration/currentStep", 2);
                 oModel.setProperty("/sapIntegration/lastQuotaSync", sSyncTime);
                 oModel.setProperty("/sapIntegration/isAppExpanded", false);
 
