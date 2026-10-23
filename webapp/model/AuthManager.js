@@ -15,32 +15,14 @@ sap.ui.define([], () => {
     };
 
     const ACTIVE_WINDOW_SESSION_KEY = "kyra_active_window_session";
+    const ACTIVE_TABS_KEY = "kyra_active_window_tabs";
+    const EXPLICIT_LOGOUT_FLAG = "kyra_tab_explicit_logged_out";
     const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
     const HEARTBEAT_INTERVAL_MS = 1000;
-    const MAX_HEARTBEAT_AGE_MS = 3500; // After 3.5s with no heartbeat, session is considered inactive
+    const MAX_HEARTBEAT_AGE_MS = 3500; // After 3.5s with no heartbeat, tab session is considered inactive
 
     let oHeartbeatTimer = null;
     const sTabInstanceId = "tab_" + Math.random().toString(36).substring(2) + "_" + Date.now().toString(36);
-    let oWindowAuthChannel = null;
-
-    try {
-        if (typeof BroadcastChannel !== "undefined") {
-            oWindowAuthChannel = new BroadcastChannel("kyra_window_auth_sync");
-            oWindowAuthChannel.onmessage = (oEvent) => {
-                const data = oEvent.data;
-                if (!data) return;
-                if (data.type === "LOGOUT") {
-                    AuthManager.clearSession(true);
-                    if (typeof window !== "undefined" && window.location) {
-                        const sHash = window.location.hash || "";
-                        if (sHash && !sHash.includes("Login")) {
-                            window.location.hash = "#app-preview&/";
-                        }
-                    }
-                }
-            };
-        }
-    } catch(e) {}
 
     function getCookie(name) {
         if (typeof document === "undefined") return null;
@@ -98,7 +80,7 @@ sap.ui.define([], () => {
 
     function startHeartbeat() {
         if (oHeartbeatTimer) return;
-        oHeartbeatTimer = setInterval(() => {
+        const fnTick = () => {
             const bAuth = sessionStorage.getItem(AUTH_KEYS.IS_AUTHENTICATED) === "true";
             if (!bAuth) {
                 stopHeartbeat();
@@ -113,7 +95,7 @@ sap.ui.define([], () => {
             const sSchema = sessionStorage.getItem(AUTH_KEYS.SCHEMA_KEYWORD) || "";
             const geo = getWindowGeometry();
 
-            const oSession = {
+            const oTabSession = {
                 tabId: sTabInstanceId,
                 userId: sUser,
                 role: sRole,
@@ -127,9 +109,37 @@ sap.ui.define([], () => {
             };
 
             try {
-                localStorage.setItem(ACTIVE_WINDOW_SESSION_KEY, JSON.stringify(oSession));
+                // Update primary window session
+                localStorage.setItem(ACTIVE_WINDOW_SESSION_KEY, JSON.stringify(oTabSession));
+
+                // Update active tabs dictionary & purge expired tabs
+                let oTabs = {};
+                const rawTabs = localStorage.getItem(ACTIVE_TABS_KEY);
+                if (rawTabs) {
+                    try { oTabs = JSON.parse(rawTabs) || {}; } catch(e) {}
+                }
+                const now = Date.now();
+                const cleanedTabs = {};
+                Object.keys(oTabs).forEach(id => {
+                    if (now - (oTabs[id].lastHeartbeat || 0) < MAX_HEARTBEAT_AGE_MS) {
+                        cleanedTabs[id] = oTabs[id];
+                    }
+                });
+                cleanedTabs[sTabInstanceId] = oTabSession;
+                localStorage.setItem(ACTIVE_TABS_KEY, JSON.stringify(cleanedTabs));
             } catch(e) {}
-        }, HEARTBEAT_INTERVAL_MS);
+
+            // Keep browser session cookies refreshed as long as this tab is open & logged in
+            setSessionCookie("kyra_browser_session_active", "true");
+            setSessionCookie("kyra_session_user", sUser);
+            setSessionCookie("kyra_session_role", sRole);
+            setSessionCookie("kyra_session_uuid", sUuid);
+            setSessionCookie("kyra_session_token", sToken);
+            setSessionCookie("kyra_session_time", sTime);
+        };
+
+        fnTick();
+        oHeartbeatTimer = setInterval(fnTick, HEARTBEAT_INTERVAL_MS);
     }
 
     function stopHeartbeat() {
@@ -142,13 +152,21 @@ sap.ui.define([], () => {
     if (typeof window !== "undefined") {
         window.addEventListener("beforeunload", () => {
             try {
-                const raw = localStorage.getItem(ACTIVE_WINDOW_SESSION_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    if (parsed && parsed.tabId === sTabInstanceId) {
-                        parsed.lastHeartbeat = Date.now() - 2500;
-                        localStorage.setItem(ACTIVE_WINDOW_SESSION_KEY, JSON.stringify(parsed));
-                    }
+                let oTabs = {};
+                const rawTabs = localStorage.getItem(ACTIVE_TABS_KEY);
+                if (rawTabs) {
+                    try { oTabs = JSON.parse(rawTabs) || {}; } catch(e) {}
+                }
+                delete oTabs[sTabInstanceId];
+                localStorage.setItem(ACTIVE_TABS_KEY, JSON.stringify(oTabs));
+
+                const now = Date.now();
+                const aRemaining = Object.keys(oTabs).filter(id => (now - (oTabs[id].lastHeartbeat || 0) < MAX_HEARTBEAT_AGE_MS));
+                if (aRemaining.length > 0) {
+                    const nextTab = oTabs[aRemaining[0]];
+                    localStorage.setItem(ACTIVE_WINDOW_SESSION_KEY, JSON.stringify(nextTab));
+                } else {
+                    localStorage.removeItem(ACTIVE_WINDOW_SESSION_KEY);
                 }
             } catch(e) {}
             stopHeartbeat();
@@ -182,6 +200,11 @@ sap.ui.define([], () => {
          */
         setSession(sUserId, sRole, sUserUuid, sToken, bRemember, oExtra) {
             if (!sUserId) return;
+            // Clear explicit logout flag for this tab when user logs in
+            try {
+                sessionStorage.removeItem(EXPLICIT_LOGOUT_FLAG);
+            } catch(e) {}
+
             const sCanonicalUser = String(sUserId).trim().toLowerCase();
             const sNow = String(Date.now());
             const sEffectiveToken = sToken || ("kyra_tok_" + Math.random().toString(36).substring(2) + "_" + sNow);
@@ -250,10 +273,16 @@ sap.ui.define([], () => {
          * If the current tab has no sessionStorage (e.g. user pasted URL in a new tab):
          * - Inherits session ONLY IF opened in the SAME WINDOW as an active tab.
          * - Rejects session if opened in a DIFFERENT WINDOW or if the browser was closed/reopened.
+         * - Rejects session if THIS SPECIFIC TAB was explicitly signed out.
          * 
          * @returns {boolean} True if authenticated and valid
          */
         isAuthenticated() {
+            // 0. If THIS SPECIFIC TAB was explicitly signed out by the user, do NOT auto-inherit
+            if (sessionStorage.getItem(EXPLICIT_LOGOUT_FLAG) === "true") {
+                return false;
+            }
+
             // 1. Current tab's active sessionStorage check
             const bSessionAuth = sessionStorage.getItem(AUTH_KEYS.IS_AUTHENTICATED) === "true";
             const sSessionUser = sessionStorage.getItem(AUTH_KEYS.ACTIVE_USER);
@@ -351,17 +380,15 @@ sap.ui.define([], () => {
         },
 
         /**
-         * Clears all session and authentication state
-         * @param {boolean} [bSkipBroadcast] Avoid re-broadcasting on incoming broadcast
+         * Clears this tab's session and authentication state without affecting other active tabs
          */
-        clearSession(bSkipBroadcast) {
+        clearSession() {
             stopHeartbeat();
-            deleteCookie("kyra_browser_session_active");
-            deleteCookie("kyra_session_user");
-            deleteCookie("kyra_session_role");
-            deleteCookie("kyra_session_uuid");
-            deleteCookie("kyra_session_token");
-            deleteCookie("kyra_session_time");
+
+            // Mark this tab as explicitly signed out so it won't auto-inherit session on reload
+            try {
+                sessionStorage.setItem(EXPLICIT_LOGOUT_FLAG, "true");
+            } catch(e) {}
 
             sessionStorage.removeItem(AUTH_KEYS.IS_AUTHENTICATED);
             sessionStorage.removeItem(AUTH_KEYS.ACTIVE_USER);
@@ -381,14 +408,42 @@ sap.ui.define([], () => {
             sessionStorage.removeItem("kyra_wizard_function");
             sessionStorage.removeItem("kyra_reset_add_access");
 
+            // Remove this tab from active tabs registry
+            let oTabs = {};
             try {
-                localStorage.removeItem(ACTIVE_WINDOW_SESSION_KEY);
+                const rawTabs = localStorage.getItem(ACTIVE_TABS_KEY);
+                if (rawTabs) {
+                    try { oTabs = JSON.parse(rawTabs) || {}; } catch(e) {}
+                }
+                delete oTabs[sTabInstanceId];
+                localStorage.setItem(ACTIVE_TABS_KEY, JSON.stringify(oTabs));
             } catch(e) {}
 
-            if (!bSkipBroadcast && oWindowAuthChannel) {
+            const now = Date.now();
+            const aRemaining = Object.keys(oTabs).filter(id => (now - (oTabs[id].lastHeartbeat || 0) < MAX_HEARTBEAT_AGE_MS));
+
+            if (aRemaining.length > 0) {
+                // Other tabs are STILL open and logged in!
+                // Point ACTIVE_WINDOW_SESSION_KEY to one of the remaining active tabs.
+                // DO NOT delete cookies or log out the other tabs!
                 try {
-                    oWindowAuthChannel.postMessage({ type: "LOGOUT" });
+                    const nextTab = oTabs[aRemaining[0]];
+                    localStorage.setItem(ACTIVE_WINDOW_SESSION_KEY, JSON.stringify(nextTab));
                 } catch(e) {}
+                console.log("[Kyra Auth] Signed out this tab only. Remaining active tabs in window:", aRemaining.length);
+            } else {
+                // This was the ONLY logged-in tab! Clean up shared window state and cookies.
+                try {
+                    localStorage.removeItem(ACTIVE_WINDOW_SESSION_KEY);
+                    localStorage.removeItem(ACTIVE_TABS_KEY);
+                } catch(e) {}
+                deleteCookie("kyra_browser_session_active");
+                deleteCookie("kyra_session_user");
+                deleteCookie("kyra_session_role");
+                deleteCookie("kyra_session_uuid");
+                deleteCookie("kyra_session_token");
+                deleteCookie("kyra_session_time");
+                console.log("[Kyra Auth] All tabs logged out. Cleaned up window session state.");
             }
         },
 

@@ -2621,7 +2621,7 @@ sap.ui.define([
             if (!oModel) return;
 
             const aSelected = oModel.getProperty("/mapSelectedRegions") || [];
-            const aAllSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
+            let aAllSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
 
             // If no regions selected, show all active systems
             if (!aSelected || aSelected.length === 0) {
@@ -2633,36 +2633,100 @@ sap.ui.define([
             const aSelectedNames = aSelected.map(r => (r.name || "").toLowerCase().trim());
             const aSelectedIds = aSelected.map(r => (r.id || "").toLowerCase().trim());
 
-            // Check systems matching the selected region(s)
+            // Helper flags for currently integrated regions: North America (US East VA) and Asia (Singapore)
+            const bHasNA = aSelectedIds.includes("na") || aSelectedNames.some(n => n.includes("north america") || n.includes("us east"));
+            const bHasAsia = aSelectedIds.includes("as") || aSelectedNames.some(n => n === "asia" || (n.includes("asia") && !n.includes("australia")) || n.includes("singapore"));
+
+            // Filter configured systems matching the selected region(s)
             let aFiltered = aAllSystems.filter(sys => {
                 if (!sys) return false;
                 const sSysRegName = (sys.regionName || "").toLowerCase().trim();
                 const sSysReg = (sys.region || "").toLowerCase().trim();
+                const sSysName = (sys.systemName || "").toLowerCase().trim();
+
+                // Direct region match
                 if (aSelectedNames.includes(sSysRegName) || aSelectedIds.includes(sSysReg)) {
                     return true;
                 }
-                if (aSelectedNames.some(name => sSysRegName && sSysRegName.includes(name))) {
+                // North America system match
+                if (bHasNA && (sSysReg === "us10" || sSysRegName.includes("north america") || sSysName.includes("us east") || sSysName.includes("north america"))) {
+                    return true;
+                }
+                // Asia (Singapore) system match
+                if (bHasAsia && (sSysReg === "ap21" || sSysRegName.includes("asia") || sSysName.includes("singapore") || sSysName.includes("asia"))) {
                     return true;
                 }
                 return false;
             });
 
-            // If the selected region has no dedicated regional deployment yet,
-            // make active enterprise systems available for this region so configuration continues smoothly
+            // If filtered list is empty but NA or Asia is selected, supply the integrated regional system
             if (aFiltered.length === 0) {
-                const sPrimaryRegion = aSelected[0].name || "Enterprise";
-                aFiltered = aAllSystems.map(s => Object.assign({}, s, {
-                    regionName: sPrimaryRegion
-                }));
-                if (aFiltered.length === 0) {
-                    aFiltered = [
-                        { systemName: "SAP Business Technology Platform (" + sPrimaryRegion + ")", environment: "Cloud", thresholdLimit: "5", status: "Active", regionName: sPrimaryRegion }
-                    ];
+                if (bHasNA) {
+                    aFiltered.push({
+                        systemName: "SAP Business Technology Platform (US East VA)",
+                        region: "us10",
+                        regionName: "North America",
+                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        environment: "Cloud",
+                        thresholdLimit: "5",
+                        status: "Active",
+                        createdDate: "2025-01-10"
+                    });
+                }
+                if (bHasAsia) {
+                    aFiltered.push({
+                        systemName: "SAP Business Technology Platform (Singapore)",
+                        region: "ap21",
+                        regionName: "Asia",
+                        subaccountId: "c47846a0-2a37-40c4-b9f2-c59802307b00",
+                        environment: "Cloud",
+                        thresholdLimit: "5",
+                        status: "Active",
+                        createdDate: "2025-01-10"
+                    });
                 }
             }
 
-            oModel.setProperty("/activeAdminSystems", aFiltered);
-            oModel.setProperty("/hasRegionalSystems", true);
+            // Deduplicate by systemName
+            const aDeduplicated = [];
+            const oSeen = new Set();
+            aFiltered.forEach(sys => {
+                if (sys && sys.systemName && !oSeen.has(sys.systemName)) {
+                    oSeen.add(sys.systemName);
+                    aDeduplicated.push(sys);
+                }
+            });
+
+            const bHasRegionalSystems = aDeduplicated.length > 0;
+            oModel.setProperty("/activeAdminSystems", aDeduplicated);
+            oModel.setProperty("/hasRegionalSystems", bHasRegionalSystems);
+
+            if (!bHasRegionalSystems) {
+                // Strictly reset selection states when selected region has no integrated systems
+                oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/hasSelectedTargetSystems", false);
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/targetSystemSlideCount", 0);
+                oModel.setProperty("/addAccessCurrentSystemIndex", 0);
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+            } else {
+                // If systems are available, ensure addAccessSelectedSystems only contains valid systems from the active regional list
+                const aValidNames = aDeduplicated.map(s => s.systemName);
+                let aCurSelected = oModel.getProperty("/addAccessSelectedSystems") || [];
+                if (Array.isArray(aCurSelected)) {
+                    aCurSelected = aCurSelected.filter(s => aValidNames.includes(s));
+                } else {
+                    aCurSelected = [];
+                }
+                if (aCurSelected.length === 0 && aDeduplicated.length > 0) {
+                    aCurSelected = [aDeduplicated[0].systemName];
+                }
+                oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
+                oModel.setProperty("/hasSelectedTargetSystems", aCurSelected.length > 0);
+                oModel.setProperty("/targetSystemSlideCount", aCurSelected.length);
+            }
         },
 
         _updateSelectedChips() {
@@ -2699,7 +2763,6 @@ sap.ui.define([
             this._bRouteMatchedExecuting = true;
             const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
             if (!bAuthenticated) {
-                // Instantly hide AccessPage view so unauthenticated users never see an empty dashboard
                 if (this.getView() && typeof this.getView().setVisible === "function") {
                     this.getView().setVisible(false);
                 }
@@ -2711,35 +2774,20 @@ sap.ui.define([
                     }
                 }
                 try {
-                    const oComponent = this.getOwnerComponent();
-                    if (oComponent) {
-                        const sLoginViewId = oComponent.createId("Login");
-                        const oRoot = oComponent.getRootControl();
-                        const oApp = oRoot && ((typeof oRoot.to === "function") ? oRoot : (oRoot.byId && oRoot.byId("app")));
-                        if (oApp && typeof oApp.to === "function") {
-                            const oLoginPage = oApp.getPage ? oApp.getPage(sLoginViewId) : null;
-                            if (oLoginPage) {
-                                oApp.to(sLoginViewId);
-                            }
+                    const oApp = (this.getView() && typeof this.getView().getParent === "function" && this.getView().getParent()) ||
+                                 (this.getOwnerComponent() && typeof this.getOwnerComponent().getRootControl === "function" && this.getOwnerComponent().getRootControl());
+                    if (oApp) {
+                        const oInnerApp = (typeof oApp.to === "function") ? oApp : (typeof oApp.byId === "function" && oApp.byId("app"));
+                        if (oInnerApp && typeof oInnerApp.to === "function") {
+                            oInnerApp.to("Login");
                         }
                     }
                 } catch(e) {}
                 this._bRouteMatchedExecuting = false;
                 return;
             }
-
-            // Authenticated: make AccessPage view visible and proceed
             if (this.getView() && typeof this.getView().setVisible === "function") {
                 this.getView().setVisible(true);
-            }
-            if (window._kyraLoginTransition) {
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Loading KYRA Access Management...",
-                        subtitle: "Loading user profile, entitlements, and access records...",
-                        duration: 35000
-                    });
-                }
             }
             const oModel = this.getView().getModel("accessModel");
             const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
@@ -2781,8 +2829,6 @@ sap.ui.define([
                 oModel.setProperty("/showMyAccessMasterSection", false);
                 oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showApprovedSection", false);
-                oModel.setProperty("/showHistorySection", false);
-                oModel.setProperty("/showApprovalHistory", false);
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -2848,8 +2894,6 @@ sap.ui.define([
                 }
 
                 if (bShowApproverSection) {
-                    oModel.setProperty("/isRequester", false);
-                    oModel.setProperty("/showApproverSection", true);
                     this._updateApproverSectionVisibility();
                     setTimeout(() => {
                         try {
@@ -2874,33 +2918,9 @@ sap.ui.define([
                         oCompModel.setProperty("/selectedTabKey", "myAccess");
                         oCompModel.setProperty("/showRequestDetailsPage", false);
                     }
-                }
-
-                const bIsLoginTransition = !!window._kyraLoginTransition;
-                try {
-                    await this._loadSubmittedRequests(oModel, !bIsLoginTransition, true);
-                    if (typeof this._loadNotifications === "function") {
-                        this._loadNotifications(oModel);
-                    }
-                    if (typeof this._updateApproverSectionVisibility === "function") {
-                        this._updateApproverSectionVisibility();
-                    }
-                    if (typeof this._updateCountBadges === "function") {
-                        this._updateCountBadges(oModel);
-                    }
-                } catch (err) {
-                    console.error("Error loading dashboard data on route match:", err);
-                } finally {
-                    // Proper dashboard and tables must be fully populated and rendered before loading screen stops
-                    setTimeout(() => {
-                        window._kyraLoginTransition = false;
-                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                            window.KyraLoader.hide();
-                        } else if (window.hideKyraLoading) {
-                            window.hideKyraLoading();
-                        }
-                        this._bRouteMatchedExecuting = false;
-                    }, 500);
+                    this._loadSubmittedRequests(oModel, true);
+                } else {
+                    this._loadSubmittedRequests(oModel, true);
                 }
             }
 
@@ -2924,6 +2944,7 @@ sap.ui.define([
                     oTabBar.setSelectedKey(sTabToSelect);
                 }
             }
+            this._bRouteMatchedExecuting = false;
         },
 
 
@@ -3559,15 +3580,13 @@ sap.ui.define([
                                sessionStorage.getItem("kyra_show_approval_history") === "true";
             if (bIsHistory) {
                 bSilent = true;
-                if (!window._kyraLoginTransition) {
-                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                        window.KyraLoader.hide();
-                    } else if (window.hideKyraLoading) {
-                        window.hideKyraLoading();
-                    }
-                    if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                        sap.ui.core.BusyIndicator.hide();
-                    }
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
+                }
+                if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
+                    sap.ui.core.BusyIndicator.hide();
                 }
             }
 
@@ -3614,13 +3633,15 @@ sap.ui.define([
             }
 
             try {
-                // Periodically synchronize live SAP BTP Cockpit manual revocations (non-blocking in background)
+                // Periodically synchronize live SAP BTP Cockpit manual revocations (throttled to at most once per 15s)
                 const nowBtpTime = Date.now();
                 if (sActiveUser && (bForce || (nowBtpTime - (window._lastBtpSyncTime || 0) > 15000))) {
                     window._lastBtpSyncTime = nowBtpTime;
-                    fetch("/api/sync-btp?user=" + encodeURIComponent(sActiveUser), {
-                        signal: (typeof AbortSignal !== "undefined" && AbortSignal.timeout) ? AbortSignal.timeout(4000) : undefined
-                    }).catch(() => {});
+                    try {
+                        await fetch("/api/sync-btp?user=" + encodeURIComponent(sActiveUser), {
+                            signal: (typeof AbortSignal !== "undefined" && AbortSignal.timeout) ? AbortSignal.timeout(4000) : undefined
+                        }).catch(() => {});
+                    } catch (eSync) {}
                 }
 
                 if (bForce || !window._kyraGovFetchPromise) {
@@ -3752,12 +3773,10 @@ sap.ui.define([
                 }
                 this._bIsLoadingRequests = false;
                 setTimeout(() => {
-                    if (!window._kyraLoginTransition) {
-                        if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                            window.KyraLoader.hide();
-                        } else if (window.hideKyraLoading) {
-                            window.hideKyraLoading();
-                        }
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    } else if (window.hideKyraLoading) {
+                        window.hideKyraLoading();
                     }
                 }, 200);
                 return;
@@ -3825,9 +3844,9 @@ sap.ui.define([
                 const isIamApp2Approved = sIamApp2Status === "APPROVED" || sDbStatus === "APPROVED";
                 const bRoleApproved = (sApproverStatus === "APPROVED" || isApproverApproved || (isCompliancePersona && sComplianceStatus === "APPROVED") || (isIamApp1Persona && sIamApp1Status === "APPROVED") || (isIamApp2Persona && sIamApp2Status === "APPROVED") || sDbStatus === "APPROVED") && sApproverStatus !== "REJECTED" && (!isCompliancePersona || sComplianceStatus !== "REJECTED");
 
+                const isOverallApproved = !isDbRevoked && (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && sDbStatus !== "REJECTED";
                 const isOverallRejected = sDbStatus === "REJECTED" || sApproverStatus === "REJECTED" || (isConflictRequest && sComplianceStatus === "REJECTED") || sIamApp1Status === "REJECTED" || sIamApp2Status === "REJECTED";
-                const isOverallRevoked = isRevocationReq && (isDbRevoked || sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED") && !isOverallRejected;
-                const isOverallApproved = !isRevocationReq && (sDbStatus === "APPROVED" || sIamApp2Status === "APPROVED" || isDbRevoked) && !isOverallRejected;
+                const isOverallRevoked = isDbRevoked || (isRevocationReq && isOverallApproved);
                 const isOverallPending = !isOverallApproved && !isOverallRejected && !isOverallRevoked;
 
                 let sStatusText = "Pending Approval";
@@ -4040,7 +4059,7 @@ sap.ui.define([
                                     roleStates[sRoleOnlyKey] = { request: r, status: 'REVOKE_PENDING' };
                                 }
                             } else {
-                                if (isOverallApproved && !isDbRevoked) {
+                                if (isOverallApproved) {
                                     roleStates[sRoleOnlyKey] = { request: r, status: 'ACTIVE' };
                                 }
                             }
@@ -4414,8 +4433,7 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/requestHistory", aDisplayedHistory);
             this._setSmartProperty(oModel, "/myHistoryRequests", aDisplayedHistory);
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
-            this._updateDisplayedUserAccess();
-            this._setSmartProperty(oModel, "/lastEntitlementSyncTime", "6:00 PM");
+            this._setSmartProperty(oModel, "/displayedUserAccessList", aUniqueUserAccessList);
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
 
             let iRevokedHistory = 0;
@@ -4434,9 +4452,9 @@ sap.ui.define([
                     iExpiredHistory++;
                 } else if (sStat.includes("reject") || sStat.includes("decline")) {
                     iRejectedHistory++;
-                } else if (isRevoc && (sStat.includes("revok") || sStat.includes("approved") || sStat.includes("active") || sStat.includes("success"))) {
+                } else if (sStat.includes("revok") || (isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("success")))) {
                     iRevokedHistory++;
-                } else if (!isRevoc && (sStat.includes("approved") || sStat.includes("active") || sStat.includes("revok"))) {
+                } else if (sStat.includes("approved") || sStat.includes("active")) {
                     iApprovedHistory++;
                 }
             });
@@ -4666,12 +4684,10 @@ sap.ui.define([
             }
             // Gracefully dismiss loading slide overlay now that all data is fully populated and rendered in DOM
             setTimeout(() => {
-                if (!window._kyraLoginTransition) {
-                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                        window.KyraLoader.hide();
-                    } else if (window.hideKyraLoading) {
-                        window.hideKyraLoading();
-                    }
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                } else if (window.hideKyraLoading) {
+                    window.hideKyraLoading();
                 }
             }, 200);
         },
@@ -6711,18 +6727,25 @@ sap.ui.define([
             if (!oModel) return;
             const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
             const sRoleLower = sActiveRole.toLowerCase();
-            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance"));
-            const bIsAdmin = !bIsApproverOrCompliance && (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
-            const bIsRequester = !bIsApproverOrCompliance && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "");
-
-            if (bIsApproverOrCompliance) {
-                oModel.setProperty("/isRequester", false);
-                oModel.setProperty("/isAdminPersona", false);
-                oModel.setProperty("/isAdmin", false);
-            }
+            const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "" || !!oModel.getProperty("/isRequester"));
+            const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
 
             // STRICT GUARANTEE: On ANY Requester or Admin page, NEVER show User Requests!
-            if (bIsRequester || bIsAdmin || !bIsApproverOrCompliance) {
+            if (bIsRequester || bIsAdmin) {
+                oModel.setProperty("/showApproverSection", false);
+                const oApproverContainer = this.byId("approverSectionContainer");
+                if (oApproverContainer) {
+                    oApproverContainer.setVisible(false);
+                }
+                const oApproverView = this.byId("approverSectionView");
+                if (oApproverView) {
+                    oApproverView.setVisible(false);
+                }
+                return;
+            }
+
+            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance"));
+            if (!bIsApproverOrCompliance) {
                 oModel.setProperty("/showApproverSection", false);
                 const oApproverContainer = this.byId("approverSectionContainer");
                 if (oApproverContainer) {
@@ -6737,11 +6760,9 @@ sap.ui.define([
 
             // PERMANENT FIX: For Approver or Compliance persona, showApproverSection is ALWAYS true
             oModel.setProperty("/showApproverSection", true);
-            oModel.setProperty("/isRequester", false);
             const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
             if (oCompModel && oCompModel !== oModel) {
                 oCompModel.setProperty("/showApproverSection", true);
-                oCompModel.setProperty("/isRequester", false);
             }
 
             const sSelectedTab = oModel.getProperty("/selectedTabKey") || "myAccess";
@@ -6771,20 +6792,13 @@ sap.ui.define([
             const oApproverView = this.byId("approverSectionView");
             if (oApproverView) {
                 oApproverView.setVisible(bVisible);
-                oApproverView.setModel(oModel, "accessModel");
+                if (!oApproverView.getModel("accessModel")) {
+                    oApproverView.setModel(oModel, "accessModel");
+                }
                 try {
                     const oApproverCtrl = oApproverView.getController();
-                    if (oApproverCtrl) {
-                        if (oApproverCtrl.getView && typeof oApproverCtrl.getView().setVisible === "function") {
-                            oApproverCtrl.getView().setVisible(bVisible);
-                        }
-                        const oCardRoot = oApproverCtrl.byId && oApproverCtrl.byId("kyraApproverCardRoot");
-                        if (oCardRoot && typeof oCardRoot.setVisible === "function") {
-                            oCardRoot.setVisible(bVisible);
-                        }
-                        if (typeof oApproverCtrl._syncModelAndRequests === "function") {
-                            oApproverCtrl._syncModelAndRequests();
-                        }
+                    if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
+                        oApproverCtrl._syncModelAndRequests();
                     }
                 } catch(e) {}
             }
@@ -7133,6 +7147,20 @@ sap.ui.define([
             
             if (!oModel.getProperty("/addAccessSystemSlideConfigs")) {
                 oModel.setProperty("/addAccessSystemSlideConfigs", {});
+            }
+
+            const bHasRegionalSystems = oModel.getProperty("/hasRegionalSystems");
+            if (bHasRegionalSystems === false) {
+                oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/hasSelectedTargetSystems", false);
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/targetSystemSlideCount", 0);
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                this._scrollToWizardContainer();
+                return;
             }
 
             // Ensure selected systems exist so Target System slide renders immediately
@@ -14075,11 +14103,8 @@ sap.ui.define([
             });
         },
 
-        _performLogout() {
+                _performLogout() {
             // 1. Clear session storage & credentials via AuthManager
-            if (window.KyraAuthManager && typeof window.KyraAuthManager.clearSession === "function") {
-                window.KyraAuthManager.clearSession();
-            }
             sessionStorage.removeItem("kyra_active_user");
             sessionStorage.removeItem("kyra_active_role");
             sessionStorage.removeItem("kyra_active_user_uuid");
@@ -14087,6 +14112,9 @@ sap.ui.define([
             sessionStorage.removeItem("kyra_wizard_function");
             sessionStorage.removeItem("kyra_reset_add_access");
             sessionStorage.clear();
+            if (window.KyraAuthManager && typeof window.KyraAuthManager.clearSession === "function") {
+                window.KyraAuthManager.clearSession();
+            }
             localStorage.removeItem("kyra_remember_id");
             localStorage.removeItem("kyra_remember_role");
 
