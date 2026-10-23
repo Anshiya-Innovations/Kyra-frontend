@@ -199,7 +199,7 @@
                                     press=".onSelectSapIntegration">
                                     <HBox alignItems="Center" class="kyraIntegrationItemLeft">
                                         <HBox class="kyraActionBadge kyraBadgeAmber kyraIntegrationBadge">
-                                            <core:Icon src="sap-icon://database" class="kyraBadgeIcon" />
+                                            <core:Icon src="sap-icon://dimension" class="kyraBadgeIcon" />
                                         </HBox>
                                         <VBox class="kyraIntegrationTitleBox">
                                             <Title text="SAP Integration" level="H5" class="kyraIntegrationTitle" />
