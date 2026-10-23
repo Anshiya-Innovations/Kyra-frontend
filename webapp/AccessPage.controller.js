@@ -15694,11 +15694,41 @@ sap.ui.define([
             if (oModel) {
                 oModel.setProperty("/adminCustomizationSubTab", sTab);
                 oModel.setProperty("/adminCustomizationStep", 1);
+                this._updateCustomizationTabButtons(sTab);
                 try { sap.ui.getCore().applyChanges(); } catch (e) {}
                 setTimeout(() => {
+                    this._updateCustomizationTabButtons(sTab);
                     this._smoothScrollTo("accessCustomizationSubTabBar", 40);
                 }, 40);
             }
+        },
+
+        _updateCustomizationTabButtons(sActiveTab) {
+            const sCurrentTab = sActiveTab || "business";
+            const aTabs = [
+                { id: "btnTabCustomizationBusiness", key: "business" },
+                { id: "btnTabCustomizationRegion", key: "region" },
+                { id: "btnTabCustomizationSystem", key: "system" },
+                { id: "btnTabCustomizationConflict", key: "conflict" }
+            ];
+            aTabs.forEach(tab => {
+                const oBtn = this.byId(tab.id);
+                if (oBtn) {
+                    const bActive = (tab.key === sCurrentTab);
+                    oBtn.setType(bActive ? "Emphasized" : "Default");
+                    oBtn.toggleStyleClass("kyraCustomizationTabBtnActive", bActive);
+                    oBtn.data("active", bActive ? "true" : "false");
+                    const oDom = oBtn.getDomRef();
+                    if (oDom) {
+                        oDom.setAttribute("data-active", bActive ? "true" : "false");
+                        if (bActive) {
+                            oDom.classList.add("kyraCustomizationTabBtnActive");
+                        } else {
+                            oDom.classList.remove("kyraCustomizationTabBtnActive");
+                        }
+                    }
+                }
+            });
         },
 
         onSelectAdminAccessCustomization() {
@@ -15715,14 +15745,15 @@ sap.ui.define([
             oModel.setProperty("/adminSelectedSection", sNext);
             if (sNext === "accessCustomization") {
                 oModel.setProperty("/adminCustomizationStep", 1);
-                if (!oModel.getProperty("/adminCustomizationSubTab")) {
-                    oModel.setProperty("/adminCustomizationSubTab", "business");
-                }
+                const sSubTab = oModel.getProperty("/adminCustomizationSubTab") || "business";
+                oModel.setProperty("/adminCustomizationSubTab", sSubTab);
+                this._updateCustomizationTabButtons(sSubTab);
                 this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
                 this._ensureAdminSnapshots(oModel);
                 this._refreshCustomConflictOptions(oModel);
                 this._loadCustomAccessAndConflictConfig(oModel);
                 setTimeout(() => {
+                    this._updateCustomizationTabButtons(oModel.getProperty("/adminCustomizationSubTab") || "business");
                     this._smoothScrollTo("adminAccessCustomizationSection", 40);
                 }, 80);
             }

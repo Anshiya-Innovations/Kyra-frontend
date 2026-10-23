@@ -1,109 +1,148 @@
 const fs = require('fs');
 
-const files = [
-  'webapp/pages/access/AccessPage.controller.js',
-  'webapp/AccessPage.controller.js',
-  'webapp/page component/User Access Management Portal page/AccessPage.controller.js',
-  'webapp/page component/page request/User Access Management Portal page/AccessPage.controller.js',
-  'webapp/page component/KYRA Frontend-SK/webapp/page component/User Access Management Portal page/AccessPage.controller.js',
-  'webapp/page component/KYRA Frontend-SK/webapp/page component/page request/User Access Management Portal page/AccessPage.controller.js'
+const controllerFiles = [
+    'webapp/pages/access/AccessPage.controller.js',
+    'webapp/AccessPage.controller.js'
 ];
 
-for (const file of files) {
-  let content = fs.readFileSync(file, 'utf8');
+const targetSnippet = `        onSelectCustomizationTab(oEvent) {
+            let sTab = "business";
+            if (typeof oEvent === "string") {
+                sTab = oEvent;
+            } else if (oEvent && typeof oEvent.getSource === "function") {
+                const oSource = oEvent.getSource();
+                sTab = oSource.data("tabKey") || (oSource.getCustomData && oSource.getCustomData().find(cd => cd.getKey() === "tabKey") ? oSource.getCustomData().find(cd => cd.getKey() === "tabKey").getValue() : "business");
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/adminCustomizationSubTab", sTab);
+                oModel.setProperty("/adminCustomizationStep", 1);
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._smoothScrollTo("accessCustomizationSubTabBar", 40);
+                }, 40);
+            }
+        },
 
-  // 1. Replace the select dropdown in edit service modal to use Active and Deactive
-  const oldSelect = `<select id="kyra_edit_svc_status" class="kyra-system-modal-select">
-                                    <option value="Active" \${sCurrentStatus === "Active" ? "selected" : ""}>Active</option>
-                                    <option value="Inactive" \${sCurrentStatus === "Inactive" ? "selected" : ""}>Inactive</option>
-                                </select>`;
-  const newSelect = `<select id="kyra_edit_svc_status" class="kyra-system-modal-select">
-                                    <option value="Active" \${(sCurrentStatus === "Active" || sCurrentStatus === "Draft") ? "selected" : ""}>Active</option>
-                                    <option value="Deactive" \${(sCurrentStatus === "Deactive" || sCurrentStatus === "Inactive") ? "selected" : ""}>Deactive</option>
-                                </select>`;
+        onSelectAdminAccessCustomization() {
+            const now = Date.now();
+            if (this._lastAdminNavClick && (now - this._lastAdminNavClick < 250)) {
+                return;
+            }
+            this._lastAdminNavClick = now;
 
-  if (content.includes(oldSelect)) {
-    content = content.replace(oldSelect, newSelect);
-    console.log('Updated select HTML in:', file);
-  } else {
-    // Try regex if spacing differs
-    const regSelect = /<select id="kyra_edit_svc_status"[\s\S]*?<\/select>/;
-    if (regSelect.test(content)) {
-      content = content.replace(regSelect, `<select id="kyra_edit_svc_status" class="kyra-system-modal-select">
-                                    <option value="Active" \${(sCurrentStatus === "Active" || sCurrentStatus === "Draft") ? "selected" : ""}>Active</option>
-                                    <option value="Deactive" \${(sCurrentStatus === "Deactive" || sCurrentStatus === "Inactive") ? "selected" : ""}>Deactive</option>
-                                </select>`);
-      console.log('Regex updated select HTML in:', file);
-    }
-  }
-
-  // 2. Ensure isUnsaved: false is set in item update inside onEditAdminService
-  const oldItemAssign = `item.serviceName === sOldName ? Object.assign({}, item, {
-                                        serviceName: sNewName,
-                                        status: sNewStatus
-                                    }) : item`;
-  const newItemAssign = `item.serviceName === sOldName ? Object.assign({}, item, {
-                                        serviceName: sNewName,
-                                        status: sNewStatus,
-                                        isUnsaved: false
-                                    }) : item`;
-
-  if (content.includes(oldItemAssign)) {
-    content = content.replace(oldItemAssign, newItemAssign);
-    console.log('Updated item assign (clearing isUnsaved) in:', file);
-  }
-
-  // 3. Ensure isCurrentServiceUnsaved is cleared when current service is edited
-  const oldCurrentCheck = `if (bIsCurrent) {
-                                    oModel.setProperty("/selectedAdminServiceName", sNewName);`;
-  const newCurrentCheck = `if (bIsCurrent) {
-                                    oModel.setProperty("/selectedAdminServiceName", sNewName);
-                                    oModel.setProperty("/isCurrentServiceUnsaved", false);`;
-  if (content.includes(oldCurrentCheck) && !content.includes('oModel.setProperty("/isCurrentServiceUnsaved", false);')) {
-    content = content.replace(oldCurrentCheck, newCurrentCheck);
-    console.log('Updated isCurrentServiceUnsaved in:', file);
-  }
-
-  // 4. Add onToggleAdminServiceStatus if not already present
-  if (!content.includes('onToggleAdminServiceStatus')) {
-    const toggleMethod = `
-        onToggleAdminServiceStatus(oEvent) {
-            const oCtx = oEvent.getSource().getBindingContext("accessModel");
-            if (!oCtx) return;
-            const oObj = oCtx.getObject();
-            if (!oObj) return;
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-
-            const sCurrent = oObj.status || "Active";
-            const sNewStatus = (sCurrent === "Active") ? "Deactive" : "Active";
-
-            const aAll = (oModel.getProperty("/adminServicesAll") || []).map(item =>
-                item.serviceName === oObj.serviceName ? Object.assign({}, item, {
-                    status: sNewStatus,
-                    isUnsaved: false
-                }) : item
-            );
-            oModel.setProperty("/adminServicesAll", aAll);
-            oModel.setProperty("/adminServices", aAll.slice());
-
-            if (oModel.getProperty("/selectedAdminServiceName") === oObj.serviceName) {
-                oModel.setProperty("/isCurrentServiceUnsaved", false);
+            const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
+            const sNext = sCurrent === "accessCustomization" ? "" : "accessCustomization";
+            oModel.setProperty("/adminSelectedSection", sNext);
+            if (sNext === "accessCustomization") {
+                oModel.setProperty("/adminCustomizationStep", 1);
+                if (!oModel.getProperty("/adminCustomizationSubTab")) {
+                    oModel.setProperty("/adminCustomizationSubTab", "business");
+                }
+                this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
+                this._ensureAdminSnapshots(oModel);
+                this._refreshCustomConflictOptions(oModel);
+                this._loadCustomAccessAndConflictConfig(oModel);
+                setTimeout(() => {
+                    this._smoothScrollTo("adminAccessCustomizationSection", 40);
+                }, 80);
             }
+            this._updateActionCardArrows(oModel);
+        },`;
 
-            this._savedAdminServicesAll = JSON.parse(JSON.stringify(aAll));
-            this._syncAdminConfigToLiveAddAccess(oModel, true);
-            this._persistAllCustomizationsToDb(oModel, "Service '" + oObj.serviceName + "' status changed to " + sNewStatus + ".");
-            this._showSlideNotification("Status Updated", "Service '" + oObj.serviceName + "' is now " + sNewStatus + " and saved.");
-            sap.m.MessageToast.show("Service '" + oObj.serviceName + "' is now " + sNewStatus + ".");
+const replacementSnippet = `        onSelectCustomizationTab(oEvent) {
+            let sTab = "business";
+            if (typeof oEvent === "string") {
+                sTab = oEvent;
+            } else if (oEvent && typeof oEvent.getSource === "function") {
+                const oSource = oEvent.getSource();
+                sTab = oSource.data("tabKey") || (oSource.getCustomData && oSource.getCustomData().find(cd => cd.getKey() === "tabKey") ? oSource.getCustomData().find(cd => cd.getKey() === "tabKey").getValue() : "business");
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) {
+                oModel.setProperty("/adminCustomizationSubTab", sTab);
+                oModel.setProperty("/adminCustomizationStep", 1);
+                this._updateCustomizationTabButtons(sTab);
+                try { sap.ui.getCore().applyChanges(); } catch (e) {}
+                setTimeout(() => {
+                    this._updateCustomizationTabButtons(sTab);
+                    this._smoothScrollTo("accessCustomizationSubTabBar", 40);
+                }, 40);
+            }
         },
-`;
-    // Insert right before onEditAdminService
-    const editMarker = content.includes('onEditAdminService(') ? 'onEditAdminService(' : 'onEditAdminService:';
-    content = content.replace(editMarker, toggleMethod + '\n        ' + editMarker);
-    console.log('Added onToggleAdminServiceStatus in:', file);
-  }
 
-  fs.writeFileSync(file, content, 'utf8');
-}
-console.log('Done updating controllers!');
+        _updateCustomizationTabButtons(sActiveTab) {
+            const sCurrentTab = sActiveTab || "business";
+            const aTabs = [
+                { id: "btnTabCustomizationBusiness", key: "business" },
+                { id: "btnTabCustomizationRegion", key: "region" },
+                { id: "btnTabCustomizationSystem", key: "system" },
+                { id: "btnTabCustomizationConflict", key: "conflict" }
+            ];
+            aTabs.forEach(tab => {
+                const oBtn = this.byId(tab.id);
+                if (oBtn) {
+                    const bActive = (tab.key === sCurrentTab);
+                    oBtn.setType(bActive ? "Emphasized" : "Default");
+                    oBtn.toggleStyleClass("kyraCustomizationTabBtnActive", bActive);
+                    oBtn.data("active", bActive ? "true" : "false");
+                    const oDom = oBtn.getDomRef();
+                    if (oDom) {
+                        oDom.setAttribute("data-active", bActive ? "true" : "false");
+                        if (bActive) {
+                            oDom.classList.add("kyraCustomizationTabBtnActive");
+                        } else {
+                            oDom.classList.remove("kyraCustomizationTabBtnActive");
+                        }
+                    }
+                }
+            });
+        },
+
+        onSelectAdminAccessCustomization() {
+            const now = Date.now();
+            if (this._lastAdminNavClick && (now - this._lastAdminNavClick < 250)) {
+                return;
+            }
+            this._lastAdminNavClick = now;
+
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            const sCurrent = oModel.getProperty("/adminSelectedSection") || "";
+            const sNext = sCurrent === "accessCustomization" ? "" : "accessCustomization";
+            oModel.setProperty("/adminSelectedSection", sNext);
+            if (sNext === "accessCustomization") {
+                oModel.setProperty("/adminCustomizationStep", 1);
+                const sSubTab = oModel.getProperty("/adminCustomizationSubTab") || "business";
+                oModel.setProperty("/adminCustomizationSubTab", sSubTab);
+                this._updateCustomizationTabButtons(sSubTab);
+                this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
+                this._ensureAdminSnapshots(oModel);
+                this._refreshCustomConflictOptions(oModel);
+                this._loadCustomAccessAndConflictConfig(oModel);
+                setTimeout(() => {
+                    this._updateCustomizationTabButtons(oModel.getProperty("/adminCustomizationSubTab") || "business");
+                    this._smoothScrollTo("adminAccessCustomizationSection", 40);
+                }, 80);
+            }
+            this._updateActionCardArrows(oModel);
+        },`;
+
+controllerFiles.forEach(filePath => {
+    let content = fs.readFileSync(filePath, 'utf8');
+    const isCRLF = content.includes('\r\n');
+    const normalize = str => isCRLF ? str.replace(/\r?\n/g, '\r\n') : str.replace(/\r?\n/g, '\n');
+
+    const searchStr = normalize(targetSnippet);
+    const repStr = normalize(replacementSnippet);
+
+    if (!content.includes(searchStr)) {
+        console.error('Target snippet not found in', filePath);
+    } else {
+        content = content.replace(searchStr, repStr);
+        fs.writeFileSync(filePath, content, 'utf8');
+        console.log('Successfully updated controller in', filePath);
+    }
+});

@@ -61973,87 +61973,557 @@ html body .kyraAdminIntegrationSection .kyraDarkStudioWrapper {
 }
 
 /* ========================================================================= */
-/* ACCESS CUSTOMIZATION SUB-NAV TAB BAR (IMAGE 2 MATCH)                      */
+/* ACCESS CUSTOMIZATION SUB-NAV TAB BAR (EXACT MATCH TO SPEC & IMAGE)        */
+/* ========================================================================= */
+/* ========================================================================= */
+/* KYRA ACCESS CUSTOMIZATION SUB-NAV BAR (4 TABS, FULL WIDTH, EQUAL SPACING) */
+/* ========================================================================= */
+/* ========================================================================= */
+/* KYRA ACCESS CUSTOMIZATION SUB-NAV BAR (4 TABS, FULL WIDTH, EQUAL SPACING) */
 /* ========================================================================= */
 .kyraAccessCustomizationTabBar,
 .sapMFlexBox.kyraAccessCustomizationTabBar,
-html body [id$="accessCustomizationSubTabBar"] {
-    background: #CBD5E1 !important;
-    background-color: #CBD5E1 !important;
-    border: 1px solid #94A3B8 !important;
-    border-radius: 12px !important;
-    padding: 12px 16px !important;
-    margin-bottom: 22px !important;
+html body [id$="accessCustomizationSubTabBar"],
+#accessCustomizationSubTabBar {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+    margin-bottom: 20px !important;
     width: 100% !important;
+    height: 52px !important;
+    min-height: 52px !important;
     box-sizing: border-box !important;
-    gap: 16px !important;
+    gap: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* 4 Equal Width Flex Items (Each 25% of the full bar) */
+.kyraAccessCustomizationTabBar > .sapMFlexItem,
+.kyraAccessCustomizationTabBar .kyraCustomizationTabFlexItem,
+#accessCustomizationSubTabBar > .sapMFlexItem,
+html body [id$="accessCustomizationSubTabBar"] > .sapMFlexItem {
+    flex: 1 1 25% !important;
+    width: 25% !important;
+    min-width: 25% !important;
+    max-width: 25% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 4px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
+/* Vertical Divider Lines Between Tabs: Completely Removed as requested */
+.kyraAccessCustomizationTabBar > .sapMFlexItem::after,
+.kyraAccessCustomizationTabBar .kyraCustomizationTabFlexItem::after,
+#accessCustomizationSubTabBar > .sapMFlexItem::after,
+html body [id$="accessCustomizationSubTabBar"] > .sapMFlexItem::after,
+.kyraCustomizationTabBtn::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+}
+
+/* Base Tab Button (Outer Button Wrapper): Fills 100% of its 25% Flex Item */
+.kyraCustomizationTabBtn,
+.kyraCustomizationTabBtn.sapMBtn,
+.kyraAccessCustomizationTabBar .sapMBtn,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn,
+#accessCustomizationSubTabBar .sapMBtn {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-right: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    vertical-align: middle !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Inner Pill Structure: Inactive State (Clean Transparent Segment) */
+.kyraCustomizationTabBtn .sapMBtnInner,
+.kyraCustomizationTabBtn.sapMBtn .sapMBtnInner,
+.kyraAccessCustomizationTabBar .sapMBtn .sapMBtnInner,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn .sapMBtnInner,
+#accessCustomizationSubTabBar .sapMBtn .sapMBtnInner {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Ensure Button Text/Label is Visible & Sized Appropriately Beside Icon */
+#accessCustomizationSubTabBar .sapMBtn .sapMBtnContent,
+.kyraAccessCustomizationTabBar .sapMBtn .sapMBtnContent,
+.kyraCustomizationTabBtn .sapMBtnContent,
+#accessCustomizationSubTabBar .sapMBtn bdi,
+.kyraAccessCustomizationTabBar .sapMBtn bdi,
+.kyraCustomizationTabBtn bdi {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    flex-shrink: 0 !important;
+    vertical-align: middle !important;
+    color: #1E293B !important;
+}
+
+/* Inactive Icon: Dark Slate #1E293B (Image Match) */
+.kyraCustomizationTabBtn .sapUiIcon,
+.kyraCustomizationTabBtn .sapMBtnIcon,
+.kyraAccessCustomizationTabBar .sapMBtn .sapUiIcon,
+.kyraAccessCustomizationTabBar .sapMBtn .sapMBtnIcon,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn .sapUiIcon,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn .sapMBtnIcon,
+#accessCustomizationSubTabBar .sapMBtn .sapUiIcon,
+#accessCustomizationSubTabBar .sapMBtn .sapMBtnIcon {
+    color: #1E293B !important;
+    font-size: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: color 0.15s ease !important;
+}
+
+/* Inactive Hover State */
+.kyraCustomizationTabBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapMBtnInner,
+.kyraAccessCustomizationTabBar .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapMBtnInner,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapMBtnInner,
+#accessCustomizationSubTabBar .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapMBtnInner {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border-color: #E2E8F0 !important;
+}
+
+.kyraCustomizationTabBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapMBtnContent,
+.kyraCustomizationTabBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover bdi,
+.kyraAccessCustomizationTabBar .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover bdi,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover bdi,
+#accessCustomizationSubTabBar .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover bdi {
+    color: #008C9C !important;
+}
+
+.kyraCustomizationTabBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapUiIcon,
+.kyraCustomizationTabBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapMBtnIcon,
+.kyraAccessCustomizationTabBar .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapUiIcon,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapUiIcon,
+#accessCustomizationSubTabBar .sapMBtn:not(.kyraCustomizationTabBtnActive):not([data-active="true"]):not(.sapMBtnEmphasized):hover .sapUiIcon {
+    color: #008C9C !important;
+}
+
+/* ========================================================================= */
+/* ACTIVE TAB STATE: Solid KYRA Brand Teal Fill (#008C9C) Matching Image     */
+/* ========================================================================= */
+.kyraCustomizationTabBtnActive .sapMBtnInner,
+.kyraCustomizationTabBtn.kyraCustomizationTabBtnActive .sapMBtnInner,
+.kyraCustomizationTabBtn[data-active="true"] .sapMBtnInner,
+.kyraCustomizationTabBtn.sapMBtnEmphasized .sapMBtnInner,
+.kyraAccessCustomizationTabBar .sapMBtn.kyraCustomizationTabBtnActive .sapMBtnInner,
+.kyraAccessCustomizationTabBar .sapMBtn[data-active="true"] .sapMBtnInner,
+.kyraAccessCustomizationTabBar .sapMBtn.sapMBtnEmphasized .sapMBtnInner,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.kyraCustomizationTabBtnActive .sapMBtnInner,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn[data-active="true"] .sapMBtnInner,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.sapMBtnEmphasized .sapMBtnInner,
+#accessCustomizationSubTabBar .sapMBtn.kyraCustomizationTabBtnActive .sapMBtnInner,
+#accessCustomizationSubTabBar .sapMBtn[data-active="true"] .sapMBtnInner,
+#accessCustomizationSubTabBar .sapMBtn.sapMBtnEmphasized .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #007684 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(0, 140, 156, 0.25) !important;
+    transform: none !important;
+}
+
+.kyraCustomizationTabBtnActive .sapMBtnContent,
+.kyraCustomizationTabBtnActive bdi,
+.kyraCustomizationTabBtnActive .sapMBtnCustomText,
+.kyraCustomizationTabBtnActive .sapMBtnInner .sapMBtnContent,
+.kyraCustomizationTabBtn[data-active="true"] bdi,
+.kyraCustomizationTabBtn[data-active="true"] .sapMBtnContent,
+.kyraCustomizationTabBtn.sapMBtnEmphasized bdi,
+.kyraCustomizationTabBtn.sapMBtnEmphasized .sapMBtnContent,
+.kyraAccessCustomizationTabBar .sapMBtn.kyraCustomizationTabBtnActive bdi,
+.kyraAccessCustomizationTabBar .sapMBtn[data-active="true"] bdi,
+.kyraAccessCustomizationTabBar .sapMBtn.sapMBtnEmphasized bdi,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.kyraCustomizationTabBtnActive bdi,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn[data-active="true"] bdi,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.sapMBtnEmphasized bdi,
+#accessCustomizationSubTabBar .sapMBtn.kyraCustomizationTabBtnActive bdi,
+#accessCustomizationSubTabBar .sapMBtn[data-active="true"] bdi,
+#accessCustomizationSubTabBar .sapMBtn.sapMBtnEmphasized bdi {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+.kyraCustomizationTabBtnActive .sapUiIcon,
+.kyraCustomizationTabBtnActive .sapMBtnIcon,
+.kyraCustomizationTabBtn[data-active="true"] .sapUiIcon,
+.kyraCustomizationTabBtn[data-active="true"] .sapMBtnIcon,
+.kyraCustomizationTabBtn.sapMBtnEmphasized .sapUiIcon,
+.kyraCustomizationTabBtn.sapMBtnEmphasized .sapMBtnIcon,
+.kyraAccessCustomizationTabBar .sapMBtn.kyraCustomizationTabBtnActive .sapUiIcon,
+.kyraAccessCustomizationTabBar .sapMBtn[data-active="true"] .sapUiIcon,
+.kyraAccessCustomizationTabBar .sapMBtn.sapMBtnEmphasized .sapUiIcon,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.kyraCustomizationTabBtnActive .sapUiIcon,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn[data-active="true"] .sapUiIcon,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.sapMBtnEmphasized .sapUiIcon,
+#accessCustomizationSubTabBar .sapMBtn.kyraCustomizationTabBtnActive .sapUiIcon,
+#accessCustomizationSubTabBar .sapMBtn[data-active="true"] .sapUiIcon,
+#accessCustomizationSubTabBar .sapMBtn.sapMBtnEmphasized .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    flex-shrink: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Active Hover State */
+.kyraCustomizationTabBtnActive:hover .sapMBtnInner,
+.kyraCustomizationTabBtnActive.sapMBtn:hover .sapMBtnInner,
+.kyraAccessCustomizationTabBar .sapMBtn.kyraCustomizationTabBtnActive:hover .sapMBtnInner,
+html body [id$="accessCustomizationSubTabBar"] .sapMBtn.kyraCustomizationTabBtnActive:hover .sapMBtnInner,
+#accessCustomizationSubTabBar .sapMBtn.kyraCustomizationTabBtnActive:hover .sapMBtnInner {
+    background: #007684 !important;
+    background-color: #007684 !important;
+}
+
+/* Ensure focus outline doesn't look blue or misaligned */
+.kyraCustomizationTabBtn:focus,
+.kyraCustomizationTabBtn .sapMBtnInner:focus,
+#accessCustomizationSubTabBar .sapMBtn:focus,
+#accessCustomizationSubTabBar .sapMBtn .sapMBtnInner:focus {
+    outline: none !important;
+}
+
+/* ========================================================================= */
+/* UNIFIED WHITE CARD & TWO-COLUMN SIDE-BY-SIDE SPLIT (MATCHING IMAGE)       */
+/* ========================================================================= */
+.kyraAdminUnifiedServiceCard {
+    padding: 20px 24px !important;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.kyraAdminUnifiedServiceCard .kyraAdminBottomSplitRow,
+.kyraAdminUnifiedServiceRow {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Header line on both left & right: exact same 38px height & vertical center */
+.kyraAdminHeaderLine,
+.sapMFlexBox.kyraAdminHeaderLine {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    margin-bottom: 16px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
 }
 
-.kyraCustomizationTabBtn,
-.kyraCustomizationTabBtn.sapMBtn,
-html body .sapUiTheme-sap_horizon .kyraCustomizationTabBtn.sapMBtn {
-    background: #3B82F6 !important;
-    background-color: #3B82F6 !important;
-    border: 1px solid #2563EB !important;
-    border-radius: 8px !important;
-    color: #FFFFFF !important;
+.kyraAdminHeaderLine .kyraAdminCardTitle {
+    margin: 0 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    line-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+}
+
+/* Left panel and right panel proportions */
+.kyraAdminServiceLeftPanel {
+    width: calc(50% - 16px) !important;
+    max-width: calc(50% - 16px) !important;
+    flex: 0 0 calc(50% - 16px) !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+}
+
+/* Center vertical divider between two columns */
+.kyraAdminServiceVerticalDivider {
+    width: 1px !important;
+    min-width: 1px !important;
+    max-width: 1px !important;
+    background: #E2E8F0 !important;
+    background-color: #E2E8F0 !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraAdminServiceRightPanel {
+    width: calc(50% - 16px) !important;
+    max-width: calc(50% - 16px) !important;
+    flex: 0 0 calc(50% - 16px) !important;
+    padding-left: 16px !important;
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Table Container Box & Header */
+#adminBusinessSectorsTable,
+div[id$="adminBusinessSectorsTable"],
+.sapMTable#adminBusinessSectorsTable,
+.kyraAdminServiceTable {
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+#adminBusinessSectorsTable table,
+div[id$="adminBusinessSectorsTable"] table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+}
+
+#adminBusinessSectorsTable th,
+div[id$="adminBusinessSectorsTable"] th {
+    height: 42px !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    border-top: none !important;
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminColHeader {
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    color: #64748B !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminTableRow {
+    height: 52px !important;
+    min-height: 52px !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+}
+
+#adminBusinessSectorsTable tr:last-child td,
+div[id$="adminBusinessSectorsTable"] tr:last-child td {
+    border-bottom: none !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminTableRow:hover {
+    background-color: #F8FAFC !important;
+}
+
+#adminBusinessSectorsTable td {
+    padding: 0 16px !important;
+    vertical-align: middle !important;
+}
+
+#adminBusinessSectorsTable td .kyraAdminCellBold {
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    color: #1E293B !important;
+}
+
+/* Status Pill in Table */
+#adminBusinessSectorsTable .kyraAdminStatusPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    background: #E6F7F7 !important;
+    background-color: #E6F7F7 !important;
+    border-radius: 9999px !important;
+    padding: 4px 12px !important;
+    margin: 0 auto !important;
+    border: 1px solid #99D5CB !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminStatusPill .kyraAdminVectorDot {
+    background-color: #008C9C !important;
+    background: #008C9C !important;
+    border-radius: 50% !important;
+    width: 6px !important;
+    height: 6px !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminStatusPill .kyraAdminPillText {
+    color: #008C9C !important;
+    font-size: 12px !important;
     font-weight: 600 !important;
-    font-size: 14.5px !important;
-    letter-spacing: 0.2px !important;
-    padding: 0 20px !important;
-    height: 44px !important;
-    min-width: 130px !important;
-    flex: 1 !important;
-    cursor: pointer !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25) !important;
+    line-height: 1 !important;
 }
 
-.kyraCustomizationTabBtn .sapMBtnInner,
-.kyraCustomizationTabBtn.sapMBtn .sapMBtnInner {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    height: 100% !important;
+/* Action Buttons in Table */
+#adminBusinessSectorsTable .kyraAdminRowActionGroup {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin: 0 auto !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminSystemEditBtn,
+#adminBusinessSectorsTable .kyraAdminSystemDeleteBtn {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#adminBusinessSectorsTable .kyraAdminSystemEditBtn .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: 1px solid #007684 !important;
+    border-radius: 6px !important;
+    width: 32px !important;
+    height: 32px !important;
     padding: 0 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
-.kyraCustomizationTabBtn .sapMBtnContent,
-.kyraCustomizationTabBtn .sapMBtnCustomText,
-.kyraCustomizationTabBtn .sapMBtnIcon,
-.kyraCustomizationTabBtn .sapMBtnInner .sapMBtnContent {
+#adminBusinessSectorsTable .kyraAdminSystemEditBtn .sapUiIcon {
     color: #FFFFFF !important;
-    font-weight: 600 !important;
-    font-size: 14.5px !important;
-    line-height: 42px !important;
+    font-size: 13px !important;
 }
 
-.kyraCustomizationTabBtn:hover,
-.kyraCustomizationTabBtn.sapMBtn:hover {
-    background: #2563EB !important;
-    background-color: #2563EB !important;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4) !important;
-    transform: translateY(-1px) !important;
+#adminBusinessSectorsTable .kyraAdminSystemDeleteBtn .sapMBtnInner {
+    background: #FFF1F2 !important;
+    background-color: #FFF1F2 !important;
+    border: 1px solid #FECDD3 !important;
+    border-radius: 6px !important;
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* Active tab state */
-.kyraCustomizationTabBtnActive,
-.kyraCustomizationTabBtnActive.sapMBtn,
-html body .sapUiTheme-sap_horizon .kyraCustomizationTabBtnActive.sapMBtn {
-    background: #1D4ED8 !important;
-    background-color: #1D4ED8 !important;
-    border: 2px solid #FFFFFF !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.55), 0 4px 12px rgba(29, 78, 216, 0.5) !important;
+#adminBusinessSectorsTable .kyraAdminSystemDeleteBtn .sapUiIcon {
+    color: #EF4444 !important;
+    font-size: 13px !important;
 }
 
-.kyraCustomizationTabBtnActive .sapMBtnContent,
-.kyraCustomizationTabBtnActive .sapMBtnCustomText,
-.kyraCustomizationTabBtnActive .sapMBtnInner .sapMBtnContent {
+/* Clean Dashed Placeholder Box in Right Panel */
+.kyraAdminNoServicePlaceholder {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px dashed #CBD5E1 !important;
+    border-radius: 12px !important;
+    padding: 40px 24px !important;
+    min-height: 220px !important;
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+}
+
+.kyraAdminNoServicePlaceholder .sapUiIcon {
+    color: #94A3B8 !important;
+}
+
+.kyraAdminPlaceholderTitle {
+    font-size: 15px !important;
     font-weight: 700 !important;
+    color: #0F172A !important;
+    margin-top: 14px !important;
+    margin-bottom: 6px !important;
+}
+
+.kyraAdminPlaceholderSubtitle {
+    font-size: 13px !important;
+    color: #64748B !important;
+    max-width: 420px !important;
+    text-align: center !important;
+    line-height: 1.5 !important;
 }
