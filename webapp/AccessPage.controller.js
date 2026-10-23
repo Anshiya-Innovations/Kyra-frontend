@@ -14368,6 +14368,37 @@ sap.ui.define([
                 }
             });
 
+            // Auto-upgrade legacy generic CF Space personas for redis-cache and postgresql-db
+            Object.keys(oCleanMap).forEach(sKey => {
+                const sKeyLower = sKey.toLowerCase();
+                const aTeams = oCleanMap[sKey] || [];
+                if (sKeyLower.includes("redis-cache")) {
+                    aTeams.forEach(t => {
+                        if (t && t.name === "SpaceDeveloper_Cache" && Array.isArray(t.subClassifications)) {
+                            t.subClassifications.forEach(p => {
+                                if (p && p.name === "SpaceDeveloper (CF Space)") p.name = "SpaceDeveloper_Cache (CF Space)";
+                            });
+                        } else if (t && t.name === "SpaceSupporter_Cache" && Array.isArray(t.subClassifications)) {
+                            t.subClassifications.forEach(p => {
+                                if (p && p.name === "SpaceSupporter (CF Space)") p.name = "SpaceSupporter_Cache (CF Space)";
+                            });
+                        }
+                    });
+                } else if (sKeyLower.includes("postgresql-db")) {
+                    aTeams.forEach(t => {
+                        if (t && t.name === "SpaceDeveloper_DB" && Array.isArray(t.subClassifications)) {
+                            t.subClassifications.forEach(p => {
+                                if (p && p.name === "SpaceDeveloper (CF Space)") p.name = "SpaceDeveloper_DB (CF Space)";
+                            });
+                        } else if (t && t.name === "SpaceSupporter_DB" && Array.isArray(t.subClassifications)) {
+                            t.subClassifications.forEach(p => {
+                                if (p && p.name === "SpaceSupporter (CF Space)") p.name = "SpaceSupporter_DB (CF Space)";
+                            });
+                        }
+                    });
+                }
+            });
+
             // Ensure every service from oDefaultMap is present in oCleanMap
             Object.keys(oDefaultMap).forEach(sKey => {
                 if (!oCleanMap[sKey] || !Array.isArray(oCleanMap[sKey]) || oCleanMap[sKey].length === 0) {
@@ -14781,7 +14812,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SpaceDeveloper_DB (CF Space)", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -14789,7 +14820,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SpaceSupporter (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
+        { name: "SpaceSupporter_DB (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -14799,7 +14830,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SpaceDeveloper_Cache (CF Space)", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -14807,7 +14838,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SpaceSupporter (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
+        { name: "SpaceSupporter_Cache (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
