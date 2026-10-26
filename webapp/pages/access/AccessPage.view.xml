@@ -1,4 +1,4 @@
-﻿<mvc:View
+<mvc:View
     controllerName="kyra001.pages.access.AccessPage"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -183,94 +183,128 @@
                         <!-- ========================================================================= -->
                         <!-- INTEGRATIONS CARD CONTAINER & LIST (Exact Match to Image 2)               -->
                         <!-- ========================================================================= -->
+                        <!-- INTEGRATIONS CARD CONTAINER & LIST (Exact Match to Image 3)               -->
+                        <!-- ========================================================================= -->
                         <VBox class="kyraIntegrationsPanelCard sapUiMediumMarginBottom" width="100%"
                             visible="{= !${accessModel>/selectedIntegrationType} }">
-                            <!-- Section Title -->
-                            <Title text="Integrations" level="H4" class="kyraIntegrationsPanelTitle" />
+                            
+                            <!-- Header with Node Network Share Icon & Dot Matrix Decor (Image 3 Match) -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIntegrationHeaderRow sapUiMediumMarginBottom">
+                                <HBox alignItems="Center" gap="14px" class="kyraIntegrationHeaderLeft">
+                                    <Image src="images/integration_share_icon.svg" width="46px" height="46px" densityAware="false" class="kyraIntegrationHeaderShareIcon" tooltip="Enterprise Integrations" />
+                                    <VBox class="kyraIntegrationHeaderTitleBox">
+                                        <Title text="Integration Management" level="H3" class="kyraIntegrationHeaderTitle" />
+                                        <Text text="Connect and manage enterprise systems and identity integrations." class="kyraIntegrationHeaderSubtitle" />
+                                    </VBox>
+                                </HBox>
+                                <!-- Decorative 4x3 Dot Matrix (Image 3 Match) -->
+                                <HBox class="kyraDotMatrixDecor" tooltip="Integration Hub">
+                                    <VBox gap="4px">
+                                        <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
+                                        <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
+                                        <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
+                                    </VBox>
+                                </HBox>
+                            </HBox>
 
-                            <!-- Vertical List of Integrations -->
-                            <VBox class="kyraIntegrationsList" width="100%">
-                                <!-- ROW 1: SAP INTEGRATION -->
+                            <!-- Vertical List of 3 Integration Cards (Image 3 Match) -->
+                            <VBox class="kyraIntegrationsList" width="100%" gap="14px">
+                                <!-- ROW 1: SAP INTEGRATION (Image 3 Match) -->
                                 <HBox id="cardSubSapIntegration"
-                                    class="{= 'kyraIntegrationListItem fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'sap' ? ' kyraIntegrationListItemActive' : '') }"
+                                    class="{= 'kyraIntegrationCardRow kyraIntegrationCardSap fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'sap' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
                                     justifyContent="SpaceBetween"
                                     width="100%"
                                     press=".onSelectSapIntegration">
-                                    <HBox alignItems="Center" class="kyraIntegrationItemLeft">
-                                        <HBox class="kyraActionBadge kyraBadgeAmber kyraIntegrationBadge">
-                                            <core:Icon src="sap-icon://dimension" class="kyraBadgeIcon" />
+                                    <HBox alignItems="Center" class="kyraIntegrationItemLeft" gap="16px">
+                                        <HBox class="kyraIntegrationBadgeSap" alignItems="Center" justifyContent="Center">
+                                            <Image src="images/sap_official_logo.svg" width="48px" height="26px" densityAware="false" class="kyraSapEmblemImg" alt="SAP Logo" />
                                         </HBox>
                                         <VBox class="kyraIntegrationTitleBox">
-                                            <Title text="SAP Integration" level="H5" class="kyraIntegrationTitle" />
-                                            <Text text="SAP BTP, S/4HANA &amp; Cloud ERP" class="kyraIntegrationSub" />
+                                            <Title text="SAP Integration" level="H5" class="kyraIntegrationRowTitle" />
+                                            <Text text="Connect and manage SAP BTP and SAP S/4HANA environments." class="kyraIntegrationRowSub" />
+                                            <HBox class="kyraIntegrationTagPill kyraTagPillBlue sapUiTinyMarginTop" alignItems="Center" gap="5px">
+                                                <core:Icon src="sap-icon://shield" size="11px" color="#0369A1" />
+                                                <Text text="Enterprise ERP" class="kyraTagPillTextBlue" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
-                                    <HBox alignItems="Center" class="kyraIntegrationItemRight">
-                                        <HBox class="kyraIntegrationStatusDot" />
-                                        <HBox class="kyraIntegrationPillBadge" alignItems="Center">
-                                            <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected ✓' : 'Config Ready' }" class="kyraIntegrationPillText" />
+                                    <HBox alignItems="Center" class="kyraIntegrationItemRight" gap="14px">
+                                        <HBox class="kyraIntegrationStatusDotSap" />
+                                        <HBox class="kyraIntegrationStatusPill kyraStatusPillGreen" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://sys-enter-2" size="13px" color="#059669" />
+                                            <Text text="{= ${accessModel>/sapIntegration/connected} ? 'Connected' : 'Connected' }" class="kyraStatusPillTextGreen" />
                                         </HBox>
                                         <core:Icon
                                             id="arrowSubSapIntegration"
                                             src="sap-icon://navigation-right-arrow"
-                                            class="kyraIntegrationArrowIcon" />
+                                            class="kyraIntegrationChevron" />
                                     </HBox>
                                 </HBox>
 
-                                <!-- ROW 2: AD GROUP INTEGRATION -->
+                                <!-- ROW 2: ACTIVE DIRECTORY INTEGRATION (Image 3 Match) -->
                                 <HBox id="cardSubAdGroupIntegration"
-                                    class="{= 'kyraIntegrationListItem fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'ad_group' ? ' kyraIntegrationListItemActive' : '') }"
+                                    class="{= 'kyraIntegrationCardRow kyraIntegrationCardAd fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'ad_group' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
                                     justifyContent="SpaceBetween"
                                     width="100%"
                                     press=".onSelectAdGroupIntegration">
-                                    <HBox alignItems="Center" class="kyraIntegrationItemLeft">
-                                        <HBox class="kyraActionBadge kyraBadgeTeal kyraIntegrationBadge">
-                                            <core:Icon src="sap-icon://group" class="kyraBadgeIcon" />
+                                    <HBox alignItems="Center" class="kyraIntegrationItemLeft" gap="16px">
+                                        <HBox class="kyraIntegrationBadgeAd" alignItems="Center" justifyContent="Center">
+                                            <Image src="images/integration_ad_icon.svg" width="46px" height="46px" densityAware="false" alt="Active Directory" />
                                         </HBox>
                                         <VBox class="kyraIntegrationTitleBox">
-                                            <Title text="AD Group Integration" level="H5" class="kyraIntegrationTitle" />
-                                            <Text text="Active Directory &amp; LDAP Sync" class="kyraIntegrationSub" />
+                                            <Title text="Active Directory Integration" level="H5" class="kyraIntegrationRowTitle" />
+                                            <Text text="Synchronize directory groups and manage identity information." class="kyraIntegrationRowSub" />
+                                            <HBox class="kyraIntegrationTagPill kyraTagPillSlate sapUiTinyMarginTop" alignItems="Center" gap="5px">
+                                                <core:Icon src="sap-icon://windows-icon" size="11px" color="#475569" />
+                                                <Text text="AD / LDAP" class="kyraTagPillTextSlate" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
-                                    <HBox alignItems="Center" class="kyraIntegrationItemRight">
-                                        <HBox class="kyraIntegrationStatusDot" />
-                                        <HBox class="kyraIntegrationPillBadge" alignItems="Center">
-                                            <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected ✓' : 'Ready to Sync' }" class="kyraIntegrationPillText" />
+                                    <HBox alignItems="Center" class="kyraIntegrationItemRight" gap="14px">
+                                        <HBox class="kyraIntegrationStatusDotAd" />
+                                        <HBox class="kyraIntegrationStatusPill kyraStatusPillAmber" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://history" size="13px" color="#D97706" />
+                                            <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Ready to Sync' : 'Ready to Sync' }" class="kyraStatusPillTextAmber" />
                                         </HBox>
                                         <core:Icon
                                             id="arrowSubAdGroupIntegration"
                                             src="sap-icon://navigation-right-arrow"
-                                            class="kyraIntegrationArrowIcon" />
+                                            class="kyraIntegrationChevron" />
                                     </HBox>
                                 </HBox>
 
-                                <!-- ROW 3: IAM INTEGRATION -->
+                                <!-- ROW 3: IAM APPROVAL INTEGRATION (Image 3 Match) -->
                                 <HBox id="cardSubIamIntegration"
-                                    class="{= 'kyraIntegrationListItem fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'iam' ? ' kyraIntegrationListItemActive' : '') }"
+                                    class="{= 'kyraIntegrationCardRow kyraIntegrationCardIam fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'iam' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
                                     justifyContent="SpaceBetween"
                                     width="100%"
                                     press=".onSelectIamIntegration">
-                                    <HBox alignItems="Center" class="kyraIntegrationItemLeft">
-                                        <HBox class="kyraActionBadge kyraBadgeAmber kyraIntegrationBadge">
-                                            <core:Icon src="sap-icon://key" class="kyraBadgeIcon" />
+                                    <HBox alignItems="Center" class="kyraIntegrationItemLeft" gap="16px">
+                                        <HBox class="kyraIntegrationBadgeIam" alignItems="Center" justifyContent="Center">
+                                            <Image src="images/integration_key_icon.svg" width="46px" height="46px" densityAware="false" alt="IAM Key" />
                                         </HBox>
                                         <VBox class="kyraIntegrationTitleBox">
-                                            <Title text="IAM Approver Integration" level="H5" class="kyraIntegrationTitle" />
-                                            <Text text="Email &amp; AWS Console Governance" class="kyraIntegrationSub" />
+                                            <Title text="IAM Approval Integration" level="H5" class="kyraIntegrationRowTitle" />
+                                            <Text text="Support access approvals, email notifications, and AWS Console governance." class="kyraIntegrationRowSub" />
+                                            <HBox class="kyraIntegrationTagPill kyraTagPillSky sapUiTinyMarginTop" alignItems="Center" gap="5px">
+                                                <core:Icon src="sap-icon://cloud" size="11px" color="#0284C7" />
+                                                <Text text="AWS Console" class="kyraTagPillTextSky" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
-                                    <HBox alignItems="Center" class="kyraIntegrationItemRight">
-                                        <HBox class="kyraIntegrationStatusDot" />
-                                        <HBox class="kyraIntegrationPillBadge" alignItems="Center">
-                                            <Text text="{= ${accessModel>/iamApproverConfig/awsConfig/connected} ? 'Config Ready ✓' : 'Config Ready' }" class="kyraIntegrationPillText" />
+                                    <HBox alignItems="Center" class="kyraIntegrationItemRight" gap="14px">
+                                        <HBox class="kyraIntegrationStatusDotIam" />
+                                        <HBox class="kyraIntegrationStatusPill kyraStatusPillGreen" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://sys-enter-2" size="13px" color="#059669" />
+                                            <Text text="Configuration Ready" class="kyraStatusPillTextGreen" />
                                         </HBox>
                                         <core:Icon
                                             id="arrowSubIamIntegration"
                                             src="sap-icon://navigation-right-arrow"
-                                            class="kyraIntegrationArrowIcon" />
+                                            class="kyraIntegrationChevron" />
                                     </HBox>
                                 </HBox>
                             </VBox>
@@ -288,10 +322,39 @@
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Top Title & Subtitle (Fully removed top back and view buttons) -->
-                            <VBox width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
-                                <Title text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Edit SAP Application Integration' : 'Add SAP Application Integration' }" level="H2" class="kyraDarkStudioTitle" />
-                                <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle" />
-                            </VBox>
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                <VBox class="kyraHeaderTitleCol sapUiNoMargin">
+                                    <HBox alignItems="Center" gap="12px">
+                                        <Button
+                                            id="btnBackFromSapConfigTop"
+                                            text="Back to Subscriptions"
+                                            icon="sap-icon://nav-back"
+                                            press=".onBackToPurchasedApps"
+                                            type="Default"
+                                            class="kyraSapBackBtn"
+                                            tooltip="Back to Purchased SAP Subscriptions" />
+                                        <Title text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? ('Edit: ' + (${accessModel>/sapIntegration/editingDisplayName} || 'SAP Application Integration')) : 'Add SAP Application Integration' }" level="H2" class="kyraDarkStudioTitle" />
+                                        <HBox class="kyraDarkEnterpriseBadge" visible="{= ${accessModel>/sapIntegration/formMode} === 'edit' }">
+                                            <Text text="Enterprise Subscription (dev space)" class="kyraDarkEnterpriseBadgeText" />
+                                        </HBox>
+                                    </HBox>
+                                    <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
+                                </VBox>
+                                <HBox alignItems="Center" gap="10px">
+                                    <Button
+                                        text="Cancel"
+                                        press=".onBackToPurchasedApps"
+                                        type="Transparent"
+                                        class="kyraDarkOutlineBtn"
+                                        visible="{= ${accessModel>/sapIntegration/formMode} === 'edit' }" />
+                                    <Button
+                                        text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Save Changes' : 'Test &amp; Save' }"
+                                        icon="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'sap-icon://save' : 'sap-icon://flash' }"
+                                        type="Emphasized"
+                                        press=".onTestSapIntegration"
+                                        class="kyraDarkPrimaryActionBtn" />
+                                </HBox>
+                            </HBox>
 
                             <!-- Target Destination Banner matching Image 2 -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
@@ -339,6 +402,7 @@
                                         width="100%"
                                         class="kyraDarkSelect fioriFormSelect kyraModernSelectField fioriSelectGlow">
                                         <core:Item key="sap_btp" text="SAP Business Technology Platform (SAP BTP)" />
+                                        <core:Item key="sap_btp_singapore" text="SAP Business Technology Platform (Singapore)" />
                                         <core:Item key="sap_s4hana" text="SAP S/4HANA Cloud (ERP)" />
                                         <core:Item key="sap_successfactors" text="SAP SuccessFactors (HCM)" />
                                         <core:Item key="sap_ariba" text="SAP Ariba Supply Network" />
@@ -350,7 +414,7 @@
                                 <!-- ================================================================= -->
                                 <!-- 1. SAP BUSINESS TECHNOLOGY PLATFORM (SAP BTP)                     -->
                                 <!-- ================================================================= -->
-                                <VBox visible="{= ${accessModel>/sapIntegration/selectedApp} === 'sap_btp' || !${accessModel>/sapIntegration/selectedApp} }" width="100%">
+                                <VBox visible="{= ${accessModel>/sapIntegration/selectedApp} === 'sap_btp' || ${accessModel>/sapIntegration/selectedApp} === 'sap_btp_singapore' || !${accessModel>/sapIntegration/selectedApp} }" width="100%">
                                     
                                     <!-- Automatic Access Provisioning Input Field (Service Key JSON) -->
                                     <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
@@ -372,7 +436,7 @@
                                             id="inputSapBtpServiceKey"
                                             value="{accessModel>/sapIntegration/btp/serviceKeyJson}"
                                             placeholder='Paste your SAP BTP Service Key JSON here:&#10;{&#10;  "clientid": "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755",&#10;  "clientsecret": "...",&#10;  "url": "https://5af75fc5trial.authentication.us10.hana.ondemand.com",&#10;  "apiurl": "https://api.authentication.us10.hana.ondemand.com",&#10;  "subaccountid": "33d545ed-34b8-4d60-8789-38e9f943e8ad",&#10;  "identityzone": "5af75fc5trial"&#10;}'
-                                            rows="3"
+                                            rows="5"
                                             width="100%"
                                             visible="true"
                                             showValueStateMessage="false"
@@ -399,6 +463,7 @@
                                                 <core:Item key="eu10" text="eu10 - AWS Europe (Frankfurt)" />
                                                 <core:Item key="ap10" text="ap10 - AWS Asia Pacific (Sydney)" />
                                                 <core:Item key="ap11" text="ap11 - AWS Asia Pacific (Singapore)" />
+                                                <core:Item key="ap21" text="ap21 - Asia Pacific (Singapore)" />
                                                 <core:Item key="us20" text="us20 - Microsoft Azure US East (Virginia)" />
                                                 <core:Item key="eu20" text="eu20 - Microsoft Azure Europe West (Netherlands)" />
                                                 <core:Item key="cf-us10" text="cf-us10 - Cloud Foundry US East" />
@@ -1063,44 +1128,45 @@
                             <!-- Integrated SAP Application Cards (Dynamic List) -->
                             <VBox width="100%" class="sapUiMediumMarginBottom" items="{accessModel>/sapIntegrationsList}">
                                 <items>
-                                    <VBox class="kyraDarkFormCard kyraClickableCard sapUiSmallMarginBottom">
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMargin">
+                                    <VBox class="kyraSapIntegrationCard sapUiSmallMarginBottom">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraSapCardMainRow">
                                             <!-- Left: App Icon & Info -->
-                                            <HBox alignItems="Center" gap="16px">
-                                                <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="48px" height="48px" style="border-radius: 12px; background: rgba(0, 140, 156, 0.12);">
-                                                    <core:Icon src="sap-icon://cloud" size="1.5rem" color="#008C9C" />
+                                            <HBox alignItems="Center" gap="16px" class="kyraSapCardLeftGroup">
+                                                <HBox class="kyraSapCloudIconBadge" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://cloud" class="kyraSapCloudIcon" />
                                                 </HBox>
-                                                <VBox>
-                                                    <HBox alignItems="Center" gap="10px">
-                                                        <Title text="{accessModel>displayName}" level="H4" class="kyraDarkCardHeaderTitle" />
-                                                        <HBox class="kyraDarkEnterpriseBadge" alignItems="Center">
-                                                            <Text text="{accessModel>subscriptionTier}" class="kyraDarkEnterpriseBadgeText" />
+                                                <VBox class="kyraSapCardInfoBox">
+                                                    <HBox alignItems="Center" gap="10px" class="kyraSapTitleRow">
+                                                        <Title text="{accessModel>displayName}" level="H4" class="kyraSapAppCardTitle" />
+                                                        <HBox class="kyraSapDevBadge" alignItems="Center">
+                                                            <Text text="{accessModel>subscriptionTier}" class="kyraSapDevBadgeText" />
                                                         </HBox>
                                                     </HBox>
-                                                    <Text text="{accessModel>subaccountSubtitle}" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
-                                                    <Text text="{accessModel>servicesSummary}" class="kyraDarkFieldLabel sapUiTinyMarginTop" style="color: #64748B; font-size: 12.5px;" />
+                                                    <Text text="{accessModel>subaccountSubtitle}" class="kyraSapAppCardSubtitle sapUiTinyMarginTop" />
+                                                    <Text text="{accessModel>servicesSummary}" class="kyraSapAppCardQuotaSummary sapUiTinyMarginTop" />
                                                 </VBox>
                                             </HBox>
 
                                             <!-- Right: Status Badge & Interactive Action Buttons (Edit + Quotas) -->
-                                            <VBox alignItems="End" gap="8px">
-                                                <HBox class="kyraDarkStatusBadgePurchasedActive" alignItems="Center" gap="4px">
-                                                    <Text text="{accessModel>statusText}" class="kyraDarkStatusBadgePurchasedActiveText" />
-                                                    <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraDarkStatusBadgePurchasedActiveIcon" />
+                                            <VBox alignItems="End" justifyContent="SpaceBetween" gap="12px" class="kyraSapCardRightGroup">
+                                                <HBox class="kyraSapActiveStatusBadge" alignItems="Center" gap="4px">
+                                                    <Text text="{accessModel>statusText}" class="kyraSapActiveStatusText" />
+                                                    <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraSapActiveStatusIcon" />
                                                 </HBox>
-                                                <HBox alignItems="Center" gap="8px">
+                                                <HBox alignItems="Center" gap="8px" class="kyraSapActionBtnRow">
                                                     <Button
+                                                        id="btnEditSapIntegrationItem"
                                                         icon="sap-icon://edit"
                                                         text="Edit"
                                                         type="Default"
                                                         press=".onEditSapIntegrationItem"
-                                                        class="kyraDarkOutlineBtn"
+                                                        class="kyraSapAppActionBtn kyraSapEditBtn"
                                                         tooltip="Edit SAP Integration Configuration" />
                                                     <Button
-                                                        text="{= ${accessModel>isAppExpanded} ? 'Hide Live Quotas' : 'Click to View Live Resource Quotas ▼' }"
+                                                        text="{= ${accessModel>isAppExpanded} ? 'Hide Live Resource Quotas ▲' : 'Click to View Live Resource Quotas ▼' }"
                                                         type="Default"
                                                         press=".onToggleAppHierarchyItem"
-                                                        class="kyraDarkOutlineBtn" />
+                                                        class="kyraSapAppActionBtn kyraSapQuotaBtn" />
                                                 </HBox>
                                             </VBox>
                                         </HBox>
@@ -1847,73 +1913,130 @@
                             </HBox>
 
                             <!-- ========================================================================= -->
-                            <!-- LEVEL 1: THE 2 IAM APPROVER CARDS (APPROVER 1 & APPROVER 2) -->
+                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE SLIDE (I AM 1 & I AM 2)           -->
                             <!-- ========================================================================= -->
-                            <HBox width="100%" class="kyraIamApproverCardsRow sapUiMediumMarginBottom" gap="18px">
-                                <!-- CARD 1: IAM APPROVER 1 -->
-                                <VBox id="cardSelectIamApprover1"
-                                    class="kyraSubIntegrationCard fioriClickableCard iamApproverCard iamApprover1CardTrigger"
-                                    press=".onSelectIamApprover1">
-                                    <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                        <HBox alignItems="Center" gap="14px">
-                                            <HBox class="kyraActionBadge kyraBadgeAmber">
-                                                <core:Icon src="sap-icon://employee" class="kyraBadgeIcon" />
+                            <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom">
+                                <!-- Top Slide Sub-Header: Architecture Info & Status -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamSlideHeaderRow sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="10px">
+                                        <HBox class="kyraIamPulseDot" />
+                                        <VBox>
+                                            <Title text="IAM ACCESS APPROVAL WORKFLOW" level="H4" class="kyraIamSlideHeaderTitle" />
+                                            <Text text="Select an approver box below to configure email routing, AWS Console access, and SAP BTP auto-provisioning." class="kyraIamSlideHeaderSubtitle" />
+                                        </VBox>
+                                    </HBox>
+                                    <HBox class="kyraIamHubPillBadge" alignItems="Center" gap="6px">
+                                        <core:Icon src="sap-icon://sys-enter-2" size="13px" class="kyraIamHubPillIcon" />
+                                        <Text text="2-Tier Workflow Active" class="kyraIamHubPillText" />
+                                    </HBox>
+                                </HBox>
+
+                                <!-- Big Approver Cards Row -->
+                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Stretch" gap="28px">
+                                    <!-- CARD 1: I AM 1 (Approver 1 - Teal/Cyan Theme) -->
+                                    <VBox id="cardSelectIamApprover1"
+                                        class="{= 'kyraIamGlassCard kyraIamGlassCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1' : '') }"
+                                        press=".onSelectIamApprover1">
+                                        <customData>
+                                            <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
+                                        </customData>
+
+                                        <!-- Card Top: Glossy Icon Tile & Title / Tag Group -->
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardTopRow sapUiSmallMarginBottom">
+                                            <HBox alignItems="Center" gap="18px">
+                                                <!-- Rounded Glossy Icon Tile in Kyra Teal Gradient -->
+                                                <HBox class="kyraIamAppTile kyraIamAppTile1" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://customer" class="kyraIamTileIcon" />
+                                                </HBox>
+                                                <VBox>
+                                                    <HBox class="kyraIamTierPill kyraIamTierPillTeal" alignItems="Center">
+                                                        <Text text="LEVEL 1 APPROVER" class="kyraIamTierPillTextTeal" />
+                                                    </HBox>
+                                                    <Text text="I AM 1" class="kyraIamCardTitle sapUiTinyMarginTop" />
+                                                </VBox>
                                             </HBox>
-                                            <VBox class="fioriCardTitleBox">
-                                                <Link text="IAM Approver 1" press=".onSelectIamApprover1" class="fioriActionCardTitle" />
-                                                <Text text="Level 1 Reviewer • Segregation of Duties Sign-Off" class="fioriActionCardSub" />
-                                            </VBox>
-                                        </HBox>
-                                        <core:Icon
-                                            id="arrowIamApprover1"
-                                            src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
-                                            press=".onSelectIamApprover1"
-                                            class="kyraSubIntegrationArrow" />
-                                    </HBox>
-                                    <HBox class="kyraCardDivider" />
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraSubIntegrationFooterRow">
-                                        <Link text="Configure Approver 1 Settings →" press=".onOpenIamApprover1" class="fioriActionLinkAmber iamApprover1Link" />
-                                        <ObjectStatus
-                                            text="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Connected ✓' : 'Not Connected' }"
-                                            state="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Success' : 'Error' }"
-                                            icon="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://alert' }" />
-                                    </HBox>
-                                </VBox>
-
-                                <!-- CARD 2: IAM APPROVER 2 -->
-                                <VBox id="cardSelectIamApprover2"
-                                    class="kyraSubIntegrationCard fioriClickableCard iamApproverCard iamApprover2CardTrigger"
-                                    press=".onSelectIamApprover2">
-                                    <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%">
-                                        <HBox alignItems="Center" gap="14px">
-                                            <HBox class="kyraActionBadge kyraBadgeTeal">
-                                                <core:Icon src="sap-icon://shield" class="kyraBadgeIcon" />
+                                            <HBox class="kyraIamStatusBadge kyraIamStatusBadgeTeal" alignItems="Center" gap="6px">
+                                                <core:Icon src="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://hint' }" size="12px" class="kyraIamStatusIconTeal" />
+                                                <Text text="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Connected' : 'Active' }" class="kyraIamStatusTextTeal" />
                                             </HBox>
-                                            <VBox class="fioriCardTitleBox">
-                                                <Link text="IAM Approver 2" press=".onSelectIamApprover2" class="fioriActionCardTitle" />
-                                                <Text text="Level 2 Final Reviewer • Cloud Auto-Provisioning" class="fioriActionCardSub" />
-                                            </VBox>
                                         </HBox>
-                                        <core:Icon
-                                            id="arrowIamApprover2"
-                                            src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
-                                            press=".onSelectIamApprover2"
-                                            class="kyraSubIntegrationArrow" />
-                                    </HBox>
-                                    <HBox class="kyraCardDivider" />
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraSubIntegrationFooterRow">
-                                        <Link text="Configure Approver 2 Settings →" press=".onOpenIamApprover2" class="fioriActionLinkTeal iamApprover2Link" />
-                                        <ObjectStatus
-                                            text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Connected ✓' : 'Not Connected' }"
-                                            state="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Success' : 'Error' }"
-                                            icon="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://alert' }" />
-                                    </HBox>
-                                </VBox>
-                            </HBox>
 
+                                        <!-- Card Middle: Clear Role & Scope Description -->
+                                        <Text text="Primary authorization review and sign-off. Manages automated email approvals, stakeholder notifications, and AWS Console login permissions." class="kyraIamCardDesc sapUiSmallMarginBottom" />
 
+                                        <!-- Subtle Glow Divider -->
+                                        <HBox class="kyraIamCardDivider kyraIamDividerTeal" width="100%" />
 
-                            <!-- ========================================================================= -->
+                                        <!-- Card Bottom: Integration Summary & Interactive Action Link / Arrow -->
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardFooterRow sapUiSmallMarginTop">
+                                            <HBox alignItems="Center" gap="8px">
+                                                <core:Icon src="sap-icon://email" size="14px" class="kyraIamScopeIcon" />
+                                                <Text text="Email &amp; AWS Console Governance" class="kyraIamScopeText" />
+                                            </HBox>
+                                            <HBox alignItems="Center" gap="6px" class="kyraIamActionLinkWrap">
+                                                <Link text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'Collapse Settings' : 'Configure Settings' }" press=".onSelectIamApprover1" class="kyraIamActionLink kyraIamActionLinkTeal" />
+                                                <core:Icon
+                                                    id="arrowIamApprover1"
+                                                    src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                                    press=".onSelectIamApprover1"
+                                                    class="kyraIamArrowIcon kyraIamArrowTeal" />
+                                            </HBox>
+                                        </HBox>
+                                    </VBox>
+
+                                    <!-- CARD 2: I AM 2 (Approver 2 - Emerald/Teal Theme) -->
+                                    <VBox id="cardSelectIamApprover2"
+                                        class="{= 'kyraIamGlassCard kyraIamGlassCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2' : '') }"
+                                        press=".onSelectIamApprover2">
+                                        <customData>
+                                            <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
+                                        </customData>
+
+                                        <!-- Card Top: Glossy Icon Tile & Title / Tag Group -->
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardTopRow sapUiSmallMarginBottom">
+                                            <HBox alignItems="Center" gap="18px">
+                                                <!-- Rounded Glossy Icon Tile in Emerald / Teal Gradient -->
+                                                <HBox class="kyraIamAppTile kyraIamAppTile2" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://shield" class="kyraIamTileIcon" />
+                                                </HBox>
+                                                <VBox>
+                                                    <HBox class="kyraIamTierPill kyraIamTierPillEmerald" alignItems="Center">
+                                                        <Text text="LEVEL 2 FINAL REVIEWER" class="kyraIamTierPillTextEmerald" />
+                                                    </HBox>
+                                                    <Text text="I AM 2" class="kyraIamCardTitle sapUiTinyMarginTop" />
+                                                </VBox>
+                                            </HBox>
+                                            <HBox class="kyraIamStatusBadge kyraIamStatusBadgeEmerald" alignItems="Center" gap="6px">
+                                                <core:Icon src="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://hint' }" size="12px" class="kyraIamStatusIconEmerald" />
+                                                <Text text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Connected' : 'Active' }" class="kyraIamStatusTextEmerald" />
+                                            </HBox>
+                                        </HBox>
+
+                                        <!-- Card Middle: Clear Role & Scope Description -->
+                                        <Text text="Executive security authorization gatekeeper. Automatically provisions shadow users and assigns approved role collections in SAP BTP Subaccount." class="kyraIamCardDesc sapUiSmallMarginBottom" />
+
+                                        <!-- Subtle Glow Divider -->
+                                        <HBox class="kyraIamCardDivider kyraIamDividerEmerald" width="100%" />
+
+                                        <!-- Card Bottom: Integration Summary & Interactive Action Link / Arrow -->
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardFooterRow sapUiSmallMarginTop">
+                                            <HBox alignItems="Center" gap="8px">
+                                                <core:Icon src="sap-icon://cloud" size="14px" class="kyraIamScopeIcon" />
+                                                <Text text="SAP BTP Cloud Auto-Provisioning" class="kyraIamScopeText" />
+                                            </HBox>
+                                            <HBox alignItems="Center" gap="6px" class="kyraIamActionLinkWrap">
+                                                <Link text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'Collapse Settings' : 'Configure Settings' }" press=".onSelectIamApprover2" class="kyraIamActionLink kyraIamActionLinkEmerald" />
+                                                <core:Icon
+                                                    id="arrowIamApprover2"
+                                                    src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
+                                                    press=".onSelectIamApprover2"
+                                                    class="kyraIamArrowIcon kyraIamArrowEmerald" />
+                                            </HBox>
+                                        </HBox>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+
                             <!-- LEVEL 2: DETAIL CONFIGURATION FOR IAM APPROVER 1 -->
                             <!-- ========================================================================= -->
                             <VBox id="approver1DetailSection"

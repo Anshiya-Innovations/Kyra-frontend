@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="56" height="56">
+  <rect width="56" height="56" rx="14" fill="#FFEDD5" />
+  <!-- Diagonal Security Key in #EA580C -->
+  <g transform="translate(14, 14) rotate(-45 14 14)">
+    <!-- Key Head Circle -->
+    <circle cx="10" cy="14" r="7" fill="none" stroke="#EA580C" stroke-width="3.5" />
+    <!-- Key Hole -->
+    <circle cx="10" cy="14" r="2.5" fill="#EA580C" />
+    <!-- Key Shaft -->
+    <path d="M 17 14 L 30 14" stroke="#EA580C" stroke-width="3.5" stroke-linecap="round" />
+    <!-- Key Teeth -->
+    <path d="M 25 14 L 25 19 M 29 14 L 29 18" stroke="#EA580C" stroke-width="3" stroke-linecap="round" />
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="56" height="56">
+  <rect width="56" height="56" rx="14" fill="#CCFBF1" />
+  <!-- Two users silhouette in #0D9488 -->
+  <!-- Left/Front User -->
+  <circle cx="23" cy="22" r="6.5" fill="#0D9488" />
+  <path d="M 12 40 C 12 32, 17 32, 23 32 C 29 32, 34 32, 34 40 Z" fill="#0D9488" />
+  <!-- Right/Back User -->
+  <circle cx="36" cy="24" r="5.5" fill="#14B8A6" />
+  <path d="M 29 40 C 29 34, 33 34, 38 34 C 43 34, 46 35, 46 40 Z" fill="#14B8A6" />
+</svg>
