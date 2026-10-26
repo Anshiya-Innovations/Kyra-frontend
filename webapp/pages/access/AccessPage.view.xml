@@ -1248,14 +1248,15 @@
                                     id="btnBackFromPurchasedApps"
                                     text="Back"
                                     icon="sap-icon://nav-back"
+                                    type="Default"
                                     press=".onBackToIntegrationsList"
-                                    class="kyraAdminHeaderBackBtn" />
+                                    class="kyraSapBackBtn" />
                                 <Button
                                     text="Close Section"
                                     icon="sap-icon://decline"
                                     type="Default"
                                     press=".onCloseAdminSection"
-                                    class="kyraDarkOutlineBtn" />
+                                    class="kyraSapCloseBtn" />
                             </HBox>
 
                         </VBox>
@@ -1267,385 +1268,523 @@
                         <!-- ========================================================================= -->
                         <VBox id="adGroupIntegrationSubSection" visible="{= ${accessModel>/selectedIntegrationType} === 'ad_group' }" width="100%">
 
-                            <!-- PAGE 1: CONFIGURE AD GROUP INTEGRATION (SLIDE 1 - IMAGE 3) -->
-                            <VBox id="adGroupConfigContainer"
-                                visible="{= ${accessModel>/adGroupIntegration/currentStep} === 1 }"
+                            <!-- ===================================================================== -->
+                            <!-- SLIDE 1: DISCOVERED AD SECURITY GROUPS (FIRST SLIDE)                  -->
+                            <!-- ===================================================================== -->
+                            <VBox id="adGroupDiscoveredContainer"
+                                visible="{= ${accessModel>/adGroupIntegration/currentStep} === 1 || !${accessModel>/adGroupIntegration/currentStep} }"
                                 width="100%"
                                 class="kyraDarkStudioWrapper kyraSlideAnim">
 
-                            <!-- Top Title Block -->
-                            <VBox class="kyraDarkTitleBlock sapUiSmallMarginBottom">
-                                <Title text="Configure Active Directory (AD) Group Integration" level="H2" class="kyraDarkStudioTitle" />
-                                <Text text="Connect your enterprise Active Directory / Azure AD (Entra ID) domain, configure LDAP sync parameters, and map directory security groups to Kyra access roles." class="kyraDarkStudioSubtitle" />
+                                <!-- Top Title & Subtitle with Add Button -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                    <VBox class="kyraHeaderTitleCol sapUiNoMargin">
+                                        <Title text="Discovered Active Directory Security Groups" level="H2" class="kyraDarkStudioTitle" />
+                                        <Text text="Connected Active Directory Security Groups • Synchronized identity groups and automated user persona mappings across your enterprise directory." class="kyraDarkStudioSubtitle" />
+                                    </VBox>
+                                    <Button
+                                        id="btnAddAdIntegration"
+                                        text="Add"
+                                        icon="sap-icon://add"
+                                        type="Emphasized"
+                                        press=".onOpenAdConfig"
+                                        class="kyraDarkPrimaryActionBtn"
+                                        tooltip="Add New AD Integration / Security Group" />
+                                </HBox>
+
+                                <!-- Discovered AD Groups Preview Table -->
+                                <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                        <HBox alignItems="Center" gap="10px">
+                                            <core:Icon src="sap-icon://org-chart" class="kyraDarkCardHeaderIcon" />
+                                            <Title text="Discovered Active Directory Security Groups" level="H4" class="kyraDarkCardHeaderTitle" />
+                                        </HBox>
+                                    </HBox>
+
+                                    <Table
+                                        items="{accessModel>/adGroupIntegration/discoveredGroups}"
+                                        fixedLayout="true"
+                                        class="sapUiNoMargin kyraAdminCleanTable">
+                                        <columns>
+                                            <Column width="35%" hAlign="Begin"><Text text="AD Group Name" class="kyraAdminColHeader" /></Column>
+                                            <Column width="20%" hAlign="Begin"><Text text="Type / Scope" class="kyraAdminColHeader" /></Column>
+                                            <Column width="18%" hAlign="Begin"><Text text="Members" class="kyraAdminColHeader" /></Column>
+                                            <Column width="15%" hAlign="Begin"><Text text="Last Synced" class="kyraAdminColHeader" /></Column>
+                                            <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
+                                        </columns>
+                                        <items>
+                                            <ColumnListItem vAlign="Middle">
+                                                <cells>
+                                                    <HBox alignItems="Center" gap="10px">
+                                                        <core:Icon src="sap-icon://group" color="#00778B" />
+                                                        <Text text="{accessModel>groupName}" class="kyraAdminCellBold" />
+                                                    </HBox>
+                                                    <Text text="{accessModel>type} ({accessModel>scope})" class="fioriDescriptionText" />
+                                                    <ObjectStatus text="{accessModel>memberCount}" state="Information" />
+                                                    <Text text="{accessModel>lastSync}" class="fioriDescriptionText" />
+                                                    <ObjectStatus text="{accessModel>status}" state="Success" icon="sap-icon://sys-enter-2" />
+                                                </cells>
+                                            </ColumnListItem>
+                                        </items>
+                                    </Table>
+                                </VBox>
+
+                                <!-- Synced AD Group Members & Persona Mapping Table -->
+                                <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%" visible="{= !!${accessModel>/adGroupIntegration/syncedUsers} &amp;&amp; ${accessModel>/adGroupIntegration/syncedUsers}.length &gt; 0 }">
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                        <HBox alignItems="Center" gap="10px">
+                                            <core:Icon src="sap-icon://user-settings" class="kyraDarkCardHeaderIcon" />
+                                            <Title text="Synced AD Group Members &amp; Kyra Persona Assignments" level="H4" class="kyraDarkCardHeaderTitle" />
+                                        </HBox>
+                                        <ObjectStatus text="{= ${accessModel>/adGroupIntegration/syncedUsers}.length + ' Users Synchronized' }" state="Success" icon="sap-icon://sys-enter-2" />
+                                    </HBox>
+                                    <Table
+                                        items="{accessModel>/adGroupIntegration/syncedUsers}"
+                                        fixedLayout="true"
+                                        class="sapUiNoMargin kyraAdminCleanTable">
+                                        <columns>
+                                            <Column width="26%" hAlign="Begin"><Text text="User Full Name" class="kyraAdminColHeader" /></Column>
+                                            <Column width="20%" hAlign="Begin"><Text text="Login ID / Username" class="kyraAdminColHeader" /></Column>
+                                            <Column width="24%" hAlign="Begin"><Text text="Directory Email" class="kyraAdminColHeader" /></Column>
+                                            <Column width="18%" hAlign="Begin"><Text text="Assigned Persona" class="kyraAdminColHeader" /></Column>
+                                            <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
+                                        </columns>
+                                        <items>
+                                            <ColumnListItem vAlign="Middle">
+                                                <cells>
+                                                    <HBox alignItems="Center" gap="8px">
+                                                        <core:Icon src="{= ${accessModel>targetPersona} === 'Approver' ? 'sap-icon://manager' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'sap-icon://activity-assigned-to-goal' : (${accessModel>targetPersona} === 'Admin' ? 'sap-icon://user-settings' : 'sap-icon://employee')) }" color="#00778B" />
+                                                        <Text text="{accessModel>fullName}" class="kyraAdminCellBold" />
+                                                    </HBox>
+                                                    <Text text="{accessModel>username}" class="fioriDescriptionText" />
+                                                    <Text text="{accessModel>email}" class="fioriDescriptionText" />
+                                                    <ObjectStatus
+                                                        text="{accessModel>targetPersona}"
+                                                        state="{= ${accessModel>targetPersona} === 'Approver' ? 'Warning' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'Error' : (${accessModel>targetPersona} === 'Admin' ? 'None' : 'Information')) }" />
+                                                    <ObjectStatus text="Active &amp; Synced" state="Success" icon="sap-icon://sys-enter-2" />
+                                                </cells>
+                                            </ColumnListItem>
+                                        </items>
+                                    </Table>
+                                </VBox>
+
+                                <!-- Bottom Action Bar matching Image 2 -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                    <HBox alignItems="Center" class="kyraDarkPromptBox">
+                                        <Text text="Active Directory Sync Status: " class="kyraDarkPromptHint" />
+                                        <Text text="Connected &amp; Synced ✓" class="kyraDarkPromptTarget" style="color: #10B981 !important; font-weight: 700;" />
+                                    </HBox>
+                                    <HBox alignItems="Center">
+                                        <Button
+                                            text="Close Section"
+                                            icon="sap-icon://decline"
+                                            type="Default"
+                                            press=".onCloseAdminSection"
+                                            class="kyraSapCloseBtn" />
+                                    </HBox>
+                                </HBox>
                             </VBox>
 
-                            <!-- Target Destination Banner -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
-                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
-                                    <HBox class="kyraDarkGreenGlowDot" />
-                                    <FormattedText
-                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(Directory Sync Engine &amp;#10142; Domain: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;corp.kyra-enterprise.com&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
-                                        class="kyraDarkBannerFormattedText" />
+                            <!-- ===================================================================== -->
+                            <!-- SLIDE 2: CONFIGURE AD GROUP INTEGRATION (SECOND SLIDE)                -->
+                            <!-- ===================================================================== -->
+                            <VBox id="adGroupConfigContainer"
+                                visible="{= ${accessModel>/adGroupIntegration/currentStep} === 2 }"
+                                width="100%"
+                                class="kyraDarkStudioWrapper kyraSlideAnim">
+
+                                <!-- Top Title Block with Back Button & Close Button -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
+                                    <VBox class="kyraHeaderTitleCol sapUiNoMargin">
+                                        <HBox alignItems="Center" gap="12px">
+                                            <Button
+                                                id="btnBackFromAdConfigTop"
+                                                text="Back"
+                                                icon="sap-icon://nav-back"
+                                                type="Default"
+                                                press=".onBackToDiscoveredAdGroups"
+                                                class="kyraSapBackBtn" />
+                                            <Title text="Configure Active Directory (AD) Group Integration" level="H2" class="kyraDarkStudioTitle" />
+                                        </HBox>
+                                        <Text text="Connect your enterprise Active Directory / Azure AD (Entra ID) domain, configure LDAP sync parameters, and map directory security groups to Kyra access roles." class="kyraDarkStudioSubtitle" />
+                                    </VBox>
+                                    <Button
+                                        id="btnCloseAdConfigTop"
+                                        icon="sap-icon://decline"
+                                        type="Transparent"
+                                        press=".onCloseAdminSection"
+                                        tooltip="Close Section"
+                                        class="kyraCloseIconBtn" />
                                 </HBox>
-                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
-                                    <Text text="Directory Sync Ready ✓" class="kyraDarkGreenPillText" />
-                                </HBox>
-                            </HBox>
 
-                            <!-- Main Card: Active Directory & LDAP Connection Configuration -->
-                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
-                                <!-- Card Header -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center" gap="10px">
-                                        <core:Icon src="sap-icon://group" class="kyraDarkCardHeaderIcon" />
-                                        <Title text="Active Directory &amp; LDAP Configuration" level="H4" class="kyraDarkCardHeaderTitle" />
+                                <!-- Target Destination Banner -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
+                                    <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
+                                        <HBox class="kyraDarkGreenGlowDot" />
+                                        <FormattedText
+                                            htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Target Destination: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Kyra Enterprise Access Governance&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;(Directory Sync Engine &amp;#10142; Domain: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;corp.kyra-enterprise.com&lt;/span&gt;&lt;span style='color: #64748B; font-size: 13.5px;'&gt;)&lt;/span&gt;"
+                                            class="kyraDarkBannerFormattedText" />
                                     </HBox>
-                                    <HBox class="{= ${accessModel>/adGroupIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
-                                        <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected &amp; Synced ✓' : 'Awaiting Connection Test' }" class="kyraDarkStatusBadgeText" />
+                                    <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                        <Text text="Directory Sync Ready ✓" class="kyraDarkGreenPillText" />
                                     </HBox>
                                 </HBox>
 
-                                                                <!-- Dropdown: Select Directory Provider -->
-                                <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
-                                    <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                        <Text text="Select Directory Service Provider" class="kyraDarkFieldLabel" />
-                                        <Text text=" *" class="kyraDarkRequiredStar" />
-                                        <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_provider_select" tooltip="View directory service selection guide" />
-                                    </HBox>
-                                    <Select
-                                        id="adProviderSelect"
-                                        selectedKey="{accessModel>/adGroupIntegration/directoryProvider}"
-                                        change=".onAdProviderChange"
-                                        width="100%"
-                                        class="kyraDarkSelect">
-                                        <core:Item key="azure_ad" text="Microsoft Entra ID (Azure Active Directory)" />
-                                        <core:Item key="aws_ds" text="AWS Directory Service (AWS Managed Microsoft AD)" />
-                                        <core:Item key="onprem_ad" text="Microsoft Active Directory Domain Services (AD DS - On-Premises)" />
-                                        <core:Item key="openldap" text="OpenLDAP / FreeIPA Directory Service" />
-                                    </Select>
-                                </VBox>
-
-                                <!-- DYNAMIC FIELDS A: MICROSOFT ENTRA ID (AZURE AD) CLOUD DIRECTORY -->
-                                <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'azure_ad' || !${accessModel>/adGroupIntegration/directoryProvider} }" width="100%">
-                                    <!-- Row 1: Directory (Tenant) ID + Primary Domain / FQDN -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Directory (Tenant) ID" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_tenant_id" tooltip="How to find Directory (Tenant) ID in Entra ID" />
-                                            </HBox>
-                                            <Input
-                                                id="azureAdTenantId"
-                                                value="{accessModel>/adGroupIntegration/azureTenantId}"
-                                                placeholder="b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Primary Domain / FQDN" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_domain_fqdn" tooltip="How to find Primary Domain / FQDN" />
-                                            </HBox>
-                                            <Input
-                                                id="azureAdDomainFqdn"
-                                                value="{accessModel>/adGroupIntegration/domainFqdn}"
-                                                placeholder="bharathmohanraj12gmail.onmicrosoft.com"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
+                                <!-- Main Card: Active Directory & LDAP Connection Configuration -->
+                                <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                    <!-- Card Header -->
+                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
+                                        <HBox alignItems="Center" gap="10px">
+                                            <core:Icon src="sap-icon://group" class="kyraDarkCardHeaderIcon" />
+                                            <Title text="Active Directory &amp; LDAP Configuration" level="H4" class="kyraDarkCardHeaderTitle" />
+                                        </HBox>
+                                        <HBox class="{= ${accessModel>/adGroupIntegration/connected} ? 'kyraDarkStatusBadgeConnected' : 'kyraDarkStatusBadgeNotConnected' }" alignItems="Center">
+                                            <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Connected &amp; Synced ✓' : 'Awaiting Connection Test' }" class="kyraDarkStatusBadgeText" />
+                                        </HBox>
                                     </HBox>
 
-                                    <!-- Row 2: Application (Client) ID + Client Secret -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Application (Client) ID" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_client_id" tooltip="How to find Application (Client) ID" />
-                                            </HBox>
-                                            <Input
-                                                id="azureAdClientId"
-                                                value="{accessModel>/adGroupIntegration/azureClientId}"
-                                                placeholder="6897baed-5616-4bff-bcab-8b249feea9a6"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Client Secret Value" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_client_secret" tooltip="How to generate and copy Client Secret Value" />
-                                            </HBox>
-                                            <Input
-                                                id="azureAdClientSecret"
-                                                value="{accessModel>/adGroupIntegration/azureClientSecret}"
-                                                type="Password"
-                                                placeholder="••••••••••••••••••••••••"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
+                                    <!-- Dropdown: Select Directory Provider -->
+                                    <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Select Directory Service Provider" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
+                                            <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_provider_select" tooltip="View directory service selection guide" />
+                                        </HBox>
+                                        <Select
+                                            id="adProviderSelect"
+                                            selectedKey="{accessModel>/adGroupIntegration/directoryProvider}"
+                                            change=".onAdProviderChange"
+                                            width="100%"
+                                            class="kyraDarkSelect">
+                                            <core:Item key="" text="Select Directory Service Provider (e.g., Microsoft Entra ID / Azure AD)..." />
+                                            <core:Item key="azure_ad" text="Microsoft Entra ID (Azure Active Directory)" />
+                                            <core:Item key="aws_ds" text="AWS Directory Service (AWS Managed Microsoft AD)" />
+                                            <core:Item key="onprem_ad" text="Microsoft Active Directory Domain Services (AD DS - On-Premises)" />
+                                            <core:Item key="openldap" text="OpenLDAP / FreeIPA Directory Service" />
+                                        </Select>
+                                    </VBox>
 
-                                    <!-- Row 3: Target AD Security Group Object ID + Group Display Name -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Target AD Security Group Object ID" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_group_id" tooltip="How to find Group Object ID in Entra ID" />
-                                            </HBox>
-                                            <Input
-                                                id="azureAdGroupId"
-                                                value="{accessModel>/adGroupIntegration/azureGroupId}"
-                                                placeholder="14740ac6-2647-4a81-b15f-009b800f7305"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="AD Group Display Name" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_group_name" tooltip="How to find Group Display Name" />
-                                            </HBox>
-                                            <Input
-                                                id="azureAdGroupName"
-                                                value="{accessModel>/adGroupIntegration/azureGroupName}"
-                                                placeholder="Kyra-Access-Group"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
-                                </VBox>
+                                    <!-- DYNAMIC FIELDS A: MICROSOFT ENTRA ID (AZURE AD) CLOUD DIRECTORY -->
+                                    <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'azure_ad' || !${accessModel>/adGroupIntegration/directoryProvider} }" width="100%">
+                                        <!-- Row 1: Directory (Tenant) ID + Primary Domain / FQDN -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Directory (Tenant) ID" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_tenant_id" tooltip="How to find Directory (Tenant) ID in Entra ID" />
+                                                </HBox>
+                                                <Input
+                                                    id="azureAdTenantId"
+                                                    value="{accessModel>/adGroupIntegration/azureTenantId}"
+                                                    placeholder="Enter Directory (Tenant) ID (e.g., b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe)"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Primary Domain / FQDN" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_domain_fqdn" tooltip="How to find Primary Domain / FQDN" />
+                                                </HBox>
+                                                <Input
+                                                    id="azureAdDomainFqdn"
+                                                    value="{accessModel>/adGroupIntegration/domainFqdn}"
+                                                    placeholder="Enter Primary Domain / FQDN (e.g., corp.kyra-enterprise.com)"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
 
-                                <!-- DYNAMIC FIELDS B: AWS DIRECTORY SERVICE (AWS MANAGED MICROSOFT AD) -->
-                                <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'aws_ds' }" width="100%">
-                                    <!-- Row 1: AWS Directory ID + Directory DNS Name (FQDN) -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="AWS Directory ID" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_directory_id" tooltip="How to find AWS Directory ID in AWS Directory Service console" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdDirectoryId"
-                                                value="{accessModel>/adGroupIntegration/awsDirectoryId}"
-                                                placeholder="d-90671234ab"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Directory DNS Name (FQDN)" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_dns_name" tooltip="How to find Directory DNS Name (FQDN)" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdDnsName"
-                                                value="{accessModel>/adGroupIntegration/awsDnsName}"
-                                                placeholder="corp.kyra-aws.internal"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
+                                        <!-- Row 2: Application (Client) ID + Client Secret -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Application (Client) ID" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_client_id" tooltip="How to find Application (Client) ID" />
+                                                </HBox>
+                                                <Input
+                                                    id="azureAdClientId"
+                                                    value="{accessModel>/adGroupIntegration/azureClientId}"
+                                                    placeholder="Enter Application (Client) ID (e.g., 6897baed-5616-4bff-bcab-8b249feea9a6)"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Client Secret Value" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_client_secret" tooltip="How to generate and copy Client Secret Value" />
+                                                </HBox>
+                                                <Input
+                                                    id="azureAdClientSecret"
+                                                    value="{accessModel>/adGroupIntegration/azureClientSecret}"
+                                                    type="Password"
+                                                    placeholder="Enter Client Secret Value or API Certificate Key"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
 
-                                    <!-- Row 2: AWS Directory NetBIOS Name + AWS Region -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="AWS Directory NetBIOS Name" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_netbios" tooltip="How to find Directory NetBIOS Name" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdNetbios"
-                                                value="{accessModel>/adGroupIntegration/awsNetbios}"
-                                                placeholder="CORP"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="AWS Region" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_region" tooltip="Select AWS Region where Directory is deployed" />
-                                            </HBox>
-                                            <Select
-                                                id="awsAdRegion"
-                                                selectedKey="{accessModel>/adGroupIntegration/awsRegion}"
-                                                width="100%"
-                                                class="kyraDarkSelect">
-                                                <core:Item key="us-east-1" text="US East (N. Virginia) us-east-1" />
-                                                <core:Item key="us-east-2" text="US East (Ohio) us-east-2" />
-                                                <core:Item key="us-west-1" text="US West (N. California) us-west-1" />
-                                                <core:Item key="us-west-2" text="US West (Oregon) us-west-2" />
-                                                <core:Item key="eu-west-1" text="Europe (Ireland) eu-west-1" />
-                                                <core:Item key="eu-central-1" text="Europe (Frankfurt) eu-central-1" />
-                                                <core:Item key="ap-south-1" text="Asia Pacific (Mumbai) ap-south-1" />
-                                                <core:Item key="ap-southeast-1" text="Asia Pacific (Singapore) ap-southeast-1" />
-                                            </Select>
-                                        </VBox>
-                                    </HBox>
+                                        <!-- Row 3: Target AD Security Group Object ID + Group Display Name -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Target AD Security Group Object ID" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_group_id" tooltip="How to find Group Object ID in Entra ID" />
+                                                </HBox>
+                                                <Input
+                                                    id="azureAdGroupId"
+                                                    value="{accessModel>/adGroupIntegration/azureGroupId}"
+                                                    placeholder="Enter Target AD Security Group Object ID (e.g., 14740ac6-2647-4a81-b15f-009b800f7305)"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AD Group Display Name" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_azure_group_name" tooltip="How to find Group Display Name" />
+                                                </HBox>
+                                                <Input
+                                                    id="azureAdGroupName"
+                                                    value="{accessModel>/adGroupIntegration/azureGroupName}"
+                                                    placeholder="Enter AD Group Display Name (e.g., Kyra-Access-Group)"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+                                    </VBox>
 
-                                    <!-- Row 3: Directory DNS Server IP Addresses + Service Account Username -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Directory DNS Server IP Addresses" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_dns_ips" tooltip="How to find Directory DNS Server IP Addresses" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdDnsIps"
-                                                value="{accessModel>/adGroupIntegration/awsDnsIps}"
-                                                placeholder="10.0.1.10, 10.0.2.20"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Service Account / Admin Username" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_service_user" tooltip="How to configure AWS Directory Service Account" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdServiceUser"
-                                                value="{accessModel>/adGroupIntegration/awsServiceUser}"
-                                                placeholder="Admin"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
+                                    <!-- DYNAMIC FIELDS B: AWS DIRECTORY SERVICE (AWS MANAGED MICROSOFT AD) -->
+                                    <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'aws_ds' }" width="100%">
+                                        <!-- Row 1: AWS Directory ID + Directory DNS Name (FQDN) -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Directory ID" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_directory_id" tooltip="How to find AWS Directory ID in AWS Directory Service console" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdDirectoryId"
+                                                    value="{accessModel>/adGroupIntegration/awsDirectoryId}"
+                                                    placeholder="d-90671234ab"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Directory DNS Name (FQDN)" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_dns_name" tooltip="How to find Directory DNS Name (FQDN)" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdDnsName"
+                                                    value="{accessModel>/adGroupIntegration/awsDnsName}"
+                                                    placeholder="corp.kyra-aws.internal"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
 
-                                    <!-- Row 4: Service Account Password + Target AD Security Group Name -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Service Account Password" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_service_password" tooltip="How to set Service Account Password" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdServicePassword"
-                                                value="{accessModel>/adGroupIntegration/awsServicePassword}"
-                                                type="Password"
-                                                placeholder="••••••••••••••••"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Target AD Security Group Name" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_group_name" tooltip="How to find or create Security Group in AWS Directory" />
-                                            </HBox>
-                                            <Input
-                                                id="awsAdGroupName"
-                                                value="{accessModel>/adGroupIntegration/awsGroupName}"
-                                                placeholder="Kyra-Access-Group"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
-                                </VBox>
+                                        <!-- Row 2: AWS Directory NetBIOS Name + AWS Region -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Directory NetBIOS Name" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_netbios" tooltip="How to find Directory NetBIOS Name" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdNetbios"
+                                                    value="{accessModel>/adGroupIntegration/awsNetbios}"
+                                                    placeholder="CORP"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Region" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_region" tooltip="Select AWS Region where Directory is deployed" />
+                                                </HBox>
+                                                <Select
+                                                    id="awsAdRegion"
+                                                    selectedKey="{accessModel>/adGroupIntegration/awsRegion}"
+                                                    width="100%"
+                                                    class="kyraDarkSelect">
+                                                    <core:Item key="us-east-1" text="US East (N. Virginia) us-east-1" />
+                                                    <core:Item key="us-east-2" text="US East (Ohio) us-east-2" />
+                                                    <core:Item key="us-west-1" text="US West (N. California) us-west-1" />
+                                                    <core:Item key="us-west-2" text="US West (Oregon) us-west-2" />
+                                                    <core:Item key="eu-west-1" text="Europe (Ireland) eu-west-1" />
+                                                    <core:Item key="eu-central-1" text="Europe (Frankfurt) eu-central-1" />
+                                                    <core:Item key="ap-south-1" text="Asia Pacific (Mumbai) ap-south-1" />
+                                                    <core:Item key="ap-southeast-1" text="Asia Pacific (Singapore) ap-southeast-1" />
+                                                </Select>
+                                            </VBox>
+                                        </HBox>
 
-                                <!-- DYNAMIC FIELDS C: ON-PREMISES ACTIVE DIRECTORY (AD DS) -->
-                                <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'onprem_ad' }" width="100%">
-                                    <!-- Row 1: Domain Name (FQDN) + NetBIOS Domain Name -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Domain Name (FQDN)" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_domain_fqdn" tooltip="How to find on-premises Domain FQDN" />
-                                            </HBox>
-                                            <Input
-                                                id="onpremAdDomainFqdn"
-                                                value="{accessModel>/adGroupIntegration/onpremDomainFqdn}"
-                                                placeholder="corp.kyra-enterprise.com"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="NetBIOS Domain Name" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_netbios" tooltip="How to find NetBIOS Domain Name" />
-                                            </HBox>
-                                            <Input
-                                                id="onpremAdNetbios"
-                                                value="{accessModel>/adGroupIntegration/onpremNetbios}"
-                                                placeholder="CORP"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
+                                        <!-- Row 3: Directory DNS Server IP Addresses + Service Account Username -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Directory DNS Server IP Addresses" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_dns_ips" tooltip="How to find Directory DNS Server IP Addresses" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdDnsIps"
+                                                    value="{accessModel>/adGroupIntegration/awsDnsIps}"
+                                                    placeholder="10.0.1.10, 10.0.2.20"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Service Account / Admin Username" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_service_user" tooltip="How to configure AWS Directory Service Account" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdServiceUser"
+                                                    value="{accessModel>/adGroupIntegration/awsServiceUser}"
+                                                    placeholder="Admin"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
 
-                                    <!-- Row 2: Domain Controller Host / LDAPS URL + Base DN -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Domain Controller Host / LDAPS URL" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_ldap_url" tooltip="How to find Domain Controller LDAPS URL" />
-                                            </HBox>
-                                            <Input
-                                                id="onpremAdLdapUrl"
-                                                value="{accessModel>/adGroupIntegration/onpremServerUrl}"
-                                                placeholder="ldaps://dc01.corp.kyra-enterprise.com:636"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Base DN (Distinguished Name)" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_base_dn" tooltip="How to find Base DN in Active Directory" />
-                                            </HBox>
-                                            <Input
-                                                id="onpremAdBaseDn"
-                                                value="{accessModel>/adGroupIntegration/onpremBaseDn}"
-                                                placeholder="DC=corp,DC=kyra-enterprise,DC=com"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
+                                        <!-- Row 4: Service Account Password + Target AD Security Group Name -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Service Account Password" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_service_password" tooltip="How to set Service Account Password" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdServicePassword"
+                                                    value="{accessModel>/adGroupIntegration/awsServicePassword}"
+                                                    type="Password"
+                                                    placeholder="••••••••••••••••"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Target AD Security Group Name" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_aws_group_name" tooltip="How to find or create Security Group in AWS Directory" />
+                                                </HBox>
+                                                <Input
+                                                    id="awsAdGroupName"
+                                                    value="{accessModel>/adGroupIntegration/awsGroupName}"
+                                                    placeholder="Kyra-Access-Group"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+                                    </VBox>
 
-                                    <!-- Row 3: Bind Service Account + Bind Account Password -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Bind Service Account User (UPN / DN)" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_service_user" tooltip="How to create or find Bind Service Account" />
-                                            </HBox>
-                                            <Input
-                                                id="onpremAdServiceUser"
-                                                value="{accessModel>/adGroupIntegration/onpremServiceUser}"
-                                                placeholder="svc_kyra_sync@corp.kyra-enterprise.com"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Bind Account Password" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_service_password" tooltip="How to set Bind Account Password" />
-                                            </HBox>
-                                            <Input
-                                                id="onpremAdServicePassword"
-                                                value="{accessModel>/adGroupIntegration/onpremServicePassword}"
-                                                type="Password"
-                                                placeholder="••••••••••••••••"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
+                                    <!-- DYNAMIC FIELDS C: ON-PREMISES ACTIVE DIRECTORY (AD DS) -->
+                                    <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'onprem_ad' }" width="100%">
+                                        <!-- Row 1: Domain Name (FQDN) + NetBIOS Domain Name -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Domain Name (FQDN)" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_domain_fqdn" tooltip="How to find on-premises Domain FQDN" />
+                                                </HBox>
+                                                <Input
+                                                    id="onpremAdDomainFqdn"
+                                                    value="{accessModel>/adGroupIntegration/onpremDomainFqdn}"
+                                                    placeholder="corp.kyra-enterprise.com"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="NetBIOS Domain Name" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_netbios" tooltip="How to find NetBIOS Domain Name" />
+                                                </HBox>
+                                                <Input
+                                                    id="onpremAdNetbios"
+                                                    value="{accessModel>/adGroupIntegration/onpremNetbios}"
+                                                    placeholder="CORP"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
 
-                                    <!-- Row 4: Target AD Security Group Name -->
-                                    <VBox width="100%" class="kyraDarkFieldGroup">
+                                        <!-- Row 2: Domain Controller Host / LDAPS URL + Base DN -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Domain Controller Host / LDAPS URL" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_ldap_url" tooltip="How to find Domain Controller LDAPS URL" />
+                                                </HBox>
+                                                <Input
+                                                    id="onpremAdLdapUrl"
+                                                    value="{accessModel>/adGroupIntegration/onpremServerUrl}"
+                                                    placeholder="ldaps://dc01.corp.kyra-enterprise.com:636"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Base DN (Distinguished Name)" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_base_dn" tooltip="How to find Base DN in Active Directory" />
+                                                </HBox>
+                                                <Input
+                                                    id="onpremAdBaseDn"
+                                                    value="{accessModel>/adGroupIntegration/onpremBaseDn}"
+                                                    placeholder="DC=corp,DC=kyra-enterprise,DC=com"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- Row 3: Bind Service Account + Bind Account Password -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Bind Service Account User (UPN / DN)" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_service_user" tooltip="How to create or find Bind Service Account" />
+                                                </HBox>
+                                                <Input
+                                                    id="onpremAdServiceUser"
+                                                    value="{accessModel>/adGroupIntegration/onpremServiceUser}"
+                                                    placeholder="svc_kyra_sync@corp.kyra-enterprise.com"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Bind Account Password" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_onprem_service_password" tooltip="How to set Bind Account Password" />
+                                                </HBox>
+                                                <Input
+                                                    id="onpremAdServicePassword"
+                                                    value="{accessModel>/adGroupIntegration/onpremServicePassword}"
+                                                    type="Password"
+                                                    placeholder="••••••••••••••••"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- Row 4: Target AD Security Group Name -->
+                                        <VBox width="100%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
                                                 <Text text="Target AD Security Group Name / DN" class="kyraDarkFieldLabel" />
                                                 <Text text=" *" class="kyraDarkRequiredStar" />
@@ -1658,222 +1797,131 @@
                                                 class="kyraDarkInput"
                                                 width="100%" />
                                         </VBox>
+                                    </VBox>
+
+                                    <!-- DYNAMIC FIELDS D: OPENLDAP / FREEIPA DIRECTORY SERVICE -->
+                                    <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'openldap' }" width="100%">
+                                        <!-- Row 1: LDAP Server Host URL + Base DN -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="LDAP / LDAPS Server Host URL" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_url" tooltip="How to find LDAP Server Host URL" />
+                                                </HBox>
+                                                <Input
+                                                    id="openldapServerUrl"
+                                                    value="{accessModel>/adGroupIntegration/ldapServerUrl}"
+                                                    placeholder="ldaps://ldap.corp.kyra-enterprise.com:636"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Base DN (Search Base)" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_base_dn" tooltip="How to find Base DN in OpenLDAP / FreeIPA" />
+                                                </HBox>
+                                                <Input
+                                                    id="openldapBaseDn"
+                                                    value="{accessModel>/adGroupIntegration/ldapBaseDn}"
+                                                    placeholder="dc=kyra,dc=enterprise,dc=com"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- Row 2: Bind DN + Bind Password -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Bind DN (Admin / Manager DN)" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_bind_dn" tooltip="How to find Bind DN" />
+                                                </HBox>
+                                                <Input
+                                                    id="openldapBindDn"
+                                                    value="{accessModel>/adGroupIntegration/ldapBindDn}"
+                                                    placeholder="cn=admin,dc=kyra,dc=enterprise,dc=com"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Bind Password" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_bind_password" tooltip="How to set Bind Password" />
+                                                </HBox>
+                                                <Input
+                                                    id="openldapBindPassword"
+                                                    value="{accessModel>/adGroupIntegration/ldapBindPassword}"
+                                                    type="Password"
+                                                    placeholder="••••••••••••••••"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- Row 3: User Search Filter + Target Group Name / DN -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="User &amp; Group Search Filter" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_filter" tooltip="Learn about LDAP User &amp; Group Filters" />
+                                                </HBox>
+                                                <Input
+                                                    id="openldapUserFilter"
+                                                    value="{accessModel>/adGroupIntegration/ldapUserFilter}"
+                                                    placeholder="(&amp;(objectClass=inetOrgPerson)(memberOf=cn=kyra-access-group,...))"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                            <VBox width="50%" class="kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Target Group Name / DN" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_group_name" tooltip="How to find Group Name or DN in OpenLDAP" />
+                                                </HBox>
+                                                <Input
+                                                    id="openldapGroupName"
+                                                    value="{accessModel>/adGroupIntegration/ldapGroupName}"
+                                                    placeholder="kyra-access-group"
+                                                    class="kyraDarkInput"
+                                                    width="100%" />
+                                            </VBox>
+                                        </HBox>
+                                    </VBox>
+
+                                    <!-- Test Button -->
+                                    <Button
+                                        id="btnTestAdIntegration"
+                                        icon="sap-icon://flash"
+                                        text="⚡ Test AD Connection &amp; Discover Groups"
+                                        press=".onTestAdGroupIntegration"
+                                        class="kyraDarkTestConnBtn"
+                                        width="100%" />
                                 </VBox>
 
-                                <!-- DYNAMIC FIELDS D: OPENLDAP / FREEIPA DIRECTORY SERVICE -->
-                                <VBox visible="{= ${accessModel>/adGroupIntegration/directoryProvider} === 'openldap' }" width="100%">
-                                    <!-- Row 1: LDAP Server Host URL + Base DN -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="LDAP / LDAPS Server Host URL" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_url" tooltip="How to find LDAP Server Host URL" />
-                                            </HBox>
-                                            <Input
-                                                id="openldapServerUrl"
-                                                value="{accessModel>/adGroupIntegration/ldapServerUrl}"
-                                                placeholder="ldaps://ldap.corp.kyra-enterprise.com:636"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Base DN (Search Base)" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_base_dn" tooltip="How to find Base DN in OpenLDAP / FreeIPA" />
-                                            </HBox>
-                                            <Input
-                                                id="openldapBaseDn"
-                                                value="{accessModel>/adGroupIntegration/ldapBaseDn}"
-                                                placeholder="dc=kyra,dc=enterprise,dc=com"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
-
-                                    <!-- Row 2: Bind DN + Bind Password -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Bind DN (Admin / Manager DN)" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_bind_dn" tooltip="How to find Bind DN" />
-                                            </HBox>
-                                            <Input
-                                                id="openldapBindDn"
-                                                value="{accessModel>/adGroupIntegration/ldapBindDn}"
-                                                placeholder="cn=admin,dc=kyra,dc=enterprise,dc=com"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Bind Password" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_bind_password" tooltip="How to set Bind Password" />
-                                            </HBox>
-                                            <Input
-                                                id="openldapBindPassword"
-                                                value="{accessModel>/adGroupIntegration/ldapBindPassword}"
-                                                type="Password"
-                                                placeholder="••••••••••••••••"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
-
-                                    <!-- Row 3: User Search Filter + Target Group Name / DN -->
-                                    <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="User &amp; Group Search Filter" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_filter" tooltip="Learn about LDAP User &amp; Group Filters" />
-                                            </HBox>
-                                            <Input
-                                                id="openldapUserFilter"
-                                                value="{accessModel>/adGroupIntegration/ldapUserFilter}"
-                                                placeholder="(&amp;(objectClass=inetOrgPerson)(memberOf=cn=kyra-access-group,...))"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                        <VBox width="50%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Target Group Name / DN" class="kyraDarkFieldLabel" />
-                                                <Text text=" *" class="kyraDarkRequiredStar" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="ad_ldap_group_name" tooltip="How to find Group Name or DN in OpenLDAP" />
-                                            </HBox>
-                                            <Input
-                                                id="openldapGroupName"
-                                                value="{accessModel>/adGroupIntegration/ldapGroupName}"
-                                                placeholder="kyra-access-group"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
-                                    </HBox>
-                                </VBox>
-
-                                <Button
-                                    id="btnTestAdIntegration"
-                                    icon="sap-icon://flash"
-                                    text="⚡ Test AD Connection &amp; Discover Groups"
-                                    press=".onTestAdGroupIntegration"
-                                    class="kyraDarkTestConnBtn"
-                                    width="100%" />
-                            </VBox>
-                        </VBox>
-
-                        <!-- PAGE 2: DISCOVERED AD SECURITY GROUPS (SLIDE 2 - IMAGE 4) -->
-                        <VBox id="adGroupDiscoveredContainer"
-                            visible="{= ${accessModel>/adGroupIntegration/currentStep} === 2 || !${accessModel>/adGroupIntegration/currentStep} }"
-                            width="100%"
-                            class="kyraDarkStudioWrapper kyraSlideAnim">
-
-                            <!-- Discovered AD Groups Preview Table -->
-                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center" gap="10px">
-                                        <core:Icon src="sap-icon://org-chart" class="kyraDarkCardHeaderIcon" />
-                                        <Title text="Discovered Active Directory Security Groups" level="H4" class="kyraDarkCardHeaderTitle" />
-                                    </HBox>
+                                <!-- Bottom Action Bar -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar sapUiSmallMarginTop">
                                     <Button
-                                        icon="sap-icon://refresh"
-                                        text="Sync Groups Now"
-                                        type="Transparent"
-                                        press=".onSyncAdGroups"
-                                        class="kyraDarkBackLinkBtn" />
-                                </HBox>
-
-                                <Table
-                                    items="{accessModel>/adGroupIntegration/discoveredGroups}"
-                                    fixedLayout="true"
-                                    class="sapUiNoMargin kyraAdminCleanTable">
-                                    <columns>
-                                        <Column width="35%" hAlign="Begin"><Text text="AD Group Name" class="kyraAdminColHeader" /></Column>
-                                        <Column width="20%" hAlign="Begin"><Text text="Type / Scope" class="kyraAdminColHeader" /></Column>
-                                        <Column width="18%" hAlign="Begin"><Text text="Members" class="kyraAdminColHeader" /></Column>
-                                        <Column width="15%" hAlign="Begin"><Text text="Last Synced" class="kyraAdminColHeader" /></Column>
-                                        <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
-                                    </columns>
-                                    <items>
-                                        <ColumnListItem vAlign="Middle">
-                                            <cells>
-                                                <HBox alignItems="Center" gap="10px">
-                                                    <core:Icon src="sap-icon://group" color="#00778B" />
-                                                    <Text text="{accessModel>groupName}" class="kyraAdminCellBold" />
-                                                </HBox>
-                                                <Text text="{accessModel>type} ({accessModel>scope})" class="fioriDescriptionText" />
-                                                <ObjectStatus text="{accessModel>memberCount}" state="Information" />
-                                                <Text text="{accessModel>lastSync}" class="fioriDescriptionText" />
-                                                <ObjectStatus text="{accessModel>status}" state="Success" icon="sap-icon://sys-enter-2" />
-                                            </cells>
-                                        </ColumnListItem>
-                                    </items>
-                                </Table>
-                            </VBox>
-
-                            <!-- Synced AD Group Members & Persona Mapping Table -->
-                            <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%" visible="{= !!${accessModel>/adGroupIntegration/syncedUsers} &amp;&amp; ${accessModel>/adGroupIntegration/syncedUsers}.length &gt; 0 }">
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center" gap="10px">
-                                        <core:Icon src="sap-icon://user-settings" class="kyraDarkCardHeaderIcon" />
-                                        <Title text="Synced AD Group Members &amp; Kyra Persona Assignments" level="H4" class="kyraDarkCardHeaderTitle" />
-                                    </HBox>
-                                    <ObjectStatus text="{= ${accessModel>/adGroupIntegration/syncedUsers}.length + ' Users Synchronized' }" state="Success" icon="sap-icon://sys-enter-2" />
-                                </HBox>
-                                <Table
-                                    items="{accessModel>/adGroupIntegration/syncedUsers}"
-                                    fixedLayout="true"
-                                    class="sapUiNoMargin kyraAdminCleanTable">
-                                    <columns>
-                                        <Column width="26%" hAlign="Begin"><Text text="User Full Name" class="kyraAdminColHeader" /></Column>
-                                        <Column width="20%" hAlign="Begin"><Text text="Login ID / Username" class="kyraAdminColHeader" /></Column>
-                                        <Column width="24%" hAlign="Begin"><Text text="Directory Email" class="kyraAdminColHeader" /></Column>
-                                        <Column width="18%" hAlign="Begin"><Text text="Assigned Persona" class="kyraAdminColHeader" /></Column>
-                                        <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
-                                    </columns>
-                                    <items>
-                                        <ColumnListItem vAlign="Middle">
-                                            <cells>
-                                                <HBox alignItems="Center" gap="8px">
-                                                    <core:Icon src="{= ${accessModel>targetPersona} === 'Approver' ? 'sap-icon://manager' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'sap-icon://activity-assigned-to-goal' : (${accessModel>targetPersona} === 'Admin' ? 'sap-icon://user-settings' : 'sap-icon://employee')) }" color="#00778B" />
-                                                    <Text text="{accessModel>fullName}" class="kyraAdminCellBold" />
-                                                </HBox>
-                                                <Text text="{accessModel>username}" class="fioriDescriptionText" />
-                                                <Text text="{accessModel>email}" class="fioriDescriptionText" />
-                                                <ObjectStatus
-                                                    text="{accessModel>targetPersona}"
-                                                    state="{= ${accessModel>targetPersona} === 'Approver' ? 'Warning' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'Error' : (${accessModel>targetPersona} === 'Admin' ? 'None' : 'Information')) }" />
-                                                <ObjectStatus text="Active &amp; Synced" state="Success" icon="sap-icon://sys-enter-2" />
-                                            </cells>
-                                        </ColumnListItem>
-                                    </items>
-                                </Table>
-                            </VBox>
-
-                            <!-- Bottom Action Bar matching Image 4 -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
-                                <HBox alignItems="Center" class="kyraDarkPromptBox">
-                                    <Text text="Active Directory Sync Status: " class="kyraDarkPromptHint" />
-                                    <Text text="Connected &amp; Synced ✓" class="kyraDarkPromptTarget" style="color: #10B981 !important; font-weight: 700;" />
-                                </HBox>
-                                <HBox alignItems="Center" gap="12px">
-                                    <Button
-                                        text="← Reconfigure AD Integration"
-                                        press=".onBackToAdConfig"
+                                        id="btnBackFromAdConfigBottom"
+                                        text="Back"
+                                        icon="sap-icon://nav-back"
                                         type="Default"
-                                        class="kyraDarkOutlineBtn" />
+                                        press=".onBackToDiscoveredAdGroups"
+                                        class="kyraSapBackBtn" />
                                     <Button
                                         text="Close Section"
                                         icon="sap-icon://decline"
-                                        type="Transparent"
+                                        type="Default"
                                         press=".onCloseAdminSection"
-                                        class="kyraDarkBackLinkBtn" />
+                                        class="kyraSapCloseBtn" />
                                 </HBox>
-                            </HBox>
+                            </VBox>
+
                         </VBox>
-                    </VBox>
 
                         <!-- ========================================================================= -->
                         <!-- SUB-SECTION 3: IAM APPROVER INTEGRATION (TWO APPROVER CARDS & CHANNELS)   -->
@@ -2933,8 +2981,8 @@
                         <HBox alignItems="Center" class="sapUiSmallMarginBottom">
                             <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="sapUiSmallMarginBottom kyraPersonaSegmentedBtn">
                                 <items>
-                                    <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" width="220px" />
-                                    <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" width="250px" />
+                                    <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" />
+                                    <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" />
                                 </items>
                             </SegmentedButton>
                         </HBox>

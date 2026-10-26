@@ -462,46 +462,46 @@
                 adminSelectedSection: "",
                 selectedIntegrationType: "",
                 adGroupIntegration: {
-                    directoryProvider: "azure_ad",
+                    directoryProvider: "",
                     // Microsoft Entra ID
-                    azureTenantId: "b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe",
-                    azureClientId: "6897baed-5616-4bff-bcab-8b249feea9a6",
+                    azureTenantId: "",
+                    azureClientId: "",
                     azureClientSecret: "",
-                    azureGroupId: "14740ac6-2647-4a81-b15f-009b800f7305",
-                    azureGroupName: "Kyra-Access-Group",
-                    domainFqdn: "bharathmohanraj12gmail.onmicrosoft.com",
+                    azureGroupId: "",
+                    azureGroupName: "",
+                    domainFqdn: "",
 
                     // AWS Directory Service (AWS Managed Microsoft AD)
-                    awsDirectoryId: "d-90671234ab",
-                    awsDnsName: "corp.kyra-aws.internal",
-                    awsNetbios: "CORP",
-                    awsRegion: "us-east-1",
-                    awsDnsIps: "10.0.1.10, 10.0.2.20",
-                    awsServiceUser: "Admin",
+                    awsDirectoryId: "",
+                    awsDnsName: "",
+                    awsNetbios: "",
+                    awsRegion: "",
+                    awsDnsIps: "",
+                    awsServiceUser: "",
                     awsServicePassword: "",
-                    awsGroupName: "Kyra-Access-Group",
+                    awsGroupName: "",
 
                     // On-Premises Active Directory Domain Services (AD DS)
-                    onpremDomainFqdn: "corp.kyra-enterprise.com",
-                    onpremNetbios: "CORP",
-                    onpremLdapUrl: "ldaps://ad01.corp.kyra-enterprise.com:636",
-                    onpremBaseDn: "DC=corp,DC=kyra-enterprise,DC=com",
-                    onpremServiceUser: "svc_kyra_sync@corp.kyra-enterprise.com",
+                    onpremDomainFqdn: "",
+                    onpremNetbios: "",
+                    onpremLdapUrl: "",
+                    onpremBaseDn: "",
+                    onpremServiceUser: "",
                     onpremServicePassword: "",
-                    onpremGroupName: "KYRA_ACCESS_GROUP",
+                    onpremGroupName: "",
 
                     // OpenLDAP / FreeIPA
-                    ldapUrl: "ldaps://ldap.kyra-enterprise.com:636",
-                    ldapBaseDn: "dc=kyra,dc=enterprise,dc=com",
-                    ldapBindDn: "cn=admin,dc=kyra,dc=enterprise,dc=com",
+                    ldapUrl: "",
+                    ldapBaseDn: "",
+                    ldapBindDn: "",
                     ldapBindPassword: "",
-                    ldapUserFilter: "(&(objectClass=inetOrgPerson)(memberOf=cn=kyra-access-group,...))",
-                    ldapGroupName: "kyra-access-group",
+                    ldapUserFilter: "",
+                    ldapGroupName: "",
 
                     // Common
                     syncInterval: "15m",
-                    connected: true,
-                    currentStep: 2,
+                    connected: false,
+                    currentStep: 1,
                     lastSyncTime: "3:21:38 PM",
                     discoveredGroups: [
                         { id: "14740ac6-2647-4a81-b15f-009b800f7305", groupName: "Kyra-Access-Group", type: "Security Group", scope: "Assigned (Cloud)", memberCount: "6 members", lastSync: "3:21:38 PM", status: "Active" }
@@ -21017,6 +21017,14 @@
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/adGroupIntegration/currentStep", 1);
+            oModel.setProperty("/adGroupIntegration/directoryProvider", "");
+            oModel.setProperty("/adGroupIntegration/azureTenantId", "");
+            oModel.setProperty("/adGroupIntegration/azureClientId", "");
+            oModel.setProperty("/adGroupIntegration/azureClientSecret", "");
+            oModel.setProperty("/adGroupIntegration/azureGroupId", "");
+            oModel.setProperty("/adGroupIntegration/azureGroupName", "");
+            oModel.setProperty("/adGroupIntegration/domainFqdn", "");
+            oModel.setProperty("/adGroupIntegration/connected", false);
             if (typeof this._smoothScrollTo === "function") {
                 setTimeout(() => this._smoothScrollTo("adGroupConfigContainer", 40), 40);
             }
@@ -21162,10 +21170,12 @@
                 oModel.setProperty("/selectedIntegrationType", "");
             } else {
                 oModel.setProperty("/selectedIntegrationType", "ad_group");
-                oModel.setProperty("/adGroupIntegration/currentStep", 2);
+                const bConnected = !!oModel.getProperty("/adGroupIntegration/connected");
+                const targetStep = bConnected ? 2 : 1;
+                oModel.setProperty("/adGroupIntegration/currentStep", targetStep);
                 try { sap.ui.getCore().applyChanges(); } catch (e) {}
                 setTimeout(() => {
-                    this._smoothScrollTo("adGroupDiscoveredContainer", 40);
+                    this._smoothScrollTo(targetStep === 2 ? "adGroupDiscoveredContainer" : "adGroupConfigContainer", 40);
                 }, 80);
             }
             this._updateSubIntegrationCards(oModel);

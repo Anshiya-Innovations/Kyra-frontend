@@ -63111,3 +63111,431 @@ html body .sapUiTheme-sap_horizon .kyraPersonaHeaderAvatar .sapUiIcon {
     color: #008C9C !important;
     font-size: 20px !important;
 }
+
+
+/* ========================================================================== */
+/* USER REQUEST 5 ENHANCEMENTS: CARDS, SEGMENTED PILL & SAP BUTTONS          */
+/* ========================================================================== */
+
+/* PART 1: DISTINCT SEPARATE BOXES FOR INTEGRATION MANAGEMENT (IMAGE 1) */
+.kyraIntegrationCardRow,
+.sapMFlexBox.kyraIntegrationCardRow,
+html body .sapUiTheme-sap_horizon .kyraIntegrationCardRow,
+html body [id$="cardSubSapIntegration"],
+html body [id$="cardSubAdGroupIntegration"],
+html body [id$="cardSubIamIntegration"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 14px !important;
+    padding: 16px 24px !important;
+    min-height: 84px !important;
+    margin-bottom: 14px !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+html body [id$="cardSubSapIntegration"],
+html body .kyraIntegrationCardSap {
+    border-left: 5px solid #0284C7 !important;
+}
+
+html body [id$="cardSubAdGroupIntegration"],
+html body .kyraIntegrationCardAd {
+    border-left: 5px solid #10B981 !important;
+}
+
+html body [id$="cardSubIamIntegration"],
+html body .kyraIntegrationCardIam {
+    border-left: 5px solid #F97316 !important;
+}
+
+.kyraIntegrationCardRow:hover,
+html body [id$="cardSubSapIntegration"]:hover,
+html body [id$="cardSubAdGroupIntegration"]:hover,
+html body [id$="cardSubIamIntegration"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+    border-color: #94A3B8 !important;
+}
+
+html body [id$="cardSubSapIntegration"]:hover {
+    border-left-color: #0284C7 !important;
+}
+html body [id$="cardSubAdGroupIntegration"]:hover {
+    border-left-color: #10B981 !important;
+}
+html body [id$="cardSubIamIntegration"]:hover {
+    border-left-color: #F97316 !important;
+}
+
+.kyraIntegrationListItemActive,
+html body [id$="cardSubSapIntegration"].kyraIntegrationListItemActive,
+html body [id$="cardSubAdGroupIntegration"].kyraIntegrationListItemActive,
+html body [id$="cardSubIamIntegration"].kyraIntegrationListItemActive {
+    background-color: #F8FAFC !important;
+    border-color: #008C9C !important;
+    box-shadow: 0 4px 16px rgba(0, 140, 156, 0.12) !important;
+}
+
+/* PART 2: USER PERSONA CONVERSION SEAMLESS SEGMENTED PILL (IMAGE 2) */
+.kyraPersonaSegmentedBtn.sapMSegB,
+.kyraPersonaSegmentedBtn,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn,
+html body [id$="adminPersonaConversionModeSwitch"] {
+    background: #F1F5F9 !important;
+    background-color: #F1F5F9 !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 10px !important;
+    padding: 3px !important;
+    height: 44px !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn {
+    height: 36px !important;
+    line-height: 36px !important;
+    margin: 0 2px !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 7px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn .sapMSegBBtnInner {
+    height: 36px !important;
+    line-height: 36px !important;
+    border: none !important;
+    border-radius: 7px !important;
+    padding: 0 22px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn::before,
+.kyraPersonaSegmentedBtn .sapMSegBBtn::after,
+.kyraPersonaSegmentedBtn .sapMSegBBtnInner::before,
+.kyraPersonaSegmentedBtn .sapMSegBBtnInner::after {
+    display: none !important;
+    content: none !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel) .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not([aria-checked="true"]) .sapMSegBBtnInner {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #475569 !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel) .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel) .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not([aria-checked="true"]) .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not([aria-checked="true"]) .sapMSegBBtnTxt {
+    color: #475569 !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel) .sapMSegBBtnInner {
+    background: #E2E8F0 !important;
+    background-color: #E2E8F0 !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel) .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel) .sapMSegBBtnTxt {
+    color: #0F172A !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel,
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"],
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    border-radius: 7px !important;
+    box-shadow: 0 1px 3px rgba(0, 140, 156, 0.35) !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"] .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnTxt {
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtn .sapUiIcon {
+    margin-right: 8px !important;
+    font-size: 15px !important;
+}
+
+.kyraPersonaSegmentedBtn .sapMSegBBtnTxt {
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+/* PART 4: SAP PURCHASED APPS BUTTONS (IMAGE 4) */
+/* 1. Edit Button */
+.kyraSapEditBtn,
+.kyraSapEditBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapEditBtn {
+    background: transparent !important;
+    border: none !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapEditBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapEditBtn .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    height: 36px !important;
+    line-height: 33px !important;
+    padding: 0 16px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraSapEditBtn .sapUiIcon,
+.kyraSapEditBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSapEditBtn .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    margin-right: 6px !important;
+}
+
+.kyraSapEditBtn .sapMBtnText,
+.kyraSapEditBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraSapEditBtn .sapMBtnText {
+    color: #0F172A !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.kyraSapEditBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapEditBtn:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+}
+
+.kyraSapEditBtn:hover .sapMBtnText,
+.kyraSapEditBtn:hover bdi {
+    color: #008C9C !important;
+}
+
+/* 2. Quota Toggle Button */
+.kyraSapQuotaBtn,
+.kyraSapQuotaBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapQuotaBtn {
+    background: transparent !important;
+    border: none !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapQuotaBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapQuotaBtn .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    height: 36px !important;
+    line-height: 33px !important;
+    padding: 0 18px !important;
+    box-shadow: 0 1px 2px rgba(0, 140, 156, 0.08) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraSapQuotaBtn .sapMBtnText,
+.kyraSapQuotaBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraSapQuotaBtn .sapMBtnText {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.kyraSapQuotaBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapQuotaBtn:hover .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border-color: #007684 !important;
+}
+
+.kyraSapQuotaBtn:hover .sapMBtnText,
+.kyraSapQuotaBtn:hover bdi {
+    color: #FFFFFF !important;
+}
+
+/* 3. Bottom Back Button */
+.kyraSapBackBtn,
+.kyraSapBackBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapBackBtn,
+html body [id$="btnBackFromPurchasedApps"] {
+    background: transparent !important;
+    border: none !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    min-width: 95px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapBackBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapBackBtn .sapMBtnInner,
+html body [id$="btnBackFromPurchasedApps"] .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    height: 38px !important;
+    line-height: 35px !important;
+    padding: 0 18px !important;
+    min-width: 95px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraSapBackBtn .sapUiIcon,
+.kyraSapBackBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSapBackBtn .sapUiIcon,
+html body [id$="btnBackFromPurchasedApps"] .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    margin-right: 8px !important;
+}
+
+.kyraSapBackBtn .sapMBtnText,
+.kyraSapBackBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraSapBackBtn .sapMBtnText,
+html body [id$="btnBackFromPurchasedApps"] .sapMBtnText {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+.kyraSapBackBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapBackBtn:hover .sapMBtnInner,
+html body [id$="btnBackFromPurchasedApps"]:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+}
+
+.kyraSapBackBtn:hover .sapMBtnText,
+.kyraSapBackBtn:hover bdi {
+    color: #008C9C !important;
+}
+
+/* 4. Bottom Close Section Button */
+.kyraSapCloseBtn,
+.kyraSapCloseBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapCloseBtn {
+    background: transparent !important;
+    border: none !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    min-width: 130px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapCloseBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapCloseBtn .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    height: 38px !important;
+    line-height: 35px !important;
+    padding: 0 18px !important;
+    min-width: 130px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.kyraSapCloseBtn .sapUiIcon,
+.kyraSapCloseBtn .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSapCloseBtn .sapUiIcon {
+    color: #64748B !important;
+    font-size: 13px !important;
+    margin-right: 8px !important;
+}
+
+.kyraSapCloseBtn .sapMBtnText,
+.kyraSapCloseBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraSapCloseBtn .sapMBtnText {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+.kyraSapCloseBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapCloseBtn:hover .sapMBtnInner {
+    background: #FEF2F2 !important;
+    background-color: #FEF2F2 !important;
+    border-color: #F87171 !important;
+}
+
+.kyraSapCloseBtn:hover .sapUiIcon,
+.kyraSapCloseBtn:hover .sapMBtnIcon {
+    color: #DC2626 !important;
+}
+
+.kyraSapCloseBtn:hover .sapMBtnText,
+.kyraSapCloseBtn:hover bdi {
+    color: #DC2626 !important;
+}
