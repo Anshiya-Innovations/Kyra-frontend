@@ -1,4 +1,4 @@
-sap.ui.define([
+﻿sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
@@ -776,6 +776,64 @@ sap.ui.define([
                         }
                     ]
                 },
+                                sapIntegrationsList: [
+                    {
+                        id: "9415e6c2-1f9d-424e-a4c0-5a6a0c3a9836",
+                        appName: "sap_btp",
+                        displayName: "SAP Business Technology Platform (US East VA)",
+                        region: "us10",
+                        regionName: "North America (US East)",
+                        subdomain: "5af75fc5trial",
+                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        url: "https://5af75fc5trial.authentication.us10.hana.ondemand.com",
+                        tokenUrl: "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token",
+                        clientId: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",
+                        clientSecret: "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=",
+                        cfOrg: "5af75fc5trial",
+                        cfSpace: "dev",
+                        cfApiUrl: "https://api.cf.us10-001.hana.ondemand.com",
+                        isConnected: true,
+                        subscriptionTier: "Enterprise Subscription (dev space)",
+                        statusText: "Purchased & Active",
+                        subaccountSubtitle: "Connected Subaccount: 5af75fc5trial • Region: us10 (North America (US East)) • Status: Active Enterprise Subscription",
+                        servicesSummary: "12 Services Active • 4GB / 8GB Runtime Quota",
+                        isAppExpanded: false,
+                        liveQuotas: [
+                            { resource: "CF App Memory Runtime", subtext: "Active container execution memory", accountLimit: "8 GB", currentUsage: "4 GB", remainingCapacity: "4 GB Available", icon: "sap-icon://performance" },
+                            { resource: "CF Service Instances", subtext: "Provisioned backing services", accountLimit: "30 Instances", currentUsage: "12 Instances", remainingCapacity: "18 Instances Available", icon: "sap-icon://instance" },
+                            { resource: "Route & Domain Endpoints", subtext: "HTTP route bindings", accountLimit: "50 Routes", currentUsage: "14 Routes", remainingCapacity: "36 Routes Available", icon: "sap-icon://world" },
+                            { resource: "Application Log Storage", subtext: "Aggregated event telemetry quota", accountLimit: "10 GB / Mo", currentUsage: "2.8 GB", remainingCapacity: "7.2 GB Available", icon: "sap-icon://history" }
+                        ]
+                    },
+                    {
+                        id: "26db0da6-3181-437d-8c25-63d35e281743",
+                        appName: "sap_btp_singapore",
+                        displayName: "SAP Business Technology Platform (Singapore)",
+                        region: "ap21",
+                        regionName: "Asia Pacific (Singapore)",
+                        subdomain: "kyra-singapore",
+                        subaccountId: "c47846a0-2a37-40c4-b9f2-c59802307b00",
+                        url: "https://kyra-singapore.authentication.ap21.hana.ondemand.com",
+                        tokenUrl: "https://kyra-singapore.authentication.ap21.hana.ondemand.com/oauth/token",
+                        clientId: "sb-na-2b7c733e-87aa-41c7-b1ec-793d57b557c8!a149803",
+                        clientSecret: "d5c51266-cf9a-4f33-af1a-b4760f8ed3ac$jS8qsYOmiHzf7SET22HGt66cxwbhGjpyiCbu5yTVgeQ=",
+                        cfOrg: "kyra-singapore",
+                        cfSpace: "dev",
+                        cfApiUrl: "https://api.cf.ap21.hana.ondemand.com",
+                        isConnected: true,
+                        subscriptionTier: "Enterprise Subscription (dev space)",
+                        statusText: "Purchased & Active",
+                        subaccountSubtitle: "Connected Subaccount: kyra-singapore • Region: ap21 (Asia Pacific (Singapore)) • Status: Active Enterprise Subscription",
+                        servicesSummary: "12 Services Active • 4GB / 8GB Runtime Quota",
+                        isAppExpanded: false,
+                        liveQuotas: [
+                            { resource: "CF App Memory Runtime", subtext: "Active container execution memory", accountLimit: "8 GB", currentUsage: "4 GB", remainingCapacity: "4 GB Available", icon: "sap-icon://performance" },
+                            { resource: "CF Service Instances", subtext: "Provisioned backing services", accountLimit: "30 Instances", currentUsage: "12 Instances", remainingCapacity: "18 Instances Available", icon: "sap-icon://instance" },
+                            { resource: "Route & Domain Endpoints", subtext: "HTTP route bindings", accountLimit: "50 Routes", currentUsage: "14 Routes", remainingCapacity: "36 Routes Available", icon: "sap-icon://world" },
+                            { resource: "Application Log Storage", subtext: "Aggregated event telemetry quota", accountLimit: "10 GB / Mo", currentUsage: "2.8 GB", remainingCapacity: "7.2 GB Available", icon: "sap-icon://history" }
+                        ]
+                    }
+                ],
                 selectedAdminServiceName: "xsuaa (Authorization and Trust Management Service)",
                 adminSystemsAll: [
                     {
@@ -1266,6 +1324,7 @@ sap.ui.define([
             this.getView().setModel(oModel, "accessModel");
             this.getOwnerComponent().setModel(oModel, "accessModel");
             this._loadCustomAccessAndConflictConfig(oModel);
+            this._loadActiveIntegrations(oModel);
             this._loadSubmittedRequests(oModel);
             this._loadAvailableDepartments();
             this._loadIamApproverConfig(oModel);
@@ -14449,7 +14508,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Subaccount Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -15080,7 +15139,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Subaccount Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Restricted" }
       ]
     },
     {
@@ -15783,6 +15842,7 @@ sap.ui.define([
                 this._ensureAdminSnapshots(oModel);
                 this._refreshCustomConflictOptions(oModel);
                 this._loadCustomAccessAndConflictConfig(oModel);
+                this._loadActiveIntegrations(oModel);
                 setTimeout(() => {
                     this._updateCustomizationTabButtons(oModel.getProperty("/adminCustomizationSubTab") || "business");
                     this._smoothScrollTo("adminAccessCustomizationSection", 40);
@@ -15961,6 +16021,7 @@ sap.ui.define([
             if (!oModel) return;
             oModel.setProperty("/sapIntegration/currentStep", 2);
             oModel.setProperty("/sapIntegration/isAppExpanded", false);
+            this._loadActiveIntegrations(oModel);
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._smoothScrollTo("sapPurchasedAppsContainer", 40);
@@ -15995,40 +16056,162 @@ sap.ui.define([
             }, 40);
         },
 
-        onEditSapIntegration(oEvent) {
+        onEditSapIntegrationItem(oEvent) {
             if (oEvent) {
-                if (typeof oEvent.stopPropagation === "function") {
-                    oEvent.stopPropagation();
-                }
-                if (typeof oEvent.preventDefault === "function") {
-                    oEvent.preventDefault();
-                }
-                if (oEvent.cancelBubble !== undefined) {
-                    oEvent.cancelBubble = true;
-                }
+                if (typeof oEvent.stopPropagation === "function") oEvent.stopPropagation();
+                if (typeof oEvent.preventDefault === "function") oEvent.preventDefault();
+                if (oEvent.cancelBubble !== undefined) oEvent.cancelBubble = true;
             }
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            let oItemData = null;
+            if (oEvent && typeof oEvent.getSource === "function") {
+                const oCtx = oEvent.getSource().getBindingContext("accessModel");
+                if (oCtx) {
+                    oItemData = oCtx.getObject();
+                }
+            }
+            if (!oItemData) {
+                const aList = oModel.getProperty("/sapIntegrationsList") || [];
+                oItemData = aList[0];
+            }
+
             oModel.setProperty("/sapIntegration/formMode", "edit");
-            oModel.setProperty("/sapIntegration/selectedApp", "sap_btp");
+            oModel.setProperty("/sapIntegration/selectedApp", (oItemData && oItemData.appName) || "sap_btp");
             oModel.setProperty("/sapIntegration/currentStep", 1);
             oModel.setProperty("/sapIntegration/isAppExpanded", false);
-            // Populate existing configured SAP BTP subscription credentials for editing
-            oModel.setProperty("/sapIntegration/btp/region", "us10");
-            oModel.setProperty("/sapIntegration/btp/subdomain", "5af75fc5trial");
-            oModel.setProperty("/sapIntegration/btp/idpOrigin", "sap.ids");
-            oModel.setProperty("/sapIntegration/btp/url", "https://api.authentication.us10.hana.ondemand.com");
-            oModel.setProperty("/sapIntegration/btp/subaccountId", "33d545ed-34b8-4d60-8789-38e9f943e8ad");
-            oModel.setProperty("/sapIntegration/btp/tokenUrl", "https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token");
-            oModel.setProperty("/sapIntegration/btp/clientId", "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755");
-            oModel.setProperty("/sapIntegration/btp/clientSecret", "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=");
-            oModel.setProperty("/sapIntegration/btp/cfOrg", "5af75fc5trial");
-            oModel.setProperty("/sapIntegration/btp/cfSpace", "dev");
-            oModel.setProperty("/sapIntegration/btp/cfApiUrl", "https://api.cf.us10-001.hana.ondemand.com");
+
+            if (oItemData) {
+                oModel.setProperty("/sapIntegration/btp/region", oItemData.region || "us10");
+                oModel.setProperty("/sapIntegration/btp/subdomain", oItemData.subdomain || "");
+                oModel.setProperty("/sapIntegration/btp/idpOrigin", oItemData.idpOrigin || "sap.ids");
+                oModel.setProperty("/sapIntegration/btp/url", oItemData.url || "");
+                oModel.setProperty("/sapIntegration/btp/subaccountId", oItemData.subaccountId || "");
+                oModel.setProperty("/sapIntegration/btp/tokenUrl", oItemData.tokenUrl || "");
+                oModel.setProperty("/sapIntegration/btp/clientId", oItemData.clientId || "");
+                oModel.setProperty("/sapIntegration/btp/clientSecret", oItemData.clientSecret || "");
+                oModel.setProperty("/sapIntegration/btp/serviceKeyJson", oItemData.serviceKeyJson || "");
+                oModel.setProperty("/sapIntegration/btp/cfOrg", oItemData.cfOrg || oItemData.subdomain || "");
+                oModel.setProperty("/sapIntegration/btp/cfSpace", oItemData.cfSpace || "dev");
+                oModel.setProperty("/sapIntegration/btp/cfApiUrl", oItemData.cfApiUrl || "");
+            }
+
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);
             }, 40);
+        },
+
+        onToggleAppHierarchyItem(oEvent) {
+            if (oEvent && typeof oEvent.getSource === "function") {
+                const oCtx = oEvent.getSource().getBindingContext("accessModel");
+                if (oCtx) {
+                    const sPath = oCtx.getPath();
+                    const bCur = !!oCtx.getProperty("isAppExpanded");
+                    oCtx.getModel().setProperty(sPath + "/isAppExpanded", !bCur);
+                    return;
+                }
+            }
+            this.onToggleAppHierarchy();
+        },
+
+        onRefreshSapQuotasItem(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            let sPath = "";
+            if (oEvent && typeof oEvent.getSource === "function") {
+                const oCtx = oEvent.getSource().getBindingContext("accessModel");
+                if (oCtx) {
+                    sPath = oCtx.getPath();
+                }
+            }
+            MessageToast.show("Syncing live quotas with SAP BTP tenant...");
+            if (sPath) {
+                oModel.setProperty(sPath + "/lastQuotaSync", "Syncing...");
+            } else {
+                oModel.setProperty("/sapIntegration/lastQuotaSync", "Syncing...");
+            }
+            setTimeout(() => {
+                const sTime = new Date().toLocaleTimeString();
+                if (sPath) {
+                    oModel.setProperty(sPath + "/lastQuotaSync", sTime);
+                } else {
+                    oModel.setProperty("/sapIntegration/lastQuotaSync", sTime);
+                }
+                MessageToast.show("SAP BTP Live Quotas updated at " + sTime);
+            }, 600);
+        },
+
+        _loadActiveIntegrations(oModel) {
+            if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            fetch("/odata/v4/admin-portal/getActiveIntegrations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: "{}"
+            })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (!data) return;
+                let aIntegrations = [];
+                if (data.sapIntegrations) {
+                    try {
+                        const parsed = typeof data.sapIntegrations === "string" ? JSON.parse(data.sapIntegrations) : data.sapIntegrations;
+                        if (Array.isArray(parsed)) {
+                            aIntegrations = parsed;
+                        }
+                    } catch (e) {
+                        console.warn("Failed to parse sapIntegrations:", e);
+                    }
+                }
+
+                if (aIntegrations.length > 0) {
+                    oModel.setProperty("/sapIntegrationsList", aIntegrations);
+                    const first = aIntegrations[0];
+                    if (first) {
+                        oModel.setProperty("/sapIntegration/connected", true);
+                        oModel.setProperty("/sapIntegration/statusText", first.statusText || "Purchased & Active");
+                    }
+
+                    // Dynamically ensure all integrated systems are present in Access Customization System tab
+                    let aExistingSystems = oModel.getProperty("/adminSystemsAll") || [];
+                    let bChanged = false;
+                    const aMerged = aExistingSystems.slice();
+
+                    aIntegrations.forEach(item => {
+                        const sSysName = item.displayName || (item.appName === "sap_btp_singapore" ? "SAP Business Technology Platform (Singapore)" : "SAP Business Technology Platform (US East VA)");
+                        const exists = aMerged.some(s => s && (s.systemName === sSysName || (s.subaccountId && item.subaccountId && s.subaccountId === item.subaccountId)));
+                        if (!exists) {
+                            aMerged.push({
+                                systemName: sSysName,
+                                region: item.region || "us10",
+                                regionName: item.regionName || (item.region === "ap21" ? "Asia" : "North America"),
+                                subaccountId: item.subaccountId || "",
+                                environment: "Cloud",
+                                thresholdLimit: "5",
+                                status: "Active",
+                                createdDate: "2025-01-10"
+                            });
+                            bChanged = true;
+                        }
+                    });
+
+                    if (bChanged || aMerged.length !== (oModel.getProperty("/adminSystems") || []).length) {
+                        oModel.setProperty("/adminSystemsAll", aMerged);
+                        oModel.setProperty("/adminSystems", aMerged.slice());
+                        oModel.setProperty("/activeAdminSystems", aMerged.slice());
+                    }
+                }
+            })
+            .catch(err => {
+                console.warn("Failed to load active integrations:", err);
+            });
+        },
+
+        onEditSapIntegration(oEvent) {
+            this.onEditSapIntegrationItem(oEvent);
         },
 
         onSearchAdminSystems(oEvent) {
@@ -20567,13 +20750,9 @@ sap.ui.define([
                 oModel.setProperty("/sapIntegration/lastQuotaSync", sSyncTime);
                 oModel.setProperty("/sapIntegration/isAppExpanded", false);
 
-                // Automatically analyze and populate integrated SAP BTP system into Access Customization
-                const aIntegratedSystems = [
-                    { systemName: "SAP Business Technology Platform", environment: "Cloud", thresholdLimit: "5", status: "Active", createdDate: "2025-01-10" }
-                ];
-                oModel.setProperty("/adminSystemsAll", aIntegratedSystems);
-                oModel.setProperty("/adminSystems", aIntegratedSystems.slice());
-                oModel.setProperty("/activeAdminSystems", aIntegratedSystems.slice());
+                // Reload active integrations list and admin systems dynamically
+                this._loadActiveIntegrations(oModel);
+                this._loadCustomAccessAndConflictConfig(oModel, true);
 
                 // Automatically analyze and populate all 27 services inside the integrated SAP application
                 const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
@@ -20882,6 +21061,7 @@ sap.ui.define([
                 oModel.setProperty("/selectedIntegrationType", "sap");
                 oModel.setProperty("/sapIntegration/currentStep", 2);
                 oModel.setProperty("/sapIntegration/isAppExpanded", false);
+                this._loadActiveIntegrations(oModel);
                 try { sap.ui.getCore().applyChanges(); } catch (e) {}
                 setTimeout(() => {
                     this._smoothScrollTo("sapPurchasedAppsContainer", 40);

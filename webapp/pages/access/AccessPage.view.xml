@@ -1,4 +1,4 @@
-<mvc:View
+﻿<mvc:View
     controllerName="kyra001.pages.access.AccessPage"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
@@ -1036,7 +1036,7 @@
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
                                     <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
-                                    <Text text="Connected SAP Subaccount: 5af75fc5trial (dev) • Active enterprise cloud licenses and services discovered for this tenant." class="kyraDarkStudioSubtitle" />
+                                    <Text text="Connected SAP Applications &amp; Subscriptions • Active enterprise cloud licenses and services discovered across all integrated tenants." class="kyraDarkStudioSubtitle" />
                                 </VBox>
                                 <Button
                                     id="btnAddIntegration"
@@ -1052,7 +1052,7 @@
                                 <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
                                     <HBox class="kyraDarkGreenGlowDot" />
                                     <FormattedText
-                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Discovered Tenant: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;5af75fc5trial (dev space)&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Status: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;Active Enterprise Subscription&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Single Sign-On (IAS): &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Linked&lt;/span&gt;"
+                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Discovered Integrations: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Enterprise Connected Tenants (Active)&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Status: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;Active Enterprise Subscriptions&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Single Sign-On (IAS): &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Linked&lt;/span&gt;"
                                         class="kyraDarkBannerFormattedText" />
                                 </HBox>
                                 <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
@@ -1060,131 +1060,130 @@
                                 </HBox>
                             </HBox>
 
-                            <!-- Integrated SAP Application Card (SAP BTP) -->
-                            <VBox width="100%" class="sapUiMediumMarginBottom">
-                                <VBox class="kyraDarkFormCard kyraClickableCard sapUiSmallMarginBottom" press=".onToggleAppHierarchy">
-                                    <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMargin">
-                                        <!-- Left: App Icon & Info -->
-                                        <HBox alignItems="Center" gap="16px">
-                                            <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="48px" height="48px" style="border-radius: 12px; background: rgba(0, 140, 156, 0.12);">
-                                                <core:Icon src="sap-icon://cloud" size="1.5rem" color="#008C9C" />
-                                            </HBox>
-                                            <VBox>
-                                                <HBox alignItems="Center" gap="10px">
-                                                    <Title text="SAP Business Technology Platform" level="H4" class="kyraDarkCardHeaderTitle" />
-                                                    <HBox class="kyraDarkEnterpriseBadge" alignItems="Center">
-                                                        <Text text="Enterprise Subscription (dev space)" class="kyraDarkEnterpriseBadgeText" />
-                                                    </HBox>
+                            <!-- Integrated SAP Application Cards (Dynamic List) -->
+                            <VBox width="100%" class="sapUiMediumMarginBottom" items="{accessModel>/sapIntegrationsList}">
+                                <items>
+                                    <VBox class="kyraDarkFormCard kyraClickableCard sapUiSmallMarginBottom">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMargin">
+                                            <!-- Left: App Icon & Info -->
+                                            <HBox alignItems="Center" gap="16px">
+                                                <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="48px" height="48px" style="border-radius: 12px; background: rgba(0, 140, 156, 0.12);">
+                                                    <core:Icon src="sap-icon://cloud" size="1.5rem" color="#008C9C" />
                                                 </HBox>
-                                                <Text text="Cloud Platform &amp; Extension Suite" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
-                                                <Text text="12 Services Active • 4GB / 8GB Runtime Quota" class="kyraDarkFieldLabel sapUiTinyMarginTop" style="color: #64748B; font-size: 12.5px;" />
+                                                <VBox>
+                                                    <HBox alignItems="Center" gap="10px">
+                                                        <Title text="{accessModel>displayName}" level="H4" class="kyraDarkCardHeaderTitle" />
+                                                        <HBox class="kyraDarkEnterpriseBadge" alignItems="Center">
+                                                            <Text text="{accessModel>subscriptionTier}" class="kyraDarkEnterpriseBadgeText" />
+                                                        </HBox>
+                                                    </HBox>
+                                                    <Text text="{accessModel>subaccountSubtitle}" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
+                                                    <Text text="{accessModel>servicesSummary}" class="kyraDarkFieldLabel sapUiTinyMarginTop" style="color: #64748B; font-size: 12.5px;" />
+                                                </VBox>
+                                            </HBox>
+
+                                            <!-- Right: Status Badge & Interactive Action Buttons (Edit + Quotas) -->
+                                            <VBox alignItems="End" gap="8px">
+                                                <HBox class="kyraDarkStatusBadgePurchasedActive" alignItems="Center" gap="4px">
+                                                    <Text text="{accessModel>statusText}" class="kyraDarkStatusBadgePurchasedActiveText" />
+                                                    <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraDarkStatusBadgePurchasedActiveIcon" />
+                                                </HBox>
+                                                <HBox alignItems="Center" gap="8px">
+                                                    <Button
+                                                        icon="sap-icon://edit"
+                                                        text="Edit"
+                                                        type="Default"
+                                                        press=".onEditSapIntegrationItem"
+                                                        class="kyraDarkOutlineBtn"
+                                                        tooltip="Edit SAP Integration Configuration" />
+                                                    <Button
+                                                        text="{= ${accessModel>isAppExpanded} ? 'Hide Live Quotas' : 'Click to View Live Resource Quotas ▼' }"
+                                                        type="Default"
+                                                        press=".onToggleAppHierarchyItem"
+                                                        class="kyraDarkOutlineBtn" />
+                                                </HBox>
                                             </VBox>
                                         </HBox>
 
-                                        <!-- Right: Status Badge & Interactive Action Buttons (Edit + Quotas) -->
-                                        <VBox alignItems="End" gap="8px">
-                                            <HBox class="kyraDarkStatusBadgePurchasedActive" alignItems="Center" gap="4px">
-                                                <Text text="Purchased &amp; Active" class="kyraDarkStatusBadgePurchasedActiveText" />
-                                                <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraDarkStatusBadgePurchasedActiveIcon" />
-                                            </HBox>
-                                            <HBox alignItems="Center" gap="8px">
-                                                <Button
-                                                    id="btnEditSapIntegration"
-                                                    icon="sap-icon://edit"
-                                                    text="Edit"
-                                                    type="Default"
-                                                    press=".onEditSapIntegration"
-                                                    class="kyraDarkOutlineBtn"
-                                                    tooltip="Edit SAP Integration Configuration" />
-                                                <Button
-                                                    id="btnExploreBtpHierarchy"
-                                                    text="{= ${accessModel>/sapIntegration/isAppExpanded} ? 'Hide Live Quotas' : 'Click to View Live Resource Quotas ▼' }"
-                                                    type="Default"
-                                                    press=".onToggleAppHierarchy"
-                                                    class="kyraDarkOutlineBtn" />
-                                            </HBox>
-                                        </VBox>
-                                    </HBox>
-
-                                    <!-- LIVE RESOURCE UTILIZATION & QUOTAS TABLE: Displayed when application is clicked/expanded -->
-                                    <VBox visible="{= !!${accessModel>/sapIntegration/isAppExpanded} }" class="kyraDarkStudioSlide sapUiSmallMarginTop sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginBottom kyraSlideAnim" width="100%">
-                                        
-                                        <!-- Table Section Header with Live Telemetry Badge and Refresh Button -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom" style="border-top: 1px solid #E2E8F0; padding-top: 14px;">
-                                            <HBox alignItems="Center" gap="10px">
-                                                <core:Icon src="sap-icon://chart-axis" color="#008C9C" />
-                                                <Title text="Cloud Foundry Live Quotas &amp; Resource Utilization" level="H4" class="kyraDarkCardHeaderTitle" />
-                                                <HBox class="kyraDarkGreenPillBadge sapUiTinyMarginBegin" alignItems="Center" gap="6px">
-                                                    <HBox class="kyraDarkGreenGlowDot" />
-                                                    <Text text="Live Telemetry" class="kyraDarkGreenPillText" />
+                                        <!-- LIVE RESOURCE UTILIZATION & QUOTAS TABLE: Displayed when application is clicked/expanded -->
+                                        <VBox visible="{= !!${accessModel>isAppExpanded} }" class="kyraDarkStudioSlide sapUiSmallMarginTop sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginBottom kyraSlideAnim" width="100%">
+                                            
+                                            <!-- Table Section Header with Live Telemetry Badge and Refresh Button -->
+                                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom" style="border-top: 1px solid #E2E8F0; padding-top: 14px;">
+                                                <HBox alignItems="Center" gap="10px">
+                                                    <core:Icon src="sap-icon://chart-axis" color="#008C9C" />
+                                                    <Title text="Cloud Foundry Live Quotas &amp; Resource Utilization" level="H4" class="kyraDarkCardHeaderTitle" />
+                                                    <HBox class="kyraDarkGreenPillBadge sapUiTinyMarginBegin" alignItems="Center" gap="6px">
+                                                        <HBox class="kyraDarkGreenGlowDot" />
+                                                        <Text text="Live Telemetry" class="kyraDarkGreenPillText" />
+                                                    </HBox>
+                                                </HBox>
+                                                <HBox alignItems="Center" gap="12px">
+                                                    <Text text="{= 'Last Synced: ' + (${accessModel>lastQuotaSync} || 'Live') }" class="kyraDarkStudioSubtitle" style="font-size: 12px; color: #64748B;" />
+                                                    <Button
+                                                        icon="sap-icon://refresh"
+                                                        text="Refresh Quotas"
+                                                        type="Default"
+                                                        press=".onRefreshSapQuotasItem"
+                                                        class="kyraDarkOutlineBtn"
+                                                        tooltip="Refresh live Cloud Foundry metrics" />
                                                 </HBox>
                                             </HBox>
-                                            <HBox alignItems="Center" gap="12px">
-                                                <Text text="{= 'Last Synced: ' + (${accessModel>/sapIntegration/lastQuotaSync} || 'Live') }" class="kyraDarkStudioSubtitle" style="font-size: 12px; color: #64748B;" />
-                                                <Button
-                                                    icon="sap-icon://refresh"
-                                                    text="Refresh Quotas"
-                                                    type="Default"
-                                                    press=".onRefreshSapQuotas"
-                                                    class="kyraDarkOutlineBtn"
-                                                    tooltip="Refresh live Cloud Foundry metrics" />
-                                            </HBox>
-                                        </HBox>
 
-                                        <!-- Live Quota Utilization Table -->
-                                        <Table
-                                            id="sapBtpLiveQuotasTable"
-                                            items="{accessModel>/sapIntegration/liveQuotas}"
-                                            fixedLayout="true"
-                                            class="sapUiNoMargin kyraAdminCleanTable kyraLiveQuotaTable">
-                                            <columns>
-                                                <Column width="32%" hAlign="Begin">
-                                                    <Text text="RESOURCE" class="kyraAdminColHeader" />
-                                                </Column>
-                                                <Column width="20%" hAlign="Begin">
-                                                    <Text text="ACCOUNT LIMIT" class="kyraAdminColHeader" />
-                                                </Column>
-                                                <Column width="26%" hAlign="Begin">
-                                                    <Text text="CURRENT USAGE" class="kyraAdminColHeader" />
-                                                </Column>
-                                                <Column width="22%" hAlign="Begin">
-                                                    <Text text="REMAINING CAPACITY" class="kyraAdminColHeader" />
-                                                </Column>
-                                            </columns>
-                                            <items>
-                                                <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
-                                                    <cells>
-                                                        <HBox alignItems="Center" gap="12px">
-                                                            <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="36px" height="36px" style="border-radius: 8px; background: rgba(0, 140, 156, 0.1);">
-                                                                <core:Icon src="{accessModel>icon}" color="#008C9C" size="1.1rem" />
+                                            <!-- Live Quota Utilization Table -->
+                                            <Table
+                                                items="{accessModel>liveQuotas}"
+                                                fixedLayout="true"
+                                                class="sapUiNoMargin kyraAdminCleanTable kyraLiveQuotaTable">
+                                                <columns>
+                                                    <Column width="32%" hAlign="Begin">
+                                                        <Text text="RESOURCE" class="kyraAdminColHeader" />
+                                                    </Column>
+                                                    <Column width="20%" hAlign="Begin">
+                                                        <Text text="ACCOUNT LIMIT" class="kyraAdminColHeader" />
+                                                    </Column>
+                                                    <Column width="26%" hAlign="Begin">
+                                                        <Text text="CURRENT USAGE" class="kyraAdminColHeader" />
+                                                    </Column>
+                                                    <Column width="22%" hAlign="Begin">
+                                                        <Text text="REMAINING CAPACITY" class="kyraAdminColHeader" />
+                                                    </Column>
+                                                </columns>
+                                                <items>
+                                                    <ColumnListItem vAlign="Middle" class="kyraAdminTableRow">
+                                                        <cells>
+                                                            <HBox alignItems="Center" gap="12px">
+                                                                <HBox class="kyraStratIconBadgeTeal" alignItems="Center" justifyContent="Center" width="36px" height="36px" style="border-radius: 8px; background: rgba(0, 140, 156, 0.1);">
+                                                                    <core:Icon src="{accessModel>icon}" color="#008C9C" size="1.1rem" />
+                                                                </HBox>
+                                                                <VBox>
+                                                                    <Text text="{accessModel>resource}" class="kyraAdminCellBold" />
+                                                                    <Text text="{accessModel>subtext}" class="fioriDescriptionText" style="font-size: 11.5px; color: #64748B;" visible="{= !!${accessModel>subtext} }" />
+                                                                </VBox>
                                                             </HBox>
-                                                            <VBox>
-                                                                <Text text="{accessModel>resource}" class="kyraAdminCellBold" />
-                                                                <Text text="{accessModel>subtext}" class="fioriDescriptionText" style="font-size: 11.5px; color: #64748B;" visible="{= !!${accessModel>subtext} }" />
-                                                            </VBox>
-                                                        </HBox>
-                                                        <HBox alignItems="Center">
-                                                            <Text text="{accessModel>accountLimit}" class="kyraQuotaAccountLimitText" />
-                                                        </HBox>
-                                                        <HBox alignItems="Center">
-                                                            <HBox class="kyraQuotaUsagePill" alignItems="Center">
-                                                                <Text text="{accessModel>currentUsage}" class="kyraQuotaUsagePillText" />
+                                                            <HBox alignItems="Center">
+                                                                <Text text="{accessModel>accountLimit}" class="kyraQuotaAccountLimitText" />
                                                             </HBox>
-                                                        </HBox>
-                                                        <HBox alignItems="Center">
-                                                            <HBox class="kyraQuotaCapacityPill" alignItems="Center" gap="6px">
-                                                                <core:Icon src="sap-icon://sys-enter-2" size="12px" class="kyraQuotaCapacityIcon" />
-                                                                <Text text="{accessModel>remainingCapacity}" class="kyraQuotaCapacityPillText" />
+                                                            <HBox alignItems="Center">
+                                                                <HBox class="kyraQuotaUsagePill" alignItems="Center">
+                                                                    <Text text="{accessModel>currentUsage}" class="kyraQuotaUsagePillText" />
+                                                                </HBox>
                                                             </HBox>
-                                                        </HBox>
-                                                    </cells>
-                                                </ColumnListItem>
-                                            </items>
-                                        </Table>
+                                                            <HBox alignItems="Center">
+                                                                <HBox class="kyraQuotaCapacityPill" alignItems="Center" gap="6px">
+                                                                    <core:Icon src="sap-icon://sys-enter-2" size="12px" class="kyraQuotaCapacityIcon" />
+                                                                    <Text text="{accessModel>remainingCapacity}" class="kyraQuotaCapacityPillText" />
+                                                                </HBox>
+                                                            </HBox>
+                                                        </cells>
+                                                    </ColumnListItem>
+                                                </items>
+                                            </Table>
+
+                                        </VBox>
 
                                     </VBox>
-
-                                </VBox>
+                                </items>
                             </VBox>
 
                             <!-- Bottom Action Bar -->
@@ -3730,7 +3729,7 @@
                                                 gap="10px"
                                                 class="kyraAdminNoticeBanner sapUiSmallMarginBottom">
                                                 <core:Icon src="sap-icon://information" color="#008C9C" size="16px" />
-                                                <Text text="{= 'Service \'' + (${accessModel>/selectedAdminServiceName} || '') + '\' is in Draft mode. You can add ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Templates and Role Collections' : 'Teams and Personas') + ' below, then click \'Save\' to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
+                                                <Text text="{= 'Service: ' + (${accessModel>/selectedAdminServiceName} || '') + ' is in Draft mode. You can add ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Templates and Role Collections' : 'Teams and Personas') + ' below, then click Save to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
                                             </HBox>
 
                                             <!-- Clean Empty State when no Service is selected -->
@@ -3758,7 +3757,7 @@
                                                     <VBox width="100%">
                                                         <Text text="{= (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Template (' : 'Team (') + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
 
-                                                        <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No role templates added yet. Click \'+ Add Role Template\' below.' : 'No teams added yet. Click \'+ Add Team\' below.' }"
+                                                         <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No role templates added yet. Click + Add Role Template below.' : 'No teams added yet. Click + Add Team below.' }"
                                                               visible="{= !${accessModel>/adminClassifications} || ${accessModel>/adminClassifications}.length === 0 }"
                                                               class="kyraAdminEmptyPlaceholderText sapUiSmallMarginBottom" />
                                                         <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer" width="100%">
@@ -3827,7 +3826,7 @@
                                                             text="{= (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Collection (' : 'Persona (') + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
                                                             class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
 
-                                                        <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No role collections added yet. Click \'+ Add Role Collection\' below.' : 'No personas added yet. Click \'+ Add Persona\' below.' }"
+                                                         <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No role collections added yet. Click + Add Role Collection below.' : 'No personas added yet. Click + Add Persona below.' }"
                                                               visible="{= !${accessModel>/selectedAdminClassification/subClassifications} || ${accessModel>/selectedAdminClassification/subClassifications}.length === 0 }"
                                                               class="kyraAdminEmptyPlaceholderText sapUiTinyMarginBottom" />
                                                         <!-- Items List -->
@@ -4716,7 +4715,7 @@
                                     <Avatar src="sap-icon://globe" displaySize="L" class="kyraEmptyStateAvatar" />
                                 </HBox>
                                 <Title text="No Applications Integrated in this Region" level="H3" class="sapUiTinyMarginBottom" />
-                                <Text text="{= 'No system or cloud applications are currently integrated for ' + (${accessModel>/addAccessRegion} ? ('\'' + ${accessModel>/addAccessRegion} + '\'') : 'the selected region') + '.' }" textAlign="Center" class="fioriDescriptionText sapUiTinyMarginBottom" />
+                                <Text text="{= 'No system or cloud applications are currently integrated for ' + (${accessModel>/addAccessRegion} ? ${accessModel>/addAccessRegion} : 'the selected region') + '.' }" textAlign="Center" class="fioriDescriptionText sapUiTinyMarginBottom" />
                                 <Text text="Active system integrations are currently available for North America (US East VA) and Asia (Singapore)." textAlign="Center" class="fioriDescriptionText sapUiMediumMarginBottom" />
                                 <Button
                                     text="Back to Region Selection"
