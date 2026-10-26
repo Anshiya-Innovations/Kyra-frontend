@@ -936,6 +936,58 @@ sap.ui.define([
             this.onNavBackToPortal();
         },
 
+        async onSystemsSelectionChange(oEvent) {
+            const oModel = this.getView().getModel("addAccessModel");
+            if (!oModel) return;
+
+            const aSelected = oModel.getProperty("/selectedSystems") || [];
+            if (aSelected.length === 0) {
+                oModel.setProperty("/servicesList", []);
+                oModel.setProperty("/subRolesList", []);
+                oModel.setProperty("/personasList", []);
+                return;
+            }
+
+            const sFirstSys = aSelected[0];
+            await this._fetchAndApplyDynamicCatalog(sFirstSys);
+        },
+
+        async _fetchAndApplyDynamicCatalog(sTargetSystem) {
+            const oModel = this.getView().getModel("addAccessModel");
+            if (!oModel) return;
+
+            try {
+                const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ targetSystem: sTargetSystem })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.ok) {
+                        const aServices = JSON.parse(data.servicesJson || "[]");
+                        const oServicesRolesMapDynamic = JSON.parse(data.servicesRolesMapJson || "{}");
+                        const oTeamPersonasMapDynamic = JSON.parse(data.teamPersonasMapJson || "{}");
+
+                        this._dynamicServicesRolesMap = oServicesRolesMapDynamic;
+                        this._dynamicTeamPersonasMap = oTeamPersonasMapDynamic;
+
+                        const aServicesFormatted = aServices.map(s => ({
+                            key: s.serviceName,
+                            text: s.serviceName,
+                            icon: "sap-icon://cloud"
+                        }));
+
+                        oModel.setProperty("/servicesList", aServicesFormatted);
+                        console.log(`[DYNAMIC CATALOG] Loaded ${aServicesFormatted.length} live services for ${sTargetSystem}`);
+                    }
+                }
+            } catch (err) {
+                console.warn("[DYNAMIC CATALOG] Failed to load subaccount catalog:", err);
+            }
+        },
+
         onSectorChange(oEvent) {
             const sSector = oEvent.getParameter("selectedItem") ? oEvent.getParameter("selectedItem").getKey() : "";
             const oModel = this.getView().getModel("addAccessModel");
@@ -1037,6 +1089,9 @@ sap.ui.define([
             const oModel = this.getView().getModel("addAccessModel");
             const sRegion = oModel.getProperty("/region") || "";
             const aSystems = oModel.getProperty("/selectedSystems") || [];
+            if (aSystems.length > 0 && !this._dynamicServicesRolesMap) {
+                this._fetchAndApplyDynamicCatalog(aSystems[0]);
+            }
             const aServices = oModel.getProperty("/selectedServices") || [];
             const aRoles = oModel.getProperty("/selectedRoles") || [];
             const aPersonas = oModel.getProperty("/selectedPersonas") || [];
@@ -1142,17 +1197,20 @@ sap.ui.define([
 
             aSystems.forEach(sSys => {
                 aPersonas.forEach(sPersonaKey => {
+                    const mapTeamPersonas = this._dynamicTeamPersonasMap || oTeamPersonasMap;
+                    const mapSrvRoles = this._dynamicServicesRolesMap || oServicesRolesMap;
+
                     let sRole = "Default Role";
-                    for (const sRoleKey in oTeamPersonasMap) {
-                        if (oTeamPersonasMap[sRoleKey].some(p => p.key === sPersonaKey)) {
+                    for (const sRoleKey in mapTeamPersonas) {
+                        if (mapTeamPersonas[sRoleKey].some(p => p.key === sPersonaKey)) {
                             sRole = sRoleKey;
                             break;
                         }
                     }
 
                     let sService = "General Service";
-                    for (const sServiceKey in oServicesRolesMap) {
-                        if (oServicesRolesMap[sServiceKey].some(r => r.key === sRole)) {
+                    for (const sServiceKey in mapSrvRoles) {
+                        if (mapSrvRoles[sServiceKey].some(r => r.key === sRole)) {
                             sService = sServiceKey;
                             break;
                         }

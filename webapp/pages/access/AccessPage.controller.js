@@ -1,4 +1,4 @@
-﻿sap.ui.define([
+sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
     "sap/m/MessageToast",
@@ -599,7 +599,7 @@
                         enforceMfa: true,
                         autoProvisionBtp: true,
                         targetSystem: "SAP Business Technology Platform (SAP BTP)",
-                        subaccountId: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                        subaccountId: "559a77c6-f7ce-450d-8681-0b31933d7c79",
                         scimEndpoint: "https://33d545ed-34b8-4d60-8789-38e9f943e8ad.authentication.us10.hana.ondemand.com/api/v1/scim"
                     },
                     awsConfig: {
@@ -7365,24 +7365,88 @@
             oModel.setProperty("/addAccessSelectedPersonas", aPersonas);
 
             // Populate dependent dropdown lists preserving selections
-            this._updateSubRolesList(true);
-            this._updatePersonasList(true);
+            const fnApplySelections = () => {
+                this._updateSubRolesList(true);
+                this._updatePersonasList(true);
 
-            // Force MultiComboBox UI controls to reflect exact updated selectedKeys
-            setTimeout(() => {
-                try {
-                    const oServicesSelect = this.byId("inPageServicesMultiSelect");
-                    if (oServicesSelect) oServicesSelect.setSelectedKeys(aServices);
+                // Force MultiComboBox UI controls to reflect exact updated selectedKeys
+                setTimeout(() => {
+                    try {
+                        const oServicesSelect = this.byId("inPageServicesMultiSelect");
+                        if (oServicesSelect) oServicesSelect.setSelectedKeys(aServices);
 
-                    const oTeamSelect = this.byId("inPageTeamMultiSelect");
-                    if (oTeamSelect) oTeamSelect.setSelectedKeys(aRoles);
+                        const oTeamSelect = this.byId("inPageTeamMultiSelect");
+                        if (oTeamSelect) oTeamSelect.setSelectedKeys(aRoles);
 
-                    const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
-                    if (oPersonaSelect) oPersonaSelect.setSelectedKeys(aPersonas);
+                        const oPersonaSelect = this.byId("inPagePersonaMultiSelect");
+                        if (oPersonaSelect) oPersonaSelect.setSelectedKeys(aPersonas);
 
-                    this._applyMultiComboBoxRowClickSelection();
-                } catch(e) {}
-            }, 60);
+                        this._applyMultiComboBoxRowClickSelection();
+                    } catch(e) {}
+                }, 60);
+            };
+
+            if (sSys && (sSys.includes("SAP Business Technology Platform") || sSys.includes("SAP BTP"))) {
+                this._fetchAndApplyDynamicSubaccountCatalog(sSys, fnApplySelections);
+            } else {
+                fnApplySelections();
+            }
+        },
+
+        async _fetchAndApplyDynamicSubaccountCatalog(sSys, fnCallback) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) {
+                if (typeof fnCallback === "function") fnCallback();
+                return;
+            }
+
+            const sTarget = sSys || oModel.getProperty("/currentSystemSlideName") || "";
+            if (!sTarget || (!sTarget.includes("SAP Business Technology Platform") && !sTarget.includes("SAP BTP"))) {
+                if (typeof fnCallback === "function") fnCallback();
+                return;
+            }
+
+            const sCurrentLoadedSys = oModel.getProperty("/dynamicCatalogTargetSystem");
+            if (sCurrentLoadedSys === sTarget && (oModel.getProperty("/activeAdminServices") || []).length > 0) {
+                if (typeof fnCallback === "function") fnCallback();
+                return;
+            }
+
+            try {
+                const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ targetSystem: sTarget })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.ok) {
+                        const aLiveServices = JSON.parse(data.servicesJson || "[]");
+                        const oLiveDetailsMap = JSON.parse(data.serviceDetailsMapJson || "{}");
+
+                        oModel.setProperty("/adminServicesAll", aLiveServices);
+                        oModel.setProperty("/adminServices", aLiveServices.slice());
+                        oModel.setProperty("/activeAdminServices", aLiveServices.slice());
+                        oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+                        oModel.setProperty("/dynamicCatalogTargetSystem", sTarget);
+                        oModel.setProperty("/dynamicCatalogSystemName", data.systemName);
+                        oModel.setProperty("/dynamicCatalogSubaccountId", data.subaccountId);
+                        oModel.setProperty("/dynamicCatalogRegion", data.region);
+                        oModel.setProperty("/dynamicCatalogCounts", {
+                            services: data.totalServices,
+                            roles: data.totalRoles,
+                            roleCollections: data.totalRoleCollections
+                        });
+
+                        console.log(`[DYNAMIC CATALOG] Activated live catalog for ${sTarget}: ${data.totalServices} Services, ${data.totalRoles} Roles, ${data.totalRoleCollections} Role Collections.`);
+                    }
+                }
+            } catch (err) {
+                console.warn("[DYNAMIC CATALOG] Failed to load dynamic subaccount catalog:", err);
+            } finally {
+                if (typeof fnCallback === "function") fnCallback();
+            }
         },
 
         _saveCurrentSystemSlideConfig(sSysNameOverride) {
@@ -14401,6 +14465,10 @@
         },
 
         _sanitizeAdminServiceDetailsMap(oDetailsMap) {
+            const oModel = this.getView() ? this.getView().getModel("accessModel") : null;
+            if (oModel && oModel.getProperty("/dynamicCatalogTargetSystem") && oDetailsMap && Object.keys(oDetailsMap).length > 0) {
+                return oDetailsMap;
+            }
             const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
             if (!oDetailsMap || typeof oDetailsMap !== "object" || Object.keys(oDetailsMap).length === 0) {
                 return JSON.parse(JSON.stringify(oDefaultMap));
