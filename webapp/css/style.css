@@ -62367,89 +62367,54 @@ html body [id$="accessCustomizationSubTabBar"] .sapMBtn.kyraCustomizationTabBtnA
 }
 
 /* ========================================================================= */
-/* KYRA ENTERPRISE: TWO-TIER IAM APPROVER SHOWCASE SLIDE (I AM 1 & I AM 2)   */
+/* KYRA ENTERPRISE: TWO-TIER IAM APPROVER SHOWCASE SLIDE (Exact Mockup Match)*/
 /* ========================================================================= */
 .kyraIamShowcaseContainer,
 .sapMFlexBox.kyraIamShowcaseContainer,
 html body .sapUiTheme-sap_horizon .kyraIamShowcaseContainer {
     position: relative !important;
     width: 100% !important;
-    min-height: 400px !important;
-    border-radius: 24px !important;
+    min-height: 660px !important;
+    border-radius: 28px !important;
     overflow: hidden !important;
-    background: #07192C !important;
-    background: radial-gradient(ellipse 70% 60% at 15% 20%, rgba(0, 140, 156, 0.35) 0%, rgba(2, 132, 199, 0.15) 35%, transparent 70%),
-                radial-gradient(ellipse 70% 60% at 85% 80%, rgba(16, 185, 129, 0.28) 0%, rgba(13, 148, 136, 0.12) 35%, transparent 70%),
-                linear-gradient(135deg, #06182B 0%, #0A2844 50%, #043644 100%) !important;
+    background-color: #030D14 !important;
+    background-image: 
+        radial-gradient(rgba(0, 140, 156, 0.22) 1.5px, transparent 1.5px),
+        linear-gradient(135deg, #020C12 0%, #04141E 50%, #020A10 100%) !important;
+    background-size: 26px 26px, 100% 100% !important;
     display: flex !important;
     flex-direction: column !important;
-    align-items: stretch !important;
-    justify-content: flex-start !important;
-    padding: 30px 32px 34px 32px !important;
-    box-sizing: border-box !important;
-    border: 1.5px solid rgba(0, 140, 156, 0.38) !important;
-    box-shadow: 0 20px 48px rgba(3, 14, 28, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
-}
-
-.kyraIamSlideHeaderRow,
-.sapMFlexBox.kyraIamSlideHeaderRow {
-    display: flex !important;
-    width: 100% !important;
-    margin-bottom: 22px !important;
-}
-
-.kyraIamPulseDot {
-    width: 10px !important;
-    height: 10px !important;
-    border-radius: 50% !important;
-    background: #00E5FF !important;
-    box-shadow: 0 0 10px #00E5FF, 0 0 20px rgba(0, 229, 255, 0.6) !important;
-    flex-shrink: 0 !important;
-    margin-top: 3px !important;
-}
-
-.kyraIamSlideHeaderTitle,
-.kyraIamSlideHeaderTitle.sapMTitle,
-html body .sapUiTheme-sap_horizon .kyraIamSlideHeaderTitle {
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    letter-spacing: 1.5px !important;
-    color: #38BDF8 !important;
-    text-transform: uppercase !important;
-    margin: 0 !important;
-    line-height: 1.2 !important;
-}
-
-.kyraIamSlideHeaderSubtitle,
-.kyraIamSlideHeaderSubtitle.sapMText,
-html body .sapUiTheme-sap_horizon .kyraIamSlideHeaderSubtitle {
-    font-size: 13px !important;
-    color: #94A3B8 !important;
-    margin: 3px 0 0 0 !important;
-    line-height: 1.4 !important;
-}
-
-.kyraIamHubPillBadge {
-    background: rgba(16, 185, 129, 0.15) !important;
-    border: 1px solid rgba(16, 185, 129, 0.4) !important;
-    border-radius: 20px !important;
-    padding: 6px 14px !important;
-    display: inline-flex !important;
     align-items: center !important;
-    flex-shrink: 0 !important;
+    justify-content: center !important;
+    padding: 56px 40px !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(0, 140, 156, 0.25) !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
-.kyraIamHubPillIcon {
-    color: #34D399 !important;
+/* Decorative Diagonal Glowing Accent Lines in Corners (Mockup Match) */
+.kyraIamAccentLineTopLeft {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 180px !important;
+    height: 180px !important;
+    pointer-events: none !important;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.55) 0%, rgba(16, 185, 129, 0) 65%) !important;
+    clip-path: polygon(0 0, 100% 0, 0 100%) !important;
+    opacity: 0.55 !important;
 }
 
-.kyraIamHubPillText,
-.kyraIamHubPillText.sapMText {
-    color: #34D399 !important;
-    font-size: 12.5px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.3px !important;
-    margin: 0 !important;
+.kyraIamAccentLineBottomRight {
+    position: absolute !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: 180px !important;
+    height: 180px !important;
+    pointer-events: none !important;
+    background: linear-gradient(315deg, rgba(0, 229, 255, 0.55) 0%, rgba(0, 229, 255, 0) 65%) !important;
+    clip-path: polygon(100% 100%, 0 100%, 100% 0) !important;
+    opacity: 0.55 !important;
 }
 
 .kyraIamCardsRow,
@@ -62458,285 +62423,265 @@ html body .sapUiTheme-sap_horizon .kyraIamSlideHeaderSubtitle {
     flex-direction: row !important;
     justify-content: center !important;
     align-items: stretch !important;
-    gap: 28px !important;
+    gap: 36px !important;
     width: 100% !important;
+    max-width: 1040px !important;
     position: relative !important;
     z-index: 2 !important;
 }
 
 /* ========================================================================= */
-/* BIG APPROVER HERO BOXES (I AM 1 & I AM 2)                                 */
+/* BIG APPROVER CARDS (I AM 1 & I AM 2 - Glassmorphic Glowing Cards)         */
 /* ========================================================================= */
 .kyraIamGlassCard,
 .sapMFlexBox.kyraIamGlassCard,
 html body .sapUiTheme-sap_horizon .kyraIamGlassCard {
-    flex: 1 1 420px !important;
-    min-width: 340px !important;
-    max-width: 520px !important;
-    min-height: 280px !important;
-    border-radius: 20px !important;
+    width: 440px !important;
+    max-width: 480px !important;
+    min-height: 540px !important;
+    border-radius: 26px !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: space-between !important;
-    align-items: stretch !important;
-    padding: 28px 26px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 44px 32px 34px 32px !important;
     box-sizing: border-box !important;
     cursor: pointer !important;
     user-select: none !important;
     position: relative !important;
     overflow: hidden !important;
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.22s ease,
-                background 0.22s ease !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.28s ease,
+                background 0.28s ease !important;
 }
 
-/* Card 1: Kyra Teal Theme */
+/* Card 1: Emerald/Green Glowing Glass (Mockup Match) */
 .kyraIamGlassCard1 {
-    background: linear-gradient(180deg, rgba(10, 36, 62, 0.88) 0%, rgba(6, 23, 42, 0.94) 100%) !important;
-    border: 2px solid rgba(0, 140, 156, 0.48) !important;
-    box-shadow: 0 12px 32px rgba(0, 140, 156, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    background: rgba(4, 22, 18, 0.78) !important;
+    backdrop-filter: blur(24px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+    border: 2px solid #10B981 !important;
+    box-shadow: 0 0 32px rgba(16, 185, 129, 0.32), inset 0 0 20px rgba(16, 185, 129, 0.12) !important;
 }
 
 .kyraIamGlassCard1:hover {
-    border-color: #38BDF8 !important;
-    transform: translateY(-5px) scale(1.015) !important;
-    box-shadow: 0 20px 44px rgba(0, 140, 156, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.25) !important;
+    border-color: #34D399 !important;
+    transform: translateY(-6px) scale(1.015) !important;
+    box-shadow: 0 0 48px rgba(16, 185, 129, 0.52), 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(16, 185, 129, 0.2) !important;
 }
 
 .kyraIamGlassCard1.kyraIamCardSelected1,
 .kyraIamGlassCard1.kyraSubIntegrationCardActive {
-    border-color: #00E5FF !important;
+    border-color: #34D399 !important;
     border-width: 2.5px !important;
-    background: linear-gradient(180deg, rgba(12, 48, 82, 0.96) 0%, rgba(7, 30, 54, 0.98) 100%) !important;
-    box-shadow: 0 0 35px rgba(0, 229, 255, 0.55), 0 18px 44px rgba(0, 140, 156, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
+    background: rgba(5, 30, 24, 0.9) !important;
+    box-shadow: 0 0 55px rgba(16, 185, 129, 0.68), 0 20px 44px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(16, 185, 129, 0.25) !important;
     transform: scale(1.02) !important;
 }
 
-/* Card 2: Kyra Emerald Theme */
+/* Card 2: Cyan/Blue Glowing Glass (Mockup Match) */
 .kyraIamGlassCard2 {
-    background: linear-gradient(180deg, rgba(8, 40, 52, 0.88) 0%, rgba(5, 26, 36, 0.94) 100%) !important;
-    border: 2px solid rgba(16, 185, 129, 0.48) !important;
-    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+    background: rgba(4, 20, 36, 0.78) !important;
+    backdrop-filter: blur(24px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+    border: 2px solid #008C9C !important;
+    box-shadow: 0 0 32px rgba(0, 140, 156, 0.32), inset 0 0 20px rgba(0, 140, 156, 0.12) !important;
 }
 
 .kyraIamGlassCard2:hover {
-    border-color: #34D399 !important;
-    transform: translateY(-5px) scale(1.015) !important;
-    box-shadow: 0 20px 44px rgba(16, 185, 129, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.25) !important;
+    border-color: #00E5FF !important;
+    transform: translateY(-6px) scale(1.015) !important;
+    box-shadow: 0 0 48px rgba(0, 229, 255, 0.52), 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(0, 229, 255, 0.2) !important;
 }
 
 .kyraIamGlassCard2.kyraIamCardSelected2,
 .kyraIamGlassCard2.kyraSubIntegrationCardActive {
-    border-color: #10B981 !important;
+    border-color: #00E5FF !important;
     border-width: 2.5px !important;
-    background: linear-gradient(180deg, rgba(10, 52, 65, 0.96) 0%, rgba(6, 32, 42, 0.98) 100%) !important;
-    box-shadow: 0 0 35px rgba(16, 185, 129, 0.55), 0 18px 44px rgba(16, 185, 129, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
+    background: rgba(5, 26, 48, 0.9) !important;
+    box-shadow: 0 0 55px rgba(0, 229, 255, 0.68), 0 20px 44px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(0, 229, 255, 0.25) !important;
     transform: scale(1.02) !important;
 }
 
-/* Card App Tile */
+/* Top App Tile */
 .kyraIamAppTile {
-    width: 68px !important;
-    height: 68px !important;
-    min-width: 68px !important;
-    min-height: 68px !important;
-    border-radius: 18px !important;
-    border: 2px solid rgba(255, 255, 255, 0.35) !important;
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px !important;
+    min-height: 90px !important;
+    margin-bottom: 16px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    box-sizing: border-box !important;
     flex-shrink: 0 !important;
 }
 
-.kyraIamAppTile1 {
-    background: linear-gradient(135deg, #008C9C 0%, #0284C7 100%) !important;
-    box-shadow: 0 8px 24px rgba(0, 140, 156, 0.55) !important;
+.kyraIamTileImg {
+    width: 90px !important;
+    height: 90px !important;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5)) !important;
 }
 
-.kyraIamAppTile2 {
-    background: linear-gradient(135deg, #059669 0%, #0D9488 100%) !important;
-    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.55) !important;
-}
-
-.kyraIamTileIcon {
-    font-size: 34px !important;
-    color: #FFFFFF !important;
-    line-height: 1 !important;
-}
-
-/* Title & Badges */
-.kyraIamTierPill {
-    padding: 3px 10px !important;
-    border-radius: 6px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-}
-
-.kyraIamTierPillTeal {
-    background: rgba(0, 140, 156, 0.22) !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
-}
-
-.kyraIamTierPillTextTeal,
-.kyraIamTierPillTextTeal.sapMText {
-    color: #38BDF8 !important;
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.8px !important;
-}
-
-.kyraIamTierPillEmerald {
-    background: rgba(16, 185, 129, 0.2) !important;
-    border: 1px solid rgba(52, 211, 153, 0.35) !important;
-}
-
-.kyraIamTierPillTextEmerald,
-.kyraIamTierPillTextEmerald.sapMText {
-    color: #34D399 !important;
-    font-size: 11px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.8px !important;
-}
-
+/* Card Main Title & Subtitle */
 .kyraIamCardTitle,
 .kyraIamCardTitle.sapMText,
 html body .sapUiTheme-sap_horizon .kyraIamCardTitle {
-    font-size: 26px !important;
+    font-size: 28px !important;
     font-weight: 800 !important;
     color: #FFFFFF !important;
     letter-spacing: 2px !important;
     text-transform: uppercase !important;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6) !important;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6) !important;
     line-height: 1.1 !important;
+    margin: 0 0 6px 0 !important;
+    text-align: center !important;
+}
+
+.kyraIamCardSubtitle,
+.kyraIamCardSubtitle.sapMText,
+html body .sapUiTheme-sap_horizon .kyraIamCardSubtitle {
+    font-size: 14.5px !important;
+    color: #94A3B8 !important;
+    font-weight: 500 !important;
+    margin: 0 0 26px 0 !important;
+    text-align: center !important;
+    letter-spacing: 0.2px !important;
+}
+
+/* Inset Feature Container (3 Rows with Rounded Border) */
+.kyraIamInsetBox {
+    width: 100% !important;
+    border-radius: 20px !important;
+    padding: 16px 14px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraIamInsetBox1 {
+    background: rgba(3, 16, 13, 0.78) !important;
+    border: 1px solid rgba(16, 185, 129, 0.25) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.kyraIamInsetBox2 {
+    background: rgba(3, 14, 25, 0.78) !important;
+    border: 1px solid rgba(0, 140, 156, 0.25) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.kyraIamFeatureRow {
+    padding: 8px 10px !important;
+    border-radius: 14px !important;
+    box-sizing: border-box !important;
+    transition: background 0.18s ease !important;
+}
+
+.kyraIamFeatureRow:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.kyraIamFeatureIconBox {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 13px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraIamFeatureIconBox1 {
+    background: rgba(16, 185, 129, 0.16) !important;
+    border: 1px solid rgba(16, 185, 129, 0.38) !important;
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.25) !important;
+}
+
+.kyraIamFeatureIcon1 {
+    font-size: 20px !important;
+    color: #34D399 !important;
+}
+
+.kyraIamFeatureIconBox2 {
+    background: rgba(0, 140, 156, 0.18) !important;
+    border: 1px solid rgba(0, 229, 255, 0.38) !important;
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.25) !important;
+}
+
+.kyraIamFeatureIcon2 {
+    font-size: 20px !important;
+    color: #38BDF8 !important;
+}
+
+.kyraIamFeatureTextBox {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.kyraIamFeatureTitle,
+.kyraIamFeatureTitle.sapMText {
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    color: #FFFFFF !important;
+    line-height: 1.25 !important;
     margin: 0 !important;
 }
 
-.kyraIamStatusBadge {
-    padding: 4px 12px !important;
-    border-radius: 16px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-}
-
-.kyraIamStatusBadgeTeal {
-    background: rgba(0, 140, 156, 0.2) !important;
-    border: 1px solid rgba(56, 189, 248, 0.35) !important;
-}
-
-.kyraIamStatusIconTeal {
-    color: #38BDF8 !important;
-}
-
-.kyraIamStatusTextTeal,
-.kyraIamStatusTextTeal.sapMText {
-    color: #E0F2FE !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-}
-
-.kyraIamStatusBadgeEmerald {
-    background: rgba(16, 185, 129, 0.2) !important;
-    border: 1px solid rgba(52, 211, 153, 0.35) !important;
-}
-
-.kyraIamStatusIconEmerald {
-    color: #34D399 !important;
-}
-
-.kyraIamStatusTextEmerald,
-.kyraIamStatusTextEmerald.sapMText {
-    color: #ECFDF5 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-}
-
-.kyraIamCardDesc,
-.kyraIamCardDesc.sapMText {
-    font-size: 13.5px !important;
-    color: #CBD5E1 !important;
-    line-height: 1.5 !important;
-    margin: 8px 0 14px 0 !important;
-}
-
-.kyraIamCardDivider {
-    height: 1px !important;
-    width: 100% !important;
-}
-
-.kyraIamDividerTeal {
-    background: linear-gradient(90deg, rgba(0, 140, 156, 0.5) 0%, rgba(56, 189, 248, 0.3) 50%, transparent 100%) !important;
-}
-
-.kyraIamDividerEmerald {
-    background: linear-gradient(90deg, rgba(16, 185, 129, 0.5) 0%, rgba(52, 211, 153, 0.3) 50%, transparent 100%) !important;
-}
-
-.kyraIamCardFooterRow,
-.sapMFlexBox.kyraIamCardFooterRow {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    margin-top: 14px !important;
-}
-
-.kyraIamScopeIcon {
-    color: #94A3B8 !important;
-}
-
-.kyraIamScopeText,
-.kyraIamScopeText.sapMText {
+.kyraIamFeatureSub,
+.kyraIamFeatureSub.sapMText {
     font-size: 12.5px !important;
     color: #94A3B8 !important;
-    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    margin: 3px 0 0 0 !important;
 }
 
-.kyraIamActionLinkWrap {
-    display: inline-flex !important;
+.kyraIamFeatureArrowBtn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 10px !important;
+    display: flex !important;
     align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    transition: all 0.2s ease !important;
 }
 
-.kyraIamActionLink.sapMLnk,
-.kyraIamActionLink {
-    font-size: 13.5px !important;
-    font-weight: 700 !important;
-    text-decoration: none !important;
+.kyraIamFeatureArrowBtn1 {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
 }
 
-.kyraIamActionLinkTeal.sapMLnk,
-.kyraIamActionLinkTeal {
-    color: #38BDF8 !important;
+.kyraIamFeatureRow:hover .kyraIamFeatureArrowBtn1 {
+    background: rgba(16, 185, 129, 0.25) !important;
+    border-color: #34D399 !important;
+    transform: translateX(3px) !important;
 }
 
-.kyraIamActionLinkTeal:hover {
-    color: #00E5FF !important;
-    text-decoration: underline !important;
-}
-
-.kyraIamActionLinkEmerald.sapMLnk,
-.kyraIamActionLinkEmerald {
-    color: #34D399 !important;
-}
-
-.kyraIamActionLinkEmerald:hover {
+.kyraIamArrowIcon1 {
+    font-size: 13px !important;
     color: #10B981 !important;
-    text-decoration: underline !important;
-}
-
-.kyraIamArrowIcon {
-    font-size: 14px !important;
     font-weight: bold !important;
-    transition: transform 0.2s ease !important;
 }
 
-.kyraIamArrowTeal {
-    color: #38BDF8 !important;
+.kyraIamFeatureArrowBtn2 {
+    background: rgba(0, 140, 156, 0.12) !important;
+    border: 1px solid rgba(0, 229, 255, 0.35) !important;
 }
 
-.kyraIamArrowEmerald {
-    color: #34D399 !important;
+.kyraIamFeatureRow:hover .kyraIamFeatureArrowBtn2 {
+    background: rgba(0, 229, 255, 0.25) !important;
+    border-color: #00E5FF !important;
+    transform: translateX(3px) !important;
+}
+
+.kyraIamArrowIcon2 {
+    font-size: 13px !important;
+    color: #00E5FF !important;
+    font-weight: bold !important;
 }
 
 /* ========================================================================= */

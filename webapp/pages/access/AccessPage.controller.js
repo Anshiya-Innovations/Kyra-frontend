@@ -307,12 +307,18 @@
             const bShowApproverSection = !bIsRequester && !isAdminInit && (bIsApprover || isCompliance);
             let sBrandLogoUrl = "images/kyra_k_logo.png";
             let sShieldFocusUrl = "images/kyra_shield_focus.svg";
+            let sIamUserShieldUrl = "images/iam_user_shield.svg";
+            let sIamGroupShieldUrl = "images/iam_group_shield.svg";
             try {
                 sBrandLogoUrl = sap.ui.require.toUrl("kyra001/images/kyra_k_logo.png");
                 sShieldFocusUrl = sap.ui.require.toUrl("kyra001/images/kyra_shield_focus.svg");
+                sIamUserShieldUrl = sap.ui.require.toUrl("kyra001/images/iam_user_shield.svg");
+                sIamGroupShieldUrl = sap.ui.require.toUrl("kyra001/images/iam_group_shield.svg");
             } catch(e) {
                 sBrandLogoUrl = "images/kyra_k_logo.png";
                 sShieldFocusUrl = "images/kyra_shield_focus.svg";
+                sIamUserShieldUrl = "images/iam_user_shield.svg";
+                sIamGroupShieldUrl = "images/iam_group_shield.svg";
             }
             const oDefaultAdminServiceMap = this._getDefaultAdminServiceDetailsMap();
             const aInitialAdminClassifications = (oDefaultAdminServiceMap["xsuaa (Authorization and Trust Management Service)"] || []).map((t, idx) => Object.assign({}, t, { selected: idx === 0 }));
@@ -345,6 +351,8 @@
             const oModel = new JSONModel({
                 brandLogoUrl: sBrandLogoUrl,
                 shieldFocusUrl: sShieldFocusUrl,
+                iamUserShieldUrl: sIamUserShieldUrl,
+                iamGroupShieldUrl: sIamGroupShieldUrl,
                 activeUser: sActiveUser,
                 activeRole: sActiveRole,
                 isApproverPersona: bIsApprover,

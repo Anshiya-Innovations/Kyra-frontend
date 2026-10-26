@@ -1913,127 +1913,175 @@
                             </HBox>
 
                             <!-- ========================================================================= -->
-                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE SLIDE (I AM 1 & I AM 2)           -->
+                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE SLIDE (Exact Mockup Match)        -->
                             <!-- ========================================================================= -->
-                            <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom">
-                                <!-- Top Slide Sub-Header: Architecture Info & Status -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamSlideHeaderRow sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center" gap="10px">
-                                        <HBox class="kyraIamPulseDot" />
-                                        <VBox>
-                                            <Title text="IAM ACCESS APPROVAL WORKFLOW" level="H4" class="kyraIamSlideHeaderTitle" />
-                                            <Text text="Select an approver box below to configure email routing, AWS Console access, and SAP BTP auto-provisioning." class="kyraIamSlideHeaderSubtitle" />
-                                        </VBox>
-                                    </HBox>
-                                    <HBox class="kyraIamHubPillBadge" alignItems="Center" gap="6px">
-                                        <core:Icon src="sap-icon://sys-enter-2" size="13px" class="kyraIamHubPillIcon" />
-                                        <Text text="2-Tier Workflow Active" class="kyraIamHubPillText" />
-                                    </HBox>
-                                </HBox>
+                            <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
+                                
+                                <!-- Decorative Diagonal Glowing Accent Lines (Mockup Match) -->
+                                <HBox class="kyraIamAccentLineTopLeft" />
+                                <HBox class="kyraIamAccentLineBottomRight" />
 
-                                <!-- Big Approver Cards Row -->
-                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Stretch" gap="28px">
-                                    <!-- CARD 1: I AM 1 (Approver 1 - Teal/Cyan Theme) -->
+                                <!-- Main 2-Card Row (Mockup Match) -->
+                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Stretch" gap="32px">
+                                    
+                                    <!-- ================================================================= -->
+                                    <!-- CARD 1: I AM 1 (Emerald/Green Glowing Glass - Mockup Match)        -->
+                                    <!-- ================================================================= -->
                                     <VBox id="cardSelectIamApprover1"
                                         class="{= 'kyraIamGlassCard kyraIamGlassCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1' : '') }"
+                                        alignItems="Center"
                                         press=".onSelectIamApprover1">
                                         <customData>
                                             <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
                                         </customData>
 
-                                        <!-- Card Top: Glossy Icon Tile & Title / Tag Group -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardTopRow sapUiSmallMarginBottom">
-                                            <HBox alignItems="Center" gap="18px">
-                                                <!-- Rounded Glossy Icon Tile in Kyra Teal Gradient -->
-                                                <HBox class="kyraIamAppTile kyraIamAppTile1" alignItems="Center" justifyContent="Center">
-                                                    <core:Icon src="sap-icon://customer" class="kyraIamTileIcon" />
-                                                </HBox>
-                                                <VBox>
-                                                    <HBox class="kyraIamTierPill kyraIamTierPillTeal" alignItems="Center">
-                                                        <Text text="LEVEL 1 APPROVER" class="kyraIamTierPillTextTeal" />
+                                        <!-- Top Icon Badge Tile (Squircle with User Silhouette & Green Shield) -->
+                                        <HBox class="kyraIamAppTile kyraIamAppTile1 sapUiSmallMarginBottom" alignItems="Center" justifyContent="Center">
+                                            <Image src="{= ${accessModel>/iamUserShieldUrl} || 'images/iam_user_shield.svg' }" width="88px" height="88px" densityAware="false" class="kyraIamTileImg" alt="I AM 1" />
+                                        </HBox>
+
+                                        <!-- Card Main Title -->
+                                        <Text text="I AM 1" class="kyraIamCardTitle sapUiTinyMarginBottom" />
+
+                                        <!-- Card Subtitle (Exact Match to Mockup) -->
+                                        <Text text="Your access. Our priority." class="kyraIamCardSubtitle sapUiMediumMarginBottom" />
+
+                                        <!-- Inset Feature Box (3 Rows with Icon, Title, Subtitle, Arrow) -->
+                                        <VBox width="100%" class="kyraIamInsetBox kyraIamInsetBox1" gap="14px">
+                                            
+                                            <!-- Row 1: Collaboration -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="14px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamFeatureIcon1" />
                                                     </HBox>
-                                                    <Text text="I AM 1" class="kyraIamCardTitle sapUiTinyMarginTop" />
-                                                </VBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Collaboration" class="kyraIamFeatureTitle" />
+                                                        <Text text="Work together, achieve more." class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
+                                                </HBox>
                                             </HBox>
-                                            <HBox class="kyraIamStatusBadge kyraIamStatusBadgeTeal" alignItems="Center" gap="6px">
-                                                <core:Icon src="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://hint' }" size="12px" class="kyraIamStatusIconTeal" />
-                                                <Text text="{= ${accessModel>/iamApproverConfig/approver1/connected} ? 'Connected' : 'Active' }" class="kyraIamStatusTextTeal" />
-                                            </HBox>
-                                        </HBox>
 
-                                        <!-- Card Middle: Clear Role & Scope Description -->
-                                        <Text text="Primary authorization review and sign-off. Manages automated email approvals, stakeholder notifications, and AWS Console login permissions." class="kyraIamCardDesc sapUiSmallMarginBottom" />
-
-                                        <!-- Subtle Glow Divider -->
-                                        <HBox class="kyraIamCardDivider kyraIamDividerTeal" width="100%" />
-
-                                        <!-- Card Bottom: Integration Summary & Interactive Action Link / Arrow -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardFooterRow sapUiSmallMarginTop">
-                                            <HBox alignItems="Center" gap="8px">
-                                                <core:Icon src="sap-icon://email" size="14px" class="kyraIamScopeIcon" />
-                                                <Text text="Email &amp; AWS Console Governance" class="kyraIamScopeText" />
+                                            <!-- Row 2: Paid Plan -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="14px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://calendar" class="kyraIamFeatureIcon1" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Paid Plan" class="kyraIamFeatureTitle" />
+                                                        <Text text="Budget based, average $600" class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
+                                                </HBox>
                                             </HBox>
-                                            <HBox alignItems="Center" gap="6px" class="kyraIamActionLinkWrap">
-                                                <Link text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'Collapse Settings' : 'Configure Settings' }" press=".onSelectIamApprover1" class="kyraIamActionLink kyraIamActionLinkTeal" />
-                                                <core:Icon
-                                                    id="arrowIamApprover1"
-                                                    src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
-                                                    press=".onSelectIamApprover1"
-                                                    class="kyraIamArrowIcon kyraIamArrowTeal" />
+
+                                            <!-- Row 3: Secure Access -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="14px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://shield" class="kyraIamFeatureIcon1" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Secure Access" class="kyraIamFeatureTitle" />
+                                                        <Text text="Protected and trusted" class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
+                                                </HBox>
                                             </HBox>
-                                        </HBox>
+
+                                        </VBox>
+
+                                        <!-- Hidden / Anchor Arrow for Controller Integration -->
+                                        <core:Icon id="arrowIamApprover1" src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
                                     </VBox>
 
-                                    <!-- CARD 2: I AM 2 (Approver 2 - Emerald/Teal Theme) -->
+                                    <!-- ================================================================= -->
+                                    <!-- CARD 2: I AM 2 (Cyan/Blue Glowing Glass - Mockup Match)           -->
+                                    <!-- ================================================================= -->
                                     <VBox id="cardSelectIamApprover2"
                                         class="{= 'kyraIamGlassCard kyraIamGlassCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2' : '') }"
+                                        alignItems="Center"
                                         press=".onSelectIamApprover2">
                                         <customData>
                                             <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
                                         </customData>
 
-                                        <!-- Card Top: Glossy Icon Tile & Title / Tag Group -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardTopRow sapUiSmallMarginBottom">
-                                            <HBox alignItems="Center" gap="18px">
-                                                <!-- Rounded Glossy Icon Tile in Emerald / Teal Gradient -->
-                                                <HBox class="kyraIamAppTile kyraIamAppTile2" alignItems="Center" justifyContent="Center">
-                                                    <core:Icon src="sap-icon://shield" class="kyraIamTileIcon" />
-                                                </HBox>
-                                                <VBox>
-                                                    <HBox class="kyraIamTierPill kyraIamTierPillEmerald" alignItems="Center">
-                                                        <Text text="LEVEL 2 FINAL REVIEWER" class="kyraIamTierPillTextEmerald" />
+                                        <!-- Top Icon Badge Tile (Squircle with Group Silhouette & Cyan Shield) -->
+                                        <HBox class="kyraIamAppTile kyraIamAppTile2 sapUiSmallMarginBottom" alignItems="Center" justifyContent="Center">
+                                            <Image src="{= ${accessModel>/iamGroupShieldUrl} || 'images/iam_group_shield.svg' }" width="88px" height="88px" densityAware="false" class="kyraIamTileImg" alt="I AM 2" />
+                                        </HBox>
+
+                                        <!-- Card Main Title -->
+                                        <Text text="I AM 2" class="kyraIamCardTitle sapUiTinyMarginBottom" />
+
+                                        <!-- Card Subtitle (Exact Match to Mockup) -->
+                                        <Text text="More people. More possibilities." class="kyraIamCardSubtitle sapUiMediumMarginBottom" />
+
+                                        <!-- Inset Feature Box (3 Rows with Icon, Title, Subtitle, Arrow) -->
+                                        <VBox width="100%" class="kyraIamInsetBox kyraIamInsetBox2" gap="14px">
+                                            
+                                            <!-- Row 1: Team Collaboration -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="14px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox2" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://group" class="kyraIamFeatureIcon2" />
                                                     </HBox>
-                                                    <Text text="I AM 2" class="kyraIamCardTitle sapUiTinyMarginTop" />
-                                                </VBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Team Collaboration" class="kyraIamFeatureTitle" />
+                                                        <Text text="Connect, share, grow." class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn2" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon2" />
+                                                </HBox>
                                             </HBox>
-                                            <HBox class="kyraIamStatusBadge kyraIamStatusBadgeEmerald" alignItems="Center" gap="6px">
-                                                <core:Icon src="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'sap-icon://sys-enter-2' : 'sap-icon://hint' }" size="12px" class="kyraIamStatusIconEmerald" />
-                                                <Text text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Connected' : 'Active' }" class="kyraIamStatusTextEmerald" />
-                                            </HBox>
-                                        </HBox>
 
-                                        <!-- Card Middle: Clear Role & Scope Description -->
-                                        <Text text="Executive security authorization gatekeeper. Automatically provisions shadow users and assigns approved role collections in SAP BTP Subaccount." class="kyraIamCardDesc sapUiSmallMarginBottom" />
-
-                                        <!-- Subtle Glow Divider -->
-                                        <HBox class="kyraIamCardDivider kyraIamDividerEmerald" width="100%" />
-
-                                        <!-- Card Bottom: Integration Summary & Interactive Action Link / Arrow -->
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamCardFooterRow sapUiSmallMarginTop">
-                                            <HBox alignItems="Center" gap="8px">
-                                                <core:Icon src="sap-icon://cloud" size="14px" class="kyraIamScopeIcon" />
-                                                <Text text="SAP BTP Cloud Auto-Provisioning" class="kyraIamScopeText" />
+                                            <!-- Row 2: Shared Plan -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="14px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox2" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamFeatureIcon2" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Shared Plan" class="kyraIamFeatureTitle" />
+                                                        <Text text="Cost effective, higher value." class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn2" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon2" />
+                                                </HBox>
                                             </HBox>
-                                            <HBox alignItems="Center" gap="6px" class="kyraIamActionLinkWrap">
-                                                <Link text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'Collapse Settings' : 'Configure Settings' }" press=".onSelectIamApprover2" class="kyraIamActionLink kyraIamActionLinkEmerald" />
-                                                <core:Icon
-                                                    id="arrowIamApprover2"
-                                                    src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }"
-                                                    press=".onSelectIamApprover2"
-                                                    class="kyraIamArrowIcon kyraIamArrowEmerald" />
+
+                                            <!-- Row 3: Advanced Security -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="14px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox2" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://shield" class="kyraIamFeatureIcon2" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Advanced Security" class="kyraIamFeatureTitle" />
+                                                        <Text text="Together, more secure." class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn2" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon2" />
+                                                </HBox>
                                             </HBox>
-                                        </HBox>
+
+                                        </VBox>
+
+                                        <!-- Hidden / Anchor Arrow for Controller Integration -->
+                                        <core:Icon id="arrowIamApprover2" src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
                                     </VBox>
+
                                 </HBox>
                             </VBox>
 
