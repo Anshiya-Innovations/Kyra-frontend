@@ -52,7 +52,7 @@
                 <!-- WRAPPER FOR NORMAL PORTAL CONTENT -->
                 <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} &amp;&amp; !${accessModel>/showTroubleshootPage} }">
                     <!-- Enterprise Top Header Banner (Hidden during Add / Edit SAP Integration time) -->
-                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom" visible="{= !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) }">
+                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom" visible="{= !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'ad_group' &amp;&amp; ${accessModel>/adGroupIntegration/currentStep} === 2) }">
                         <!-- Security Shield Focus Background Emblem (Center Pulse Effect) -->
                         <HBox class="kyraBannerShieldFocus" alignItems="Center" justifyContent="Center">
                             <Image src="{= ${accessModel>/shieldFocusUrl} || 'images/kyra_shield_focus.svg' }" class="kyraShieldFocusImg" densityAware="false" alt="Security Shield" />
@@ -86,7 +86,7 @@
                     <!-- ================================================================================== -->
                     <!-- ADMIN PERSONA VIEW: ONLY 3 ACTION CARDS + EXPANDABLE SECTIONS BELOW                -->
                     <!-- ================================================================================== -->
-                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) }">
+                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'ad_group' &amp;&amp; ${accessModel>/adGroupIntegration/currentStep} === 2) }">
                         <!-- BUTTON 1: INTEGRATION (AMBER THEME) -->
                         <VBox id="cardAdminDatabaseConfig"
                             class="{= 'fioriActionCard fioriCardPending fioriClickableCard' + (${accessModel>/adminSelectedSection} === 'databaseConfig' ? ' kyraCardExpanded' : '') }"

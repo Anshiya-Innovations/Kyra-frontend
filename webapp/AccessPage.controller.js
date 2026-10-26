@@ -1408,6 +1408,21 @@
                         this.onBackToPurchasedApps();
                         return;
                     }
+                    const btnAddAd = e.target.closest("#btnAddAdIntegration, [id$='btnAddAdIntegration']");
+                    if (btnAddAd) {
+                        this.onOpenAdConfig();
+                        return;
+                    }
+                    const btnBackAd = e.target.closest("#btnBackFromAdConfigTop, [id$='btnBackFromAdConfigTop'], #btnBackFromAdConfigBottom, [id$='btnBackFromAdConfigBottom']");
+                    if (btnBackAd) {
+                        this.onBackToDiscoveredAdGroups();
+                        return;
+                    }
+                    const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop']");
+                    if (btnCloseAd) {
+                        this.onCloseAdminSection();
+                        return;
+                    }
                     const cardSubSap = e.target.closest("#cardSubSapIntegration, [id$='cardSubSapIntegration']");
                     if (cardSubSap) {
                         this.onSelectSapIntegration();
@@ -16007,6 +16022,7 @@
             if (oModel) {
                 if (oModel.getProperty("/selectedIntegrationType")) {
                     oModel.setProperty("/selectedIntegrationType", "");
+                    oModel.setProperty("/adGroupIntegration/currentStep", 1);
                     this._updateSubIntegrationCards(oModel);
                     setTimeout(() => {
                         this._smoothScrollTo("adminDatabaseConfigSection", 40);
@@ -20501,7 +20517,7 @@
                         })
                     }).catch(e => console.warn("[AD DB PERSIST ERROR]", e.message));
                 } catch(eAdDb) {}
-                    oModel.setProperty("/adGroupIntegration/currentStep", 2);
+                    oModel.setProperty("/adGroupIntegration/currentStep", 1);
                     if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
                     oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
                     oModel.setProperty("/adGroupIntegration/syncedUsers", users);
@@ -20562,7 +20578,7 @@
                 }
 
                 oModel.setProperty("/adGroupIntegration/connected", true);
-                oModel.setProperty("/adGroupIntegration/currentStep", 2);
+                oModel.setProperty("/adGroupIntegration/currentStep", 1);
                 if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
                 oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
                 oModel.setProperty("/adGroupIntegration/syncedUsers", users);
@@ -20609,7 +20625,7 @@
                 }
 
                 oModel.setProperty("/adGroupIntegration/connected", true);
-                oModel.setProperty("/adGroupIntegration/currentStep", 2);
+                oModel.setProperty("/adGroupIntegration/currentStep", 1);
                 if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
                 oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
                 oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
@@ -20654,7 +20670,7 @@
                 }
 
                 oModel.setProperty("/adGroupIntegration/connected", true);
-                oModel.setProperty("/adGroupIntegration/currentStep", 2);
+                oModel.setProperty("/adGroupIntegration/currentStep", 1);
                 if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
                 oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
                 oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
@@ -21013,6 +21029,26 @@
             }, 600);
         },
 
+        onOpenAdConfig() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/adGroupIntegration/currentStep", 2);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("adGroupConfigContainer", 40);
+            }, 60);
+        },
+
+        onBackToDiscoveredAdGroups() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/adGroupIntegration/currentStep", 1);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("adGroupDiscoveredContainer", 40);
+            }, 60);
+        },
+
         onBackToAdConfig() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -21170,12 +21206,10 @@
                 oModel.setProperty("/selectedIntegrationType", "");
             } else {
                 oModel.setProperty("/selectedIntegrationType", "ad_group");
-                const bConnected = !!oModel.getProperty("/adGroupIntegration/connected");
-                const targetStep = bConnected ? 2 : 1;
-                oModel.setProperty("/adGroupIntegration/currentStep", targetStep);
+                oModel.setProperty("/adGroupIntegration/currentStep", 1);
                 try { sap.ui.getCore().applyChanges(); } catch (e) {}
                 setTimeout(() => {
-                    this._smoothScrollTo(targetStep === 2 ? "adGroupDiscoveredContainer" : "adGroupConfigContainer", 40);
+                    this._smoothScrollTo("adGroupDiscoveredContainer", 40);
                 }, 80);
             }
             this._updateSubIntegrationCards(oModel);
