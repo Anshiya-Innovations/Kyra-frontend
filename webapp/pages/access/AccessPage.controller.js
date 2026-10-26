@@ -7409,7 +7409,7 @@ sap.ui.define([
         },
 
         async _fetchAndApplyDynamicSubaccountCatalog(sSys, fnCallback) {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView() ? this.getView().getModel("accessModel") : null;
             if (!oModel) {
                 if (typeof fnCallback === "function") fnCallback();
                 return;
@@ -7421,9 +7421,37 @@ sap.ui.define([
                 return;
             }
 
-            const sCurrentLoadedSys = oModel.getProperty("/dynamicCatalogTargetSystem");
-            if (sCurrentLoadedSys === sTarget && (oModel.getProperty("/activeAdminServices") || []).length > 0) {
+            this._dynamicCatalogs = this._dynamicCatalogs || {};
+
+            const applyCatalog = (data) => {
+                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+
+                oModel.setProperty("/adminServicesAll", aLiveServices);
+                oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
+                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+                oModel.setProperty("/dynamicCatalogTargetSystem", sTarget);
+                oModel.setProperty("/dynamicCatalogSystemName", data.systemName || sTarget);
+                oModel.setProperty("/dynamicCatalogSubaccountId", data.subaccountId || "");
+                oModel.setProperty("/dynamicCatalogRegion", data.region || "");
+                oModel.setProperty("/dynamicCatalogCounts", {
+                    services: data.totalServices,
+                    roles: data.totalRoles,
+                    roleCollections: data.totalRoleCollections
+                });
+
+                this._updateSubRolesList(true);
+                this._updatePersonasList(true);
+
+                console.log("[DYNAMIC CATALOG] Activated live catalog for " + sTarget + ": " + data.totalServices + " Services, " + data.totalRoles + " Roles, " + data.totalRoleCollections + " Role Collections.");
+
                 if (typeof fnCallback === "function") fnCallback();
+            };
+
+            // Check if already in memory cache
+            if (this._dynamicCatalogs[sTarget]) {
+                applyCatalog(this._dynamicCatalogs[sTarget]);
                 return;
             }
 
@@ -7437,31 +7465,16 @@ sap.ui.define([
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.ok) {
-                        const aLiveServices = JSON.parse(data.servicesJson || "[]");
-                        const oLiveDetailsMap = JSON.parse(data.serviceDetailsMapJson || "{}");
-
-                        oModel.setProperty("/adminServicesAll", aLiveServices);
-                        oModel.setProperty("/adminServices", aLiveServices.slice());
-                        oModel.setProperty("/activeAdminServices", aLiveServices.slice());
-                        oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
-                        oModel.setProperty("/dynamicCatalogTargetSystem", sTarget);
-                        oModel.setProperty("/dynamicCatalogSystemName", data.systemName);
-                        oModel.setProperty("/dynamicCatalogSubaccountId", data.subaccountId);
-                        oModel.setProperty("/dynamicCatalogRegion", data.region);
-                        oModel.setProperty("/dynamicCatalogCounts", {
-                            services: data.totalServices,
-                            roles: data.totalRoles,
-                            roleCollections: data.totalRoleCollections
-                        });
-
-                        console.log(`[DYNAMIC CATALOG] Activated live catalog for ${sTarget}: ${data.totalServices} Services, ${data.totalRoles} Roles, ${data.totalRoleCollections} Role Collections.`);
+                        this._dynamicCatalogs[sTarget] = data;
+                        applyCatalog(data);
+                        return;
                     }
                 }
             } catch (err) {
                 console.warn("[DYNAMIC CATALOG] Failed to load dynamic subaccount catalog:", err);
-            } finally {
-                if (typeof fnCallback === "function") fnCallback();
             }
+
+            if (typeof fnCallback === "function") fnCallback();
         },
 
         _saveCurrentSystemSlideConfig(sSysNameOverride) {
@@ -14480,9 +14493,14 @@ sap.ui.define([
         },
 
         _sanitizeAdminServiceDetailsMap(oDetailsMap) {
-            const oModel = this.getView() ? this.getView().getModel("accessModel") : null;
-            if (oModel && oModel.getProperty("/dynamicCatalogTargetSystem") && oDetailsMap && Object.keys(oDetailsMap).length > 0) {
-                return oDetailsMap;
+            const oModel = this._oAccessModel || (this.getView && this.getView().getModel && this.getView().getModel("accessModel"));
+            const sCurSlide = oModel ? (oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "") : "";
+            const bIsBtpSlide = sCurSlide.includes("SAP Business Technology Platform") || sCurSlide.includes("SAP BTP");
+
+            if (oDetailsMap && typeof oDetailsMap === "object" && Object.keys(oDetailsMap).length > 0) {
+                if (bIsBtpSlide || (oModel && oModel.getProperty("/dynamicCatalogTargetSystem"))) {
+                    return oDetailsMap;
+                }
             }
             const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
             if (!oDetailsMap || typeof oDetailsMap !== "object" || Object.keys(oDetailsMap).length === 0) {
@@ -15276,17 +15294,22 @@ sap.ui.define([
                 oModel.setProperty("/adminSystemsAll", aSys);
                 oModel.setProperty("/adminSystems", aSys.slice());
             }
-            if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length >= 27) {
-                const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
-                const aSrv = oParsed.adminServicesAll.map(s => Object.assign({ status: "Active" }, s, {
-                    selected: sSelectedSrv ? (s.serviceName === sSelectedSrv) : false
-                }));
-                oModel.setProperty("/adminServicesAll", aSrv);
-                oModel.setProperty("/adminServices", aSrv.slice());
-            } else {
-                this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
+            const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
+            const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
+
+            if (!bCurrentIsBtpSubaccount) {
+                if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length >= 27) {
+                    const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
+                    const aSrv = oParsed.adminServicesAll.map(s => Object.assign({ status: "Active" }, s, {
+                        selected: sSelectedSrv ? (s.serviceName === sSelectedSrv) : false
+                    }));
+                    oModel.setProperty("/adminServicesAll", aSrv);
+                    oModel.setProperty("/adminServices", aSrv.slice());
+                } else {
+                    this._ensureSystemServicesPopulated(oModel, "SAP Business Technology Platform");
+                }
             }
-            if (oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object" && Object.keys(oParsed.adminServiceDetailsMap).length > 0) {
+            if (!bCurrentIsBtpSubaccount && oParsed.adminServiceDetailsMap && typeof oParsed.adminServiceDetailsMap === "object" && Object.keys(oParsed.adminServiceDetailsMap).length > 0) {
                 const oMap = this._sanitizeAdminServiceDetailsMap(oParsed.adminServiceDetailsMap);
                 Object.keys(oMap).forEach(sSrv => {
                     (oMap[sSrv] || []).forEach(oTeam => {
@@ -15501,7 +15524,12 @@ sap.ui.define([
             } else {
                 oModel.setProperty("/activeAdminSystems", aActiveSystems);
             }
-            oModel.setProperty("/activeAdminServices", aActiveServices);
+            const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
+            const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
+
+            if (!bCurrentIsBtpSubaccount || (oModel.getProperty("/activeAdminServices") || []).length === 0) {
+                oModel.setProperty("/activeAdminServices", aActiveServices);
+            }
 
             // 1. Rebuild System Options for Custom Conflict Builder: placeholder + All Systems (always present) + live active systems
             const aSystemOpts = [
@@ -15592,11 +15620,16 @@ sap.ui.define([
                 });
             });
 
-            if (aSubRolesList.length > 0) {
-                oModel.setProperty("/addAccessSubRolesList", aSubRolesList);
-            }
-            if (aPersonasList.length > 0) {
-                oModel.setProperty("/addAccessPersonasList", aPersonasList);
+            if (!bCurrentIsBtpSubaccount) {
+                if (aSubRolesList.length > 0) {
+                    oModel.setProperty("/addAccessSubRolesList", aSubRolesList);
+                }
+                if (aPersonasList.length > 0) {
+                    oModel.setProperty("/addAccessPersonasList", aPersonasList);
+                }
+            } else {
+                this._updateSubRolesList(true);
+                this._updatePersonasList(true);
             }
             oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
 
@@ -15987,6 +16020,13 @@ sap.ui.define([
         _ensureSystemServicesPopulated(oModel, sSystemName) {
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
+
+            const sCurSlide = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
+            const bIsBtpSub = (sSystemName && (sSystemName.includes("Singapore") || sSystemName.includes("US East") || sSystemName.includes("ap21") || sSystemName.includes("us10"))) ||
+                              (sCurSlide.includes("SAP Business Technology Platform") || sCurSlide.includes("SAP BTP"));
+            if (bIsBtpSub && (oModel.getProperty("/activeAdminServices") || []).length > 0) {
+                return;
+            }
 
             const oDefaultMap = this._getDefaultAdminServiceDetailsMap();
             const aServiceKeys = [
