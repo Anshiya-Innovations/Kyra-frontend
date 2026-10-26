@@ -1138,18 +1138,10 @@ sap.ui.define([
 
             const aActiveRoles = ["Financial Auditing"];
             const aSummaryItems = [];
+            const seenRoleSystemKeys = new Map();
 
             aSystems.forEach(sSys => {
                 aPersonas.forEach(sPersonaKey => {
-                    let sReqId;
-                    let bExists = true;
-                    while (bExists) {
-                        sReqId = "REQ-2026-" + Math.floor(100000 + Math.random() * 900000);
-                        bExists = aExistingRequestNumbers.includes(sReqId) || 
-                                  aSessionRequests.some(r => r.requestId === sReqId) ||
-                                  aSummaryItems.some(r => r.requestId === sReqId);
-                    }
-
                     let sRole = "Default Role";
                     for (const sRoleKey in oTeamPersonasMap) {
                         if (oTeamPersonasMap[sRoleKey].some(p => p.key === sPersonaKey)) {
@@ -1164,6 +1156,25 @@ sap.ui.define([
                             sService = sServiceKey;
                             break;
                         }
+                    }
+
+                    // Deduplicate by target system + role name to ensure 1-to-1 matching with active entitlements
+                    const sRoleSysKey = (sSys || "").trim().toLowerCase() + ":::" + (sRole || "").trim().toLowerCase();
+                    if (seenRoleSystemKeys.has(sRoleSysKey)) {
+                        const existing = seenRoleSystemKeys.get(sRoleSysKey);
+                        if (existing && sPersonaKey && !existing.persona.includes(sPersonaKey)) {
+                            existing.persona = existing.persona + ", " + sPersonaKey;
+                        }
+                        return;
+                    }
+
+                    let sReqId;
+                    let bExists = true;
+                    while (bExists) {
+                        sReqId = "REQ-2026-" + Math.floor(100000 + Math.random() * 900000);
+                        bExists = aExistingRequestNumbers.includes(sReqId) || 
+                                  aSessionRequests.some(r => r.requestId === sReqId) ||
+                                  aSummaryItems.some(r => r.requestId === sReqId);
                     }
 
                     const aAllowedRestrictedPersonas = [
@@ -1185,7 +1196,6 @@ sap.ui.define([
                     const bAlreadyApplied = aAllSubmittedRequests.some(r => 
                         r.system === sSys && 
                         r.roleName === sRole && 
-                        (r.persona === sPersonaKey) &&
                         (r.status || "").toLowerCase().includes("pending")
                     );
                     const bAlreadyActive = aActiveRoles.some(ar => ar === sRole);
@@ -1201,7 +1211,7 @@ sap.ui.define([
                         sExistingState = "Warning";
                     }
 
-                    aSummaryItems.push({
+                    const oNewSummaryItem = {
                         requestId: sReqId,
                         system: sSys,
                         roleName: sRole,
@@ -1214,7 +1224,9 @@ sap.ui.define([
                         existingState: sExistingState,
                         duration: sDuration,
                         justification: sJustification
-                    });
+                    };
+                    seenRoleSystemKeys.set(sRoleSysKey, oNewSummaryItem);
+                    aSummaryItems.push(oNewSummaryItem);
                 });
             });
 
