@@ -500,13 +500,19 @@
 
                     // Common
                     syncInterval: "15m",
-                    connected: false,
-                    lastSyncTime: "Live",
+                    connected: true,
+                    currentStep: 2,
+                    lastSyncTime: "3:21:38 PM",
                     discoveredGroups: [
-                        { groupName: "KYRA_ENTERPRISE_ADMINS", type: "Security Group", scope: "Universal", memberCount: "14 members", lastSync: "Today, 15:45", status: "Active" },
-                        { groupName: "KYRA_FIN_CONTROLLERS", type: "Security Group", scope: "Universal", memberCount: "38 members", lastSync: "Today, 15:45", status: "Active" },
-                        { groupName: "KYRA_SECTOR_HEADS", type: "Security Group", scope: "Universal", memberCount: "22 members", lastSync: "Today, 15:45", status: "Active" },
-                        { groupName: "KYRA_DEV_OPS_TEAM", type: "Security Group", scope: "Universal", memberCount: "45 members", lastSync: "Today, 15:45", status: "Active" }
+                        { id: "14740ac6-2647-4a81-b15f-009b800f7305", groupName: "Kyra-Access-Group", type: "Security Group", scope: "Assigned (Cloud)", memberCount: "6 members", lastSync: "3:21:38 PM", status: "Active" }
+                    ],
+                    syncedUsers: [
+                        { fullName: "Bharath Mohanraj", username: "Bharath Mohanraj", email: "bharathmohanraj12_gmail.com#ext#@bharathmohanraj12gmail.onmicrosoft.com", targetPersona: "Admin", syncStatus: "Active & Synced" },
+                        { fullName: "Requester BT", username: "Requester BT", email: "bharath.anshiyainnovations@gmail.com", targetPersona: "Requester", syncStatus: "Active & Synced" },
+                        { fullName: "Approver KK", username: "Approver KK", email: "karthikeyan.anshiyainnovations@gmail.com", targetPersona: "Approver", syncStatus: "Active & Synced" },
+                        { fullName: "Compliance reviewer SB", username: "Compliance reviewer SB", email: "sivabaalan.anshiyainnovations@gmail.com", targetPersona: "Compliance Reviewer", syncStatus: "Active & Synced" },
+                        { fullName: "Approver KK 2", username: "Approver KK 2", email: "karthikeyansomasundaram05@gmail.com", targetPersona: "Approver", syncStatus: "Active & Synced" },
+                        { fullName: "Compliance reviewer SB 2", username: "Compliance reviewer SB 2", email: "vbmsbaalan@gmail.com", targetPersona: "Compliance Reviewer", syncStatus: "Active & Synced" }
                     ]
                 },
                 iamIntegration: {
@@ -10926,10 +10932,10 @@
         onNavToMyAccessMasterPage() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
-
-            const bCurr = !!oModel.getProperty("/showAllActiveEntitlements");
-            oModel.setProperty("/showAllActiveEntitlements", !bCurr);
-            this._updateDisplayedUserAccess();
+            oModel.setProperty("/showMyAccessMasterSection", true);
+            if (typeof this._smoothScrollTo === "function") {
+                setTimeout(() => this._smoothScrollTo("myAccessMasterSectionContainer", 40), 80);
+            }
         },
 
         onCloseMyAccessMasterSection() {
@@ -21156,12 +21162,10 @@
                 oModel.setProperty("/selectedIntegrationType", "");
             } else {
                 oModel.setProperty("/selectedIntegrationType", "ad_group");
-                if (!oModel.getProperty("/adGroupIntegration/currentStep")) {
-                    oModel.setProperty("/adGroupIntegration/currentStep", 1);
-                }
+                oModel.setProperty("/adGroupIntegration/currentStep", 2);
                 try { sap.ui.getCore().applyChanges(); } catch (e) {}
                 setTimeout(() => {
-                    this._smoothScrollTo("adGroupConfigContainer", 40);
+                    this._smoothScrollTo("adGroupDiscoveredContainer", 40);
                 }, 80);
             }
             this._updateSubIntegrationCards(oModel);

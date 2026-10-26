@@ -183,21 +183,18 @@
                         <!-- ========================================================================= -->
                         <!-- INTEGRATIONS CARD CONTAINER & LIST (Exact Match to Image 2)               -->
                         <!-- ========================================================================= -->
-                        <!-- INTEGRATIONS CARD CONTAINER & LIST (Exact Match to Image 3)               -->
+                        <!-- INTEGRATIONS CARD CONTAINER & LIST (Exact Match to Image 2)               -->
                         <!-- ========================================================================= -->
-                        <VBox class="kyraIntegrationsPanelCard sapUiMediumMarginBottom" width="100%"
+                        <VBox class="kyraIntegrationsPanelCard" width="100%"
                             visible="{= !${accessModel>/selectedIntegrationType} }">
                             
-                            <!-- Header with Node Network Share Icon & Dot Matrix Decor (Image 3 Match) -->
+                            <!-- Header with Dot Matrix Decor (Image 2 Match) -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIntegrationHeaderRow sapUiMediumMarginBottom">
-                                <HBox alignItems="Center" gap="14px" class="kyraIntegrationHeaderLeft">
-                                    <Image src="images/integration_share_icon.svg" width="46px" height="46px" densityAware="false" class="kyraIntegrationHeaderShareIcon" tooltip="Enterprise Integrations" />
-                                    <VBox class="kyraIntegrationHeaderTitleBox">
-                                        <Title text="Integration Management" level="H3" class="kyraIntegrationHeaderTitle" />
-                                        <Text text="Connect and manage enterprise systems and identity integrations." class="kyraIntegrationHeaderSubtitle" />
-                                    </VBox>
-                                </HBox>
-                                <!-- Decorative 4x3 Dot Matrix (Image 3 Match) -->
+                                <VBox class="kyraIntegrationHeaderTitleBox">
+                                    <Title text="Integration Management" level="H3" class="kyraIntegrationHeaderTitle" />
+                                    <Text text="Connect and manage enterprise systems and identity integrations." class="kyraIntegrationHeaderSubtitle" />
+                                </VBox>
+                                <!-- Decorative 4x3 Dot Matrix (Image 2 Match) -->
                                 <HBox class="kyraDotMatrixDecor" tooltip="Integration Hub">
                                     <VBox gap="4px">
                                         <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
@@ -207,9 +204,9 @@
                                 </HBox>
                             </HBox>
 
-                            <!-- Vertical List of 3 Integration Cards (Image 3 Match) -->
+                            <!-- Vertical List of 3 Integration Cards (Image 2 Match) -->
                             <VBox class="kyraIntegrationsList" width="100%" gap="14px">
-                                <!-- ROW 1: SAP INTEGRATION (Image 3 Match) -->
+                                <!-- ROW 1: SAP INTEGRATION (Image 2 Match) -->
                                 <HBox id="cardSubSapIntegration"
                                     class="{= 'kyraIntegrationCardRow kyraIntegrationCardSap fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'sap' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
@@ -217,9 +214,7 @@
                                     width="100%"
                                     press=".onSelectSapIntegration">
                                     <HBox alignItems="Center" class="kyraIntegrationItemLeft" gap="16px">
-                                        <HBox class="kyraIntegrationBadgeSap" alignItems="Center" justifyContent="Center">
-                                            <Image src="images/sap_official_logo.svg" width="48px" height="26px" densityAware="false" class="kyraSapEmblemImg" alt="SAP Logo" />
-                                        </HBox>
+                                        <HBox class="kyraIntegrationBadgeSap" alignItems="Center" justifyContent="Center" />
                                         <VBox class="kyraIntegrationTitleBox">
                                             <Title text="SAP Integration" level="H5" class="kyraIntegrationRowTitle" />
                                             <Text text="Connect and manage SAP BTP and SAP S/4HANA environments." class="kyraIntegrationRowSub" />
@@ -242,7 +237,7 @@
                                     </HBox>
                                 </HBox>
 
-                                <!-- ROW 2: ACTIVE DIRECTORY INTEGRATION (Image 3 Match) -->
+                                <!-- ROW 2: ACTIVE DIRECTORY INTEGRATION (Image 2 Match) -->
                                 <HBox id="cardSubAdGroupIntegration"
                                     class="{= 'kyraIntegrationCardRow kyraIntegrationCardAd fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'ad_group' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
@@ -250,14 +245,11 @@
                                     width="100%"
                                     press=".onSelectAdGroupIntegration">
                                     <HBox alignItems="Center" class="kyraIntegrationItemLeft" gap="16px">
-                                        <HBox class="kyraIntegrationBadgeAd" alignItems="Center" justifyContent="Center">
-                                            <Image src="images/integration_ad_icon.svg" width="46px" height="46px" densityAware="false" alt="Active Directory" />
-                                        </HBox>
+                                        <HBox class="kyraIntegrationBadgeAd" alignItems="Center" justifyContent="Center" />
                                         <VBox class="kyraIntegrationTitleBox">
                                             <Title text="Active Directory Integration" level="H5" class="kyraIntegrationRowTitle" />
                                             <Text text="Synchronize directory groups and manage identity information." class="kyraIntegrationRowSub" />
                                             <HBox class="kyraIntegrationTagPill kyraTagPillSlate sapUiTinyMarginTop" alignItems="Center" gap="5px">
-                                                <core:Icon src="sap-icon://windows-icon" size="11px" color="#475569" />
                                                 <Text text="AD / LDAP" class="kyraTagPillTextSlate" />
                                             </HBox>
                                         </VBox>
@@ -266,7 +258,7 @@
                                         <HBox class="kyraIntegrationStatusDotAd" />
                                         <HBox class="kyraIntegrationStatusPill kyraStatusPillAmber" alignItems="Center" gap="6px">
                                             <core:Icon src="sap-icon://history" size="13px" color="#D97706" />
-                                            <Text text="{= ${accessModel>/adGroupIntegration/connected} ? 'Ready to Sync' : 'Ready to Sync' }" class="kyraStatusPillTextAmber" />
+                                            <Text text="Ready to Sync" class="kyraStatusPillTextAmber" />
                                         </HBox>
                                         <core:Icon
                                             id="arrowSubAdGroupIntegration"
@@ -275,7 +267,7 @@
                                     </HBox>
                                 </HBox>
 
-                                <!-- ROW 3: IAM APPROVAL INTEGRATION (Image 3 Match) -->
+                                <!-- ROW 3: IAM APPROVAL INTEGRATION (Image 2 Match) -->
                                 <HBox id="cardSubIamIntegration"
                                     class="{= 'kyraIntegrationCardRow kyraIntegrationCardIam fioriClickableCard' + (${accessModel>/selectedIntegrationType} === 'iam' ? ' kyraIntegrationListItemActive' : '') }"
                                     alignItems="Center"
@@ -283,9 +275,7 @@
                                     width="100%"
                                     press=".onSelectIamIntegration">
                                     <HBox alignItems="Center" class="kyraIntegrationItemLeft" gap="16px">
-                                        <HBox class="kyraIntegrationBadgeIam" alignItems="Center" justifyContent="Center">
-                                            <Image src="images/integration_key_icon.svg" width="46px" height="46px" densityAware="false" alt="IAM Key" />
-                                        </HBox>
+                                        <HBox class="kyraIntegrationBadgeIam" alignItems="Center" justifyContent="Center" />
                                         <VBox class="kyraIntegrationTitleBox">
                                             <Title text="IAM Approval Integration" level="H5" class="kyraIntegrationRowTitle" />
                                             <Text text="Support access approvals, email notifications, and AWS Console governance." class="kyraIntegrationRowSub" />
@@ -1279,7 +1269,7 @@
 
                             <!-- PAGE 1: CONFIGURE AD GROUP INTEGRATION (SLIDE 1 - IMAGE 3) -->
                             <VBox id="adGroupConfigContainer"
-                                visible="{= ${accessModel>/adGroupIntegration/currentStep} === 1 || !${accessModel>/adGroupIntegration/currentStep} }"
+                                visible="{= ${accessModel>/adGroupIntegration/currentStep} === 1 }"
                                 width="100%"
                                 class="kyraDarkStudioWrapper kyraSlideAnim">
 
@@ -1776,7 +1766,7 @@
 
                         <!-- PAGE 2: DISCOVERED AD SECURITY GROUPS (SLIDE 2 - IMAGE 4) -->
                         <VBox id="adGroupDiscoveredContainer"
-                            visible="{= ${accessModel>/adGroupIntegration/currentStep} === 2 }"
+                            visible="{= ${accessModel>/adGroupIntegration/currentStep} === 2 || !${accessModel>/adGroupIntegration/currentStep} }"
                             width="100%"
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
@@ -2930,7 +2920,7 @@
                         class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
                         <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
                             <HBox alignItems="Center" class="kyraCardHeaderLeft">
-                                <Avatar src="sap-icon://person-placeholder" class="kyraBadgeTeal fioriCardAvatar" displaySize="S" />
+                                <Avatar src="sap-icon://customer" class="kyraPersonaHeaderAvatar" displaySize="S" />
                                 <VBox class="kyraCardHeaderTextCol">
                                     <Title text="User Persona Conversion" level="H4" class="fioriCardHeaderTitle" />
                                     <Text text="Convert user personas individually or department-wide between Requester, Approver, and Compliance Reviewer database tables." class="fioriDescriptionText" />
@@ -2956,18 +2946,15 @@
                             <!-- EMPLOYEE LOGIN ID INPUT & ENTER BUTTON BAR -->
                             <VBox width="100%" class="kyraAdminConflictEditContainer sapUiSmallMarginBottom">
                                 <HBox alignItems="Center" class="kyraAdminFieldLabelRow">
-                                    <Text text="Employee Login ID" class="kyraAdminFormLabel" />
+                                    <Text text="EMPLOYEE LOGIN ID" class="kyraAdminFormLabel" />
                                     <Text text="*" class="kyraAdminRequiredStar" />
                                 </HBox>
-                                <HBox width="100%" alignItems="Center" class="kyraPersonaLookupSearchRow">
+                                <HBox width="100%" alignItems="Center" class="kyraPersonaLookupSearchRow" gap="12px">
                                     <Input
                                         id="adminPersonaLookupInput"
                                         value="{accessModel>/personaLookupInput}"
-                                        placeholder="Enter employee login ID (e.g., emp001, emp002, app01, comp01)..."
-                                        submit=".onLookupEmployeePersona"
-                                        liveChange=".onPersonaLookupLiveChange"
-                                        change=".onPersonaLookupLiveChange"
-                                        width="380px"
+                                        placeholder="Enter employee login I..."
+                                        width="260px"
                                         class="kyraAdminFormInput kyraAdminBuilderInput" />
                                     <Button
                                         text="Enter"
@@ -4068,15 +4055,10 @@
                 <VBox visible="{= !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/isAdminPersona} &amp;&amp; (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
                         <HBox alignItems="Center" class="kyraCardHeaderLeft">
-                            <Avatar src="sap-icon://table-view" class="kyraMasterViewAvatar" displaySize="S" />
+                            <Avatar src="sap-icon://grid" class="kyraMasterViewAvatar" displaySize="S" />
                             <VBox class="kyraCardHeaderTextCol">
-                                <HBox alignItems="Center">
-                                    <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
-                                    <HBox alignItems="Center" class="kyraHeaderTimeBadge">
-                                        <core:Icon src="sap-icon://history" class="kyraHeaderTimeBadgeIcon" />
-                                        <Text text="{= 'Today, ' + (${accessModel>/lastEntitlementSyncTime} || '6:00 PM') }" class="kyraHeaderTimeBadgeText" />
-                                    </HBox>
-                                </HBox>
+                                <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
+                                
                                 <Text text="{= ${accessModel>/showAllActiveEntitlements} ? 'All active entitlements and granted role assignments.' : 'First 5 active entitlements and granted role assignments.' }" class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
@@ -4088,12 +4070,12 @@
                                 liveChange=".onSearchMyAccess"
                                 class="kyraAdminSearchField kyraEntitlementsSearchField" />
                             <Button
-                                text="{= ${accessModel>/showAllActiveEntitlements} ? 'View Less' : 'View All' }"
-                                icon="{= ${accessModel>/showAllActiveEntitlements} ? 'sap-icon://navigation-up-arrow' : 'sap-icon://grid' }"
+                                text="View All"
+                                icon="sap-icon://grid"
                                 type="Emphasized"
                                 press=".onNavToMyAccessMasterPage"
                                 class="kyraViewAllBtn"
-                                tooltip="{= ${accessModel>/showAllActiveEntitlements} ? 'Show first 5 entitlements' : 'View all active system access and entitlements in complete view' }" />
+                                tooltip="View all active system access and entitlements in complete view" />
                         </HBox>
                     </HBox>
 
@@ -4319,16 +4301,16 @@
                 <VBox id="myAccessMasterSectionContainer" visible="{= ${accessModel>/showMyAccessMasterSection} }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriStepSlideAnim">
                     <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
                         <HBox alignItems="Center" class="kyraCardHeaderLeft">
-                            <Avatar src="sap-icon://table-view" class="kyraMasterViewAvatar" displaySize="S" />
+                            <Avatar src="sap-icon://grid" class="kyraMasterViewAvatar" displaySize="S" />
                             <VBox class="kyraCardHeaderTextCol">
                                 <Title text="Active Entitlements — Complete Master View" level="H4" class="fioriCardHeaderTitle" />
                                 <Text text="Comprehensive audit log &amp; active permission matrix for all enterprise roles." class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
-                        <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
+                        <HBox alignItems="Center" class="kyraEntitlementsSearchGroup" gap="8px">
                             <SearchField
-                                placeholder="Search all entitlements..."
-                                width="230px"
+                                placeholder="Search request ID or role..."
+                                width="250px"
                                 search=".onSearchMasterAccess"
                                 liveChange=".onSearchMasterAccess"
                                 class="kyraAdminSearchField kyraEntitlementsSearchField" />
