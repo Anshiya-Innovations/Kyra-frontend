@@ -1790,7 +1790,7 @@ sap.ui.define([
                 }
 
                 // 2. VALIDATION: Remarks must be entered manually - NO auto-fill! All items must have a remark entered.
-                const aMissingRemarks = aEntitlements.filter(e => !e.comment || !e.comment.trim());
+                const aMissingRemarks = aEntitlements.filter(e => !(e.comment || e.comments || "").trim());
                 if (aMissingRemarks.length > 0) {
                     // Highlight empty remark input fields in red
                     aTables.forEach(tbl => {
@@ -1807,8 +1807,8 @@ sap.ui.define([
                     oModel.setProperty("/selectedRequest/summaryTables", aTables);
 
                     const sMsg = aMissingRemarks.length === 1
-                        ? "Remark Required: Please enter a remark for the entitlement before submitting."
-                        : "Remark Required: Please enter a remark for all " + aMissingRemarks.length + " entitlements before submitting.";
+                        ? "Remark Required: Please enter a remark / justification in the remarks field before submitting your decision."
+                        : "Remark Required: Please enter a remark / justification in the remarks field for all " + aMissingRemarks.length + " entitlements before submitting your decision.";
 
                     MessageBox.warning(sMsg, {
                         title: "Action Required"
@@ -2056,6 +2056,36 @@ sap.ui.define([
         },
 
         async _executeFinalSubmission(oData, sOverallStatus, sOverallState, aFinalApproved, aRejectedItems) {
+            // Guard against duplicate concurrent submissions
+            if (window._kyraDecisionInFlight) {
+                return;
+            }
+
+            // Sync latest comments from summaryTables if present
+            const aTables = oData.summaryTables || [];
+            let aAllItems = [];
+            aTables.forEach(tbl => {
+                if (tbl.items && tbl.items.length > 0) {
+                    aAllItems = aAllItems.concat(tbl.items);
+                }
+            });
+            if (aAllItems.length > 0) {
+                oData.entitlements = aAllItems;
+            }
+
+            // Client-side validation: Remarks MUST be filled before sending to backend or database
+            const aEnts = oData.entitlements || [];
+            const aMissingInExec = aEnts.filter(e => !(e.comment || e.comments || "").trim());
+            if (aMissingInExec.length > 0) {
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
+                MessageBox.warning(
+                    "Remark Required: Please enter a remark / justification before submitting. The decision cannot be submitted without entering remarks.",
+                    { title: "Remark Required" }
+                );
+                return;
+            }
             window._kyraDecisionInFlight = true;
             window._kyraDecisionMutationEpoch = (window._kyraDecisionMutationEpoch || 0) + 1;
             window._kyraGovFetchPromise = null;
@@ -2511,7 +2541,25 @@ sap.ui.define([
                 if (!oResp.ok) {
                     const sErrTxt = await oResp.text().catch(() => "");
                     console.error("Backend submitAccessDecision failed with status:", oResp.status, sErrTxt);
-                    MessageBox.error("Failed to persist access decision to database. (Status: " + oResp.status + "). Please try again.");
+                    let sErrMessage = "Failed to persist access decision to database. (Status: " + oResp.status + ").";
+                    try {
+                        const sErrTxt = await oResp.text().catch(() => "");
+                        console.error("Backend submitAccessDecision failed with status:", oResp.status, sErrTxt);
+                        if (sErrTxt) {
+                            try {
+                                const parsed = JSON.parse(sErrTxt);
+                                if (parsed && parsed.error && parsed.error.message) {
+                                    sErrMessage = parsed.error.message;
+                                }
+                            } catch(eJson) {
+                                sErrMessage = sErrTxt;
+                            }
+                        }
+                    } catch(eAll) {}
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
+                    }
+                    MessageBox.error(sErrMessage, { title: "Decision Submission Notice" });
                     window._kyraDecisionInFlight = false;
                     return;
                 }
