@@ -315,14 +315,6 @@
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
                                     <HBox alignItems="Center" gap="12px">
-                                        <Button
-                                            id="btnBackFromSapConfigTop"
-                                            text="Back to Subscriptions"
-                                            icon="sap-icon://nav-back"
-                                            press=".onBackToPurchasedApps"
-                                            type="Default"
-                                            class="kyraSapBackBtn"
-                                            tooltip="Back to Purchased SAP Subscriptions" />
                                         <Title text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? ('Edit: ' + (${accessModel>/sapIntegration/editingDisplayName} || 'SAP Application Integration')) : 'Add SAP Application Integration' }" level="H2" class="kyraDarkStudioTitle" />
                                         <HBox class="kyraDarkEnterpriseBadge" visible="{= ${accessModel>/sapIntegration/formMode} === 'edit' }">
                                             <Text text="Enterprise Subscription (dev space)" class="kyraDarkEnterpriseBadgeText" />
@@ -330,20 +322,7 @@
                                     </HBox>
                                     <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
                                 </VBox>
-                                <HBox alignItems="Center" gap="10px">
-                                    <Button
-                                        text="Cancel"
-                                        press=".onBackToPurchasedApps"
-                                        type="Transparent"
-                                        class="kyraDarkOutlineBtn"
-                                        visible="{= ${accessModel>/sapIntegration/formMode} === 'edit' }" />
-                                    <Button
-                                        text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Save Changes' : 'Test &amp; Save' }"
-                                        icon="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'sap-icon://save' : 'sap-icon://flash' }"
-                                        type="Emphasized"
-                                        press=".onTestSapIntegration"
-                                        class="kyraDarkPrimaryActionBtn" />
-                                </HBox>
+
                             </HBox>
 
                             <!-- Target Destination Banner matching Image 2 -->
@@ -1067,14 +1046,30 @@
                                     id="btnBackFromSapConfigBottom"
                                     text="Back"
                                     icon="sap-icon://nav-back"
-                                    press=".onBackToPurchasedApps"
-                                    class="kyraAdminHeaderBackBtn" />
-                                <Button
-                                    text="Close Section"
-                                    icon="sap-icon://decline"
                                     type="Default"
-                                    press=".onCloseAdminSection"
-                                    class="kyraDarkOutlineBtn" />
+                                    press=".onBackToPurchasedApps"
+                                    class="kyraSapBackBtn" />
+                                <HBox alignItems="Center" gap="10px">
+                                    <Button
+                                        text="Cancel"
+                                        press=".onBackToPurchasedApps"
+                                        type="Transparent"
+                                        class="kyraDarkOutlineBtn"
+                                        visible="{= ${accessModel>/sapIntegration/formMode} === 'edit' }" />
+                                    <Button
+                                        text="Close Section"
+                                        icon="sap-icon://decline"
+                                        type="Default"
+                                        press=".onCloseAdminSection"
+                                        class="kyraSapCloseBtn" />
+                                    <Button
+                                        id="btnTestSapIntegrationBottom"
+                                        text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Save Changes' : 'Test &amp; Save' }"
+                                        icon="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'sap-icon://save' : 'sap-icon://flash' }"
+                                        type="Emphasized"
+                                        press=".onTestSapIntegration"
+                                        class="kyraDarkPrimaryActionBtn" />
+                                </HBox>
                             </HBox>
                         </VBox>
 
@@ -1396,17 +1391,8 @@
                                 <!-- Top Title Block with Back Button & Close Button -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                     <VBox class="kyraHeaderTitleCol sapUiNoMargin">
-                                        <HBox alignItems="Center" gap="12px">
-                                            <Button
-                                                id="btnBackFromAdConfigTop"
-                                                text="Back"
-                                                icon="sap-icon://nav-back"
-                                                type="Default"
-                                                press=".onBackToDiscoveredAdGroups"
-                                                class="kyraSapBackBtn" />
-                                            <Title text="Configure Active Directory (AD) Group Integration" level="H2" class="kyraDarkStudioTitle" />
-                                        </HBox>
-                                        <Text text="Connect your enterprise Active Directory / Azure AD (Entra ID) domain, configure LDAP sync parameters, and map directory security groups to Kyra access roles." class="kyraDarkStudioSubtitle" />
+                                        <Title text="Configure Active Directory (AD) Group Integration" level="H2" class="kyraDarkStudioTitle" />
+                                        <Text text="Connect your enterprise Active Directory / Azure AD (Entra ID) domain, configure LDAP sync parameters, and map directory security groups to Kyra access roles." class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
                                     </VBox>
                                     <Button
                                         id="btnCloseAdConfigTop"
@@ -4139,16 +4125,14 @@
                             </VBox>
                         </noData>
                         <columns>
-                            <Column width="18%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="17%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="17%" hAlign="Center"><Text text="TEAM" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="24%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="22%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="22%" hAlign="Center"><Text text="TEAM" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                             <Column width="18%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="11%" hAlign="Center"><Text text="EXPIRY DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="11%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="ACTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="14%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
-                            <ColumnListItem highlight="None" vAlign="Middle" class="kyraTableRow">
+                            <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onViewAccessDetails" class="kyraTableRow kyraClickableTableRow">
                                 <cells>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{accessModel>system}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
@@ -4163,21 +4147,10 @@
                                         <Text text="{accessModel>persona}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Text text="{accessModel>expiryDate}" wrapping="false" class="kyraCellTextCenter" />
-                                    </HBox>
-                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <ObjectStatus
                                             text="{accessModel>status}"
                                             state="{accessModel>statusState}"
                                             class="kyraTableStatusBadge" />
-                                    </HBox>
-                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Button
-                                            icon="sap-icon://overflow"
-                                            type="Transparent"
-                                            press=".onViewAccessDetails"
-                                            tooltip="View entitlement &amp; audit summary"
-                                            class="fioriThreeDotBtn kyraTableActionBtn" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>

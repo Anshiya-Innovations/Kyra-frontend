@@ -411,14 +411,9 @@
          * @param {boolean} [force] If true, forcibly hides immediately regardless of active count.
          */
         hide(callback, force) {
-            if (force) {
-                window._kyraSubmittingAddAccess = false;
-                window._kyraSubmittingRequest = false;
-                window._kyraLoginTransition = false;
-            }
-            if (!force && (window._kyraSubmittingAddAccess || window._kyraSubmittingRequest || window._kyraLoginTransition)) {
-                return;
-            }
+            window._kyraSubmittingAddAccess = false;
+            window._kyraSubmittingRequest = false;
+            window._kyraLoginTransition = false;
             _iActiveCount = 0;
             if (_oTimerWatchdog) {
                 clearTimeout(_oTimerWatchdog);

@@ -1423,6 +1423,11 @@ sap.ui.define([
                         this.onCloseAdminSection();
                         return;
                     }
+                    const btnTestSapBottom = e.target.closest("#btnTestSapIntegrationBottom, [id$='btnTestSapIntegrationBottom']");
+                    if (btnTestSapBottom) {
+                        this.onTestSapIntegration();
+                        return;
+                    }
                     const cardSubSap = e.target.closest("#cardSubSapIntegration, [id$='cardSubSapIntegration']");
                     if (cardSubSap) {
                         this.onSelectSapIntegration();
@@ -2849,6 +2854,12 @@ sap.ui.define([
                 return;
             }
             this._bRouteMatchedExecuting = true;
+            window._kyraLoginTransition = false;
+            window._kyraSubmittingAddAccess = false;
+            window._kyraSubmittingRequest = false;
+            if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                window.KyraLoader.forceHide();
+            }
             const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
             if (!bAuthenticated) {
                 if (this.getView() && typeof this.getView().setVisible === "function") {
@@ -4521,7 +4532,10 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/requestHistory", aDisplayedHistory);
             this._setSmartProperty(oModel, "/myHistoryRequests", aDisplayedHistory);
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
-            this._setSmartProperty(oModel, "/displayedUserAccessList", aUniqueUserAccessList);
+            const aInitialDisplayedAccess = (!oModel.getProperty("/showAllActiveEntitlements") && aUniqueUserAccessList.length > 5)
+                ? aUniqueUserAccessList.slice(0, 5)
+                : aUniqueUserAccessList;
+            this._setSmartProperty(oModel, "/displayedUserAccessList", aInitialDisplayedAccess);
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
 
             let iRevokedHistory = 0;
@@ -16174,6 +16188,10 @@ sap.ui.define([
             oModel.setProperty("/sapIntegration/currentStep", 1);
             oModel.setProperty("/sapIntegration/isAppExpanded", false);
             oModel.setProperty("/sapIntegration/selectedApp", "");
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("sapIntegrationConfigContainer", 40);
+            }, 60);
             // Clear all credentials for clean Add mode - no autofill
             oModel.setProperty("/sapIntegration/btp/serviceKeyJson", "");
             oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");

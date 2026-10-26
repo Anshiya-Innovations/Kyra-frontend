@@ -38578,9 +38578,20 @@ html body .sapUiTheme-sap_horizon .kyraInfoDialogCloseBtn:hover > .sapMBtnInner 
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
 }
 
-/* Service Key JSON TextArea: 5 Lines Capacity */
+/* Service Key JSON TextArea: 5 Lines Capacity (Single clean border box) */
 .kyraDarkTextArea.sapMTextArea,
-.kyraDarkTextArea,
+.kyraDarkTextArea {
+    height: auto !important;
+    min-height: 124px !important;
+    max-height: 240px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
 .kyraDarkTextArea .sapMInputBaseContentWrapper {
     height: auto !important;
     min-height: 124px !important;
@@ -62312,10 +62323,21 @@ html body [id$="accessCustomizationSubTabBar"] .sapMBtn.kyraCustomizationTabBtnA
 /* UNIFIED WHITE CARD & TWO-COLUMN SIDE-BY-SIDE SPLIT (MATCHING IMAGE)       */
 
 /* ========================================================================= */
-/* KYRA 2026: SERVICE KEY JSON TEXTAREA (5 Full Lines Capacity)              */
+/* KYRA 2026: SERVICE KEY JSON TEXTAREA (Single clean border box)              */
 /* ========================================================================= */
 .kyraDarkTextArea.sapMTextArea,
-.kyraDarkTextArea,
+.kyraDarkTextArea {
+    height: auto !important;
+    min-height: 124px !important;
+    max-height: 240px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
 .kyraDarkTextArea .sapMInputBaseContentWrapper {
     height: auto !important;
     min-height: 124px !important;
