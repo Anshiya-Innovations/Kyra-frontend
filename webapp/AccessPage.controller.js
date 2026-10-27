@@ -1353,6 +1353,7 @@ sap.ui.define([
                 return res;
             };
 
+            oModel.setSizeLimit(10000);
             this.getView().setModel(oModel, "accessModel");
             this.getOwnerComponent().setModel(oModel, "accessModel");
             const oApproverViewInit = this.byId("approverSectionView");
@@ -1670,21 +1671,7 @@ sap.ui.define([
             // 4. Tab Focus Visibility Change Sync
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
-                    if (document.hidden) {
-                        if (oModel) {
-                            oModel.setProperty("/selectedAdminServiceName", "");
-                            const aServices = oModel.getProperty("/adminServices") || [];
-                            aServices.forEach(s => s.selected = false);
-                            oModel.setProperty("/adminServices", aServices.slice());
-                            oModel.setProperty("/adminServiceDetails", []);
-
-                            oModel.setProperty("/selectedAdminBusinessSectorName", "");
-                            const aSectors = oModel.getProperty("/adminBusinessSectors") || [];
-                            aSectors.forEach(s => s.selected = false);
-                            oModel.setProperty("/adminBusinessSectors", aSectors.slice());
-                            oModel.setProperty("/adminBusinessFunctions", []);
-                        }
-                    } else {
+                    if (!document.hidden) {
                         this._loadSubmittedRequests(oModel, true);
                         this._loadCustomAccessAndConflictConfig(oModel);
                         this._loadBackendSoDMatrix();
@@ -7840,10 +7827,22 @@ sap.ui.define([
             const oSeenAllRoles = new Set();
             Object.keys(oServicesRolesMap).forEach(sServiceKey => {
                 (oServicesRolesMap[sServiceKey] || []).forEach(r => {
-                    const sNorm = (r.key || r.text || "").trim().toLowerCase();
-                    if (sNorm && !oSeenAllRoles.has(sNorm)) {
-                        oSeenAllRoles.add(sNorm);
-                        aAllSubRoles.push(r);
+                    const sRawKey = (r.key || r.text || "").trim();
+                    const sNorm = sRawKey.toLowerCase();
+                    const sUniqueKey = sServiceKey + '::' + sNorm;
+                    if (!oSeenAllRoles.has(sUniqueKey)) {
+                        oSeenAllRoles.add(sUniqueKey);
+                        const bDuplicate = aAllSubRoles.some(existing => (existing.key || existing.text || '').trim().toLowerCase() === sNorm);
+                        if (bDuplicate) {
+                            const sSvcShort = sServiceKey.split(' ')[0];
+                            aAllSubRoles.push({
+                                key: `${sRawKey} (${sSvcShort})`,
+                                text: `${sRawKey} (${sSvcShort})`,
+                                icon: r.icon || 'sap-icon://user-settings'
+                            });
+                        } else {
+                            aAllSubRoles.push(r);
+                        }
                     }
                 });
             });
@@ -7865,10 +7864,22 @@ sap.ui.define([
             aSelectedServices.forEach(sServiceKey => {
                 const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(' ')[0]] || [];
                 aRolesForSvc.forEach(r => {
-                    const sNorm = (r.key || r.text || "").trim().toLowerCase();
-                    if (sNorm && !oSeenCombRoles.has(sNorm)) {
-                        oSeenCombRoles.add(sNorm);
-                        aCombinedRoles.push(r);
+                    const sRawKey = (r.key || r.text || "").trim();
+                    const sNorm = sRawKey.toLowerCase();
+                    const sUniqueKey = sServiceKey + '::' + sNorm;
+                    if (!oSeenCombRoles.has(sUniqueKey)) {
+                        oSeenCombRoles.add(sUniqueKey);
+                        const bDuplicate = aCombinedRoles.some(existing => (existing.key || existing.text || '').trim().toLowerCase() === sNorm);
+                        if (bDuplicate) {
+                            const sSvcShort = sServiceKey.split(' ')[0];
+                            aCombinedRoles.push({
+                                key: `${sRawKey} (${sSvcShort})`,
+                                text: `${sRawKey} (${sSvcShort})`,
+                                icon: r.icon || 'sap-icon://user-settings'
+                            });
+                        } else {
+                            aCombinedRoles.push(r);
+                        }
                     }
                 });
             });
@@ -15402,11 +15413,17 @@ sap.ui.define([
             }
             const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
             const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
+            const sSelectedAdminSys = oModel.getProperty("/selectedAdminSystemName") || "";
 
             if (!bCurrentIsBtpSubaccount) {
-                if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length >= 27) {
+                if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length > 0) {
+                    let aRawServices = oParsed.adminServicesAll;
+                    if (sSelectedAdminSys && aRawServices.some(s => s.systemName)) {
+                        const aScoped = aRawServices.filter(s => s.systemName === sSelectedAdminSys);
+                        if (aScoped.length > 0) aRawServices = aScoped;
+                    }
                     const sSelectedSrv = oModel.getProperty("/selectedAdminServiceName") || "";
-                    const aSrv = oParsed.adminServicesAll.map(s => Object.assign({ status: "Active" }, s, {
+                    const aSrv = aRawServices.map(s => Object.assign({ status: "Active" }, s, {
                         selected: sSelectedSrv ? (s.serviceName === sSelectedSrv) : false
                     }));
                     oModel.setProperty("/adminServicesAll", aSrv);
