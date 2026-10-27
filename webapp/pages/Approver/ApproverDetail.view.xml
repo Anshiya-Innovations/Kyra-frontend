@@ -128,16 +128,17 @@
                                 <Text text="Validate access against defined system threshold limits." class="kyraValCardSubtitle" />
                             </VBox>
                         </HBox>
-                        <HBox class="kyraPillBadgeWarning" alignItems="Center" visible="{= ${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length &gt; 0 }">
-                            <Text text="{= ${accessModel>/thresholdLimits}.length + ' Issues' }" class="kyraPillBadgeWarningText" />
+                        <HBox class="kyraPillBadgeWarning" alignItems="Center" visible="{= !!${accessModel>/hasThresholdLimits} }">
+                            <Text text="{= (${accessModel>/thresholdLimitsCount} || (${accessModel>/thresholdLimits} ? ${accessModel>/thresholdLimits}.length : 0)) + ' Issues' }" class="kyraPillBadgeWarningText" />
                         </HBox>
-                        <HBox class="kyraPillBadgeSuccess" alignItems="Center" visible="{= !${accessModel>/thresholdLimits} || ${accessModel>/thresholdLimits}.length === 0 }">
+                        <HBox class="kyraPillBadgeSuccess" alignItems="Center" visible="{= !${accessModel>/hasThresholdLimits} }">
                             <core:Icon src="sap-icon://accept" size="12px" class="sapUiTinyMarginEnd" />
                             <Text text="0 Issues" class="kyraPillBadgeSuccessText" />
                         </HBox>
                     </HBox>
                     
-                    <Table id="approverThresholdLimitsTable" items="{accessModel>/thresholdLimits}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= ${accessModel>/thresholdLimits} &amp;&amp; ${accessModel>/thresholdLimits}.length &gt; 0 }">
+                    <!-- Table: only visible when thresholdLimits exist (> 0) -->
+                    <Table id="approverThresholdLimitsTable" items="{accessModel>/thresholdLimits}" class="kyraValTable" fixedLayout="true" width="100%" visible="{= !!${accessModel>/hasThresholdLimits} }">
                         <columns>
                             <Column width="28%" hAlign="Begin"><Text text="SYSTEM" class="kyraValColHeader" /></Column>
                             <Column width="28%" hAlign="Begin"><Text text="SECTOR" class="kyraValColHeader" /></Column>
@@ -159,7 +160,8 @@
                             </ColumnListItem>
                         </items>
                     </Table>
-                    <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/thresholdLimits} || ${accessModel>/thresholdLimits}.length === 0 }">
+                    <!-- Empty State: only visible when NO issues (0 issues) -->
+                    <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/hasThresholdLimits} }">
                         <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
                             <core:Icon src="sap-icon://survey" class="kyraValClipboardIcon" />
                             <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />

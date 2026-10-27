@@ -1643,6 +1643,10 @@ sap.ui.define([
             oModel.setProperty("/duplicateRoles", aDuplicateRoles);
 
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
+            oModel.setProperty("/thresholdLimitsCount", aThresholdLimits ? aThresholdLimits.length : 0);
+            oModel.setProperty("/hasThresholdLimits", aThresholdLimits && aThresholdLimits.length > 0);
+            oModel.setProperty("/thresholdLimitsCount", aThresholdLimits ? aThresholdLimits.length : 0);
+            oModel.setProperty("/hasThresholdLimits", aThresholdLimits && aThresholdLimits.length > 0);
         },
 
         onSelectApproverSodExisting() {

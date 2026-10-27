@@ -322,7 +322,7 @@ sap.ui.define([
             const bIsApprover = !bIsRequester && !isAdminInit && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Compliance Review" || sRoleLowerInit.includes("approver") || sRoleLowerInit.includes("compliance"));
             const isCompliance = !bIsRequester && !isAdminInit && sRoleLowerInit.includes("compliance");
             const isReviewerRole = bIsApprover || isCompliance;
-            const bShowApproverSection = !isAdminInit;
+            const bShowApproverSection = !isAdminInit && !bIsRequester;
             let sBrandLogoUrl = "images/kyra_k_logo.png";
             let sShieldFocusUrl = "images/kyra_shield_focus.svg";
             let sIamUserShieldUrl = "images/iam_user_shield.svg";
@@ -379,6 +379,8 @@ sap.ui.define([
                 isCompliancePersona: isCompliance,
                 isReviewerRole: isReviewerRole,
                 showApproverSection: bShowApproverSection,
+                hasThresholdLimits: false,
+                thresholdLimitsCount: 0,
                 notifScope: "my",
                 myNotificationsCount: 0,
                 myUnreadNotificationsCount: 0,
@@ -2943,7 +2945,7 @@ sap.ui.define([
                 const isCompliancePersona = !bIsReqSync && !isAdminPersona && sRoleLower.includes("compliance");
                 const bIsApprover = !bIsReqSync && !isAdminPersona && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
                 const isReviewerRole = bIsApprover || isCompliancePersona;
-                const bShowApproverSection = !isAdminPersona;
+                const bShowApproverSection = !isAdminPersona && !bIsReqSync;
 
                 // ── Reset ALL page/section UI state to clean defaults ──────────────
                 const sPrevUser = oModel.getProperty("/activeUser") || "";
@@ -6880,6 +6882,7 @@ sap.ui.define([
             if (!oModel) return;
 
             const bIsAdmin = !!oModel.getProperty("/isAdminPersona");
+            const bIsRequester = !!oModel.getProperty("/isRequester") || (oModel.getProperty("/selectedPersona") === "Requester") || (oModel.getProperty("/activePersona") === "Requester");
             const sSelectedTab = oModel.getProperty("/selectedTabKey") || "myAccess";
             const bShowMaster = !!oModel.getProperty("/showMyAccessMasterSection");
             const bShowDetails = !!oModel.getProperty("/showRequestDetailsPage");
@@ -6889,10 +6892,9 @@ sap.ui.define([
             const bShowAdd = !!oModel.getProperty("/showAddAccessSector");
             const bShowRemove = !!oModel.getProperty("/showRemoveAccessSector");
 
-            // User Requests section is visible directly below the 3 cards on My Access tab,
-            // EXCEPT when admin persona is active, or full-page overlay is showing,
-            // or when ANY of the 3 dropdowns (Pending, Add, Remove) is currently open!
+            // User Requests table must NEVER show on Requester page (permanent removal for Requester page only)
             const bVisible = !bIsAdmin &&
+                !bIsRequester &&
                 (sSelectedTab === "myAccess" || !sSelectedTab) &&
                 !bShowMaster &&
                 !bShowDetails &&
@@ -9022,6 +9024,8 @@ sap.ui.define([
 
             // Set evaluated threshold limits and duplicate roles
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
+            oModel.setProperty("/thresholdLimitsCount", aThresholdLimits ? aThresholdLimits.length : 0);
+            oModel.setProperty("/hasThresholdLimits", aThresholdLimits && aThresholdLimits.length > 0);
             oModel.setProperty("/duplicateRoles", aUniqueDuplicateRoles);
         },
 
@@ -10277,6 +10281,8 @@ sap.ui.define([
                 oModel.setProperty("/addAccessStep4SubStep", 1);
                 oModel.setProperty("/isEditingFromSummary", false);
                 oModel.setProperty("/thresholdLimits", []);
+                oModel.setProperty("/thresholdLimitsCount", 0);
+                oModel.setProperty("/hasThresholdLimits", false);
                 oModel.setProperty("/excessiveThresholdIssues", []);
                 oModel.setProperty("/restrictedRecords", []);
                 oModel.setProperty("/duplicateRoles", []);
