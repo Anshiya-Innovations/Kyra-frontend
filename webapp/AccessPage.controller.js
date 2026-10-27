@@ -10817,12 +10817,12 @@ sap.ui.define([
             } else if (isInitialApproverApproved && sDbStatus === "PENDING_COMPLIANCE") {
                 oStep3State = "BLUE";
                 oStep3Status = "In Progress";
-                oStep3SubNote = "Currently with Compliance Approver";
+                oStep3SubNote = "Currently under Compliance Review";
             }
             const oStep3 = {
                 state: oStep3State,
-                title: "Compliance Approver",
-                subtitle: "Compliance Review",
+                title: "Compliance Review",
+                subtitle: "Policy & SoD Audit",
                 statusText: oStep3Status,
                 dateTime: (isComplianceApproved || isComplianceRejected) ? sUpdatedDateStr : "",
                 subNote: oStep3SubNote

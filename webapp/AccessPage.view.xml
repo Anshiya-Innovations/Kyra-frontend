@@ -1052,27 +1052,12 @@
                                     type="Default"
                                     press=".onBackToPurchasedApps"
                                     class="kyraSapBackBtn" />
-                                <HBox alignItems="Center" gap="10px">
-                                    <Button
-                                        text="Cancel"
-                                        press=".onBackToPurchasedApps"
-                                        type="Transparent"
-                                        class="kyraDarkOutlineBtn"
-                                        visible="{= ${accessModel>/sapIntegration/formMode} === 'edit' }" />
-                                    <Button
-                                        text="Close Section"
-                                        icon="sap-icon://decline"
-                                        type="Default"
-                                        press=".onCloseAdminSection"
-                                        class="kyraSapCloseBtn" />
-                                    <Button
-                                        id="btnTestSapIntegrationBottom"
-                                        text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Save Changes' : 'Test &amp; Save' }"
-                                        icon="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'sap-icon://save' : 'sap-icon://flash' }"
-                                        type="Emphasized"
-                                        press=".onTestSapIntegration"
-                                        class="kyraDarkPrimaryActionBtn" />
-                                </HBox>
+                                <Button
+                                    text="Close Section"
+                                    icon="sap-icon://decline"
+                                    type="Default"
+                                    press=".onCloseAdminSection"
+                                    class="kyraSapCloseBtn" />
                             </HBox>
                         </VBox>
 
@@ -1974,56 +1959,52 @@
                                         <Text text="Your access. Our priority." class="kyraIamCardSubtitle sapUiMediumMarginBottom" />
 
                                         <!-- Inset Feature Box (3 Rows with Icon, Title, Subtitle, Arrow) -->
-                                        <VBox width="100%" class="kyraIamInsetBox kyraIamInsetBox1" gap="14px">
-                                            
-                                            <!-- Row 1: Collaboration -->
+                                        <VBox width="100%" class="kyraIamInsetBox kyraIamInsetBox1" gap="10px">
+                                            <!-- Feature 1: Multi-Channel Gateway -->
                                             <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
-                                                <HBox alignItems="Center" gap="14px">
+                                                <HBox alignItems="Center" gap="12px">
                                                     <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamFeatureIcon1" />
+                                                        <core:Icon src="sap-icon://email" class="kyraIamFeatureIcon1" />
                                                     </HBox>
                                                     <VBox class="kyraIamFeatureTextBox">
-                                                        <Text text="Collaboration" class="kyraIamFeatureTitle" />
-                                                        <Text text="Work together, achieve more." class="kyraIamFeatureSub" />
+                                                        <Text text="Multi-Channel Review" class="kyraIamFeatureTitle" />
+                                                        <Text text="Email &amp; AWS Console Gateway" class="kyraIamFeatureSub" />
                                                     </VBox>
                                                 </HBox>
                                                 <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
                                                 </HBox>
                                             </HBox>
-
-                                            <!-- Row 2: Paid Plan -->
+                                            <!-- Feature 2: Access Governance -->
                                             <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
-                                                <HBox alignItems="Center" gap="14px">
-                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://calendar" class="kyraIamFeatureIcon1" />
-                                                    </HBox>
-                                                    <VBox class="kyraIamFeatureTextBox">
-                                                        <Text text="Paid Plan" class="kyraIamFeatureTitle" />
-                                                        <Text text="Budget based, average $600" class="kyraIamFeatureSub" />
-                                                    </VBox>
-                                                </HBox>
-                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
-                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
-                                                </HBox>
-                                            </HBox>
-
-                                            <!-- Row 3: Secure Access -->
-                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
-                                                <HBox alignItems="Center" gap="14px">
+                                                <HBox alignItems="Center" gap="12px">
                                                     <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://shield" class="kyraIamFeatureIcon1" />
                                                     </HBox>
                                                     <VBox class="kyraIamFeatureTextBox">
-                                                        <Text text="Secure Access" class="kyraIamFeatureTitle" />
-                                                        <Text text="Protected and trusted" class="kyraIamFeatureSub" />
+                                                        <Text text="First-Tier Governance" class="kyraIamFeatureTitle" />
+                                                        <Text text="Initial SoD &amp; Security Validation" class="kyraIamFeatureSub" />
                                                     </VBox>
                                                 </HBox>
                                                 <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
                                                 </HBox>
                                             </HBox>
-
+                                            <!-- Feature 3: Workflow Routing -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
+                                                <HBox alignItems="Center" gap="12px">
+                                                    <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://journey-arrive" class="kyraIamFeatureIcon1" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamFeatureTextBox">
+                                                        <Text text="Workflow Routing" class="kyraIamFeatureTitle" />
+                                                        <Text text="Direct to Compliance or IAM 2" class="kyraIamFeatureSub" />
+                                                    </VBox>
+                                                </HBox>
+                                                <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn1" alignItems="Center" justifyContent="Center">
+                                                    <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon1" />
+                                                </HBox>
+                                            </HBox>
                                         </VBox>
 
                                         <!-- Hidden / Anchor Arrow for Controller Integration -->
@@ -2053,56 +2034,52 @@
                                         <Text text="More people. More possibilities." class="kyraIamCardSubtitle sapUiMediumMarginBottom" />
 
                                         <!-- Inset Feature Box (3 Rows with Icon, Title, Subtitle, Arrow) -->
-                                        <VBox width="100%" class="kyraIamInsetBox kyraIamInsetBox2" gap="14px">
-                                            
-                                            <!-- Row 1: Team Collaboration -->
+                                        <VBox width="100%" class="kyraIamInsetBox kyraIamInsetBox2" gap="10px">
+                                            <!-- Feature 1: Automated Provisioning -->
                                             <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
-                                                <HBox alignItems="Center" gap="14px">
+                                                <HBox alignItems="Center" gap="12px">
                                                     <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://group" class="kyraIamFeatureIcon2" />
+                                                        <core:Icon src="sap-icon://cloud" class="kyraIamFeatureIcon2" />
                                                     </HBox>
                                                     <VBox class="kyraIamFeatureTextBox">
-                                                        <Text text="Team Collaboration" class="kyraIamFeatureTitle" />
-                                                        <Text text="Connect, share, grow." class="kyraIamFeatureSub" />
+                                                        <Text text="Automated Provisioning" class="kyraIamFeatureTitle" />
+                                                        <Text text="Direct SAP BTP &amp; System Activation" class="kyraIamFeatureSub" />
                                                     </VBox>
                                                 </HBox>
                                                 <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn2" alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon2" />
                                                 </HBox>
                                             </HBox>
-
-                                            <!-- Row 2: Shared Plan -->
+                                            <!-- Feature 2: Shadow User Management -->
                                             <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
-                                                <HBox alignItems="Center" gap="14px">
+                                                <HBox alignItems="Center" gap="12px">
                                                     <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamFeatureIcon2" />
+                                                        <core:Icon src="sap-icon://user-settings" class="kyraIamFeatureIcon2" />
                                                     </HBox>
                                                     <VBox class="kyraIamFeatureTextBox">
-                                                        <Text text="Shared Plan" class="kyraIamFeatureTitle" />
-                                                        <Text text="Cost effective, higher value." class="kyraIamFeatureSub" />
+                                                        <Text text="Shadow User Management" class="kyraIamFeatureTitle" />
+                                                        <Text text="Directory Role Collection Assignment" class="kyraIamFeatureSub" />
                                                     </VBox>
                                                 </HBox>
                                                 <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn2" alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon2" />
                                                 </HBox>
                                             </HBox>
-
-                                            <!-- Row 3: Advanced Security -->
+                                            <!-- Feature 3: Final Sign-off -->
                                             <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamFeatureRow">
-                                                <HBox alignItems="Center" gap="14px">
+                                                <HBox alignItems="Center" gap="12px">
                                                     <HBox class="kyraIamFeatureIconBox kyraIamFeatureIconBox2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://shield" class="kyraIamFeatureIcon2" />
+                                                        <core:Icon src="sap-icon://accept" class="kyraIamFeatureIcon2" />
                                                     </HBox>
                                                     <VBox class="kyraIamFeatureTextBox">
-                                                        <Text text="Advanced Security" class="kyraIamFeatureTitle" />
-                                                        <Text text="Together, more secure." class="kyraIamFeatureSub" />
+                                                        <Text text="Final Technical Sign-Off" class="kyraIamFeatureTitle" />
+                                                        <Text text="Complete Entitlement Activation" class="kyraIamFeatureSub" />
                                                     </VBox>
                                                 </HBox>
                                                 <HBox class="kyraIamFeatureArrowBtn kyraIamFeatureArrowBtn2" alignItems="Center" justifyContent="Center">
                                                     <core:Icon src="sap-icon://arrow-right" class="kyraIamArrowIcon2" />
                                                 </HBox>
                                             </HBox>
-
                                         </VBox>
 
                                         <!-- Hidden / Anchor Arrow for Controller Integration -->
@@ -4507,17 +4484,6 @@
                     </VBox>
                 </HBox>
 
-                <!-- DYNAMIC APPROVER COMPONENT / USER REQUESTS SECTION - ALWAYS DIRECTLY BELOW THE 3 ACTION CARDS -->
-                <VBox id="approverSectionContainer"
-                    width="100%"
-                    class="kyraApproverSectionContainer sapUiSmallMarginBottom"
-                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; !${accessModel>/isRequester} &amp;&amp; (${accessModel>/activeRole} !== 'Requester') &amp;&amp; (${accessModel>/activeRole} !== 'requester') &amp;&amp; !!${accessModel>/showApproverSection} &amp;&amp; ((${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess') &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }">
-                    <mvc:XMLView 
-                        id="approverSectionView"
-                        width="100%"
-                        viewName="kyra001.pages.Approver.Approver" />
-                </VBox>
-
                 <!-- IN-PAGE PENDING ACCESS REQUESTS TABLE (Toggled by Card 1 Click - Only on My Access Tab) -->
                 <VBox id="pendingSectionContainer"
                     visible="{= (${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess' &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !!${accessModel>/showPendingSection} }"
@@ -4605,7 +4571,7 @@
                     </Table>
                 </VBox>
 
-            <!-- DYNAMIC IN-PAGE ADD ACCESS WIZARD (Toggled by Card 3 Click - Same Page Dropdown Method) -->
+<!-- DYNAMIC IN-PAGE ADD ACCESS WIZARD (Toggled by Card 3 Click - Same Page Dropdown Method) -->
             <VBox id="addAccessSectionContainer"
                     visible="{accessModel>/showAddAccessSector}"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
@@ -5737,7 +5703,7 @@
                     </VBox>
                 </VBox>
 
-                <!-- DYNAMIC IN-PAGE REMOVE ACCESS SECTOR (Toggled via Remove Access Card) -->
+<!-- DYNAMIC IN-PAGE REMOVE ACCESS SECTOR (Toggled via Remove Access Card) -->
                 <VBox id="removeAccessSection"
                     visible="{= !!${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showRequestDetailsPage} }"
                     class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
@@ -5808,6 +5774,21 @@
                         </items>
                     </Table>
                 </VBox>
+
+<!-- DYNAMIC APPROVER COMPONENT / USER REQUESTS SECTION - ALWAYS DIRECTLY BELOW THE 3 ACTION CARDS -->
+                <VBox id="approverSectionContainer"
+                    width="100%"
+                    class="kyraApproverSectionContainer sapUiSmallMarginBottom"
+                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; !${accessModel>/isRequester} &amp;&amp; (${accessModel>/activeRole} !== 'Requester') &amp;&amp; (${accessModel>/activeRole} !== 'requester') &amp;&amp; !!${accessModel>/showApproverSection} &amp;&amp; ((${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess') &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }">
+                    <mvc:XMLView 
+                        id="approverSectionView"
+                        width="100%"
+                        viewName="kyra001.pages.Approver.Approver" />
+                </VBox>
+
+
+
+                
 
             </VBox>
 
@@ -6040,8 +6021,8 @@
                                 <Text text="3" class="kyraStepNumText" />
                             </HBox>
                             <VBox class="kyraStepTitleBox" alignItems="Center" justifyContent="Center" width="100%">
-                                <Text text="{= ${accessModel>/selectedRequestDetail/step3/title} || 'Compliance Approver' }" class="kyraStepTitle" />
-                                <Text text="{= ${accessModel>/selectedRequestDetail/step3/subtitle} || 'Compliance Review' }" class="kyraStepSubtitle" />
+                                <Text text="{= ${accessModel>/selectedRequestDetail/step3/title} || 'Compliance Review' }" class="kyraStepTitle" />
+                                <Text text="{= ${accessModel>/selectedRequestDetail/step3/subtitle} || 'Policy &amp; SoD Audit' }" class="kyraStepSubtitle" />
                             </VBox>
                             <HBox class="kyraStepStatusPillWrap" width="100%" justifyContent="Center" alignItems="Center">
                                 <HBox class="kyraStepStatusPillGreen" justifyContent="Center" alignItems="Center" visible="{= ${accessModel>/selectedRequestDetail/step3/state} === 'GREEN' }">

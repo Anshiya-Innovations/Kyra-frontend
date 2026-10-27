@@ -1640,7 +1640,7 @@ sap.ui.define([
                 });
             });
 
-            oModel.setProperty("/duplicateRoles", aDuplicateRoles););
+            oModel.setProperty("/duplicateRoles", aDuplicateRoles);
 
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
         },

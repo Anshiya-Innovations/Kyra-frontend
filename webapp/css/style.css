@@ -63676,3 +63676,135 @@ html body [id$="approverSectionView"] {
     box-sizing: border-box !important;
     overflow: visible !important;
 }
+
+
+/* KYRA ENTERPRISE: CLEAN SIMPLE IAM APPROVER BOXES (NO BACKGROUND BLOBS) */
+.kyraIamShowcaseContainer {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 16px 0 !important;
+}
+.kyraIamGlassCard,
+.sapMFlexBox.kyraIamGlassCard,
+html body .sapUiTheme-sap_horizon .kyraIamGlassCard {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+    padding: 28px 24px 22px 24px !important;
+    overflow: visible !important;
+    position: relative !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+.kyraIamGlassCard::before,
+.kyraIamGlassCard::after,
+.kyraIamGlassCard1::before,
+.kyraIamGlassCard1::after,
+.kyraIamGlassCard2::before,
+.kyraIamGlassCard2::after {
+    display: none !important;
+    content: none !important;
+}
+.kyraIamGlassCard1 {
+    border-top: 4px solid #008C9C !important;
+}
+.kyraIamGlassCard1:hover,
+.kyraIamGlassCard1.kyraIamCardSelected1,
+.kyraIamGlassCard1.kyraSubIntegrationCardActive {
+    border-color: #008C9C !important;
+    border-top: 4.5px solid #008C9C !important;
+    box-shadow: 0 10px 28px rgba(0, 140, 156, 0.16) !important;
+    transform: translateY(-2px) !important;
+}
+.kyraIamGlassCard2 {
+    border-top: 4px solid #0284C7 !important;
+}
+.kyraIamGlassCard2:hover,
+.kyraIamGlassCard2.kyraIamCardSelected2,
+.kyraIamGlassCard2.kyraSubIntegrationCardActive {
+    border-color: #0284C7 !important;
+    border-top: 4.5px solid #0284C7 !important;
+    box-shadow: 0 10px 28px rgba(2, 132, 199, 0.16) !important;
+    transform: translateY(-2px) !important;
+}
+.kyraIamInsetBox {
+    background: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    box-shadow: none !important;
+}
+.kyraIamFeatureRow {
+    padding: 8px 10px !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    border: 1px solid #F1F5F9 !important;
+    transition: background-color 0.15s ease !important;
+}
+.kyraIamFeatureRow:hover {
+    background: #F0FDF4 !important;
+}
+.kyraIamFeatureIconBox1 {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    background: #E6F4F1 !important;
+    color: #008C9C !important;
+}
+.kyraIamFeatureIconBox2 {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    background: #E0F2FE !important;
+    color: #0284C7 !important;
+}
+.kyraIamFeatureTitle {
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    color: #0F172A !important;
+}
+.kyraIamFeatureSub {
+    font-size: 11.5px !important;
+    color: #64748B !important;
+}
+
+
+/* ITEM 3: CLEAN STATIC SAP BTP SERVICE KEY JSON TEXTBOX (NO HOVER ACTIONS) */
+#inputSapBtpServiceKey,
+.kyraDarkTextArea,
+.kyraDarkTextArea.sapMTextArea {
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+#inputSapBtpServiceKey .sapMInputBaseContentWrapper,
+.kyraDarkTextArea .sapMInputBaseContentWrapper {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: none !important;
+}
+#inputSapBtpServiceKey:hover,
+#inputSapBtpServiceKey:hover .sapMInputBaseContentWrapper,
+.kyraDarkTextArea:hover,
+.kyraDarkTextArea:hover .sapMInputBaseContentWrapper {
+    border-color: #CBD5E1 !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    box-shadow: none !important;
+    transform: none !important;
+    outline: none !important;
+    transition: none !important;
+}
+#inputSapBtpServiceKey:focus-within .sapMInputBaseContentWrapper,
+.kyraDarkTextArea:focus-within .sapMInputBaseContentWrapper {
+    border-color: #008C9C !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
