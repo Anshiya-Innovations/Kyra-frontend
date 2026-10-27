@@ -1935,111 +1935,67 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- ========================================================================= -->
-                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS                             -->
+                                                        <!-- ========================================================================= -->
+                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 2 Match)       -->
                             <!-- ========================================================================= -->
                             <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
-                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Stretch" gap="28px">
+                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="86px">
                                     
                                     <!-- ================================================================= -->
-                                    <!-- CARD 1: IAM Approver 1 (Teal Enterprise Card)                     -->
+                                    <!-- CARD 1: IAM 1 (Teal Theme - Exact Image 2 Match)                  -->
                                     <!-- ================================================================= -->
-                                    <VBox id="cardSelectIamApprover1"
-                                        class="{= 'kyraIamSelectCard fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
-                                        width="48%"
-                                        justifyContent="SpaceBetween"
-                                        press=".onSelectIamApprover1">
-                                        <customData>
-                                            <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
-                                        </customData>
+                                    <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter1" alignItems="Center" justifyContent="Center">
+                                        <!-- Layered Background Shape (Cyan / Light Teal rotated clockwise) -->
+                                        <HBox class="kyraIamBgShape kyraIamBgShapeTeal" />
 
-                                        <VBox width="100%">
-                                            <!-- Card Header Row: Icon Avatar + Title + Status Pill -->
-                                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom">
-                                                <HBox alignItems="Center" gap="14px">
-                                                    <HBox class="kyraIamAvatarWrap" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://user-settings" class="kyraIamAvatarIcon" />
-                                                    </HBox>
-                                                    <VBox>
-                                                        <Title text="IAM Approver 1" level="H4" class="kyraIamCardHeaderTitle" />
-                                                        <Text text="Level 1 Technical &amp; Security Clearance" class="kyraIamCardHeaderSubtitle" />
-                                                    </VBox>
-                                                </HBox>
-                                                <HBox class="{= 'kyraIamCardStatusPill' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardStatusPillActive' : '') }" alignItems="Center" gap="4px">
-                                                    <core:Icon src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://accept' : 'sap-icon://circle-task-2' }" size="11px" />
-                                                    <Text text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'Active Selection' : 'Click to Configure' }" class="kyraIamCardStatusPillText" />
-                                                </HBox>
-                                            </HBox>
+                                        <!-- Foreground Card (Deep Teal rotated counter-clockwise) -->
+                                        <VBox id="cardSelectIamApprover1"
+                                            class="{= 'kyraIamFrontCard kyraIamFrontCardTeal fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
+                                            alignItems="Center"
+                                            justifyContent="Center"
+                                            press=".onSelectIamApprover1">
+                                            <customData>
+                                                <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
+                                            </customData>
 
-                                            <!-- Card Description -->
-                                            <Text text="Your access. Our priority. Configure email gateway notifications and cloud console approval flows." class="kyraIamCardBodyDesc sapUiSmallMarginBottom" />
+                                            <!-- Top Center Circle Badge with Soft Drop Shadow -->
+                                            <HBox class="kyraIamCircleBadge kyraIamCircleBadgeTeal" alignItems="Center" justifyContent="Center" />
 
-                                            <!-- Channel Badges Row -->
-                                            <HBox alignItems="Center" gap="8px" class="kyraIamChannelBadgesRow">
-                                                <HBox class="kyraIamChannelChip" alignItems="Center" gap="6px">
-                                                    <core:Icon src="sap-icon://email" size="12px" color="#008C9C" />
-                                                    <Text text="Email Gateway" class="kyraIamChannelChipText" />
-                                                </HBox>
-                                                <HBox class="kyraIamChannelChip" alignItems="Center" gap="6px">
-                                                    <core:Icon src="sap-icon://cloud" size="12px" color="#008C9C" />
-                                                    <Text text="AWS Console" class="kyraIamChannelChipText" />
-                                                </HBox>
-                                            </HBox>
+                                            <!-- Card Title: IAM 1 -->
+                                            <Text text="IAM 1" class="kyraIamCardTitle" />
                                         </VBox>
 
                                         <!-- Hidden anchor arrow for controller compatibility -->
                                         <core:Icon id="arrowIamApprover1" src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
-                                    </VBox>
+                                    </HBox>
 
                                     <!-- ================================================================= -->
-                                    <!-- CARD 2: IAM Approver 2 (Teal Enterprise Card)                     -->
+                                    <!-- CARD 2: IAM 2 (Purple Theme - Exact Image 2 Match)                -->
                                     <!-- ================================================================= -->
-                                    <VBox id="cardSelectIamApprover2"
-                                        class="{= 'kyraIamSelectCard fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
-                                        width="48%"
-                                        justifyContent="SpaceBetween"
-                                        press=".onSelectIamApprover2">
-                                        <customData>
-                                            <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
-                                        </customData>
+                                    <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter2" alignItems="Center" justifyContent="Center">
+                                        <!-- Layered Background Shape (Periwinkle / Light Purple rotated clockwise) -->
+                                        <HBox class="kyraIamBgShape kyraIamBgShapePurple" />
 
-                                        <VBox width="100%">
-                                            <!-- Card Header Row: Icon Avatar + Title + Status Pill -->
-                                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom">
-                                                <HBox alignItems="Center" gap="14px">
-                                                    <HBox class="kyraIamAvatarWrap" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://cloud" class="kyraIamAvatarIcon" />
-                                                    </HBox>
-                                                    <VBox>
-                                                        <Title text="IAM Approver 2" level="H4" class="kyraIamCardHeaderTitle" />
-                                                        <Text text="Level 2 Final Review &amp; SCIM Provisioning" class="kyraIamCardHeaderSubtitle" />
-                                                    </VBox>
-                                                </HBox>
-                                                <HBox class="{= 'kyraIamCardStatusPill' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardStatusPillActive' : '') }" alignItems="Center" gap="4px">
-                                                    <core:Icon src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://accept' : 'sap-icon://circle-task-2' }" size="11px" />
-                                                    <Text text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'Active Selection' : 'Click to Configure' }" class="kyraIamCardStatusPillText" />
-                                                </HBox>
-                                            </HBox>
+                                        <!-- Foreground Card (Royal Purple / Blue rotated counter-clockwise) -->
+                                        <VBox id="cardSelectIamApprover2"
+                                            class="{= 'kyraIamFrontCard kyraIamFrontCardPurple fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
+                                            alignItems="Center"
+                                            justifyContent="Center"
+                                            press=".onSelectIamApprover2">
+                                            <customData>
+                                                <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
+                                            </customData>
 
-                                            <!-- Card Description -->
-                                            <Text text="More people. More possibilities. Configure dual-tier AWS Console delegation and automated SCIM 2.0 provisioning." class="kyraIamCardBodyDesc sapUiSmallMarginBottom" />
+                                            <!-- Top Center Circle Badge with Soft Drop Shadow -->
+                                            <HBox class="kyraIamCircleBadge kyraIamCircleBadgePurple" alignItems="Center" justifyContent="Center" />
 
-                                            <!-- Channel Badges Row -->
-                                            <HBox alignItems="Center" gap="8px" class="kyraIamChannelBadgesRow">
-                                                <HBox class="kyraIamChannelChip" alignItems="Center" gap="6px">
-                                                    <core:Icon src="sap-icon://cloud" size="12px" color="#008C9C" />
-                                                    <Text text="Cloud Console" class="kyraIamChannelChipText" />
-                                                </HBox>
-                                                <HBox class="kyraIamChannelChip" alignItems="Center" gap="6px">
-                                                    <core:Icon src="sap-icon://database" size="12px" color="#008C9C" />
-                                                    <Text text="SCIM 2.0 Binding" class="kyraIamChannelChipText" />
-                                                </HBox>
-                                            </HBox>
+                                            <!-- Card Title: IAM 2 -->
+                                            <Text text="IAM 2" class="kyraIamCardTitle" />
                                         </VBox>
 
                                         <!-- Hidden anchor arrow for controller compatibility -->
                                         <core:Icon id="arrowIamApprover2" src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
-                                    </VBox>
+                                    </HBox>
 
                                 </HBox>
                             </VBox>
@@ -5796,39 +5752,39 @@
                     </HBox>
                     <HBox width="100%" justifyContent="SpaceBetween" alignItems="Center" class="kyraTrackSummaryGrid">
                         <!-- Col 1: Request ID -->
-                        <VBox class="kyraTrackCol">
-                            <Text text="Request ID" class="kyraTrackColLabel" />
-                            <Text text="{accessModel>/selectedRequestDetail/requestId}" class="kyraTrackReqIdText" />
+                        <VBox class="kyraTrackCol kyraTrackColReqId">
+                            <Text text="REQUEST ID" class="kyraTrackColLabel" wrapping="false" />
+                            <Text text="{accessModel>/selectedRequestDetail/requestId}" tooltip="{accessModel>/selectedRequestDetail/requestId}" wrapping="false" class="kyraTrackReqIdText" />
                         </VBox>
 
                         <!-- Col 2: Type -->
-                        <VBox class="kyraTrackCol">
-                            <Text text="Type" class="kyraTrackColLabel" />
-                            <Text text="{accessModel>/selectedRequestDetail/type}" class="kyraTrackValText" />
+                        <VBox class="kyraTrackCol kyraTrackColType">
+                            <Text text="TYPE" class="kyraTrackColLabel" wrapping="false" />
+                            <Text text="{accessModel>/selectedRequestDetail/type}" tooltip="{accessModel>/selectedRequestDetail/type}" wrapping="false" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 3: System -->
-                        <VBox class="kyraTrackCol">
-                            <Text text="System" class="kyraTrackColLabel" />
-                            <Text text="{accessModel>/selectedRequestDetail/system}" class="kyraTrackValText" />
+                        <VBox class="kyraTrackCol kyraTrackColSystem">
+                            <Text text="SYSTEM" class="kyraTrackColLabel" wrapping="false" />
+                            <Text text="{accessModel>/selectedRequestDetail/system}" tooltip="{accessModel>/selectedRequestDetail/system}" wrapping="false" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 4: Services -->
-                        <VBox class="kyraTrackCol">
-                            <Text text="Services" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" class="kyraTrackValText" />
+                        <VBox class="kyraTrackCol kyraTrackColServices">
+                            <Text text="SERVICES" class="kyraTrackColLabel" wrapping="false" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" tooltip="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" wrapping="false" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 5: Team -->
-                        <VBox class="kyraTrackCol">
-                            <Text text="Team" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" class="kyraTrackValText" />
+                        <VBox class="kyraTrackCol kyraTrackColTeam">
+                            <Text text="TEAM" class="kyraTrackColLabel" wrapping="false" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" tooltip="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" wrapping="false" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 6: Persona -->
-                        <VBox class="kyraTrackCol kyraTrackColLast">
-                            <Text text="Persona" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" class="kyraTrackValText" />
+                        <VBox class="kyraTrackCol kyraTrackColPersona kyraTrackColLast">
+                            <Text text="PERSONA" class="kyraTrackColLabel" wrapping="false" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" tooltip="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" wrapping="false" class="kyraTrackValText" />
                         </VBox>
 
                     </HBox>
