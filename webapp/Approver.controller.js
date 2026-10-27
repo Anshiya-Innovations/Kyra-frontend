@@ -95,6 +95,24 @@ sap.ui.define([
         return (a.requestId || "").localeCompare(b.requestId || "");
     }
 
+    function formatProperDateTime(dInput) {
+        if (!dInput) return "";
+        if (typeof dInput === "string" && /^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s+(AM|PM)$/i.test(dInput.trim())) {
+            return dInput.trim();
+        }
+        try {
+            const d = (dInput instanceof Date) ? dInput : new Date(dInput);
+            if (isNaN(d.getTime())) return String(dInput);
+            if (typeof dInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dInput.trim())) {
+                return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            }
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + ", " +
+                   d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+            return String(dInput);
+        }
+    }
+
     return Controller.extend("kyra001.pages.Approver.Approver", {
 
         onInit() {
@@ -1476,8 +1494,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            submissionDate: sDate,
-                            decisionDate: sDate,
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
+                            decisionDate: formatProperDateTime(r.updated_at || r.created_at),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -1552,8 +1570,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            decisionDate: sDate,
-                            submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            decisionDate: formatProperDateTime(r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at),
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updatedAtRaw: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
@@ -1579,14 +1597,14 @@ sap.ui.define([
                     if (sCandidateUpd && new Date(sCandidateUpd).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].updated_at || 0).getTime()) {
                         oGrouped[sGroupKey].updatedAtRaw = sCandidateUpd;
                         oGrouped[sGroupKey].updated_at = sCandidateUpd;
-                        oGrouped[sGroupKey].decisionDate = sCandidateUpd.split("T")[0];
+                        oGrouped[sGroupKey].decisionDate = formatProperDateTime(sCandidateUpd);
                     }
                     if (window._kyraLastDecidedReqId && getBaseReqId(oGrouped[sGroupKey].requestId).toUpperCase() === String(window._kyraLastDecidedReqId).toUpperCase() && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
                         const sForcedIso = new Date(window._kyraLastDecisionSubmitTime).toISOString();
                         if (new Date(sForcedIso).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || 0).getTime()) {
                             oGrouped[sGroupKey].updatedAtRaw = sForcedIso;
                             oGrouped[sGroupKey].updated_at = sForcedIso;
-                            oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
+                            oGrouped[sGroupKey].decisionDate = formatProperDateTime(sForcedIso);
                         }
                     }
                     if (!oGrouped[sGroupKey]._seenEnts) {

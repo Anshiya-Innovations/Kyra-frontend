@@ -13,11 +13,14 @@
         <content>
             <!-- Enterprise Access ShellBar Header -->
             <f:ShellBar
+                id="kyraHeaderShellBar"
                 title="KYRA Enterprise"
                 secondTitle="User Access Management Portal"
                 showCopilot="false"
                 showSearch="false"
                 showNotifications="false"
+                showNavButton="false"
+                showProductSwitcher="false"
                 profilePress=".onProfilePress">
                 <f:profile>
                     <Avatar id="kyraHeaderProfileAvatar" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} }" press=".onProfilePress" src="sap-icon://person-placeholder" class="kyraHeaderProfileAvatar" tooltip="{= 'User Profile: ' + (${accessModel>/activeUser} || '') }" />

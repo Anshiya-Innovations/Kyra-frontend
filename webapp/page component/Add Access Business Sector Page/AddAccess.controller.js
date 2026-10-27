@@ -372,6 +372,24 @@ sap.ui.define([
         ]
     };
 
+    function formatProperDateTime(dInput) {
+        if (!dInput) return "";
+        if (typeof dInput === "string" && /^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s+(AM|PM)$/i.test(dInput.trim())) {
+            return dInput.trim();
+        }
+        try {
+            const d = (dInput instanceof Date) ? dInput : new Date(dInput);
+            if (isNaN(d.getTime())) return String(dInput);
+            if (typeof dInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dInput.trim())) {
+                return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            }
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + ", " +
+                   d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+            return String(dInput);
+        }
+    }
+
     return Controller.extend("kyra001.pages.addAccessBusinessSector.AddAccess", {
         onInit() {
             const oModel = new JSONModel({
@@ -822,7 +840,7 @@ sap.ui.define([
                 });
             }
 
-            const sSubmissionDate = new Date().toISOString().split("T")[0];
+            const sSubmissionDate = formatProperDateTime(new Date());
             const sUser = sessionStorage.getItem("kyra_active_user") || "";
             const sUserPersona = sessionStorage.getItem("kyra_active_role") || "Requester";
             const sJustification = (oModel.getProperty("/justification") || "").trim();
@@ -837,6 +855,8 @@ sap.ui.define([
                 selectedPersona: item.persona || "",
                 accessDuration: item.duration || oModel.getProperty("/duration") || "Permanent (Default)",
                 submissionDate: sSubmissionDate,
+                submittedDate: sSubmissionDate,
+                submittedDateTime: sSubmissionDate,
                 createdAtRaw: new Date().toISOString(),
                 approver: "Line Manager / ISRM Team",
                 status: "Pending Approval",

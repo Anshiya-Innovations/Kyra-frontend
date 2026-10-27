@@ -6945,8 +6945,7 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
 
 /* /* Dedicated Header Action Buttons (Bell, Sign Out, Profile Avatar) - Unified Alignment & Hover Timing */
 .sapFShellBar .sapFShellBarAdditionalContent,
-.sapFShellBar .sapFShellBarRightArea,
-.sapFShellBar .sapFShellBarOverflowButtonArea {
+.sapFShellBar .sapFShellBarRightArea {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -6954,6 +6953,34 @@ html body .kyraNavPillBtn.sapMBtnEmphasized:hover bdi {
     height: 100% !important;
     visibility: visible !important;
     opacity: 1 !important;
+}
+/* Eradicate the three-dot overflow button ONLY in the ShellBar header */
+.sapFShellBar .sapFShellBarOverflowButtonArea,
+.sapFShellBar .sapFShellBarOverflowButton,
+.sapFShellBar button.sapFShellBarOverflowButton,
+.sapFShellBar [id*="overflowBtn"],
+.sapFShellBar [id$="-overflow"],
+.sapFShellBar [id*="overflowButton"],
+.sapFShellBar .sapFShellBarOverflow,
+.sapFShellBar .sapFShellBarOverflowButtonArea .sapMBtn,
+.sapFShellBar .sapFShellBarOverflowButtonArea .sapMBtnCustomIcon,
+#kyraHeaderShellBar .sapFShellBarOverflowButtonArea,
+#kyraHeaderShellBar .sapFShellBarOverflowButton,
+#kyraHeaderShellBar [id*="overflow"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
 }
 
 /* Eradicate ShellBar Profile wrapper square button & dark bottom line */

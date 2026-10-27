@@ -177,6 +177,24 @@ sap.ui.define([
         ]
     };
 
+    function formatProperDateTime(dInput) {
+        if (!dInput) return "";
+        if (typeof dInput === "string" && /^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s+(AM|PM)$/i.test(dInput.trim())) {
+            return dInput.trim();
+        }
+        try {
+            const d = (dInput instanceof Date) ? dInput : new Date(dInput);
+            if (isNaN(d.getTime())) return String(dInput);
+            if (typeof dInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dInput.trim())) {
+                return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            }
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + ", " +
+                   d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+            return String(dInput);
+        }
+    }
+
     return Controller.extend("kyra001.pages.access.AccessPage", {
         onInit() {
             // Prevent browser scroll jumps/shaking when dropdown elements receive focus
@@ -1771,6 +1789,16 @@ sap.ui.define([
                 }
             };
 
+                        // Eradicate ShellBar three-dot overflow button ONLY in the ShellBar header
+            try {
+                const aOverflow = document.querySelectorAll(".sapFShellBar .sapFShellBarOverflowButtonArea, .sapFShellBar .sapFShellBarOverflowButton, #kyraHeaderShellBar [id*='overflow']");
+                aOverflow.forEach(el => {
+                    if (el) {
+                        el.style.setProperty("display", "none", "important");
+                        el.style.setProperty("visibility", "hidden", "important");
+                    }
+                });
+            } catch(e) {}
             bindClick("cardPendingRequests", this.onNavToPendingRequests);
             bindClick("cardApprovedRequests", this.onNavToApprovedRequests);
             bindClick("cardAddAccess", this.onNavToAddAccess);
@@ -2868,13 +2896,24 @@ sap.ui.define([
             }
             this._bRouteMatchedExecuting = true;
             try {
-            window._kyraLoginTransition = false;
             window._kyraSubmittingAddAccess = false;
             window._kyraSubmittingRequest = false;
-            if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
-                window.KyraLoader.forceHide();
-            }
             const bAuthenticated = window.KyraAuthManager ? window.KyraAuthManager.isAuthenticated() : false;
+            if (!bAuthenticated) {
+                window._kyraLoginTransition = false;
+                if (window.KyraLoader && typeof window.KyraLoader.forceHide === "function") {
+                    window.KyraLoader.forceHide();
+                }
+            } else {
+                // Show unified loading screen while inside data is fetched and rendered
+                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                    window.KyraLoader.show({
+                        title: "Loading KYRA Access Management...",
+                        subtitle: "Loading user profile, entitlements, and access records...",
+                        duration: 15000
+                    });
+                }
+            }
             if (!bAuthenticated) {
                 if (this.getView() && typeof this.getView().setVisible === "function") {
                     this.getView().setVisible(false);
@@ -3125,7 +3164,9 @@ sap.ui.define([
                         persona: item.persona || item.selectedPersona || "",
                         selectedPersona: item.selectedPersona || item.persona || "",
                         accessDuration: item.accessDuration || "",
-                        submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        submissionDate: formatProperDateTime(item.submissionDate || item.createdAtRaw),
+                        submittedDate: formatProperDateTime(item.submissionDate || item.createdAtRaw),
+                        submittedDateTime: formatProperDateTime(item.submissionDate || item.createdAtRaw),
                         createdAtRaw: item.createdAtRaw || new Date().toISOString(),
                         approver: item.approver || "Line Manager / ISRM Team",
                         status: "Pending Approval",
@@ -3473,8 +3514,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            submissionDate: sDate,
-                            decisionDate: sDate,
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
+                            decisionDate: formatProperDateTime(r.updated_at || r.created_at),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -3547,8 +3588,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            decisionDate: sDate,
-                            submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            decisionDate: formatProperDateTime(r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at),
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updatedAtRaw: r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at || new Date().toISOString(),
@@ -3574,14 +3615,14 @@ sap.ui.define([
                     if (sCandidateUpd && new Date(sCandidateUpd).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || oGrouped[sGroupKey].updated_at || 0).getTime()) {
                         oGrouped[sGroupKey].updatedAtRaw = sCandidateUpd;
                         oGrouped[sGroupKey].updated_at = sCandidateUpd;
-                        oGrouped[sGroupKey].decisionDate = sCandidateUpd.split("T")[0];
+                        oGrouped[sGroupKey].decisionDate = formatProperDateTime(sCandidateUpd);
                     }
                     if (window._kyraLastDecidedReqId && getBaseReqId(oGrouped[sGroupKey].requestId).toUpperCase() === String(window._kyraLastDecidedReqId).toUpperCase() && (Date.now() - (window._kyraLastDecisionSubmitTime || 0) < 15000)) {
                         const sForcedIso = new Date(window._kyraLastDecisionSubmitTime).toISOString();
                         if (new Date(sForcedIso).getTime() > new Date(oGrouped[sGroupKey].updatedAtRaw || 0).getTime()) {
                             oGrouped[sGroupKey].updatedAtRaw = sForcedIso;
                             oGrouped[sGroupKey].updated_at = sForcedIso;
-                            oGrouped[sGroupKey].decisionDate = sForcedIso.split("T")[0];
+                            oGrouped[sGroupKey].decisionDate = formatProperDateTime(sForcedIso);
                         }
                     }
                     if (!oGrouped[sGroupKey]._seenEnts) {
@@ -4062,7 +4103,9 @@ sap.ui.define([
                     selected_persona: r.selected_persona || sCleanItemPersona,
                     accessDuration: sCleanDuration,
                     duration: sCleanDuration,
-                    submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                    submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw),
+                    submittedDate: formatProperDateTime(r.created_at || r.createdAtRaw),
+                    submittedDateTime: formatProperDateTime(r.created_at || r.createdAtRaw),
                     createdAtRaw: r.created_at || new Date().toISOString(),
                     created_at: r.created_at || new Date().toISOString(),
                     updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -4263,8 +4306,10 @@ sap.ui.define([
                         system: r.target_system || "SAP System",
                         serviceAndRole: (r.role_name || "Role") + " (" + sServiceTopic + ")",
                         serviceTopic: sServiceTopic,
-                        submissionDate: r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
-                        decisionDate: r.updated_at ? r.updated_at.split("T")[0] : (r.created_at ? r.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw),
+                        submittedDate: formatProperDateTime(r.created_at || r.createdAtRaw),
+                        submittedDateTime: formatProperDateTime(r.created_at || r.createdAtRaw),
+                        decisionDate: formatProperDateTime(r.updated_at || r.created_at),
                         createdAtRaw: r.created_at || new Date().toISOString(),
                         duration: r.access_duration || "Permanent",
                         sector: r.business_sector || "",
@@ -4361,7 +4406,9 @@ sap.ui.define([
                             selectedPersona: inflight.persona || "User",
                             accessDuration: calculateRevokeRemainingDays(inflight),
                             duration: calculateRevokeRemainingDays(inflight),
-                            submissionDate: inflight.createdAt ? inflight.createdAt.split("T")[0] : new Date().toISOString().split("T")[0],
+                            submissionDate: formatProperDateTime(inflight.createdAt),
+                            submittedDate: formatProperDateTime(inflight.createdAt),
+                            submittedDateTime: formatProperDateTime(inflight.createdAt),
                             createdAtRaw: inflight.createdAt || new Date().toISOString(),
                             approver: "Line Manager / ISRM Team",
                             persona: inflight.persona || sActiveRole,
@@ -4886,7 +4933,7 @@ sap.ui.define([
                 const diffDays = Math.floor(diffHours / 24);
                 if (diffDays === 1) return "Yesterday";
                 if (diffDays < 7) return diffDays + "d ago";
-                return d.toISOString().split("T")[0];
+                return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
             };
 
             const cleanPersonaStr = (s) => {
@@ -10640,7 +10687,7 @@ sap.ui.define([
                 try {
                     const d = new Date(dInput);
                     if (isNaN(d.getTime())) return String(dInput);
-                    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + ", " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
                 } catch (e) {
                     return String(dInput);
                 }
@@ -12286,7 +12333,9 @@ sap.ui.define([
                                 selectedPersona: sPersona,
                                 duration: oItem.expiryDate || oItem.duration || "Permanent",
                                 accessDuration: oItem.expiryDate || oItem.duration || "Permanent",
-                                submissionDate: new Date().toISOString().split("T")[0],
+                                submissionDate: formatProperDateTime(new Date()),
+                                submittedDate: formatProperDateTime(new Date()),
+                                submittedDateTime: formatProperDateTime(new Date()),
                                 createdAtRaw: new Date().toISOString(),
                                 status: "Pending Approval",
                                 statusState: "Warning",

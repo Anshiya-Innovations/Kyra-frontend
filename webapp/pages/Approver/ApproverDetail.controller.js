@@ -100,6 +100,24 @@ sap.ui.define([
         return remainingDays + "/" + totalDays + " days left";
     }
 
+    function formatProperDateTime(dInput) {
+        if (!dInput) return "";
+        if (typeof dInput === "string" && /^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s+(AM|PM)$/i.test(dInput.trim())) {
+            return dInput.trim();
+        }
+        try {
+            const d = (dInput instanceof Date) ? dInput : new Date(dInput);
+            if (isNaN(d.getTime())) return String(dInput);
+            if (typeof dInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dInput.trim())) {
+                return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            }
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + ", " +
+                   d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+            return String(dInput);
+        }
+    }
+
     return Controller.extend("kyra001.pages.Approver.ApproverDetail", {
         onInit() {
             this._instanceId = "approver_detail_" + Date.now() + "_" + Math.random().toString(36).slice(2);
@@ -377,7 +395,7 @@ sap.ui.define([
                                 type: bIsRev ? "Revocation" : "Addition",
                                 requestType: bIsRev ? "Revocation" : "Addition",
                                 accessType: bIsRev ? "REVOCATION" : "ADDITION",
-                                submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                submissionDate: formatProperDateTime(first.created_at || first.createdAtRaw),
                                 duration: first.access_duration || "",
                                 sector: first.business_sector || "",
                                 businessSector: first.business_sector || "",
@@ -398,7 +416,7 @@ sap.ui.define([
                                     team: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     serviceTopic: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     selectedPersona: cleanPersonaName(m.selected_persona || ""),
-                                    grantedDate: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                    grantedDate: formatProperDateTime(m.created_at || m.createdAtRaw),
                                     expiryDate: m.access_duration || "Permanent",
                                     status: "Pending",
                                     statusState: "Warning",
@@ -549,7 +567,7 @@ sap.ui.define([
                                     if (firstMatchingDbRec.created_at) {
                                         oRequest.created_at = firstMatchingDbRec.created_at;
                                         oRequest.createdAtRaw = firstMatchingDbRec.created_at;
-                                        oRequest.submissionDate = firstMatchingDbRec.created_at.split("T")[0];
+                                        oRequest.submissionDate = formatProperDateTime(firstMatchingDbRec.created_at);
                                     }
                                     if (firstMatchingDbRec.has_conflict !== undefined) {
                                         oRequest.hasConflict = firstMatchingDbRec.has_conflict === true;
@@ -720,7 +738,7 @@ sap.ui.define([
                         businessFunction: sFinalFunction,
                         duration: sFinalDuration,
                         accessDuration: sFinalDuration,
-                        submissionDate: oRequest.submissionDate || (oRequest.created_at ? oRequest.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        submissionDate: formatProperDateTime(oRequest.submissionDate || oRequest.created_at || oRequest.createdAtRaw),
                         created_at: oRequest.created_at || oRequest.createdAtRaw || new Date().toISOString(),
                         createdAtRaw: oRequest.createdAtRaw || oRequest.created_at || new Date().toISOString(),
                         justification: oRequest.justification || "Business Access Entitlement",
@@ -2202,8 +2220,8 @@ sap.ui.define([
                 justification: oData.justification || "",
                 type: isReqRevocation ? "Revocation" : (oData.type || "Addition"),
                 serviceTopic: oData.serviceTopic || "",
-                decisionDate: sTodayStr,
-                submissionDate: oData.submissionDate || (oData.created_at ? String(oData.created_at).split("T")[0] : sTodayStr),
+                decisionDate: formatProperDateTime(new Date()),
+                submissionDate: formatProperDateTime(oData.submissionDate || oData.created_at || oData.createdAtRaw),
                 createdAtRaw: oData.createdAtRaw || oData.created_at || sNowIso,
                 created_at: oData.created_at || oData.createdAtRaw || sNowIso,
                 updatedAtRaw: sNowIso,
@@ -3054,8 +3072,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            submissionDate: sDate,
-                            decisionDate: sDate,
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
+                            decisionDate: formatProperDateTime(r.updated_at || r.created_at),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -3108,8 +3126,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            decisionDate: sDate,
-                            submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            decisionDate: formatProperDateTime(r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at),
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -3222,7 +3240,7 @@ sap.ui.define([
                         persona: cleanPersonaName(item.persona || item.selectedPersona || ""),
                         selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || ""),
                         accessDuration: item.accessDuration || "Permanent (Default)",
-                        submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        submissionDate: formatProperDateTime(item.submissionDate || item.createdAtRaw),
                         createdAtRaw: item.createdAtRaw || new Date().toISOString(),
                         approver: item.approver || "Line Manager / ISRM Team",
                         status: "Pending Approval",
