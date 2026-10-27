@@ -1275,76 +1275,103 @@
                                         tooltip="Add New AD Integration / Security Group" />
                                 </HBox>
 
-                                <!-- Discovered AD Groups Preview Table -->
-                                <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%">
+                                <!-- Discovered AD Groups Preview Table (Exact Image 1 Match) -->
+                                <VBox class="kyraAdTableCard sapUiMediumMarginBottom" width="100%">
                                     <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                         <HBox alignItems="Center" gap="10px">
-                                            <core:Icon src="sap-icon://org-chart" class="kyraDarkCardHeaderIcon" />
-                                            <Title text="Discovered Active Directory Security Groups" level="H4" class="kyraDarkCardHeaderTitle" />
+                                            <core:Icon src="sap-icon://org-chart" class="kyraAdHeaderIcon" />
+                                            <Title text="Discovered Active Directory Security Groups" level="H4" class="kyraAdCardHeaderTitle" />
                                         </HBox>
                                     </HBox>
 
                                     <Table
                                         items="{accessModel>/adGroupIntegration/discoveredGroups}"
                                         fixedLayout="true"
-                                        class="sapUiNoMargin kyraAdminCleanTable">
+                                        class="sapUiNoMargin kyraAdMasterCleanTable">
                                         <columns>
-                                            <Column width="35%" hAlign="Begin"><Text text="AD Group Name" class="kyraAdminColHeader" /></Column>
-                                            <Column width="20%" hAlign="Begin"><Text text="Type / Scope" class="kyraAdminColHeader" /></Column>
-                                            <Column width="18%" hAlign="Begin"><Text text="Members" class="kyraAdminColHeader" /></Column>
-                                            <Column width="15%" hAlign="Begin"><Text text="Last Synced" class="kyraAdminColHeader" /></Column>
-                                            <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
+                                            <Column width="28%" hAlign="Begin"><Text text="AD GROUP NAME" class="kyraAdColHeader" /></Column>
+                                            <Column width="28%" hAlign="Center"><Text text="TYPE / SCOPE" class="kyraAdColHeader" /></Column>
+                                            <Column width="14%" hAlign="Center"><Text text="MEMBERS" class="kyraAdColHeader" /></Column>
+                                            <Column width="15%" hAlign="Center"><Text text="LAST SYNCED" class="kyraAdColHeader" /></Column>
+                                            <Column width="15%" hAlign="Center"><Text text="SYNC STATUS" class="kyraAdColHeader" /></Column>
                                         </columns>
                                         <items>
-                                            <ColumnListItem vAlign="Middle">
+                                            <ColumnListItem vAlign="Middle" class="kyraAdTableRow">
                                                 <cells>
                                                     <HBox alignItems="Center" gap="10px">
-                                                        <core:Icon src="sap-icon://group" color="#00778B" />
-                                                        <Text text="{accessModel>groupName}" class="kyraAdminCellBold" />
+                                                        <core:Icon src="sap-icon://group" class="kyraAdGroupRowIcon" />
+                                                        <Text text="{accessModel>groupName}" class="kyraAdCellBold" />
                                                     </HBox>
-                                                    <Text text="{accessModel>type} ({accessModel>scope})" class="fioriDescriptionText" />
-                                                    <ObjectStatus text="{accessModel>memberCount}" state="Information" />
-                                                    <Text text="{accessModel>lastSync}" class="fioriDescriptionText" />
-                                                    <ObjectStatus text="{accessModel>status}" state="Success" icon="sap-icon://sys-enter-2" />
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <Text text="{accessModel>type} ({accessModel>scope})" class="kyraAdCellMuted" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <HBox class="kyraAdMembersBadge" justifyContent="Center" alignItems="Center">
+                                                            <Text text="{accessModel>memberCount}" class="kyraAdMembersText" />
+                                                        </HBox>
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <Text text="{accessModel>lastSync}" class="kyraAdCellMuted" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <HBox class="kyraAdStatusBadgeSuccess" justifyContent="Center" alignItems="Center" gap="6px">
+                                                            <core:Icon src="sap-icon://sys-enter-2" class="kyraAdStatusIcon" />
+                                                            <Text text="{accessModel>status}" class="kyraAdStatusText" />
+                                                        </HBox>
+                                                    </HBox>
                                                 </cells>
                                             </ColumnListItem>
                                         </items>
                                     </Table>
                                 </VBox>
 
-                                <!-- Synced AD Group Members & Persona Mapping Table -->
-                                <VBox class="kyraDarkFormCard sapUiMediumMarginBottom" width="100%" visible="{= !!${accessModel>/adGroupIntegration/syncedUsers} &amp;&amp; ${accessModel>/adGroupIntegration/syncedUsers}.length &gt; 0 }">
+                                <!-- Synced AD Group Members & Persona Mapping Table (Exact Image 1 Match) -->
+                                <VBox class="kyraAdTableCard sapUiMediumMarginBottom" width="100%" visible="{= !!${accessModel>/adGroupIntegration/syncedUsers} &amp;&amp; ${accessModel>/adGroupIntegration/syncedUsers}.length &gt; 0 }">
                                     <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                         <HBox alignItems="Center" gap="10px">
-                                            <core:Icon src="sap-icon://user-settings" class="kyraDarkCardHeaderIcon" />
-                                            <Title text="Synced AD Group Members &amp; Kyra Persona Assignments" level="H4" class="kyraDarkCardHeaderTitle" />
+                                            <core:Icon src="sap-icon://user-settings" class="kyraAdHeaderIcon" />
+                                            <Title text="Synced AD Group Members &amp; Kyra Persona Assignments" level="H4" class="kyraAdCardHeaderTitle" />
                                         </HBox>
-                                        <ObjectStatus text="{= ${accessModel>/adGroupIntegration/syncedUsers}.length + ' Users Synchronized' }" state="Success" icon="sap-icon://sys-enter-2" />
+                                        <HBox class="kyraAdStatusBadgeSuccess" justifyContent="Center" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://sys-enter-2" class="kyraAdStatusIcon" />
+                                            <Text text="{= ${accessModel>/adGroupIntegration/syncedUsers}.length + ' Users Synchronized' }" class="kyraAdStatusText" />
+                                        </HBox>
                                     </HBox>
                                     <Table
                                         items="{accessModel>/adGroupIntegration/syncedUsers}"
                                         fixedLayout="true"
-                                        class="sapUiNoMargin kyraAdminCleanTable">
+                                        class="sapUiNoMargin kyraAdMasterCleanTable">
                                         <columns>
-                                            <Column width="26%" hAlign="Begin"><Text text="User Full Name" class="kyraAdminColHeader" /></Column>
-                                            <Column width="20%" hAlign="Begin"><Text text="Login ID / Username" class="kyraAdminColHeader" /></Column>
-                                            <Column width="24%" hAlign="Begin"><Text text="Directory Email" class="kyraAdminColHeader" /></Column>
-                                            <Column width="18%" hAlign="Begin"><Text text="Assigned Persona" class="kyraAdminColHeader" /></Column>
-                                            <Column width="12%" hAlign="Begin"><Text text="Sync Status" class="kyraAdminColHeader" /></Column>
+                                            <Column width="24%" hAlign="Begin"><Text text="USER FULL NAME" class="kyraAdColHeader" /></Column>
+                                            <Column width="18%" hAlign="Center"><Text text="LOGIN ID / USERNAME" class="kyraAdColHeader" /></Column>
+                                            <Column width="28%" hAlign="Center"><Text text="DIRECTORY EMAIL" class="kyraAdColHeader" /></Column>
+                                            <Column width="16%" hAlign="Center"><Text text="ASSIGNED PERSONA" class="kyraAdColHeader" /></Column>
+                                            <Column width="14%" hAlign="Center"><Text text="SYNC STATUS" class="kyraAdColHeader" /></Column>
                                         </columns>
                                         <items>
-                                            <ColumnListItem vAlign="Middle">
+                                            <ColumnListItem vAlign="Middle" class="kyraAdTableRow">
                                                 <cells>
-                                                    <HBox alignItems="Center" gap="8px">
-                                                        <core:Icon src="{= ${accessModel>targetPersona} === 'Approver' ? 'sap-icon://manager' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'sap-icon://activity-assigned-to-goal' : (${accessModel>targetPersona} === 'Admin' ? 'sap-icon://user-settings' : 'sap-icon://employee')) }" color="#00778B" />
-                                                        <Text text="{accessModel>fullName}" class="kyraAdminCellBold" />
+                                                    <HBox alignItems="Center" gap="10px">
+                                                        <core:Icon src="{= ${accessModel>targetPersona} === 'Approver' ? 'sap-icon://manager' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'sap-icon://activity-assigned-to-goal' : (${accessModel>targetPersona} === 'Admin' ? 'sap-icon://user-settings' : 'sap-icon://employee')) }" class="kyraAdUserRowIcon" />
+                                                        <Text text="{accessModel>fullName}" class="kyraAdCellBold" />
                                                     </HBox>
-                                                    <Text text="{accessModel>username}" class="fioriDescriptionText" />
-                                                    <Text text="{accessModel>email}" class="fioriDescriptionText" />
-                                                    <ObjectStatus
-                                                        text="{accessModel>targetPersona}"
-                                                        state="{= ${accessModel>targetPersona} === 'Approver' ? 'Warning' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'Error' : (${accessModel>targetPersona} === 'Admin' ? 'None' : 'Information')) }" />
-                                                    <ObjectStatus text="Active &amp; Synced" state="Success" icon="sap-icon://sys-enter-2" />
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <Text text="{accessModel>username}" class="kyraAdCellMuted" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <Text text="{accessModel>email}" class="kyraAdCellMuted" wrapping="true" />
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <HBox class="{= 'kyraAdPersonaPill ' + (${accessModel>targetPersona} === 'Approver' ? 'kyraAdPillApprover' : (${accessModel>targetPersona} === 'Compliance Reviewer' ? 'kyraAdPillCompliance' : (${accessModel>targetPersona} === 'Admin' ? 'kyraAdPillAdmin' : 'kyraAdPillRequester'))) }" justifyContent="Center" alignItems="Center">
+                                                            <Text text="{accessModel>targetPersona}" class="kyraAdPersonaPillText" />
+                                                        </HBox>
+                                                    </HBox>
+                                                    <HBox justifyContent="Center" width="100%">
+                                                        <HBox class="kyraAdStatusBadgeSuccess" justifyContent="Center" alignItems="Center" gap="6px">
+                                                            <core:Icon src="sap-icon://sys-enter-2" class="kyraAdStatusIcon" />
+                                                            <Text text="Active &amp; Synced" class="kyraAdStatusText" />
+                                                        </HBox>
+                                                    </HBox>
                                                 </cells>
                                             </ColumnListItem>
                                         </items>
@@ -1910,7 +1937,7 @@
                                 <HBox class="kyraIamTitleVerticalBar" />
                                 <VBox class="kyraIamTitleTextBox">
                                     <Title text="IAM Approver Integration &amp; Multi-Channel Governance" level="H3" class="kyraIamSlideTitle" />
-                                    <Text text="Dual-tier identity and governance workflows across independent IAM &amp; AWS Console delegation channels." class="kyraIamSlideSubtitle" />
+                                    <Text text="Select an IAM Approver below to configure their Email and AWS Console integration settings independently." class="kyraIamSlideSubtitle" />
                                 </VBox>
                             </HBox>
 
@@ -2823,20 +2850,22 @@
                     <VBox id="adminPersonaConversionSection"
                         visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; ${accessModel>/adminSelectedSection} === 'personaConversion' }"
                         class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom fioriSlideDownAnim">
-                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
-                            <HBox alignItems="Center" class="kyraCardHeaderLeft">
-                                <Avatar src="sap-icon://customer" class="kyraPersonaHeaderAvatar" displaySize="S" />
-                                <VBox class="kyraCardHeaderTextCol">
-                                    <Title text="User Persona Conversion" level="H4" class="fioriCardHeaderTitle" />
-                                    <Text text="Convert user personas individually or department-wide between Requester, Approver, and Compliance Reviewer database tables." class="fioriDescriptionText" />
+                        <HBox justifyContent="SpaceBetween" alignItems="Center" class="kyraPersonaHeaderRow sapUiSmallMarginBottom">
+                            <HBox alignItems="Center" class="kyraPersonaHeaderLeft" gap="14px">
+                                <HBox class="kyraPersonaHeaderIconCircle" alignItems="Center" justifyContent="Center">
+                                    <core:Icon src="sap-icon://customer" class="kyraPersonaHeaderIcon" />
+                                </HBox>
+                                <VBox class="kyraPersonaHeaderTextCol">
+                                    <Title text="User Persona Conversion" level="H4" class="kyraPersonaHeaderTitle" />
+                                    <Text text="Convert user personas individually or department-wide between Requester, Approver, and Compliance Reviewer database tables." class="kyraPersonaHeaderSubtitle" />
                                 </VBox>
                             </HBox>
                             <Button icon="sap-icon://decline" type="Transparent" press=".onCloseAdminSection" tooltip="Close Section" class="kyraCloseIconBtn" />
                         </HBox>
 
-                        <!-- DUAL-MODE TAB / SEGMENTED SWITCHER -->
-                        <HBox alignItems="Center" class="sapUiSmallMarginBottom">
-                            <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="sapUiSmallMarginBottom kyraPersonaSegmentedBtn">
+                        <!-- DUAL-MODE TAB / SEGMENTED SWITCHER (EXACT IMAGE 2 MATCH) -->
+                        <HBox alignItems="Center" class="kyraPersonaSwitchContainer sapUiMediumMarginBottom">
+                            <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="kyraPersonaSegmentedBtnImage2">
                                 <items>
                                     <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" />
                                     <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" />

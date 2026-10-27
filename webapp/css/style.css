@@ -64024,3 +64024,341 @@ html body .sapUiTheme-sap_horizon .kyraIamMainCardSubtitle {
     text-align: center !important;
     white-space: nowrap !important;
 }
+
+
+/* ========================================================================= */
+/* PART 1: ACTIVE DIRECTORY TABLES ALIGNMENT & DESIGN (EXACT IMAGE 1 MATCH)  */
+/* ========================================================================= */
+
+.kyraAdTableCard,
+.sapMFlexBox.kyraAdTableCard,
+html body .sapUiTheme-sap_horizon .kyraAdTableCard {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 14px !important;
+    padding: 22px 24px !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
+    margin-bottom: 24px !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdHeaderIcon {
+    color: #008C9C !important;
+    font-size: 18px !important;
+}
+
+.kyraAdCardHeaderTitle,
+.kyraAdCardHeaderTitle.sapMTitle {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+}
+
+.kyraAdMasterCleanTable,
+.kyraAdMasterCleanTable.sapMTable {
+    border: none !important;
+    background: transparent !important;
+}
+
+.kyraAdMasterCleanTable .sapMListHdr,
+.kyraAdMasterCleanTable thead tr {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border-bottom: 1.5px solid #E2E8F0 !important;
+}
+
+.kyraAdColHeader,
+.kyraAdColHeader.sapMText {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 6px !important;
+    text-align: inherit !important;
+}
+
+.kyraAdTableRow {
+    border-bottom: 1px solid #F1F5F9 !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.kyraAdTableRow:hover {
+    background-color: #F8FAFC !important;
+}
+
+.kyraAdTableRow .sapMListTblCell {
+    padding: 14px 10px !important;
+    vertical-align: middle !important;
+}
+
+.kyraAdGroupRowIcon {
+    color: #008C9C !important;
+    font-size: 16px !important;
+}
+
+.kyraAdUserRowIcon {
+    color: #008C9C !important;
+    font-size: 16px !important;
+}
+
+.kyraAdCellBold,
+.kyraAdCellBold.sapMText {
+    font-weight: 600 !important;
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+}
+
+.kyraAdCellMuted,
+.kyraAdCellMuted.sapMText {
+    color: #475569 !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    text-align: center !important;
+}
+
+/* Members Pill Badge (Cyan/Teal) */
+.kyraAdMembersBadge {
+    background: #E0F2FE !important;
+    background-color: #E0F2FE !important;
+    border: 1px solid #7DD3FC !important;
+    border-radius: 12px !important;
+    padding: 4px 16px !important;
+    display: inline-flex !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdMembersText,
+.kyraAdMembersText.sapMText {
+    color: #0284C7 !important;
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+}
+
+/* Active / Synced Status Badge (Green with Checkmark) */
+.kyraAdStatusBadgeSuccess {
+    background: #DCFCE7 !important;
+    background-color: #DCFCE7 !important;
+    border: 1px solid #86EFAC !important;
+    border-radius: 12px !important;
+    padding: 4px 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdStatusIcon {
+    color: #166534 !important;
+    font-size: 13px !important;
+}
+
+.kyraAdStatusText,
+.kyraAdStatusText.sapMText {
+    color: #166534 !important;
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+}
+
+/* Persona Badges */
+.kyraAdPersonaPill {
+    border-radius: 12px !important;
+    padding: 4px 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.kyraAdPillAdmin {
+    background: #F0FDFA !important;
+    border: 1.5px solid #5EEAD4 !important;
+}
+.kyraAdPillAdmin .kyraAdPersonaPillText {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+}
+
+.kyraAdPillRequester {
+    background: #F0FDFA !important;
+    border: 1.5px solid #5EEAD4 !important;
+}
+.kyraAdPillRequester .kyraAdPersonaPillText {
+    color: #008C9C !important;
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+}
+
+.kyraAdPillApprover {
+    background: #FEF3C7 !important;
+    border: 1.5px solid #FCD34D !important;
+}
+.kyraAdPillApprover .kyraAdPersonaPillText {
+    color: #D97706 !important;
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+}
+
+.kyraAdPillCompliance {
+    background: #FEE2E2 !important;
+    border: 1.5px solid #FCA5A5 !important;
+}
+.kyraAdPillCompliance .kyraAdPersonaPillText {
+    color: #DC2626 !important;
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+}
+
+.kyraAdPersonaPillText,
+.kyraAdPersonaPillText.sapMText {
+    font-weight: 700 !important;
+    font-size: 12.5px !important;
+    white-space: nowrap !important;
+}
+
+
+/* ========================================================================= */
+/* PART 2: USER PERSONA CONVERSION HEADER & SWITCH (EXACT IMAGE 2 MATCH)     */
+/* ========================================================================= */
+
+.kyraPersonaHeaderRow {
+    width: 100% !important;
+    padding-bottom: 6px !important;
+}
+
+.kyraPersonaHeaderIconCircle {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 50% !important;
+    border: 2px solid #008C9C !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraPersonaHeaderIcon {
+    color: #008C9C !important;
+    font-size: 22px !important;
+}
+
+.kyraPersonaHeaderTitle,
+.kyraPersonaHeaderTitle.sapMTitle,
+html body .sapUiTheme-sap_horizon .kyraPersonaHeaderTitle {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin: 0 0 3px 0 !important;
+    line-height: 1.2 !important;
+}
+
+.kyraPersonaHeaderSubtitle,
+.kyraPersonaHeaderSubtitle.sapMText,
+html body .sapUiTheme-sap_horizon .kyraPersonaHeaderSubtitle {
+    font-size: 13.5px !important;
+    color: #64748B !important;
+    margin: 0 !important;
+}
+
+/* Segmented Button (Exact Image 2 Match) */
+.kyraPersonaSegmentedBtnImage2,
+.sapMSegB.kyraPersonaSegmentedBtnImage2,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 {
+    display: inline-flex !important;
+    height: 44px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn {
+    height: 44px !important;
+    min-height: 44px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s ease, color 0.2s ease !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:first-child {
+    border-right: 1.5px solid #CBD5E1 !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn .sapMSegBBtnInner {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn .sapMBtnIcon {
+    color: #475569 !important;
+    font-size: 15px !important;
+    margin-right: 8px !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn .sapMSegBBtnTxt {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+/* Active / Selected Button (Solid Teal with White Text and White Icon) */
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"],
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMBtnIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMBtnIcon {
+    color: #FFFFFF !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnTxt {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+}
+
+
+/* ========================================================================= */
+/* PART 3: IAM APPROVER SLIDE INDIGO ACCENT (EXACT IMAGE 3 MATCH)            */
+/* ========================================================================= */
+
+.kyraIamTitleVerticalBar {
+    width: 3.5px !important;
+    min-width: 3.5px !important;
+    height: 38px !important;
+    background-color: #4F46E5 !important;
+    border-radius: 2px !important;
+    margin-right: 14px !important;
+    flex-shrink: 0 !important;
+}
