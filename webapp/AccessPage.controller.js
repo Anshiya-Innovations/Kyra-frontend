@@ -8363,28 +8363,53 @@ sap.ui.define([
                     oItem.isRestricted = bIsRestrEntitlement;
                     oItem.accessType = bIsRestrEntitlement ? "RESTRICTED" : "Addition";
 
-                    // Standard matching helper for System + Persona + Role granularity
+                                        // Standard matching helper for System + Persona + Role granularity (Region-Aware)
                     const cleanStr = (s) => String(s || "").replace(/\s*\([^)]*\)/g, "").replace(/\s+persona\b/gi, "").replace(/[^a-zA-Z0-9]/g, "").trim().toLowerCase();
-                    const canonicalSys = (s) => {
-                        const str = String(s || "").trim().toLowerCase();
-                        if (!str) return "";
-                        if (str.includes("btp") || str.includes("business technology platform")) return "btp";
-                        if (str.includes("s/4") || str.includes("s4") || str.includes("hana")) return "s4hana";
-                        if (str.includes("successfactors") || str.includes("success factors")) return "successfactors";
-                        if (str.includes("ariba")) return "ariba";
-                        if (str.includes("active directory") || str.includes("iam")) return "iam";
-                        if (str.includes("governance") || str.includes("kyra")) return "governance";
-                        return str.replace(/[^a-z0-9]/g, "");
+                    const getCanonicalSystemKey = (itemOrSys, maybeReg) => {
+                        let sSys = "";
+                        let sReg = "";
+                        if (typeof itemOrSys === "object" && itemOrSys !== null) {
+                            sSys = itemOrSys.system || itemOrSys.target_system || itemOrSys.targetSystem || itemOrSys.systemName || "";
+                            sReg = itemOrSys.region || itemOrSys.operating_region || itemOrSys.operatingRegion || maybeReg || "";
+                        } else {
+                            sSys = String(itemOrSys || "");
+                            sReg = String(maybeReg || "");
+                        }
+                        const strSys = sSys.trim().toLowerCase();
+                        const strReg = sReg.trim().toLowerCase();
+                        if (!strSys && !strReg) return "";
+
+                        let baseSys = "other";
+                        if (strSys.includes("btp") || strSys.includes("business technology platform")) baseSys = "btp";
+                        else if (strSys.includes("s/4") || strSys.includes("s4") || strSys.includes("hana")) baseSys = "s4hana";
+                        else if (strSys.includes("successfactors") || strSys.includes("success factors")) baseSys = "successfactors";
+                        else if (strSys.includes("ariba")) baseSys = "ariba";
+                        else if (strSys.includes("active directory") || strSys.includes("iam")) baseSys = "iam";
+                        else if (strSys.includes("concur")) baseSys = "concur";
+                        else if (strSys.includes("analytics")) baseSys = "analytics";
+                        else if (strSys.includes("governance") || strSys.includes("kyra")) baseSys = "governance";
+                        else baseSys = strSys.replace(/[^a-z0-9]/g, "");
+
+                        let region = "";
+                        if (strSys.includes("singapore") || strSys.includes("ap21") || strSys.includes("ap-southeast-1")) {
+                            region = "singapore";
+                        } else if (strSys.includes("us east") || strSys.includes("virginia") || strSys.includes("us10") || strSys.includes("us-east-1") || strSys.includes("(us")) {
+                            region = "us";
+                        } else if (strReg.includes("singapore") || strReg.includes("ap21") || (strReg.includes("asia") && !strReg.includes("north america"))) {
+                            region = "singapore";
+                        } else if (strReg.includes("us east") || strReg.includes("virginia") || strReg.includes("us10") || (strReg.includes("north america") && !strReg.includes("asia"))) {
+                            region = "us";
+                        }
+
+                        return region ? `${baseSys}___${region}` : baseSys;
                     };
                     const isSameSys = (sysA, sysB) => {
-                        const cA = canonicalSys(sysA);
-                        const cB = canonicalSys(sysB);
+                        const cA = getCanonicalSystemKey(sysA);
+                        const cB = getCanonicalSystemKey(sysB);
                         return !!(cA && cB && cA === cB);
                     };
                     const isMatch = (itemA, itemB) => {
-                        const sA = itemA.system || itemA.target_system || itemA.targetSystem || itemA.systemName || "";
-                        const sB = itemB.system || itemB.target_system || itemB.targetSystem || itemB.systemName || "";
-                        if (!isSameSys(sA, sB)) return false;
+                        if (!isSameSys(itemA, itemB)) return false;
 
                         const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || itemA.team || itemA.teamName || "");
                         const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || itemB.team || itemB.teamName || "");
@@ -8751,16 +8776,14 @@ sap.ui.define([
             };
             
             const getEntitlementKey = (sys, role, persona) => {
-                const sSys = canonicalSys(sys);
+                const sSys = getCanonicalSystemKey(sys);
                 const sRole = cleanStr(role);
                 const sPers = cleanStr(persona);
                 return `${sSys}:::${sRole}:::${sPers || sRole}`;
             };
 
             const isMatch = (itemA, itemB) => {
-                const sA = itemA.system || itemA.target_system || itemA.targetSystem || itemA.systemName || "";
-                const sB = itemB.system || itemB.target_system || itemB.targetSystem || itemB.systemName || "";
-                if (!isSameSys(sA, sB)) return false;
+                if (!isSameSys(itemA, itemB)) return false;
 
                 const roleA = cleanStr(itemA.roleName || itemA.role_name || itemA.roleTitle || itemA.team || itemA.teamName || "");
                 const roleB = cleanStr(itemB.roleName || itemB.role_name || itemB.roleTitle || itemB.team || itemB.teamName || "");
@@ -8967,7 +8990,7 @@ sap.ui.define([
 
                 // Dynamically fetch system threshold limit configured by admin
                 const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
-                const oSysCfg = aAdminSystems.find(s => s && (isSameSys(s.systemName, sSys) || canonicalSys(s.systemName) === canonicalSys(sSys)));
+                const oSysCfg = aAdminSystems.find(s => s && isSameSys(s.systemName || s.system_name, sSys));
                 let iSysLimit = 5;
                 if (oSysCfg && oSysCfg.thresholdLimit) {
                     const parsedLimit = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
@@ -9272,24 +9295,39 @@ sap.ui.define([
                 return str || s;
             };
 
-            const normalizeSystemName = (sys) => {
-                if (!sys) return "";
-                let s = String(sys).trim().toLowerCase();
-                if (s.includes("btp")) return "btp";
-                if (s.includes("s/4hana") || s.includes("s4hana")) return "s4hana";
-                if (s.includes("ariba")) return "ariba";
-                if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
-                if (s.includes("concur")) return "concur";
-                if (s.includes("analytics")) return "analytics";
-                if (s.includes("kyra") || s.includes("central governance")) return "kyra";
-                return s;
+            const getCanonicalSystemKeyForSod = (itemOrSys) => {
+                let sSys = typeof itemOrSys === "object" && itemOrSys !== null ? (itemOrSys.system || itemOrSys.target_system || itemOrSys.targetSystem || itemOrSys.systemName || "") : String(itemOrSys || "");
+                let sReg = typeof itemOrSys === "object" && itemOrSys !== null ? (itemOrSys.region || itemOrSys.operating_region || itemOrSys.operatingRegion || "") : "";
+                const strSys = sSys.trim().toLowerCase();
+                const strReg = sReg.trim().toLowerCase();
+                if (!strSys && !strReg) return "";
+                let baseSys = "other";
+                if (strSys.includes("btp") || strSys.includes("business technology platform")) baseSys = "btp";
+                else if (strSys.includes("s/4") || strSys.includes("s4") || strSys.includes("hana")) baseSys = "s4hana";
+                else if (strSys.includes("successfactors") || strSys.includes("success factors")) baseSys = "successfactors";
+                else if (strSys.includes("ariba")) baseSys = "ariba";
+                else if (strSys.includes("active directory") || strSys.includes("iam")) baseSys = "iam";
+                else if (strSys.includes("concur")) baseSys = "concur";
+                else if (strSys.includes("analytics")) baseSys = "analytics";
+                else if (strSys.includes("governance") || strSys.includes("kyra")) baseSys = "governance";
+                else baseSys = strSys.replace(/[^a-z0-9]/g, "");
+
+                let region = "";
+                if (strSys.includes("singapore") || strSys.includes("ap21") || strSys.includes("ap-southeast-1") || (strReg.includes("singapore") || (strReg.includes("asia") && !strReg.includes("north america")))) {
+                    region = "singapore";
+                } else if (strSys.includes("us east") || strSys.includes("virginia") || strSys.includes("us10") || strSys.includes("us-east-1") || strSys.includes("(us") || (strReg.includes("us east") || strReg.includes("virginia") || (strReg.includes("north america") && !strReg.includes("asia")))) {
+                    region = "us";
+                }
+                return region ? `${baseSys}___${region}` : baseSys;
             };
+
+            const normalizeSystemName = (sys) => getCanonicalSystemKeyForSod(sys);
 
             const isSameSystem = (sysA, sysB) => {
                 if (!sysA || !sysB) return true;
-                const normA = normalizeSystemName(sysA);
-                const normB = normalizeSystemName(sysB);
-                return normA === normB || normA.includes(normB) || normB.includes(normA);
+                const normA = getCanonicalSystemKeyForSod(sysA);
+                const normB = getCanonicalSystemKeyForSod(sysB);
+                return normA === normB || normA === "btp" && normB.startsWith("btp") || normB === "btp" && normA.startsWith("btp");
             };
 
             const normalizeForMatching = (str) => {
@@ -9376,9 +9414,9 @@ sap.ui.define([
                 }
 
                 // Match Target Team against Item Role or Persona
-                if (normTargetTeam) {
-                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) return true;
-                    if (normItemPers && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) return true;
+                if (normTargetTeam && normTargetTeam.length > 0) {
+                    if (normItemRole && normItemRole.length > 0 && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) return true;
+                    if (normItemPers && normItemPers.length > 0 && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) return true;
                 }
 
                 // Match Target Persona against Item Role

@@ -1023,24 +1023,52 @@ sap.ui.define([
                 return str || s;
             };
 
-            const normalizeSystemName = (sys) => {
-                if (!sys) return "";
-                let s = String(sys).trim().toLowerCase();
-                if (s.includes("btp")) return "btp";
-                if (s.includes("s/4hana") || s.includes("s4hana")) return "s4hana";
-                if (s.includes("ariba")) return "ariba";
-                if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
-                if (s.includes("concur")) return "concur";
-                if (s.includes("analytics")) return "analytics";
-                if (s.includes("kyra") || s.includes("central governance")) return "kyra";
-                return s;
+            const getCanonicalSystemKey = (itemOrSys, maybeReg) => {
+                let sSys = "";
+                let sReg = "";
+                if (typeof itemOrSys === "object" && itemOrSys !== null) {
+                    sSys = itemOrSys.system || itemOrSys.target_system || itemOrSys.targetSystem || itemOrSys.systemName || "";
+                    sReg = itemOrSys.region || itemOrSys.operating_region || itemOrSys.operatingRegion || maybeReg || "";
+                } else {
+                    sSys = String(itemOrSys || "");
+                    sReg = String(maybeReg || "");
+                }
+                const strSys = sSys.trim().toLowerCase();
+                const strReg = sReg.trim().toLowerCase();
+                if (!strSys && !strReg) return "";
+
+                let baseSys = "other";
+                if (strSys.includes("btp") || strSys.includes("business technology platform")) baseSys = "btp";
+                else if (strSys.includes("s/4") || strSys.includes("s4") || strSys.includes("hana")) baseSys = "s4hana";
+                else if (strSys.includes("successfactors") || strSys.includes("success factors")) baseSys = "successfactors";
+                else if (strSys.includes("ariba")) baseSys = "ariba";
+                else if (strSys.includes("active directory") || strSys.includes("iam")) baseSys = "iam";
+                else if (strSys.includes("concur")) baseSys = "concur";
+                else if (strSys.includes("analytics")) baseSys = "analytics";
+                else if (strSys.includes("governance") || strSys.includes("kyra")) baseSys = "governance";
+                else baseSys = strSys.replace(/[^a-z0-9]/g, "");
+
+                let region = "";
+                if (strSys.includes("singapore") || strSys.includes("ap21") || strSys.includes("ap-southeast-1")) {
+                    region = "singapore";
+                } else if (strSys.includes("us east") || strSys.includes("virginia") || strSys.includes("us10") || strSys.includes("us-east-1") || strSys.includes("(us")) {
+                    region = "us";
+                } else if (strReg.includes("singapore") || strReg.includes("ap21") || (strReg.includes("asia") && !strReg.includes("north america"))) {
+                    region = "singapore";
+                } else if (strReg.includes("us east") || strReg.includes("virginia") || strReg.includes("us10") || (strReg.includes("north america") && !strReg.includes("asia"))) {
+                    region = "us";
+                }
+
+                return region ? `${baseSys}___${region}` : baseSys;
             };
+
+            const normalizeSystemName = (sys) => getCanonicalSystemKey(sys);
 
             const isSameSystem = (sysA, sysB) => {
                 if (!sysA || !sysB) return true;
-                const normA = normalizeSystemName(sysA);
-                const normB = normalizeSystemName(sysB);
-                return normA === normB || normA.includes(normB) || normB.includes(normA);
+                const normA = getCanonicalSystemKey(sysA);
+                const normB = getCanonicalSystemKey(sysB);
+                return normA === normB || (normA === "btp" && normB.startsWith("btp")) || (normB === "btp" && normA.startsWith("btp"));
             };
 
             const normalizeForMatching = (str) => {
@@ -1122,11 +1150,21 @@ sap.ui.define([
                 }
 
                 // Case 2: Target is just a Persona or Role Name without parentheses
-                if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
-                    return true;
+                if (normTargetPers && normTargetPers.length > 0) {
+                    if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
+                        return true;
+                    }
+                    if (normItemRole && (normItemRole === normTargetPers || normItemRole.includes(normTargetPers) || normTargetPers.includes(normItemRole))) {
+                        return true;
+                    }
                 }
-                if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
-                    return true;
+                if (normTargetTeam && normTargetTeam.length > 0) {
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
+                        return true;
+                    }
+                    if (normItemPers && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) {
+                        return true;
+                    }
                 }
                 if (normTargetRaw && (
                     (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) ||
@@ -1508,153 +1546,101 @@ sap.ui.define([
                 }
             });
 
-            // Safeguard: Ensure Restricted Records table always displays properly for requested roles
-            if (aRestrictedRecords.length === 0 && aItems && aItems.length > 0) {
-                aItems.forEach((item, idx) => {
-                    const sSys = item.system || item.target_system || item.systemName || "SAP BTP Cloud Platform";
-                    let sServices = item.services || item.serviceTopic || item.service || "System Administrator";
-                    let sTeam = cleanPersonaName(item.team || item.teamName || item.roleName || item.roleTitle || "Technical Specialist");
-                    const sPersona = item.persona || item.selectedPersona || "Privileged Access Persona";
-                    const sPersonaClean = cleanPersonaName(sPersona) || "Privileged Access Persona";
-
-                    let sSecGroup = item.securityGroup || item.selectedSecurityGroups || "SEC-PRIVILEGED-ACCESS";
-                    let sAdGroup = item.adGroupName || item.adGroup || "AD-KYRA-PRIVILEGED-GRP";
-
-                    aRestrictedRecords.push({
-                        id: "RR-" + (idx + 1),
-                        system: sSys,
-                        systemName: sSys,
-                        services: sServices,
-                        serviceTopic: sServices,
-                        team: sTeam,
-                        teamName: sTeam,
-                        roleName: sTeam,
-                        roleTitle: sTeam,
-                        persona: sPersonaClean,
-                        selectedPersona: sPersonaClean,
-                        securityGroup: sSecGroup,
-                        selectedSecurityGroups: sSecGroup,
-                        adGroup: sAdGroup,
-                        restrictedLimit: (() => {
-                            const v = item.restrictedLimit != null ? item.restrictedLimit : (item.limit != null ? item.limit : 5);
-                            const num = parseInt(v, 10);
-                            if (!isNaN(num) && num >= 0 && num <= 10) {
-                                return String(num);
-                            }
-                            return "5";
-                        })()
-                    });
-                });
-            }
-
-            oModel.setProperty("/restrictedRecords", aRestrictedRecords);
-            setTimeout(() => this._applyRestrictedLimitPickerStyles(), 100);
-
-            // Derive Threshold Limits
-            let aAllLive = (liveData && liveData.value) || [];
-            if (aAllLive.length === 0) {
-                try {
-                    const resp = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        if (data && data.value) {
-                            aAllLive = data.value;
-                        }
-                    }
-                } catch(e) {}
-            }
-
-            const isSameSys = (sysA, sysB) => {
-                if (!sysA || !sysB) return false;
-                const normA = String(sysA).toLowerCase().replace(/[^a-z0-9]/g, "");
-                const normB = String(sysB).toLowerCase().replace(/[^a-z0-9]/g, "");
-                return normA === normB || normA.includes(normB) || normB.includes(normA);
-            };
-
-            const targetSystems = new Set();
+            // Derive Duplicate Roles for this request (region-aware)
+            const aDuplicateRoles = [];
+            const seenDupKeys = new Set();
             aItems.forEach(item => {
-                const s = item.system || item.target_system || item.systemName;
-                if (s) targetSystems.add(s);
-            });
-            if (targetSystems.size === 0 && oRequest.system) {
-                targetSystems.add(oRequest.system);
-            }
+                const sSys = item.system || item.target_system || item.systemName || "";
+                const sServices = item.services || item.serviceTopic || item.service || "System Administrator";
+                const sTeam = cleanPersonaName(item.team || item.teamName || item.roleName || item.roleTitle || "");
+                const sPersona = cleanPersonaName(item.persona || item.selectedPersona || "");
+                const sSecGrp = item.securityGroup || item.selectedSecurityGroups || "SEC-PRIVILEGED-ACCESS";
+                const sAdGrp = item.adGroupName || item.adGroup || "AD-KYRA-PRIVILEGED-GRP";
 
-            const aThresholdLimits = [];
-            const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [
-                { systemName: "SAP BTP Cloud Platform", thresholdLimit: "5" },
-                { systemName: "SAP S/4HANA Enterprise", thresholdLimit: "8" },
-                { systemName: "KYRA Central Governance", thresholdLimit: "4" },
-                { systemName: "Active Directory / IAM", thresholdLimit: "5" },
-                { systemName: "SAP SuccessFactors", thresholdLimit: "8" },
-                { systemName: "SAP Ariba Supply Network", thresholdLimit: "5" }
-            ];
-
-            const sSector = oRequest.businessSector || oRequest.sector || "Global Supply Chain & Logistics";
-
-            targetSystems.forEach(sSys => {
-                const oSysCfg = aAdminSystems.find(s => isSameSys(s.systemName, sSys));
-                let iSysLimit = 5;
-                if (oSysCfg && oSysCfg.thresholdLimit) {
-                    const parsedLimit = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
-                    if (!isNaN(parsedLimit) && parsedLimit > 0) {
-                        iSysLimit = parsedLimit;
-                    }
-                }
-
-                const uniqueEntitlements = new Set();
-
-                aAllLive.forEach(rec => {
+                (aAllLive || []).forEach(rec => {
                     const rUser = (rec.requester_username || "").toLowerCase();
-                    if (sRequesterUsername && rUser === sRequesterUsername.toLowerCase()) {
-                        const recSys = rec.system || rec.target_system || "";
-                        if (isSameSys(recSys, sSys)) {
-                            const recStatus = (rec.status || rec.db_status || "").toUpperCase();
-                            const recType = (rec.access_type || rec.request_type || "").toUpperCase();
-                            if (!recType.includes("REV") || recStatus === "APPROVED" || recStatus === "ACTIVE" || recStatus.startsWith("PENDING")) {
-                                const k = rec.request_number || `${recSys}:::${rec.role_name}:::${rec.selected_persona || rec.persona || rec.id}`;
-                                uniqueEntitlements.add(k);
-                            }
-                        }
+                    if (!sRequesterUsername || rUser !== sRequesterUsername.toLowerCase()) return;
+
+                    const rReqNum = (rec.request_number || "").trim().toUpperCase();
+                    const sCurReqNum = (oRequest.requestId || "").trim().toUpperCase();
+                    const sCurBase = (typeof getBaseReqId === "function" ? getBaseReqId(sCurReqNum) : sCurReqNum).toUpperCase();
+                    if (rReqNum === sCurReqNum || (sCurBase && rReqNum.startsWith(sCurBase))) return;
+
+                    const isSameSysHelper = (a, b) => {
+                        const getK = (it) => {
+                            const itSys = typeof it === "object" && it !== null ? (it.system || it.target_system || it.systemName || "") : String(it || "");
+                            const itReg = typeof it === "object" && it !== null ? (it.region || it.operating_region || it.operatingRegion || "") : "";
+                            const sS = itSys.toLowerCase();
+                            const sR = itReg.toLowerCase();
+                            let bS = "other";
+                            if (sS.includes("btp") || sS.includes("business technology platform")) bS = "btp";
+                            else if (sS.includes("s/4") || sS.includes("s4") || sS.includes("hana")) bS = "s4hana";
+                            else if (sS.includes("successfactors")) bS = "successfactors";
+                            else if (sS.includes("ariba")) bS = "ariba";
+                            else if (sS.includes("iam") || sS.includes("active directory")) bS = "iam";
+                            else bS = sS.replace(/[^a-z0-9]/g, "");
+
+                            let reg = "";
+                            if (sS.includes("singapore") || sS.includes("ap21") || (sR.includes("singapore") || (sR.includes("asia") && !sR.includes("north america")))) reg = "singapore";
+                            else if (sS.includes("us east") || sS.includes("virginia") || sS.includes("us10") || (sR.includes("us east") || sR.includes("virginia") || (sR.includes("north america") && !sR.includes("asia")))) reg = "us";
+                            return reg ? `${bS}___${reg}` : bS;
+                        };
+                        const kA = getK(a);
+                        const kB = getK(b);
+                        return !!(kA && kB && kA === kB);
+                    };
+
+                    if (!isSameSysHelper(rec, item)) return;
+
+                    const rRole = cleanPersonaName(rec.role_name || rec.roleName || rec.team || "");
+                    const rPers = cleanPersonaName(rec.selected_persona || rec.persona || "");
+
+                    const bMatch = (rPers && sPersona && rPers.toLowerCase() === sPersona.toLowerCase()) ||
+                                   (rRole && sTeam && rRole.toLowerCase() === sTeam.toLowerCase());
+                    if (!bMatch) return;
+
+                    const rStatus = (rec.status || rec.db_status || "").toUpperCase();
+                    const rType = (rec.access_type || rec.request_type || "").toUpperCase();
+                    const isRev = rType.includes("REV") || rStatus.includes("REVOKE");
+
+                    let existingStatus = "Already Active";
+                    let statusType = "existing";
+                    if (isRev) {
+                        existingStatus = "Revoke in Pending";
+                        statusType = "revoke_pending";
+                    } else if (rStatus.startsWith("PENDING")) {
+                        existingStatus = "Already in Pending";
+                        statusType = "pending";
+                    }
+
+                    const k = `${sSys}:::${sTeam}:::${sPersona}:::${existingStatus}`;
+                    if (!seenDupKeys.has(k)) {
+                        seenDupKeys.add(k);
+                        aDuplicateRoles.push({
+                            id: "DUP-" + (aDuplicateRoles.length + 1),
+                            system: sSys,
+                            systemName: sSys,
+                            services: sServices,
+                            serviceTopic: sServices,
+                            team: sTeam,
+                            teamName: sTeam,
+                            roleName: sTeam,
+                            roleTitle: sTeam,
+                            persona: sPersona,
+                            selectedPersona: sPersona,
+                            securityGroup: sSecGrp,
+                            selectedSecurityGroups: sSecGrp,
+                            adGroup: sAdGrp,
+                            adGroupName: sAdGrp,
+                            existingRoles: existingStatus.toLowerCase(),
+                            existingStatus: existingStatus,
+                            statusType: statusType
+                        });
                     }
                 });
-
-                aItems.forEach(item => {
-                    const itemSys = item.system || item.target_system || item.systemName || "";
-                    if (isSameSys(itemSys, sSys)) {
-                        const k = item.requestId || `${itemSys}:::${item.team || item.roleName}:::${item.selectedPersona || item.persona}`;
-                        uniqueEntitlements.add(k);
-                    }
-                });
-
-                if (uniqueEntitlements.size === 0) {
-                    const aMemAccess = (oModel.getProperty("/userAccessList") || oModel.getProperty("/activeRoles") || []);
-                    aMemAccess.forEach(acc => {
-                        const accSys = acc.system || acc.target_system || "";
-                        if (isSameSys(accSys, sSys)) {
-                            const k = acc.id || `${accSys}:::${acc.roleName || acc.team}:::${acc.persona || acc.selectedPersona}`;
-                            uniqueEntitlements.add(k);
-                        }
-                    });
-                }
-
-                const iTotalCount = uniqueEntitlements.size;
-
-                if (iTotalCount > iSysLimit) {
-                    const iPct = Math.round((iTotalCount / iSysLimit) * 100);
-                    aThresholdLimits.push({
-                        system: sSys,
-                        sector: sSector,
-                        thresholdLimit: String(iSysLimit),
-                        actualCount: iTotalCount,
-                        limit: `${iTotalCount}/${iSysLimit}`,
-                        excessivePercentage: `${iPct}%`,
-                        status: "Excessive",
-                        state: "Warning",
-                        statusState: "Warning"
-                    });
-                }
             });
+
+            oModel.setProperty("/duplicateRoles", aDuplicateRoles););
 
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
         },

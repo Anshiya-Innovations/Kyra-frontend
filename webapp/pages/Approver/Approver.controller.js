@@ -1400,15 +1400,16 @@ sap.ui.define([
 
                 if (isCompliance) {
                     // COMPLIANCE REVIEWER:
-                    // Only handles non-revocation requests WITH conflict that are not already past compliance.
-                    // If Compliance has already decided: goes to History (Processed), NEVER in Pending!
-                    if (hasConflict && sDbStatus !== "PENDING_IAM_1" && sDbStatus !== "PENDING_IAM_2" && sDbStatus !== "APPROVED") {
-                        if (info.hasComplianceDecided) {
-                            isProcessedForRole = true;
-                            bRoleApproved = !info.hasComplianceRejected;
-                        } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
-                            isPendingForRole = true;
-                        }
+                    // Only handles non-revocation requests WITH conflict that are currently waiting for compliance (PENDING_COMPLIANCE)!
+                    // Initial requests ('PENDING' / 'PENDING_APPROVER') MUST NEVER appear in Compliance queue!
+                    const isAwaitingCompliance = (sDbStatus === "PENDING_COMPLIANCE" || info.statuses.has("PENDING_COMPLIANCE")) &&
+                                                 info.hasApproverDecided && !info.hasApproverRejected && hasConflict;
+
+                    if (info.hasComplianceDecided) {
+                        isProcessedForRole = true;
+                        bRoleApproved = !info.hasComplianceRejected;
+                    } else if (isAwaitingCompliance && sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
+                        isPendingForRole = true;
                     }
                 } else if (isIam1) {
                     // IAM APPROVER 1:
@@ -1416,9 +1417,9 @@ sap.ui.define([
                         isProcessedForRole = true;
                         bRoleApproved = (r.iam_approver_1_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
                     } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED" && (info.statuses.has("PENDING_IAM_1") || 
-                              (isRevocation && info.hasApproverDecided) ||
-                              (!hasConflict && info.hasApproverDecided) ||
-                              (hasConflict && info.hasComplianceDecided))) {
+                              (isRevocation && info.hasApproverDecided && !info.hasApproverRejected) ||
+                              (!hasConflict && info.hasApproverDecided && !info.hasApproverRejected) ||
+                              (hasConflict && info.hasComplianceDecided && !info.hasComplianceRejected))) {
                         isPendingForRole = true;
                     }
                 } else if (isIam2) {
@@ -1426,16 +1427,19 @@ sap.ui.define([
                     if (info.hasIam2Decided) {
                         isProcessedForRole = true;
                         bRoleApproved = (r.iam_approver_2_status || "").toUpperCase() !== "REJECTED" && sDbStatus !== "REJECTED";
-                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED" && (info.statuses.has("PENDING_IAM_2") || info.hasIam1Decided)) {
+                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED" && (info.statuses.has("PENDING_IAM_2") || (info.hasIam1Decided && sDbStatus !== "REJECTED"))) {
                         isPendingForRole = true;
                     }
                 } else {
                     // INITIAL APPROVER (Line Manager):
                     // If Initial Approver has already decided: goes to History (Processed), NEVER in Pending!
+                    // A request waiting for Compliance or IAM Approver MUST NEVER be in Initial Approver's Pending!
+                    const isAwaitingInitialApprover = (sDbStatus === "PENDING" || sDbStatus === "PENDING_APPROVER" || info.statuses.has("PENDING") || info.statuses.has("PENDING_APPROVER")) && !info.hasApproverDecided;
+
                     if (info.hasApproverDecided) {
                         isProcessedForRole = true;
                         bRoleApproved = !info.hasApproverRejected;
-                    } else if (sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
+                    } else if (isAwaitingInitialApprover && sDbStatus !== "REJECTED" && sDbStatus !== "EXPIRED") {
                         isPendingForRole = true;
                     }
                 }
