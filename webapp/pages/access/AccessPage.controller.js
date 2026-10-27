@@ -15889,6 +15889,7 @@ sap.ui.define([
             const aRegionsPayload = oModel.getProperty("/adminRegionsAll") || [];
 
             const oPayload = {
+                systemName: oModel.getProperty("/selectedAdminSystemName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "",
                 adminSystemsAll: aSystems,
                 adminServicesAll: aServices.map(s => Object.assign({}, s, { selected: false })),
                 adminServiceDetailsMap: oDetailsMap,
@@ -16103,7 +16104,7 @@ sap.ui.define([
             this._updateActionCardArrows(oModel);
         },
 
-        onSelectAdminSystemToServices(oEvent) {
+        async onSelectAdminSystemToServices(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -16122,7 +16123,43 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminSystemName", sSystemName);
             oModel.setProperty("/adminCustomizationStep", 2);
 
-            this._ensureSystemServicesPopulated(oModel, sSystemName);
+            try {
+                const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ targetSystem: sSystemName })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.ok) {
+                        const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                        const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+
+                        oModel.setProperty("/adminServicesAll", aLiveServices);
+                        oModel.setProperty("/adminServices", aLiveServices.slice());
+                        oModel.setProperty("/activeAdminServices", aLiveServices.slice());
+                        oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+
+                        if (aLiveServices.length > 0) {
+                            const firstSvc = aLiveServices[0].serviceName;
+                            oModel.setProperty("/selectedAdminServiceName", firstSvc);
+                            const aTeams = oLiveDetailsMap[firstSvc] || [];
+                            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
+                            oModel.setProperty("/adminClassifications", aTeamsCopy);
+                            oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+                        } else {
+                            oModel.setProperty("/selectedAdminServiceName", "");
+                            oModel.setProperty("/adminClassifications", []);
+                            oModel.setProperty("/selectedAdminClassification", null);
+                        }
+                    }
+                } else {
+                    this._ensureSystemServicesPopulated(oModel, sSystemName);
+                }
+            } catch (err) {
+                console.warn("[ADMIN SYSTEM TO SERVICES] Error loading live catalog for " + sSystemName, err);
+                this._ensureSystemServicesPopulated(oModel, sSystemName);
+            }
 
             setTimeout(() => {
                 this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
@@ -19718,7 +19755,7 @@ sap.ui.define([
             oModel.setProperty("/adminCustomConflicts", aFiltered);
         },
 
-        _refreshCustomConflictOptions(oModel) {
+        async _refreshCustomConflictOptions(oModel, sSystemOverride) {
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
@@ -19748,105 +19785,109 @@ sap.ui.define([
             }
             oModel.setProperty("/adminConflictSystemOptions", aSystemOpts);
 
-            // 2. 2nd & 3rd Dropdowns: BOTH active Teams and Personas
-            let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
-            if (!oDetailsMap || Object.keys(oDetailsMap).length === 0) {
-                oDetailsMap = this._getDefaultAdminServiceDetailsMap();
-            }
-            const aServices = oModel.getProperty("/adminServicesAll") || [];
-            const aActiveServiceNames = aServices.filter(s => s.status !== "Inactive").map(s => s.serviceName);
+            const oDraft = oModel.getProperty("/newConflictDraft") || {};
+            const sChosenSys = (sSystemOverride !== undefined ? sSystemOverride : (oDraft.system || "")).trim();
 
-            const aOptions = [];
-            const oSeenOpt = new Set();
+            this._dynamicCatalogs = this._dynamicCatalogs || {};
 
-            Object.keys(oDetailsMap).forEach(sService => {
-                const bServiceActive = aActiveServiceNames.length === 0 || aActiveServiceNames.includes(sService) || aActiveServiceNames.some(s => s.startsWith(sService + " ") || s === sService);
-                const aTeams = oDetailsMap[sService] || [];
-                aTeams.forEach(oTeam => {
-                    if (!oTeam || !oTeam.name) return;
-                    const sTeamName = oTeam.name.trim();
-                    const bTeamActive = bServiceActive && oTeam.status !== "Inactive";
-                    if (!bTeamActive) return;
-
-                    // Add Team directly
-                    if (!oSeenOpt.has(sTeamName)) {
-                        oSeenOpt.add(sTeamName);
-                        aOptions.push({ key: sTeamName, text: sTeamName });
-                    }
-
-                    // Add Personas under Team
-                    const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
-                    const aPersonas = oTeam.subClassifications || [];
-                    aPersonas.forEach(oPers => {
-                        if (!oPers || !oPers.name) return;
-                        if (oPers.status === "Inactive") return;
-                        let sPersName = oPers.name.trim();
-                        if (!sPersName.includes("(") && sCleanTeamShort) {
-                            sPersName = sPersName + " (" + sCleanTeamShort + ")";
-                        }
-                        if (!oSeenOpt.has(sPersName)) {
-                            oSeenOpt.add(sPersName);
-                            aOptions.push({ key: sPersName, text: sPersName });
-                        }
+            // Helper to extract clean Role Collections from a catalog payload or details map
+            const extractRoleCollections = (detailsMap) => {
+                const rcs = new Set();
+                if (!detailsMap || typeof detailsMap !== "object") return [];
+                Object.keys(detailsMap).forEach(sSvc => {
+                    const aTeams = detailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        (t.subClassifications || []).forEach(sub => {
+                            if (sub && sub.name && sub.status !== "Inactive") {
+                                rcs.add(sub.name.trim());
+                            }
+                        });
                     });
                 });
-            });
+                return Array.from(rcs);
+            };
+
+            const aActiveSysNames = aActiveSystems.map(s => s.systemName).filter(Boolean);
+
+            // Fetch any missing catalogs for active systems
+            const systemsToFetch = (sChosenSys && sChosenSys !== "All Systems") ? [sChosenSys] : aActiveSysNames;
+            for (const sysName of systemsToFetch) {
+                if (!this._dynamicCatalogs[sysName]) {
+                    try {
+                        const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ targetSystem: sysName })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.ok) {
+                                this._dynamicCatalogs[sysName] = data;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sysName, e);
+                    }
+                }
+            }
+
+            const aAllRcs = new Set();
+            if (!sChosenSys || sChosenSys === "All Systems") {
+                // Collect across all active systems
+                aActiveSysNames.forEach(sysName => {
+                    const cat = this._dynamicCatalogs[sysName];
+                    if (cat && cat.serviceDetailsMapJson) {
+                        const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
+                        extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                    }
+                });
+                // Also check current adminServiceDetailsMap
+                const currentMap = oModel.getProperty("/adminServiceDetailsMap");
+                extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
+            } else {
+                // Specific system selected
+                const cat = this._dynamicCatalogs[sChosenSys];
+                if (cat && cat.serviceDetailsMapJson) {
+                    const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
+                    extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                } else if (oModel.getProperty("/selectedAdminSystemName") === sChosenSys) {
+                    const currentMap = oModel.getProperty("/adminServiceDetailsMap");
+                    extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
+                }
+            }
 
             // Ensure existing custom conflicts have their roles/personas available
             const aConflictsAll = oModel.getProperty("/adminCustomConflictsAll") || [];
             aConflictsAll.forEach(c => {
-                if (c.role1 && !oSeenOpt.has(c.role1)) {
-                    oSeenOpt.add(c.role1);
-                    aOptions.push({ key: c.role1, text: c.role1 });
+                if (c.role1 && (!sChosenSys || sChosenSys === "All Systems" || c.system === sChosenSys || c.system === "All Systems")) {
+                    aAllRcs.add(c.role1.trim());
                 }
-                if (c.role2 && !oSeenOpt.has(c.role2)) {
-                    oSeenOpt.add(c.role2);
-                    aOptions.push({ key: c.role2, text: c.role2 });
+                if (c.role2 && (!sChosenSys || sChosenSys === "All Systems" || c.system === sChosenSys || c.system === "All Systems")) {
+                    aAllRcs.add(c.role2.trim());
                 }
             });
 
-            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aOptions);
+            const aSortedOptions = Array.from(aAllRcs).sort().map(rc => ({ key: rc, text: rc }));
+            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aSortedOptions);
 
-            // 2nd Dropdown Options: "-Select-" + all active teams & personas
             const aPrimaryOptions = [
-                { key: "", text: "-Select-" }
+                { key: "", text: "-Select-" },
+                ...aSortedOptions
             ];
-            aOptions.forEach(p => {
-                aPrimaryOptions.push({ key: p.key, text: p.text });
-            });
             oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
 
-            const oDraft = oModel.getProperty("/newConflictDraft") || {};
             const sCurrentRole1 = oDraft.role1 || "";
-
-            // 3rd Dropdown Options: "-Select-" + all active teams & personas EXCLUDING role1
             const aConflictingOptions = [
-                { key: "", text: "-Select-" }
+                { key: "", text: "-Select-" },
+                ...aSortedOptions.filter(p => !sCurrentRole1 || p.key !== sCurrentRole1)
             ];
-            aOptions.forEach(p => {
-                if (!sCurrentRole1 || p.key !== sCurrentRole1) {
-                    aConflictingOptions.push({ key: p.key, text: p.text });
-                }
-            });
             oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
 
-            if (oDraft.role2 && oDraft.role1 && oDraft.role2 === oDraft.role1) {
-                oDraft.role2 = "";
-                oModel.setProperty("/newConflictDraft/role2", "");
+            if (oDraft.role1 && !aAllRcs.has(oDraft.role1)) {
+                oModel.setProperty("/newConflictDraft/role1", "");
             }
-
-            if (oDraft.role1 && oDraft.role2) {
-                if (!oDraft.description || oDraft._autoGeneratedReason) {
-                    oDraft.description = this._generateDefaultConflictReason(oDraft.system, oDraft.role1, oDraft.role2);
-                    oDraft._autoGeneratedReason = true;
-                    oModel.setProperty("/newConflictDraft/description", oDraft.description);
-                }
-            } else {
-                if (!oDraft.description || oDraft._autoGeneratedReason) {
-                    oDraft.description = "";
-                    oDraft._autoGeneratedReason = false;
-                    oModel.setProperty("/newConflictDraft/description", "");
-                }
+            if (oDraft.role2 && !aAllRcs.has(oDraft.role2)) {
+                oModel.setProperty("/newConflictDraft/role2", "");
             }
         },
 
@@ -19918,37 +19959,37 @@ sap.ui.define([
             return "Segregation of Duties conflict between selected Persona entitlements.";
         },
 
-        onConflictDraftSelectionChange(oEvent) {
+        async onConflictDraftSelectionChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
             const oDraft = oModel.getProperty("/newConflictDraft") || {};
-            const sSys = oDraft.system || "";
-            const sRole1 = oDraft.role1 || "";
-            let sRole2 = oDraft.role2 || "";
+            const sSys = (oDraft.system || "").trim();
+            const sRole1 = (oDraft.role1 || "").trim();
+            let sRole2 = (oDraft.role2 || "").trim();
 
-            // Dynamic exclusion: Ensure 3rd dropdown (Conflicting Team / Persona) does NOT include role1
-            const aAllOptions = oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || [];
-            const aConflictingOptions = [
-                { key: "", text: "-Select-" }
-            ];
-            aAllOptions.forEach(p => {
-                if (!sRole1 || p.key !== sRole1) {
-                    aConflictingOptions.push({ key: p.key, text: p.text });
+            if (this._lastConflictDraftSystem !== sSys) {
+                this._lastConflictDraftSystem = sSys;
+                await this._refreshCustomConflictOptions(oModel, sSys);
+            } else {
+                // Dynamic exclusion: Ensure 3rd dropdown (Conflicting Team / Persona) does NOT include role1
+                const aAllOptions = oModel.getProperty("/adminAllConfiguredRolesAndPersonas") || [];
+                const aConflictingOptions = [
+                    { key: "", text: "-Select-" },
+                    ...aAllOptions.filter(p => !sRole1 || p.key !== sRole1)
+                ];
+                oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+
+                // If the previously selected role2 is now equal to role1, clear role2 to placeholder
+                if (sRole2 && sRole1 && sRole2 === sRole1) {
+                    sRole2 = "";
+                    oDraft.role2 = "";
+                    oModel.setProperty("/newConflictDraft/role2", "");
                 }
-            });
-            oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
-
-            // If the previously selected role2 is now equal to role1, clear role2 to placeholder
-            if (sRole2 && sRole1 && sRole2 === sRole1) {
-                sRole2 = "";
-                oDraft.role2 = "";
-                oModel.setProperty("/newConflictDraft/role2", "");
             }
 
-            // Automatically recalculate default reason based on selected roles if not manually customized
             if (!oDraft.description || oDraft._autoGeneratedReason) {
-                const sNewReason = this._generateDefaultConflictReason(sSys, sRole1, sRole2);
+                const sNewReason = this._generateDefaultConflictReason(sSys, oDraft.role1 || "", oDraft.role2 || "");
                 oDraft.description = sNewReason;
                 oDraft._autoGeneratedReason = true;
                 oModel.setProperty("/newConflictDraft/description", sNewReason);

@@ -3725,7 +3725,7 @@
                                         </HBox>
                                     </HBox>
                                     <Text
-                                        text="{= 'Configure and manage services, ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'role templates, and role collections' : 'teams, and personas') + ' for ' + (${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform') + '.' }"
+                                        text="{= 'Configure and manage services, ' + ((${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'role templates, and role collections' : 'teams, and personas') + ' for ' + (${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform') + '.' }"
                                         class="fioriDescriptionText kyraAdminHeaderSubtitleText" />
                                 </VBox>
 
@@ -3821,7 +3821,7 @@
                                                 gap="10px"
                                                 class="kyraAdminNoticeBanner sapUiSmallMarginBottom">
                                                 <core:Icon src="sap-icon://information" color="#008C9C" size="16px" />
-                                                <Text text="{= 'Service: ' + (${accessModel>/selectedAdminServiceName} || '') + ' is in Draft mode. You can add ' + (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Templates and Role Collections' : 'Teams and Personas') + ' below, then click Save to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
+                                                <Text text="{= 'Service: ' + (${accessModel>/selectedAdminServiceName} || '') + ' is in Draft mode. You can add ' + ((${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'Role Templates and Role Collections' : 'Teams and Personas') + ' below, then click Save to save and activate everything.' }" class="kyraAdminNoticeBannerText" />
                                             </HBox>
 
                                             <!-- Clean Empty State when no Service is selected -->
@@ -3847,9 +3847,9 @@
                                                 <!-- Left Sub-Panel: Team / Role Template -->
                                                 <VBox width="43%" class="kyraAdminClassificationsSubPanel" justifyContent="SpaceBetween">
                                                     <VBox width="100%">
-                                                        <Text text="{= (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Template (' : 'Team (') + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
+                                                        <Text text="{= ((${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'Role Template (' : 'Team (') + (${accessModel>/adminClassifications} ? ${accessModel>/adminClassifications}.length : 0) + ')' }" class="kyraAdminSubPanelTitle sapUiSmallMarginBottom" />
 
-                                                         <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No role templates added yet. Click + Add Role Template below.' : 'No teams added yet. Click + Add Team below.' }"
+                                                         <Text text="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'No role templates added yet. Click + Add Role Template below.' : 'No teams added yet. Click + Add Team below.' }"
                                                               visible="{= !${accessModel>/adminClassifications} || ${accessModel>/adminClassifications}.length === 0 }"
                                                               class="kyraAdminEmptyPlaceholderText sapUiSmallMarginBottom" />
                                                         <VBox items="{accessModel>/adminClassifications}" class="kyraAdminClassListContainer" width="100%">
@@ -3885,7 +3885,7 @@
                                                     </VBox>
 
                                                     <Button
-                                                        text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? '+ Add Role Template' : '+ Add Team' }"
+                                                        text="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? '+ Add Role Template' : '+ Add Team' }"
                                                         press=".onAddAdminClassification"
                                                         class="kyraAdminSubAddBtn"
                                                         width="100%" />
@@ -3896,10 +3896,10 @@
                                                     <VBox width="100%">
                                                         <!-- Selected Header Card -->
                                                         <VBox class="kyraAdminSelectedTeamCard sapUiSmallMarginBottom">
-                                                            <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'SELECTED ROLE TEMPLATE' : 'SELECTED TEAM' }" class="kyraAdminMiniLabel sapUiTinyMarginBottom" />
+                                                            <Text text="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'SELECTED ROLE TEMPLATE' : 'SELECTED TEAM' }" class="kyraAdminMiniLabel sapUiTinyMarginBottom" />
                                                             <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraAdminSelectedTeamNameRow">
                                                                 <Text
-                                                                    text="{= ${accessModel>/selectedAdminClassification/name} || (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No Role Template Selected' : 'No Team Selected') }"
+                                                                    text="{= ${accessModel>/selectedAdminClassification/name} || ((${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'No Role Template Selected' : 'No Team Selected') }"
                                                                     class="kyraAdminSelectedTeamName"
                                                                     wrapping="true"
                                                                     tooltip="{accessModel>/selectedAdminClassification/name}" />
@@ -3908,17 +3908,17 @@
                                                                         icon="sap-icon://edit"
                                                                         press=".onEditSelectedAdminTeam"
                                                                         class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
-                                                                        tooltip="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Edit Role Template' : 'Edit Team' }" />
+                                                                        tooltip="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'Edit Role Template' : 'Edit Team' }" />
                                                                 </HBox>
                                                             </HBox>
                                                         </VBox>
 
                                                         <!-- Persona / Role Collection List Header -->
                                                         <Text
-                                                            text="{= (${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Role Collection (' : 'Persona (') + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
+                                                            text="{= ((${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'Role Collection (' : 'Persona (') + (${accessModel>/selectedAdminClassification/subClassifications} ? ${accessModel>/selectedAdminClassification/subClassifications}.length : 0) + ')' }"
                                                             class="kyraAdminSubPanelTitle sapUiTinyMarginBottom" />
 
-                                                         <Text text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'No role collections added yet. Click + Add Role Collection below.' : 'No personas added yet. Click + Add Persona below.' }"
+                                                         <Text text="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'No role collections added yet. Click + Add Role Collection below.' : 'No personas added yet. Click + Add Persona below.' }"
                                                               visible="{= !${accessModel>/selectedAdminClassification/subClassifications} || ${accessModel>/selectedAdminClassification/subClassifications}.length === 0 }"
                                                               class="kyraAdminEmptyPlaceholderText sapUiTinyMarginBottom" />
                                                         <!-- Items List -->
@@ -3935,7 +3935,7 @@
                                                                         icon="sap-icon://edit"
                                                                         press=".onEditAdminSubClassification"
                                                                         class="kyraAdminSystemEditBtn kyraAdminMiniActionBtn"
-                                                                        tooltip="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? 'Edit Role Collection' : 'Edit Persona' }" />
+                                                                        tooltip="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? 'Edit Role Collection' : 'Edit Persona' }" />
                                                                 </HBox>
                                                             </HBox>
                                                         </VBox>
@@ -3943,7 +3943,7 @@
 
                                                     <!-- + Add Role Collection Button -->
                                                     <Button
-                                                        text="{= ${accessModel>/selectedAdminSystemName} === 'SAP Business Technology Platform' ? '+ Add Role Collection' : '+ Add Persona' }"
+                                                        text="{= (${accessModel>/selectedAdminSystemName} &amp;&amp; (${accessModel>/selectedAdminSystemName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/selectedAdminSystemName}.indexOf('SAP BTP') !== -1)) ? '+ Add Role Collection' : '+ Add Persona' }"
                                                         press=".onAddAdminSubClassification"
                                                         class="kyraAdminSubAddBtn sapUiTinyMarginTop"
                                                         width="100%" />
