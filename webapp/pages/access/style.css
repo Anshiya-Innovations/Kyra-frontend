@@ -63808,3 +63808,219 @@ html body .sapUiTheme-sap_horizon .kyraIamGlassCard {
     box-shadow: none !important;
     outline: none !important;
 }
+
+
+/* ========================================================================= */
+/* KYRA 2026: IAM APPROVER SHOWCASE SLIDE (EXACT MOCKUP MATCH)               */
+/* ========================================================================= */
+
+.kyraIamTitleRow,
+.sapMFlexBox.kyraIamTitleRow {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-bottom: 24px !important;
+}
+
+.kyraIamTitleVerticalBar {
+    width: 3.5px !important;
+    min-width: 3.5px !important;
+    height: 38px !important;
+    background-color: #1E3A8A !important;
+    border-radius: 2px !important;
+    margin-right: 14px !important;
+    flex-shrink: 0 !important;
+}
+
+.kyraIamSlideTitle,
+.kyraIamSlideTitle.sapMTitle,
+html body .sapUiTheme-sap_horizon .kyraIamSlideTitle {
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin: 0 0 4px 0 !important;
+    line-height: 1.2 !important;
+}
+
+.kyraIamSlideSubtitle,
+.kyraIamSlideSubtitle.sapMText,
+html body .sapUiTheme-sap_horizon .kyraIamSlideSubtitle {
+    font-size: 13px !important;
+    color: #64748B !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+
+.kyraIamShowcaseContainer,
+.sapMFlexBox.kyraIamShowcaseContainer,
+html body .sapUiTheme-sap_horizon .kyraIamShowcaseContainer {
+    position: relative !important;
+    width: 100% !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 36px 10px 20px 10px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.kyraIamCardsRow,
+.sapMFlexBox.kyraIamCardsRow {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 68px !important;
+    width: 100% !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* Card Outer Wrapper containing the layered background shapes */
+.kyraIamCardOuterWrapper,
+.sapMFlexBox.kyraIamCardOuterWrapper {
+    position: relative !important;
+    width: 300px !important;
+    height: 195px !important;
+    min-width: 300px !important;
+    min-height: 195px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+/* Layered Background Shapes */
+.kyraIamBgShape1,
+.kyraIamBgShape2 {
+    position: absolute !important;
+    width: 250px !important;
+    height: 165px !important;
+    border-radius: 26px !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    transition: transform 0.3s ease !important;
+}
+
+.kyraIamBgShape1 {
+    transform: rotate(-12deg) !important;
+}
+
+.kyraIamBgShape2 {
+    transform: rotate(12deg) !important;
+}
+
+/* Card 1 (Teal/Emerald theme) */
+.kyraIamCardOuter1 .kyraIamBgShape1 {
+    background-color: #2DD4BF !important;
+}
+.kyraIamCardOuter1 .kyraIamBgShape2 {
+    background-color: #0D9488 !important;
+}
+
+/* Card 2 (Blue/Indigo/Purple theme) */
+.kyraIamCardOuter2 .kyraIamBgShape1 {
+    background-color: #818CF8 !important;
+}
+.kyraIamCardOuter2 .kyraIamBgShape2 {
+    background-color: #6366F1 !important;
+}
+
+/* Foreground White Card */
+.kyraIamForegroundCard,
+.sapMFlexBox.kyraIamForegroundCard,
+html body .sapUiTheme-sap_horizon .kyraIamForegroundCard {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 280px !important;
+    height: 180px !important;
+    min-width: 280px !important;
+    min-height: 180px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    box-sizing: border-box !important;
+    padding: 0 20px !important;
+    overflow: visible !important;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
+}
+
+.kyraIamForegroundCard:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12) !important;
+}
+
+.kyraIamForegroundCard1.kyraIamCardSelected1,
+.kyraIamForegroundCard1.kyraSubIntegrationCardActive {
+    border-color: #0D9488 !important;
+    border-width: 2px !important;
+    box-shadow: 0 12px 32px rgba(13, 148, 136, 0.22) !important;
+}
+
+.kyraIamForegroundCard2.kyraIamCardSelected2,
+.kyraIamForegroundCard2.kyraSubIntegrationCardActive {
+    border-color: #6366F1 !important;
+    border-width: 2px !important;
+    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.22) !important;
+}
+
+/* Top Floating Badge Circle */
+.kyraIamTopFloatingBadge,
+.sapMFlexBox.kyraIamTopFloatingBadge {
+    position: absolute !important;
+    top: -34px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 68px !important;
+    height: 68px !important;
+    min-width: 68px !important;
+    min-height: 68px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 3 !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+    background: transparent !important;
+}
+
+.kyraIamBadgeSvg {
+    width: 68px !important;
+    height: 68px !important;
+}
+
+/* Main Card Title */
+.kyraIamMainCardTitle,
+.kyraIamMainCardTitle.sapMText,
+html body .sapUiTheme-sap_horizon .kyraIamMainCardTitle {
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    margin: 24px 0 4px 0 !important;
+    line-height: 1.1 !important;
+    text-align: center !important;
+}
+
+/* Main Card Subtitle */
+.kyraIamMainCardSubtitle,
+.kyraIamMainCardSubtitle.sapMText,
+html body .sapUiTheme-sap_horizon .kyraIamMainCardSubtitle {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748B !important;
+    margin: 0 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+}
