@@ -578,8 +578,7 @@
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol2" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="SERVICES" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol3" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="TEAM" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol4" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="PERSONA" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol5" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="GRANTED DATE" class="kyraGovColHeadText" /></HBox>
-                                    <HBox class="kyraGovHeadCol kyraGovHeadCol6" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="STATUS" class="kyraGovColHeadText" /></HBox>
+                                                                        <HBox class="kyraGovHeadCol kyraGovHeadCol6" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="STATUS" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol7" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="REMARKS" class="kyraGovColHeadText" /></HBox>
                                     <HBox class="kyraGovHeadCol kyraGovHeadCol8 kyraGovHeadColLast" alignItems="Center" justifyContent="Center" renderType="Bare"><Text text="DECISION" class="kyraGovColHeadText" /></HBox>
                                 </HBox>
@@ -602,10 +601,7 @@
                                                 <HBox class="kyraGovCell kyraGovCell4" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <Text text="{= ${accessModel>selectedPersona} || ${accessModel>persona} }" class="kyraGovPersonaText" wrapping="true" />
                                                 </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell5" alignItems="Center" justifyContent="Center" renderType="Bare">
-                                                    <Text text="{accessModel>grantedDate}" class="kyraGovDateText" wrapping="false" />
-                                                </HBox>
-                                                <HBox class="kyraGovCell kyraGovCell6" alignItems="Center" justifyContent="Center" renderType="Bare">
+                                                                                                <HBox class="kyraGovCell kyraGovCell6" alignItems="Center" justifyContent="Center" renderType="Bare">
                                                     <ObjectStatus
                                                         text="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'Approved' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'Rejected' : 'Pending') }"
                                                         state="{= (${accessModel>status} === 'Approved' || ${accessModel>status} === 'Active') ? 'Success' : ((${accessModel>status} === 'Rejected' || ${accessModel>status} === 'Error') ? 'Error' : 'Warning') }"

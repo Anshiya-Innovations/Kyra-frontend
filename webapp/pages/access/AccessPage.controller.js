@@ -322,7 +322,7 @@ sap.ui.define([
             const bIsApprover = !bIsRequester && !isAdminInit && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Reviewer" || sActiveRole === "Compliance Review" || sRoleLowerInit.includes("approver") || sRoleLowerInit.includes("compliance"));
             const isCompliance = !bIsRequester && !isAdminInit && sRoleLowerInit.includes("compliance");
             const isReviewerRole = bIsApprover || isCompliance;
-            const bShowApproverSection = !bIsRequester && !isAdminInit && (bIsApprover || isCompliance);
+            const bShowApproverSection = !isAdminInit;
             let sBrandLogoUrl = "images/kyra_k_logo.png";
             let sShieldFocusUrl = "images/kyra_shield_focus.svg";
             let sIamUserShieldUrl = "images/iam_user_shield.svg";
@@ -2956,7 +2956,7 @@ sap.ui.define([
                 const isCompliancePersona = !bIsReqSync && !isAdminPersona && sRoleLower.includes("compliance");
                 const bIsApprover = !bIsReqSync && !isAdminPersona && (sActiveRole === "Approver" || sActiveRole === "Approver 1" || sActiveRole === "Approver 2" || sActiveRole === "Compliance Approver" || sActiveRole === "Compliance Review" || sActiveRole === "Compliance Reviewer" || sRoleLower.includes("approver") || sRoleLower.includes("compliance"));
                 const isReviewerRole = bIsApprover || isCompliancePersona;
-                const bShowApproverSection = !bIsReqSync && !isAdminPersona && (bIsApprover || isCompliancePersona);
+                const bShowApproverSection = !isAdminPersona;
 
                 // ── Reset ALL page/section UI state to clean defaults ──────────────
                 const sPrevUser = oModel.getProperty("/activeUser") || "";
@@ -6891,54 +6891,35 @@ sap.ui.define([
         _updateApproverSectionVisibility() {
             const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (!oModel) return;
-            const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
-            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || oAuthInfo.role || localStorage.getItem("kyra_remember_role") || "").trim();
-            const sRoleLower = sActiveRole.toLowerCase();
-            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance") || !!oModel.getProperty("/isComplianceReviewer") || !!oModel.getProperty("/showApproverSection"));
-            const bIsAdmin = !bIsApproverOrCompliance && (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
-            const bIsRequester = !bIsApproverOrCompliance && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || (sRoleLower === "" && !bIsApproverOrCompliance) || !!oModel.getProperty("/isRequester"));
 
-            // STRICT GUARANTEE: On Requester or Admin persona, never show User Requests
-            if (bIsRequester || bIsAdmin || !bIsApproverOrCompliance) {
-                oModel.setProperty("/showApproverSection", false);
-                const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
-                if (oCompModel && oCompModel !== oModel) {
-                    oCompModel.setProperty("/showApproverSection", false);
-                }
-                const oApproverContainer = this.byId("approverSectionContainer");
-                if (oApproverContainer) {
-                    oApproverContainer.setVisible(false);
-                }
-                const oApproverView = this.byId("approverSectionView");
-                if (oApproverView) {
-                    oApproverView.setVisible(false);
-                    const oCardRoot = oApproverView.byId("kyraApproverCardRoot");
-                    if (oCardRoot) {
-                        oCardRoot.setVisible(false);
-                    }
-                }
-                return;
-            }
-
-            // PERMANENT: For Approver or Compliance persona, showApproverSection is ALWAYS true
-            oModel.setProperty("/showApproverSection", true);
-            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
-            if (oCompModel && oCompModel !== oModel) {
-                oCompModel.setProperty("/showApproverSection", true);
-            }
-
+            const bIsAdmin = !!oModel.getProperty("/isAdminPersona");
             const sSelectedTab = oModel.getProperty("/selectedTabKey") || "myAccess";
             const bShowMaster = !!oModel.getProperty("/showMyAccessMasterSection");
             const bShowDetails = !!oModel.getProperty("/showRequestDetailsPage");
             const bShowNotifs = !!oModel.getProperty("/showAllNotificationsPage");
             const bShowHelp = !!oModel.getProperty("/showHelpPage");
+            const bShowPending = !!oModel.getProperty("/showPendingSection");
+            const bShowAdd = !!oModel.getProperty("/showAddAccessSector");
+            const bShowRemove = !!oModel.getProperty("/showRemoveAccessSector");
 
-            // Visible on My Access tab; never hidden by sub-card toggles or history on other tabs
-            const bVisible = (sSelectedTab === "myAccess" || !sSelectedTab) &&
+            // User Requests section is visible directly below the 3 cards on My Access tab,
+            // EXCEPT when admin persona is active, or full-page overlay is showing,
+            // or when ANY of the 3 dropdowns (Pending, Add, Remove) is currently open!
+            const bVisible = !bIsAdmin &&
+                (sSelectedTab === "myAccess" || !sSelectedTab) &&
                 !bShowMaster &&
                 !bShowDetails &&
                 !bShowNotifs &&
-                !bShowHelp;
+                !bShowHelp &&
+                !bShowPending &&
+                !bShowAdd &&
+                !bShowRemove;
+
+            oModel.setProperty("/showApproverSection", bVisible);
+            const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+            if (oCompModel && oCompModel !== oModel) {
+                oCompModel.setProperty("/showApproverSection", bVisible);
+            }
 
             const oApproverContainer = this.byId("approverSectionContainer");
             if (oApproverContainer) {
@@ -7011,6 +6992,7 @@ sap.ui.define([
             oModel.setProperty("/showRequestDetailsPage", false);
             oModel.setProperty("/selectedTabKey", "myAccess");
             this._updateActionCardArrows(oModel);
+            this._updateApproverSectionVisibility();
 
             this._setupStep1SelectFields();
             this._scrollToWizardContainer();
@@ -10538,6 +10520,7 @@ sap.ui.define([
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
+                    this._updateApproverSectionVisibility();
                     
                     setTimeout(() => {
                         this._smoothScrollTo("pendingSectionContainer", 64);
@@ -12187,6 +12170,7 @@ sap.ui.define([
                     oModel.setProperty("/showRequestDetailsPage", false);
                     oModel.setProperty("/selectedTabKey", "myAccess");
                     this._updateActionCardArrows(oModel);
+                    this._updateApproverSectionVisibility();
 
                     setTimeout(() => {
                         this._smoothScrollTo("removeAccessSection", 64);

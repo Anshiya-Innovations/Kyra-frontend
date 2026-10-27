@@ -5699,7 +5699,7 @@
                 <VBox id="approverSectionContainer"
                     width="100%"
                     class="kyraApproverSectionContainer sapUiSmallMarginBottom"
-                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; !${accessModel>/isRequester} &amp;&amp; (${accessModel>/activeRole} !== 'Requester') &amp;&amp; (${accessModel>/activeRole} !== 'requester') &amp;&amp; !!${accessModel>/showApproverSection} &amp;&amp; ((${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess') &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }">
+                    visible="{= !${accessModel>/isAdminPersona} &amp;&amp; ((${accessModel>/selectedTabKey} || 'myAccess') === 'myAccess') &amp;&amp; !${accessModel>/showPendingSection} &amp;&amp; !${accessModel>/showAddAccessSector} &amp;&amp; !${accessModel>/showRemoveAccessSector} &amp;&amp; !${accessModel>/showMyAccessMasterSection} &amp;&amp; !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} }">
                     <mvc:XMLView 
                         id="approverSectionView"
                         width="100%"
@@ -5777,16 +5777,11 @@
                         </VBox>
 
                         <!-- Col 6: Persona -->
-                        <VBox class="kyraTrackCol">
+                        <VBox class="kyraTrackCol kyraTrackColLast">
                             <Text text="Persona" class="kyraTrackColLabel" />
                             <Text text="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" class="kyraTrackValText" />
                         </VBox>
 
-                        <!-- Col 7: Submitted Date -->
-                        <VBox class="kyraTrackCol kyraTrackColLast">
-                            <Text text="Submitted Date" class="kyraTrackColLabel" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/submittedDateTime} || ${accessModel>/selectedRequestDetail/submittedDate} }" class="kyraTrackValText kyraTrackDateText" />
-                        </VBox>
                     </HBox>
                 </HBox>
 
