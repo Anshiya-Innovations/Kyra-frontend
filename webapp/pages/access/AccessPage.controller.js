@@ -1265,15 +1265,7 @@ sap.ui.define([
                 selectedAdminClassification: oInitialAdminClassification,
 
                 adminConflictSystemOptions: [
-                    { key: "", text: "-Select-" },
-                    { key: "All Systems", text: "All Systems" },
-                    { key: "SAP Business Technology Platform", text: "SAP Business Technology Platform" },
-                    { key: "SAP BTP Cloud Platform", text: "SAP BTP Cloud Platform" },
-                    { key: "SAP S/4HANA Enterprise", text: "SAP S/4HANA Enterprise" },
-                    { key: "KYRA Central Governance", text: "KYRA Central Governance" },
-                    { key: "Active Directory / IAM", text: "Active Directory / IAM" },
-                    { key: "SAP SuccessFactors", text: "SAP SuccessFactors" },
-                    { key: "SAP Ariba Supply Network", text: "SAP Ariba Supply Network" }
+                    { key: "", text: "-Select-" }
                 ],
                 adminAllConfiguredRolesAndPersonas: aInitialConflictOptions,
                 adminPrimaryPersonaOptions: [
@@ -15662,8 +15654,7 @@ sap.ui.define([
 
             // 1. Rebuild System Options for Custom Conflict Builder: placeholder + All Systems (always present) + live active systems
             const aSystemOpts = [
-                { key: "", text: "-Select-" },
-                { key: "All Systems", text: "All Systems" }
+                { key: "", text: "-Select-" }
             ];
             const oSeenSys = new Set(["", "All Systems"]);
             aActiveSystems.forEach(s => {
@@ -19766,12 +19757,11 @@ sap.ui.define([
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            // 1. Target System dropdown: Latest updated, currently available & active systems ONLY
+            // 1. Target System dropdown: Latest updated, currently available & active systems ONLY (No "All Systems")
             const aSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
             const aActiveSystems = aSystems.filter(s => s && s.status !== "Inactive");
             const aSystemOpts = [
-                { key: "", text: "-Select-" },
-                { key: "All Systems", text: "All Systems" }
+                { key: "", text: "-Select-" }
             ];
             const oSeenSys = new Set(["", "All Systems"]);
             aActiveSystems.forEach(s => {
@@ -19781,7 +19771,7 @@ sap.ui.define([
                     aSystemOpts.push({ key: sName, text: sName });
                 }
             });
-            if (aSystemOpts.length === 2 && aSystems.length > 0) {
+            if (aSystemOpts.length === 1 && aSystems.length > 0) {
                 aSystems.forEach(s => {
                     const sName = (s.systemName || "").trim();
                     if (sName && !oSeenSys.has(sName)) {
@@ -19814,45 +19804,28 @@ sap.ui.define([
                 return Array.from(rcs);
             };
 
-            const aActiveSysNames = aActiveSystems.map(s => s.systemName).filter(Boolean);
+            const aAllRcs = new Set();
 
-            // Fetch any missing catalogs for active systems
-            const systemsToFetch = (sChosenSys && sChosenSys !== "All Systems") ? [sChosenSys] : aActiveSysNames;
-            for (const sysName of systemsToFetch) {
-                if (!this._dynamicCatalogs[sysName]) {
+            if (sChosenSys) {
+                // Fetch dynamic catalog for the selected system
+                if (!this._dynamicCatalogs[sChosenSys]) {
                     try {
                         const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ targetSystem: sysName })
+                            body: JSON.stringify({ targetSystem: sChosenSys })
                         });
                         if (res.ok) {
                             const data = await res.json();
                             if (data && data.ok) {
-                                this._dynamicCatalogs[sysName] = data;
+                                this._dynamicCatalogs[sChosenSys] = data;
                             }
                         }
                     } catch (e) {
-                        console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sysName, e);
+                        console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sChosenSys, e);
                     }
                 }
-            }
 
-            const aAllRcs = new Set();
-            if (!sChosenSys || sChosenSys === "All Systems") {
-                // Collect across all active systems
-                aActiveSysNames.forEach(sysName => {
-                    const cat = this._dynamicCatalogs[sysName];
-                    if (cat && cat.serviceDetailsMapJson) {
-                        const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
-                        extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
-                    }
-                });
-                // Also check current adminServiceDetailsMap
-                const currentMap = oModel.getProperty("/adminServiceDetailsMap");
-                extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
-            } else {
-                // Specific system selected
                 const cat = this._dynamicCatalogs[sChosenSys];
                 if (cat && cat.serviceDetailsMapJson) {
                     const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
@@ -19862,17 +19835,6 @@ sap.ui.define([
                     extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
                 }
             }
-
-            // Ensure existing custom conflicts have their roles/personas available
-            const aConflictsAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-            aConflictsAll.forEach(c => {
-                if (c.role1 && (!sChosenSys || sChosenSys === "All Systems" || c.system === sChosenSys || c.system === "All Systems")) {
-                    aAllRcs.add(c.role1.trim());
-                }
-                if (c.role2 && (!sChosenSys || sChosenSys === "All Systems" || c.system === sChosenSys || c.system === "All Systems")) {
-                    aAllRcs.add(c.role2.trim());
-                }
-            });
 
             const aSortedOptions = Array.from(aAllRcs).sort().map(rc => ({ key: rc, text: rc }));
             oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aSortedOptions);
