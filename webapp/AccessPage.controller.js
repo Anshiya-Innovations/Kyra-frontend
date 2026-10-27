@@ -1337,6 +1337,19 @@ sap.ui.define([
 
             this.getView().setModel(oModel, "accessModel");
             this.getOwnerComponent().setModel(oModel, "accessModel");
+            const oApproverViewInit = this.byId("approverSectionView");
+            if (oApproverViewInit) {
+                oApproverViewInit.setModel(oModel, "accessModel");
+                const oApproverCtrl = oApproverViewInit.getController();
+                if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
+                    oApproverCtrl._syncModelAndRequests();
+                }
+            }
+            this.getView().addEventDelegate({
+                onAfterRendering: () => {
+                    this._updateApproverSectionVisibility();
+                }
+            });
             this._loadCustomAccessAndConflictConfig(oModel);
             this._loadActiveIntegrations(oModel);
             this._loadSubmittedRequests(oModel);
@@ -2854,6 +2867,7 @@ sap.ui.define([
                 return;
             }
             this._bRouteMatchedExecuting = true;
+            try {
             window._kyraLoginTransition = false;
             window._kyraSubmittingAddAccess = false;
             window._kyraSubmittingRequest = false;
@@ -2992,20 +3006,21 @@ sap.ui.define([
                     oCompModel.setProperty("/showApproverSection", bShowApproverSection);
                 }
 
-                if (bShowApproverSection) {
-                    this._updateApproverSectionVisibility();
-                    setTimeout(() => {
-                        try {
-                            const oApproverView = this.byId("approverSectionView");
-                            if (oApproverView) {
-                                this._updateApproverSectionVisibility();
-                                const oApproverCtrl = oApproverView.getController();
-                                if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
-                                    oApproverCtrl._syncModelAndRequests();
-                                }
-                            }
-                        } catch(e) {}
-                    }, 50);
+                oModel.setProperty("/showHistorySection", false);
+                const oApproverViewOnRoute = this.byId("approverSectionView");
+                if (oApproverViewOnRoute) {
+                    if (oApproverViewOnRoute.getModel("accessModel") !== oModel) {
+                        oApproverViewOnRoute.setModel(oModel, "accessModel");
+                    }
+                }
+                this._updateApproverSectionVisibility();
+                if (oApproverViewOnRoute) {
+                    try {
+                        const oApproverCtrl = oApproverViewOnRoute.getController();
+                        if (oApproverCtrl && typeof oApproverCtrl._syncModelAndRequests === "function") {
+                            oApproverCtrl._syncModelAndRequests();
+                        }
+                    } catch(e) {}
                 }
 
                 if (bShowApprovalHist) {
@@ -3043,7 +3058,9 @@ sap.ui.define([
                     oTabBar.setSelectedKey(sTabToSelect);
                 }
             }
-            this._bRouteMatchedExecuting = false;
+            } finally {
+                this._bRouteMatchedExecuting = false;
+            }
         },
 
 
@@ -6825,16 +6842,22 @@ sap.ui.define([
         },
 
         _updateApproverSectionVisibility() {
-            const oModel = this.getView().getModel("accessModel");
+            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
             if (!oModel) return;
-            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
+            const oAuthInfo = window.KyraAuthManager ? window.KyraAuthManager.getUserInfo() : {};
+            const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || oAuthInfo.role || localStorage.getItem("kyra_remember_role") || "").trim();
             const sRoleLower = sActiveRole.toLowerCase();
-            const bIsRequester = (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "" || !!oModel.getProperty("/isRequester"));
-            const bIsAdmin = (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance") || !!oModel.getProperty("/isComplianceReviewer") || !!oModel.getProperty("/showApproverSection"));
+            const bIsAdmin = !bIsApproverOrCompliance && (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
+            const bIsRequester = !bIsApproverOrCompliance && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || (sRoleLower === "" && !bIsApproverOrCompliance) || !!oModel.getProperty("/isRequester"));
 
-            // STRICT GUARANTEE: On ANY Requester or Admin page, NEVER show User Requests!
-            if (bIsRequester || bIsAdmin) {
+            // STRICT GUARANTEE: On Requester or Admin persona, never show User Requests
+            if (bIsRequester || bIsAdmin || !bIsApproverOrCompliance) {
                 oModel.setProperty("/showApproverSection", false);
+                const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+                if (oCompModel && oCompModel !== oModel) {
+                    oCompModel.setProperty("/showApproverSection", false);
+                }
                 const oApproverContainer = this.byId("approverSectionContainer");
                 if (oApproverContainer) {
                     oApproverContainer.setVisible(false);
@@ -6842,25 +6865,15 @@ sap.ui.define([
                 const oApproverView = this.byId("approverSectionView");
                 if (oApproverView) {
                     oApproverView.setVisible(false);
+                    const oCardRoot = oApproverView.byId("kyraApproverCardRoot");
+                    if (oCardRoot) {
+                        oCardRoot.setVisible(false);
+                    }
                 }
                 return;
             }
 
-            const bIsApproverOrCompliance = (sRoleLower.includes("approver") || sRoleLower.includes("compliance") || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/isCompliance"));
-            if (!bIsApproverOrCompliance) {
-                oModel.setProperty("/showApproverSection", false);
-                const oApproverContainer = this.byId("approverSectionContainer");
-                if (oApproverContainer) {
-                    oApproverContainer.setVisible(false);
-                }
-                const oApproverView = this.byId("approverSectionView");
-                if (oApproverView) {
-                    oApproverView.setVisible(false);
-                }
-                return;
-            }
-
-            // PERMANENT FIX: For Approver or Compliance persona, showApproverSection is ALWAYS true
+            // PERMANENT: For Approver or Compliance persona, showApproverSection is ALWAYS true
             oModel.setProperty("/showApproverSection", true);
             const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
             if (oCompModel && oCompModel !== oModel) {
@@ -6868,20 +6881,13 @@ sap.ui.define([
             }
 
             const sSelectedTab = oModel.getProperty("/selectedTabKey") || "myAccess";
-            const bShowHistory = !!oModel.getProperty("/showHistorySection");
-            const bShowPending = !!oModel.getProperty("/showPendingSection");
-            const bShowAddAccess = !!oModel.getProperty("/showAddAccessSector");
-            const bShowRemoveAccess = !!oModel.getProperty("/showRemoveAccessSector");
             const bShowMaster = !!oModel.getProperty("/showMyAccessMasterSection");
             const bShowDetails = !!oModel.getProperty("/showRequestDetailsPage");
             const bShowNotifs = !!oModel.getProperty("/showAllNotificationsPage");
             const bShowHelp = !!oModel.getProperty("/showHelpPage");
 
+            // Visible on My Access tab; never hidden by sub-card toggles or history on other tabs
             const bVisible = (sSelectedTab === "myAccess" || !sSelectedTab) &&
-                !bShowHistory &&
-                !bShowPending &&
-                !bShowAddAccess &&
-                !bShowRemoveAccess &&
                 !bShowMaster &&
                 !bShowDetails &&
                 !bShowNotifs &&
@@ -6894,8 +6900,12 @@ sap.ui.define([
             const oApproverView = this.byId("approverSectionView");
             if (oApproverView) {
                 oApproverView.setVisible(bVisible);
-                if (!oApproverView.getModel("accessModel")) {
+                if (oApproverView.getModel("accessModel") !== oModel) {
                     oApproverView.setModel(oModel, "accessModel");
+                }
+                const oCardRoot = oApproverView.byId("kyraApproverCardRoot");
+                if (oCardRoot) {
+                    oCardRoot.setVisible(bVisible);
                 }
                 try {
                     const oApproverCtrl = oApproverView.getController();
@@ -6925,6 +6935,7 @@ sap.ui.define([
                         this._resetAddAccessState();
                         oModel.setProperty("/showAddAccessSector", false);
                         this._updateActionCardArrows(oModel);
+                        this._updateApproverSectionVisibility();
                     });
                     return;
                 } else {
@@ -6932,6 +6943,7 @@ sap.ui.define([
                     this._resetAddAccessState();
                     oModel.setProperty("/showAddAccessSector", false);
                     this._updateActionCardArrows(oModel);
+                    this._updateApproverSectionVisibility();
                     return;
                 }
             }
@@ -7047,6 +7059,7 @@ sap.ui.define([
                 oModel.setProperty("/showAllNotificationsPage", false);
                 oModel.setProperty("/showHelpPage", false);
                 this._updateActionCardArrows(oModel);
+                this._updateApproverSectionVisibility();
             }
             MessageToast.show("Remove Access section closed.");
             this._scrollToTop();
@@ -7122,6 +7135,7 @@ sap.ui.define([
                     oModel.setProperty("/addAccessConfigSubStep", 1);
                     oModel.setProperty("/isEditingFromSummary", false);
                     this._updateActionCardArrows(oModel);
+                    this._updateApproverSectionVisibility();
                 }
                 this._resetAddAccessState();
                 MessageToast.show("Access request closed.");
@@ -10336,6 +10350,10 @@ sap.ui.define([
             this._confirmDiscardAddAccess(() => {
                 if (oModel) {
                     oModel.setProperty("/selectedTabKey", sSelectedKey);
+                    if (sSelectedKey === "myAccess") {
+                        oModel.setProperty("/showHistorySection", false);
+                        oModel.setProperty("/showMyAccessMasterSection", false);
+                    }
                     this._updateApproverSectionVisibility();
                 }
             });
@@ -10398,6 +10416,7 @@ sap.ui.define([
                 oModel.setProperty("/selectedTabKey", "myAccess");
                 oModel.setProperty("/showHistorySection", false);
                 oModel.setProperty("/showMyAccessMasterSection", false);
+                oModel.setProperty("/showPendingSection", false);
                 oModel.setProperty("/showAddAccessSector", false);
                 oModel.setProperty("/showRemoveAccessSector", false);
                 oModel.setProperty("/showRequestDetailsPage", false);
@@ -10423,6 +10442,7 @@ sap.ui.define([
                     if (bCurr) {
                         oModel.setProperty("/showPendingSection", false);
                         this._updateActionCardArrows(oModel);
+                        this._updateApproverSectionVisibility();
                         return;
                     }
                     oModel.setProperty("/showPendingSection", true);
@@ -12065,6 +12085,7 @@ sap.ui.define([
                     if (bCurr) {
                         oModel.setProperty("/showRemoveAccessSector", false);
                         this._updateActionCardArrows(oModel);
+                        this._updateApproverSectionVisibility();
                         return;
                     }
 

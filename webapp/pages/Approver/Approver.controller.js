@@ -112,10 +112,18 @@ sap.ui.define([
             });
 
             const oComp = this.getOwnerComponent();
-            const oSharedModel = oComp && oComp.getModel("accessModel");
+            const oSharedModel = (oComp && oComp.getModel("accessModel")) || (this.getView() && this.getView().getModel("accessModel"));
             if (oSharedModel) {
                 this.getView().setModel(oSharedModel, "accessModel");
             }
+            this.getView().addEventDelegate({
+                onBeforeRendering: () => {
+                    const oM = (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel")) || (this.getView() && this.getView().getModel("accessModel"));
+                    if (oM && this.getView().getModel("accessModel") !== oM) {
+                        this.getView().setModel(oM, "accessModel");
+                    }
+                }
+            });
             const oRouter = oComp && oComp.getRouter();
             if (oRouter) {
                 ["AccessPage", "UserDashboard", "AdminDashboard"].forEach(routeName => {
@@ -181,17 +189,22 @@ sap.ui.define([
         },
 
         _syncModelAndRequests() {
-            const oModel = this.getView().getModel("accessModel") || (this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel"));
+            const oComp = this.getOwnerComponent();
+            const oModel = (oComp && oComp.getModel("accessModel")) || (this.getView() && this.getView().getModel("accessModel"));
             if (oModel) {
-                const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || "Requester").trim();
+                if (this.getView() && this.getView().getModel("accessModel") !== oModel) {
+                    this.getView().setModel(oModel, "accessModel");
+                }
+                const oAuth = (window.KyraAuthManager && typeof window.KyraAuthManager.getUserInfo === "function") ? window.KyraAuthManager.getUserInfo() : {};
+                const sActiveRole = (oModel.getProperty("/activeRole") || sessionStorage.getItem("kyra_active_role") || oAuth.role || localStorage.getItem("kyra_remember_role") || "").trim();
                 const sRoleLower = sActiveRole.toLowerCase();
-                const isCompliance = sRoleLower.includes("compliance") || !!oModel.getProperty("/isCompliance");
-                const isApprover = sRoleLower.includes("approver") || isCompliance || !!oModel.getProperty("/isApproverPersona");
+                const isCompliance = sRoleLower.includes("compliance") || !!oModel.getProperty("/isCompliance") || !!oModel.getProperty("/isCompliancePersona") || !!oModel.getProperty("/isComplianceReviewer");
+                const isApprover = sRoleLower.includes("approver") || isCompliance || !!oModel.getProperty("/isApproverPersona") || !!oModel.getProperty("/showApproverSection");
                 const bIsAdmin = !isApprover && (sActiveRole === "Admin" || sActiveRole === "Administrator" || sRoleLower === "admin" || sRoleLower === "administrator" || !!oModel.getProperty("/isAdminPersona"));
-                const bIsRequester = !isApprover && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || sRoleLower === "");
+                const bIsRequester = !isApprover && !bIsAdmin && (sActiveRole === "Requester" || sRoleLower === "requester" || (sRoleLower === "" && !isApprover));
 
-                // STRICT: When active persona is Requester or Admin, NEVER show approver section
-                if (bIsRequester || bIsAdmin || !isApprover) {
+                // STRICT: When active persona is Requester or Admin, hide approver section
+                if ((bIsRequester || bIsAdmin) && !isApprover) {
                     oModel.setProperty("/showApproverSection", false);
                     oModel.setProperty("/isApproverPersona", false);
                     oModel.setProperty("/isCompliance", false);
@@ -215,46 +228,38 @@ sap.ui.define([
                     return;
                 }
 
-                const bShowApproverSection = true;
+                // When active persona is Approver or Compliance, ALWAYS guarantee approver section is visible
+                if (isApprover) {
+                    const bShowApproverSection = true;
 
-                oModel.setProperty("/isRequester", false);
-                oModel.setProperty("/isAdminPersona", false);
-                oModel.setProperty("/isAdmin", false);
-                oModel.setProperty("/isCompliance", isCompliance);
-                oModel.setProperty("/isComplianceReviewer", isCompliance);
-                oModel.setProperty("/isCompliancePersona", isCompliance);
-                oModel.setProperty("/isApproverPersona", isApprover);
-                oModel.setProperty("/showApproverSection", bShowApproverSection);
+                    oModel.setProperty("/isRequester", false);
+                    oModel.setProperty("/isAdminPersona", false);
+                    oModel.setProperty("/isAdmin", false);
+                    oModel.setProperty("/isCompliance", isCompliance);
+                    oModel.setProperty("/isComplianceReviewer", isCompliance);
+                    oModel.setProperty("/isCompliancePersona", isCompliance);
+                    oModel.setProperty("/isApproverPersona", true);
+                    oModel.setProperty("/showApproverSection", true);
 
-                const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
-                if (oCompModel && oCompModel !== oModel) {
-                    oCompModel.setProperty("/isRequester", false);
-                    oCompModel.setProperty("/isAdminPersona", false);
-                    oCompModel.setProperty("/isAdmin", false);
-                    oCompModel.setProperty("/isCompliance", isCompliance);
-                    oCompModel.setProperty("/isComplianceReviewer", isCompliance);
-                    oCompModel.setProperty("/isCompliancePersona", isCompliance);
-                    oCompModel.setProperty("/isApproverPersona", isApprover);
-                    oCompModel.setProperty("/showApproverSection", bShowApproverSection);
-                }
+                    const oCompModel = this.getOwnerComponent() && this.getOwnerComponent().getModel("accessModel");
+                    if (oCompModel && oCompModel !== oModel) {
+                        oCompModel.setProperty("/isRequester", false);
+                        oCompModel.setProperty("/isAdminPersona", false);
+                        oCompModel.setProperty("/isAdmin", false);
+                        oCompModel.setProperty("/isCompliance", isCompliance);
+                        oCompModel.setProperty("/isComplianceReviewer", isCompliance);
+                        oCompModel.setProperty("/isCompliancePersona", isCompliance);
+                        oCompModel.setProperty("/isApproverPersona", true);
+                        oCompModel.setProperty("/showApproverSection", true);
+                    }
 
-                if (!bShowApproverSection) {
                     if (this.getView()) {
-                        this.getView().setVisible(false);
+                        this.getView().setVisible(true);
                     }
                     const oCardRoot = this.byId("kyraApproverCardRoot");
                     if (oCardRoot) {
-                        oCardRoot.setVisible(false);
+                        oCardRoot.setVisible(true);
                     }
-                    return;
-                }
-
-                if (this.getView()) {
-                    this.getView().setVisible(true);
-                }
-                const oCardRoot = this.byId("kyraApproverCardRoot");
-                if (oCardRoot) {
-                    oCardRoot.setVisible(true);
                 }
 
                 if (!oModel.getProperty("/approverPendingTab") || isCompliance) {
