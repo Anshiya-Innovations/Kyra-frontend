@@ -1932,7 +1932,7 @@
                             <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 3 Match)       -->
                             <!-- ========================================================================= -->
                             <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
-                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="70px">
+                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="50px">
                                     
                                     <!-- ================================================================= -->
                                     <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
@@ -1941,21 +1941,57 @@
                                         <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover1"
                                             class="{= 'kyraIamWhiteCard kyraIamWhiteCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
-                                            alignItems="Center"
-                                            justifyContent="Center"
                                             press=".onSelectIamApprover1">
                                             <customData>
                                                 <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
                                             </customData>
 
-                                            <!-- Circular User-and-Shield Badge Inside Card (Centered Above Text) -->
-                                            <HBox class="kyraIamBadgeInsideBox" alignItems="Center" justifyContent="Center">
-                                                <Image src="images/iam_approver1_badge.svg" width="58px" height="58px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 1 Icon" />
+                                            <!-- Top Row: Squircle Provider Icon + Title/Subtitle + Right Chevron -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamCardHeaderRow">
+                                                <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
+                                                    <!-- Squircle Icon Box with Microsoft Entra ID -->
+                                                    <HBox class="kyraIamIconSquircle kyraIamIconSquircle1" alignItems="Center" justifyContent="Center">
+                                                        <Image src="images/entra_id_icon.svg" width="28px" height="28px" densityAware="false" class="kyraIamProviderSvg" alt="Microsoft Entra ID" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamCardTitleBox">
+                                                        <Text text="IAM 1" class="kyraIamCardTopTitle" />
+                                                        <Text text="Your access. Our priority." class="kyraIamCardTopSubtitle" />
+                                                    </VBox>
+                                                </HBox>
+                                                <core:Icon src="sap-icon://navigation-right-arrow" class="kyraIamCardChevron" />
                                             </HBox>
 
-                                            <!-- Card Title & Subtitle -->
-                                            <Text text="IAM 1" class="kyraIamCardHeaderTitle" />
-                                            <Text text="Your access. Our priority." class="kyraIamCardHeaderSubtitle" />
+                                            <!-- Bottom Details Tray: 3 Columns -->
+                                            <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray1" alignItems="Stretch">
+                                                <!-- Col 1: Identity Provider -->
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="38%">
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon1" />
+                                                    </HBox>
+                                                    <Text text="Identity Provider" class="kyraIamDetailLabel" />
+                                                    <Text text="Microsoft Entra ID" class="kyraIamDetailValue" />
+                                                </VBox>
+
+                                                <!-- Col 2: Integration Type -->
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="32%">
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
+                                                    </HBox>
+                                                    <Text text="Integration Type" class="kyraIamDetailLabel" />
+                                                    <Text text="Email Integration" class="kyraIamDetailValue" />
+                                                </VBox>
+
+                                                <!-- Col 3: Integration Status -->
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="30%">
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://accept" class="kyraIamMiniIcon kyraIamMiniIcon1" />
+                                                    </HBox>
+                                                    <Text text="Integration Status" class="kyraIamDetailLabel" />
+                                                    <HBox class="kyraIamStatusPill kyraIamStatusPillConnected" alignItems="Center">
+                                                        <Text text="● Connected" class="kyraIamStatusPillTextConnected" />
+                                                    </HBox>
+                                                </VBox>
+                                            </HBox>
                                         </VBox>
 
                                         <!-- Hidden anchor arrow for controller compatibility -->
@@ -1969,21 +2005,57 @@
                                         <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover2"
                                             class="{= 'kyraIamWhiteCard kyraIamWhiteCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
-                                            alignItems="Center"
-                                            justifyContent="Center"
                                             press=".onSelectIamApprover2">
                                             <customData>
                                                 <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
                                             </customData>
 
-                                            <!-- Circular User-and-Shield Badge Inside Card (Centered Above Text) -->
-                                            <HBox class="kyraIamBadgeInsideBox" alignItems="Center" justifyContent="Center">
-                                                <Image src="images/iam_approver2_badge.svg" width="58px" height="58px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 2 Icon" />
+                                            <!-- Top Row: Squircle Provider Icon + Title/Subtitle + Right Chevron -->
+                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamCardHeaderRow">
+                                                <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
+                                                    <!-- Squircle Icon Box with SAP Logo -->
+                                                    <HBox class="kyraIamIconSquircle kyraIamIconSquircle2" alignItems="Center" justifyContent="Center">
+                                                        <Image src="images/sap_official_logo.svg" width="36px" height="18px" densityAware="false" class="kyraIamProviderSvg" alt="SAP Identity Authentication" />
+                                                    </HBox>
+                                                    <VBox class="kyraIamCardTitleBox">
+                                                        <Text text="IAM 2" class="kyraIamCardTopTitle" />
+                                                        <Text text="More people. More possibilities." class="kyraIamCardTopSubtitle" />
+                                                    </VBox>
+                                                </HBox>
+                                                <core:Icon src="sap-icon://navigation-right-arrow" class="kyraIamCardChevron" />
                                             </HBox>
 
-                                            <!-- Card Title & Subtitle -->
-                                            <Text text="IAM 2" class="kyraIamCardHeaderTitle" />
-                                            <Text text="More people. More possibilities." class="kyraIamCardHeaderSubtitle" />
+                                            <!-- Bottom Details Tray: 3 Columns -->
+                                            <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray2" alignItems="Stretch">
+                                                <!-- Col 1: Identity Provider -->
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="38%">
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge2" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon2" />
+                                                    </HBox>
+                                                    <Text text="Identity Provider" class="kyraIamDetailLabel" />
+                                                    <Text text="SAP Identity Authentication" class="kyraIamDetailValue" />
+                                                </VBox>
+
+                                                <!-- Col 2: Integration Type -->
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="32%">
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge2" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon2" />
+                                                    </HBox>
+                                                    <Text text="Integration Type" class="kyraIamDetailLabel" />
+                                                    <Text text="Console Integration" class="kyraIamDetailValue" />
+                                                </VBox>
+
+                                                <!-- Col 3: Integration Status -->
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="30%">
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge2" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://history" class="kyraIamMiniIcon kyraIamMiniIcon2" />
+                                                    </HBox>
+                                                    <Text text="Integration Status" class="kyraIamDetailLabel" />
+                                                    <HBox class="kyraIamStatusPill kyraIamStatusPillPending" alignItems="Center">
+                                                        <Text text="● Pending" class="kyraIamStatusPillTextPending" />
+                                                    </HBox>
+                                                </VBox>
+                                            </HBox>
                                         </VBox>
 
                                         <!-- Hidden anchor arrow for controller compatibility -->
