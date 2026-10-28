@@ -20603,7 +20603,11 @@ sap.ui.define([
             }
         },
 
-                onSelectSapApp(oEvent) {
+        onSelectSapApp(oEvent) {
+            const oEditCheckModel = this.getView() && this.getView().getModel("accessModel");
+            if (oEditCheckModel && oEditCheckModel.getProperty("/sapIntegration/formMode") === "edit") {
+                return;
+            }
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             let sKey = "";
