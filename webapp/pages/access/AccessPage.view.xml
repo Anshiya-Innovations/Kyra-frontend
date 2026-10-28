@@ -1951,7 +1951,7 @@
                                                 <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
                                                     <!-- Squircle Icon Box with Microsoft Entra ID -->
                                                     <HBox class="kyraIamIconSquircle kyraIamIconSquircle1" alignItems="Center" justifyContent="Center">
-                                                        <Image src="images/entra_id_icon.svg" width="28px" height="28px" densityAware="false" class="kyraIamProviderSvg" alt="Microsoft Entra ID" />
+                                                        <core:Icon src="sap-icon://customer" class="kyraIamSquircleIcon kyraIamSquircleIcon1" />
                                                     </HBox>
                                                     <VBox class="kyraIamCardTitleBox">
                                                         <Text text="IAM 1" class="kyraIamCardTopTitle" />
@@ -2015,7 +2015,7 @@
                                                 <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
                                                     <!-- Squircle Icon Box with SAP Logo -->
                                                     <HBox class="kyraIamIconSquircle kyraIamIconSquircle2" alignItems="Center" justifyContent="Center">
-                                                        <Image src="images/sap_official_logo.svg" width="36px" height="18px" densityAware="false" class="kyraIamProviderSvg" alt="SAP Identity Authentication" />
+                                                        <core:Icon src="sap-icon://group" class="kyraIamSquircleIcon kyraIamSquircleIcon2" />
                                                     </HBox>
                                                     <VBox class="kyraIamCardTitleBox">
                                                         <Text text="IAM 2" class="kyraIamCardTopTitle" />
@@ -2029,8 +2029,8 @@
                                             <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray2" alignItems="Stretch">
                                                 <!-- Col 1: Identity Provider -->
                                                 <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="38%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon2" />
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
                                                     <Text text="Identity Provider" class="kyraIamDetailLabel" />
                                                     <Text text="SAP Identity Authentication" class="kyraIamDetailValue" />
@@ -2038,8 +2038,8 @@
 
                                                 <!-- Col 2: Integration Type -->
                                                 <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="32%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon2" />
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
                                                     <Text text="Integration Type" class="kyraIamDetailLabel" />
                                                     <Text text="Console Integration" class="kyraIamDetailValue" />
@@ -2047,8 +2047,8 @@
 
                                                 <!-- Col 3: Integration Status -->
                                                 <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="30%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://history" class="kyraIamMiniIcon kyraIamMiniIcon2" />
+                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadgePending" alignItems="Center" justifyContent="Center">
+                                                        <core:Icon src="sap-icon://history" class="kyraIamMiniIcon kyraIamMiniIconPending" />
                                                     </HBox>
                                                     <Text text="Integration Status" class="kyraIamDetailLabel" />
                                                     <HBox class="kyraIamStatusPill kyraIamStatusPillPending" alignItems="Center">
