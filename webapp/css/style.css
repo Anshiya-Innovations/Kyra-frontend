@@ -64292,56 +64292,6 @@ html body .sapUiTheme-sap_horizon .kyraIamShowcaseContainer {
     justify-content: center !important;
 }
 
-.kyraIamCardsRow,
-.sapMFlexBox.kyraIamCardsRow {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 50px !important;
-    width: 100% !important;
-    max-width: 1440px !important;
-    margin: 0 auto !important;
-    position: relative !important;
-    overflow: visible !important;
-}
-
-/* Card Outer Wrapper - establishes local stacking context via isolation: isolate */
-.kyraIamCardOuterWrapper,
-.sapMFlexBox.kyraIamCardOuterWrapper,
-html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper {
-    position: relative !important;
-    width: 480px !important;
-    height: 215px !important;
-    min-width: 480px !important;
-    min-height: 215px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    box-sizing: border-box !important;
-    overflow: visible !important;
-    cursor: pointer !important;
-    isolation: isolate !important;
-    flex-shrink: 0 !important;
-}
-
-/* Reset UI5 flex item wrappers inside outer wrapper so normal layout works */
-.kyraIamCardOuterWrapper > .sapMFlexItem,
-html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
-    transform: none !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-    width: 100% !important;
-    height: 100% !important;
-    pointer-events: auto !important;
-}
-
 /* ========================================================================= */
 /* KYRA IAM APPROVER SHOWCASE: HEADER ROW, SPACING & PROJECT "X" BUTTON      */
 /* ========================================================================= */
@@ -64484,19 +64434,19 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
 }
 
 /* ========================================================================= */
-/* EXACT IMAGE 2 MATCH: FIXED TEAL BACKGROUND LAYERS BEHIND CARD             */
-/* Both normal and hover states keep identical fixed position (NO shift/rotation) */
+/* EXACT IMAGE 2 MATCH: TEAL BACKGROUND LAYERS (HOVER ONLY)                  */
+/* Anchored in fixed position behind card - strictly NO movement or shifts   */
 /* ========================================================================= */
 
-/* Layer 1 (Back / Dark Teal): Positioned behind top-right edge */
+/* Layer 1 (Back / Dark Teal): Visible at top-right & bottom-right corners */
 .kyraIamCardOuter1::before,
 .kyraIamCardOuter2::before {
     content: '' !important;
     position: absolute !important;
-    right: 8px !important;
-    top: 14px !important;
+    right: 18px !important;
+    top: 12px !important;
     width: 140px !important;
-    height: 180px !important;
+    height: 186px !important;
     border-radius: 26px !important;
     background: linear-gradient(135deg, #007A87 0%, #008C9C 100%) !important;
     background-color: #008C9C !important;
@@ -64505,53 +64455,58 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
     z-index: 0 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
-    opacity: 0.95 !important;
-    transition: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s ease !important;
 }
 
-/* Layer 2 (Front / Light Mint Teal): Positioned in front of Layer 1, behind white card */
+/* Layer 2 (Front / Light Mint Teal): Bulges further right in the middle */
 .kyraIamCardOuter1::after,
 .kyraIamCardOuter2::after {
     content: '' !important;
     position: absolute !important;
-    right: -2px !important;
-    top: 18px !important;
-    width: 140px !important;
-    height: 182px !important;
-    border-radius: 26px !important;
+    right: 4px !important;
+    top: 20px !important;
+    width: 145px !important;
+    height: 176px !important;
+    border-radius: 28px !important;
     background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%) !important;
     background-color: #2DD4BF !important;
-    transform: rotate(3.5deg) !important;
+    transform: rotate(3deg) !important;
     transform-origin: 85% 50% !important;
     z-index: 1 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
-    opacity: 0.95 !important;
-    transition: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s ease !important;
 }
 
-/* CRITICAL: Keep all background layers in the EXACT SAME FIXED POSITION during hover (NO movement, NO rotation, NO upward shift) */
+/* HOVER STATE: REVEAL TEAL BACKGROUND LAYERS BEHIND CARD IN ANCHORED POSITION */
 .kyraIamCardOuterWrapper:hover::before,
+.kyraIamCardOuterWrapper:has(.kyraIamWhiteCard:hover)::before,
 .kyraIamCardOuter1:hover::before,
 .kyraIamCardOuter2:hover::before {
+    opacity: 0.95 !important;
+    visibility: visible !important;
     transform: rotate(-3.5deg) !important;
-    top: 14px !important;
-    right: 8px !important;
-    transition: none !important;
+    top: 12px !important;
+    right: 18px !important;
 }
 
 .kyraIamCardOuterWrapper:hover::after,
+.kyraIamCardOuterWrapper:has(.kyraIamWhiteCard:hover)::after,
 .kyraIamCardOuter1:hover::after,
 .kyraIamCardOuter2:hover::after {
-    transform: rotate(3.5deg) !important;
-    top: 18px !important;
-    right: -2px !important;
-    transition: none !important;
+    opacity: 0.95 !important;
+    visibility: visible !important;
+    transform: rotate(3deg) !important;
+    top: 20px !important;
+    right: 4px !important;
 }
 
 /* ========================================================================= */
-/* HOVER EFFECT: APPLIED ONLY TO THE FRONT WHITE CARD                        */
-/* Smooth elevation & refined shadow without flickering or layout shifts     */
+/* FOREGROUND WHITE CARD: REMAINS ANCHORED (NO JUMPING / SHIFTING)           */
 /* ========================================================================= */
 
 .kyraIamWhiteCard,
@@ -64581,16 +64536,17 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
     margin: 0 !important;
     overflow: visible !important;
     pointer-events: auto !important;
-    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease !important;
+    transform: none !important;
+    transition: box-shadow 0.22s ease, border-color 0.22s ease !important;
 }
 
-/* Normal hover state on front white card */
+/* Normal hover state on front white card: strictly NO translateY (stays anchored) */
 .kyraIamWhiteCard:hover,
 [id$="cardSelectIamApprover1"]:hover,
 [id$="cardSelectIamApprover2"]:hover {
-    transform: translateY(-3px) !important;
+    transform: none !important;
     border-color: #008C9C !important;
-    box-shadow: 0 16px 36px rgba(0, 140, 156, 0.14), 0 3px 10px rgba(15, 23, 42, 0.05) !important;
+    box-shadow: 0 14px 34px rgba(0, 140, 156, 0.14), 0 3px 10px rgba(15, 23, 42, 0.05) !important;
 }
 
 .kyraIamWhiteCard:hover .kyraIamCardChevron {
