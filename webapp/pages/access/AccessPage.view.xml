@@ -1939,7 +1939,7 @@
                             <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 3 Match)       -->
                             <!-- ========================================================================= -->
                             <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
-                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="72px">
+                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="70px">
                                     
                                     <!-- ================================================================= -->
                                     <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
@@ -1961,7 +1961,7 @@
 
                                             <!-- Circular User-and-Shield Badge Floating Above Card -->
                                             <HBox class="kyraIamFloatingBadge" alignItems="Center" justifyContent="Center">
-                                                <Image src="images/iam_approver1_badge.svg" width="68px" height="68px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 1 Icon" />
+                                                <Image src="images/iam_approver1_badge.svg" width="72px" height="72px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 1 Icon" />
                                             </HBox>
 
                                             <!-- Card Title & Subtitle -->
@@ -1993,7 +1993,7 @@
 
                                             <!-- Circular User-and-Shield Badge Floating Above Card -->
                                             <HBox class="kyraIamFloatingBadge" alignItems="Center" justifyContent="Center">
-                                                <Image src="images/iam_approver2_badge.svg" width="68px" height="68px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 2 Icon" />
+                                                <Image src="images/iam_approver2_badge.svg" width="72px" height="72px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 2 Icon" />
                                             </HBox>
 
                                             <!-- Card Title & Subtitle -->
