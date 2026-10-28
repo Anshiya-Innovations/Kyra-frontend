@@ -78,14 +78,14 @@
                         type="Emphasized"
                         press=".onFilterApprovalsDialog"
                         tooltip="Filter Requests by system or date"
-                        class="kyraApproverFilterBtn" />
+                        class="kyraHistoryFilterBtn kyraApproverFilterBtn" />
 
                     <Button
                         icon="sap-icon://excel-attachment"
-                        text="Export"
+                        type="Default"
                         press=".onExportApprovals"
-                        tooltip="Export Audit Log to Excel"
-                        class="kyraApproverExportBtn" />
+                        tooltip="Export Audit Log"
+                        class="kyraHistoryExportBtn kyraApproverExportBtn" />
                 </HBox>
             </HBox>
 

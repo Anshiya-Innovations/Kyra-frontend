@@ -4119,7 +4119,7 @@
                             <Button
                                 icon="sap-icon://filter"
                                 text="Filter"
-                                type="Default"
+                                type="Emphasized"
                                 press=".onFilterHistoryDialog"
                                 tooltip="Filter History by Status &amp; Duration"
                                 class="kyraHistoryFilterBtn" />
@@ -4235,7 +4235,7 @@
                             <Button
                                 icon="sap-icon://filter"
                                 text="Filter"
-                                type="Default"
+                                type="Emphasized"
                                 press=".onFilterMasterAccessDialog"
                                 tooltip="Filter Entitlements"
                                 class="kyraHistoryFilterBtn" />
