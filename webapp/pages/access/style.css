@@ -63969,7 +63969,8 @@ html body .sapUiTheme-sap_horizon .kyraIamGlassCard {
 
 
 /* ========================================================================= */
-/* KYRA 2026: IAM APPROVER SHOWCASE SLIDE (EXACT IMAGE 2 MATCH)              */
+/* ========================================================================= */
+/* KYRA 2026: IAM APPROVER SHOWCASE SLIDE (EXACT REFERENCE DESIGN)            */
 /* ========================================================================= */
 
 .kyraIamTitleRow,
@@ -64042,9 +64043,10 @@ html body .sapUiTheme-sap_horizon .kyraIamShowcaseContainer {
     overflow: visible !important;
 }
 
-/* Card Outer Wrapper containing the layered background decorative shapes */
+/* Card Outer Wrapper - establishes local stacking context via isolation: isolate */
 .kyraIamCardOuterWrapper,
-.sapMFlexBox.kyraIamCardOuterWrapper {
+.sapMFlexBox.kyraIamCardOuterWrapper,
+html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper {
     position: relative !important;
     width: 380px !important;
     height: 240px !important;
@@ -64056,82 +64058,127 @@ html body .sapUiTheme-sap_horizon .kyraIamShowcaseContainer {
     box-sizing: border-box !important;
     overflow: visible !important;
     cursor: pointer !important;
+    isolation: isolate !important;
+    flex-shrink: 0 !important;
 }
 
-/* Ensure UI5 internal flex item wrappers for decorative shapes are positioned absolutely and centered */
-.kyraIamCardOuterWrapper > .sapMFlexItem {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
+/* Reset UI5 flex item wrappers inside outer wrapper so normal centering works */
+.kyraIamCardOuterWrapper > .sapMFlexItem,
+html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     overflow: visible !important;
     box-sizing: border-box !important;
-    pointer-events: none !important;
-}
-
-.kyraIamCardOuterWrapper > .sapMFlexItem:has(.kyraIamWhiteCard),
-.kyraIamCardOuterWrapper > .sapMFlexItem:nth-child(3) {
+    width: 100% !important;
+    height: 100% !important;
     pointer-events: auto !important;
 }
 
-/* Overlapping Decorative Shapes Behind White Card (Exact Reference Match) */
-.kyraIamDecorShape,
-.sapMFlexBox.kyraIamDecorShape {
+/* IAM 1: Overlapping Teal Decorative Shapes (behind white card at z-index: 0) */
+.kyraIamCardOuter1::before {
+    content: "" !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    width: 310px !important;
-    height: 185px !important;
-    border-radius: 24px !important;
-    z-index: 1 !important;
+    width: 330px !important;
+    height: 195px !important;
+    border-radius: 26px !important;
+    background: linear-gradient(135deg, #0284C7 0%, #008C9C 100%) !important;
+    background-color: #008C9C !important;
+    transform: translate(-50%, -50%) rotate(-9deg) !important;
+    z-index: 0 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* IAM 1 Overlapping Teal Decorative Shapes (Exact Reference Match) */
-.kyraIamDecorShape1_left {
-    background: linear-gradient(135deg, #0284C7 0%, #008C9C 100%) !important;
-    background-color: #008C9C !important;
-    transform: translate(-50%, -50%) rotate(-9deg) !important;
-}
-
-.kyraIamDecorShape1_right {
+.kyraIamCardOuter1::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 330px !important;
+    height: 195px !important;
+    border-radius: 26px !important;
     background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%) !important;
     background-color: #2DD4BF !important;
     transform: translate(-50%, -50%) rotate(9deg) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    box-sizing: border-box !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* IAM 2 Overlapping Purple Decorative Shapes (Exact Reference Match) */
-.kyraIamDecorShape2_left {
+/* IAM 2: Overlapping Purple Decorative Shapes (behind white card at z-index: 0) */
+.kyraIamCardOuter2::before {
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 330px !important;
+    height: 195px !important;
+    border-radius: 26px !important;
     background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%) !important;
     background-color: #818CF8 !important;
     transform: translate(-50%, -50%) rotate(-9deg) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    box-sizing: border-box !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.kyraIamDecorShape2_right {
+.kyraIamCardOuter2::after {
+    content: "" !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 330px !important;
+    height: 195px !important;
+    border-radius: 26px !important;
     background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
     background-color: #6366F1 !important;
     transform: translate(-50%, -50%) rotate(9deg) !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    box-sizing: border-box !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Hover rotation enhancement */
+.kyraIamCardOuterWrapper:hover.kyraIamCardOuter1::before {
+    transform: translate(-50%, -50%) rotate(-12deg) scale(1.02) !important;
+}
+.kyraIamCardOuterWrapper:hover.kyraIamCardOuter1::after {
+    transform: translate(-50%, -50%) rotate(12deg) scale(1.02) !important;
+}
+.kyraIamCardOuterWrapper:hover.kyraIamCardOuter2::before {
+    transform: translate(-50%, -50%) rotate(-12deg) scale(1.02) !important;
+}
+.kyraIamCardOuterWrapper:hover.kyraIamCardOuter2::after {
+    transform: translate(-50%, -50%) rotate(12deg) scale(1.02) !important;
 }
 
 /* Equal-sized White Cards (Exact Reference Match) */
 .kyraIamWhiteCard,
 .sapMFlexBox.kyraIamWhiteCard,
-html body .sapUiTheme-sap_horizon .kyraIamWhiteCard {
+html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
+[id$="cardSelectIamApprover1"],
+[id$="cardSelectIamApprover2"] {
     position: relative !important;
     z-index: 2 !important;
-    width: 320px !important;
-    height: 195px !important;
-    min-width: 320px !important;
-    min-height: 195px !important;
+    width: 310px !important;
+    height: 185px !important;
+    min-width: 310px !important;
+    min-height: 185px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     border-radius: 22px !important;
-    border: 1px solid rgba(226, 232, 240, 0.85) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
     display: flex !important;
     flex-direction: column !important;
@@ -64146,14 +64193,17 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard {
     transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
 }
 
-.kyraIamWhiteCard:hover {
+.kyraIamWhiteCard:hover,
+[id$="cardSelectIamApprover1"]:hover,
+[id$="cardSelectIamApprover2"]:hover {
     transform: translateY(-3px) !important;
     box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
 }
 
 /* Selected States */
 .kyraIamWhiteCard1.kyraIamCardSelected1,
-.kyraIamWhiteCard1.kyraSubIntegrationCardActive {
+.kyraIamWhiteCard1.kyraSubIntegrationCardActive,
+[id$="cardSelectIamApprover1"].kyraSubIntegrationCardActive {
     border: 2px solid #008C9C !important;
     box-shadow: 0 12px 34px rgba(0, 140, 156, 0.25) !important;
     background: #FFFFFF !important;
@@ -64161,16 +64211,29 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard {
 }
 
 .kyraIamWhiteCard2.kyraIamCardSelected2,
-.kyraIamWhiteCard2.kyraSubIntegrationCardActive {
+.kyraIamWhiteCard2.kyraSubIntegrationCardActive,
+[id$="cardSelectIamApprover2"].kyraSubIntegrationCardActive {
     border: 2px solid #6366F1 !important;
     box-shadow: 0 12px 34px rgba(99, 102, 241, 0.25) !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
 }
 
+/* Override any old trigger classes to keep cards pure white */
+.iamApprover1CardTrigger,
+.iamApprover2CardTrigger,
+.iamApprover1CardTrigger.kyraSubIntegrationCardActive,
+.iamApprover2CardTrigger.kyraSubIntegrationCardActive,
+.iamApprover1CardTrigger:hover,
+.iamApprover2CardTrigger:hover {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}
+
 /* Circular User-and-Shield Icon Badge Floating Above Card */
 .kyraIamFloatingBadge,
-.sapMFlexBox.kyraIamFloatingBadge {
+.sapMFlexBox.kyraIamFloatingBadge,
+html body .sapUiTheme-sap_horizon .kyraIamFloatingBadge {
     position: absolute !important;
     top: -36px !important;
     left: 50% !important;
@@ -64189,10 +64252,12 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard {
     filter: drop-shadow(0 6px 14px rgba(15, 23, 42, 0.15)) !important;
 }
 
-.kyraIamBadgeImg {
+.kyraIamBadgeImg,
+.kyraIamBadgeImg.sapMImg {
     width: 72px !important;
     height: 72px !important;
     display: block !important;
+    pointer-events: none !important;
 }
 
 /* Card Title: IAM 1 / IAM 2 */
@@ -64221,6 +64286,12 @@ html body .sapUiTheme-sap_horizon .kyraIamCardHeaderSubtitle {
     line-height: 1.35 !important;
     text-align: center !important;
     white-space: nowrap !important;
+}
+
+/* Hide legacy HBox shapes if any linger */
+.kyraIamDecorShape,
+.sapMFlexBox.kyraIamDecorShape {
+    display: none !important;
 }
 
 /* ========================================================================= */
@@ -64841,227 +64912,3 @@ html body .sapUiTheme-sap_horizon .kyraEnterpriseBtnOutline .sapMBtnInner {
 }
 
 /* ========================================================================= */
-/* KYRA 2026: IAM APPROVER - HIGH SPECIFICITY OVERRIDES (WINS OVER ALL EARLIER) */
-/* ========================================================================= */
-#iamIntegrationContainer .kyraIamShowcaseContainer,
-html body #iamIntegrationContainer .kyraIamShowcaseContainer {
-    position: relative !important;
-    width: 100% !important;
-    max-width: 1440px !important;
-    margin: 0 auto !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 30px 10px 24px 10px !important;
-    box-sizing: border-box !important;
-    overflow: visible !important;
-    display: flex !important;
-    justify-content: center !important;
-}
-
-#iamIntegrationContainer .kyraIamCardsRow,
-html body #iamIntegrationContainer .kyraIamCardsRow {
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 70px !important;
-    width: 100% !important;
-    max-width: 1440px !important;
-    margin: 0 auto !important;
-    position: relative !important;
-    overflow: visible !important;
-}
-
-#iamIntegrationContainer .kyraIamCardOuterWrapper,
-html body #iamIntegrationContainer .kyraIamCardOuterWrapper {
-    position: relative !important;
-    width: 380px !important;
-    height: 240px !important;
-    min-width: 380px !important;
-    min-height: 240px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-sizing: border-box !important;
-    overflow: visible !important;
-    cursor: pointer !important;
-}
-
-#iamIntegrationContainer .kyraIamCardOuterWrapper > .sapMFlexItem {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    overflow: visible !important;
-    box-sizing: border-box !important;
-    pointer-events: none !important;
-}
-
-#iamIntegrationContainer .kyraIamCardOuterWrapper > .sapMFlexItem:has(.kyraIamWhiteCard),
-#iamIntegrationContainer .kyraIamCardOuterWrapper > .sapMFlexItem:nth-child(3) {
-    pointer-events: auto !important;
-}
-
-#iamIntegrationContainer .kyraIamDecorShape,
-html body #iamIntegrationContainer .kyraIamDecorShape {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
-    width: 310px !important;
-    height: 185px !important;
-    border-radius: 24px !important;
-    z-index: 1 !important;
-    pointer-events: none !important;
-    box-sizing: border-box !important;
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-#iamIntegrationContainer .kyraIamDecorShape1_left {
-    background: linear-gradient(135deg, #0284C7 0%, #008C9C 100%) !important;
-    background-color: #008C9C !important;
-    transform: translate(-50%, -50%) rotate(-9deg) !important;
-}
-
-#iamIntegrationContainer .kyraIamDecorShape1_right {
-    background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%) !important;
-    background-color: #2DD4BF !important;
-    transform: translate(-50%, -50%) rotate(9deg) !important;
-}
-
-#iamIntegrationContainer .kyraIamDecorShape2_left {
-    background: linear-gradient(135deg, #818CF8 0%, #6366F1 100%) !important;
-    background-color: #818CF8 !important;
-    transform: translate(-50%, -50%) rotate(-9deg) !important;
-}
-
-#iamIntegrationContainer .kyraIamDecorShape2_right {
-    background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%) !important;
-    background-color: #6366F1 !important;
-    transform: translate(-50%, -50%) rotate(9deg) !important;
-}
-
-#iamIntegrationContainer .kyraIamWhiteCard,
-html body #iamIntegrationContainer .kyraIamWhiteCard {
-    position: relative !important;
-    z-index: 2 !important;
-    width: 320px !important;
-    height: 195px !important;
-    min-width: 320px !important;
-    min-height: 195px !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border-radius: 22px !important;
-    border: 1px solid rgba(226, 232, 240, 0.85) !important;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    user-select: none !important;
-    box-sizing: border-box !important;
-    padding: 30px 20px 10px 20px !important;
-    overflow: visible !important;
-    pointer-events: auto !important;
-    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
-}
-
-#iamIntegrationContainer .kyraIamWhiteCard:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
-}
-
-#iamIntegrationContainer .kyraIamWhiteCard1.kyraIamCardSelected1,
-#iamIntegrationContainer .kyraIamWhiteCard1.kyraSubIntegrationCardActive {
-    border: 2px solid #008C9C !important;
-    box-shadow: 0 12px 34px rgba(0, 140, 156, 0.25) !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-}
-
-#iamIntegrationContainer .kyraIamWhiteCard2.kyraIamCardSelected2,
-#iamIntegrationContainer .kyraIamWhiteCard2.kyraSubIntegrationCardActive {
-    border: 2px solid #6366F1 !important;
-    box-shadow: 0 12px 34px rgba(99, 102, 241, 0.25) !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-}
-
-#iamIntegrationContainer .kyraIamFloatingBadge,
-html body #iamIntegrationContainer .kyraIamFloatingBadge {
-    position: absolute !important;
-    top: -36px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 72px !important;
-    height: 72px !important;
-    min-width: 72px !important;
-    min-height: 72px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    z-index: 3 !important;
-    pointer-events: none !important;
-    background: transparent !important;
-    filter: drop-shadow(0 6px 14px rgba(15, 23, 42, 0.15)) !important;
-}
-
-#iamIntegrationContainer .kyraIamCardHeaderTitle,
-html body #iamIntegrationContainer .kyraIamCardHeaderTitle {
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    color: #0F172A !important;
-    letter-spacing: 0.5px !important;
-    text-transform: uppercase !important;
-    margin: 0 0 6px 0 !important;
-    line-height: 1.2 !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-}
-
-#iamIntegrationContainer .kyraIamCardHeaderSubtitle,
-html body #iamIntegrationContainer .kyraIamCardHeaderSubtitle {
-    font-size: 13.5px !important;
-    font-weight: 500 !important;
-    color: #64748B !important;
-    margin: 0 !important;
-    line-height: 1.35 !important;
-    text-align: center !important;
-    white-space: nowrap !important;
-}
-
-
-/* Override old iamApproverCardTrigger active states - keep white background in the new design */
-#iamIntegrationContainer .iamApprover1CardTrigger.kyraSubIntegrationCardActive,
-html body #iamIntegrationContainer .iamApprover1CardTrigger.kyraSubIntegrationCardActive {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border-color: #008C9C !important;
-    box-shadow: 0 12px 34px rgba(0, 140, 156, 0.25) !important;
-}
-
-#iamIntegrationContainer .iamApprover2CardTrigger.kyraSubIntegrationCardActive,
-html body #iamIntegrationContainer .iamApprover2CardTrigger.kyraSubIntegrationCardActive {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-    border-color: #6366F1 !important;
-    box-shadow: 0 12px 34px rgba(99, 102, 241, 0.25) !important;
-}
-
-#iamIntegrationContainer .iamApprover1CardTrigger:hover,
-html body #iamIntegrationContainer .iamApprover1CardTrigger:hover {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-}
-
-#iamIntegrationContainer .iamApprover2CardTrigger:hover,
-html body #iamIntegrationContainer .iamApprover2CardTrigger:hover {
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
-}

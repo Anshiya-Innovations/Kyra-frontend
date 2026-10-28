@@ -1945,10 +1945,6 @@
                                     <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
                                     <!-- ================================================================= -->
                                     <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter1" alignItems="Center" justifyContent="Center">
-                                        <!-- Overlapping Teal Decorative Shapes behind White Card -->
-                                        <HBox class="kyraIamDecorShape kyraIamDecorShape1_left" />
-                                        <HBox class="kyraIamDecorShape kyraIamDecorShape1_right" />
-
                                         <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover1"
                                             class="{= 'kyraIamWhiteCard kyraIamWhiteCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
@@ -1977,10 +1973,6 @@
                                     <!-- CARD 2: IAM 2 (Purple Enterprise White Card - Exact Image 3 Match) -->
                                     <!-- ================================================================= -->
                                     <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter2" alignItems="Center" justifyContent="Center">
-                                        <!-- Overlapping Purple Decorative Shapes behind White Card -->
-                                        <HBox class="kyraIamDecorShape kyraIamDecorShape2_left" />
-                                        <HBox class="kyraIamDecorShape kyraIamDecorShape2_right" />
-
                                         <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover2"
                                             class="{= 'kyraIamWhiteCard kyraIamWhiteCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
