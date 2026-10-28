@@ -33619,6 +33619,30 @@ html body .sapUiTheme-sap_horizon .sapUiCalYearPicker .sapUiCalItemSel:hover {
    ========================================================================= */
 
 /* Action Link Text for Card 1 (Amber), Card 2 (Teal) & Card 3 (Rose) */
+
+/* Universal Fix for Issue: No text underline ("txt bottom line") */
+.fioriActionLinkAmber,
+.fioriActionLinkTeal,
+.fioriActionLinkRose,
+.fioriActionLinkAmber:hover,
+.fioriActionLinkTeal:hover,
+.fioriActionLinkRose:hover,
+.fioriActionCard:hover .fioriActionLinkAmber,
+.fioriActionCard:hover .fioriActionLinkTeal,
+.fioriActionCard:hover .fioriActionLinkRose,
+.fioriClickableCard:hover .fioriActionLinkAmber,
+.fioriClickableCard:hover .fioriActionLinkTeal,
+.fioriClickableCard:hover .fioriActionLinkRose,
+.fioriActionCard *,
+.fioriActionCard .sapMText,
+.fioriActionCard .sapMTitle,
+.kyraIntegrationCardRow *,
+.kyraSubIntegrationCard * {
+    text-decoration: none !important;
+    text-decoration-line: none !important;
+    border-bottom: none !important;
+}
+
 .fioriActionLinkAmber {
     font-size: 14px !important;
     font-weight: 700 !important;
@@ -60451,7 +60475,8 @@ html body .sapUiTheme-sap_horizon .kyraIamApproverCardsRow > .sapMFlexItem {
 }
 .fioriActionLinkAmber:hover {
     color: #C2410C !important;
-    text-decoration: underline !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
 }
 
 .fioriActionLinkTeal {
@@ -60463,7 +60488,8 @@ html body .sapUiTheme-sap_horizon .kyraIamApproverCardsRow > .sapMFlexItem {
 }
 .fioriActionLinkTeal:hover {
     color: #005F6A !important;
-    text-decoration: underline !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
 }
 
 .kyraSubIntegrationArrow {
@@ -64171,10 +64197,10 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 [id$="cardSelectIamApprover2"] {
     position: relative !important;
     z-index: 2 !important;
-    width: 310px !important;
-    height: 185px !important;
-    min-width: 310px !important;
-    min-height: 185px !important;
+    width: 320px !important;
+    height: 195px !important;
+    min-width: 320px !important;
+    min-height: 195px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     border-radius: 22px !important;
@@ -64187,7 +64213,9 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
     cursor: pointer !important;
     user-select: none !important;
     box-sizing: border-box !important;
-    padding: 30px 20px 10px 20px !important;
+    padding: 18px 20px 14px 20px !important;
+    margin: 0 auto !important;
+    align-self: center !important;
     overflow: visible !important;
     pointer-events: auto !important;
     transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease !important;
@@ -64228,6 +64256,30 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 .iamApprover2CardTrigger:hover {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
+}
+
+
+/* Circular User-and-Shield Badge Inside Card Center (Exact Match) */
+.kyraIamBadgeInsideBox,
+.sapMFlexBox.kyraIamBadgeInsideBox,
+html body .sapUiTheme-sap_horizon .kyraIamBadgeInsideBox {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    min-height: 58px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 10px auto !important;
+    z-index: 3 !important;
+    pointer-events: none !important;
+    background: transparent !important;
+    filter: drop-shadow(0 6px 14px rgba(15, 23, 42, 0.14)) !important;
 }
 
 /* Circular User-and-Shield Icon Badge Floating Above Card */

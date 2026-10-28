@@ -1076,13 +1076,21 @@
                                     <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
                                     <Text text="Connected SAP Applications &amp; Subscriptions • Active enterprise cloud licenses and services discovered across all integrated tenants." class="kyraDarkStudioSubtitle" />
                                 </VBox>
-                                <Button
-                                    id="btnAddIntegration"
-                                    text="Add Integration"
-                                    icon="sap-icon://add"
-                                    type="Emphasized"
-                                    press=".onAddIntegration"
-                                    class="kyraDarkPrimaryActionBtn" />
+                                <HBox alignItems="Center" gap="10px">
+                                    <Button
+                                        id="btnAddIntegration"
+                                        text="Add Integration"
+                                        icon="sap-icon://add"
+                                        type="Emphasized"
+                                        press=".onAddIntegration"
+                                        class="kyraDarkPrimaryActionBtn" />
+                                    <Button
+                                        icon="sap-icon://decline"
+                                        type="Transparent"
+                                        press=".onCloseAdminSection"
+                                        tooltip="Close Section"
+                                        class="kyraCloseIconBtn" />
+                                </HBox>
                             </HBox>
 
                             <!-- Verified Banner -->
@@ -1225,22 +1233,7 @@
                                 </items>
                             </VBox>
 
-                            <!-- Bottom Action Bar -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
-                                <Button
-                                    id="btnBackFromPurchasedApps"
-                                    text="Back"
-                                    icon="sap-icon://nav-back"
-                                    type="Default"
-                                    press=".onBackToIntegrationsList"
-                                    class="kyraSapBackBtn" />
-                                <Button
-                                    text="Close Section"
-                                    icon="sap-icon://decline"
-                                    type="Default"
-                                    press=".onCloseAdminSection"
-                                    class="kyraSapCloseBtn" />
-                            </HBox>
+                            <!-- Bottom Action Bar removed as requested -->
 
                         </VBox>
 
@@ -1955,9 +1948,9 @@
                                                 <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
                                             </customData>
 
-                                            <!-- Circular User-and-Shield Badge Floating Above Card -->
-                                            <HBox class="kyraIamFloatingBadge" alignItems="Center" justifyContent="Center">
-                                                <Image src="images/iam_approver1_badge.svg" width="72px" height="72px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 1 Icon" />
+                                            <!-- Circular User-and-Shield Badge Inside Card (Centered Above Text) -->
+                                            <HBox class="kyraIamBadgeInsideBox" alignItems="Center" justifyContent="Center">
+                                                <Image src="images/iam_approver1_badge.svg" width="58px" height="58px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 1 Icon" />
                                             </HBox>
 
                                             <!-- Card Title & Subtitle -->
@@ -1983,9 +1976,9 @@
                                                 <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
                                             </customData>
 
-                                            <!-- Circular User-and-Shield Badge Floating Above Card -->
-                                            <HBox class="kyraIamFloatingBadge" alignItems="Center" justifyContent="Center">
-                                                <Image src="images/iam_approver2_badge.svg" width="72px" height="72px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 2 Icon" />
+                                            <!-- Circular User-and-Shield Badge Inside Card (Centered Above Text) -->
+                                            <HBox class="kyraIamBadgeInsideBox" alignItems="Center" justifyContent="Center">
+                                                <Image src="images/iam_approver2_badge.svg" width="58px" height="58px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 2 Icon" />
                                             </HBox>
 
                                             <!-- Card Title & Subtitle -->
