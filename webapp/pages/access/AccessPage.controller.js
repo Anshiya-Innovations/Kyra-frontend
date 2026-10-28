@@ -2819,6 +2819,7 @@ sap.ui.define([
             if (!bHasRegionalSystems) {
                 // Strictly reset selection states when selected region has no integrated systems
                 oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/isTargetSystemsConfirmed", false);
                 oModel.setProperty("/hasSelectedTargetSystems", false);
                 oModel.setProperty("/currentSystemSlideName", "");
                 oModel.setProperty("/targetSystemSlideCount", 0);
@@ -2835,12 +2836,15 @@ sap.ui.define([
                 } else {
                     aCurSelected = [];
                 }
-                if (aCurSelected.length === 0 && aDeduplicated.length > 0) {
-                    aCurSelected = [aDeduplicated[0].systemName];
+                if (!oModel.getProperty("/isTargetSystemsConfirmed")) {
+                    oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
+                    oModel.setProperty("/hasSelectedTargetSystems", false);
+                    oModel.setProperty("/targetSystemSlideCount", 0);
+                } else {
+                    oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
+                    oModel.setProperty("/hasSelectedTargetSystems", aCurSelected.length > 0);
+                    oModel.setProperty("/targetSystemSlideCount", aCurSelected.length);
                 }
-                oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
-                oModel.setProperty("/hasSelectedTargetSystems", aCurSelected.length > 0);
-                oModel.setProperty("/targetSystemSlideCount", aCurSelected.length);
             }
         },
 
@@ -7278,6 +7282,7 @@ sap.ui.define([
             const bHasRegionalSystems = oModel.getProperty("/hasRegionalSystems");
             if (bHasRegionalSystems === false) {
                 oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/isTargetSystemsConfirmed", false);
                 oModel.setProperty("/hasSelectedTargetSystems", false);
                 oModel.setProperty("/currentSystemSlideName", "");
                 oModel.setProperty("/targetSystemSlideCount", 0);
@@ -7289,113 +7294,135 @@ sap.ui.define([
                 return;
             }
 
-            // Ensure selected systems exist so Target System slide renders immediately
-            let aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-            const aActiveSys = oModel.getProperty("/activeAdminSystems") || [];
-            if ((!Array.isArray(aSystems) || aSystems.length === 0) && aActiveSys.length > 0) {
-                const sFirstSys = aActiveSys[0].systemName || aActiveSys[0].name;
-                if (sFirstSys) {
-                    aSystems = [sFirstSys];
-                    oModel.setProperty("/addAccessSelectedSystems", aSystems);
-                }
+            const bAlreadyConfirmed = !!oModel.getProperty("/isTargetSystemsConfirmed");
+            if (!bAlreadyConfirmed) {
+                oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/isTargetSystemsConfirmed", false);
+                oModel.setProperty("/hasSelectedTargetSystems", false);
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/targetSystemSlideCount", 0);
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                try {
+                    const oSelect = this.byId("inPageSystemsMultiSelect");
+                    if (oSelect) {
+                        oSelect.setSelectedKeys([]);
+                        if (window._kyraSyncMultiDisplay) window._kyraSyncMultiDisplay(oSelect);
+                    }
+                } catch(e) {}
+            } else {
+                this._loadCurrentSystemSlideConfig();
             }
-            oModel.setProperty("/hasSelectedTargetSystems", Array.isArray(aSystems) && aSystems.length > 0);
-
-            this._loadCurrentSystemSlideConfig();
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
             this._scrollToWizardContainer();
         },
 
-        async onConfirmTargetSystemSelection() {
+        async onConfirmTargetSystemsSelection() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            let aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
             if (!Array.isArray(aSystems) || aSystems.length === 0) {
-                sap.m.MessageToast.show("Please select at least one target system.");
+                const oSelect = this.byId("inPageSystemsMultiSelect");
+                if (oSelect && typeof oSelect.getSelectedKeys === "function") {
+                    aSystems = oSelect.getSelectedKeys() || [];
+                    oModel.setProperty("/addAccessSelectedSystems", aSystems);
+                }
+            }
+
+            if (!Array.isArray(aSystems) || aSystems.length === 0) {
+                sap.m.MessageBox.warning("Please select at least one Target System and click Confirm.");
                 return;
             }
 
-            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-            const sSys = aSystems[iIndex] || aSystems[0];
-
+            // Single loading screen for all selected systems
             sap.ui.core.BusyIndicator.show(0);
-            try {
-                const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ targetSystem: sSys })
-                });
 
-                sap.ui.core.BusyIndicator.hide();
+            this._dynamicCatalogs = this._dynamicCatalogs || {};
 
-                if (!res.ok) {
-                    sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
-                    return;
+            // Fetch dynamic catalog for all selected SAP BTP systems all at once
+            const aFetchPromises = aSystems.map(async (sSys) => {
+                if (!sSys || (!sSys.includes("SAP Business Technology Platform") && !sSys.includes("SAP BTP"))) {
+                    return null;
                 }
-
-                const data = await res.json();
-                if (!data || !data.ok) {
-                    sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
-                    return;
+                if (this._dynamicCatalogs[sSys] && this._dynamicCatalogs[sSys].ok) {
+                    return this._dynamicCatalogs[sSys];
                 }
-
-                // Apply live catalog
-                this._dynamicCatalogs = this._dynamicCatalogs || {};
-                this._dynamicCatalogs[sSys] = data;
-
-                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
-                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
-
-                oModel.setProperty("/adminServicesAll", aLiveServices);
-                oModel.setProperty("/adminServices", aLiveServices.slice());
-                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
-                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
-
-                // Collect all live role templates
-                const aAllRoles = [];
-                const oSeenRoles = new Set();
-                Object.keys(oLiveDetailsMap).forEach(sSvc => {
-                    const aTeams = oLiveDetailsMap[sSvc] || [];
-                    aTeams.forEach(t => {
-                        if (t && t.name && !oSeenRoles.has(t.name)) {
-                            oSeenRoles.add(t.name);
-                            aAllRoles.push({ key: t.name, text: t.name, icon: "sap-icon://user-settings" });
+                try {
+                    const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ targetSystem: sSys })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            this._dynamicCatalogs[sSys] = data;
+                            return data;
                         }
-                    });
-                });
-                oModel.setProperty("/addAccessSubRolesList", aAllRoles);
+                    }
+                } catch (err) {
+                    console.warn("[CONFIRM TARGET SYSTEMS] Fetch failed for " + sSys, err);
+                }
+                return null;
+            });
 
-                // Collect all live role collections
-                const aAllPersonas = [];
-                const oSeenPersonas = new Set();
-                Object.keys(oLiveDetailsMap).forEach(sSvc => {
-                    const aTeams = oLiveDetailsMap[sSvc] || [];
-                    aTeams.forEach(t => {
-                        (t.subClassifications || []).forEach(sub => {
-                            if (sub && sub.name && !oSeenPersonas.has(sub.name)) {
-                                oSeenPersonas.add(sub.name);
-                                aAllPersonas.push({
-                                    key: sub.name,
-                                    text: sub.name,
-                                    icon: "sap-icon://person-placeholder",
-                                    accessPrivilege: sub.accessPrivilege || "Not restricted"
-                                });
-                            }
-                        });
-                    });
-                });
-                oModel.setProperty("/addAccessPersonasList", aAllPersonas);
+            await Promise.all(aFetchPromises);
+            sap.ui.core.BusyIndicator.hide();
 
-                oModel.setProperty("/hasSelectedTargetSystems", true);
-                this._loadCurrentSystemSlideConfig(sSys);
+            // Preserve configurations for existing systems; only delete configs for removed systems
+            const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
+            Object.keys(oSlideConfigsMap).forEach(sSys => {
+                if (!aSystems.includes(sSys)) {
+                    delete oSlideConfigsMap[sSys];
+                }
+            });
+            oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
 
-                sap.m.MessageToast.show("Live access catalog loaded for " + sSys);
-            } catch (err) {
-                sap.ui.core.BusyIndicator.hide();
-                console.error("[CONFIRM TARGET SYSTEM] Error fetching live catalog:", err);
-                sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+            // Clamp current slide index
+            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
+            if (iIndex >= aSystems.length) {
+                iIndex = Math.max(0, aSystems.length - 1);
+                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
             }
+
+            // Set confirmed state
+            oModel.setProperty("/isTargetSystemsConfirmed", true);
+            oModel.setProperty("/hasSelectedTargetSystems", true);
+            oModel.setProperty("/targetSystemSlideCount", aSystems.length);
+
+            // Load current slide configuration
+            this._loadCurrentSystemSlideConfig();
+
+            sap.m.MessageToast.show("Target systems confirmed (" + aSystems.length + " selected).");
+        },
+
+        // Alias for backwards compatibility
+        async onConfirmTargetSystemSelection() {
+            return this.onConfirmTargetSystemsSelection();
+        },
+
+        onEditTargetSystemsSelection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            // Save active slide configuration so no input is lost
+            this._saveCurrentSystemSlideConfig();
+
+            // Re-open selection mode
+            oModel.setProperty("/isTargetSystemsConfirmed", false);
+
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            try {
+                const oSelect = this.byId("inPageSystemsMultiSelect");
+                if (oSelect) {
+                    oSelect.setSelectedKeys(aSystems);
+                    if (window._kyraSyncMultiDisplay) window._kyraSyncMultiDisplay(oSelect);
+                }
+            } catch(e) {}
+
+            sap.m.MessageToast.show("You can now update your target system selections. Click Confirm when finished.");
         },
 
         onInPageTargetSystemsSelectionChange(oEvent) {
@@ -7417,7 +7444,7 @@ sap.ui.define([
                 aSelectedKeys = (oModel.getProperty("/addAccessSelectedSystems") || []).slice();
             }
 
-            // If event provides changedItem (checkbox click), guarantee it is captured
+            // Capture changedItem if provided
             if (oEvent && typeof oEvent.getParameter === "function") {
                 const oChangedItem = oEvent.getParameter("changedItem");
                 const bSelected = oEvent.getParameter("selected");
@@ -7432,28 +7459,11 @@ sap.ui.define([
             }
             oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
 
-            // Require explicit confirmation click before opening slide card & fetching live data
-            oModel.setProperty("/hasSelectedTargetSystems", false);
-
             if (window._kyraSyncMultiDisplay && oSource) {
                 window._kyraSyncMultiDisplay(oSource);
             }
 
-            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-
-            if (iIndex >= aSelectedKeys.length) {
-                iIndex = Math.max(0, aSelectedKeys.length - 1);
-                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
-            }
-
-            // Clean up slide configs for systems no longer selected
-            const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
-            Object.keys(oSlideConfigsMap).forEach(sSys => {
-                if (!aSelectedKeys.includes(sSys)) {
-                    delete oSlideConfigsMap[sSys];
-                }
-            });
-            oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
+            // DO NOT load slides or fetch data here; wait for Confirm button!
         },
 
         _loadCurrentSystemSlideConfig(sSysNameOverride) {
@@ -7569,19 +7579,61 @@ sap.ui.define([
                     roleCollections: data.totalRoleCollections
                 });
 
+                // Populate distinct live role templates
+                const aAllRoles = [];
+                const oSeenRoles = new Set();
+                Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const aTeams = oLiveDetailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        if (t && t.name && !oSeenRoles.has(t.name)) {
+                            oSeenRoles.add(t.name);
+                            aAllRoles.push({ key: t.name, text: t.name, icon: "sap-icon://user-settings" });
+                        }
+                    });
+                });
+                oModel.setProperty("/addAccessSubRolesList", aAllRoles);
+
+                // Populate distinct live role collections
+                const aAllPersonas = [];
+                const oSeenPersonas = new Set();
+                Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const aTeams = oLiveDetailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        (t.subClassifications || []).forEach(sub => {
+                            if (sub && sub.name && !oSeenPersonas.has(sub.name)) {
+                                oSeenPersonas.add(sub.name);
+                                aAllPersonas.push({
+                                    key: sub.name,
+                                    text: sub.name,
+                                    icon: "sap-icon://person-placeholder",
+                                    accessPrivilege: sub.accessPrivilege || "Not restricted"
+                                });
+                            }
+                        });
+                    });
+                });
+                oModel.setProperty("/addAccessPersonasList", aAllPersonas);
+
                 this._updateSubRolesList(true);
                 this._updatePersonasList(true);
-
-                console.log("[DYNAMIC CATALOG] Activated live catalog for " + sTarget + ": " + data.totalServices + " Services, " + data.totalRoles + " Roles, " + data.totalRoleCollections + " Role Collections.");
 
                 if (typeof fnCallback === "function") fnCallback();
             };
 
-            // Check if already in memory cache
-            if (this._dynamicCatalogs[sTarget]) {
+            // If dynamic catalog is already cached from confirm step, apply immediately without showing extra loader
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sTarget] && this._dynamicCatalogs[sTarget].ok) {
                 applyCatalog(this._dynamicCatalogs[sTarget]);
                 return;
             }
+
+            // If dynamic catalog is already cached from confirm step, apply immediately without showing extra loader
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sTarget] && this._dynamicCatalogs[sTarget].ok) {
+                applyCatalog(this._dynamicCatalogs[sTarget]);
+                return;
+            }
+
+            // Display loading indicator while fetching live data from SAP BTP
+            sap.ui.core.BusyIndicator.show(0);
 
             try {
                 const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
@@ -7590,16 +7642,24 @@ sap.ui.define([
                     body: JSON.stringify({ targetSystem: sTarget })
                 });
 
+                sap.ui.core.BusyIndicator.hide();
+
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.ok) {
                         this._dynamicCatalogs[sTarget] = data;
                         applyCatalog(data);
                         return;
+                    } else {
+                        sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                     }
+                } else {
+                    sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                 }
             } catch (err) {
-                console.warn("[DYNAMIC CATALOG] Failed to load dynamic subaccount catalog:", err);
+                sap.ui.core.BusyIndicator.hide();
+                console.warn("[DYNAMIC CATALOG] Live fetch failed:", err);
+                sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
             }
 
             if (typeof fnCallback === "function") fnCallback();
@@ -7763,6 +7823,16 @@ sap.ui.define([
             }
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            if (!oModel.getProperty("/isTargetSystemsConfirmed")) {
+                sap.m.MessageBox.warning("Please select target systems and click Confirm before proceeding.");
+                return;
+            }
+
+            if (!oModel.getProperty("/isTargetSystemsConfirmed")) {
+                sap.m.MessageBox.warning("Please select target systems and click Confirm before proceeding.");
+                return;
+            }
+
             if (aSystems.length === 0) {
                 KyraDialog.show({
                     type: "error",

@@ -4801,7 +4801,7 @@
                                 columnsM="2"
                                 columnsL="2"
                                 singleContainerFullWidth="false"
-                                visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }"
+                                visible="{= !${accessModel>/isEditingFromSummary} }"
                                 class="sapUiSmallMarginBottom">
                                 <form:content>
                                     <core:Title text="Target Systems &amp; Process Selection" />
@@ -4815,25 +4815,35 @@
                                         items="{accessModel>/activeAdminSystems}"
                                         placeholder="Select target system processes..."
                                         width="100%"
+                                        enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
                                         class="fioriFormSelect">
                                         <core:Item key="{accessModel>systemName}" text="{accessModel>systemName}" />
                                     </MultiComboBox>
-                                    <Label text="" />
-                                    <HBox alignItems="Center" gap="12px" class="sapUiTinyMarginTop">
-                                        <Button
-                                            id="btnConfirmTargetSystem"
-                                            text="Confirm System &amp; Fetch Live Access"
-                                            type="Emphasized"
-                                            icon="sap-icon://accept"
-                                            press=".onConfirmTargetSystemSelection"
-                                            enabled="{= !!${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }"
-                                            class="kyraPrimaryBtn" />
-                                    </HBox>
                                 </form:content>
                             </form:SimpleForm>
 
+                            <!-- TARGET SYSTEMS CONFIRM &amp; EDIT ACTION ROW (Right bottom corner of Target Systems section) -->
+                            <HBox justifyContent="End" alignItems="Center" class="sapUiTinyMarginTop sapUiSmallMarginBottom" visible="{= !${accessModel>/isEditingFromSummary} }">
+                                <Button
+                                    id="btnEditTargetSystems"
+                                    text="Edit"
+                                    icon="sap-icon://edit"
+                                    type="Default"
+                                    press=".onEditTargetSystemsSelection"
+                                    visible="{accessModel>/isTargetSystemsConfirmed}"
+                                    class="kyraSecondaryBtn sapUiSmallMarginEnd" />
+                                <Button
+                                    id="btnConfirmTargetSystems"
+                                    text="Confirm"
+                                    icon="sap-icon://accept"
+                                    type="Emphasized"
+                                    press=".onConfirmTargetSystemsSelection"
+                                    enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
+                                    class="kyraPrimaryBtn" />
+                            </HBox>
+
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                            <VBox id="targetSystemSlideCard" visible="{= ${accessModel>/hasSelectedTargetSystems} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                            <VBox id="targetSystemSlideCard" visible="{accessModel>/isTargetSystemsConfirmed}" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">
