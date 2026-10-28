@@ -5,11 +5,11 @@
       <stop offset="100%" stop-color="#0D9488" />
     </linearGradient>
     <filter id="badgeShadow1" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0D9488" flood-opacity="0.35" />
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.18" />
     </filter>
   </defs>
-  <!-- Background Circle -->
-  <circle cx="36" cy="36" r="34" fill="url(#iamBadgeGrad1)" filter="url(#badgeShadow1)" />
+  <!-- Background Circle with White Ring -->
+  <circle cx="36" cy="36" r="31" fill="url(#iamBadgeGrad1)" stroke="#FFFFFF" stroke-width="4" filter="url(#badgeShadow1)" />
   
   <!-- White User Silhouette -->
   <!-- Head -->

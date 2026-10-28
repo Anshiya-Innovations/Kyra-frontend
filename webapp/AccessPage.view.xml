@@ -1935,22 +1935,23 @@
                                 </VBox>
                             </HBox>
 
-                                                        <!-- ========================================================================= -->
-                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 2 Match)       -->
+                                                                                    <!-- ========================================================================= -->
+                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 3 Match)       -->
                             <!-- ========================================================================= -->
                             <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
-                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="86px">
+                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="72px">
                                     
                                     <!-- ================================================================= -->
-                                    <!-- CARD 1: IAM 1 (Teal Theme - Exact Image 2 Match)                  -->
+                                    <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
                                     <!-- ================================================================= -->
                                     <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter1" alignItems="Center" justifyContent="Center">
-                                        <!-- Layered Background Shape (Cyan / Light Teal rotated clockwise) -->
-                                        <HBox class="kyraIamBgShape kyraIamBgShapeTeal" />
+                                        <!-- Overlapping Teal Decorative Shapes behind White Card -->
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape1_left" />
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape1_right" />
 
-                                        <!-- Foreground Card (Deep Teal rotated counter-clockwise) -->
+                                        <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover1"
-                                            class="{= 'kyraIamFrontCard kyraIamFrontCardTeal fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
+                                            class="{= 'kyraIamWhiteCard kyraIamWhiteCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
                                             alignItems="Center"
                                             justifyContent="Center"
                                             press=".onSelectIamApprover1">
@@ -1958,11 +1959,14 @@
                                                 <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
                                             </customData>
 
-                                            <!-- Top Center Circle Badge with Soft Drop Shadow -->
-                                            <HBox class="kyraIamCircleBadge kyraIamCircleBadgeTeal" alignItems="Center" justifyContent="Center" />
+                                            <!-- Circular User-and-Shield Badge Floating Above Card -->
+                                            <HBox class="kyraIamFloatingBadge" alignItems="Center" justifyContent="Center">
+                                                <Image src="images/iam_approver1_badge.svg" width="68px" height="68px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 1 Icon" />
+                                            </HBox>
 
-                                            <!-- Card Title: IAM 1 -->
-                                            <Text text="IAM 1" class="kyraIamCardTitle" />
+                                            <!-- Card Title & Subtitle -->
+                                            <Text text="IAM 1" class="kyraIamCardHeaderTitle" />
+                                            <Text text="Your access. Our priority." class="kyraIamCardHeaderSubtitle" />
                                         </VBox>
 
                                         <!-- Hidden anchor arrow for controller compatibility -->
@@ -1970,15 +1974,16 @@
                                     </HBox>
 
                                     <!-- ================================================================= -->
-                                    <!-- CARD 2: IAM 2 (Purple Theme - Exact Image 2 Match)                -->
+                                    <!-- CARD 2: IAM 2 (Purple Enterprise White Card - Exact Image 3 Match) -->
                                     <!-- ================================================================= -->
                                     <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter2" alignItems="Center" justifyContent="Center">
-                                        <!-- Layered Background Shape (Periwinkle / Light Purple rotated clockwise) -->
-                                        <HBox class="kyraIamBgShape kyraIamBgShapePurple" />
+                                        <!-- Overlapping Purple Decorative Shapes behind White Card -->
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape2_left" />
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape2_right" />
 
-                                        <!-- Foreground Card (Royal Purple / Blue rotated counter-clockwise) -->
+                                        <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover2"
-                                            class="{= 'kyraIamFrontCard kyraIamFrontCardPurple fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
+                                            class="{= 'kyraIamWhiteCard kyraIamWhiteCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
                                             alignItems="Center"
                                             justifyContent="Center"
                                             press=".onSelectIamApprover2">
@@ -1986,11 +1991,14 @@
                                                 <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
                                             </customData>
 
-                                            <!-- Top Center Circle Badge with Soft Drop Shadow -->
-                                            <HBox class="kyraIamCircleBadge kyraIamCircleBadgePurple" alignItems="Center" justifyContent="Center" />
+                                            <!-- Circular User-and-Shield Badge Floating Above Card -->
+                                            <HBox class="kyraIamFloatingBadge" alignItems="Center" justifyContent="Center">
+                                                <Image src="images/iam_approver2_badge.svg" width="68px" height="68px" densityAware="false" class="kyraIamBadgeImg" alt="IAM 2 Icon" />
+                                            </HBox>
 
-                                            <!-- Card Title: IAM 2 -->
-                                            <Text text="IAM 2" class="kyraIamCardTitle" />
+                                            <!-- Card Title & Subtitle -->
+                                            <Text text="IAM 2" class="kyraIamCardHeaderTitle" />
+                                            <Text text="More people. More possibilities." class="kyraIamCardHeaderSubtitle" />
                                         </VBox>
 
                                         <!-- Hidden anchor arrow for controller compatibility -->
@@ -5766,25 +5774,25 @@
                         <!-- Col 3: System -->
                         <VBox class="kyraTrackCol kyraTrackColSystem">
                             <Text text="SYSTEM" class="kyraTrackColLabel" wrapping="false" />
-                            <Text text="{accessModel>/selectedRequestDetail/system}" tooltip="{accessModel>/selectedRequestDetail/system}" wrapping="false" class="kyraTrackValText" />
+                            <Text text="{accessModel>/selectedRequestDetail/system}" tooltip="{accessModel>/selectedRequestDetail/system}" wrapping="true" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 4: Services -->
                         <VBox class="kyraTrackCol kyraTrackColServices">
                             <Text text="SERVICES" class="kyraTrackColLabel" wrapping="false" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" tooltip="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" wrapping="false" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" tooltip="{= ${accessModel>/selectedRequestDetail/services} || ${accessModel>/selectedRequestDetail/serviceTopic} }" wrapping="true" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 5: Team -->
                         <VBox class="kyraTrackCol kyraTrackColTeam">
                             <Text text="TEAM" class="kyraTrackColLabel" wrapping="false" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" tooltip="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" wrapping="false" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" tooltip="{= ${accessModel>/selectedRequestDetail/team} || ${accessModel>/selectedRequestDetail/teamName} || ${accessModel>/selectedRequestDetail/roleTitle} || ${accessModel>/selectedRequestDetail/roleName} }" wrapping="true" class="kyraTrackValText" />
                         </VBox>
 
                         <!-- Col 6: Persona -->
                         <VBox class="kyraTrackCol kyraTrackColPersona kyraTrackColLast">
                             <Text text="PERSONA" class="kyraTrackColLabel" wrapping="false" />
-                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" tooltip="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" wrapping="false" class="kyraTrackValText" />
+                            <Text text="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" tooltip="{= ${accessModel>/selectedRequestDetail/persona} || ${accessModel>/selectedRequestDetail/selectedPersona} }" wrapping="true" class="kyraTrackValText" />
                         </VBox>
 
                     </HBox>
