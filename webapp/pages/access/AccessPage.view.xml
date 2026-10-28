@@ -4818,6 +4818,17 @@
                                         class="fioriFormSelect">
                                         <core:Item key="{accessModel>systemName}" text="{accessModel>systemName}" />
                                     </MultiComboBox>
+                                    <Label text="" />
+                                    <HBox alignItems="Center" gap="12px" class="sapUiTinyMarginTop">
+                                        <Button
+                                            id="btnConfirmTargetSystem"
+                                            text="Confirm System &amp; Fetch Live Access"
+                                            type="Emphasized"
+                                            icon="sap-icon://accept"
+                                            press=".onConfirmTargetSystemSelection"
+                                            enabled="{= !!${accessModel>/addAccessSelectedSystems} &amp;&amp; ${accessModel>/addAccessSelectedSystems}.length &gt; 0 }"
+                                            class="kyraPrimaryBtn" />
+                                    </HBox>
                                 </form:content>
                             </form:SimpleForm>
 
@@ -4870,7 +4881,7 @@
                                             items="{accessModel>/addAccessSubRolesList}"
                                             placeholder="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Select role templates for this system...' : 'Select team roles for this system...' }"
                                             width="100%"
-                                            enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
+                                            enabled="true"
                                             class="fioriFormSelect">
                                             <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </MultiComboBox>
@@ -4884,7 +4895,7 @@
                                             items="{accessModel>/addAccessPersonasList}"
                                             placeholder="{= ((${accessModel>/currentSystemSlideName} &amp;&amp; (${accessModel>/currentSystemSlideName}.indexOf('SAP Business Technology Platform') !== -1 || ${accessModel>/currentSystemSlideName}.indexOf('SAP BTP') !== -1))) ? 'Select role collections for this system...' : 'Select personas for this system...' }"
                                             width="100%"
-                                            enabled="{= !!${accessModel>/addAccessSelectedServices} &amp;&amp; ${accessModel>/addAccessSelectedServices}.length &gt; 0 }"
+                                            enabled="true"
                                             class="fioriFormSelect">
                                             <core:Item key="{accessModel>key}" text="{accessModel>text}" />
                                         </MultiComboBox>

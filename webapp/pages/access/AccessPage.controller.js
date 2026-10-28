@@ -7306,6 +7306,98 @@ sap.ui.define([
             this._scrollToWizardContainer();
         },
 
+        async onConfirmTargetSystemSelection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            if (!Array.isArray(aSystems) || aSystems.length === 0) {
+                sap.m.MessageToast.show("Please select at least one target system.");
+                return;
+            }
+
+            const iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
+            const sSys = aSystems[iIndex] || aSystems[0];
+
+            sap.ui.core.BusyIndicator.show(0);
+            try {
+                const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ targetSystem: sSys })
+                });
+
+                sap.ui.core.BusyIndicator.hide();
+
+                if (!res.ok) {
+                    sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data || !data.ok) {
+                    sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    return;
+                }
+
+                // Apply live catalog
+                this._dynamicCatalogs = this._dynamicCatalogs || {};
+                this._dynamicCatalogs[sSys] = data;
+
+                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+
+                oModel.setProperty("/adminServicesAll", aLiveServices);
+                oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
+                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+
+                // Collect all live role templates
+                const aAllRoles = [];
+                const oSeenRoles = new Set();
+                Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const aTeams = oLiveDetailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        if (t && t.name && !oSeenRoles.has(t.name)) {
+                            oSeenRoles.add(t.name);
+                            aAllRoles.push({ key: t.name, text: t.name, icon: "sap-icon://user-settings" });
+                        }
+                    });
+                });
+                oModel.setProperty("/addAccessSubRolesList", aAllRoles);
+
+                // Collect all live role collections
+                const aAllPersonas = [];
+                const oSeenPersonas = new Set();
+                Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const aTeams = oLiveDetailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        (t.subClassifications || []).forEach(sub => {
+                            if (sub && sub.name && !oSeenPersonas.has(sub.name)) {
+                                oSeenPersonas.add(sub.name);
+                                aAllPersonas.push({
+                                    key: sub.name,
+                                    text: sub.name,
+                                    icon: "sap-icon://person-placeholder",
+                                    accessPrivilege: sub.accessPrivilege || "Not restricted"
+                                });
+                            }
+                        });
+                    });
+                });
+                oModel.setProperty("/addAccessPersonasList", aAllPersonas);
+
+                oModel.setProperty("/hasSelectedTargetSystems", true);
+                this._loadCurrentSystemSlideConfig(sSys);
+
+                sap.m.MessageToast.show("Live access catalog loaded for " + sSys);
+            } catch (err) {
+                sap.ui.core.BusyIndicator.hide();
+                console.error("[CONFIRM TARGET SYSTEM] Error fetching live catalog:", err);
+                sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+            }
+        },
+
         onInPageTargetSystemsSelectionChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -7340,8 +7432,8 @@ sap.ui.define([
             }
             oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
 
-            const bHasSystems = Array.isArray(aSelectedKeys) && aSelectedKeys.length > 0;
-            oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);
+            // Require explicit confirmation click before opening slide card & fetching live data
+            oModel.setProperty("/hasSelectedTargetSystems", false);
 
             if (window._kyraSyncMultiDisplay && oSource) {
                 window._kyraSyncMultiDisplay(oSource);
@@ -7362,8 +7454,6 @@ sap.ui.define([
                 }
             });
             oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
-
-            this._loadCurrentSystemSlideConfig();
         },
 
         _loadCurrentSystemSlideConfig(sSysNameOverride) {
@@ -16119,7 +16209,9 @@ sap.ui.define([
             }
 
             oModel.setProperty("/selectedAdminSystemName", sSystemName);
-            oModel.setProperty("/adminCustomizationStep", 2);
+
+            // Display loading screen
+            sap.ui.core.BusyIndicator.show(0);
 
             try {
                 const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
@@ -16127,41 +16219,50 @@ sap.ui.define([
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ targetSystem: sSystemName })
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.ok) {
-                        const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
-                        const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
 
-                        oModel.setProperty("/adminServicesAll", aLiveServices);
-                        oModel.setProperty("/adminServices", aLiveServices.slice());
-                        oModel.setProperty("/activeAdminServices", aLiveServices.slice());
-                        oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+                sap.ui.core.BusyIndicator.hide();
 
-                        if (aLiveServices.length > 0) {
-                            const firstSvc = aLiveServices[0].serviceName;
-                            oModel.setProperty("/selectedAdminServiceName", firstSvc);
-                            const aTeams = oLiveDetailsMap[firstSvc] || [];
-                            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
-                            oModel.setProperty("/adminClassifications", aTeamsCopy);
-                            oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
-                        } else {
-                            oModel.setProperty("/selectedAdminServiceName", "");
-                            oModel.setProperty("/adminClassifications", []);
-                            oModel.setProperty("/selectedAdminClassification", null);
-                        }
-                    }
-                } else {
-                    this._ensureSystemServicesPopulated(oModel, sSystemName);
+                if (!res.ok) {
+                    sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    return;
                 }
-            } catch (err) {
-                console.warn("[ADMIN SYSTEM TO SERVICES] Error loading live catalog for " + sSystemName, err);
-                this._ensureSystemServicesPopulated(oModel, sSystemName);
-            }
 
-            setTimeout(() => {
-                this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
-            }, 60);
+                const data = await res.json();
+                if (!data || !data.ok) {
+                    sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    return;
+                }
+
+                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+
+                oModel.setProperty("/adminServicesAll", aLiveServices);
+                oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
+                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+
+                if (aLiveServices.length > 0) {
+                    const firstSvc = aLiveServices[0].serviceName;
+                    oModel.setProperty("/selectedAdminServiceName", firstSvc);
+                    const aTeams = oLiveDetailsMap[firstSvc] || [];
+                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
+                    oModel.setProperty("/adminClassifications", aTeamsCopy);
+                    oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+                } else {
+                    oModel.setProperty("/selectedAdminServiceName", "");
+                    oModel.setProperty("/adminClassifications", []);
+                    oModel.setProperty("/selectedAdminClassification", null);
+                }
+
+                oModel.setProperty("/adminCustomizationStep", 2);
+                setTimeout(() => {
+                    this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
+                }, 60);
+            } catch (err) {
+                sap.ui.core.BusyIndicator.hide();
+                console.error("[ADMIN SYSTEM TO SERVICES] Error loading live catalog for " + sSystemName, err);
+                sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+            }
         },
 
         onBackToAdminSystems() {
@@ -19819,7 +19920,11 @@ sap.ui.define([
                             const data = await res.json();
                             if (data && data.ok) {
                                 this._dynamicCatalogs[sChosenSys] = data;
+                            } else {
+                                sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                             }
+                        } else {
+                            sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                         }
                     } catch (e) {
                         console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sChosenSys, e);
