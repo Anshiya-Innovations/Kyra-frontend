@@ -64404,10 +64404,10 @@ html body .sapUiTheme-sap_horizon .kyraIamCardsRow {
 .sapMFlexBox.kyraIamCardOuterWrapper,
 html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper {
     position: relative !important;
-    width: 485px !important;
-    height: 215px !important;
-    min-width: 485px !important;
-    min-height: 215px !important;
+    width: 565px !important;
+    height: 300px !important;
+    min-width: 565px !important;
+    min-height: 300px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
@@ -64434,23 +64434,23 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
 }
 
 /* ========================================================================= */
-/* EXACT REFERENCE MATCH: DYNAMIC HOVER MOVEMENT OF BACKGROUND LAYERS        */
-/* Colors sampled from reference: #0188AA (Dark Teal) and #1DC1AE (Mint Teal)*/
-/* Hover time: smoothly fans out into the exact overlapping dual-tab shape   */
+/* EXACT REFERENCE MATCH: media_1793208081278_e1e8afcd.png                  */
+/* Colors sampled directly: #05A6B1 to #007D88 (Teal) and #3DC0B0 to #24B1A0 (Mint) */
+/* Resting: Visible layered tabs behind card. Hover: In-place smooth fanning */
 /* ========================================================================= */
 
-/* Layer 1 (Back / Dark Teal): Resting position in normal state, fans out on hover */
+/* Layer 1 (Dark Teal, Back): Peeks out at top-right and extends behind mint layer */
 .kyraIamCardOuter1::before,
 .kyraIamCardOuter2::before {
     content: '' !important;
     position: absolute !important;
-    right: 16px !important;
-    top: 10px !important;
-    width: 140px !important;
-    height: 194px !important;
-    border-radius: 26px !important;
-    background: linear-gradient(135deg, #0188AA 0%, #00758A 100%) !important;
-    background-color: #0188AA !important;
+    right: 18px !important;
+    top: 12px !important;
+    width: 175px !important;
+    height: 268px !important;
+    border-radius: 34px !important;
+    background: linear-gradient(145deg, #05A6B1 0%, #007D88 100%) !important;
+    background-color: #05A6B1 !important;
     transform: rotate(-1.5deg) !important;
     transform-origin: 70% 30% !important;
     z-index: 0 !important;
@@ -64458,39 +64458,39 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
     box-sizing: border-box !important;
     opacity: 1 !important;
     visibility: visible !important;
-    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), top 0.32s cubic-bezier(0.16, 1, 0.3, 1), right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.35s cubic-bezier(0.16, 1, 0.3, 1), right 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Layer 2 (Front / Turquoise Mint): Resting position in normal state, fans out on hover */
+/* Layer 2 (Turquoise Mint, Middle): Overlaps in front of dark teal, extends out furthest */
 .kyraIamCardOuter1::after,
 .kyraIamCardOuter2::after {
     content: '' !important;
     position: absolute !important;
-    right: 10px !important;
-    top: 22px !important;
-    width: 142px !important;
-    height: 172px !important;
-    border-radius: 30px !important;
-    background: linear-gradient(135deg, #2DD4BF 0%, #1DC1AE 100%) !important;
-    background-color: #1DC1AE !important;
-    transform: rotate(1.5deg) !important;
+    right: 8px !important;
+    top: 30px !important;
+    width: 175px !important;
+    height: 242px !important;
+    border-radius: 36px !important;
+    background: linear-gradient(145deg, #3DC0B0 0%, #24B1A0 100%) !important;
+    background-color: #3DC0B0 !important;
+    transform: rotate(2deg) !important;
     transform-origin: 75% 85% !important;
     z-index: 1 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
     opacity: 1 !important;
     visibility: visible !important;
-    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), top 0.32s cubic-bezier(0.16, 1, 0.3, 1), right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), top 0.35s cubic-bezier(0.16, 1, 0.3, 1), right 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* HOVER TIME ONLY: MOVE BACKGROUND LAYERS IN THE SAME PLACE (EXACT REFERENCE MATCH) */
+/* HOVER TIME: SMOOTH DYNAMIC FANNING IN THE SAME PLACE (CARD STAYS ANCHORED) */
 .kyraIamCardOuterWrapper:hover::before,
 .kyraIamCardOuterWrapper:has(.kyraIamWhiteCard:hover)::before,
 .kyraIamCardOuter1:hover::before,
 .kyraIamCardOuter2:hover::before {
-    transform: rotate(-5.5deg) !important;
+    transform: rotate(-4.5deg) !important;
     top: 8px !important;
-    right: 14px !important;
+    right: 16px !important;
     opacity: 1 !important;
     visibility: visible !important;
 }
@@ -64499,16 +64499,16 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
 .kyraIamCardOuterWrapper:has(.kyraIamWhiteCard:hover)::after,
 .kyraIamCardOuter1:hover::after,
 .kyraIamCardOuter2:hover::after {
-    transform: rotate(5.8deg) !important;
-    top: 22px !important;
-    right: 12px !important;
+    transform: rotate(4.8deg) !important;
+    top: 32px !important;
+    right: 6px !important;
     opacity: 1 !important;
     visibility: visible !important;
 }
 
 /* ========================================================================= */
 /* FOREGROUND WHITE CARD: REMAINS ANCHORED (NO JUMPING / SHIFTING)           */
-/* Matches Image: 2px Teal Border, 24px Radius, Content Stays Crisp          */
+/* Matches Image: Large Card 495x284, 34px Radius, Soft Shadow & Crisp Border */
 /* ========================================================================= */
 
 .kyraIamWhiteCard,
@@ -64518,15 +64518,15 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 [id$="cardSelectIamApprover2"] {
     position: relative !important;
     z-index: 2 !important;
-    width: 450px !important;
-    height: 210px !important;
-    min-width: 450px !important;
-    min-height: 210px !important;
+    width: 495px !important;
+    height: 284px !important;
+    min-width: 495px !important;
+    min-height: 284px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border-radius: 24px !important;
-    border: 2px solid #008C9C !important;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.03) !important;
+    border-radius: 34px !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.05), 0 2px 6px rgba(15, 23, 42, 0.02) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
@@ -64534,12 +64534,12 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
     cursor: pointer !important;
     user-select: none !important;
     box-sizing: border-box !important;
-    padding: 16px 20px !important;
+    padding: 24px 28px 22px 28px !important;
     margin: 0 !important;
     overflow: visible !important;
     pointer-events: auto !important;
     transform: none !important;
-    transition: box-shadow 0.25s ease !important;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease !important;
 }
 
 /* Hover: Strictly NO change to card position or size (card stays anchored) */
@@ -64547,13 +64547,13 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 [id$="cardSelectIamApprover1"]:hover,
 [id$="cardSelectIamApprover2"]:hover {
     transform: none !important;
-    border-color: #008C9C !important;
-    box-shadow: 0 16px 36px rgba(0, 140, 156, 0.16), 0 3px 10px rgba(15, 23, 42, 0.05) !important;
+    border-color: #05A6B1 !important;
+    box-shadow: 0 18px 44px rgba(5, 166, 177, 0.16), 0 4px 12px rgba(15, 23, 42, 0.04) !important;
 }
 
 .kyraIamWhiteCard:hover .kyraIamCardChevron {
-    color: #008C9C !important;
-    transform: translateX(2px) !important;
+    color: #05A6B1 !important;
+    transform: translateX(3px) !important;
 }
 
 /* Selected States */
@@ -64564,7 +64564,7 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 [id$="cardSelectIamApprover1"].kyraSubIntegrationCardActive,
 [id$="cardSelectIamApprover2"].kyraSubIntegrationCardActive {
     border: 2px solid #008C9C !important;
-    box-shadow: 0 12px 34px rgba(0, 140, 156, 0.22) !important;
+    box-shadow: 0 14px 38px rgba(0, 140, 156, 0.22) !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
 }
@@ -64594,20 +64594,20 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 .sapMFlexBox.kyraIamCardHeaderLeft {
     display: flex !important;
     align-items: center !important;
-    gap: 14px !important;
+    gap: 16px !important;
 }
 
-/* Squircle Icon Container */
+/* Squircle Icon Container (Sampled: #E3F6F5, 60x60, radius 20px) */
 .kyraIamIconSquircle,
 .sapMFlexBox.kyraIamIconSquircle {
-    width: 48px !important;
-    height: 48px !important;
-    min-width: 48px !important;
-    min-height: 48px !important;
-    border-radius: 14px !important;
-    background: #E0F7F6 !important;
-    background-color: #E0F7F6 !important;
-    border: 1.5px solid rgba(0, 140, 156, 0.18) !important;
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+    border-radius: 20px !important;
+    background: #E3F6F5 !important;
+    background-color: #E3F6F5 !important;
+    border: 1px solid rgba(5, 166, 177, 0.12) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -64617,15 +64617,15 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 
 .kyraIamIconSquircle1,
 .kyraIamIconSquircle2 {
-    background: #E0F7F6 !important;
-    background-color: #E0F7F6 !important;
-    border: 1.5px solid rgba(0, 140, 156, 0.18) !important;
+    background: #E3F6F5 !important;
+    background-color: #E3F6F5 !important;
+    border: 1px solid rgba(5, 166, 177, 0.12) !important;
 }
 
 .kyraIamSquircleIcon,
 .kyraIamSquircleIcon.sapUiIcon {
-    font-size: 22px !important;
-    color: #008C9C !important;
+    font-size: 26px !important;
+    color: #05A6B1 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -64648,7 +64648,7 @@ html body .sapUiTheme-sap_horizon .kyraIamWhiteCard,
 .kyraIamCardTopTitle,
 .kyraIamCardTopTitle.sapMText,
 html body .sapUiTheme-sap_horizon .kyraIamCardTopTitle {
-    font-size: 18px !important;
+    font-size: 22px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
     line-height: 1.2 !important;
@@ -64661,34 +64661,35 @@ html body .sapUiTheme-sap_horizon .kyraIamCardTopTitle {
 .kyraIamCardTopSubtitle,
 .kyraIamCardTopSubtitle.sapMText,
 html body .sapUiTheme-sap_horizon .kyraIamCardTopSubtitle {
-    font-size: 12.5px !important;
+    font-size: 14px !important;
     font-weight: 400 !important;
     color: #64748B !important;
     line-height: 1.3 !important;
-    margin: 2px 0 0 0 !important;
+    margin: 4px 0 0 0 !important;
 }
 
 /* Card Top Right Chevron */
 .kyraIamCardChevron,
 .kyraIamCardChevron.sapUiIcon {
-    font-size: 15px !important;
+    font-size: 20px !important;
     color: #94A3B8 !important;
     transition: transform 0.2s ease, color 0.2s ease !important;
 }
 
-/* Bottom Details Tray: 3 Columns */
+/* Bottom Details Tray: 3 Columns (Sampled: #F6FDFB, radius 20px, border #E6F4F1) */
 .kyraIamDetailsTray,
 .sapMFlexBox.kyraIamDetailsTray {
-    background: #F8FAFC !important;
-    background-color: #F8FAFC !important;
-    border-radius: 13px !important;
-    padding: 10px 14px 12px 14px !important;
+    background: #F6FDFB !important;
+    background-color: #F6FDFB !important;
+    border: 1px solid #E6F4F1 !important;
+    border-radius: 20px !important;
+    padding: 14px 20px 16px 20px !important;
     width: 100% !important;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: stretch !important;
     justify-content: space-between !important;
-    margin-top: 10px !important;
+    margin-top: 18px !important;
 }
 
 .kyraIamTrayCol,
@@ -64701,54 +64702,54 @@ html body .sapUiTheme-sap_horizon .kyraIamCardTopSubtitle {
 }
 
 .kyraIamTrayCol1 {
-    width: 38% !important;
+    width: 35% !important;
 }
 
 .kyraIamTrayCol2 {
-    width: 32% !important;
+    width: 34% !important;
 }
 
 .kyraIamTrayCol3 {
-    width: 30% !important;
+    width: 31% !important;
 }
 
 .kyraIamTrayColDivider {
-    border-left: 1px solid #E2E8F0 !important;
-    padding-left: 12px !important;
+    border-left: 1px solid #EAF1F3 !important;
+    padding-left: 18px !important;
 }
 
-/* Mini Squircle Badges */
+/* Mini Squircle Badges (Sampled: #DEF8F0, radius 12px, 36x36) */
 .kyraIamMiniIconBadge,
 .sapMFlexBox.kyraIamMiniIconBadge {
-    width: 26px !important;
-    height: 26px !important;
-    min-width: 26px !important;
-    min-height: 26px !important;
-    border-radius: 7px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 12px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
     flex-shrink: 0 !important;
 }
 
 .kyraIamMiniBadge1,
 .kyraIamMiniBadge2 {
-    background: #DCFCE7 !important;
+    background: #DEF8F0 !important;
 }
 
 .kyraIamMiniBadgePending,
 .sapMFlexBox.kyraIamMiniBadgePending {
-    width: 26px !important;
-    height: 26px !important;
-    min-width: 26px !important;
-    min-height: 26px !important;
-    border-radius: 7px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    border-radius: 12px !important;
     background: #FEF3C7 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin-bottom: 6px !important;
+    margin-bottom: 8px !important;
     flex-shrink: 0 !important;
 }
 
@@ -64756,68 +64757,67 @@ html body .sapUiTheme-sap_horizon .kyraIamCardTopSubtitle {
 .kyraIamMiniIcon1.sapUiIcon,
 .kyraIamMiniIcon2,
 .kyraIamMiniIcon2.sapUiIcon {
-    font-size: 13px !important;
-    color: #16A34A !important;
+    font-size: 16px !important;
+    color: #059669 !important;
 }
 
 .kyraIamMiniIconPending,
 .kyraIamMiniIconPending.sapUiIcon {
-    font-size: 13px !important;
+    font-size: 16px !important;
     color: #D97706 !important;
 }
 
 .kyraIamDetailLabel,
 .kyraIamDetailLabel.sapMText {
-    font-size: 11px !important;
+    font-size: 11.5px !important;
     font-weight: 500 !important;
-    color: #64748B !important;
+    color: #8A99AD !important;
     line-height: 1.2 !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 3px !important;
 }
 
 .kyraIamDetailValue,
 .kyraIamDetailValue.sapMText {
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
     color: #0F172A !important;
     line-height: 1.25 !important;
-    word-break: break-word !important;
-    min-height: 32px !important;
-    display: flex !important;
-    align-items: flex-start !important;
 }
 
-/* Status Pill Badges */
+/* Status Pill Badges (Exact Reference Match) */
 .kyraIamStatusPill,
 .sapMFlexBox.kyraIamStatusPill {
-    border-radius: 12px !important;
-    padding: 3px 9px !important;
+    border-radius: 20px !important;
+    padding: 4px 14px !important;
     display: inline-flex !important;
     align-items: center !important;
+    gap: 6px !important;
     margin-top: 2px !important;
 }
 
 .kyraIamStatusPillConnected {
-    background: #DCFCE7 !important;
+    background: #DEF8F0 !important;
+    border: 1px solid #A7F3D0 !important;
 }
 
 .kyraIamStatusPillTextConnected,
 .kyraIamStatusPillTextConnected.sapMText {
-    color: #15803D !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
+    color: #047857 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
     line-height: 1.2 !important;
 }
 
 .kyraIamStatusPillPending {
     background: #FEF3C7 !important;
+    border: 1px solid #FDE68A !important;
 }
 
 .kyraIamStatusPillTextPending,
 .kyraIamStatusPillTextPending.sapMText {
     color: #B45309 !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
     line-height: 1.2 !important;
 }
 
@@ -65447,3 +65447,28 @@ html body .sapUiTheme-sap_horizon .kyraEnterpriseBtnOutline .sapMBtnInner {
 }
 
 /* ========================================================================= */
+
+/* Entra ID Icon Sizing in Squircle */
+.kyraIamSquircleImg,
+.kyraIamSquircleImg.sapMImg {
+    width: 38px !important;
+    height: 38px !important;
+    display: inline-block !important;
+    object-fit: contain !important;
+}
+
+/* Clean light background with subtle gradient & soft shadows matching reference */
+#iamIntegrationContainer,
+#iamIntegrationContainer.kyraDarkStudioWrapper,
+html body [id$="iamIntegrationContainer"] {
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%) !important;
+    background-color: #F8FAFC !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 28px !important;
+    padding: 34px 40px 38px 40px !important;
+    box-shadow: 0 10px 32px rgba(15, 23, 42, 0.04) !important;
+    box-sizing: border-box !important;
+    max-width: 1260px !important;
+    width: 100% !important;
+    margin: 12px auto 32px auto !important;
+}

@@ -1959,7 +1959,7 @@
                                                 <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
                                                     <!-- Squircle Icon Box with Microsoft Entra ID -->
                                                     <HBox class="kyraIamIconSquircle kyraIamIconSquircle1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://customer" class="kyraIamSquircleIcon kyraIamSquircleIcon1" />
+                                                        <Image src="images/entra_id_icon.svg" width="38px" height="38px" densityAware="false" class="kyraIamSquircleImg kyraIamSquircleImg1" />
                                                     </HBox>
                                                     <VBox class="kyraIamCardTitleBox">
                                                         <Text text="IAM 1" class="kyraIamCardTopTitle" />
@@ -1972,7 +1972,7 @@
                                             <!-- Bottom Details Tray: 3 Columns -->
                                             <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray1" alignItems="Stretch">
                                                 <!-- Col 1: Identity Provider -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="38%">
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="35%">
                                                     <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
@@ -1981,7 +1981,7 @@
                                                 </VBox>
 
                                                 <!-- Col 2: Integration Type -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="32%">
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="34%">
                                                     <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
@@ -1990,7 +1990,7 @@
                                                 </VBox>
 
                                                 <!-- Col 3: Integration Status -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="30%">
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="31%">
                                                     <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://accept" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
@@ -2036,7 +2036,7 @@
                                             <!-- Bottom Details Tray: 3 Columns -->
                                             <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray2" alignItems="Stretch">
                                                 <!-- Col 1: Identity Provider -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="38%">
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="35%">
                                                     <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
@@ -2045,7 +2045,7 @@
                                                 </VBox>
 
                                                 <!-- Col 2: Integration Type -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="32%">
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="34%">
                                                     <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
                                                     </HBox>
@@ -2054,7 +2054,7 @@
                                                 </VBox>
 
                                                 <!-- Col 3: Integration Status -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="30%">
+                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="31%">
                                                     <HBox class="kyraIamMiniIconBadge kyraIamMiniBadgePending" alignItems="Center" justifyContent="Center">
                                                         <core:Icon src="sap-icon://history" class="kyraIamMiniIcon kyraIamMiniIconPending" />
                                                     </HBox>
@@ -4895,14 +4895,35 @@
                                         items="{accessModel>/activeAdminSystems}"
                                         placeholder="Select target system processes..."
                                         width="100%"
+                                        enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
                                         class="fioriFormSelect">
                                         <core:Item key="{accessModel>systemName}" text="{accessModel>systemName}" />
                                     </MultiComboBox>
                                 </form:content>
                             </form:SimpleForm>
 
+                            <!-- TARGET SYSTEMS CONFIRM &amp; EDIT ACTION ROW (Right bottom corner of Target Systems section) -->
+                            <HBox justifyContent="End" alignItems="Center" class="sapUiTinyMarginTop sapUiSmallMarginBottom" visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }">
+                                <Button
+                                    id="btnEditTargetSystems"
+                                    text="Edit"
+                                    icon="sap-icon://edit"
+                                    type="Default"
+                                    press=".onEditTargetSystemsSelection"
+                                    visible="{accessModel>/isTargetSystemsConfirmed}"
+                                    class="kyraSecondaryBtn sapUiSmallMarginEnd" />
+                                <Button
+                                    id="btnConfirmTargetSystems"
+                                    text="Confirm"
+                                    icon="sap-icon://accept"
+                                    type="Emphasized"
+                                    press=".onConfirmTargetSystemsSelection"
+                                    enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
+                                    class="kyraPrimaryBtn" />
+                            </HBox>
+
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
-                            <VBox id="targetSystemSlideCard" visible="{= ${accessModel>/hasSelectedTargetSystems} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
+                            <VBox id="targetSystemSlideCard" visible="{= !!${accessModel>/isTargetSystemsConfirmed} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
                                 <!-- Target System Slide Header Banner -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom fioriConflictHeaderBanner">
                                     <HBox alignItems="Center" class="kyraCardHeaderLeft">
