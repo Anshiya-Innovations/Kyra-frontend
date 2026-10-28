@@ -1452,7 +1452,7 @@ sap.ui.define([
                         this.onBackToDiscoveredAdGroups();
                         return;
                     }
-                    const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop']");
+                    const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn");
                     if (btnCloseAd) {
                         this.onCloseAdminSection();
                         return;

@@ -1920,12 +1920,20 @@
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Header Title with Left Accent Bar (Exact Mockup Match) -->
-                            <HBox alignItems="Center" class="kyraIamTitleRow sapUiMediumMarginBottom" gap="14px">
-                                <HBox class="kyraIamTitleVerticalBar" />
-                                <VBox class="kyraIamTitleTextBox">
-                                    <Title text="IAM Approver Integration &amp; Multi-Channel Governance" level="H3" class="kyraIamSlideTitle" />
-                                    <Text text="Select an IAM Approver below to configure their Email and AWS Console integration settings independently." class="kyraIamSlideSubtitle" />
-                                </VBox>
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamTitleRow">
+                                <HBox alignItems="Center" gap="14px" class="kyraIamTitleLeftBlock">
+                                    <HBox class="kyraIamTitleVerticalBar" />
+                                    <VBox class="kyraIamTitleTextBox">
+                                        <Title text="IAM Approver Integration &amp; Multi-Channel Governance" level="H3" class="kyraIamSlideTitle" />
+                                        <Text text="Select an IAM Approver below to configure their Email and AWS Console integration settings independently." class="kyraIamSlideSubtitle" />
+                                    </VBox>
+                                </HBox>
+                                <Button
+                                    id="btnCloseIamSection"
+                                    icon="sap-icon://decline"
+                                    tooltip="Close IAM Integration"
+                                    press=".onCloseAdminSection"
+                                    class="kyraCloseIconBtn kyraIamCloseBtn" />
                             </HBox>
 
                                                                                     <!-- ========================================================================= -->
@@ -1938,6 +1946,9 @@
                                     <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
                                     <!-- ================================================================= -->
                                     <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter1" alignItems="Center" justifyContent="Center">
+                                        <!-- Overlapping Teal Decorative Shapes behind White Card (Exact Image 2 Match) -->
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape1_left" />
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape1_right" />
                                         <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover1"
                                             class="{= 'kyraIamWhiteCard kyraIamWhiteCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
@@ -2002,6 +2013,9 @@
                                     <!-- CARD 2: IAM 2 (Purple Enterprise White Card - Exact Image 3 Match) -->
                                     <!-- ================================================================= -->
                                     <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter2" alignItems="Center" justifyContent="Center">
+                                        <!-- Overlapping Teal Decorative Shapes behind White Card (Exact Image 2 Match) -->
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape2_left" />
+                                        <HBox class="kyraIamDecorShape kyraIamDecorShape2_right" />
                                         <!-- Foreground White Card -->
                                         <VBox id="cardSelectIamApprover2"
                                             class="{= 'kyraIamWhiteCard kyraIamWhiteCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
