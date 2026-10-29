@@ -54175,9 +54175,9 @@ html body .kyraAdminConflictReasonDownRow .sapMTextArea,
 html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextArea {
     display: block !important;
     width: 100% !important;
-    min-height: 58px !important;
-    height: 58px !important;
-    max-height: 58px !important;
+    min-height: 76px !important;
+    height: 76px !important;
+    max-height: 76px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     border: 1px solid #CBD5E1 !important;
@@ -54253,9 +54253,9 @@ html body .sapUiTheme-sap_horizon .kyraAdminConflictReasonDownRow .sapMTextAreaI
     margin: 0 !important;
     font-size: 13.5px !important;
     line-height: 20px !important;
-    height: 56px !important;
-    min-height: 56px !important;
-    max-height: 56px !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
     color: #0F172A !important;
     box-sizing: border-box !important;
     width: 100% !important;
@@ -65625,4 +65625,31 @@ html body [id$="iamIntegrationContainer"] {
     max-width: 1260px !important;
     width: 100% !important;
     margin: 12px auto 32px auto !important;
+}
+
+/* ========================================================================== */
+/* CONFLICT REASON MODAL & BUILDER TEXTAREA: STRICT 3-LINE NON-EXPANDABLE DESIGN */
+/* ========================================================================== */
+#kyra_edit_conflict_desc,
+textarea.kyra-conflict-desc-textarea,
+html body .kyra-system-modal-input.kyra-conflict-desc-textarea,
+html body #kyra_edit_conflict_desc {
+    height: 76px !important;
+    min-height: 76px !important;
+    max-height: 76px !important;
+    line-height: 20px !important;
+    font-size: 13.5px !important;
+    padding: 8px 12px !important;
+    box-sizing: border-box !important;
+    resize: none !important;
+    overflow-y: auto !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+}
+
+#kyra_edit_conflict_desc:focus,
+textarea.kyra-conflict-desc-textarea:focus,
+html body #kyra_edit_conflict_desc:focus {
+    border-color: #008C9C !important;
+    box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
 }

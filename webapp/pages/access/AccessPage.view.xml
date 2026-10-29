@@ -1075,7 +1075,7 @@
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
                                     <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
-                                    <Text text="Connected SAP Applications &amp; Subscriptions • Active enterprise cloud licenses and services discovered across all integrated tenants." class="kyraDarkStudioSubtitle" />
+                                    <Text text="Active enterprise cloud licenses, subscriptions, and services discovered across all integrated tenants." class="kyraDarkStudioSubtitle" />
                                 </VBox>
                                 <HBox alignItems="Center" gap="10px">
                                     <Button
@@ -1099,7 +1099,7 @@
                                 <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
                                     <HBox class="kyraDarkGreenGlowDot" />
                                     <FormattedText
-                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Discovered Integrations: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Enterprise Connected Tenants (Active)&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Status: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;Active Enterprise Subscriptions&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Single Sign-On (IAS): &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Linked&lt;/span&gt;"
+                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Connected Subaccounts: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Enterprise Connected Tenants (Active)&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Cloud Services: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;12 Active Services&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Resource Quotas: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Live Monitoring Active&lt;/span&gt;"
                                         class="kyraDarkBannerFormattedText" />
                                 </HBox>
                                 <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
@@ -3687,7 +3687,7 @@
                                     <TextArea
                                         value="{accessModel>/newConflictDraft/description}"
                                         placeholder="Enter conflict description..."
-                                        rows="2"
+                                        rows="3"
                                         growing="false"
                                         width="100%"
                                         class="kyraAdminBuilderSimpleInput kyraAdminConflictReasonTextArea" />

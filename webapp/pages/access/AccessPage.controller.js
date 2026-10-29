@@ -20367,7 +20367,7 @@ sap.ui.define([
 
                             <div class="kyra-system-modal-form-group">
                                 <label class="kyra-system-modal-label" for="kyra_edit_conflict_desc">CONFLICT REASON</label>
-                                <textarea id="kyra_edit_conflict_desc" class="kyra-system-modal-input" style="height: 60px; padding: 8px 12px; resize: vertical;" rows="2" placeholder="Describe the segregation of duties conflict risk">${sDesc}</textarea>
+                                <textarea id="kyra_edit_conflict_desc" class="kyra-system-modal-input kyra-conflict-desc-textarea" style="height: 76px; min-height: 76px; max-height: 76px; padding: 8px 12px; resize: none; line-height: 20px; font-size: 13.5px; box-sizing: border-box; overflow-y: auto;" rows="3" placeholder="Describe the segregation of duties conflict risk">${sDesc}</textarea>
                             </div>
                             
                             <div class="kyra-system-modal-form-group">
