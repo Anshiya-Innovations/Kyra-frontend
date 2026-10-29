@@ -2116,7 +2116,7 @@
                                 <!-- Approver 1 Integration Selector Sub-Bar -->
                                 <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraApproverSubBar sapUiSmallMarginBottom">
                                     <HBox alignItems="Center" gap="14px">
-                                        <Avatar initials="A1" backgroundColor="Accent3" displaySize="S" />
+                                        <Avatar src="sap-icon://customer" backgroundColor="Accent3" displaySize="S" class="kyraApproverSubBarAvatar" />
                                         <VBox>
                                             <Title text="IAM Approver 1 Integration Settings" level="H4" class="kyraApproverSubBarTitle" />
                                             <Text text="Select an integration method to configure how IAM Approver 1 acts on requests." class="kyraApproverSubBarSubtitle" />
@@ -2505,7 +2505,7 @@
                                 <!-- Approver 2 Integration Selector Sub-Bar -->
                                 <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraApproverSubBar sapUiSmallMarginBottom">
                                     <HBox alignItems="Center" gap="14px">
-                                        <Avatar initials="A2" backgroundColor="Accent1" displaySize="S" />
+                                        <Avatar src="sap-icon://group" backgroundColor="Accent1" displaySize="S" class="kyraApproverSubBarAvatar" />
                                         <VBox>
                                             <Title text="IAM Approver 2 Integration Settings" level="H4" class="kyraApproverSubBarTitle" />
                                             <Text text="Select an integration method to configure how IAM Approver 2 reviews and provisions requests." class="kyraApproverSubBarSubtitle" />
@@ -2688,35 +2688,32 @@
                                     </VBox>
                                 </VBox>
 
-                                <!-- 2B: APPROVER 2 CONSOLE INTEGRATION (CLOUD & IAM) -->
+                                                                <!-- 2B: APPROVER 2 CONSOLE INTEGRATION (CLOUD &amp; IAM) -->
                                 <VBox visible="{= ${accessModel>/iamApproverConfig/approver2/channel} === 'console' }" width="100%">
-                                    
-                                    <!-- TOP CARD: IAM Provider Configuration (Image 1 Exact Match) -->
-                                    <VBox class="kyraEnterpriseWhiteCard sapUiSmallMarginBottom" width="100%">
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraEnterpriseCardHeader sapUiSmallMarginBottom">
+                                    <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
+                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
-                                                <core:Icon src="sap-icon://cloud" class="kyraEnterpriseCardHeaderIcon" color="#008C9C" />
-                                                <Title text="Option 2: IAM Approver 2 — Cloud Console &amp; IAM Provider Integration" level="H4" class="kyraEnterpriseCardTitle" />
+                                                <core:Icon src="sap-icon://cloud" class="kyraDarkCardHeaderIcon" color="#008C9C" />
+                                                <Title text="Option 2: IAM Approver 2 — Cloud Console &amp; IAM Provider Integration" level="H4" class="kyraDarkCardHeaderTitle" />
                                             </HBox>
-                                            <HBox class="kyraEnterpriseGreenBadge" alignItems="Center" gap="6px">
-                                                <core:Icon src="sap-icon://sys-enter-2" />
-                                                <Text text="Cloud Console Integrated" />
-                                            </HBox>
+                                            <ObjectStatus
+                                                text="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Cloud Console Integrated ✓' : 'Awaiting Test' }"
+                                                state="{= ${accessModel>/iamApproverConfig/approver2/connected} ? 'Success' : 'Warning' }" />
                                         </HBox>
 
-                                        <!-- Light Teal Section Header Banner: Select IAM Provider / Platform -->
-                                        <VBox width="100%" class="kyraEnterpriseSectionBanner sapUiSmallMarginBottom">
-                                            <HBox alignItems="Center" gap="8px" class="sapUiTinyMarginBottom">
-                                                <core:Icon src="sap-icon://education" class="kyraEnterpriseBannerIcon" />
-                                                <Text text="Select IAM Provider / Platform" class="kyraEnterpriseBannerText" />
-                                                <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_provider_select" tooltip="Select IAM or Cloud Governance platform" />
+                                        <!-- Dropdown: Select IAM Provider / Platform -->
+                                        <VBox class="kyraDarkFieldGroup sapUiSmallMarginBottom" width="100%">
+                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                <Text text="Select IAM Provider / Platform" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
+                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_provider_select" tooltip="Select IAM or Cloud Governance platform" />
                                             </HBox>
                                             <Select
                                                 id="approver2IamProviderSelectConsole"
                                                 selectedKey="{accessModel>/iamApproverConfig/approver2/provider}"
                                                 change=".onApprover2ProviderChange"
                                                 width="100%"
-                                                class="kyraEnterpriseSelect">
+                                                class="kyraDarkSelect">
                                                 <core:Item key="aws" text="Amazon Web Services (AWS IAM &amp; Identity Center)" />
                                                 <core:Item key="azure" text="Microsoft Entra ID (Azure Active Directory &amp; PIM)" />
                                                 <core:Item key="gcp" text="Google Cloud Platform (GCP IAM &amp; Privileged Access Manager)" />
@@ -2731,53 +2728,55 @@
                                         </VBox>
 
                                         <!-- Row 1: IAM User, User ARN, SNS Topic ARN (3 equal columns) -->
-                                        <HBox width="100%" gap="16px" class="kyraEnterpriseFieldRow sapUiSmallMarginBottom">
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="IAM Approver 2 IAM / SSO Username" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_username" tooltip="How to get IAM Username" />
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Approver 2 IAM / SSO Username" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_username" tooltip="How to get IAM Username" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/iamUser}"
                                                     placeholder="iam-approver-2"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="IAM Approver 2 IAM User / Role ARN" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_user_arn" tooltip="How to find IAM User/Role ARN" />
+                                            <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Approver 2 IAM User / Role ARN" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_user_arn" tooltip="How to find IAM User/Role ARN" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/userArn}"
                                                     placeholder="arn:aws:iam::197009134141:user/iam-approver-2"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="IAM Approver 2 AWS SNS Topic ARN" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_sns_topic_arn" tooltip="How to get SNS Topic ARN" />
+                                            <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Approver 2 AWS SNS Topic ARN" class="kyraDarkFieldLabel" />
+                                                    <Text text=" *" class="kyraDarkRequiredStar" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_sns_topic_arn" tooltip="How to get SNS Topic ARN" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/snsTopicArn}"
                                                     placeholder="arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
                                         </HBox>
 
-                                        <!-- Row 2: Region, Account ID, Access Key ID, Secret Key (4 equal columns) -->
-                                        <HBox width="100%" gap="16px" class="kyraEnterpriseFieldRow sapUiSmallMarginBottom">
-                                            <VBox class="kyraEnterpriseFieldCol4">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="AWS Region" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_region" tooltip="How to find AWS Region" />
+                                        <!-- Row 2: AWS Region, AWS Account ID, AWS Access Key ID, AWS Secret Access Key (4 equal columns) -->
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox class="kyraFormFieldCol4 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Region" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_region" tooltip="How to select AWS Region" />
                                                 </HBox>
                                                 <Select
                                                     selectedKey="{accessModel>/iamApproverConfig/approver2/region}"
                                                     width="100%"
-                                                    class="kyraEnterpriseSelect">
+                                                    class="kyraDarkSelect">
                                                     <core:Item key="us-east-1" text="us-east-1 (N. Virginia)" />
                                                     <core:Item key="us-east-2" text="us-east-2 (Ohio)" />
                                                     <core:Item key="us-west-2" text="us-west-2 (Oregon)" />
@@ -2785,176 +2784,102 @@
                                                     <core:Item key="ap-south-1" text="ap-south-1 (Mumbai)" />
                                                 </Select>
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol4">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="AWS Account ID" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_account_id" tooltip="How to find AWS Account ID" />
+                                            <VBox class="kyraFormFieldCol4 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Account ID" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_account_id" tooltip="How to find AWS Account ID" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/accountId}"
                                                     placeholder="197009134141"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol4">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="AWS Access Key ID" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_access_key" tooltip="How to generate AWS Access Key ID" />
+                                            <VBox class="kyraFormFieldCol4 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Access Key ID" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_access_key" tooltip="How to generate AWS Access Key ID" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/accessKeyId}"
                                                     placeholder="AKIAS3XVI2I667F5SYWM"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol4">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="AWS Secret Access Key" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_secret_key" tooltip="How to generate AWS Secret Access Key" />
+                                            <VBox class="kyraFormFieldCol4 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Secret Access Key" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_secret_key" tooltip="How to generate AWS Secret Access Key" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/secretAccessKey}"
                                                     type="Password"
                                                     placeholder="••••••••••••••••••••"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
                                         </HBox>
 
                                         <!-- Row 3: Native Engine, Console URL, Policy (3 equal columns) -->
-                                        <HBox width="100%" gap="16px" class="kyraEnterpriseFieldRow">
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="AWS Native Approval Service" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_approval_service" tooltip="How to configure AWS Native Approval Service" />
+                                        <HBox width="100%" gap="16px" class="kyraDarkFieldRow sapUiSmallMarginBottom">
+                                            <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Native Approval Service" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_approval_service" tooltip="How to configure AWS Native Approval Service" />
                                                 </HBox>
                                                 <Select
                                                     selectedKey="{accessModel>/iamApproverConfig/approver2/approvalEngine}"
                                                     width="100%"
-                                                    class="kyraEnterpriseSelect">
+                                                    class="kyraDarkSelect">
                                                     <core:Item key="ssm_change_manager" text="AWS Systems Manager (SSM) Change Manager" />
                                                     <core:Item key="iam_identity_center" text="AWS IAM Identity Center (AWS SSO)" />
                                                 </Select>
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="AWS Console Direct Change Requests URL" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_console_url" tooltip="How to get AWS Console Change Requests URL" />
+                                            <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="AWS Console Direct Change Requests URL" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_console_url" tooltip="How to get AWS Console Change Requests URL" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/consoleUrl}"
                                                     placeholder="https://us-east-1.console.aws.amazon.com/systems-manager/change-manager/change-requests"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="Required AWS Managed Policy" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_required_policy" tooltip="How to attach Required AWS Managed Policy" />
+                                            <VBox class="kyraFormFieldCol3 kyraDarkFieldGroup">
+                                                <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                                    <Text text="Required AWS Managed Policy" class="kyraDarkFieldLabel" />
+                                                    <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_required_policy" tooltip="How to attach Required AWS Managed Policy" />
                                                 </HBox>
                                                 <Input
                                                     value="{accessModel>/iamApproverConfig/approver2/requiredPolicy}"
                                                     placeholder="AWSSystemsManagerChangeManagerApproverAccess"
-                                                    class="kyraEnterpriseInput"
+                                                    class="kyraDarkInput"
                                                     width="100%" />
                                             </VBox>
+                                        </HBox>
+
+                                        <!-- Buttons -->
+                                        <HBox justifyContent="End" alignItems="Center" gap="14px" width="100%" class="kyraApproverBtnRow sapUiSmallMarginTop">
+                                            <Button
+                                                icon="sap-icon://navigation-left-arrow"
+                                                text="Previous: Email Integration"
+                                                type="Default"
+                                                press=".onGoToApprover2Email"
+                                                class="kyraSecondaryBtn" />
+                                            <Button
+                                                icon="sap-icon://flash"
+                                                text="Test AWS Connection"
+                                                press=".onTestApprover2Console"
+                                                class="kyraApproverTestBtn" />
+                                            <Button
+                                                icon="sap-icon://save"
+                                                text="Save Approver 2 AWS Settings"
+                                                press=".onSaveApprover2Console"
+                                                type="Emphasized"
+                                                class="kyraApproverSaveBtn" />
                                         </HBox>
                                     </VBox>
-
-                                    <!-- BOTTOM CARD: Target Cloud System SCIM Provisioning Binding (Image 1 Exact Match) -->
-                                    <VBox class="kyraEnterpriseWhiteCard sapUiSmallMarginBottom" width="100%">
-                                        <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraEnterpriseCardHeader sapUiSmallMarginBottom">
-                                            <HBox alignItems="Center" gap="10px">
-                                                <core:Icon src="sap-icon://database" class="kyraEnterpriseCardHeaderIcon" color="#008C9C" />
-                                                <Title text="Target Cloud System SCIM Provisioning Binding" level="H4" class="kyraEnterpriseCardTitle" />
-                                            </HBox>
-                                            <HBox class="kyraEnterpriseGreenBadge" alignItems="Center" gap="6px">
-                                                <core:Icon src="sap-icon://sys-enter-2" />
-                                                <Text text="SCIM Groups Verified Active" />
-                                            </HBox>
-                                        </HBox>
-
-                                        <!-- SCIM Row 1 (3 equal columns) -->
-                                        <HBox width="100%" gap="16px" class="kyraEnterpriseFieldRow sapUiSmallMarginBottom">
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="Target Cloud Platform" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_target_platform" tooltip="How to configure Target Platform" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/iamApproverConfig/approver2/targetSystem}"
-                                                    placeholder="SAP Business Technology Platform (SAP BTP)"
-                                                    editable="false"
-                                                    class="kyraEnterpriseInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="SAP BTP Subaccount ID" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_subaccount_id" tooltip="How to get SAP BTP Subaccount ID" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/iamApproverConfig/approver2/subaccountId}"
-                                                    placeholder="f59a77c6-f7ce-450d-8681-0b31933d7c79"
-                                                    class="kyraEnterpriseInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol3">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="SCIM 2.0 API Endpoint" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_scim_endpoint" tooltip="How to get SCIM API Endpoint" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/iamApproverConfig/approver2/scimEndpoint}"
-                                                    placeholder="https://33d5a5ed-54b6-4d50-8780-38e0995c8088.identity.cloud.sap/scim"
-                                                    class="kyraEnterpriseInput"
-                                                    width="100%" />
-                                            </VBox>
-                                        </HBox>
-
-                                        <!-- SCIM Row 2 (2 equal columns) -->
-                                        <HBox width="100%" gap="16px" class="kyraEnterpriseFieldRow">
-                                            <VBox class="kyraEnterpriseFieldCol2">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="SCIM Role Provisioning Implementation" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_scim_method" tooltip="How SCIM Role Provisioning works" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/iamApproverConfig/approver2/scimMethod}"
-                                                    placeholder="—"
-                                                    editable="false"
-                                                    class="kyraEnterpriseInput"
-                                                    width="100%" />
-                                            </VBox>
-                                            <VBox class="kyraEnterpriseFieldCol2">
-                                                <HBox alignItems="Center" class="kyraEnterpriseLabelRow">
-                                                    <Text text="Auto-Sync Target User Identity" class="kyraEnterpriseFieldLabel" />
-                                                    <core:Icon src="sap-icon://information" class="kyraEnterpriseFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="iam2_aws_sync_user" tooltip="How Auto-Sync works" />
-                                                </HBox>
-                                                <Input
-                                                    value="{accessModel>/iamApproverConfig/approver2/syncUser}"
-                                                    placeholder="—"
-                                                    editable="false"
-                                                    class="kyraEnterpriseInput"
-                                                    width="100%" />
-                                            </VBox>
-                                        </HBox>
-                                    </VBox>
-
-                                    <!-- Bottom Action Buttons Row -->
-                                    <HBox justifyContent="End" alignItems="Center" gap="14px" width="100%" class="sapUiSmallMarginTop">
-                                        <Button
-                                            icon="sap-icon://flash"
-                                            text="Test AWS Connection"
-                                            press=".onTestApprover2Console"
-                                            class="kyraEnterpriseBtnOutline" />
-                                        <Button
-                                            icon="sap-icon://save"
-                                            text="Save Approver 2 AWS Settings"
-                                            press=".onSaveApprover2Console"
-                                            type="Emphasized"
-                                            class="kyraEnterpriseBtnTeal" />
-                                    </HBox>
                                 </VBox>
                             </VBox>
 

@@ -60977,9 +60977,12 @@ html body .sapUiTheme-sap_horizon .kyraApproverSubBar {
     border: 1.5px solid #FDBA74 !important;
 }
 #approver1DetailSection .sapFAvatar .sapFAvatarInitials,
-[id$='approver1DetailSection'] .sapFAvatar .sapFAvatarInitials {
+[id$='approver1DetailSection'] .sapFAvatar .sapFAvatarInitials,
+#approver1DetailSection .sapFAvatar .sapUiIcon,
+[id$='approver1DetailSection'] .sapFAvatar .sapUiIcon {
     color: #EA580C !important;
     font-weight: 700 !important;
+    font-size: 16px !important;
 }
 
 #approver2DetailSection .sapFAvatar,
@@ -60989,9 +60992,12 @@ html body .sapUiTheme-sap_horizon .kyraApproverSubBar {
     border: 1.5px solid #99F6E4 !important;
 }
 #approver2DetailSection .sapFAvatar .sapFAvatarInitials,
-[id$='approver2DetailSection'] .sapFAvatar .sapFAvatarInitials {
+[id$='approver2DetailSection'] .sapFAvatar .sapFAvatarInitials,
+#approver2DetailSection .sapFAvatar .sapUiIcon,
+[id$='approver2DetailSection'] .sapFAvatar .sapUiIcon {
     color: #008C9C !important;
     font-weight: 700 !important;
+    font-size: 16px !important;
 }
 
 .iamApproverCard {
