@@ -1452,6 +1452,11 @@ sap.ui.define([
                         this.onBackToDiscoveredAdGroups();
                         return;
                     }
+                    const btnBackIam = e.target.closest("#btnBackToIamCardsTop, [id$='btnBackToIamCardsTop'], #btnBackToIamCardsBottom, [id$='btnBackToIamCardsBottom']");
+                    if (btnBackIam) {
+                        this.onBackToIamApproverCards();
+                        return;
+                    }
                     const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn");
                     if (btnCloseAd) {
                         this.onCloseAdminSection();
@@ -21734,6 +21739,37 @@ sap.ui.define([
             setTimeout(() => {
                 this._smoothScrollTo("approver2DetailSection", 30);
             }, 100);
+        },
+
+        onBackToIamApproverCards() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/selectedIamApprover", "");
+            this._updateIamApproverCards(oModel);
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            setTimeout(() => {
+                this._smoothScrollTo("iamIntegrationContainer", 40);
+            }, 60);
+        },
+
+        onGoToApprover1Console() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver1/channel", "console");
+        },
+
+        onGoToApprover1Email() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver1/channel", "email");
+        },
+
+        onGoToApprover2Console() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver2/channel", "console");
+        },
+
+        onGoToApprover2Email() {
+            const oModel = this.getView().getModel("accessModel");
+            if (oModel) oModel.setProperty("/iamApproverConfig/approver2/channel", "email");
         },
 
         onApprover1ChannelChange(oEvent) {

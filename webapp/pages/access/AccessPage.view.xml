@@ -55,7 +55,7 @@
                 <!-- WRAPPER FOR NORMAL PORTAL CONTENT -->
                 <VBox id="normalPortalContentWrapper" visible="{= !${accessModel>/showRequestDetailsPage} &amp;&amp; !${accessModel>/showAllNotificationsPage} &amp;&amp; !${accessModel>/showHelpPage} &amp;&amp; !${accessModel>/showContactITPage} &amp;&amp; !${accessModel>/showTroubleshootPage} }">
                     <!-- Enterprise Top Header Banner (Hidden during Add / Edit SAP Integration time) -->
-                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom" visible="{= !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'ad_group' &amp;&amp; ${accessModel>/adGroupIntegration/currentStep} === 2) }">
+                    <VBox class="fioriWelcomeCard sapUiSmallMarginBottom" visible="{= !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'ad_group' &amp;&amp; ${accessModel>/adGroupIntegration/currentStep} === 2) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'iam' &amp;&amp; !!${accessModel>/selectedIamApprover}) }">
                         <!-- Security Shield Focus Background Emblem (Center Pulse Effect) -->
                         <HBox class="kyraBannerShieldFocus" alignItems="Center" justifyContent="Center">
                             <Image src="{= ${accessModel>/shieldFocusUrl} || 'images/kyra_shield_focus.svg' }" class="kyraShieldFocusImg" densityAware="false" alt="Security Shield" />
@@ -89,7 +89,7 @@
                     <!-- ================================================================================== -->
                     <!-- ADMIN PERSONA VIEW: ONLY 3 ACTION CARDS + EXPANDABLE SECTIONS BELOW                -->
                     <!-- ================================================================================== -->
-                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'ad_group' &amp;&amp; ${accessModel>/adGroupIntegration/currentStep} === 2) }">
+                    <HBox width="100%" class="fioriSingleRowCardsGrid" visible="{= !!${accessModel>/isAdminPersona} &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'sap' &amp;&amp; ${accessModel>/sapIntegration/currentStep} === 1) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'ad_group' &amp;&amp; ${accessModel>/adGroupIntegration/currentStep} === 2) &amp;&amp; !(${accessModel>/selectedIntegrationType} === 'iam' &amp;&amp; !!${accessModel>/selectedIamApprover}) }">
                         <!-- BUTTON 1: INTEGRATION (AMBER THEME) -->
                         <VBox id="cardAdminDatabaseConfig"
                             class="{= 'fioriActionCard fioriCardPending fioriClickableCard' + (${accessModel>/adminSelectedSection} === 'databaseConfig' ? ' kyraCardExpanded' : '') }"
@@ -1920,159 +1920,192 @@
                             width="100%"
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
-                            <!-- Header Title with Left Accent Bar (Exact Mockup Match) -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamTitleRow">
-                                <HBox alignItems="Center" gap="14px" class="kyraIamTitleLeftBlock">
-                                    <HBox class="kyraIamTitleVerticalBar" />
-                                    <VBox class="kyraIamTitleTextBox">
-                                        <Title text="IAM Approver Integration &amp; Multi-Channel Governance" level="H3" class="kyraIamSlideTitle" />
-                                        <Text text="Select an IAM Approver below to configure their Email and AWS Console integration settings independently." class="kyraIamSlideSubtitle" />
-                                    </VBox>
-                                </HBox>
-                                <Button
-                                    id="btnCloseIamSection"
-                                    icon="sap-icon://decline"
-                                    tooltip="Close IAM Integration"
-                                    press=".onCloseAdminSection"
-                                    class="kyraCloseIconBtn kyraIamCloseBtn" />
-                            </HBox>
-
-                                                                                    <!-- ========================================================================= -->
-                            <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 3 Match)       -->
                             <!-- ========================================================================= -->
-                            <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
-                                <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="50px">
-                                    
-                                    <!-- ================================================================= -->
-                                    <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
-                                    <!-- ================================================================= -->
-                                    <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter1" alignItems="Center" justifyContent="Center">
-                                        <!-- Foreground White Card -->
-                                        <VBox id="cardSelectIamApprover1"
-                                            class="{= 'kyraIamWhiteCard kyraIamWhiteCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
-                                            press=".onSelectIamApprover1">
-                                            <customData>
-                                                <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
-                                            </customData>
-
-                                            <!-- Top Row: Squircle Provider Icon + Title/Subtitle + Right Chevron -->
-                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamCardHeaderRow">
-                                                <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
-                                                    <!-- Squircle Icon Box with Microsoft Entra ID -->
-                                                    <HBox class="kyraIamIconSquircle kyraIamIconSquircle1" alignItems="Center" justifyContent="Center">
-                                                        <Image src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgaWQ9InV1aWQtZjhkNGQzOTItN2MxMi00YmQ5LWJhZmYtNjZmYmY3ODE0YjkxIiBkYXRhLW5hbWU9IkxheWVyIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDE4IDE4Ij4NCiAgPHBhdGggZD0ibTMuODAyLDE0LjAzMmMuMzg4LjI0MiwxLjAzMy41MTEsMS43MTUuNTExLjYyMSwwLDEuMTk4LS4xOCwxLjY3Ni0uNDg3LDAsMCwuMDAxLDAsLjAwMi0uMDAxbDEuODA1LTEuMTI4djQuMDczYy0uMjg2LDAtLjU3NC0uMDc4LS44MjQtLjIzNGwtNC4zNzQtMi43MzRaIiBmaWxsPSIjMjI1MDg2Ii8+DQogIDxwYXRoIGQ9Im03Ljg1MywxLjUwN0wuMzUzLDkuOTY3Yy0uNTc5LjY1NC0uNDI4LDEuNjQyLjMyMywyLjExMSwwLDAsMi43NzYsMS43MzUsMy4xMjYsMS45NTQuMzg4LjI0MiwxLjAzMy41MTEsMS43MTUuNTExLjYyMSwwLDEuMTk4LS4xOCwxLjY3Ni0uNDg3LDAsMCwuMDAxLDAsLjAwMi0uMDAxbDEuODA1LTEuMTI4LTQuMzY0LTIuNzI4LDQuMzY1LTQuOTI0VjFzMCwwLDAsMGMtLjQyNCwwLS44NDcuMTY5LTEuMTQ3LjUwN1oiIGZpbGw9IiM2ZGYiLz4NCiAgPHBvbHlnb24gcG9pbnRzPSI0LjYzNiAxMC4xOTkgNC42ODggMTAuMjMxIDkgMTIuOTI3IDkuMDAxIDEyLjkyNyA5LjAwMSAxMi45MjcgOS4wMDEgNS4yNzYgOSA1LjI3NSA0LjYzNiAxMC4xOTkiIGZpbGw9IiNjYmY4ZmYiLz4NCiAgPHBhdGggZD0ibTE3LjMyNCwxMi4wNzhjLjc1MS0uNDY5LjkwMi0xLjQ1Ny4zMjMtMi4xMTFsLTQuOTIxLTUuNTUxYy0uMzk3LS4xODUtLjg0Mi0uMjkxLTEuMzEzLS4yOTEtLjkyNSwwLTEuNzUyLjM5OS0yLjMwMiwxLjAyNmwtLjEwOS4xMjNoMHM0LjM2NCw0LjkyNCw0LjM2NCw0LjkyNGgwczAsMCwwLDBsLTQuMzY1LDIuNzI4djQuMDczYy4yODcsMCwuNTczLS4wNzguODIzLS4yMzRsNy41LTQuNjg4WiIgZmlsbD0iIzA3NDc5MyIvPg0KICA8cGF0aCBkPSJtOS4wMDEsMXY0LjI3NXMuMTA5LS4xMjMuMTA5LS4xMjNjLjU1LS42MjcsMS4zNzctMS4wMjYsMi4zMDItMS4wMjYuNDcyLDAsLjkxNi4xMDcsMS4zMTMuMjkxbC0yLjU3OS0yLjkwOWMtLjI5OS0uMzM4LS43MjMtLjUwNy0xLjE0Ni0uNTA3WiIgZmlsbD0iIzAyOTRlNCIvPg0KICA8cG9seWdvbiBwb2ludHM9IjEzLjM2NSAxMC4xOTkgMTMuMzY1IDEwLjE5OSAxMy4zNjUgMTAuMTk5IDkuMDAxIDUuMjc2IDkuMDAxIDEyLjkyNiAxMy4zNjUgMTAuMTk5IiBmaWxsPSIjOTZiY2MyIi8+DQo8L3N2Zz4=" width="34px" height="34px" densityAware="false" class="kyraIamSquircleImg kyraIamSquircleImg1" />
-                                                    </HBox>
-                                                    <VBox class="kyraIamCardTitleBox">
-                                                        <Text text="IAM 1" class="kyraIamCardTopTitle" />
-                                                        <Text text="Your access. Our priority." class="kyraIamCardTopSubtitle" />
-                                                    </VBox>
-                                                </HBox>
-                                                <core:Icon src="sap-icon://navigation-right-arrow" class="kyraIamCardChevron" />
-                                            </HBox>
-
-                                            <!-- Bottom Details Tray: 3 Columns -->
-                                            <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray1" alignItems="Stretch">
-                                                <!-- Col 1: Identity Provider -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="35%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon1" />
-                                                    </HBox>
-                                                    <Text text="Identity Provider" class="kyraIamDetailLabel" />
-                                                    <Text text="Microsoft Entra ID" class="kyraIamDetailValue" />
-                                                </VBox>
-
-                                                <!-- Col 2: Integration Type -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="34%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
-                                                    </HBox>
-                                                    <Text text="Integration Type" class="kyraIamDetailLabel" />
-                                                    <Text text="Email Integration" class="kyraIamDetailValue" />
-                                                </VBox>
-
-                                                <!-- Col 3: Integration Status -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="31%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://accept" class="kyraIamMiniIcon kyraIamMiniIcon1" />
-                                                    </HBox>
-                                                    <Text text="Integration Status" class="kyraIamDetailLabel" />
-                                                    <HBox class="kyraIamStatusPill kyraIamStatusPillConnected" alignItems="Center">
-                                                        <Text text="● Connected" class="kyraIamStatusPillTextConnected" />
-                                                    </HBox>
-                                                </VBox>
-                                            </HBox>
+                            <!-- SLIDE 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Level 1 Selection)         -->
+                            <!-- ========================================================================= -->
+                            <VBox id="iamSlide1Showcase" visible="{= !${accessModel>/selectedIamApprover} }" width="100%" class="kyraSlideAnim">
+                                <!-- Header Title with Left Accent Bar (Exact Mockup Match) -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamTitleRow">
+                                    <HBox alignItems="Center" gap="14px" class="kyraIamTitleLeftBlock">
+                                        <HBox class="kyraIamTitleVerticalBar" />
+                                        <VBox class="kyraIamTitleTextBox">
+                                            <Title text="IAM Approver Integration &amp; Multi-Channel Governance" level="H3" class="kyraIamSlideTitle" />
+                                            <Text text="Select an IAM Approver below to configure their Email and AWS Console integration settings independently." class="kyraIamSlideSubtitle" />
                                         </VBox>
-
-                                        <!-- Hidden anchor arrow for controller compatibility -->
-                                        <core:Icon id="arrowIamApprover1" src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
                                     </HBox>
-
-                                    <!-- ================================================================= -->
-                                    <!-- CARD 2: IAM 2 (Purple Enterprise White Card - Exact Image 3 Match) -->
-                                    <!-- ================================================================= -->
-                                    <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter2" alignItems="Center" justifyContent="Center">
-                                        <!-- Foreground White Card -->
-                                        <VBox id="cardSelectIamApprover2"
-                                            class="{= 'kyraIamWhiteCard kyraIamWhiteCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
-                                            press=".onSelectIamApprover2">
-                                            <customData>
-                                                <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
-                                            </customData>
-
-                                            <!-- Top Row: Squircle Provider Icon + Title/Subtitle + Right Chevron -->
-                                            <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamCardHeaderRow">
-                                                <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
-                                                    <!-- Squircle Icon Box with SAP Logo -->
-                                                    <HBox class="kyraIamIconSquircle kyraIamIconSquircle2" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://group" class="kyraIamSquircleIcon kyraIamSquircleIcon2" />
-                                                    </HBox>
-                                                    <VBox class="kyraIamCardTitleBox">
-                                                        <Text text="IAM 2" class="kyraIamCardTopTitle" />
-                                                        <Text text="More people. More possibilities." class="kyraIamCardTopSubtitle" />
-                                                    </VBox>
-                                                </HBox>
-                                                <core:Icon src="sap-icon://navigation-right-arrow" class="kyraIamCardChevron" />
-                                            </HBox>
-
-                                            <!-- Bottom Details Tray: 3 Columns -->
-                                            <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray2" alignItems="Stretch">
-                                                <!-- Col 1: Identity Provider -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="35%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://person-placeholder" class="kyraIamMiniIcon kyraIamMiniIcon1" />
-                                                    </HBox>
-                                                    <Text text="Identity Provider" class="kyraIamDetailLabel" />
-                                                    <Text text="SAP Identity Authentication" class="kyraIamDetailValue" />
-                                                </VBox>
-
-                                                <!-- Col 2: Integration Type -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="34%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
-                                                    </HBox>
-                                                    <Text text="Integration Type" class="kyraIamDetailLabel" />
-                                                    <Text text="Console Integration" class="kyraIamDetailValue" />
-                                                </VBox>
-
-                                                <!-- Col 3: Integration Status -->
-                                                <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="31%">
-                                                    <HBox class="kyraIamMiniIconBadge kyraIamMiniBadgePending" alignItems="Center" justifyContent="Center">
-                                                        <core:Icon src="sap-icon://history" class="kyraIamMiniIcon kyraIamMiniIconPending" />
-                                                    </HBox>
-                                                    <Text text="Integration Status" class="kyraIamDetailLabel" />
-                                                    <HBox class="kyraIamStatusPill kyraIamStatusPillPending" alignItems="Center">
-                                                        <Text text="● Pending" class="kyraIamStatusPillTextPending" />
-                                                    </HBox>
-                                                </VBox>
-                                            </HBox>
-                                        </VBox>
-
-                                        <!-- Hidden anchor arrow for controller compatibility -->
-                                        <core:Icon id="arrowIamApprover2" src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
-                                    </HBox>
-
+                                    <Button
+                                        id="btnCloseIamSection"
+                                        icon="sap-icon://decline"
+                                        tooltip="Close IAM Integration"
+                                        press=".onCloseAdminSection"
+                                        class="kyraCloseIconBtn kyraIamCloseBtn" />
                                 </HBox>
+    
+                                                                                        <!-- ========================================================================= -->
+                                <!-- LEVEL 1: TWO-TIER IAM APPROVER SHOWCASE CARDS (Exact Image 3 Match)       -->
+                                <!-- ========================================================================= -->
+                                <VBox width="100%" class="kyraIamShowcaseContainer sapUiMediumMarginBottom" alignItems="Center">
+                                    <HBox width="100%" class="kyraIamCardsRow" justifyContent="Center" alignItems="Center" gap="50px">
+                                        
+                                        <!-- ================================================================= -->
+                                        <!-- CARD 1: IAM 1 (Teal Enterprise White Card - Exact Image 3 Match)  -->
+                                        <!-- ================================================================= -->
+                                        <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter1" alignItems="Center" justifyContent="Center">
+                                            <!-- Foreground White Card -->
+                                            <VBox id="cardSelectIamApprover1"
+                                                class="{= 'kyraIamWhiteCard kyraIamWhiteCard1 fioriClickableCard iamApproverCard iamApprover1CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver1' ? ' kyraIamCardSelected1 kyraSubIntegrationCardActive' : '') }"
+                                                press=".onSelectIamApprover1">
+                                                <customData>
+                                                    <core:CustomData key="iam-card" value="approver1" writeToDom="true" />
+                                                </customData>
+    
+                                                <!-- Top Row: Squircle Provider Icon + Title/Subtitle + Right Chevron -->
+                                                <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamCardHeaderRow">
+                                                    <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
+                                                        <!-- Squircle Icon Box with IAM 1 Approver Icon -->
+                                                        <HBox class="kyraIamIconSquircle kyraIamIconSquircle1" alignItems="Center" justifyContent="Center">
+                                                            <core:Icon src="sap-icon://customer" class="kyraIamSquircleIcon kyraIamSquircleIcon1" />
+                                                        </HBox>
+                                                        <VBox class="kyraIamCardTitleBox">
+                                                            <Text text="IAM 1" class="kyraIamCardTopTitle" />
+                                                            <Text text="Your access. Our priority." class="kyraIamCardTopSubtitle" />
+                                                        </VBox>
+                                                    </HBox>
+                                                    <core:Icon src="sap-icon://navigation-right-arrow" class="kyraIamCardChevron" />
+                                                </HBox>
+    
+                                                <!-- Bottom Details Tray: 3 Columns -->
+                                                <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray1" alignItems="Stretch">
+                                                    <!-- Col 1: Identity Provider -->
+                                                    <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="35%">
+                                                        <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                            <Image src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgaWQ9InV1aWQtZjhkNGQzOTItN2MxMi00YmQ5LWJhZmYtNjZmYmY3ODE0YjkxIiBkYXRhLW5hbWU9IkxheWVyIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDE4IDE4Ij4NCiAgPHBhdGggZD0ibTMuODAyLDE0LjAzMmMuMzg4LjI0MiwxLjAzMy41MTEsMS43MTUuNTExLjYyMSwwLDEuMTk4LS4xOCwxLjY3Ni0uNDg3LDAsMCwuMDAxLDAsLjAwMi0uMDAxbDEuODA1LTEuMTI4djQuMDczYy0uMjg2LDAtLjU3NC0uMDc4LS44MjQtLjIzNGwtNC4zNzQtMi43MzRaIiBmaWxsPSIjMjI1MDg2Ii8+DQogIDxwYXRoIGQ9Im03Ljg1MywxLjUwN0wuMzUzLDkuOTY3Yy0uNTc5LjY1NC0uNDI4LDEuNjQyLjMyMywyLjExMSwwLDAsMi43NzYsMS43MzUsMy4xMjYsMS45NTQuMzg4LjI0MiwxLjAzMy41MTEsMS43MTUuNTExLjYyMSwwLDEuMTk4LS4xOCwxLjY3Ni0uNDg3LDAsMCwuMDAxLDAsLjAwMi0uMDAxbDEuODA1LTEuMTI4LTQuMzY0LTIuNzI4LDQuMzY1LTQuOTI0VjFzMCwwLDAsMGMtLjQyNCwwLS44NDcuMTY5LTEuMTQ3LjUwN1oiIGZpbGw9IiM2ZGYiLz4NCiAgPHBvbHlnb24gcG9pbnRzPSI0LjYzNiAxMC4xOTkgNC42ODggMTAuMjMxIDkgMTIuOTI3IDkuMDAxIDEyLjkyNyA5LjAwMSAxMi45MjcgOS4wMDEgNS4yNzYgOSA1LjI3NSA0LjYzNiAxMC4xOTkiIGZpbGw9IiNjYmY4ZmYiLz4NCiAgPHBhdGggZD0ibTE3LjMyNCwxMi4wNzhjLjc1MS0uNDY5LjkwMi0xLjQ1Ny4zMjMtMi4xMTFsLTQuOTIxLTUuNTUxYy0uMzk3LS4xODUtLjg0Mi0uMjkxLTEuMzEzLS4yOTEtLjkyNSwwLTEuNzUyLjM5OS0yLjMwMiwxLjAyNmwtLjEwOS4xMjNoMHM0LjM2NCw0LjkyNCw0LjM2NCw0LjkyNGgwczAsMCwwLDBsLTQuMzY1LDIuNzI4djQuMDczYy4yODcsMCwuNTczLS4wNzguODIzLS4yMzRsNy41LTQuNjg4WiIgZmlsbD0iIzA3NDc5MyIvPg0KICA8cGF0aCBkPSJtOS4wMDEsMXY0LjI3NXMuMTA5LS4xMjMuMTA5LS4xMjNjLjU1LS42MjcsMS4zNzctMS4wMjYsMi4zMDItMS4wMjYuNDcyLDAsLjkxNi4xMDcsMS4zMTMuMjkxbC0yLjU3OS0yLjkwOWMtLjI5OS0uMzM4LS43MjMtLjUwNy0xLjE0Ni0uNTA3WiIgZmlsbD0iIzAyOTRlNCIvPg0KICA8cG9seWdvbiBwb2ludHM9IjEzLjM2NSAxMC4xOTkgMTMuMzY1IDEwLjE5OSAxMy4zNjUgMTAuMTk5IDkuMDAxIDUuMjc2IDkuMDAxIDEyLjkyNiAxMy4zNjUgMTAuMTk5IiBmaWxsPSIjOTZiY2MyIi8+DQo8L3N2Zz4=" width="18px" height="18px" densityAware="false" class="kyraIamDetailLogoImg" />
+                                                        </HBox>
+                                                        <Text text="Identity Provider" class="kyraIamDetailLabel" />
+                                                        <Text text="Microsoft Entra ID" class="kyraIamDetailValue" />
+                                                    </VBox>
+    
+                                                    <!-- Col 2: Integration Type -->
+                                                    <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="34%">
+                                                        <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                            <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
+                                                        </HBox>
+                                                        <Text text="Integration Type" class="kyraIamDetailLabel" />
+                                                        <Text text="Email Integration" class="kyraIamDetailValue" />
+                                                    </VBox>
+    
+                                                    <!-- Col 3: Integration Status -->
+                                                    <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="31%">
+                                                        <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                            <core:Icon src="sap-icon://accept" class="kyraIamMiniIcon kyraIamMiniIcon1" />
+                                                        </HBox>
+                                                        <Text text="Integration Status" class="kyraIamDetailLabel" />
+                                                        <HBox class="kyraIamStatusPill kyraIamStatusPillConnected" alignItems="Center">
+                                                            <Text text="● Connected" class="kyraIamStatusPillTextConnected" />
+                                                        </HBox>
+                                                    </VBox>
+                                                </HBox>
+                                            </VBox>
+    
+                                            <!-- Hidden anchor arrow for controller compatibility -->
+                                            <core:Icon id="arrowIamApprover1" src="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
+                                        </HBox>
+    
+                                        <!-- ================================================================= -->
+                                        <!-- CARD 2: IAM 2 (Purple Enterprise White Card - Exact Image 3 Match) -->
+                                        <!-- ================================================================= -->
+                                        <HBox class="kyraIamCardOuterWrapper kyraIamCardOuter2" alignItems="Center" justifyContent="Center">
+                                            <!-- Foreground White Card -->
+                                            <VBox id="cardSelectIamApprover2"
+                                                class="{= 'kyraIamWhiteCard kyraIamWhiteCard2 fioriClickableCard iamApproverCard iamApprover2CardTrigger' + (${accessModel>/selectedIamApprover} === 'approver2' ? ' kyraIamCardSelected2 kyraSubIntegrationCardActive' : '') }"
+                                                press=".onSelectIamApprover2">
+                                                <customData>
+                                                    <core:CustomData key="iam-card" value="approver2" writeToDom="true" />
+                                                </customData>
+    
+                                                <!-- Top Row: Squircle Provider Icon + Title/Subtitle + Right Chevron -->
+                                                <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween" class="kyraIamCardHeaderRow">
+                                                    <HBox alignItems="Center" gap="14px" class="kyraIamCardHeaderLeft">
+                                                        <!-- Squircle Icon Box with SAP Logo -->
+                                                        <HBox class="kyraIamIconSquircle kyraIamIconSquircle2" alignItems="Center" justifyContent="Center">
+                                                            <core:Icon src="sap-icon://group" class="kyraIamSquircleIcon kyraIamSquircleIcon2" />
+                                                        </HBox>
+                                                        <VBox class="kyraIamCardTitleBox">
+                                                            <Text text="IAM 2" class="kyraIamCardTopTitle" />
+                                                            <Text text="More people. More possibilities." class="kyraIamCardTopSubtitle" />
+                                                        </VBox>
+                                                    </HBox>
+                                                    <core:Icon src="sap-icon://navigation-right-arrow" class="kyraIamCardChevron" />
+                                                </HBox>
+    
+                                                <!-- Bottom Details Tray: 3 Columns -->
+                                                <HBox width="100%" class="kyraIamDetailsTray kyraIamDetailsTray2" alignItems="Stretch">
+                                                    <!-- Col 1: Identity Provider -->
+                                                    <VBox class="kyraIamTrayCol kyraIamTrayCol1" width="35%">
+                                                        <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                            <Image src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgNTAiIHdpZHRoPSIxMDAiIGhlaWdodD0iNTAiPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJzYXBCbHVlR3JhZCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiMwMDhGRDMiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzAwNUI5NCIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDwhLS0gU0FQIFRyYXBlem9pZCBFbWJsZW0gLS0+CiAgPHBhdGggZD0iTSA0IDQgTCA5NiA0IEwgODggNDYgTCA0IDQ2IFoiIGZpbGw9InVybCgjc2FwQmx1ZUdyYWQpIiByeD0iMiIgLz4KICA8IS0tIFRleHQgU0FQIC0tPgogIDx0ZXh0IHg9IjQ2IiB5PSIzNCIgZm9udC1mYW1pbHk9IidBcmlhbCBCbGFjaycsICdIZWx2ZXRpY2EgQmxhY2snLCAnU2Vnb2UgVUkgQmxhY2snLCBJbXBhY3QsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGxldHRlci1zcGFjaW5nPSIxLjUiPlNBUDwvdGV4dD4KPC9zdmc+" width="24px" height="12px" densityAware="false" class="kyraIamDetailSapLogoImg" />
+                                                        </HBox>
+                                                        <Text text="Identity Provider" class="kyraIamDetailLabel" />
+                                                        <Text text="SAP Identity Authentication" class="kyraIamDetailValue" />
+                                                    </VBox>
+    
+                                                    <!-- Col 2: Integration Type -->
+                                                    <VBox class="kyraIamTrayCol kyraIamTrayCol2 kyraIamTrayColDivider" width="34%">
+                                                        <HBox class="kyraIamMiniIconBadge kyraIamMiniBadge1" alignItems="Center" justifyContent="Center">
+                                                            <core:Icon src="sap-icon://chain-link" class="kyraIamMiniIcon kyraIamMiniIcon1" />
+                                                        </HBox>
+                                                        <Text text="Integration Type" class="kyraIamDetailLabel" />
+                                                        <Text text="Console Integration" class="kyraIamDetailValue" />
+                                                    </VBox>
+    
+                                                    <!-- Col 3: Integration Status -->
+                                                    <VBox class="kyraIamTrayCol kyraIamTrayCol3 kyraIamTrayColDivider" width="31%">
+                                                        <HBox class="kyraIamMiniIconBadge kyraIamMiniBadgePending" alignItems="Center" justifyContent="Center">
+                                                            <core:Icon src="sap-icon://history" class="kyraIamMiniIcon kyraIamMiniIconPending" />
+                                                        </HBox>
+                                                        <Text text="Integration Status" class="kyraIamDetailLabel" />
+                                                        <HBox class="kyraIamStatusPill kyraIamStatusPillPending" alignItems="Center">
+                                                            <Text text="● Pending" class="kyraIamStatusPillTextPending" />
+                                                        </HBox>
+                                                    </VBox>
+                                                </HBox>
+                                            </VBox>
+    
+                                            <!-- Hidden anchor arrow for controller compatibility -->
+                                            <core:Icon id="arrowIamApprover2" src="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'sap-icon://navigation-down-arrow' : 'sap-icon://navigation-right-arrow' }" visible="false" />
+                                        </HBox>
+    
+                                    </HBox>
+                                </VBox>
                             </VBox>
+
+                            <!-- ========================================================================= -->
+                            <!-- SLIDE 2: DETAIL CONFIGURATION (NEXT PAGE)                                 -->
+                            <!-- ========================================================================= -->
+                            <VBox id="iamSlide2Config" visible="{= !!${accessModel>/selectedIamApprover} }" width="100%" class="kyraSlideAnim">
+
+                                <!-- Top Navigation Bar: Back Button + Title + Close Button -->
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamTitleRow sapUiSmallMarginBottom">
+                                    <HBox alignItems="Center" gap="14px">
+                                        <Button
+                                            id="btnBackToIamCardsTop"
+                                            icon="sap-icon://nav-back"
+                                            text="Back to Approvers"
+                                            press=".onBackToIamApproverCards"
+                                            class="kyraSecondaryBtn" />
+                                        <HBox class="kyraIamTitleVerticalBar" />
+                                        <VBox class="kyraIamTitleTextBox">
+                                            <Title text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'IAM Approver 1 Integration Settings' : 'IAM Approver 2 Integration Settings' }" level="H3" class="kyraIamSlideTitle" />
+                                            <Text text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'Configure Email and AWS Console integration settings for IAM Approver 1.' : 'Configure Email and AWS Console integration settings for IAM Approver 2.' }" class="kyraIamSlideSubtitle" />
+                                        </VBox>
+                                    </HBox>
+                                    <Button
+                                        id="btnCloseIamDetailTop"
+                                        icon="sap-icon://decline"
+                                        tooltip="Close Section"
+                                        press=".onCloseAdminSection"
+                                        class="kyraCloseIconBtn kyraIamCloseBtn" />
+                                </HBox>
 
                             <!-- ========================================================================= -->
                             <VBox id="approver1DetailSection"
@@ -2255,6 +2288,13 @@
                                                 press=".onSaveApprover1Email"
                                                 type="Emphasized"
                                                 class="kyraApproverSaveBtn" />
+                                            <Button
+                                                icon="sap-icon://navigation-right-arrow"
+                                                iconFirst="false"
+                                                text="Next: Console Integration"
+                                                type="Default"
+                                                press=".onGoToApprover1Console"
+                                                class="kyraSecondaryBtn" />
                                         </HBox>
                                     </VBox>
                                 </VBox>
@@ -2432,6 +2472,12 @@
 
                                         <!-- Buttons -->
                                         <HBox justifyContent="End" alignItems="Center" gap="14px" width="100%" class="kyraApproverBtnRow sapUiSmallMarginTop">
+                                            <Button
+                                                icon="sap-icon://navigation-left-arrow"
+                                                text="Previous: Email Integration"
+                                                type="Default"
+                                                press=".onGoToApprover1Email"
+                                                class="kyraSecondaryBtn" />
                                             <Button
                                                 icon="sap-icon://flash"
                                                 text="Test AWS Connection"
@@ -2631,6 +2677,13 @@
                                                 press=".onSaveApprover2Email"
                                                 type="Emphasized"
                                                 class="kyraApproverSaveBtn" />
+                                            <Button
+                                                icon="sap-icon://navigation-right-arrow"
+                                                iconFirst="false"
+                                                text="Next: Console Integration"
+                                                type="Default"
+                                                press=".onGoToApprover2Console"
+                                                class="kyraSecondaryBtn" />
                                         </HBox>
                                     </VBox>
                                 </VBox>
@@ -2906,19 +2959,27 @@
                             </VBox>
 
                             <!-- Bottom Divider & Action Bar -->
-                            <HBox visible="{= !!${accessModel>/selectedIamApprover} }" class="kyraCardDivider sapUiSmallMarginTop sapUiSmallMarginBottom" />
-                            <HBox visible="{= !!${accessModel>/selectedIamApprover} }" justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
-                                <HBox alignItems="Center" class="kyraDarkPromptBox">
-                                    <Text text="Active Approver Scope: " class="kyraDarkPromptHint" />
-                                    <Text text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'IAM Approver 2 (Level 2 Final Reviewer)' : 'IAM Approver 1 (Level 1 Reviewer)' }" class="kyraDarkPromptTarget" />
+                                <HBox class="kyraCardDivider sapUiSmallMarginTop sapUiSmallMarginBottom" />
+                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                    <Button
+                                        id="btnBackToIamCardsBottom"
+                                        icon="sap-icon://nav-back"
+                                        text="Back to Approver Cards"
+                                        type="Default"
+                                        press=".onBackToIamApproverCards"
+                                        class="kyraSecondaryBtn" />
+                                    <HBox alignItems="Center" class="kyraDarkPromptBox">
+                                        <Text text="Active Approver Scope: " class="kyraDarkPromptHint" />
+                                        <Text text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'IAM Approver 2 (Level 2 Final Reviewer)' : 'IAM Approver 1 (Level 1 Reviewer)' }" class="kyraDarkPromptTarget" />
+                                    </HBox>
+                                    <Button
+                                        text="Close Section"
+                                        icon="sap-icon://decline"
+                                        type="Transparent"
+                                        press=".onCloseAdminSection"
+                                        class="kyraDarkBackLinkBtn" />
                                 </HBox>
-                                <Button
-                                    text="Close Section"
-                                    icon="sap-icon://decline"
-                                    type="Transparent"
-                                    press=".onCloseAdminSection"
-                                    class="kyraDarkBackLinkBtn" />
-                            </HBox>
+                            </VBox>
                         </VBox>
 
                     </VBox>

@@ -65581,20 +65581,25 @@ html body .sapUiTheme-sap_horizon .kyraEnterpriseBtnOutline .sapMBtnInner {
 
 /* ========================================================================= */
 
-/* Entra ID Icon Sizing in Squircle */
-.kyraIamSquircleImg,
-.kyraIamSquircleImg.sapMImg,
-.kyraIamSquircleImg1 {
-    width: 34px !important;
-    height: 34px !important;
-    min-width: 34px !important;
-    min-height: 34px !important;
+/* Identity Provider Mini Logo Sizing in Bottom Details Tray */
+.kyraIamDetailLogoImg,
+.kyraIamDetailLogoImg.sapMImg {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
     display: inline-block !important;
     object-fit: contain !important;
-    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjxzdmcgaWQ9InV1aWQtZjhkNGQzOTItN2MxMi00YmQ5LWJhZmYtNjZmYmY3ODE0YjkxIiBkYXRhLW5hbWU9IkxheWVyIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDE4IDE4Ij4NCiAgPHBhdGggZD0ibTMuODAyLDE0LjAzMmMuMzg4LjI0MiwxLjAzMy41MTEsMS43MTUuNTExLjYyMSwwLDEuMTk4LS4xOCwxLjY3Ni0uNDg3LDAsMCwuMDAxLDAsLjAwMi0uMDAxbDEuODA1LTEuMTI4djQuMDczYy0uMjg2LDAtLjU3NC0uMDc4LS44MjQtLjIzNGwtNC4zNzQtMi43MzRaIiBmaWxsPSIjMjI1MDg2Ii8+DQogIDxwYXRoIGQ9Im03Ljg1MywxLjUwN0wuMzUzLDkuOTY3Yy0uNTc5LjY1NC0uNDI4LDEuNjQyLjMyMywyLjExMSwwLDAsMi43NzYsMS43MzUsMy4xMjYsMS45NTQuMzg4LjI0MiwxLjAzMy41MTEsMS43MTUuNTExLjYyMSwwLDEuMTk4LS4xOCwxLjY3Ni0uNDg3LDAsMCwuMDAxLDAsLjAwMi0uMDAxbDEuODA1LTEuMTI4LTQuMzY0LTIuNzI4LDQuMzY1LTQuOTI0VjFzMCwwLDAsMGMtLjQyNCwwLS44NDcuMTY5LTEuMTQ3LjUwN1oiIGZpbGw9IiM2ZGYiLz4NCiAgPHBvbHlnb24gcG9pbnRzPSI0LjYzNiAxMC4xOTkgNC42ODggMTAuMjMxIDkgMTIuOTI3IDkuMDAxIDEyLjkyNyA5LjAwMSAxMi45MjcgOS4wMDEgNS4yNzYgOSA1LjI3NSA0LjYzNiAxMC4xOTkiIGZpbGw9IiNjYmY4ZmYiLz4NCiAgPHBhdGggZD0ibTE3LjMyNCwxMi4wNzhjLjc1MS0uNDY5LjkwMi0xLjQ1Ny4zMjMtMi4xMTFsLTQuOTIxLTUuNTUxYy0uMzk3LS4xODUtLjg0Mi0uMjkxLTEuMzEzLS4yOTEtLjkyNSwwLTEuNzUyLjM5OS0yLjMwMiwxLjAyNmwtLjEwOS4xMjNoMHM0LjM2NCw0LjkyNCw0LjM2NCw0LjkyNGgwczAsMCwwLDBsLTQuMzY1LDIuNzI4djQuMDczYy4yODcsMCwuNTczLS4wNzguODIzLS4yMzRsNy41LTQuNjg4WiIgZmlsbD0iIzA3NDc5MyIvPg0KICA8cGF0aCBkPSJtOS4wMDEsMXY0LjI3NXMuMTA5LS4xMjMuMTA5LS4xMjNjLjU1LS42MjcsMS4zNzctMS4wMjYsMi4zMDItMS4wMjYuNDcyLDAsLjkxNi4xMDcsMS4zMTMuMjkxbC0yLjU3OS0yLjkwOWMtLjI5OS0uMzM4LS43MjMtLjUwNy0xLjE0Ni0uNTA3WiIgZmlsbD0iIzAyOTRlNCIvPg0KICA8cG9seWdvbiBwb2ludHM9IjEzLjM2NSAxMC4xOTkgMTMuMzY1IDEwLjE5OSAxMy4zNjUgMTAuMTk5IDkuMDAxIDUuMjc2IDkuMDAxIDEyLjkyNiAxMy4zNjUgMTAuMTk5IiBmaWxsPSIjOTZiY2MyIi8+DQo8L3N2Zz4=') !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
-    background-size: contain !important;
+}
+
+.kyraIamDetailSapLogoImg,
+.kyraIamDetailSapLogoImg.sapMImg {
+    width: 24px !important;
+    height: 12px !important;
+    min-width: 24px !important;
+    min-height: 12px !important;
+    display: inline-block !important;
+    object-fit: contain !important;
 }
 
 /* Clean light background with subtle gradient & soft shadows matching reference */
