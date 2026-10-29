@@ -12451,7 +12451,19 @@ sap.ui.define([
         },
 
         onViewAccessDetails(oEvent) {
-            const oItem = oEvent.getSource().getBindingContext("accessModel").getObject();
+            if (!oEvent) return;
+            const oSource = typeof oEvent.getSource === "function" ? oEvent.getSource() : null;
+            let oContext = oSource && typeof oSource.getBindingContext === "function" ? oSource.getBindingContext("accessModel") : null;
+            if (!oContext && oSource && typeof oSource.getParent === "function" && oSource.getParent()) {
+                oContext = typeof oSource.getParent().getBindingContext === "function" ? oSource.getParent().getBindingContext("accessModel") : null;
+            }
+            if (!oContext && typeof oEvent.getParameter === "function") {
+                const oListItem = oEvent.getParameter("listItem");
+                if (oListItem && typeof oListItem.getBindingContext === "function") {
+                    oContext = oListItem.getBindingContext("accessModel");
+                }
+            }
+            const oItem = oContext ? oContext.getObject() : null;
             if (!oItem) return;
             this._showAccessDetailsDialog(oItem);
         },

@@ -4494,6 +4494,7 @@
                         id="myAccessMasterSectionTable"
                         fixedLayout="true"
                         items="{accessModel>/userAccessList}"
+                        itemPress=".onViewAccessDetails"
                         noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
@@ -4502,16 +4503,15 @@
                             </VBox>
                         </noData>
                         <columns>
-                            <Column width="18%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="17%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="17%" hAlign="Center"><Text text="TEAM" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="18%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="11%" hAlign="Center"><Text text="EXPIRY DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="11%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="8%" hAlign="Center"><Text text="ACTION" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="20%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="18%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="18%" hAlign="Center"><Text text="TEAM" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="20%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="12%" hAlign="Center"><Text text="EXPIRY DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="12%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
-                            <ColumnListItem highlight="None" vAlign="Middle" class="kyraTableRow">
+                            <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onViewAccessDetails" class="kyraTableRow kyraClickableTableRow">
                                 <cells>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{accessModel>system}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
@@ -4533,14 +4533,6 @@
                                             text="{accessModel>status}"
                                             state="{accessModel>statusState}"
                                             class="kyraTableStatusBadge" />
-                                    </HBox>
-                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
-                                        <Button
-                                            icon="sap-icon://overflow"
-                                            type="Transparent"
-                                            press=".onViewAccessDetails"
-                                            tooltip="View entitlement &amp; audit summary"
-                                            class="fioriThreeDotBtn kyraTableActionBtn" />
                                     </HBox>
                                 </cells>
                             </ColumnListItem>
