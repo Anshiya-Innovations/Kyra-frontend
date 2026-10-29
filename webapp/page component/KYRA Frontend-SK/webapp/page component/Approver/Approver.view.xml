@@ -205,7 +205,7 @@
             <!-- SECTION 3: PROCESSED APPROVAL HISTORY LOG -->
             <Table
                 id="approvalHistoryTable"
-                visible="{= ${accessModel>/showApprovalHistory} === true }"
+                visible="{= ${accessModel>/showApprovalHistory} === true &amp;&amp; !!${accessModel>/displayedHistoryRequests} &amp;&amp; ${accessModel>/displayedHistoryRequests}.length &gt; 0 }"
                 items="{accessModel>/displayedHistoryRequests}"
                 fixedLayout="true"
                 growing="true"
@@ -267,6 +267,14 @@
                     </ColumnListItem>
                 </items>
             </Table>
+            <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= ${accessModel>/showApprovalHistory} === true &amp;&amp; (!${accessModel>/displayedHistoryRequests} || ${accessModel>/displayedHistoryRequests}.length === 0) }">
+                <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
+                    <core:Icon src="sap-icon://history" class="kyraValClipboardIcon" />
+                    <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />
+                </HBox>
+                <Text text="No Processed History Records" class="kyraValEmptyTitle" />
+                <Text text="No processed history records available for this filter." class="kyraValEmptyDesc" />
+            </VBox>
         </VBox>
     </VBox>
 </mvc:View>
