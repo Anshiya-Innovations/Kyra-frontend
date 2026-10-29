@@ -4248,6 +4248,7 @@
                         id="myAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/displayedUserAccessList}"
+                        itemPress=".onViewAccessDetails"
                         noDataText="No Data"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
@@ -4256,11 +4257,12 @@
                             </VBox>
                         </noData>
                         <columns>
-                            <Column width="24%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="22%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="22%" hAlign="Center"><Text text="TEAM" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="18%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
-                            <Column width="14%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="20%" hAlign="Center"><Text text="SYSTEM NAME" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="18%" hAlign="Center"><Text text="SERVICES" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="18%" hAlign="Center"><Text text="TEAM" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="20%" hAlign="Center"><Text text="PERSONA" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="12%" hAlign="Center"><Text text="EXPIRY DATE" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
+                            <Column width="12%" hAlign="Center"><Text text="STATUS" wrapping="false" class="kyraEntitlementColHeader kyraColHeadCenter" /></Column>
                         </columns>
                         <items>
                             <ColumnListItem highlight="None" vAlign="Middle" type="Active" press=".onViewAccessDetails" class="kyraTableRow kyraClickableTableRow">
@@ -4276,6 +4278,9 @@
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <Text text="{accessModel>persona}" wrapping="true" class="kyraCellText kyraCellTextCenter" />
+                                    </HBox>
+                                    <HBox justifyContent="Center" alignItems="Center" width="100%">
+                                        <Text text="{accessModel>expiryDate}" wrapping="false" class="kyraCellTextCenter" />
                                     </HBox>
                                     <HBox justifyContent="Center" alignItems="Center" width="100%">
                                         <ObjectStatus
