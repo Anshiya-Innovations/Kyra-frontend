@@ -484,6 +484,8 @@ sap.ui.define([
                 selectedIntegrationType: "",
                 adGroupIntegration: {
                     directoryProvider: "",
+                    providerState: "None",
+                    providerStateText: "",
                     // Microsoft Entra ID
                     azureTenantId: "",
                     azureClientId: "",
@@ -20722,7 +20724,7 @@ sap.ui.define([
 
                 case "serviceKey":
                     if (!val) {
-                        return { state: "None", text: "" };
+                        return { state: "Error", text: "Required: SAP BTP Service Key JSON cannot be empty." };
                     }
                     try {
                         const parsed = JSON.parse(val);
@@ -20807,19 +20809,28 @@ sap.ui.define([
                     return { state: "None", text: "" };
 
                 case "cfOrg":
-                    if (val && /\s/.test(val)) {
+                    if (!val) {
+                        return { state: "Error", text: "Required: Cloud Foundry Org Name cannot be empty." };
+                    }
+                    if (/\s/.test(val)) {
                         return { state: "Error", text: "Invalid format: Cloud Foundry Org Name must not contain spaces." };
                     }
                     return { state: "None", text: "" };
 
                 case "cfSpace":
-                    if (val && /\s/.test(val)) {
+                    if (!val) {
+                        return { state: "Error", text: "Required: Cloud Foundry Space Name cannot be empty." };
+                    }
+                    if (/\s/.test(val)) {
                         return { state: "Error", text: "Invalid format: Cloud Foundry Space Name must not contain spaces." };
                     }
                     return { state: "None", text: "" };
 
                 case "cfApi":
-                    if (val && !/^https:\/\/[a-zA-Z0-9-.]+/i.test(val)) {
+                    if (!val) {
+                        return { state: "Error", text: "Required: Cloud Foundry API Endpoint cannot be empty." };
+                    }
+                    if (!/^https:\/\/[a-zA-Z0-9-.]+/i.test(val)) {
                         return { state: "Error", text: "Invalid URL: Endpoint must start with https://" };
                     }
                     return { state: "None", text: "" };
@@ -20913,6 +20924,17 @@ sap.ui.define([
             oModel.setProperty("/sapIntegration/selectedApp", "sap_btp");
             const sVal = oModel.getProperty("/sapIntegration/btp/serviceKeyJson") || "";
             if (!sVal.trim()) {
+                const sampleKey = JSON.stringify({
+                    clientid: "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c!a725755",
+                    clientsecret: "95425be0-a145-4210-bab9-8286246f5707$naofJGTLH2dNzhopzCwWcWQLzfI42gWHIX2wk99vMfI=",
+                    url: "https://5af75fc5trial.authentication.us10.hana.ondemand.com",
+                    apiurl: "https://api.authentication.us10.hana.ondemand.com",
+                    subaccountid: "33d545ed-34b8-4d60-8789-38e9f943e8ad",
+                    identityzone: "5af75fc5trial"
+                }, null, 2);
+                oModel.setProperty("/sapIntegration/btp/serviceKeyJson", sampleKey);
+                oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");
+                oModel.setProperty("/sapIntegration/btp/serviceKeyJsonStateText", "");
                 oModel.setProperty("/sapIntegration/btp/region", "us10");
                 oModel.setProperty("/sapIntegration/btp/subdomain", "5af75fc5trial");
                 oModel.setProperty("/sapIntegration/btp/idpOrigin", "sap.ids");
@@ -20927,6 +20949,16 @@ sap.ui.define([
                 oModel.setProperty("/sapIntegration/btp/provisioningScope", "both");
                 oModel.setProperty("/sapIntegration/btp/autoProvisioning", true);
                 oModel.setProperty("/sapIntegration/btp/ssl", true);
+                
+                // Clear all error states
+                const states = ["appState", "serviceKeyJsonState", "regionState", "subdomainState", "urlState", "subaccountState", "tokenUrlState", "idpOriginState", "clientIdState", "clientSecretState", "cfOrgState", "cfSpaceState", "cfApiState"];
+                states.forEach(s => {
+                    oModel.setProperty("/sapIntegration/btp/" + s, "None");
+                    oModel.setProperty("/sapIntegration/btp/" + s + "Text", "");
+                });
+                oModel.setProperty("/sapIntegration/appState", "None");
+                oModel.setProperty("/sapIntegration/appStateText", "");
+
                 MessageToast.show("Credentials & landscape endpoints successfully auto-filled from SAP BTP Service Key!");
                 return;
             }
@@ -20980,8 +21012,9 @@ sap.ui.define([
             const sKey = oEvent.getSource().getSelectedKey();
             oModel.setProperty("/adGroupIntegration/directoryProvider", sKey);
             oModel.setProperty("/adGroupIntegration/connected", false);
-            oModel.setProperty("/adGroupIntegration/providerState", "None");
-            oModel.setProperty("/adGroupIntegration/providerStateText", "");
+            const provRes = this._validateAdField("provider", sKey);
+            oModel.setProperty("/adGroupIntegration/providerState", provRes.state);
+            oModel.setProperty("/adGroupIntegration/providerStateText", provRes.text);
 
             const providerLabels = {
                 "azure_ad": "Microsoft Entra ID (Azure Active Directory)",
@@ -20999,6 +21032,7 @@ sap.ui.define([
             const val = (sVal || "").trim();
             switch (sType) {
                 case "provider":
+                    if (!val) return { state: "Error", text: "Required: Please select a Directory Service Provider." };
                     return { state: "None", text: "" };
                 case "azureTenantId":
                     if (!val) return { state: "Error", text: "Required: Please enter Directory (Tenant) ID." };
@@ -21042,7 +21076,8 @@ sap.ui.define([
             }
             if (!sType) {
                 const sId = oSource.getId() || "";
-                if (sId.includes("azureAdTenantId")) sType = "azureTenantId";
+                if (sId.includes("adProviderSelect")) sType = "provider";
+                else if (sId.includes("azureAdTenantId")) sType = "azureTenantId";
                 else if (sId.includes("azureAdDomainFqdn")) sType = "domainFqdn";
                 else if (sId.includes("azureAdClientId")) sType = "azureClientId";
                 else if (sId.includes("azureAdClientSecret")) sType = "azureClientSecret";
@@ -21055,12 +21090,16 @@ sap.ui.define([
             if (typeof oEvent.getParameter === "function") {
                 sVal = oEvent.getParameter("value") || oEvent.getParameter("newValue") || "";
             }
+            if (!sVal && typeof oSource.getSelectedKey === "function") {
+                sVal = oSource.getSelectedKey();
+            }
             if (!sVal && typeof oSource.getValue === "function") {
                 sVal = oSource.getValue();
             }
 
             const res = this._validateAdField(sType, sVal);
             const mPaths = {
+                provider: ["/adGroupIntegration/providerState", "/adGroupIntegration/providerStateText"],
                 azureTenantId: ["/adGroupIntegration/azureTenantIdState", "/adGroupIntegration/azureTenantIdStateText"],
                 domainFqdn: ["/adGroupIntegration/domainFqdnState", "/adGroupIntegration/domainFqdnStateText"],
                 azureClientId: ["/adGroupIntegration/azureClientIdState", "/adGroupIntegration/azureClientIdStateText"],
@@ -21083,6 +21122,14 @@ sap.ui.define([
 
             let bValid = true;
             let oFirstErrorField = null;
+
+            const provRes = this._validateAdField("provider", sProvider);
+            oModel.setProperty("/adGroupIntegration/providerState", provRes.state);
+            oModel.setProperty("/adGroupIntegration/providerStateText", provRes.text);
+            if (provRes.state === "Error") {
+                bValid = false;
+                if (!oFirstErrorField) oFirstErrorField = this.byId("adProviderSelect");
+            }
 
             const sTargetProvider = sProvider || "azure_ad";
 
@@ -21261,6 +21308,7 @@ sap.ui.define([
             const btp = oModel.getProperty("/sapIntegration/btp") || {};
 
             const aFieldValidations = [
+                { type: "serviceKey", value: btp.serviceKeyJson, stateProp: "/sapIntegration/btp/serviceKeyJsonState", textProp: "/sapIntegration/btp/serviceKeyJsonStateText", controlId: "inputSapBtpServiceKey" },
                 { type: "region", value: btp.region, stateProp: "/sapIntegration/btp/regionState", textProp: "/sapIntegration/btp/regionStateText", controlId: "inputSapBtpRegion" },
                 { type: "subdomain", value: btp.subdomain, stateProp: "/sapIntegration/btp/subdomainState", textProp: "/sapIntegration/btp/subdomainStateText", controlId: "inputSapBtpSubdomain" },
                 { type: "scimUrl", value: btp.url, stateProp: "/sapIntegration/btp/urlState", textProp: "/sapIntegration/btp/urlStateText", controlId: "inputSapBtpUrl" },

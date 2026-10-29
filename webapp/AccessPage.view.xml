@@ -657,6 +657,7 @@
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
                                                 <Text text="Cloud Foundry Org Name" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
                                                 <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="btp_cf_org" tooltip="How to find Cloud Foundry Org" />
                                             </HBox>
                                             <Input
@@ -679,6 +680,7 @@
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
                                                 <Text text="Cloud Foundry Space Name" class="kyraDarkFieldLabel" />
+                                                <Text text=" *" class="kyraDarkRequiredStar" />
                                                 <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="btp_cf_space" tooltip="How to find Cloud Foundry Space" />
                                             </HBox>
                                             <Input
@@ -704,6 +706,7 @@
                                     <VBox width="100%" class="kyraDarkFieldGroup">
                                         <HBox alignItems="Center" class="kyraDarkLabelRow">
                                             <Text text="Cloud Foundry API Endpoint" class="kyraDarkFieldLabel" />
+                                            <Text text=" *" class="kyraDarkRequiredStar" />
                                             <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="btp_cf_api" tooltip="How to find Cloud Foundry API Endpoint" />
                                         </HBox>
                                         <Input
@@ -1562,6 +1565,9 @@
                                         <Select
                                             id="adProviderSelect"
                                             selectedKey="{accessModel>/adGroupIntegration/directoryProvider}"
+                                            valueState="{accessModel>/adGroupIntegration/providerState}"
+                                            valueStateText="{accessModel>/adGroupIntegration/providerStateText}"
+                                            showValueStateMessage="false"
                                             change=".onAdProviderChange"
                                             width="100%"
                                             class="kyraDarkSelect">
@@ -1571,6 +1577,10 @@
                                             <core:Item key="onprem_ad" text="Microsoft Active Directory Domain Services (AD DS - On-Premises)" />
                                             <core:Item key="openldap" text="OpenLDAP / FreeIPA Directory Service" />
                                         </Select>
+                                        <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/providerState} === 'Error' }" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                            <Text text="{accessModel>/adGroupIntegration/providerStateText}" class="kyraValidationPopupText" />
+                                        </HBox>
                                     </VBox>
 
                                     <!-- DYNAMIC FIELDS A: MICROSOFT ENTRA ID (AZURE AD) CLOUD DIRECTORY -->
