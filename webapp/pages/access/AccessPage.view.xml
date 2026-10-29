@@ -328,8 +328,8 @@
                                     id="btnCloseSapConfigTop"
                                     icon="sap-icon://decline"
                                     type="Transparent"
-                                    press=".onCloseAdminSection"
-                                    tooltip="Close Section"
+                                    press=".onBackToIntegrationsList"
+                                    tooltip="Back to Integration Management"
                                     class="kyraCloseIconBtn" />
                             </HBox>
 
@@ -1195,10 +1195,11 @@
                                     <Text text="Manage connected SAP BTP environments, active cloud subscriptions, and live resource quotas." class="kyraDarkStudioSubtitle" />
                                 </VBox>
                                 <Button
+                                    id="btnCloseSapAppsTop"
                                     icon="sap-icon://decline"
                                     type="Transparent"
-                                    press=".onCloseAdminSection"
-                                    tooltip="Close Section"
+                                    press=".onBackToIntegrationsList"
+                                    tooltip="Back to Integration Management"
                                     class="kyraCloseIconBtn" />
                             </HBox>
 
@@ -1377,7 +1378,8 @@
                                         <Title text="Discovered Active Directory Security Groups" level="H2" class="kyraDarkStudioTitle" />
                                         <Text text="Connected Active Directory Security Groups • Synchronized identity groups and automated user persona mappings across your enterprise directory." class="kyraDarkStudioSubtitle" />
                                     </VBox>
-                                    <Button
+                                    <HBox alignItems="Center" gap="10px">
+                                        <Button
                                         id="btnAddAdIntegration"
                                         text="Add"
                                         icon="sap-icon://add"
@@ -1385,6 +1387,14 @@
                                         press=".onOpenAdConfig"
                                         class="kyraDarkPrimaryActionBtn"
                                         tooltip="Add New AD Integration / Security Group" />
+                                        <Button
+                                            id="btnCloseAdDiscoveredTop"
+                                            icon="sap-icon://decline"
+                                            type="Transparent"
+                                            press=".onBackToIntegrationsList"
+                                            tooltip="Back to Integration Management"
+                                            class="kyraCloseIconBtn" />
+                                    </HBox>
                                 </HBox>
 
                                 <!-- Discovered AD Groups Preview Table (Exact Image 1 Match) -->
@@ -1511,8 +1521,8 @@
                                         id="btnCloseAdConfigTop"
                                         icon="sap-icon://decline"
                                         type="Transparent"
-                                        press=".onCloseAdminSection"
-                                        tooltip="Close Section"
+                                        press=".onBackToIntegrationsList"
+                                        tooltip="Back to Integration Management"
                                         class="kyraCloseIconBtn" />
                                 </HBox>
 
@@ -2003,7 +2013,7 @@
                                 </VBox>
 
                                 <!-- Bottom Action Bar -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar sapUiSmallMarginTop">
+                                <HBox justifyContent="Start" alignItems="Center" width="100%" class="kyraDarkBottomBar sapUiSmallMarginTop">
                                     <Button
                                         id="btnBackFromAdConfigBottom"
                                         text="Back"
@@ -2011,12 +2021,6 @@
                                         type="Default"
                                         press=".onBackToDiscoveredAdGroups"
                                         class="kyraSapBackBtn" />
-                                    <Button
-                                        text="Close Section"
-                                        icon="sap-icon://decline"
-                                        type="Default"
-                                        press=".onCloseAdminSection"
-                                        class="kyraSapCloseBtn" />
                                 </HBox>
                             </VBox>
 
@@ -2212,8 +2216,8 @@
                                     <Button
                                         id="btnCloseIamDetailTop"
                                         icon="sap-icon://decline"
-                                        tooltip="Close Section"
-                                        press=".onCloseAdminSection"
+                                        tooltip="Back to Integration Management"
+                                        press=".onBackToIntegrationsList"
                                         class="kyraCloseIconBtn kyraIamCloseBtn" />
                                 </HBox>
 

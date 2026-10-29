@@ -1461,7 +1461,12 @@ sap.ui.define([
                         this.onBackToIamApproverCards();
                         return;
                     }
-                    const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseSapConfigTop, [id$='btnCloseSapConfigTop'], #btnCloseIntegrationManagementTop, [id$='btnCloseIntegrationManagementTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn, .kyraCloseIconBtn");
+                    const btnCloseSubInt = e.target.closest("#btnCloseSapAppsTop, [id$='btnCloseSapAppsTop'], #btnCloseSapConfigTop, [id$='btnCloseSapConfigTop'], #btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseAdDiscoveredTop, [id$='btnCloseAdDiscoveredTop'], #btnCloseIamDetailTop, [id$='btnCloseIamDetailTop']");
+                    if (btnCloseSubInt) {
+                        this.onBackToIntegrationsList();
+                        return;
+                    }
+                    const btnCloseAd = e.target.closest("#btnCloseIntegrationManagementTop, [id$='btnCloseIntegrationManagementTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn, .kyraCloseIconBtn");
                     if (btnCloseAd) {
                         this.onCloseAdminSection();
                         return;
@@ -16323,6 +16328,9 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/selectedIntegrationType", "");
+            oModel.setProperty("/selectedIamApprover", "");
+            oModel.setProperty("/sapIntegration/formMode", "");
+            oModel.setProperty("/adGroupIntegration/currentStep", 1);
             this._updateSubIntegrationCards(oModel);
             setTimeout(() => {
                 this._smoothScrollTo("adminDatabaseConfigSection", 40);
