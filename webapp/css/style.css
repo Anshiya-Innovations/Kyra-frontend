@@ -64442,6 +64442,8 @@ html body .sapUiTheme-sap_horizon .kyraIamTitleRow {
     margin-bottom: 38px !important;
     padding-bottom: 4px !important;
     box-sizing: border-box !important;
+    position: relative !important;
+    z-index: 10 !important;
 }
 
 .kyraIamTitleLeftBlock,
@@ -64540,10 +64542,10 @@ html body .sapUiTheme-sap_horizon .kyraIamCardsRow {
 .sapMFlexBox.kyraIamCardOuterWrapper,
 html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper {
     position: relative !important;
-    width: 535px !important;
-    height: 242px !important;
-    min-width: 535px !important;
-    min-height: 242px !important;
+    width: 520px !important;
+    height: 236px !important;
+    min-width: 520px !important;
+    min-height: 236px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
@@ -64570,62 +64572,63 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
 }
 
 /* ========================================================================= */
-/* EXACT REFERENCE MATCH: media_1793208081278_e1e8afcd.png                  */
-/* Authentic full-radius stacked cards: Dark Teal & Turquoise Mint           */
+/* EXACT REFERENCE MATCH: media_1793254100472_3aca8537.png / media_1793251445251_6b1cb733.png */
+/* Stacked Background Cards: Only visible peeking out from the right edge    */
+/* Strictly contained behind white card: NEVER overflows into header or left */
 /* ========================================================================= */
 
-/* Layer 1 (Dark Teal, Back Card): Exact card geometry and smooth radius */
+/* Layer 1 (Dark Teal, Back Card): Peeks out at top-right & bottom-right corner */
 .kyraIamCardOuter1::before,
 .kyraIamCardOuter2::before {
     content: '' !important;
     position: absolute !important;
-    right: 16px !important;
-    top: 4px !important;
-    width: 480px !important;
+    right: 18px !important;
+    top: 3px !important;
+    width: 220px !important;
     height: 226px !important;
     border-radius: 28px !important;
     background: linear-gradient(145deg, #05A6B1 0%, #007D88 100%) !important;
     background-color: #05A6B1 !important;
-    transform: rotate(-1.8deg) !important;
-    transform-origin: 30% 50% !important;
+    transform: rotate(-1.5deg) !important;
+    transform-origin: 65% 50% !important;
     z-index: 0 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
     opacity: 1 !important;
     visibility: visible !important;
-    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), top 0.32s cubic-bezier(0.16, 1, 0.3, 1), right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), top 0.28s cubic-bezier(0.16, 1, 0.3, 1), right 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* Layer 2 (Turquoise Mint, Middle Card): Exact card geometry and smooth radius */
+/* Layer 2 (Turquoise Mint, Middle Card): Peeks out furthest along middle-right edge */
 .kyraIamCardOuter1::after,
 .kyraIamCardOuter2::after {
     content: '' !important;
     position: absolute !important;
-    right: 6px !important;
-    top: 12px !important;
-    width: 480px !important;
-    height: 226px !important;
+    right: 8px !important;
+    top: 15px !important;
+    width: 220px !important;
+    height: 216px !important;
     border-radius: 28px !important;
     background: linear-gradient(145deg, #3DC0B0 0%, #24B1A0 100%) !important;
     background-color: #3DC0B0 !important;
-    transform: rotate(2.2deg) !important;
-    transform-origin: 30% 50% !important;
+    transform: rotate(2deg) !important;
+    transform-origin: 70% 70% !important;
     z-index: 1 !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
     opacity: 1 !important;
     visibility: visible !important;
-    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), top 0.32s cubic-bezier(0.16, 1, 0.3, 1), right 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), top 0.28s cubic-bezier(0.16, 1, 0.3, 1), right 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-/* HOVER TIME: SMOOTH IN-PLACE FANNING OF BACKGROUND CARDS (ROCK-SOLID ANCHORED) */
+/* HOVER TIME: SMOOTH DYNAMIC FANNING ON RIGHT EDGE (CARD STAYS ROCK-SOLID ANCHORED) */
 .kyraIamCardOuterWrapper:hover::before,
 .kyraIamCardOuterWrapper:has(.kyraIamWhiteCard:hover)::before,
 .kyraIamCardOuter1:hover::before,
 .kyraIamCardOuter2:hover::before {
-    transform: rotate(-3.8deg) !important;
-    top: 2px !important;
-    right: 14px !important;
+    transform: rotate(-2.8deg) !important;
+    top: 1px !important;
+    right: 16px !important;
     opacity: 1 !important;
     visibility: visible !important;
 }
@@ -64634,8 +64637,8 @@ html body .sapUiTheme-sap_horizon .kyraIamCardOuterWrapper > .sapMFlexItem {
 .kyraIamCardOuterWrapper:has(.kyraIamWhiteCard:hover)::after,
 .kyraIamCardOuter1:hover::after,
 .kyraIamCardOuter2:hover::after {
-    transform: rotate(4.2deg) !important;
-    top: 16px !important;
+    transform: rotate(3.6deg) !important;
+    top: 18px !important;
     right: 4px !important;
     opacity: 1 !important;
     visibility: visible !important;
