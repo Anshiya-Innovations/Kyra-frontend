@@ -314,7 +314,7 @@
                             width="100%"
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
-                            <!-- Top Title & Subtitle (Fully removed top back and view buttons) -->
+                            <!-- Top Title & Subtitle with Close Button -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
                                     <HBox alignItems="Center" gap="12px">
@@ -325,7 +325,13 @@
                                     </HBox>
                                     <Text text="{= ${accessModel>/sapIntegration/formMode} === 'edit' ? 'Update authentication credentials, Cloud Foundry endpoints, and connection parameters for this SAP application.' : 'Select your SAP application, enter authentication credentials and connection endpoints to integrate with Kyra.' }" class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
                                 </VBox>
-
+                                <Button
+                                    id="btnCloseSapConfigTop"
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseAdminSection"
+                                    tooltip="Close Section"
+                                    class="kyraCloseIconBtn" />
                             </HBox>
 
                             <!-- Target Destination Banner matching Image 2 -->
@@ -1163,7 +1169,7 @@
                             </VBox>
 
                             <!-- Bottom Action Bar -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                            <HBox justifyContent="Start" alignItems="Center" width="100%" class="kyraDarkBottomBar">
                                 <Button
                                     id="btnBackFromSapConfigBottom"
                                     text="Back"
@@ -1171,12 +1177,6 @@
                                     type="Default"
                                     press=".onBackToPurchasedApps"
                                     class="kyraSapBackBtn" />
-                                <Button
-                                    text="Close Section"
-                                    icon="sap-icon://decline"
-                                    type="Default"
-                                    press=".onCloseAdminSection"
-                                    class="kyraSapCloseBtn" />
                             </HBox>
                         </VBox>
 

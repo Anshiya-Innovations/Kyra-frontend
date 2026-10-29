@@ -1461,7 +1461,7 @@ sap.ui.define([
                         this.onBackToIamApproverCards();
                         return;
                     }
-                    const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn");
+                    const btnCloseAd = e.target.closest("#btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseSapConfigTop, [id$='btnCloseSapConfigTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn, .kyraCloseIconBtn");
                     if (btnCloseAd) {
                         this.onCloseAdminSection();
                         return;
