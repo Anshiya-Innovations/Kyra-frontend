@@ -368,6 +368,9 @@
                                     <ComboBox
                                         id="sapAppSelect"
                                         selectedKey="{accessModel>/sapIntegration/selectedApp}"
+                                        valueState="{accessModel>/sapIntegration/appState}"
+                                        valueStateText="{accessModel>/sapIntegration/appStateText}"
+                                        showValueStateMessage="false"
                                         selectionChange=".onSelectSapApp"
                                         change=".onSelectSapApp"
                                         placeholder="Select SAP Application..."
@@ -381,6 +384,10 @@
                                         <core:Item key="sap_sales_cloud" text="SAP Sales Cloud (C4C)" />
                                         <core:Item key="sap_analytics_cloud" text="SAP Analytics Cloud" />
                                     </ComboBox>
+                                    <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/appState} === 'Error' }" alignItems="Center" gap="6px">
+                                        <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                        <Text text="{accessModel>/sapIntegration/appStateText}" class="kyraValidationPopupText" />
+                                    </HBox>
                                 </VBox>
 
                                 <!-- ================================================================= -->
@@ -407,13 +414,20 @@
                                         <TextArea
                                             id="inputSapBtpServiceKey"
                                             value="{accessModel>/sapIntegration/btp/serviceKeyJson}"
+                                            valueState="{accessModel>/sapIntegration/btp/serviceKeyJsonState}"
+                                            valueStateText="{accessModel>/sapIntegration/btp/serviceKeyJsonStateText}"
                                             placeholder='Paste your SAP BTP Service Key JSON here:&#10;{&#10;  "clientid": "sb-na-581e795c-6a6a-4396-844c-a262d5145b1c1a725755",&#10;  "clientsecret": "...",&#10;  "url": "https://5af75fc5trial.authentication.us10.hana.ondemand.com",&#10;  "apiurl": "https://api.authentication.us10.hana.ondemand.com",&#10;  "subaccountid": "33d545ed-34b8-4d60-8789-38e9f943e8ad",&#10;  "identityzone": "5af75fc5trial"&#10;}'
                                             rows="5"
                                             width="100%"
                                             visible="true"
                                             showValueStateMessage="false"
                                             liveChange=".onServiceKeyJsonChange"
+                                            change=".onServiceKeyJsonChange"
                                             class="kyraDarkInput kyraDarkTextArea" />
+                                        <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/serviceKeyJsonState} === 'Error' }" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                            <Text text="{accessModel>/sapIntegration/btp/serviceKeyJsonStateText}" class="kyraValidationPopupText" />
+                                        </HBox>
                                         <Text text="* Required for automatic user provisioning: Kyra creates shadow users in the SAP BTP Subaccount Directory and assigns approved role collections automatically upon IAM Approver 2 approval." class="kyraDarkStudioSubtitle sapUiTinyMarginTop" />
                                     </VBox>
 
@@ -428,6 +442,12 @@
                                             <ComboBox
                                                 id="inputSapBtpRegion"
                                                 selectedKey="{accessModel>/sapIntegration/btp/region}"
+                                                valueState="{accessModel>/sapIntegration/btp/regionState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/regionStateText}"
+                                                showValueStateMessage="false"
+                                                selectionChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="region"
                                                 placeholder="Select Region..."
                                                 width="100%"
                                                 class="kyraDarkSelect fioriFormSelect">
@@ -441,6 +461,10 @@
                                                 <core:Item key="cf-us10" text="cf-us10 - Cloud Foundry US East" />
                                                 <core:Item key="cf-eu10" text="cf-eu10 - Cloud Foundry Europe" />
                                             </ComboBox>
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/regionState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/regionStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -451,9 +475,19 @@
                                             <Input
                                                 id="inputSapBtpSubdomain"
                                                 value="{accessModel>/sapIntegration/btp/subdomain}"
+                                                valueState="{accessModel>/sapIntegration/btp/subdomainState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/subdomainStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="subdomain"
                                                 placeholder="Enter Subaccount Subdomain (e.g. 5af75fc5trial)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/subdomainState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/subdomainStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
@@ -469,9 +503,18 @@
                                                 id="inputSapBtpUrl"
                                                 value="{accessModel>/sapIntegration/btp/url}"
                                                 valueState="{accessModel>/sapIntegration/btp/urlState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/urlStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="scimUrl"
                                                 placeholder="Enter SCIM API URL (e.g. https://api.authentication.us10.hana.ondemand.com)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/urlState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/urlStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -483,9 +526,18 @@
                                                 id="inputSapBtpSubaccount"
                                                 value="{accessModel>/sapIntegration/btp/subaccountId}"
                                                 valueState="{accessModel>/sapIntegration/btp/subaccountState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/subaccountStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="subaccountId"
                                                 placeholder="Enter Subaccount / Tenant ID (e.g. 33d545ed-34b8-4d60-8789-38e9f943e8ad)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/subaccountState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/subaccountStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
@@ -501,9 +553,18 @@
                                                 id="inputSapBtpTokenUrl"
                                                 value="{accessModel>/sapIntegration/btp/tokenUrl}"
                                                 valueState="{accessModel>/sapIntegration/btp/tokenUrlState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/tokenUrlStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="tokenUrl"
                                                 placeholder="Enter OAuth Token URL (e.g. https://5af75fc5trial.authentication.us10.hana.ondemand.com/oauth/token)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/tokenUrlState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/tokenUrlStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -514,6 +575,12 @@
                                             <ComboBox
                                                 id="inputSapBtpIdpOrigin"
                                                 selectedKey="{accessModel>/sapIntegration/btp/idpOrigin}"
+                                                valueState="{accessModel>/sapIntegration/btp/idpOriginState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/idpOriginStateText}"
+                                                showValueStateMessage="false"
+                                                selectionChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="idpOrigin"
                                                 placeholder="Select Identity Provider (IdP) Origin (e.g. sap.ids - SAP ID Service)..."
                                                 width="100%"
                                                 class="kyraDarkSelect fioriFormSelect">
@@ -522,6 +589,10 @@
                                                 <core:Item key="azure-ad" text="azure-ad - Corporate Microsoft Entra ID" />
                                                 <core:Item key="okta" text="okta - Corporate Okta Directory" />
                                             </ComboBox>
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/idpOriginState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/idpOriginStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
@@ -537,9 +608,18 @@
                                                 id="inputSapBtpClientId"
                                                 value="{accessModel>/sapIntegration/btp/clientId}"
                                                 valueState="{accessModel>/sapIntegration/btp/clientIdState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/clientIdStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="clientId"
                                                 placeholder="Enter OAuth Client ID (e.g. sb-na-581e795c...)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/clientIdState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/clientIdStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -551,10 +631,19 @@
                                                 id="inputSapBtpClientSecret"
                                                 value="{accessModel>/sapIntegration/btp/clientSecret}"
                                                 valueState="{accessModel>/sapIntegration/btp/clientSecretState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/clientSecretStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="clientSecret"
                                                 type="Password"
                                                 placeholder="Enter OAuth Client Secret..."
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/clientSecretState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/clientSecretStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
@@ -568,9 +657,19 @@
                                             <Input
                                                 id="inputSapBtpCfOrg"
                                                 value="{accessModel>/sapIntegration/btp/cfOrg}"
+                                                valueState="{accessModel>/sapIntegration/btp/cfOrgState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/cfOrgStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="cfOrg"
                                                 placeholder="Enter Cloud Foundry Org Name (e.g. 5af75fc5trial)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/cfOrgState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/cfOrgStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                         <VBox width="50%" class="kyraDarkFieldGroup">
                                             <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -580,25 +679,45 @@
                                             <Input
                                                 id="inputSapBtpCfSpace"
                                                 value="{accessModel>/sapIntegration/btp/cfSpace}"
+                                                valueState="{accessModel>/sapIntegration/btp/cfSpaceState}"
+                                                valueStateText="{accessModel>/sapIntegration/btp/cfSpaceStateText}"
+                                                showValueStateMessage="false"
+                                                liveChange=".onSapFieldLiveValidate"
+                                                change=".onSapFieldLiveValidate"
+                                                customData:validateType="cfSpace"
                                                 placeholder="Enter Cloud Foundry Space Name (e.g. dev)"
                                                 class="kyraDarkInput"
                                                 width="100%" />
+                                            <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/cfSpaceState} === 'Error' }" alignItems="Center" gap="6px">
+                                                <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                <Text text="{accessModel>/sapIntegration/btp/cfSpaceStateText}" class="kyraValidationPopupText" />
+                                            </HBox>
                                         </VBox>
                                     </HBox>
 
                                     <!-- Row 6: Cloud Foundry API Endpoint -->
                                     <VBox width="100%" class="kyraDarkFieldGroup">
-                                            <HBox alignItems="Center" class="kyraDarkLabelRow">
-                                                <Text text="Cloud Foundry API Endpoint" class="kyraDarkFieldLabel" />
-                                                <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="btp_cf_api" tooltip="How to find Cloud Foundry API Endpoint" />
-                                            </HBox>
-                                            <Input
-                                                id="inputSapBtpCfApi"
-                                                value="{accessModel>/sapIntegration/btp/cfApiUrl}"
-                                                placeholder="Enter Cloud Foundry API Endpoint (e.g. https://api.cf.us10-001.hana.ondemand.com)"
-                                                class="kyraDarkInput"
-                                                width="100%" />
-                                        </VBox>
+                                        <HBox alignItems="Center" class="kyraDarkLabelRow">
+                                            <Text text="Cloud Foundry API Endpoint" class="kyraDarkFieldLabel" />
+                                            <core:Icon src="sap-icon://information" class="kyraFieldInfoIcon" press=".onShowFieldInfo" customData:fieldKey="btp_cf_api" tooltip="How to find Cloud Foundry API Endpoint" />
+                                        </HBox>
+                                        <Input
+                                            id="inputSapBtpCfApi"
+                                            value="{accessModel>/sapIntegration/btp/cfApiUrl}"
+                                            valueState="{accessModel>/sapIntegration/btp/cfApiState}"
+                                            valueStateText="{accessModel>/sapIntegration/btp/cfApiStateText}"
+                                            showValueStateMessage="false"
+                                            liveChange=".onSapFieldLiveValidate"
+                                            change=".onSapFieldLiveValidate"
+                                            customData:validateType="cfApi"
+                                            placeholder="Enter Cloud Foundry API Endpoint (e.g. https://api.cf.us10-001.hana.ondemand.com)"
+                                            class="kyraDarkInput"
+                                            width="100%" />
+                                        <HBox class="kyraValidationPopup" visible="{= ${accessModel>/sapIntegration/btp/cfApiState} === 'Error' }" alignItems="Center" gap="6px">
+                                            <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                            <Text text="{accessModel>/sapIntegration/btp/cfApiStateText}" class="kyraValidationPopupText" />
+                                        </HBox>
+                                    </VBox>
 
                                     <!-- Row 8: Test & Save Integration Button -->
                                     <Button
@@ -1084,7 +1203,7 @@
                                     class="kyraCloseIconBtn" />
                             </HBox>
 
-                            <!-- Verified Banner with 2-Line Status and Add Integration Action -->
+                            <!-- Unified Status Banner with Right-Aligned Add Integration Button (No Tenant Verified Badge) -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
                                 <HBox alignItems="Center" class="kyraDarkTargetBannerLeft" gap="14px">
                                     <HBox class="kyraDarkGreenGlowDot" />
@@ -1097,18 +1216,13 @@
                                             class="kyraDarkBannerFormattedText" />
                                     </VBox>
                                 </HBox>
-                                <HBox alignItems="Center" gap="12px" class="kyraDarkTargetBannerRight">
-                                    <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
-                                        <Text text="Tenant Verified ✓" class="kyraDarkGreenPillText" />
-                                    </HBox>
-                                    <Button
-                                        id="btnAddIntegration"
-                                        text="Add Integration"
-                                        icon="sap-icon://add"
-                                        type="Emphasized"
-                                        press=".onAddIntegration"
-                                        class="kyraDarkPrimaryActionBtn" />
-                                </HBox>
+                                <Button
+                                    id="btnAddIntegration"
+                                    text="Add Integration"
+                                    icon="sap-icon://add"
+                                    type="Emphasized"
+                                    press=".onAddIntegration"
+                                    class="kyraDarkPrimaryActionBtn" />
                             </HBox>
 
                             <!-- Integrated SAP Application Cards (Dynamic List) -->
@@ -1136,9 +1250,9 @@
 
                                             <!-- Right: Status Badge & Interactive Action Buttons (Edit + Quotas) -->
                                             <VBox alignItems="End" justifyContent="SpaceBetween" gap="12px" class="kyraSapCardRightGroup">
-                                                <HBox class="kyraSapActiveStatusBadge" alignItems="Center" gap="4px">
-                                                    <Text text="{accessModel>statusText}" class="kyraSapActiveStatusText" />
-                                                    <core:Icon src="sap-icon://navigation-down-arrow" size="10px" class="kyraSapActiveStatusIcon" />
+                                                <HBox class="kyraSapActiveStatusBadge" alignItems="Center" gap="5px">
+                                                    <Text text="{= ${accessModel>statusText} === 'Purchased &amp; Active' ? 'Connected &amp; Active' : (${accessModel>statusText} || 'Connected &amp; Active') }" class="kyraSapActiveStatusText" />
+                                                    <core:Icon src="sap-icon://accept" size="11px" class="kyraSapActiveStatusIcon" />
                                                 </HBox>
                                                 <HBox alignItems="Center" gap="8px" class="kyraSapActionBtnRow">
                                                     <Button

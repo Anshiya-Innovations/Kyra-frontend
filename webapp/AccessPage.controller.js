@@ -828,7 +828,7 @@ sap.ui.define([
                         cfApiUrl: "https://api.cf.us10-001.hana.ondemand.com",
                         isConnected: true,
                         subscriptionTier: "Enterprise Subscription (dev space)",
-                        statusText: "Purchased & Active",
+                        statusText: "Connected & Active",
                         subaccountDetails: "Connected Subaccount: 5af75fc5trial • Region: us10 (North America (US East))",
                         statusSubtitle: "Status: Active Enterprise Subscription",
                         subaccountSubtitle: "Connected Subaccount: 5af75fc5trial • Region: us10 (North America (US East)) • Status: Active Enterprise Subscription",
@@ -858,7 +858,7 @@ sap.ui.define([
                         cfApiUrl: "https://api.cf.ap21.hana.ondemand.com",
                         isConnected: true,
                         subscriptionTier: "Enterprise Subscription (dev space)",
-                        statusText: "Purchased & Active",
+                        statusText: "Connected & Active",
                         subaccountDetails: "Connected Subaccount: kyra-singapore • Region: ap21 (Asia Pacific (Singapore))",
                         statusSubtitle: "Status: Active Enterprise Subscription",
                         subaccountSubtitle: "Connected Subaccount: kyra-singapore • Region: ap21 (Asia Pacific (Singapore)) • Status: Active Enterprise Subscription",
@@ -16357,6 +16357,32 @@ sap.ui.define([
             oModel.setProperty("/sapIntegration/btp/serviceKeyJson", "");
             oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");
             oModel.setProperty("/sapIntegration/btp/serviceKeyStatusText", "");
+            oModel.setProperty("/sapIntegration/appState", "None");
+            oModel.setProperty("/sapIntegration/appStateText", "");
+            oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");
+            oModel.setProperty("/sapIntegration/btp/serviceKeyJsonStateText", "");
+            oModel.setProperty("/sapIntegration/btp/regionState", "None");
+            oModel.setProperty("/sapIntegration/btp/regionStateText", "");
+            oModel.setProperty("/sapIntegration/btp/subdomainState", "None");
+            oModel.setProperty("/sapIntegration/btp/subdomainStateText", "");
+            oModel.setProperty("/sapIntegration/btp/urlState", "None");
+            oModel.setProperty("/sapIntegration/btp/urlStateText", "");
+            oModel.setProperty("/sapIntegration/btp/subaccountState", "None");
+            oModel.setProperty("/sapIntegration/btp/subaccountStateText", "");
+            oModel.setProperty("/sapIntegration/btp/tokenUrlState", "None");
+            oModel.setProperty("/sapIntegration/btp/tokenUrlStateText", "");
+            oModel.setProperty("/sapIntegration/btp/idpOriginState", "None");
+            oModel.setProperty("/sapIntegration/btp/idpOriginStateText", "");
+            oModel.setProperty("/sapIntegration/btp/clientIdState", "None");
+            oModel.setProperty("/sapIntegration/btp/clientIdStateText", "");
+            oModel.setProperty("/sapIntegration/btp/clientSecretState", "None");
+            oModel.setProperty("/sapIntegration/btp/clientSecretStateText", "");
+            oModel.setProperty("/sapIntegration/btp/cfOrgState", "None");
+            oModel.setProperty("/sapIntegration/btp/cfOrgStateText", "");
+            oModel.setProperty("/sapIntegration/btp/cfSpaceState", "None");
+            oModel.setProperty("/sapIntegration/btp/cfSpaceStateText", "");
+            oModel.setProperty("/sapIntegration/btp/cfApiState", "None");
+            oModel.setProperty("/sapIntegration/btp/cfApiStateText", "");
             oModel.setProperty("/sapIntegration/btp/region", "");
             oModel.setProperty("/sapIntegration/btp/subdomain", "");
             oModel.setProperty("/sapIntegration/btp/idpOrigin", "");
@@ -16444,6 +16470,32 @@ sap.ui.define([
                     sKeyJson = JSON.stringify(oKeyObj, null, 2);
                 }
                 oModel.setProperty("/sapIntegration/btp/serviceKeyJson", sKeyJson);
+                oModel.setProperty("/sapIntegration/appState", "None");
+                oModel.setProperty("/sapIntegration/appStateText", "");
+                oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", "None");
+                oModel.setProperty("/sapIntegration/btp/serviceKeyJsonStateText", "");
+                oModel.setProperty("/sapIntegration/btp/regionState", "None");
+                oModel.setProperty("/sapIntegration/btp/regionStateText", "");
+                oModel.setProperty("/sapIntegration/btp/subdomainState", "None");
+                oModel.setProperty("/sapIntegration/btp/subdomainStateText", "");
+                oModel.setProperty("/sapIntegration/btp/urlState", "None");
+                oModel.setProperty("/sapIntegration/btp/urlStateText", "");
+                oModel.setProperty("/sapIntegration/btp/subaccountState", "None");
+                oModel.setProperty("/sapIntegration/btp/subaccountStateText", "");
+                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "None");
+                oModel.setProperty("/sapIntegration/btp/tokenUrlStateText", "");
+                oModel.setProperty("/sapIntegration/btp/idpOriginState", "None");
+                oModel.setProperty("/sapIntegration/btp/idpOriginStateText", "");
+                oModel.setProperty("/sapIntegration/btp/clientIdState", "None");
+                oModel.setProperty("/sapIntegration/btp/clientIdStateText", "");
+                oModel.setProperty("/sapIntegration/btp/clientSecretState", "None");
+                oModel.setProperty("/sapIntegration/btp/clientSecretStateText", "");
+                oModel.setProperty("/sapIntegration/btp/cfOrgState", "None");
+                oModel.setProperty("/sapIntegration/btp/cfOrgStateText", "");
+                oModel.setProperty("/sapIntegration/btp/cfSpaceState", "None");
+                oModel.setProperty("/sapIntegration/btp/cfSpaceStateText", "");
+                oModel.setProperty("/sapIntegration/btp/cfApiState", "None");
+                oModel.setProperty("/sapIntegration/btp/cfApiStateText", "");
             }
 
             try { sap.ui.getCore().applyChanges(); } catch (e) {}
@@ -16521,7 +16573,7 @@ sap.ui.define([
                     const first = aIntegrations[0];
                     if (first) {
                         oModel.setProperty("/sapIntegration/connected", true);
-                        oModel.setProperty("/sapIntegration/statusText", first.statusText || "Purchased & Active");
+                        oModel.setProperty("/sapIntegration/statusText", first.statusText || "Connected & Active");
                     }
 
                     // Dynamically ensure all integrated systems are present in Access Customization System tab
@@ -20638,11 +20690,200 @@ sap.ui.define([
             oModel.setProperty("/sapIntegration/selectedApp", sKey || "");
         },
 
+        _validateSapField(sType, sVal) {
+            const val = (sVal || "").trim();
+            switch (sType) {
+                case "app":
+                    if (!val) {
+                        return { state: "Error", text: "Required: Please select an SAP application." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "serviceKey":
+                    if (!val) {
+                        return { state: "None", text: "" };
+                    }
+                    try {
+                        const parsed = JSON.parse(val);
+                        if (!parsed || typeof parsed !== "object") {
+                            return { state: "Error", text: "Invalid JSON format: Must be a valid JSON object." };
+                        }
+                        if (!parsed.clientid && !(parsed.uaa && parsed.uaa.clientid)) {
+                            return { state: "Error", text: "Invalid Service Key: Missing required 'clientid' field." };
+                        }
+                        if (!parsed.url && !parsed.apiurl && !(parsed.uaa && (parsed.uaa.url || parsed.uaa.apiurl))) {
+                            return { state: "Error", text: "Invalid Service Key: Missing required 'url' or 'apiurl' field." };
+                        }
+                    } catch (e) {
+                        return { state: "Error", text: "Invalid JSON syntax: " + e.message };
+                    }
+                    return { state: "None", text: "" };
+
+                case "region":
+                    if (!val) {
+                        return { state: "Error", text: "Required: Please select a BTP Landscape / Region." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "subdomain":
+                    if (!val) {
+                        return { state: "Error", text: "Required: Subaccount Subdomain cannot be empty." };
+                    }
+                    if (!/^[a-zA-Z0-9-]+$/.test(val)) {
+                        return { state: "Error", text: "Invalid format: Subdomain may only contain letters, numbers, and hyphens without spaces." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "scimUrl":
+                    if (!val) {
+                        return { state: "Error", text: "Required: BTP SCIM API URL cannot be empty." };
+                    }
+                    if (!/^https:\/\/[a-zA-Z0-9-.]+(:d+)?(\/.*)?$/i.test(val)) {
+                        return { state: "Error", text: "Invalid URL: Must start with https:// and be a valid web endpoint." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "subaccountId":
+                    if (!val) {
+                        return { state: "Error", text: "Required: Subaccount / Tenant ID cannot be empty." };
+                    }
+                    if (/\s/.test(val) || val.length < 8) {
+                        return { state: "Error", text: "Invalid format: Tenant ID must not contain spaces and must be at least 8 characters." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "tokenUrl":
+                    if (!val) {
+                        return { state: "Error", text: "Required: OAuth 2.0 Token URL cannot be empty." };
+                    }
+                    if (!/^https:\/\/[a-zA-Z0-9-.]+(:d+)?\/.*$/i.test(val) || !val.includes("/oauth/token")) {
+                        return { state: "Error", text: "Invalid URL: Must start with https:// and include /oauth/token" };
+                    }
+                    return { state: "None", text: "" };
+
+                case "idpOrigin":
+                    if (!val) {
+                        return { state: "Error", text: "Required: Please select or enter an Identity Provider Origin." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "clientId":
+                    if (!val) {
+                        return { state: "Error", text: "Required: OAuth Client ID cannot be empty." };
+                    }
+                    if (/\s/.test(val) || val.length < 5) {
+                        return { state: "Error", text: "Invalid format: Client ID must not contain spaces and must be at least 5 characters." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "clientSecret":
+                    if (!val) {
+                        return { state: "Error", text: "Required: OAuth Client Secret cannot be empty." };
+                    }
+                    if (val.length < 6) {
+                        return { state: "Error", text: "Invalid format: Client Secret must be at least 6 characters." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "cfOrg":
+                    if (val && /\s/.test(val)) {
+                        return { state: "Error", text: "Invalid format: Cloud Foundry Org Name must not contain spaces." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "cfSpace":
+                    if (val && /\s/.test(val)) {
+                        return { state: "Error", text: "Invalid format: Cloud Foundry Space Name must not contain spaces." };
+                    }
+                    return { state: "None", text: "" };
+
+                case "cfApi":
+                    if (val && !/^https:\/\/[a-zA-Z0-9-.]+/i.test(val)) {
+                        return { state: "Error", text: "Invalid URL: Endpoint must start with https://" };
+                    }
+                    return { state: "None", text: "" };
+
+                default:
+                    return { state: "None", text: "" };
+            }
+        },
+
+        onSapFieldLiveValidate(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !oEvent) return;
+            const oSource = oEvent.getSource();
+            let sType = "";
+            if (typeof oSource.data === "function") {
+                sType = oSource.data("validateType") || "";
+            }
+            if (!sType && typeof oSource.getCustomData === "function") {
+                const aData = oSource.getCustomData() || [];
+                for (let i = 0; i < aData.length; i++) {
+                    if (aData[i].getKey() === "validateType") {
+                        sType = aData[i].getValue();
+                        break;
+                    }
+                }
+            }
+            if (!sType) {
+                const sId = oSource.getId() || "";
+                if (sId.includes("Region")) sType = "region";
+                else if (sId.includes("Subdomain")) sType = "subdomain";
+                else if (sId.includes("Url") && !sId.includes("Token")) sType = "scimUrl";
+                else if (sId.includes("Subaccount")) sType = "subaccountId";
+                else if (sId.includes("TokenUrl")) sType = "tokenUrl";
+                else if (sId.includes("IdpOrigin")) sType = "idpOrigin";
+                else if (sId.includes("ClientId")) sType = "clientId";
+                else if (sId.includes("ClientSecret")) sType = "clientSecret";
+                else if (sId.includes("CfOrg")) sType = "cfOrg";
+                else if (sId.includes("CfSpace")) sType = "cfSpace";
+                else if (sId.includes("CfApi")) sType = "cfApi";
+            }
+            if (!sType) return;
+
+            let sVal = "";
+            if (typeof oEvent.getParameter === "function") {
+                sVal = oEvent.getParameter("value") || oEvent.getParameter("newValue") || "";
+            }
+            if (!sVal && typeof oSource.getSelectedKey === "function") {
+                sVal = oSource.getSelectedKey();
+            }
+            if (!sVal && typeof oSource.getValue === "function") {
+                sVal = oSource.getValue();
+            }
+
+            const res = this._validateSapField(sType, sVal);
+
+            const mPaths = {
+                region: ["/sapIntegration/btp/regionState", "/sapIntegration/btp/regionStateText"],
+                subdomain: ["/sapIntegration/btp/subdomainState", "/sapIntegration/btp/subdomainStateText"],
+                scimUrl: ["/sapIntegration/btp/urlState", "/sapIntegration/btp/urlStateText"],
+                subaccountId: ["/sapIntegration/btp/subaccountState", "/sapIntegration/btp/subaccountStateText"],
+                tokenUrl: ["/sapIntegration/btp/tokenUrlState", "/sapIntegration/btp/tokenUrlStateText"],
+                idpOrigin: ["/sapIntegration/btp/idpOriginState", "/sapIntegration/btp/idpOriginStateText"],
+                clientId: ["/sapIntegration/btp/clientIdState", "/sapIntegration/btp/clientIdStateText"],
+                clientSecret: ["/sapIntegration/btp/clientSecretState", "/sapIntegration/btp/clientSecretStateText"],
+                cfOrg: ["/sapIntegration/btp/cfOrgState", "/sapIntegration/btp/cfOrgStateText"],
+                cfSpace: ["/sapIntegration/btp/cfSpaceState", "/sapIntegration/btp/cfSpaceStateText"],
+                cfApi: ["/sapIntegration/btp/cfApiState", "/sapIntegration/btp/cfApiStateText"]
+            };
+
+            if (mPaths[sType]) {
+                oModel.setProperty(mPaths[sType][0], res.state);
+                oModel.setProperty(mPaths[sType][1], res.text);
+            }
+        },
+
         onServiceKeyJsonChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             const sVal = (oEvent ? (oEvent.getParameter("value") || oEvent.getParameter("newValue")) : oModel.getProperty("/sapIntegration/btp/serviceKeyJson")) || "";
-            this._parseAndApplyServiceKeyJson(oModel, sVal);
+            const res = this._validateSapField("serviceKey", sVal);
+            oModel.setProperty("/sapIntegration/btp/serviceKeyJsonState", res.state);
+            oModel.setProperty("/sapIntegration/btp/serviceKeyJsonStateText", res.text);
+            if (res.state !== "Error") {
+                this._parseAndApplyServiceKeyJson(oModel, sVal);
+            }
         },
 
         onAutoFillSapServiceKey() {
@@ -20991,64 +21232,64 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            const sApp = oModel.getProperty("/sapIntegration/selectedApp") || "sap_btp";
-            if (sApp !== "sap_btp") {
+            let bValid = true;
+            let oFirstErrorField = null;
+
+            const sApp = oModel.getProperty("/sapIntegration/selectedApp") || "";
+            const appRes = this._validateSapField("app", sApp);
+            oModel.setProperty("/sapIntegration/appState", appRes.state);
+            oModel.setProperty("/sapIntegration/appStateText", appRes.text);
+            if (appRes.state === "Error") {
+                bValid = false;
+                if (!oFirstErrorField) oFirstErrorField = this.byId("sapAppSelect");
+            }
+
+            if (sApp && sApp !== "sap_btp") {
                 MessageToast.show("Please select 'SAP Business Technology Platform (SAP BTP)' to test live integration.");
                 return;
             }
 
             const btp = oModel.getProperty("/sapIntegration/btp") || {};
-            let bValid = true;
 
-            // Validate URL (require valid URL format)
-            const sUrl = (btp.url || "").trim();
-            if (!sUrl || !/^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/i.test(sUrl)) {
-                oModel.setProperty("/sapIntegration/btp/urlState", "Error");
-                bValid = false;
-            } else {
-                oModel.setProperty("/sapIntegration/btp/urlState", "None");
-            }
+            const aFieldValidations = [
+                { type: "region", value: btp.region, stateProp: "/sapIntegration/btp/regionState", textProp: "/sapIntegration/btp/regionStateText", controlId: "inputSapBtpRegion" },
+                { type: "subdomain", value: btp.subdomain, stateProp: "/sapIntegration/btp/subdomainState", textProp: "/sapIntegration/btp/subdomainStateText", controlId: "inputSapBtpSubdomain" },
+                { type: "scimUrl", value: btp.url, stateProp: "/sapIntegration/btp/urlState", textProp: "/sapIntegration/btp/urlStateText", controlId: "inputSapBtpUrl" },
+                { type: "subaccountId", value: btp.subaccountId, stateProp: "/sapIntegration/btp/subaccountState", textProp: "/sapIntegration/btp/subaccountStateText", controlId: "inputSapBtpSubaccount" },
+                { type: "tokenUrl", value: btp.tokenUrl, stateProp: "/sapIntegration/btp/tokenUrlState", textProp: "/sapIntegration/btp/tokenUrlStateText", controlId: "inputSapBtpTokenUrl" },
+                { type: "idpOrigin", value: btp.idpOrigin, stateProp: "/sapIntegration/btp/idpOriginState", textProp: "/sapIntegration/btp/idpOriginStateText", controlId: "inputSapBtpIdpOrigin" },
+                { type: "clientId", value: btp.clientId, stateProp: "/sapIntegration/btp/clientIdState", textProp: "/sapIntegration/btp/clientIdStateText", controlId: "inputSapBtpClientId" },
+                { type: "clientSecret", value: btp.clientSecret, stateProp: "/sapIntegration/btp/clientSecretState", textProp: "/sapIntegration/btp/clientSecretStateText", controlId: "inputSapBtpClientSecret" },
+                { type: "cfOrg", value: btp.cfOrg, stateProp: "/sapIntegration/btp/cfOrgState", textProp: "/sapIntegration/btp/cfOrgStateText", controlId: "inputSapBtpCfOrg" },
+                { type: "cfSpace", value: btp.cfSpace, stateProp: "/sapIntegration/btp/cfSpaceState", textProp: "/sapIntegration/btp/cfSpaceStateText", controlId: "inputSapBtpCfSpace" },
+                { type: "cfApi", value: btp.cfApiUrl, stateProp: "/sapIntegration/btp/cfApiState", textProp: "/sapIntegration/btp/cfApiStateText", controlId: "inputSapBtpCfApi" }
+            ];
 
-            // Validate Subaccount ID (non-empty)
-            const sSub = (btp.subaccountId || "").trim();
-            if (!sSub) {
-                oModel.setProperty("/sapIntegration/btp/subaccountState", "Error");
-                bValid = false;
-            } else {
-                oModel.setProperty("/sapIntegration/btp/subaccountState", "None");
-            }
-
-            // Validate OAuth Token URL (require valid URL format)
-            const sTokenUrl = (btp.tokenUrl || "").trim();
-            if (!sTokenUrl || !/^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/i.test(sTokenUrl)) {
-                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "Error");
-                bValid = false;
-            } else {
-                oModel.setProperty("/sapIntegration/btp/tokenUrlState", "None");
-            }
-
-            // Validate Client ID (non-empty)
-            const sClient = (btp.clientId || "").trim();
-            if (!sClient) {
-                oModel.setProperty("/sapIntegration/btp/clientIdState", "Error");
-                bValid = false;
-            } else {
-                oModel.setProperty("/sapIntegration/btp/clientIdState", "None");
-            }
-
-            // Validate Client Secret (non-empty)
-            const sSecret = (btp.clientSecret || "").trim();
-            if (!sSecret) {
-                oModel.setProperty("/sapIntegration/btp/clientSecretState", "Error");
-                bValid = false;
-            } else {
-                oModel.setProperty("/sapIntegration/btp/clientSecretState", "None");
+            for (const f of aFieldValidations) {
+                const res = this._validateSapField(f.type, f.value);
+                oModel.setProperty(f.stateProp, res.state);
+                oModel.setProperty(f.textProp, res.text);
+                if (res.state === "Error") {
+                    bValid = false;
+                    if (!oFirstErrorField) {
+                        oFirstErrorField = this.byId(f.controlId);
+                    }
+                }
             }
 
             if (!bValid) {
-                MessageToast.show("Please enter valid credentials and URLs for all required fields (*).");
+                if (oFirstErrorField && typeof oFirstErrorField.focus === "function") {
+                    oFirstErrorField.focus();
+                }
+                MessageToast.show("Please fix the highlighted empty or invalid fields.");
                 return;
             }
+
+            const sUrl = (btp.url || "").trim();
+            const sSub = (btp.subaccountId || "").trim();
+            const sTokenUrl = (btp.tokenUrl || "").trim();
+            const sClient = (btp.clientId || "").trim();
+            const sSecret = (btp.clientSecret || "").trim();
 
             // Show loader simulation
             if (window.KyraLoader && typeof window.KyraLoader.show === "function") {

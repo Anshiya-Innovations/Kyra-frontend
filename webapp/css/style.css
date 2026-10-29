@@ -65702,3 +65702,137 @@ html body .sapUiTheme-sap_horizon .kyraSapIntegrationCard .kyraLiveQuotaTable,
     flex-direction: column !important;
     justify-content: center !important;
 }
+
+/* ========================================================================== */
+/* INPUT ERROR & WARNING POPUP STYLING (ALL ADD/EDIT INTEGRATION PLACES)     */
+/* ========================================================================== */
+.kyraDarkInput.sapMInputBaseStateError .sapMInputBaseContentWrapper,
+.kyraDarkInput .sapMInputBaseContentWrapperError,
+.kyraDarkInput .sapMInputBaseContentWrapperStateError,
+.kyraDarkSelect.sapMSltStateError,
+.kyraDarkSelect.sapMSltError,
+.kyraDarkSelect .sapMSltStateError,
+html body .sapUiTheme-sap_horizon .kyraDarkInput.sapMInputBaseStateError .sapMInputBaseContentWrapper,
+html body .sapUiTheme-sap_horizon .kyraDarkInput .sapMInputBaseContentWrapperError,
+html body .sapUiTheme-sap_horizon .kyraDarkSelect.sapMComboBoxStateError .sapMInputBaseContentWrapper {
+    border-color: #EF4444 !important;
+    background-color: #FEF2F2 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.kyraFieldErrorPopupText,
+.sapMText.kyraFieldErrorPopupText {
+    color: #DC2626 !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.35 !important;
+    margin-top: 4px !important;
+    display: block !important;
+}
+
+.sapMValueStateMessage,
+.sapMValueStateMessage.sapMValueStateMessageError,
+html body .sapMValueStateMessage {
+    display: block !important;
+    z-index: 1000 !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    line-height: 16px !important;
+    padding: 6px 10px !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Small popup warning at field location */
+.kyraValidationPopup {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    background: #FEF2F2 !important;
+    border: 1px solid #FCA5A5 !important;
+    border-radius: 6px !important;
+    padding: 3px 8px !important;
+    margin-top: 5px !important;
+    box-shadow: 0 3px 8px rgba(239, 68, 68, 0.12) !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    animation: kyraPopupPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.kyraValidationPopup::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 14px;
+    width: 8px;
+    height: 8px;
+    background: #FEF2F2;
+    border-left: 1px solid #FCA5A5;
+    border-top: 1px solid #FCA5A5;
+    transform: rotate(45deg);
+}
+
+.kyraValidationPopupIcon {
+    color: #DC2626 !important;
+    margin-right: 5px !important;
+}
+
+.kyraValidationPopupText,
+.sapMText.kyraValidationPopupText {
+    color: #991B1B !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+}
+
+@keyframes kyraPopupPopIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ========================================================================== */
+/* SEPARATE BANNER CARD & ADD INTEGRATION BUTTON ON SAME ROW                 */
+/* ========================================================================== */
+.kyraDarkTargetBannerFlex,
+.sapMFlexBox.kyraDarkTargetBannerFlex {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+
+.kyraStandaloneAddIntegrationBtn,
+.sapMBtn.kyraStandaloneAddIntegrationBtn,
+html body .sapUiTheme-sap_horizon .kyraStandaloneAddIntegrationBtn {
+    flex-shrink: 0 !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    white-space: nowrap !important;
+}
+
+.kyraStandaloneAddIntegrationBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraStandaloneAddIntegrationBtn .sapMBtnInner {
+    height: 48px !important;
+    line-height: 46px !important;
+    padding: 0 18px !important;
+    border-radius: 8px !important;
+}
+
+/* ========================================================================== */
+/* SUPPRESS DUPLICATE FLOATING VALUE STATE MESSAGE POPUPS                    */
+/* Ensures ONLY ONE clean notification (kyraValidationPopup) displays        */
+/* ========================================================================== */
+.kyraDarkFieldGroup .sapMValueStateMessage,
+.sapMInputBaseContentWrapperStateError + .sapMValueStateMessage,
+.kyraDarkInput .sapMValueStateMessage,
+.sapMValueStateMessage {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
