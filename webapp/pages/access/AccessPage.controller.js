@@ -1453,12 +1453,12 @@ sap.ui.define([
                         this.onBackToIamApproverCards();
                         return;
                     }
-                    const btnCloseSubInt = e.target.closest("#btnCloseSapAppsTop, [id$='btnCloseSapAppsTop'], #btnCloseSapConfigTop, [id$='btnCloseSapConfigTop'], #btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseAdDiscoveredTop, [id$='btnCloseAdDiscoveredTop'], #btnCloseIamDetailTop, [id$='btnCloseIamDetailTop']");
+                    const btnCloseSubInt = e.target.closest("#btnCloseSapAppsTop, [id$='btnCloseSapAppsTop'], #btnCloseSapConfigTop, [id$='btnCloseSapConfigTop'], #btnCloseAdConfigTop, [id$='btnCloseAdConfigTop'], #btnCloseAdDiscoveredTop, [id$='btnCloseAdDiscoveredTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], #btnCloseIamDetailTop, [id$='btnCloseIamDetailTop']");
                     if (btnCloseSubInt) {
                         this.onBackToIntegrationsList();
                         return;
                     }
-                    const btnCloseAd = e.target.closest("#btnCloseIntegrationManagementTop, [id$='btnCloseIntegrationManagementTop'], #btnCloseIamSection, [id$='btnCloseIamSection'], .kyraIamCloseBtn, .kyraCloseIconBtn");
+                    const btnCloseAd = e.target.closest("#btnCloseIntegrationManagementTop, [id$='btnCloseIntegrationManagementTop'], .kyraCloseIconBtn");
                     if (btnCloseAd) {
                         this.onCloseAdminSection();
                         return;

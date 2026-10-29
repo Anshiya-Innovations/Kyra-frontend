@@ -2050,9 +2050,9 @@
                                     <Button
                                         id="btnCloseIamSection"
                                         icon="sap-icon://decline"
-                                        tooltip="Close IAM Integration"
-                                        press=".onCloseAdminSection"
-                                        class="kyraCloseIconBtn kyraIamCloseBtn" />
+                                        tooltip="Back to Integration Management"
+                                        press=".onBackToIntegrationsList"
+                                        class="kyraCloseIconBtn" />
                                 </HBox>
     
                                                                                         <!-- ========================================================================= -->
@@ -2218,7 +2218,7 @@
                                         icon="sap-icon://decline"
                                         tooltip="Back to Integration Management"
                                         press=".onBackToIntegrationsList"
-                                        class="kyraCloseIconBtn kyraIamCloseBtn" />
+                                        class="kyraCloseIconBtn" />
                                 </HBox>
 
                             <!-- ========================================================================= -->
