@@ -8005,18 +8005,18 @@ html body .sapUiTheme-sap_horizon .sapFShellBarProfile:focus-visible .kyraHeader
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #FFFFFF;
-    border: 1.5px solid #CBD5E1;
-    color: #1E293B;
-    font-size: 13.5px;
-    font-weight: 700;
-    border-radius: 10px;
-    padding: 0 20px;
-    height: 40px;
-    cursor: pointer;
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-    outline: none;
-    box-sizing: border-box;
+    background: #FFFFFF !important;
+    border: 1.5px solid #008C9C !important;
+    color: #008C9C !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+    padding: 0 20px !important;
+    height: 38px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    outline: none !important;
+    box-sizing: border-box !important;
 }
 
 .kyra-signout-btn-cancel:hover {
@@ -10442,7 +10442,7 @@ html body .sapUiTheme-sap_horizon .kyraApproverRightControls .kyraHistoryExportB
     line-height: 35px !important;
     padding: 0 20px !important;
     border-radius: 12px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     display: inline-flex !important;
@@ -10852,7 +10852,7 @@ html body .sapUiTheme-sap_horizon .kyraApproverRightControls .kyraHistoryExportB
     line-height: 35px !important;
     padding: 0 20px !important;
     border-radius: 12px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     display: inline-flex !important;
@@ -17788,7 +17788,7 @@ html body .sapUiTheme-sap_horizon .kyraContactITCancelBtn .sapMBtnInner {
     min-width: 100px !important;
     padding: 0 22px !important;
     border-radius: 8px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     color: #334155 !important;
@@ -25664,7 +25664,7 @@ html body .sapUiTheme-sap_horizon .kyraSysCancelBtn .sapMBtnInner {
     line-height: 35px !important;
     padding: 0 20px !important;
     border-radius: 12px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     display: inline-flex !important;
@@ -26233,7 +26233,7 @@ html body .sapUiTheme-sap_horizon .kyraHistCancelBtn .sapMBtnInner {
     line-height: 35px !important;
     padding: 0 20px !important;
     border-radius: 12px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     background: #FFFFFF !important;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     display: inline-flex !important;
@@ -29761,7 +29761,7 @@ html body .sapMBtn.kyraBatchDialogCancelBtn {
 html body .sapMBtn.kyraBatchDialogCancelBtn .sapMBtnInner {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     border-radius: 8px !important;
     height: 38px !important;
     min-height: 38px !important;
@@ -35119,21 +35119,23 @@ html body .sapUiTheme-sap_horizon .kyraHistCancelBtn:hover .sapMBtnText {
 }
 
 .kyra-system-modal-cancel-btn {
-    height: 36px !important;
-    padding: 0 18px !important;
-    border: 1px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    height: 38px !important;
+    padding: 0 20px !important;
+    border: 1.5px solid #008C9C !important;
+    border-color: #008C9C !important;
+    border-radius: 10px !important;
     background: #FFFFFF !important;
-    color: #475569 !important;
-    font-size: 13px !important;
+    color: #008C9C !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
 }
 
 .kyra-system-modal-cancel-btn:hover {
-    background: #F1F5F9 !important;
-    color: #0F172A !important;
+    background: #F0FDFA !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
 }
 
 .kyra-system-modal-submit-btn {
@@ -36735,14 +36737,14 @@ html body .sapUiTheme-sap_horizon .kyraHistCancelBtn:hover .sapMBtnText {
 .kyra-system-modal-cancel-btn,
 .kyra-confirm-cancel-btn {
     height: 38px !important;
-    line-height: 36px !important;
+    line-height: 35px !important;
     padding: 0 20px !important;
-    border: 1px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 10px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    color: #334155 !important;
-    font-size: 14px !important;
+    color: #008C9C !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     box-shadow: none !important;
@@ -36752,10 +36754,10 @@ html body .sapUiTheme-sap_horizon .kyraHistCancelBtn:hover .sapMBtnText {
 .kyraAdminCancelBtn:hover .sapMBtnInner,
 .kyra-system-modal-cancel-btn:hover,
 .kyra-confirm-cancel-btn:hover {
-    background: #F8FAFC !important;
-    background-color: #F8FAFC !important;
-    border-color: #94A3B8 !important;
-    color: #0F172A !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
 }
 
 .kyraAdminCancelBtn .sapMBtnContent,
@@ -47435,7 +47437,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     padding: 0 22px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     border-radius: 9px !important;
     color: #334155 !important;
     font-size: 14px !important;
@@ -48885,7 +48887,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
     padding: 0 22px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     border-radius: 8px !important;
     color: #334155 !important;
     font-size: 14px !important;
@@ -49120,21 +49122,21 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraDeptCancelBtn .sapMBtnInner,
 .kyraDeptActionBtns .kyraAdminCancelBtn .sapMBtnInner,
 .kyraPersonaDropdownActionBar .kyraAdminCancelBtn .sapMBtnInner {
-    height: 40px !important;
-    line-height: 38px !important;
+    height: 38px !important;
+    line-height: 35px !important;
     padding: 0 20px !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 10px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    color: #1E293B !important;
+    color: #008C9C !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    box-shadow: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.15s ease !important;
 }
 
 .kyraDeptCancelBtn .sapMBtnContent,
@@ -49143,7 +49145,7 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraDeptActionBtns .kyraAdminCancelBtn bdi,
 .kyraPersonaDropdownActionBar .kyraAdminCancelBtn .sapMBtnContent,
 .kyraPersonaDropdownActionBar .kyraAdminCancelBtn bdi {
-    color: #1E293B !important;
+    color: #008C9C !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
 }
@@ -49151,10 +49153,10 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraDeptCancelBtn:hover .sapMBtnInner,
 .kyraDeptActionBtns .kyraAdminCancelBtn:hover .sapMBtnInner,
 .kyraPersonaDropdownActionBar .kyraAdminCancelBtn:hover .sapMBtnInner {
-    border-color: #94A3B8 !important;
-    background: #F8FAFC !important;
-    background-color: #F8FAFC !important;
-    color: #0F172A !important;
+    border-color: #007684 !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    color: #007684 !important;
 }
 
 /* Save Changes Button: Solid Teal */
@@ -49621,12 +49623,12 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraAdminConflictSlideContainer .kyraAdminCancelBtn .sapMBtnInner {
     height: 38px !important;
     line-height: 35px !important;
-    padding: 0 22px !important;
+    padding: 0 20px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
-    color: #334155 !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 10px !important;
+    color: #008C9C !important;
     font-size: 13.5px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
@@ -49637,9 +49639,9 @@ html body .sapUiTheme-sap_horizon .kyraViewAllBtn.sapMBtnEmphasized:hover .sapMB
 .kyraAdminConflictSlideContainer .kyraAdminConflictCancelBtn:hover .sapMBtnInner,
 .kyraAdminConflictCancelBtn:hover .sapMBtnInner,
 .kyraAdminConflictSlideContainer .kyraAdminCancelBtn:hover .sapMBtnInner {
-    background: #F8FAFC !important;
-    border-color: #94A3B8 !important;
-    color: #0F172A !important;
+    background: #F0FDFA !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
 }
 
 .kyraAdminConflictSlideContainer .kyraAdminConflictSaveBtn,
@@ -51031,14 +51033,15 @@ select option:hover,
 }
 
 .kyra-system-modal-cancel-btn {
-    height: 40px !important;
-    padding: 0 24px !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    height: 38px !important;
+    padding: 0 20px !important;
+    border: 1.5px solid #008C9C !important;
+    border-color: #008C9C !important;
+    border-radius: 10px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    color: #1E293B !important;
-    font-size: 14px !important;
+    color: #008C9C !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
@@ -51047,9 +51050,17 @@ select option:hover,
 }
 
 .kyra-system-modal-cancel-btn:hover {
-    background: #F8FAFC !important;
-    border-color: #94A3B8 !important;
-    color: #0F172A !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+}
+
+.kyra-system-modal-cancel-btn:active {
+    background: #E0F7F6 !important;
+    background-color: #E0F7F6 !important;
+    border-color: #005F6A !important;
+    color: #005F6A !important;
 }
 
 .kyra-system-modal-submit-btn {
@@ -51440,21 +51451,22 @@ select option:hover,
 }
 
 .kyraSystemInlineCancelBtn .sapMBtnInner {
-    height: 40px !important;
-    line-height: 38px !important;
+    height: 38px !important;
+    line-height: 35px !important;
     padding: 0 20px !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 10px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    color: #1E293B !important;
+    color: #008C9C !important;
     font-weight: 600 !important;
     font-size: 13.5px !important;
 }
 
 .kyraSystemInlineCancelBtn:hover .sapMBtnInner {
-    border-color: #94A3B8 !important;
-    background: #F8FAFC !important;
+    border-color: #007684 !important;
+    background: #F0FDFA !important;
+    color: #007684 !important;
 }
 
 .kyraSystemInlineSubmitBtn.sapMBtn {
@@ -51881,14 +51893,15 @@ select option:hover,
 }
 
 .kyra-system-modal-cancel-btn {
-    height: 40px !important;
-    padding: 0 24px !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
+    height: 38px !important;
+    padding: 0 20px !important;
+    border: 1.5px solid #008C9C !important;
+    border-color: #008C9C !important;
+    border-radius: 10px !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    color: #1E293B !important;
-    font-size: 14px !important;
+    color: #008C9C !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     cursor: pointer !important;
     transition: all 0.15s ease !important;
@@ -51897,9 +51910,17 @@ select option:hover,
 }
 
 .kyra-system-modal-cancel-btn:hover {
-    background: #F8FAFC !important;
-    border-color: #94A3B8 !important;
-    color: #0F172A !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+}
+
+.kyra-system-modal-cancel-btn:active {
+    background: #E0F7F6 !important;
+    background-color: #E0F7F6 !important;
+    border-color: #005F6A !important;
+    color: #005F6A !important;
 }
 
 .kyra-system-modal-submit-btn {
@@ -53716,7 +53737,7 @@ html body .sapUiTheme-sap_horizon .kyraExportNotifCancelBtn .sapMBtnInner {
     line-height: 37px !important;
     padding: 0 22px !important;
     border-radius: 9px !important;
-    border: 1.5px solid #CBD5E1 !important;
+    border: 1.5px solid #008C9C !important;
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
     color: #334155 !important;
@@ -65905,3 +65926,233 @@ html body .sapUiTheme-sap_horizon .kyraStandaloneAddIntegrationBtn .sapMBtnInner
     pointer-events: none !important;
 }
 
+
+
+
+/* ========================================================================== */
+/* UNIFIED PROJECT CANCEL BUTTON DESIGN (Matching Add Access .kyraSecondaryBtn) */
+/* ========================================================================== */
+.kyraSecondaryBtn,
+.kyraSecondaryBtn .sapMBtnInner,
+.kyraSecondaryBtn.sapMBtn .sapMBtnInner,
+.kyra-system-modal-cancel-btn,
+.kyra-modal-cancel-btn,
+.kyra-confirm-cancel-btn,
+.kyra-del-cancel-btn,
+#kyra_del_cancel_btn,
+#kyra_add_sys_cancel_btn,
+#kyra_edit_sys_cancel_btn,
+#kyra_dialog_cancel_btn,
+.kyraAdminCancelBtn,
+.kyraAdminCancelBtn .sapMBtnInner,
+.kyraDeptCancelBtn,
+.kyraDeptCancelBtn .sapMBtnInner,
+.kyraAdminConflictCancelBtn,
+.kyraAdminConflictCancelBtn .sapMBtnInner,
+.kyraSystemInlineCancelBtn,
+.kyraSystemInlineCancelBtn .sapMBtnInner,
+.kyraExportNotifCancelBtn,
+.kyraExportNotifCancelBtn .sapMBtnInner,
+.kyraContactITCancelBtn,
+.kyraContactITCancelBtn .sapMBtnInner,
+.kyraSysCancelBtn,
+.kyraSysCancelBtn .sapMBtnInner,
+.kyraHistCancelBtn,
+.kyraHistCancelBtn .sapMBtnInner,
+.kyraBatchDialogCancelBtn,
+.kyraBatchDialogCancelBtn .sapMBtnInner,
+.kyra-signout-btn-cancel,
+.kyraSodFooterCancelBtn,
+.kyraSodFooterCancelBtn .sapMBtnInner,
+button.kyra-system-modal-cancel-btn,
+button.kyraSecondaryBtn {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #008C9C !important;
+    border-color: #008C9C !important;
+    border-radius: 10px !important;
+    color: #008C9C !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+}
+
+.kyraSecondaryBtn .sapMBtnText,
+.kyraSecondaryBtn .sapMBtnContent,
+.kyraSecondaryBtn .sapMBtnContent > bdi,
+.kyraSecondaryBtn bdi,
+.kyra-system-modal-cancel-btn,
+.kyra-modal-cancel-btn,
+.kyra-confirm-cancel-btn,
+.kyra-del-cancel-btn,
+#kyra_del_cancel_btn,
+#kyra_add_sys_cancel_btn,
+#kyra_edit_sys_cancel_btn,
+#kyra_dialog_cancel_btn,
+.kyraAdminCancelBtn .sapMBtnContent,
+.kyraAdminCancelBtn bdi,
+.kyraDeptCancelBtn .sapMBtnContent,
+.kyraDeptCancelBtn bdi,
+.kyraAdminConflictCancelBtn .sapMBtnContent,
+.kyraAdminConflictCancelBtn bdi,
+.kyraSystemInlineCancelBtn .sapMBtnContent,
+.kyraSystemInlineCancelBtn bdi,
+.kyraExportNotifCancelBtn .sapMBtnContent,
+.kyraExportNotifCancelBtn bdi,
+.kyraContactITCancelBtn .sapMBtnContent,
+.kyraContactITCancelBtn bdi,
+.kyraSysCancelBtn .sapMBtnContent,
+.kyraSysCancelBtn bdi,
+.kyraHistCancelBtn .sapMBtnContent,
+.kyraHistCancelBtn bdi,
+.kyraBatchDialogCancelBtn .sapMBtnContent,
+.kyraBatchDialogCancelBtn bdi,
+.kyra-signout-btn-cancel,
+.kyraSodFooterCancelBtn .sapMBtnContent,
+.kyraSodFooterCancelBtn bdi {
+    color: #008C9C !important;
+    fill: #008C9C !important;
+    font-weight: 600 !important;
+}
+
+.kyraSecondaryBtn:hover,
+.kyraSecondaryBtn:hover .sapMBtnInner,
+.kyraSecondaryBtn.sapMBtn:hover .sapMBtnInner,
+.kyra-system-modal-cancel-btn:hover,
+.kyra-modal-cancel-btn:hover,
+.kyra-confirm-cancel-btn:hover,
+.kyra-del-cancel-btn:hover,
+#kyra_del_cancel_btn:hover,
+#kyra_add_sys_cancel_btn:hover,
+#kyra_edit_sys_cancel_btn:hover,
+#kyra_dialog_cancel_btn:hover,
+.kyraAdminCancelBtn:hover .sapMBtnInner,
+.kyraDeptCancelBtn:hover .sapMBtnInner,
+.kyraAdminConflictCancelBtn:hover .sapMBtnInner,
+.kyraSystemInlineCancelBtn:hover .sapMBtnInner,
+.kyraExportNotifCancelBtn:hover .sapMBtnInner,
+.kyraContactITCancelBtn:hover .sapMBtnInner,
+.kyraSysCancelBtn:hover .sapMBtnInner,
+.kyraHistCancelBtn:hover .sapMBtnInner,
+.kyraBatchDialogCancelBtn:hover .sapMBtnInner,
+.kyra-signout-btn-cancel:hover,
+.kyraSodFooterCancelBtn:hover .sapMBtnInner,
+button.kyra-system-modal-cancel-btn:hover,
+button.kyraSecondaryBtn:hover {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border: 1.5px solid #007684 !important;
+    border-color: #007684 !important;
+    color: #007684 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.kyraSecondaryBtn:hover .sapMBtnText,
+.kyraSecondaryBtn:hover .sapMBtnContent,
+.kyraSecondaryBtn:hover .sapMBtnContent > bdi,
+.kyraSecondaryBtn:hover bdi,
+.kyra-system-modal-cancel-btn:hover,
+.kyra-modal-cancel-btn:hover,
+.kyra-confirm-cancel-btn:hover,
+.kyra-del-cancel-btn:hover,
+#kyra_del_cancel_btn:hover,
+#kyra_add_sys_cancel_btn:hover,
+#kyra_edit_sys_cancel_btn:hover,
+#kyra_dialog_cancel_btn:hover,
+.kyraAdminCancelBtn:hover .sapMBtnContent,
+.kyraAdminCancelBtn:hover bdi,
+.kyraDeptCancelBtn:hover .sapMBtnContent,
+.kyraDeptCancelBtn:hover bdi,
+.kyraAdminConflictCancelBtn:hover .sapMBtnContent,
+.kyraAdminConflictCancelBtn:hover bdi,
+.kyraSystemInlineCancelBtn:hover .sapMBtnContent,
+.kyraSystemInlineCancelBtn:hover bdi,
+.kyraExportNotifCancelBtn:hover .sapMBtnContent,
+.kyraExportNotifCancelBtn:hover bdi,
+.kyraContactITCancelBtn:hover .sapMBtnContent,
+.kyraContactITCancelBtn:hover bdi,
+.kyraSysCancelBtn:hover .sapMBtnContent,
+.kyraSysCancelBtn:hover bdi,
+.kyraHistCancelBtn:hover .sapMBtnContent,
+.kyraHistCancelBtn:hover bdi,
+.kyraBatchDialogCancelBtn:hover .sapMBtnContent,
+.kyraBatchDialogCancelBtn:hover bdi,
+.kyra-signout-btn-cancel:hover,
+.kyraSodFooterCancelBtn:hover .sapMBtnContent,
+.kyraSodFooterCancelBtn:hover bdi {
+    color: #007684 !important;
+    fill: #007684 !important;
+}
+
+.kyraSecondaryBtn:active,
+.kyraSecondaryBtn:active .sapMBtnInner,
+.kyraSecondaryBtn.sapMBtn:active .sapMBtnInner,
+.kyra-system-modal-cancel-btn:active,
+.kyra-modal-cancel-btn:active,
+.kyra-confirm-cancel-btn:active,
+.kyra-del-cancel-btn:active,
+#kyra_del_cancel_btn:active,
+#kyra_add_sys_cancel_btn:active,
+#kyra_edit_sys_cancel_btn:active,
+#kyra_dialog_cancel_btn:active,
+.kyraAdminCancelBtn:active .sapMBtnInner,
+.kyraDeptCancelBtn:active .sapMBtnInner,
+.kyraAdminConflictCancelBtn:active .sapMBtnInner,
+.kyraSystemInlineCancelBtn:active .sapMBtnInner,
+.kyraExportNotifCancelBtn:active .sapMBtnInner,
+.kyraContactITCancelBtn:active .sapMBtnInner,
+.kyraSysCancelBtn:active .sapMBtnInner,
+.kyraHistCancelBtn:active .sapMBtnInner,
+.kyraBatchDialogCancelBtn:active .sapMBtnInner,
+.kyra-signout-btn-cancel:active,
+.kyraSodFooterCancelBtn:active .sapMBtnInner,
+button.kyra-system-modal-cancel-btn:active,
+button.kyraSecondaryBtn:active {
+    background: #E0F7F6 !important;
+    background-color: #E0F7F6 !important;
+    border: 1.5px solid #005F6A !important;
+    border-color: #005F6A !important;
+    color: #005F6A !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.kyraSecondaryBtn:active .sapMBtnText,
+.kyraSecondaryBtn:active .sapMBtnContent > bdi,
+.kyra-system-modal-cancel-btn:active,
+.kyra-modal-cancel-btn:active,
+.kyra-confirm-cancel-btn:active,
+.kyra-del-cancel-btn:active,
+#kyra_del_cancel_btn:active,
+#kyra_add_sys_cancel_btn:active,
+#kyra_edit_sys_cancel_btn:active,
+#kyra_dialog_cancel_btn:active,
+.kyraAdminCancelBtn:active .sapMBtnContent,
+.kyraAdminCancelBtn:active bdi,
+.kyraDeptCancelBtn:active .sapMBtnContent,
+.kyraDeptCancelBtn:active bdi,
+.kyraAdminConflictCancelBtn:active .sapMBtnContent,
+.kyraAdminConflictCancelBtn:active bdi,
+.kyraSystemInlineCancelBtn:active .sapMBtnContent,
+.kyraSystemInlineCancelBtn:active bdi,
+.kyraExportNotifCancelBtn:active .sapMBtnContent,
+.kyraExportNotifCancelBtn:active bdi,
+.kyraContactITCancelBtn:active .sapMBtnContent,
+.kyraContactITCancelBtn:active bdi,
+.kyraSysCancelBtn:active .sapMBtnContent,
+.kyraSysCancelBtn:active bdi,
+.kyraHistCancelBtn:active .sapMBtnContent,
+.kyraHistCancelBtn:active bdi,
+.kyraBatchDialogCancelBtn:active .sapMBtnContent,
+.kyraBatchDialogCancelBtn:active bdi,
+.kyra-signout-btn-cancel:active,
+.kyraSodFooterCancelBtn:active .sapMBtnContent,
+.kyraSodFooterCancelBtn:active bdi {
+    color: #005F6A !important;
+    fill: #005F6A !important;
+}

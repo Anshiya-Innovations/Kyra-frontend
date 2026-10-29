@@ -3981,16 +3981,6 @@
                                 <!-- Left: System Breadcrumb, Title, Active Badge, and Subtitle -->
                                 <VBox justifyContent="Center" class="kyraAdminHeaderInfoCol">
                                     <HBox alignItems="Center" gap="8px" class="kyraAdminBreadcrumbTitleRow">
-                                        <Link
-                                            text="Systems"
-                                            press=".onBackToAdminSystems"
-                                            class="fioriDescriptionText kyraAdminBreadcrumbLink"
-                                            tooltip="Back to Systems" />
-                                        <core:Icon
-                                            src="sap-icon://navigation-right-arrow"
-                                            size="10px"
-                                            color="#94A3B8"
-                                            class="kyraAdminBreadcrumbArrow" />
                                         <Title
                                             text="{= ${accessModel>/selectedAdminSystemName} || 'SAP Business Technology Platform' }"
                                             level="H4"

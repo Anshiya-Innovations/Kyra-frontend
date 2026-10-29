@@ -17025,7 +17025,7 @@ sap.ui.define([
                             </p>
                         </div>
                         <div class="kyra-system-modal-footer" style="padding: 16px 24px 20px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #F1F5F9; background: #FAFBFD;">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-del-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-del-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-del-confirm-btn">Delete ${sItemType}</button>
                         </div>
                     </div>
@@ -17287,7 +17287,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_add_sys_cancel_btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn" id="kyra_add_sys_cancel_btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn" id="kyra_add_sys_submit_btn">+ Add System</button>
                         </div>
                     </div>
@@ -17419,7 +17419,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn" id="kyra_edit_sys_cancel_btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn" id="kyra_edit_sys_cancel_btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn" id="kyra_edit_sys_submit_btn">Save Changes</button>
                         </div>
                     </div>
@@ -17667,7 +17667,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Create Service</button>
                         </div>
                     </div>
@@ -17837,7 +17837,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
@@ -18265,7 +18265,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
@@ -18516,7 +18516,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Create Team</button>
                         </div>
                     </div>
@@ -18701,7 +18701,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Create Persona</button>
                         </div>
                     </div>
@@ -18872,7 +18872,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
@@ -19274,7 +19274,7 @@ sap.ui.define([
                             </div>
                         </div>
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Add Business Sector</button>
                         </div>
                     </div>
@@ -19386,7 +19386,7 @@ sap.ui.define([
                             </div>
                         </div>
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
@@ -19533,7 +19533,7 @@ sap.ui.define([
                             </div>
                         </div>
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Add Business Function</button>
                         </div>
                     </div>
@@ -19633,7 +19633,7 @@ sap.ui.define([
                             </div>
                         </div>
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
@@ -19776,7 +19776,7 @@ sap.ui.define([
                             </div>
                         </div>
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Add Region</button>
                         </div>
                     </div>
@@ -19884,7 +19884,7 @@ sap.ui.define([
                             </div>
                         </div>
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
@@ -20457,7 +20457,7 @@ sap.ui.define([
                         </div>
                         
                         <div class="kyra-system-modal-footer">
-                            <button type="button" class="kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
+                            <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-modal-cancel-btn">Cancel</button>
                             <button type="button" class="kyra-system-modal-submit-btn kyra-modal-submit-btn">Save Changes</button>
                         </div>
                     </div>
