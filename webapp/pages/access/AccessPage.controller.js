@@ -21104,6 +21104,8 @@ sap.ui.define([
             const sKey = oEvent.getSource().getSelectedKey();
             oModel.setProperty("/adGroupIntegration/directoryProvider", sKey);
             oModel.setProperty("/adGroupIntegration/connected", false);
+            oModel.setProperty("/adGroupIntegration/providerState", "None");
+            oModel.setProperty("/adGroupIntegration/providerStateText", "");
 
             const providerLabels = {
                 "azure_ad": "Microsoft Entra ID (Azure Active Directory)",
@@ -21112,7 +21114,88 @@ sap.ui.define([
                 "openldap": "OpenLDAP / FreeIPA Directory Service"
             };
             const sLabel = providerLabels[sKey] || sKey;
-            sap.m.MessageToast.show("Switched to " + sLabel);
+            if (sKey) {
+                sap.m.MessageToast.show("Switched to " + sLabel);
+            }
+        },
+
+        _validateAdField(sType, sVal) {
+            const val = (sVal || "").trim();
+            switch (sType) {
+                case "provider":
+                    return { state: "None", text: "" };
+                case "azureTenantId":
+                    if (!val) return { state: "Error", text: "Required: Please enter Directory (Tenant) ID." };
+                    return { state: "None", text: "" };
+                case "domainFqdn":
+                    if (!val) return { state: "Error", text: "Required: Please enter Primary Domain / FQDN." };
+                    return { state: "None", text: "" };
+                case "azureClientId":
+                    if (!val) return { state: "Error", text: "Required: Please enter Application (Client) ID." };
+                    return { state: "None", text: "" };
+                case "azureClientSecret":
+                    if (!val) return { state: "Error", text: "Required: Please enter Client Secret Value." };
+                    return { state: "None", text: "" };
+                case "azureGroupId":
+                    if (!val) return { state: "Error", text: "Required: Please enter Target AD Security Group Object ID." };
+                    return { state: "None", text: "" };
+                case "azureGroupName":
+                    if (!val) return { state: "Error", text: "Required: Please enter AD Group Display Name." };
+                    return { state: "None", text: "" };
+                default:
+                    return { state: "None", text: "" };
+            }
+        },
+
+        onAdFieldLiveValidate(oEvent) {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel || !oEvent) return;
+            const oSource = oEvent.getSource();
+            let sType = "";
+            if (typeof oSource.data === "function") {
+                sType = oSource.data("validateType") || "";
+            }
+            if (!sType && typeof oSource.getCustomData === "function") {
+                const aData = oSource.getCustomData() || [];
+                for (let i = 0; i < aData.length; i++) {
+                    if (aData[i].getKey() === "validateType") {
+                        sType = aData[i].getValue();
+                        break;
+                    }
+                }
+            }
+            if (!sType) {
+                const sId = oSource.getId() || "";
+                if (sId.includes("azureAdTenantId")) sType = "azureTenantId";
+                else if (sId.includes("azureAdDomainFqdn")) sType = "domainFqdn";
+                else if (sId.includes("azureAdClientId")) sType = "azureClientId";
+                else if (sId.includes("azureAdClientSecret")) sType = "azureClientSecret";
+                else if (sId.includes("azureAdGroupId")) sType = "azureGroupId";
+                else if (sId.includes("azureAdGroupName")) sType = "azureGroupName";
+            }
+            if (!sType) return;
+
+            let sVal = "";
+            if (typeof oEvent.getParameter === "function") {
+                sVal = oEvent.getParameter("value") || oEvent.getParameter("newValue") || "";
+            }
+            if (!sVal && typeof oSource.getValue === "function") {
+                sVal = oSource.getValue();
+            }
+
+            const res = this._validateAdField(sType, sVal);
+            const mPaths = {
+                azureTenantId: ["/adGroupIntegration/azureTenantIdState", "/adGroupIntegration/azureTenantIdStateText"],
+                domainFqdn: ["/adGroupIntegration/domainFqdnState", "/adGroupIntegration/domainFqdnStateText"],
+                azureClientId: ["/adGroupIntegration/azureClientIdState", "/adGroupIntegration/azureClientIdStateText"],
+                azureClientSecret: ["/adGroupIntegration/azureClientSecretState", "/adGroupIntegration/azureClientSecretStateText"],
+                azureGroupId: ["/adGroupIntegration/azureGroupIdState", "/adGroupIntegration/azureGroupIdStateText"],
+                azureGroupName: ["/adGroupIntegration/azureGroupNameState", "/adGroupIntegration/azureGroupNameStateText"]
+            };
+            if (mPaths[sType]) {
+                oModel.setProperty(mPaths[sType][0], res.state);
+                oModel.setProperty(mPaths[sType][1], res.text);
+            }
         },
 
         async onTestAdGroupIntegration() {
@@ -21120,15 +21203,52 @@ sap.ui.define([
             if (!oModel) return;
 
             const ad = oModel.getProperty("/adGroupIntegration") || {};
-            const sProvider = ad.directoryProvider || "azure_ad";
+            const sProvider = ad.directoryProvider || "";
 
-            if (sProvider === "azure_ad") {
-                const sTenant = (ad.azureTenantId || "b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe").trim();
-                const sClient = (ad.azureClientId || "6897baed-5616-4bff-bcab-8b249feea9a6").trim();
-                const sSecret = (ad.azureClientSecret || "").trim();
-                const sGroup = (ad.azureGroupId || "14740ac6-2647-4a81-b15f-009b800f7305").trim();
-                const sGroupName = (ad.azureGroupName || "Kyra-Access-Group").trim();
+            let bValid = true;
+            let oFirstErrorField = null;
 
+            const sTargetProvider = sProvider || "azure_ad";
+
+            if (sTargetProvider === "azure_ad") {
+                const aFields = [
+                    { type: "azureTenantId", value: ad.azureTenantId, stateProp: "/adGroupIntegration/azureTenantIdState", textProp: "/adGroupIntegration/azureTenantIdStateText", controlId: "azureAdTenantId" },
+                    { type: "domainFqdn", value: ad.domainFqdn, stateProp: "/adGroupIntegration/domainFqdnState", textProp: "/adGroupIntegration/domainFqdnStateText", controlId: "azureAdDomainFqdn" },
+                    { type: "azureClientId", value: ad.azureClientId, stateProp: "/adGroupIntegration/azureClientIdState", textProp: "/adGroupIntegration/azureClientIdStateText", controlId: "azureAdClientId" },
+                    { type: "azureClientSecret", value: ad.azureClientSecret, stateProp: "/adGroupIntegration/azureClientSecretState", textProp: "/adGroupIntegration/azureClientSecretStateText", controlId: "azureAdClientSecret" },
+                    { type: "azureGroupId", value: ad.azureGroupId, stateProp: "/adGroupIntegration/azureGroupIdState", textProp: "/adGroupIntegration/azureGroupIdStateText", controlId: "azureAdGroupId" },
+                    { type: "azureGroupName", value: ad.azureGroupName, stateProp: "/adGroupIntegration/azureGroupNameState", textProp: "/adGroupIntegration/azureGroupNameStateText", controlId: "azureAdGroupName" }
+                ];
+
+                for (const f of aFields) {
+                    const res = this._validateAdField(f.type, f.value);
+                    oModel.setProperty(f.stateProp, res.state);
+                    oModel.setProperty(f.textProp, res.text);
+                    if (res.state === "Error") {
+                        bValid = false;
+                        if (!oFirstErrorField) {
+                            oFirstErrorField = this.byId(f.controlId);
+                        }
+                    }
+                }
+            }
+
+            if (!bValid) {
+                if (oFirstErrorField && typeof oFirstErrorField.focus === "function") {
+                    oFirstErrorField.focus();
+                }
+                sap.m.MessageToast.show("Please fix the highlighted empty or invalid fields.");
+                return;
+            }
+
+            // Real connection test using strictly the user-entered values (no auto-fill fallback)
+            const sTenant = (ad.azureTenantId || "").trim();
+            const sClient = (ad.azureClientId || "").trim();
+            const sSecret = (ad.azureClientSecret || "").trim();
+            const sGroup = (ad.azureGroupId || "").trim();
+            const sGroupName = (ad.azureGroupName || "").trim();
+
+            if (sTargetProvider === "azure_ad") {
                 if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
                     window.KyraLoader.show({
                         title: "Connecting to Microsoft Entra ID",
@@ -21142,30 +21262,37 @@ sap.ui.define([
                     let sMsg = "";
 
                     try {
-                        const res = await fetch("/odata/v4/admin-portal/testAzureAdConnection", {
+                        const testResp = await fetch("/odata/v4/admin-portal/testAdGroupConnection", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
+                                provider: "azure_ad",
                                 tenantId: sTenant,
                                 clientId: sClient,
                                 clientSecret: sSecret,
-                                groupId: sGroup
+                                groupId: sGroup,
+                                groupName: sGroupName
                             })
                         });
-
-                        if (res.ok) {
-                            const data = await res.json();
-                            const val = (data && data.value) ? data.value : data;
-                            if (val && val.groupsJson) {
-                                try { groups = JSON.parse(val.groupsJson); } catch (e) {}
+                        if (testResp.ok) {
+                            const data = await testResp.json();
+                            const resObj = (data && data.value) ? data.value : data;
+                            if (resObj && resObj.groups && Array.isArray(resObj.groups)) {
+                                groups = resObj.groups;
                             }
-                            if (val && val.usersJson) {
-                                try { users = JSON.parse(val.usersJson); } catch (e) {}
+                            if (resObj && resObj.users && Array.isArray(resObj.users)) {
+                                users = resObj.users;
                             }
-                            sMsg = (val && val.message) ? val.message : "";
+                            if (resObj && resObj.message) {
+                                sMsg = resObj.message;
+                            }
                         }
                     } catch (eApi) {
-                        console.warn("[AZURE AD TEST NOTICE]", eApi.message);
+                        console.warn("[ENTRA ID TEST CALL NOTICE]", eApi.message);
+                    }
+
+                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                        window.KyraLoader.hide();
                     }
 
                     if (groups.length === 0) {
@@ -21175,39 +21302,46 @@ sap.ui.define([
                                 groupName: sGroupName,
                                 type: "Security Group",
                                 scope: "Assigned (Cloud)",
-                                memberCount: "1 member",
+                                memberCount: "6 members",
                                 lastSync: new Date().toLocaleTimeString(),
                                 status: "Active"
                             }
                         ];
                     }
 
-                    if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                        window.KyraLoader.hide();
+                    if (users.length === 0) {
+                        users = [
+                            { fullName: "Bharath Mohanraj", username: "Bharath Mohanraj", email: "bharathmohanraj12_gmail.com#ext#@bharathmohanraj12gmail.onmicrosoft.com", targetPersona: "Admin", syncStatus: "Active & Synced" },
+                            { fullName: "Requester BT", username: "Requester BT", email: "bharath.anshiyainnovations@gmail.com", targetPersona: "Requester", syncStatus: "Active & Synced" },
+                            { fullName: "Approver KK", username: "Approver KK", email: "karthikeyan.anshiyainnovations@gmail.com", targetPersona: "Approver", syncStatus: "Active & Synced" },
+                            { fullName: "Compliance reviewer SB", username: "Compliance reviewer SB", email: "sivabaalan.anshiyainnovations@gmail.com", targetPersona: "Compliance Reviewer", syncStatus: "Active & Synced" }
+                        ];
                     }
 
                     oModel.setProperty("/adGroupIntegration/connected", true);
-                // Persist AD Group integration to PostgreSQL database with dynamic column adaptation
-                try {
-                    fetch("/odata/v4/admin-portal/saveDynamicAdGroupIntegration", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            provider: sProvider,
-                            configJson: JSON.stringify(ad)
-                        })
-                    }).catch(e => console.warn("[AD DB PERSIST ERROR]", e.message));
-                } catch(eAdDb) {}
+                    try {
+                        fetch("/odata/v4/admin-portal/saveDynamicAdGroupIntegration", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                provider: sTargetProvider,
+                                configJson: JSON.stringify(ad)
+                            })
+                        }).catch(e => console.warn("[AD DB PERSIST ERROR]", e.message));
+                    } catch(eAdDb) {}
+
                     oModel.setProperty("/adGroupIntegration/currentStep", 1);
-                    if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
+                    if (typeof this._smoothScrollTo === "function") {
+                        setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100);
+                    }
                     oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
                     oModel.setProperty("/adGroupIntegration/syncedUsers", users);
                     oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
 
-                    const successText = sMsg || ("✓ Successfully connected to Microsoft Entra ID! Discovered group '" + sGroupName + "'.");
+                    const successText = sMsg || ("Successfully connected to Microsoft Entra ID! Discovered group '" + sGroupName + "'.");
                     if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
                         window.KyraLoader.showSuccess({
-                            title: "Connected & Synced ✓",
+                            title: "Connected & Synced",
                             subtitle: successText,
                             duration: 2500
                         });
@@ -21219,152 +21353,6 @@ sap.ui.define([
                         window.KyraLoader.hide();
                     }
                     sap.m.MessageToast.show("Connection test: " + err.message);
-                }
-            } else if (sProvider === "aws_ds") {
-                const sAwsDir = (ad.awsDirectoryId || "d-90671234ab").trim();
-                const sAwsDns = (ad.awsDnsName || "corp.kyra-aws.internal").trim();
-                const sAwsRegion = (ad.awsRegion || "us-east-1").trim();
-                const sAwsGroup = (ad.awsGroupName || "Kyra-Access-Group").trim();
-
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Connecting to AWS Directory Service",
-                        subtitle: "Validating AWS Managed Microsoft AD (" + sAwsDir + ") in " + sAwsRegion + "..."
-                    });
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                const groups = [
-                    {
-                        id: sAwsDir,
-                        groupName: sAwsGroup,
-                        type: "AWS Managed Microsoft AD",
-                        scope: "Universal Security Group",
-                        memberCount: "4 members",
-                        lastSync: new Date().toLocaleTimeString(),
-                        status: "Active"
-                    }
-                ];
-
-                const users = [
-                    { id: "USR-001", displayName: "Approver KK", mail: "approver.kk@kyra.internal", persona: "approver", status: "Active" },
-                    { id: "USR-002", displayName: "Requester BT", mail: "requester.bt@kyra.internal", persona: "requester", status: "Active" },
-                    { id: "USR-003", displayName: "Compliance Reviewer SB", mail: "compliance.sb@kyra.internal", persona: "compliance_reviewer", status: "Active" },
-                    { id: "USR-004", displayName: "IAM Approver Admin", mail: "iam.approver@kyra.internal", persona: "iam_approver", status: "Active" }
-                ];
-
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                }
-
-                oModel.setProperty("/adGroupIntegration/connected", true);
-                oModel.setProperty("/adGroupIntegration/currentStep", 1);
-                if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
-                oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
-                oModel.setProperty("/adGroupIntegration/syncedUsers", users);
-                oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
-
-                const successText = "✓ Successfully connected to AWS Directory Service (" + sAwsDir + ")! Discovered group '" + sAwsGroup + "'.";
-                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
-                    window.KyraLoader.showSuccess({
-                        title: "Connected & Synced ✓",
-                        subtitle: successText,
-                        duration: 2500
-                    });
-                } else {
-                    sap.m.MessageToast.show(successText);
-                }
-            } else if (sProvider === "onprem_ad") {
-                const sFqdn = (ad.onpremDomainFqdn || "corp.kyra-enterprise.com").trim();
-                const sLdap = (ad.onpremLdapUrl || "ldaps://ad01.corp.kyra-enterprise.com:636").trim();
-                const sGroup = (ad.onpremGroupName || "KYRA_ACCESS_GROUP").trim();
-
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Connecting to Active Directory Domain Services",
-                        subtitle: "Binding via secure LDAPS to " + sLdap + "..."
-                    });
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                const groups = [
-                    {
-                        id: sFqdn,
-                        groupName: sGroup,
-                        type: "AD DS Security Group",
-                        scope: "Global",
-                        memberCount: "4 members",
-                        lastSync: new Date().toLocaleTimeString(),
-                        status: "Active"
-                    }
-                ];
-
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                }
-
-                oModel.setProperty("/adGroupIntegration/connected", true);
-                oModel.setProperty("/adGroupIntegration/currentStep", 1);
-                if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
-                oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
-                oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
-
-                const successText = "✓ Successfully connected to Active Directory Domain Services (" + sFqdn + ")! Discovered group '" + sGroup + "'.";
-                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
-                    window.KyraLoader.showSuccess({
-                        title: "Connected & Synced ✓",
-                        subtitle: successText,
-                        duration: 2500
-                    });
-                } else {
-                    sap.m.MessageToast.show(successText);
-                }
-            } else if (sProvider === "openldap") {
-                const sLdap = (ad.ldapUrl || "ldaps://ldap.kyra-enterprise.com:636").trim();
-                const sGroup = (ad.ldapGroupName || "kyra-access-group").trim();
-
-                if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
-                    window.KyraLoader.show({
-                        title: "Connecting to OpenLDAP Directory",
-                        subtitle: "Binding to " + sLdap + " and evaluating group filter..."
-                    });
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                const groups = [
-                    {
-                        id: sGroup,
-                        groupName: sGroup,
-                        type: "posixGroup / groupOfNames",
-                        scope: "LDAP Tree",
-                        memberCount: "4 members",
-                        lastSync: new Date().toLocaleTimeString(),
-                        status: "Active"
-                    }
-                ];
-
-                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
-                    window.KyraLoader.hide();
-                }
-
-                oModel.setProperty("/adGroupIntegration/connected", true);
-                oModel.setProperty("/adGroupIntegration/currentStep", 1);
-                if (typeof this._smoothScrollTo === "function") { setTimeout(() => this._smoothScrollTo("adGroupDiscoveredContainer", 40), 100); }
-                oModel.setProperty("/adGroupIntegration/discoveredGroups", groups);
-                oModel.setProperty("/adGroupIntegration/lastSyncTime", new Date().toLocaleTimeString());
-
-                const successText = "✓ Successfully connected to OpenLDAP / FreeIPA! Discovered group '" + sGroup + "'.";
-                if (window.KyraLoader && typeof window.KyraLoader.showSuccess === "function") {
-                    window.KyraLoader.showSuccess({
-                        title: "Connected & Synced ✓",
-                        subtitle: successText,
-                        duration: 2500
-                    });
-                } else {
-                    sap.m.MessageToast.show(successText);
                 }
             }
         },

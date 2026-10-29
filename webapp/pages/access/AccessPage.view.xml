@@ -1586,9 +1586,18 @@
                                                 <Input
                                                     id="azureAdTenantId"
                                                     value="{accessModel>/adGroupIntegration/azureTenantId}"
+                                                    valueState="{accessModel>/adGroupIntegration/azureTenantIdState}"
+                                                    valueStateText="{accessModel>/adGroupIntegration/azureTenantIdStateText}"
+                                                    liveChange=".onAdFieldLiveValidate"
+                                                    change=".onAdFieldLiveValidate"
+                                                    customData:validateType="azureTenantId"
                                                     placeholder="Enter Directory (Tenant) ID (e.g., b33b5cb8-4fb1-4b19-92f6-b22cc4af8efe)"
                                                     class="kyraDarkInput"
                                                     width="100%" />
+                                                <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/azureTenantIdState} === 'Error' }" alignItems="Center" gap="6px">
+                                                    <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                    <Text text="{accessModel>/adGroupIntegration/azureTenantIdStateText}" class="kyraValidationPopupText" />
+                                                </HBox>
                                             </VBox>
                                             <VBox width="50%" class="kyraDarkFieldGroup">
                                                 <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -1599,9 +1608,18 @@
                                                 <Input
                                                     id="azureAdDomainFqdn"
                                                     value="{accessModel>/adGroupIntegration/domainFqdn}"
+                                                    valueState="{accessModel>/adGroupIntegration/domainFqdnState}"
+                                                    valueStateText="{accessModel>/adGroupIntegration/domainFqdnStateText}"
+                                                    liveChange=".onAdFieldLiveValidate"
+                                                    change=".onAdFieldLiveValidate"
+                                                    customData:validateType="domainFqdn"
                                                     placeholder="Enter Primary Domain / FQDN (e.g., corp.kyra-enterprise.com)"
                                                     class="kyraDarkInput"
                                                     width="100%" />
+                                                <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/domainFqdnState} === 'Error' }" alignItems="Center" gap="6px">
+                                                    <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                    <Text text="{accessModel>/adGroupIntegration/domainFqdnStateText}" class="kyraValidationPopupText" />
+                                                </HBox>
                                             </VBox>
                                         </HBox>
 
@@ -1616,9 +1634,18 @@
                                                 <Input
                                                     id="azureAdClientId"
                                                     value="{accessModel>/adGroupIntegration/azureClientId}"
+                                                    valueState="{accessModel>/adGroupIntegration/azureClientIdState}"
+                                                    valueStateText="{accessModel>/adGroupIntegration/azureClientIdStateText}"
+                                                    liveChange=".onAdFieldLiveValidate"
+                                                    change=".onAdFieldLiveValidate"
+                                                    customData:validateType="azureClientId"
                                                     placeholder="Enter Application (Client) ID (e.g., 6897baed-5616-4bff-bcab-8b249feea9a6)"
                                                     class="kyraDarkInput"
                                                     width="100%" />
+                                                <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/azureClientIdState} === 'Error' }" alignItems="Center" gap="6px">
+                                                    <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                    <Text text="{accessModel>/adGroupIntegration/azureClientIdStateText}" class="kyraValidationPopupText" />
+                                                </HBox>
                                             </VBox>
                                             <VBox width="50%" class="kyraDarkFieldGroup">
                                                 <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -1629,10 +1656,19 @@
                                                 <Input
                                                     id="azureAdClientSecret"
                                                     value="{accessModel>/adGroupIntegration/azureClientSecret}"
+                                                    valueState="{accessModel>/adGroupIntegration/azureClientSecretState}"
+                                                    valueStateText="{accessModel>/adGroupIntegration/azureClientSecretStateText}"
+                                                    liveChange=".onAdFieldLiveValidate"
+                                                    change=".onAdFieldLiveValidate"
+                                                    customData:validateType="azureClientSecret"
                                                     type="Password"
                                                     placeholder="Enter Client Secret Value or API Certificate Key"
                                                     class="kyraDarkInput"
                                                     width="100%" />
+                                                <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/azureClientSecretState} === 'Error' }" alignItems="Center" gap="6px">
+                                                    <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                    <Text text="{accessModel>/adGroupIntegration/azureClientSecretStateText}" class="kyraValidationPopupText" />
+                                                </HBox>
                                             </VBox>
                                         </HBox>
 
@@ -1647,9 +1683,18 @@
                                                 <Input
                                                     id="azureAdGroupId"
                                                     value="{accessModel>/adGroupIntegration/azureGroupId}"
+                                                    valueState="{accessModel>/adGroupIntegration/azureGroupIdState}"
+                                                    valueStateText="{accessModel>/adGroupIntegration/azureGroupIdStateText}"
+                                                    liveChange=".onAdFieldLiveValidate"
+                                                    change=".onAdFieldLiveValidate"
+                                                    customData:validateType="azureGroupId"
                                                     placeholder="Enter Target AD Security Group Object ID (e.g., 14740ac6-2647-4a81-b15f-009b800f7305)"
                                                     class="kyraDarkInput"
                                                     width="100%" />
+                                                <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/azureGroupIdState} === 'Error' }" alignItems="Center" gap="6px">
+                                                    <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                    <Text text="{accessModel>/adGroupIntegration/azureGroupIdStateText}" class="kyraValidationPopupText" />
+                                                </HBox>
                                             </VBox>
                                             <VBox width="50%" class="kyraDarkFieldGroup">
                                                 <HBox alignItems="Center" class="kyraDarkLabelRow">
@@ -1660,9 +1705,18 @@
                                                 <Input
                                                     id="azureAdGroupName"
                                                     value="{accessModel>/adGroupIntegration/azureGroupName}"
+                                                    valueState="{accessModel>/adGroupIntegration/azureGroupNameState}"
+                                                    valueStateText="{accessModel>/adGroupIntegration/azureGroupNameStateText}"
+                                                    liveChange=".onAdFieldLiveValidate"
+                                                    change=".onAdFieldLiveValidate"
+                                                    customData:validateType="azureGroupName"
                                                     placeholder="Enter AD Group Display Name (e.g., Kyra-Access-Group)"
                                                     class="kyraDarkInput"
                                                     width="100%" />
+                                                <HBox class="kyraValidationPopup" visible="{= ${accessModel>/adGroupIntegration/azureGroupNameState} === 'Error' }" alignItems="Center" gap="6px">
+                                                    <core:Icon src="sap-icon://alert" size="12px" class="kyraValidationPopupIcon" />
+                                                    <Text text="{accessModel>/adGroupIntegration/azureGroupNameStateText}" class="kyraValidationPopupText" />
+                                                </HBox>
                                             </VBox>
                                         </HBox>
                                     </VBox>
