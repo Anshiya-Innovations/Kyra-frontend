@@ -463,6 +463,7 @@ sap.ui.define([
                 // 1. My Access Table Data (Assigned Entitlements) - Empty for fresh state
                 activeRoles: [],
                 userAccessList: [],
+                displayedUserAccessList: [],
 
                 // 2. Add Access Form State
                 newRequest: {

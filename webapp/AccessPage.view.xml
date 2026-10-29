@@ -4250,6 +4250,7 @@
                         items="{accessModel>/displayedUserAccessList}"
                         itemPress=".onViewAccessDetails"
                         noDataText="No Data"
+                        visible="{= !!${accessModel>/displayedUserAccessList} &amp;&amp; ${accessModel>/displayedUserAccessList}.length &gt; 0 }"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" width="100%" alignItems="Center" justifyContent="Center">
@@ -4292,6 +4293,16 @@
                             </ColumnListItem>
                         </items>
                     </Table>
+
+                    <!-- EMPTY STATE WHEN NO DATA (MATCHING IMAGE 2 DESIGN) -->
+                    <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/displayedUserAccessList} || ${accessModel>/displayedUserAccessList}.length === 0 }">
+                        <HBox class="kyraValClipboardBadge" justifyContent="Center" alignItems="Center">
+                            <core:Icon src="sap-icon://role" class="kyraValClipboardIcon" />
+                            <core:Icon src="sap-icon://sys-enter-2" class="kyraValCheckmarkIcon" />
+                        </HBox>
+                        <Text text="No Active Entitlements" class="kyraValEmptyTitle" />
+                        <Text text="All active entitlements and granted role assignments will appear here." class="kyraValEmptyDesc" />
+                    </VBox>
                 </VBox>
 
                 <!-- SECTION 2A: 4 HISTORY SUMMARY KPI BOXES (1. All History, 2. Approved, 3. Rejected, 4. Removed) -->
