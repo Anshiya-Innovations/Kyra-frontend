@@ -3166,7 +3166,7 @@
                                         <Button
                                             text="Cancel"
                                             press=".onCancelEmployeePersonaLookup"
-                                            class="kyraAdminCancelBtn" />
+                                            class="kyraSecondaryBtn kyraAdminCancelBtn" />
                                         <Button
                                             text="Save"
                                             icon="sap-icon://save"
@@ -3320,7 +3320,7 @@
                                         <Button
                                             text="Cancel"
                                             press=".onCancelDepartmentPersona"
-                                            class="kyraAdminCancelBtn kyraDeptCancelBtn" />
+                                            class="kyraSecondaryBtn kyraDeptCancelBtn" />
                                         <Button
                                             id="btnConvertDepartmentPersona"
                                             text="Save Changes"
@@ -3654,7 +3654,7 @@
                                         <Button
                                             text="Cancel"
                                             press=".onCancelAdminBusinessFunctions"
-                                            class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                            class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                         <Button
                                             text="Save"
                                             type="Emphasized"
@@ -3804,7 +3804,7 @@
                                 <Button
                                     text="Cancel"
                                     press=".onCancelAdminSystemsSection"
-                                    class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                    class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                 <Button text="Save" type="Emphasized" press=".onSaveAdminSystemsSection" class="kyraAdminSaveBtn" />
                             </HBox>
                         </VBox>
@@ -3902,7 +3902,7 @@
                                     <Button
                                         text="Cancel"
                                         press=".onCancelCustomConflictDraft"
-                                        class="kyraAdminCancelBtn kyraAdminConflictCancelBtn" />
+                                        class="kyraSecondaryBtn kyraAdminConflictCancelBtn" />
                                     <Button
                                         text="Save"
                                         type="Emphasized"
@@ -4241,7 +4241,7 @@
                                             <Button
                                                 text="Cancel"
                                                 press=".onCancelAdminServiceDetails"
-                                                class="kyraAdminCancelBtn sapUiSmallMarginEnd" />
+                                                class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                                             <Button
                                                 text="Save"
                                                 type="Emphasized"
@@ -7105,7 +7105,7 @@
                             <Button
                                 text="Cancel"
                                 press=".onBackFromTroubleshootPage"
-                                class="kyraContactITCancelBtn sapUiSmallMarginEnd" />
+                                class="kyraSecondaryBtn sapUiSmallMarginEnd" />
                             <Button
                                 text="Submit Request"
                                 type="Emphasized"

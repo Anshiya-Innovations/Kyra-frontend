@@ -11100,7 +11100,7 @@ sap.ui.define([
                     endButton: new Button({
                         text: "Cancel",
                         press: () => oDialog.close()
-                    }),
+                    }).addStyleClass("kyraSecondaryBtn"),
                     afterClose: () => {
                         if (typeof cleanupDropdown === "function") cleanupDropdown();
                         oDialog.destroy();
@@ -11601,7 +11601,7 @@ sap.ui.define([
                                 new Button({
                                     text: "Cancel",
                                     press: () => oDialog.close()
-                                }).addStyleClass("kyraHistCancelBtn sapUiTinyMarginEnd"),
+                                }).addStyleClass("kyraSecondaryBtn sapUiTinyMarginEnd"),
                                 new Button({
                                     text: "Apply Filter",
                                     type: "Emphasized",
@@ -12132,7 +12132,7 @@ sap.ui.define([
                         new Button({
                             text: "Cancel",
                             press: () => oDialog.close()
-                        }).addStyleClass("kyraExportNotifCancelBtn"),
+                        }).addStyleClass("kyraSecondaryBtn"),
                         new Button({
                             text: "Download",
                             icon: "sap-icon://download",
@@ -13644,7 +13644,7 @@ sap.ui.define([
                                 new Button({
                                     text: "Cancel",
                                     press: () => oDialog.close()
-                                }).addStyleClass("kyraHistCancelBtn sapUiTinyMarginEnd"),
+                                }).addStyleClass("kyraSecondaryBtn sapUiTinyMarginEnd"),
                                 new Button({
                                     text: "Apply Filter",
                                     type: "Emphasized",
