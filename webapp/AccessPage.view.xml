@@ -375,7 +375,6 @@
                                         enabled="{= ${accessModel>/sapIntegration/formMode} !== 'edit' }"
                                         class="{= 'kyraDarkSelect fioriFormSelect kyraModernSelectField fioriSelectGlow' + (${accessModel>/sapIntegration/formMode} === 'edit' ? ' kyraSelectDisabledEdit' : '') }">
                                         <core:Item key="sap_btp" text="SAP Business Technology Platform (SAP BTP)" />
-                                        <core:Item key="sap_btp_singapore" text="SAP Business Technology Platform (Singapore)" />
                                         <core:Item key="sap_s4hana" text="SAP S/4HANA Cloud (ERP)" />
                                         <core:Item key="sap_successfactors" text="SAP SuccessFactors (HCM)" />
                                         <core:Item key="sap_ariba" text="SAP Ariba Supply Network" />
@@ -1071,13 +1070,37 @@
                             class="kyraDarkStudioWrapper kyraSlideAnim">
 
                             <!-- Top Title & Subtitle with Back Button -->
-                            <!-- Top Title & Subtitle with Add Integration Button -->
+                            <!-- Top Title & Subtitle with Close Button -->
                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTitleBlock sapUiSmallMarginBottom">
                                 <VBox class="kyraHeaderTitleCol sapUiNoMargin">
-                                    <Title text="Purchased SAP Applications &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
-                                    <Text text="Active enterprise cloud licenses, subscriptions, and services discovered across all integrated tenants." class="kyraDarkStudioSubtitle" />
+                                    <Title text="SAP Integration &amp; Subscriptions" level="H2" class="kyraDarkStudioTitle" />
+                                    <Text text="Manage connected SAP BTP environments, active cloud subscriptions, and live resource quotas." class="kyraDarkStudioSubtitle" />
                                 </VBox>
-                                <HBox alignItems="Center" gap="10px">
+                                <Button
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseAdminSection"
+                                    tooltip="Close Section"
+                                    class="kyraCloseIconBtn" />
+                            </HBox>
+
+                            <!-- Verified Banner with 2-Line Status and Add Integration Action -->
+                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
+                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft" gap="14px">
+                                    <HBox class="kyraDarkGreenGlowDot" />
+                                    <VBox gap="3px">
+                                        <FormattedText
+                                            htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Connected System: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;SAP Business Technology Platform&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Subaccount: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;kyra-singapore (dev space)&lt;/span&gt;"
+                                            class="kyraDarkBannerFormattedText" />
+                                        <FormattedText
+                                            htmlText="&lt;span style='color: #64748B; font-size: 13px;'&gt;Resource Quotas: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13px;'&gt;Live Monitoring Active&lt;/span&gt;"
+                                            class="kyraDarkBannerFormattedText" />
+                                    </VBox>
+                                </HBox>
+                                <HBox alignItems="Center" gap="12px" class="kyraDarkTargetBannerRight">
+                                    <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
+                                        <Text text="Tenant Verified ✓" class="kyraDarkGreenPillText" />
+                                    </HBox>
                                     <Button
                                         id="btnAddIntegration"
                                         text="Add Integration"
@@ -1085,25 +1108,6 @@
                                         type="Emphasized"
                                         press=".onAddIntegration"
                                         class="kyraDarkPrimaryActionBtn" />
-                                    <Button
-                                        icon="sap-icon://decline"
-                                        type="Transparent"
-                                        press=".onCloseAdminSection"
-                                        tooltip="Close Section"
-                                        class="kyraCloseIconBtn" />
-                                </HBox>
-                            </HBox>
-
-                            <!-- Verified Banner -->
-                            <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkTargetBanner sapUiMediumMarginBottom">
-                                <HBox alignItems="Center" class="kyraDarkTargetBannerLeft">
-                                    <HBox class="kyraDarkGreenGlowDot" />
-                                    <FormattedText
-                                        htmlText="&lt;span style='color: #64748B; font-size: 13.5px;'&gt;Connected Subaccounts: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Enterprise Connected Tenants (Active)&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Cloud Services: &lt;/span&gt;&lt;span style='color: #10B981; font-weight: 700; font-size: 13.5px;'&gt;12 Active Services&lt;/span&gt; &lt;span style='color: #64748B; font-size: 13.5px;'&gt;• Resource Quotas: &lt;/span&gt;&lt;span style='color: #008C9C; font-weight: 700; font-size: 13.5px;'&gt;Live Monitoring Active&lt;/span&gt;"
-                                        class="kyraDarkBannerFormattedText" />
-                                </HBox>
-                                <HBox class="kyraDarkGreenPillBadge" alignItems="Center">
-                                    <Text text="Tenant Verified ✓" class="kyraDarkGreenPillText" />
                                 </HBox>
                             </HBox>
 
@@ -1124,7 +1128,8 @@
                                                             <Text text="{accessModel>subscriptionTier}" class="kyraSapDevBadgeText" />
                                                         </HBox>
                                                     </HBox>
-                                                    <Text text="{accessModel>subaccountSubtitle}" class="kyraSapAppCardSubtitle sapUiTinyMarginTop" />
+                                                    <Text text="{= ${accessModel>subaccountDetails} || (${accessModel>subaccountSubtitle} ? ${accessModel>subaccountSubtitle}.split(' • Status:')[0] : '') }" class="kyraSapAppCardSubtitle sapUiTinyMarginTop" />
+                                                    <Text text="{= ${accessModel>statusSubtitle} || (${accessModel>subaccountSubtitle} &amp;&amp; ${accessModel>subaccountSubtitle}.includes(' • Status:') ? ('Status:' + ${accessModel>subaccountSubtitle}.split(' • Status:')[1]) : 'Status: Active Enterprise Subscription') }" class="kyraSapAppCardSubtitle sapUiTinyMarginTop" />
                                                     <Text text="{accessModel>servicesSummary}" class="kyraSapAppCardQuotaSummary sapUiTinyMarginTop" />
                                                 </VBox>
                                             </HBox>
@@ -1154,7 +1159,7 @@
                                         </HBox>
 
                                         <!-- LIVE RESOURCE UTILIZATION & QUOTAS TABLE: Displayed when application is clicked/expanded -->
-                                        <VBox visible="{= !!${accessModel>isAppExpanded} }" class="kyraDarkStudioSlide sapUiSmallMarginTop sapUiSmallMarginBegin sapUiSmallMarginEnd sapUiSmallMarginBottom kyraSlideAnim" width="100%">
+                                        <VBox visible="{= !!${accessModel>isAppExpanded} }" class="kyraDarkStudioSlide kyraSapLiveQuotaContainer sapUiSmallMarginTop kyraSlideAnim" width="100%">
                                             
                                             <!-- Table Section Header with Live Telemetry Badge and Refresh Button -->
                                             <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="sapUiSmallMarginBottom" style="border-top: 1px solid #E2E8F0; padding-top: 14px;">

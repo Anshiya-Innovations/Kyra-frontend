@@ -65653,3 +65653,52 @@ html body #kyra_edit_conflict_desc:focus {
     border-color: #008C9C !important;
     box-shadow: 0 0 0 3px rgba(0, 140, 156, 0.15) !important;
 }
+
+/* ========================================================================== */
+/* LIVE RESOURCE QUOTAS TABLE: PERFECT SYMMETRICAL EVEN SPACING & FRAME ALIGNMENT */
+/* ========================================================================== */
+.kyraSapIntegrationCard .kyraSapLiveQuotaContainer,
+html body .sapUiTheme-sap_horizon .kyraSapIntegrationCard .kyraSapLiveQuotaContainer {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.kyraSapIntegrationCard .kyraLiveQuotaTable,
+html body .sapUiTheme-sap_horizon .kyraSapIntegrationCard .kyraLiveQuotaTable,
+.kyraSapIntegrationCard .kyraLiveQuotaTable .sapMListTbl {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+.kyraSapIntegrationCard .kyraLiveQuotaTable th,
+.kyraSapIntegrationCard .kyraLiveQuotaTable td {
+    box-sizing: border-box !important;
+}
+
+/* ========================================================================== */
+/* REFINED GREEN BANNER & SAP CARD 2-LINE STATUS SPACING                     */
+/* ========================================================================== */
+.kyraDarkTargetBanner {
+    padding: 14px 20px !important;
+    min-height: 64px !important;
+}
+
+.kyraDarkTargetBanner .kyraDarkPrimaryActionBtn {
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+}
+
+.kyraSapCardInfoBox {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
