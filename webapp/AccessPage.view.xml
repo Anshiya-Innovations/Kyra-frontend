@@ -197,14 +197,13 @@
                                     <Title text="Integration Management" level="H3" class="kyraIntegrationHeaderTitle" />
                                     <Text text="Connect and manage enterprise systems and identity integrations." class="kyraIntegrationHeaderSubtitle" />
                                 </VBox>
-                                <!-- Decorative 4x3 Dot Matrix (Image 2 Match) -->
-                                <HBox class="kyraDotMatrixDecor" tooltip="Integration Hub">
-                                    <VBox gap="4px">
-                                        <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
-                                        <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
-                                        <HBox gap="4px"><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /><HBox class="kyraDot" /></HBox>
-                                    </VBox>
-                                </HBox>
+                                <Button
+                                    id="btnCloseIntegrationManagementTop"
+                                    icon="sap-icon://decline"
+                                    type="Transparent"
+                                    press=".onCloseAdminSection"
+                                    tooltip="Close Section"
+                                    class="kyraCloseIconBtn" />
                             </HBox>
 
                             <!-- Vertical List of 3 Integration Cards (Image 2 Match) -->
@@ -1485,19 +1484,11 @@
                                     </Table>
                                 </VBox>
 
-                                <!-- Bottom Action Bar matching Image 2 -->
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                                <!-- Bottom Action Bar -->
+                                <HBox justifyContent="Start" alignItems="Center" width="100%" class="kyraDarkBottomBar">
                                     <HBox alignItems="Center" class="kyraDarkPromptBox">
                                         <Text text="Active Directory Sync Status: " class="kyraDarkPromptHint" />
                                         <Text text="Connected &amp; Synced ✓" class="kyraDarkPromptTarget" style="color: #10B981 !important; font-weight: 700;" />
-                                    </HBox>
-                                    <HBox alignItems="Center">
-                                        <Button
-                                            text="Close Section"
-                                            icon="sap-icon://decline"
-                                            type="Default"
-                                            press=".onCloseAdminSection"
-                                            class="kyraSapCloseBtn" />
                                     </HBox>
                                 </HBox>
                             </VBox>

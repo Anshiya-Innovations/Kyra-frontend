@@ -63233,7 +63233,7 @@ html body .sapUiTheme-sap_horizon .kyraIntegrationCardRow {
 }
 
 .kyraIntegrationCardRow:hover {
-    transform: translateY(-2px) !important;
+    transform: none !important;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07) !important;
     border-color: #CBD5E1 !important;
 }
@@ -63645,7 +63645,7 @@ html body .kyraIntegrationCardIam {
 html body [id$="cardSubSapIntegration"]:hover,
 html body [id$="cardSubAdGroupIntegration"]:hover,
 html body [id$="cardSubIamIntegration"]:hover {
-    transform: translateY(-2px) !important;
+    transform: none !important;
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
     border-color: #94A3B8 !important;
 }
