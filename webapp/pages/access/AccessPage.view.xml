@@ -3848,6 +3848,8 @@
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <Select
+                                            id="adminConflictSystemSelect"
+                                            enabled="{= !${accessModel>/isConflictOptionsLoading} }"
                                             selectedKey="{accessModel>/newConflictDraft/system}"
                                             items="{accessModel>/adminConflictSystemOptions}"
                                             change=".onConflictDraftSelectionChange"
@@ -3863,6 +3865,10 @@
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <Select
+                                            id="adminConflictPrimarySelect"
+                                            enabled="{= !${accessModel>/isConflictOptionsLoading} }"
+                                            busy="{accessModel>/isConflictOptionsLoading}"
+                                            busyIndicatorDelay="0"
                                             selectedKey="{accessModel>/newConflictDraft/role1}"
                                             items="{accessModel>/adminPrimaryPersonaOptions}"
                                             change=".onConflictDraftSelectionChange"
@@ -3878,6 +3884,10 @@
                                             <Text text="*" class="kyraAdminRequiredStar" />
                                         </HBox>
                                         <Select
+                                            id="adminConflictConflictingSelect"
+                                            enabled="{= !${accessModel>/isConflictOptionsLoading} }"
+                                            busy="{accessModel>/isConflictOptionsLoading}"
+                                            busyIndicatorDelay="0"
                                             selectedKey="{accessModel>/newConflictDraft/role2}"
                                             items="{accessModel>/adminConflictingPersonaOptions}"
                                             change=".onConflictDraftSelectionChange"

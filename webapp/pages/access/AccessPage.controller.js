@@ -7602,39 +7602,45 @@ sap.ui.define([
                     roleCollections: data.totalRoleCollections
                 });
 
-                // Populate distinct live role templates (strictly deduplicated & clean)
+                // Populate distinct live role templates (with parent service in brackets)
                 const aAllRoles = [];
                 const oSeenRoles = new Set();
                 Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const sSvcLabel = this._getServiceShortLabel(sSvc);
                     const aTeams = oLiveDetailsMap[sSvc] || [];
                     aTeams.forEach(t => {
                         if (t && t.name) {
                             const sCleanName = t.name.replace(/\s*\([^)]*\)$/, "").trim();
-                            const sNorm = sCleanName.toLowerCase();
-                            if (sCleanName && !oSeenRoles.has(sNorm)) {
-                                oSeenRoles.add(sNorm);
-                                aAllRoles.push({ key: sCleanName, text: sCleanName, icon: "sap-icon://user-settings" });
+                            const sLabel = sSvcLabel ? `${sCleanName} (${sSvcLabel})` : sCleanName;
+                            if (sLabel && !oSeenRoles.has(sLabel)) {
+                                oSeenRoles.add(sLabel);
+                                aAllRoles.push({ key: sLabel, text: sLabel, icon: "sap-icon://user-settings" });
                             }
                         }
                     });
                 });
                 oModel.setProperty("/addAccessSubRolesList", aAllRoles);
 
-                // Populate distinct live role collections
+                // Populate distinct live role collections (with parent service in brackets)
                 const aAllPersonas = [];
                 const oSeenPersonas = new Set();
                 Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const sSvcLabel = this._getServiceShortLabel(sSvc);
                     const aTeams = oLiveDetailsMap[sSvc] || [];
                     aTeams.forEach(t => {
                         (t.subClassifications || []).forEach(sub => {
-                            if (sub && sub.name && !oSeenPersonas.has(sub.name)) {
-                                oSeenPersonas.add(sub.name);
-                                aAllPersonas.push({
-                                    key: sub.name,
-                                    text: sub.name,
-                                    icon: "sap-icon://person-placeholder",
-                                    accessPrivilege: sub.accessPrivilege || "Not restricted"
-                                });
+                            if (sub && sub.name) {
+                                const sCleanRc = sub.name.trim();
+                                const sPersLabel = sSvcLabel ? `${sCleanRc} (${sSvcLabel})` : sCleanRc;
+                                if (!oSeenPersonas.has(sPersLabel)) {
+                                    oSeenPersonas.add(sPersLabel);
+                                    aAllPersonas.push({
+                                        key: sPersLabel,
+                                        text: sPersLabel,
+                                        icon: "sap-icon://person-placeholder",
+                                        accessPrivilege: sub.accessPrivilege || "Not restricted"
+                                    });
+                                }
                             }
                         });
                     });
@@ -7979,6 +7985,27 @@ sap.ui.define([
             } catch(e) {}
         },
 
+        _getServiceShortLabel(sServiceKey) {
+            if (!sServiceKey) return "";
+            const s = String(sServiceKey).trim();
+            if (s.includes("Subaccount Administration")) return "SAP BTP Cockpit";
+            const m = s.match(/^([^(]+)\s*\(([^)]+)\)$/);
+            if (m) {
+                const part1 = m[1].trim();
+                const part2 = m[2].trim();
+                if (part1.startsWith("SAP")) {
+                    return part1;
+                }
+                if (part1.includes("-") || part1.includes("_") || !part1.includes(" ") || /^[a-z0-9&_\-\s]+$/i.test(part1)) {
+                    if (part2 && part2.length > 2 && !/^[a-z0-9_\-]+$/i.test(part2)) {
+                        return part2;
+                    }
+                }
+                return part1;
+            }
+            return s;
+        },
+
         _updateSubRolesList(bPreserveSelections) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -8007,16 +8034,17 @@ sap.ui.define([
             let aAllSubRoles = [];
             const oSeenAllRoles = new Set();
             Object.keys(oServicesRolesMap).forEach(sServiceKey => {
+                const sSvcLabel = this._getServiceShortLabel(sServiceKey);
                 (oServicesRolesMap[sServiceKey] || []).forEach(r => {
                     const sRawKey = (r.key || r.text || "").trim();
                     const sCleanRole = sRawKey.replace(/\s*\([^)]*\)$/, "").trim();
-                    const sNorm = sCleanRole.toLowerCase();
-                    if (sCleanRole && !oSeenAllRoles.has(sNorm)) {
-                        oSeenAllRoles.add(sNorm);
+                    const sLabel = sSvcLabel ? `${sCleanRole} (${sSvcLabel})` : sCleanRole;
+                    if (sLabel && !oSeenAllRoles.has(sLabel)) {
+                        oSeenAllRoles.add(sLabel);
                         aAllSubRoles.push({
-                            key: sCleanRole,
-                            text: sCleanRole,
-                            icon: r.icon || 'sap-icon://user-settings'
+                            key: sLabel,
+                            text: sLabel,
+                            icon: r.icon || "sap-icon://user-settings"
                         });
                     }
                 });
@@ -8037,17 +8065,18 @@ sap.ui.define([
             let aCombinedRoles = [];
             const oSeenCombRoles = new Set();
             aSelectedServices.forEach(sServiceKey => {
-                const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(' ')[0]] || [];
+                const sSvcLabel = this._getServiceShortLabel(sServiceKey);
+                const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(" ")[0]] || [];
                 aRolesForSvc.forEach(r => {
                     const sRawKey = (r.key || r.text || "").trim();
                     const sCleanRole = sRawKey.replace(/\s*\([^)]*\)$/, "").trim();
-                    const sNorm = sCleanRole.toLowerCase();
-                    if (sCleanRole && !oSeenCombRoles.has(sNorm)) {
-                        oSeenCombRoles.add(sNorm);
+                    const sLabel = sSvcLabel ? `${sCleanRole} (${sSvcLabel})` : sCleanRole;
+                    if (sLabel && !oSeenCombRoles.has(sLabel)) {
+                        oSeenCombRoles.add(sLabel);
                         aCombinedRoles.push({
-                            key: sCleanRole,
-                            text: sCleanRole,
-                            icon: r.icon || 'sap-icon://user-settings'
+                            key: sLabel,
+                            text: sLabel,
+                            icon: r.icon || "sap-icon://user-settings"
                         });
                     }
                 });
@@ -8104,36 +8133,48 @@ sap.ui.define([
             const aSelectedServices = oModel.getProperty("/addAccessSelectedServices") || [];
 
             Object.keys(oDetailsMap).forEach(sServiceKey => {
-                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey) && !aSelectedServices.some(s => s.split(' ')[0] === sServiceKey.split(' ')[0])) {
+                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey) && !aSelectedServices.some(s => s.split(" ")[0] === sServiceKey.split(" ")[0])) {
                     return;
                 }
+                const sSvcLabel = this._getServiceShortLabel(sServiceKey);
                 const aTeams = oDetailsMap[sServiceKey] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name || oTeam.status === "Inactive") return;
                     const sRawTeamName = oTeam.name.trim();
                     const sCleanTeamShort = sRawTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    const sRoleWithSvc = sSvcLabel ? `${sCleanTeamShort} (${sSvcLabel})` : sCleanTeamShort;
+
                     const aActivePersonas = (oTeam.subClassifications || [])
                         .filter(p => p && p.name && p.status !== "Inactive")
                         .map(p => {
                             let sPersName = p.name.trim();
+                            const sPersLabel = sSvcLabel ? `${sPersName} (${sSvcLabel})` : sPersName;
                             return {
-                                key: sPersName,
-                                text: sPersName,
+                                key: sPersLabel,
+                                text: sPersLabel,
+                                rawName: sPersName,
                                 icon: "sap-icon://person-placeholder",
                                 accessPrivilege: p.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted")
                             };
                         });
 
-                    // MERGE into oTeamPersonasMap across services instead of overwriting!
-                    const aKeys = [sRawTeamName, sCleanTeamShort, sRawTeamName.toLowerCase(), sCleanTeamShort.toLowerCase()];
+                    // MERGE into oTeamPersonasMap across services
+                    const aKeys = [
+                        sRoleWithSvc,
+                        sRoleWithSvc.toLowerCase(),
+                        sRawTeamName,
+                        sCleanTeamShort,
+                        sRawTeamName.toLowerCase(),
+                        sCleanTeamShort.toLowerCase()
+                    ];
                     aKeys.forEach(k => {
                         if (!k) return;
                         if (!oTeamPersonasMap[k]) {
                             oTeamPersonasMap[k] = [];
                         }
-                        const seenInTeam = new Set(oTeamPersonasMap[k].map(p => (p.key || p.text || '').toLowerCase()));
+                        const seenInTeam = new Set(oTeamPersonasMap[k].map(p => (p.key || p.text || "").toLowerCase()));
                         aActivePersonas.forEach(p => {
-                            const pNorm = (p.key || p.text || '').toLowerCase();
+                            const pNorm = (p.key || p.text || "").toLowerCase();
                             if (!seenInTeam.has(pNorm)) {
                                 seenInTeam.add(pNorm);
                                 oTeamPersonasMap[k].push(p);
@@ -8166,7 +8207,7 @@ sap.ui.define([
             const oSeenCombPers = new Set();
             aSelectedRoles.forEach(sRoleKey => {
                 const sClean = (sRoleKey || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
-                let aTargetPersonas = oTeamPersonasMap[sRoleKey] || oTeamPersonasMap[sClean];
+                let aTargetPersonas = oTeamPersonasMap[sRoleKey] || oTeamPersonasMap[sRoleKey.toLowerCase()] || oTeamPersonasMap[sClean];
                 if (!aTargetPersonas) {
                     const sMatchedKey = Object.keys(oTeamPersonasMap).find(k =>
                         k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sClean
@@ -8500,7 +8541,7 @@ sap.ui.define([
                     // Ensure canonical full service name is used if available
                     const oCanonicalSvc = (oModel.getProperty("/adminServicesAll") || []).find(s => {
                         const sName = s && s.serviceName;
-                        return sName && (sName === sTopic || sName.startsWith(sTopic + " ") || sName.split(' ')[0] === sTopic);
+                        return sName && (sName === sTopic || sName.startsWith(sTopic + " ") || (sTopic.includes("Cockpit") && sName.includes("Cockpit")) || sName.split(' ')[0] === sTopic);
                     });
                     if (oCanonicalSvc && oCanonicalSvc.serviceName) {
                         sTopic = oCanonicalSvc.serviceName;
@@ -20244,47 +20285,70 @@ sap.ui.define([
             const aAllRcs = new Set();
 
             if (sChosenSys) {
-                // Fetch dynamic catalog for the selected system
-                if (!this._dynamicCatalogs[sChosenSys]) {
-                    try {
-                        const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ targetSystem: sChosenSys })
-                        });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data && data.ok) {
-                                this._dynamicCatalogs[sChosenSys] = data;
-                            } else {
-                                sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
-                            }
+                // Display loading screen while fetching live data from SAP BTP Cockpit
+                sap.ui.core.BusyIndicator.show(0);
+                oModel.setProperty("/isConflictOptionsLoading", true);
+
+                // Clear previous selections and show temporary loading state in dropdowns
+                oDraft.role1 = "";
+                oDraft.role2 = "";
+                oModel.setProperty("/newConflictDraft/role1", "");
+                oModel.setProperty("/newConflictDraft/role2", "");
+                oModel.setProperty("/adminPrimaryPersonaOptions", [
+                    { key: "", text: "Loading live data..." }
+                ]);
+                oModel.setProperty("/adminConflictingPersonaOptions", [
+                    { key: "", text: "Loading live data..." }
+                ]);
+
+                try {
+                    const startTime = Date.now();
+                    const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ targetSystem: sChosenSys })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            this._dynamicCatalogs[sChosenSys] = data;
                         } else {
-                            sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                            sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                         }
-                    } catch (e) {
-                        console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sChosenSys, e);
+                    } else {
+                        sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                     }
-                }
 
-                const cat = this._dynamicCatalogs[sChosenSys] || (oModel.getProperty("/selectedAdminSystemName") === sChosenSys ? {
-                    serviceDetailsMapJson: oModel.getProperty("/adminServiceDetailsMap")
-                } : null);
-
-                if (cat) {
-                    if (cat.serviceDetailsMapJson) {
-                        const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
-                        extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                    // Ensure minimum 350ms display so the user gets clear visual confirmation of live loading
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 350) {
+                        await new Promise(resolve => setTimeout(resolve, 350 - elapsed));
                     }
-                    if (cat.teamPersonasMapJson) {
-                        const tpMap = typeof cat.teamPersonasMapJson === "string" ? JSON.parse(cat.teamPersonasMapJson) : cat.teamPersonasMapJson;
-                        Object.values(tpMap).forEach(arr => {
-                            (arr || []).forEach(item => {
-                                const name = (typeof item === "string" ? item : (item.text || item.key || item.name || "")).trim();
-                                if (name) aAllRcs.add(name);
+
+                    const cat = this._dynamicCatalogs[sChosenSys] || (oModel.getProperty("/selectedAdminSystemName") === sChosenSys ? {
+                        serviceDetailsMapJson: oModel.getProperty("/adminServiceDetailsMap")
+                    } : null);
+
+                    if (cat) {
+                        if (cat.serviceDetailsMapJson) {
+                            const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
+                            extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                        }
+                        if (cat.teamPersonasMapJson) {
+                            const tpMap = typeof cat.teamPersonasMapJson === "string" ? JSON.parse(cat.teamPersonasMapJson) : cat.teamPersonasMapJson;
+                            Object.values(tpMap).forEach(arr => {
+                                (arr || []).forEach(item => {
+                                    const name = (typeof item === "string" ? item : (item.text || item.key || item.name || "")).trim();
+                                    if (name) aAllRcs.add(name);
+                                });
                             });
-                        });
+                        }
                     }
+                } catch (e) {
+                    console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sChosenSys, e);
+                } finally {
+                    sap.ui.core.BusyIndicator.hide();
+                    oModel.setProperty("/isConflictOptionsLoading", false);
                 }
             }
 
