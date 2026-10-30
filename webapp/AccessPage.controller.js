@@ -23816,6 +23816,20 @@ async onTestCloudConnection() {
             }
         },
 
+        
+        onSelectSingleUserMode() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/personaConversionMode", "single");
+        },
+
+        onSelectDepartmentMode() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+            oModel.setProperty("/personaConversionMode", "department");
+            this._loadAvailableDepartments();
+        },
+
         onPersonaConversionModeChange(oEvent) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;

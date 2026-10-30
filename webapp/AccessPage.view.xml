@@ -2276,10 +2276,7 @@
                                 </HBox>
 
                             <!-- ========================================================================= -->
-                            <VBox id="approver1DetailSection"
-                                visible="{= ${accessModel>/selectedIamApprover} === 'approver1' }"
-                                width="100%"
-                                class="sapUiMediumMarginBottom kyraSlideAnim">
+                            <VBox id="approver1DetailSection" visible="{= ${accessModel>/selectedIamApprover} === 'approver1' }" width="100%" class="kyraSlideAnim">
 
                                 <!-- Approver 1 Integration Selector Sub-Bar -->
                                 <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraApproverSubBar sapUiSmallMarginBottom">
@@ -2307,7 +2304,7 @@
 
                                 <!-- 1A: APPROVER 1 EMAIL INTEGRATION -->
                                 <VBox visible="{= (${accessModel>/iamApproverConfig/approver1/channel} || 'email') === 'email' }" width="100%">
-                                    <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
+                                    <VBox class="kyraDarkFormCard kyraApproverFormCard" width="100%">
                                         <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://email" class="kyraDarkCardHeaderIcon" color="#008C9C" />
@@ -2462,7 +2459,7 @@
 
                                 <!-- 1B: APPROVER 1 CONSOLE INTEGRATION (CLOUD & IAM) -->
                                 <VBox visible="{= ${accessModel>/iamApproverConfig/approver1/channel} === 'console' }" width="100%">
-                                    <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
+                                    <VBox class="kyraDarkFormCard kyraApproverFormCard" width="100%">
                                         <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://cloud" class="kyraDarkCardHeaderIcon" color="#FF9900" />
@@ -2658,10 +2655,7 @@
                             <!-- ========================================================================= -->
                             <!-- LEVEL 2: DETAIL CONFIGURATION FOR IAM APPROVER 2 -->
                             <!-- ========================================================================= -->
-                            <VBox id="approver2DetailSection"
-                                visible="{= ${accessModel>/selectedIamApprover} === 'approver2' }"
-                                width="100%"
-                                class="sapUiMediumMarginBottom kyraSlideAnim">
+                            <VBox id="approver2DetailSection" visible="{= ${accessModel>/selectedIamApprover} === 'approver2' }" width="100%" class="kyraSlideAnim">
 
                                 <!-- Approver 2 Integration Selector Sub-Bar -->
                                 <HBox alignItems="Center" justifyContent="SpaceBetween" width="100%" class="kyraApproverSubBar sapUiSmallMarginBottom">
@@ -2689,7 +2683,7 @@
 
                                 <!-- 2A: APPROVER 2 EMAIL INTEGRATION -->
                                 <VBox visible="{= (${accessModel>/iamApproverConfig/approver2/channel} || 'email') === 'email' }" width="100%">
-                                    <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
+                                    <VBox class="kyraDarkFormCard kyraApproverFormCard" width="100%">
                                         <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://email" class="kyraDarkCardHeaderIcon" color="#008C9C" />
@@ -2844,7 +2838,7 @@
 
                                                                 <!-- 2B: APPROVER 2 CONSOLE INTEGRATION (CLOUD &amp; IAM) -->
                                 <VBox visible="{= ${accessModel>/iamApproverConfig/approver2/channel} === 'console' }" width="100%">
-                                    <VBox class="kyraDarkFormCard kyraApproverFormCard sapUiSmallMarginBottom" width="100%">
+                                    <VBox class="kyraDarkFormCard kyraApproverFormCard" width="100%">
                                         <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkCardHeader sapUiSmallMarginBottom">
                                             <HBox alignItems="Center" gap="10px">
                                                 <core:Icon src="sap-icon://cloud" class="kyraDarkCardHeaderIcon" color="#008C9C" />
@@ -3045,7 +3039,7 @@
                                         text="Back"
                                         type="Default"
                                         press=".onBackToIamApproverCards"
-                                        class="kyraSecondaryBtn" />
+                                        class="kyraSapBackBtn" />
                                 </HBox>
                             </VBox>
                         </VBox>
@@ -3070,13 +3064,21 @@
                         </HBox>
 
                         <!-- DUAL-MODE TAB / SEGMENTED SWITCHER (EXACT IMAGE 2 MATCH) -->
-                        <HBox alignItems="Center" class="kyraPersonaSwitchContainer sapUiMediumMarginBottom">
-                            <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="kyraPersonaSegmentedBtn">
-                                <items>
-                                    <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" />
-                                    <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" />
-                                </items>
-                            </SegmentedButton>
+                        <HBox alignItems="Center" gap="12px" class="kyraPersonaSwitchContainer sapUiMediumMarginBottom">
+                            <Button
+                                id="btnSingleUserMode"
+                                text="Single User Conversion"
+                                icon="sap-icon://person-placeholder"
+                                type="{= ${accessModel>/personaConversionMode} !== 'department' ? 'Emphasized' : 'Default' }"
+                                press=".onSelectSingleUserMode"
+                                class="{= ${accessModel>/personaConversionMode} !== 'department' ? 'kyraModeActiveBtn' : 'kyraModeInactiveBtn' }" />
+                            <Button
+                                id="btnDepartmentMode"
+                                text="Department-Wide Conversion"
+                                icon="sap-icon://group"
+                                type="{= ${accessModel>/personaConversionMode} === 'department' ? 'Emphasized' : 'Default' }"
+                                press=".onSelectDepartmentMode"
+                                class="{= ${accessModel>/personaConversionMode} === 'department' ? 'kyraModeActiveBtn' : 'kyraModeInactiveBtn' }" />
                         </HBox>
 
                         <!-- ============================================================================== -->
