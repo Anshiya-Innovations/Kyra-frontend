@@ -66156,3 +66156,34 @@ button.kyraSecondaryBtn:active {
     color: #005F6A !important;
     fill: #005F6A !important;
 }
+/* Suppress any native UI5 Select internal error drawer & keep select appearance normal */
+.sapMSltMsg,
+.sapMSltValMsg,
+.sapMSltStateMsg,
+.sapMSelectMsg,
+.sapUiSelectValMsg,
+.sapMSltErrorMsg,
+.kyraDarkSelect .sapMSltMsg,
+.kyraDarkSelect .sapMSltValMsg {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    pointer-events: none !important;
+}
+
+.kyraDarkSelect.sapMSltStateError,
+.kyraDarkSelect.sapMSltError,
+.kyraDarkSelect .sapMSltStateError,
+.kyraDarkSelect.sapMSltStateError.sapMSlt,
+.kyraDarkSelect.sapMSltError.sapMSlt {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    box-shadow: none !important;
+}
