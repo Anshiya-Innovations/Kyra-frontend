@@ -1272,15 +1272,7 @@ sap.ui.define([
                 selectedAdminClassification: oInitialAdminClassification,
 
                 adminConflictSystemOptions: [
-                    { key: "", text: "-Select-" },
-                    { key: "All Systems", text: "All Systems" },
-                    { key: "SAP Business Technology Platform", text: "SAP Business Technology Platform" },
-                    { key: "SAP BTP Cloud Platform", text: "SAP BTP Cloud Platform" },
-                    { key: "SAP S/4HANA Enterprise", text: "SAP S/4HANA Enterprise" },
-                    { key: "KYRA Central Governance", text: "KYRA Central Governance" },
-                    { key: "Active Directory / IAM", text: "Active Directory / IAM" },
-                    { key: "SAP SuccessFactors", text: "SAP SuccessFactors" },
-                    { key: "SAP Ariba Supply Network", text: "SAP Ariba Supply Network" }
+                    { key: "", text: "-Select-" }
                 ],
                 adminAllConfiguredRolesAndPersonas: aInitialConflictOptions,
                 adminPrimaryPersonaOptions: [
@@ -1687,13 +1679,11 @@ sap.ui.define([
                 window.addEventListener("storage", this._fnStorageHandler);
             }
 
-            // 4. Tab Focus Visibility Change Sync
+            // 4. Tab Focus Visibility Change Sync (silent request update only, no admin reload)
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
                     if (!document.hidden) {
                         this._loadSubmittedRequests(oModel, true);
-                        this._loadCustomAccessAndConflictConfig(oModel);
-                        this._loadBackendSoDMatrix();
                     }
                 };
                 document.addEventListener("visibilitychange", this._fnVisibilityHandler);
@@ -2850,6 +2840,7 @@ sap.ui.define([
             if (!bHasRegionalSystems) {
                 // Strictly reset selection states when selected region has no integrated systems
                 oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/isTargetSystemsConfirmed", false);
                 oModel.setProperty("/hasSelectedTargetSystems", false);
                 oModel.setProperty("/currentSystemSlideName", "");
                 oModel.setProperty("/targetSystemSlideCount", 0);
@@ -2866,12 +2857,15 @@ sap.ui.define([
                 } else {
                     aCurSelected = [];
                 }
-                if (aCurSelected.length === 0 && aDeduplicated.length > 0) {
-                    aCurSelected = [aDeduplicated[0].systemName];
+                if (!oModel.getProperty("/isTargetSystemsConfirmed")) {
+                    oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
+                    oModel.setProperty("/hasSelectedTargetSystems", false);
+                    oModel.setProperty("/targetSystemSlideCount", 0);
+                } else {
+                    oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
+                    oModel.setProperty("/hasSelectedTargetSystems", aCurSelected.length > 0);
+                    oModel.setProperty("/targetSystemSlideCount", aCurSelected.length);
                 }
-                oModel.setProperty("/addAccessSelectedSystems", aCurSelected);
-                oModel.setProperty("/hasSelectedTargetSystems", aCurSelected.length > 0);
-                oModel.setProperty("/targetSystemSlideCount", aCurSelected.length);
             }
         },
 
@@ -5914,7 +5908,7 @@ sap.ui.define([
                 if (oMsg) oMsg.setValueState("None");
 
                 const sTicket = "TKT-" + Math.floor(100000 + Math.random() * 900000);
-                MessageBox.success(`Your IT support request has been submitted successfully!\n\nTicket Reference: ${sTicket}\nOur IT support team will respond within 24 hours.`, {
+                MessageBox.success(`Your IT support request has been submitted successfully!\r\n\r\nTicket Reference: ${sTicket}\r\nOur IT support team will respond within 24 hours.`, {
                     title: "Request Submitted",
                     onClose: () => {
                         if (oEmail) oEmail.setValue("");
@@ -7309,6 +7303,7 @@ sap.ui.define([
             const bHasRegionalSystems = oModel.getProperty("/hasRegionalSystems");
             if (bHasRegionalSystems === false) {
                 oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/isTargetSystemsConfirmed", false);
                 oModel.setProperty("/hasSelectedTargetSystems", false);
                 oModel.setProperty("/currentSystemSlideName", "");
                 oModel.setProperty("/targetSystemSlideCount", 0);
@@ -7320,21 +7315,135 @@ sap.ui.define([
                 return;
             }
 
-            // Ensure selected systems exist so Target System slide renders immediately
+            const bAlreadyConfirmed = !!oModel.getProperty("/isTargetSystemsConfirmed");
+            if (!bAlreadyConfirmed) {
+                oModel.setProperty("/addAccessSelectedSystems", []);
+                oModel.setProperty("/isTargetSystemsConfirmed", false);
+                oModel.setProperty("/hasSelectedTargetSystems", false);
+                oModel.setProperty("/currentSystemSlideName", "");
+                oModel.setProperty("/targetSystemSlideCount", 0);
+                oModel.setProperty("/addAccessSelectedServices", []);
+                oModel.setProperty("/addAccessSelectedRoles", []);
+                oModel.setProperty("/addAccessSelectedPersonas", []);
+                try {
+                    const oSelect = this.byId("inPageSystemsMultiSelect");
+                    if (oSelect) {
+                        oSelect.setSelectedKeys([]);
+                        if (window._kyraSyncMultiDisplay) window._kyraSyncMultiDisplay(oSelect);
+                    }
+                } catch(e) {}
+            } else {
+                this._loadCurrentSystemSlideConfig();
+            }
+            try { sap.ui.getCore().applyChanges(); } catch (e) {}
+            this._scrollToWizardContainer();
+        },
+
+        async onConfirmTargetSystemsSelection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
             let aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
-            const aActiveSys = oModel.getProperty("/activeAdminSystems") || [];
-            if ((!Array.isArray(aSystems) || aSystems.length === 0) && aActiveSys.length > 0) {
-                const sFirstSys = aActiveSys[0].systemName || aActiveSys[0].name;
-                if (sFirstSys) {
-                    aSystems = [sFirstSys];
+            if (!Array.isArray(aSystems) || aSystems.length === 0) {
+                const oSelect = this.byId("inPageSystemsMultiSelect");
+                if (oSelect && typeof oSelect.getSelectedKeys === "function") {
+                    aSystems = oSelect.getSelectedKeys() || [];
                     oModel.setProperty("/addAccessSelectedSystems", aSystems);
                 }
             }
-            oModel.setProperty("/hasSelectedTargetSystems", Array.isArray(aSystems) && aSystems.length > 0);
 
+            if (!Array.isArray(aSystems) || aSystems.length === 0) {
+                sap.m.MessageBox.warning("Please select at least one Target System and click Confirm.");
+                return;
+            }
+
+            // Single loading screen for all selected systems
+            sap.ui.core.BusyIndicator.show(0);
+
+            this._dynamicCatalogs = this._dynamicCatalogs || {};
+
+            // Fetch dynamic catalog for all selected SAP BTP systems all at once
+            const aFetchPromises = aSystems.map(async (sSys) => {
+                if (!sSys || (!sSys.includes("SAP Business Technology Platform") && !sSys.includes("SAP BTP"))) {
+                    return null;
+                }
+                if (this._dynamicCatalogs[sSys] && this._dynamicCatalogs[sSys].ok) {
+                    return this._dynamicCatalogs[sSys];
+                }
+                try {
+                    const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ targetSystem: sSys })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            this._dynamicCatalogs[sSys] = data;
+                            return data;
+                        }
+                    }
+                } catch (err) {
+                    console.warn("[CONFIRM TARGET SYSTEMS] Fetch failed for " + sSys, err);
+                }
+                return null;
+            });
+
+            await Promise.all(aFetchPromises);
+            sap.ui.core.BusyIndicator.hide();
+
+            // Preserve configurations for existing systems; only delete configs for removed systems
+            const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
+            Object.keys(oSlideConfigsMap).forEach(sSys => {
+                if (!aSystems.includes(sSys)) {
+                    delete oSlideConfigsMap[sSys];
+                }
+            });
+            oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
+
+            // Clamp current slide index
+            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
+            if (iIndex >= aSystems.length) {
+                iIndex = Math.max(0, aSystems.length - 1);
+                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
+            }
+
+            // Set confirmed state
+            oModel.setProperty("/isTargetSystemsConfirmed", true);
+            oModel.setProperty("/hasSelectedTargetSystems", true);
+            oModel.setProperty("/targetSystemSlideCount", aSystems.length);
+
+            // Load current slide configuration
             this._loadCurrentSystemSlideConfig();
-            try { sap.ui.getCore().applyChanges(); } catch (e) {}
-            this._scrollToWizardContainer();
+
+            sap.m.MessageToast.show("Target systems confirmed (" + aSystems.length + " selected).");
+        },
+
+        // Alias for backwards compatibility
+        async onConfirmTargetSystemSelection() {
+            return this.onConfirmTargetSystemsSelection();
+        },
+
+        onEditTargetSystemsSelection() {
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            // Save active slide configuration so no input is lost
+            this._saveCurrentSystemSlideConfig();
+
+            // Re-open selection mode
+            oModel.setProperty("/isTargetSystemsConfirmed", false);
+
+            const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            try {
+                const oSelect = this.byId("inPageSystemsMultiSelect");
+                if (oSelect) {
+                    oSelect.setSelectedKeys(aSystems);
+                    if (window._kyraSyncMultiDisplay) window._kyraSyncMultiDisplay(oSelect);
+                }
+            } catch(e) {}
+
+            sap.m.MessageToast.show("You can now update your target system selections. Click Confirm when finished.");
         },
 
         onInPageTargetSystemsSelectionChange(oEvent) {
@@ -7356,7 +7465,7 @@ sap.ui.define([
                 aSelectedKeys = (oModel.getProperty("/addAccessSelectedSystems") || []).slice();
             }
 
-            // If event provides changedItem (checkbox click), guarantee it is captured
+            // Capture changedItem if provided
             if (oEvent && typeof oEvent.getParameter === "function") {
                 const oChangedItem = oEvent.getParameter("changedItem");
                 const bSelected = oEvent.getParameter("selected");
@@ -7371,30 +7480,11 @@ sap.ui.define([
             }
             oModel.setProperty("/addAccessSelectedSystems", aSelectedKeys);
 
-            const bHasSystems = Array.isArray(aSelectedKeys) && aSelectedKeys.length > 0;
-            oModel.setProperty("/hasSelectedTargetSystems", bHasSystems);
-
             if (window._kyraSyncMultiDisplay && oSource) {
                 window._kyraSyncMultiDisplay(oSource);
             }
 
-            let iIndex = oModel.getProperty("/addAccessCurrentSystemIndex") || 0;
-
-            if (iIndex >= aSelectedKeys.length) {
-                iIndex = Math.max(0, aSelectedKeys.length - 1);
-                oModel.setProperty("/addAccessCurrentSystemIndex", iIndex);
-            }
-
-            // Clean up slide configs for systems no longer selected
-            const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
-            Object.keys(oSlideConfigsMap).forEach(sSys => {
-                if (!aSelectedKeys.includes(sSys)) {
-                    delete oSlideConfigsMap[sSys];
-                }
-            });
-            oModel.setProperty("/addAccessSystemSlideConfigs", oSlideConfigsMap);
-
-            this._loadCurrentSystemSlideConfig();
+            // DO NOT load slides or fetch data here; wait for Confirm button!
         },
 
         _loadCurrentSystemSlideConfig(sSysNameOverride) {
@@ -7510,19 +7600,71 @@ sap.ui.define([
                     roleCollections: data.totalRoleCollections
                 });
 
+                // Populate distinct live role templates (with parent service in brackets)
+                const aAllRoles = [];
+                const oSeenRoles = new Set();
+                Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const sSvcLabel = this._getServiceShortLabel(sSvc);
+                    const aTeams = oLiveDetailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        if (t && t.name) {
+                            const sCleanName = t.name.replace(/\s*\([^)]*\)$/, "").trim();
+                            const sLabel = sSvcLabel ? `${sCleanName} (${sSvcLabel})` : sCleanName;
+                            if (sLabel && !oSeenRoles.has(sLabel)) {
+                                oSeenRoles.add(sLabel);
+                                aAllRoles.push({ key: sLabel, text: sLabel, icon: "sap-icon://user-settings" });
+                            }
+                        }
+                    });
+                });
+                oModel.setProperty("/addAccessSubRolesList", aAllRoles);
+
+                // Populate distinct live role collections (with parent service in brackets)
+                const aAllPersonas = [];
+                const oSeenPersonas = new Set();
+                Object.keys(oLiveDetailsMap).forEach(sSvc => {
+                    const sSvcLabel = this._getServiceShortLabel(sSvc);
+                    const aTeams = oLiveDetailsMap[sSvc] || [];
+                    aTeams.forEach(t => {
+                        (t.subClassifications || []).forEach(sub => {
+                            if (sub && sub.name) {
+                                const sCleanRc = sub.name.trim();
+                                const sPersLabel = sSvcLabel ? `${sCleanRc} (${sSvcLabel})` : sCleanRc;
+                                if (!oSeenPersonas.has(sPersLabel)) {
+                                    oSeenPersonas.add(sPersLabel);
+                                    aAllPersonas.push({
+                                        key: sPersLabel,
+                                        text: sPersLabel,
+                                        icon: "sap-icon://person-placeholder",
+                                        accessPrivilege: sub.accessPrivilege || "Not restricted"
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+                oModel.setProperty("/addAccessPersonasList", aAllPersonas);
+
                 this._updateSubRolesList(true);
                 this._updatePersonasList(true);
-
-                console.log("[DYNAMIC CATALOG] Activated live catalog for " + sTarget + ": " + data.totalServices + " Services, " + data.totalRoles + " Roles, " + data.totalRoleCollections + " Role Collections.");
 
                 if (typeof fnCallback === "function") fnCallback();
             };
 
-            // Check if already in memory cache
-            if (this._dynamicCatalogs[sTarget]) {
+            // If dynamic catalog is already cached from confirm step, apply immediately without showing extra loader
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sTarget] && this._dynamicCatalogs[sTarget].ok) {
                 applyCatalog(this._dynamicCatalogs[sTarget]);
                 return;
             }
+
+            // If dynamic catalog is already cached from confirm step, apply immediately without showing extra loader
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sTarget] && this._dynamicCatalogs[sTarget].ok) {
+                applyCatalog(this._dynamicCatalogs[sTarget]);
+                return;
+            }
+
+            // Display loading indicator while fetching live data from SAP BTP
+            sap.ui.core.BusyIndicator.show(0);
 
             try {
                 const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
@@ -7531,16 +7673,24 @@ sap.ui.define([
                     body: JSON.stringify({ targetSystem: sTarget })
                 });
 
+                sap.ui.core.BusyIndicator.hide();
+
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.ok) {
                         this._dynamicCatalogs[sTarget] = data;
                         applyCatalog(data);
                         return;
+                    } else {
+                        sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                     }
+                } else {
+                    sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                 }
             } catch (err) {
-                console.warn("[DYNAMIC CATALOG] Failed to load dynamic subaccount catalog:", err);
+                sap.ui.core.BusyIndicator.hide();
+                console.warn("[DYNAMIC CATALOG] Live fetch failed:", err);
+                sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
             }
 
             if (typeof fnCallback === "function") fnCallback();
@@ -7704,6 +7854,16 @@ sap.ui.define([
             }
 
             const aSystems = oModel.getProperty("/addAccessSelectedSystems") || [];
+            if (!oModel.getProperty("/isTargetSystemsConfirmed")) {
+                sap.m.MessageBox.warning("Please select target systems and click Confirm before proceeding.");
+                return;
+            }
+
+            if (!oModel.getProperty("/isTargetSystemsConfirmed")) {
+                sap.m.MessageBox.warning("Please select target systems and click Confirm before proceeding.");
+                return;
+            }
+
             if (aSystems.length === 0) {
                 KyraDialog.show({
                     type: "error",
@@ -7823,6 +7983,27 @@ sap.ui.define([
             } catch(e) {}
         },
 
+        _getServiceShortLabel(sServiceKey) {
+            if (!sServiceKey) return "";
+            const s = String(sServiceKey).trim();
+            if (s.includes("Subaccount Administration")) return "SAP BTP Cockpit";
+            const m = s.match(/^([^(]+)\s*\(([^)]+)\)$/);
+            if (m) {
+                const part1 = m[1].trim();
+                const part2 = m[2].trim();
+                if (part1.startsWith("SAP")) {
+                    return part1;
+                }
+                if (part1.includes("-") || part1.includes("_") || !part1.includes(" ") || /^[a-z0-9&_\-\s]+$/i.test(part1)) {
+                    if (part2 && part2.length > 2 && !/^[a-z0-9_\-]+$/i.test(part2)) {
+                        return part2;
+                    }
+                }
+                return part1;
+            }
+            return s;
+        },
+
         _updateSubRolesList(bPreserveSelections) {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
@@ -7851,23 +8032,18 @@ sap.ui.define([
             let aAllSubRoles = [];
             const oSeenAllRoles = new Set();
             Object.keys(oServicesRolesMap).forEach(sServiceKey => {
+                const sSvcLabel = this._getServiceShortLabel(sServiceKey);
                 (oServicesRolesMap[sServiceKey] || []).forEach(r => {
                     const sRawKey = (r.key || r.text || "").trim();
-                    const sNorm = sRawKey.toLowerCase();
-                    const sUniqueKey = sServiceKey + '::' + sNorm;
-                    if (!oSeenAllRoles.has(sUniqueKey)) {
-                        oSeenAllRoles.add(sUniqueKey);
-                        const bDuplicate = aAllSubRoles.some(existing => (existing.key || existing.text || '').trim().toLowerCase() === sNorm);
-                        if (bDuplicate) {
-                            const sSvcShort = sServiceKey.split(' ')[0];
-                            aAllSubRoles.push({
-                                key: `${sRawKey} (${sSvcShort})`,
-                                text: `${sRawKey} (${sSvcShort})`,
-                                icon: r.icon || 'sap-icon://user-settings'
-                            });
-                        } else {
-                            aAllSubRoles.push(r);
-                        }
+                    const sCleanRole = sRawKey.replace(/\s*\([^)]*\)$/, "").trim();
+                    const sLabel = sSvcLabel ? `${sCleanRole} (${sSvcLabel})` : sCleanRole;
+                    if (sLabel && !oSeenAllRoles.has(sLabel)) {
+                        oSeenAllRoles.add(sLabel);
+                        aAllSubRoles.push({
+                            key: sLabel,
+                            text: sLabel,
+                            icon: r.icon || "sap-icon://user-settings"
+                        });
                     }
                 });
             });
@@ -7887,24 +8063,19 @@ sap.ui.define([
             let aCombinedRoles = [];
             const oSeenCombRoles = new Set();
             aSelectedServices.forEach(sServiceKey => {
-                const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(' ')[0]] || [];
+                const sSvcLabel = this._getServiceShortLabel(sServiceKey);
+                const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(" ")[0]] || [];
                 aRolesForSvc.forEach(r => {
                     const sRawKey = (r.key || r.text || "").trim();
-                    const sNorm = sRawKey.toLowerCase();
-                    const sUniqueKey = sServiceKey + '::' + sNorm;
-                    if (!oSeenCombRoles.has(sUniqueKey)) {
-                        oSeenCombRoles.add(sUniqueKey);
-                        const bDuplicate = aCombinedRoles.some(existing => (existing.key || existing.text || '').trim().toLowerCase() === sNorm);
-                        if (bDuplicate) {
-                            const sSvcShort = sServiceKey.split(' ')[0];
-                            aCombinedRoles.push({
-                                key: `${sRawKey} (${sSvcShort})`,
-                                text: `${sRawKey} (${sSvcShort})`,
-                                icon: r.icon || 'sap-icon://user-settings'
-                            });
-                        } else {
-                            aCombinedRoles.push(r);
-                        }
+                    const sCleanRole = sRawKey.replace(/\s*\([^)]*\)$/, "").trim();
+                    const sLabel = sSvcLabel ? `${sCleanRole} (${sSvcLabel})` : sCleanRole;
+                    if (sLabel && !oSeenCombRoles.has(sLabel)) {
+                        oSeenCombRoles.add(sLabel);
+                        aCombinedRoles.push({
+                            key: sLabel,
+                            text: sLabel,
+                            icon: r.icon || "sap-icon://user-settings"
+                        });
                     }
                 });
             });
@@ -7960,26 +8131,54 @@ sap.ui.define([
             const aSelectedServices = oModel.getProperty("/addAccessSelectedServices") || [];
 
             Object.keys(oDetailsMap).forEach(sServiceKey => {
-                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey) && !aSelectedServices.some(s => s.split(' ')[0] === sServiceKey.split(' ')[0])) {
+                if (aSelectedServices.length > 0 && !aSelectedServices.includes(sServiceKey) && !aSelectedServices.some(s => s.split(" ")[0] === sServiceKey.split(" ")[0])) {
                     return;
                 }
+                const sSvcLabel = this._getServiceShortLabel(sServiceKey);
                 const aTeams = oDetailsMap[sServiceKey] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name || oTeam.status === "Inactive") return;
-                    const sTeamName = oTeam.name.trim();
-                    const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    const sRawTeamName = oTeam.name.trim();
+                    const sCleanTeamShort = sRawTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    const sRoleWithSvc = sSvcLabel ? `${sCleanTeamShort} (${sSvcLabel})` : sCleanTeamShort;
+
                     const aActivePersonas = (oTeam.subClassifications || [])
                         .filter(p => p && p.name && p.status !== "Inactive")
                         .map(p => {
                             let sPersName = p.name.trim();
+                            const sPersLabel = sSvcLabel ? `${sPersName} (${sSvcLabel})` : sPersName;
                             return {
-                                key: sPersName,
-                                text: sPersName,
+                                key: sPersLabel,
+                                text: sPersLabel,
+                                rawName: sPersName,
                                 icon: "sap-icon://person-placeholder",
-                                accessPrivilege: p.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted")
+                                accessPrivilege: p.accessPrivilege || ("Not restricted")
                             };
                         });
-                    oTeamPersonasMap[sTeamName] = aActivePersonas;
+
+                    // MERGE into oTeamPersonasMap across services
+                    const aKeys = [
+                        sRoleWithSvc,
+                        sRoleWithSvc.toLowerCase(),
+                        sRawTeamName,
+                        sCleanTeamShort,
+                        sRawTeamName.toLowerCase(),
+                        sCleanTeamShort.toLowerCase()
+                    ];
+                    aKeys.forEach(k => {
+                        if (!k) return;
+                        if (!oTeamPersonasMap[k]) {
+                            oTeamPersonasMap[k] = [];
+                        }
+                        const seenInTeam = new Set(oTeamPersonasMap[k].map(p => (p.key || p.text || "").toLowerCase()));
+                        aActivePersonas.forEach(p => {
+                            const pNorm = (p.key || p.text || "").toLowerCase();
+                            if (!seenInTeam.has(pNorm)) {
+                                seenInTeam.add(pNorm);
+                                oTeamPersonasMap[k].push(p);
+                            }
+                        });
+                    });
                 });
             });
 
@@ -8005,11 +8204,11 @@ sap.ui.define([
             let aCombinedPersonas = [];
             const oSeenCombPers = new Set();
             aSelectedRoles.forEach(sRoleKey => {
-                let aTargetPersonas = oTeamPersonasMap[sRoleKey];
+                const sClean = (sRoleKey || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                let aTargetPersonas = oTeamPersonasMap[sRoleKey] || oTeamPersonasMap[sRoleKey.toLowerCase()] || oTeamPersonasMap[sClean];
                 if (!aTargetPersonas) {
-                    const sRoleShort = sRoleKey.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
                     const sMatchedKey = Object.keys(oTeamPersonasMap).find(k =>
-                        k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sRoleShort
+                        k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sClean
                     );
                     if (sMatchedKey) {
                         aTargetPersonas = oTeamPersonasMap[sMatchedKey];
@@ -8340,7 +8539,7 @@ sap.ui.define([
                     // Ensure canonical full service name is used if available
                     const oCanonicalSvc = (oModel.getProperty("/adminServicesAll") || []).find(s => {
                         const sName = s && s.serviceName;
-                        return sName && (sName === sTopic || sName.startsWith(sTopic + " ") || sName.split(' ')[0] === sTopic);
+                        return sName && (sName === sTopic || sName.startsWith(sTopic + " ") || (sTopic.includes("Cockpit") && sName.includes("Cockpit")) || sName.split(' ')[0] === sTopic);
                     });
                     if (oCanonicalSvc && oCanonicalSvc.serviceName) {
                         sTopic = oCanonicalSvc.serviceName;
@@ -8749,21 +8948,35 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel || !aSummaryItems) return;
 
-            const canonicalSys = (s) => {
-                const str = String(s || "").trim().toLowerCase();
-                if (!str) return "";
-                if (str.includes("btp") || str.includes("business technology platform")) return "btp";
-                if (str.includes("s/4") || str.includes("s4") || str.includes("hana")) return "s4hana";
-                if (str.includes("successfactors") || str.includes("success factors")) return "successfactors";
-                if (str.includes("ariba")) return "ariba";
-                if (str.includes("active directory") || str.includes("iam")) return "iam";
-                if (str.includes("governance") || str.includes("kyra")) return "governance";
-                return str.replace(/[^a-z0-9]/g, "");
+            const getCanonicalSystemKey = (itemOrSys, maybeReg) => {
+                let sSys = typeof itemOrSys === "object" && itemOrSys !== null ? (itemOrSys.system || itemOrSys.target_system || itemOrSys.targetSystem || itemOrSys.systemName || "") : String(itemOrSys || "");
+                let sReg = typeof itemOrSys === "object" && itemOrSys !== null ? (itemOrSys.region || itemOrSys.operating_region || itemOrSys.operatingRegion || maybeReg || "") : "";
+                const strSys = sSys.trim().toLowerCase();
+                const strReg = sReg.trim().toLowerCase();
+                if (!strSys && !strReg) return "";
+                let baseSys = "other";
+                if (strSys.includes("btp") || strSys.includes("business technology platform")) baseSys = "btp";
+                else if (strSys.includes("s/4") || strSys.includes("s4") || strSys.includes("hana")) baseSys = "s4hana";
+                else if (strSys.includes("successfactors") || strSys.includes("success factors")) baseSys = "successfactors";
+                else if (strSys.includes("ariba")) baseSys = "ariba";
+                else if (strSys.includes("active directory") || strSys.includes("iam")) baseSys = "iam";
+                else if (strSys.includes("governance") || strSys.includes("kyra")) baseSys = "governance";
+                else baseSys = strSys.replace(/[^a-z0-9]/g, "");
+
+                let region = "";
+                if (strSys.includes("singapore") || strSys.includes("ap21") || (strReg.includes("singapore") || (strReg.includes("asia") && !strReg.includes("north america")))) {
+                    region = "singapore";
+                } else if (strSys.includes("us east") || strSys.includes("virginia") || strSys.includes("us10") || (strReg.includes("us east") || strReg.includes("virginia") || (strReg.includes("north america") && !strReg.includes("asia")))) {
+                    region = "us";
+                }
+                return region ? `${baseSys}___${region}` : baseSys;
             };
 
+            const canonicalSys = (s) => getCanonicalSystemKey(s);
+
             const isSameSys = (sysA, sysB) => {
-                const cA = canonicalSys(sysA);
-                const cB = canonicalSys(sysB);
+                const cA = getCanonicalSystemKey(sysA);
+                const cB = getCanonicalSystemKey(sysB);
                 return !!(cA && cB && cA === cB);
             };
 
@@ -9201,8 +9414,8 @@ sap.ui.define([
 
             const result = [];
             groupedMap.forEach(entry => {
-                const joinedPersA = Array.from(entry.personasA).join("\n");
-                const joinedPersB = Array.from(entry.personasB).join("\n");
+                const joinedPersA = Array.from(entry.personasA).join("\r\n");
+                const joinedPersB = Array.from(entry.personasB).join("\r\n");
 
                 result.push({
                     system: entry.system,
@@ -9261,15 +9474,10 @@ sap.ui.define([
             }
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
-            let aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-            if (!aCustomAll || aCustomAll.length === 0) {
-                try {
-                    const sStored = localStorage.getItem("kyra_custom_sod_matrix") || localStorage.getItem("kyra_custom_access_config");
-                    if (sStored) {
-                        const parsed = JSON.parse(sStored);
-                        aCustomAll = Array.isArray(parsed) ? parsed : (parsed.adminCustomConflictsAll || []);
-                    }
-                } catch(e) {}
+            // PostgreSQL access_management.role_conflicts is the authoritative source
+            let aCustomAll = oModel.getProperty("/adminCustomConflictsAll");
+            if (!Array.isArray(aCustomAll) || aCustomAll.length === 0) {
+                aCustomAll = oModel.getProperty("/sodMatrix") || [];
             }
             const aModelSod = oModel.getProperty("/sodMatrix") || [];
 
@@ -9413,40 +9621,26 @@ sap.ui.define([
 
                 const normItemPers = normalizeForMatching(itemPersona);
                 const normItemRole = normalizeForMatching(itemRole);
-                const normItemSvc = normalizeForMatching(itemServices);
                 const normTargetPers = normalizeForMatching(parsedTarget.persona);
                 const normTargetTeam = normalizeForMatching(parsedTarget.team);
                 const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-                // Direct Persona match (e.g. "Subaccount Administrator" or "Usage and Cost Viewer")
-                if (normItemPers && normTargetPers && (
-                    normItemPers === normTargetPers ||
-                    normItemPers.includes(normTargetPers) ||
-                    normTargetPers.includes(normItemPers)
-                )) {
-                    return true;
+                // Exact match when rule specifies both Persona and Team: Persona (Team)
+                if (normTargetTeam) {
+                    if (normItemPers && (normItemPers === normTargetPers || normItemPers === normTargetRaw)) return true;
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole === normTargetPers || normItemRole === normTargetRaw)) return true;
                 }
 
-                // Match against raw full string (e.g. "Subaccount Administrator (CloudManagement_Admin)")
+                // Exact match on Persona (Role Collection)
+                if (normTargetPers) {
+                    if (normItemPers && normItemPers === normTargetPers) return true;
+                    if (normItemRole && normItemRole === normTargetPers) return true;
+                }
+
+                // Exact match on raw string
                 if (normTargetRaw) {
-                    if (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) return true;
-                    if (normItemRole && (normItemRole === normTargetRaw || normItemRole.includes(normTargetRaw) || normTargetRaw.includes(normItemRole))) return true;
-                }
-
-                // Match Target Team against Item Role or Persona
-                if (normTargetTeam && normTargetTeam.length > 0) {
-                    if (normItemRole && normItemRole.length > 0 && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) return true;
-                    if (normItemPers && normItemPers.length > 0 && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) return true;
-                }
-
-                // Match Target Persona against Item Role
-                if (normTargetPers && normItemRole && (normItemRole === normTargetPers || normItemRole.includes(normTargetPers) || normTargetPers.includes(normItemRole))) {
-                    return true;
-                }
-
-                // Service topic match
-                if (normTargetTeam && normItemSvc && (normItemSvc.includes(normTargetTeam) || normTargetTeam.includes(normItemSvc))) {
-                    return true;
+                    if (normItemPers && normItemPers === normTargetRaw) return true;
+                    if (normItemRole && normItemRole === normTargetRaw) return true;
                 }
 
                 return false;
@@ -10038,7 +10232,7 @@ sap.ui.define([
                     if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                         sap.ui.core.BusyIndicator.hide();
                     }
-                    MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
+                    MessageBox.error("Database Conflict / Error:\r\n\r\n" + sErrMsg);
                     return;
                 }
 
@@ -14307,7 +14501,7 @@ sap.ui.define([
                                     `Audit Compliance:    100% Audit Verified`,
                                     `Export Timestamp:    ${new Date().toLocaleString()}`,
                                     "=================================================="
-                                ].join("\n");
+                                ].join("\r\n");
                                 const blob = new Blob([sExportData], { type: "text/plain;charset=utf-8" });
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement("a");
@@ -14569,27 +14763,7 @@ sap.ui.define([
         },
 
         _isDefaultRestrictedPersona(sName) {
-            const sClean = this._cleanPersonaForComparison(sName);
-            const aAllowedRestrictedPersonas = [
-                "cloud infrastructure administrator",
-                "database iam administrator",
-                "database & iam administrator",
-                "devops platform lead",
-                "devops & platform lead",
-                "cybersecurity operations",
-                "identity management specialist",
-                "solution architecture owner",
-                "integration engineering lead",
-                "subaccount administrator",
-                "security administrator",
-                "user and role administrator",
-                "identity services administrator",
-                "identity services user administrator",
-                "credentialstore operator",
-                "useraccount admin",
-                "data privacy officer"
-            ];
-            return aAllowedRestrictedPersonas.some(r => this._cleanPersonaForComparison(r) === sClean || sClean.includes(this._cleanPersonaForComparison(r)));
+            return false;
         },
 
         _isRestrictedPersona(sPers, oItem) {
@@ -14604,30 +14778,29 @@ sap.ui.define([
             const sTargetClean = this._cleanPersonaForComparison(sPers || (oItem && (oItem.persona || oItem.selectedPersona)));
             if (!sTargetClean) return false;
 
-            // 2. Check dynamic adminServiceDetailsMap configuration (or fallback to default map)
+            // 2. Check dynamic adminServiceDetailsMap configuration
             if (oModel) {
-                let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
-                if (!oDetailsMap || Object.keys(oDetailsMap).length === 0) {
-                    oDetailsMap = this._getDefaultAdminServiceDetailsMap();
-                }
-                for (const sSrv of Object.keys(oDetailsMap)) {
-                    const aTeams = oDetailsMap[sSrv] || [];
-                    for (const oTeam of aTeams) {
-                        const aSubs = (oTeam && oTeam.subClassifications) || [];
-                        for (const oSub of aSubs) {
-                            if (!oSub || !oSub.name) continue;
-                            const sSubClean = this._cleanPersonaForComparison(oSub.name);
-                            if (sSubClean === sTargetClean || sSubClean.includes(sTargetClean) || sTargetClean.includes(sSubClean)) {
-                                if (oSub.accessPrivilege === "Restricted") return true;
-                                if (oSub.accessPrivilege === "Not restricted") return false;
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
+                if (oDetailsMap) {
+                    for (const sSrv of Object.keys(oDetailsMap)) {
+                        const aTeams = oDetailsMap[sSrv] || [];
+                        for (const oTeam of aTeams) {
+                            const aSubs = (oTeam && oTeam.subClassifications) || [];
+                            for (const oSub of aSubs) {
+                                if (!oSub || !oSub.name) continue;
+                                const sSubClean = this._cleanPersonaForComparison(oSub.name);
+                                if (sSubClean === sTargetClean || sSubClean.includes(sTargetClean) || sTargetClean.includes(sSubClean)) {
+                                    if (oSub.accessPrivilege === "Restricted") return true;
+                                    if (oSub.accessPrivilege === "Not restricted") return false;
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // 3. Fallback to default check
-            return this._isDefaultRestrictedPersona(sTargetClean);
+            // 3. Baseline integration: clean default is Not restricted
+            return false;
         },
 
         _ensureAdminSnapshots(oModel) {
@@ -14772,8 +14945,8 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Security Administrator", status: "Active", accessPrivilege: "Restricted" },
-        { name: "User and Role Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Security Administrator", status: "Active", accessPrivilege: "Not restricted" },
+        { name: "User and Role Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14781,7 +14954,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14799,7 +14972,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services User Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Identity Services User Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14807,7 +14980,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14815,7 +14988,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Restricted" },
+        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Not restricted" },
         { name: "Corporate IdP Specialist", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
@@ -14826,7 +14999,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "CredentialStore_Operator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "CredentialStore_Operator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14862,7 +15035,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "UserAccount_Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "UserAccount_Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14880,7 +15053,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Data_Privacy_Officer", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Data_Privacy_Officer", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14898,7 +15071,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Destination Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Destination Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14914,8 +15087,8 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Connectivity and Destination Administrator", status: "Active", accessPrivilege: "Restricted" },
-        { name: "Cloud Connector Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Connectivity and Destination Administrator", status: "Active", accessPrivilege: "Not restricted" },
+        { name: "Cloud Connector Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -14925,7 +15098,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "PI_Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "PI_Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14959,7 +15132,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SAP Graph Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SAP Graph Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14977,7 +15150,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Service Manager Operator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Service Manager Operator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14993,7 +15166,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SaaS Application Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SaaS Application Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -15003,7 +15176,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Master Data Integration Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Master Data Integration Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15021,7 +15194,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15045,7 +15218,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -15055,8 +15228,8 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Launchpad_Admin", status: "Active", accessPrivilege: "Restricted" },
-        { name: "Workzone_Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Launchpad_Admin", status: "Active", accessPrivilege: "Not restricted" },
+        { name: "Workzone_Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15082,7 +15255,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "HTML5AppsRepoAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "HTML5AppsRepoAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15100,7 +15273,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Theme_Designer_Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Theme_Designer_Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15118,7 +15291,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SAP HANA Cloud Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SAP HANA Cloud Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15126,7 +15299,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SAP HANA Cloud Security Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SAP HANA Cloud Security Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15144,7 +15317,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper_DB (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SpaceDeveloper_DB (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15162,7 +15335,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper_Cache (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SpaceDeveloper_Cache (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15180,7 +15353,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "ProcessAutomationAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "ProcessAutomationAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15206,7 +15379,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Document Information Extraction Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Document Information Extraction Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15224,7 +15397,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "AI Core Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "AI Core Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15250,7 +15423,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "ABAP Cloud Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "ABAP Cloud Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15276,7 +15449,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Mobile Service Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Mobile Service Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15294,7 +15467,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "JobScheduler_Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "JobScheduler_Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15318,7 +15491,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Application_Autoscaler_Operator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Application_Autoscaler_Operator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15336,7 +15509,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Application Logging Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Application Logging Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15352,7 +15525,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "AlertNotificationAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "AlertNotificationAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15370,7 +15543,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Cloud Transport Management Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Cloud Transport Management Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15394,7 +15567,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Feature Flags Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Feature Flags Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15412,7 +15585,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15453,8 +15626,9 @@ sap.ui.define([
                 oModel.setProperty("/adminSystems", aSys.slice());
             }
             const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
-            const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
             const sSelectedAdminSys = oModel.getProperty("/selectedAdminSystemName") || "";
+            const isBtpSys = (s) => typeof s === "string" && (s.includes("SAP Business Technology Platform") || s.includes("SAP BTP"));
+            const bCurrentIsBtpSubaccount = isBtpSys(sCurSlideSys) || isBtpSys(sSelectedAdminSys) || isBtpSys(this._adminLiveSystemActive);
 
             if (!bCurrentIsBtpSubaccount) {
                 if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length > 0) {
@@ -15479,7 +15653,7 @@ sap.ui.define([
                     (oMap[sSrv] || []).forEach(oTeam => {
                         (oTeam.subClassifications || []).forEach(oSub => {
                             if (!oSub.accessPrivilege) {
-                                oSub.accessPrivilege = this._isDefaultRestrictedPersona(oSub.name) ? "Restricted" : "Not restricted";
+                                oSub.accessPrivilege = "Not restricted";
                             }
                         });
                     });
@@ -15689,7 +15863,9 @@ sap.ui.define([
                 oModel.setProperty("/activeAdminSystems", aActiveSystems);
             }
             const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
-            const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
+            const sSelectedAdminSys = oModel.getProperty("/selectedAdminSystemName") || "";
+            const isBtpSys = (s) => typeof s === "string" && (s.includes("SAP Business Technology Platform") || s.includes("SAP BTP"));
+            const bCurrentIsBtpSubaccount = isBtpSys(sCurSlideSys) || isBtpSys(sSelectedAdminSys) || isBtpSys(this._adminLiveSystemActive);
 
             if (!bCurrentIsBtpSubaccount || (oModel.getProperty("/activeAdminServices") || []).length === 0) {
                 oModel.setProperty("/activeAdminServices", aActiveServices);
@@ -15697,8 +15873,7 @@ sap.ui.define([
 
             // 1. Rebuild System Options for Custom Conflict Builder: placeholder + All Systems (always present) + live active systems
             const aSystemOpts = [
-                { key: "", text: "-Select-" },
-                { key: "All Systems", text: "All Systems" }
+                { key: "", text: "-Select-" }
             ];
             const oSeenSys = new Set(["", "All Systems"]);
             aActiveSystems.forEach(s => {
@@ -15767,7 +15942,7 @@ sap.ui.define([
                         // Only add Personas that are currently active and available in Add Access!
                         if (bTeamActive && oPers.status !== "Inactive" && !oSeenPersonaList.has(sNormPers)) {
                             oSeenPersonaList.add(sNormPers);
-                            const sPriv = oPers.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted");
+                            const sPriv = oPers.accessPrivilege || ("Not restricted");
                             aPersonasList.push({
                                 key: sPersName,
                                 text: sPersName,
@@ -15795,29 +15970,26 @@ sap.ui.define([
                 this._updateSubRolesList(true);
                 this._updatePersonasList(true);
             }
-            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
-
-            const aPrimaryOptions = [
-                { key: "", text: "-Select-" }
-            ];
-            aPersonaDropdownOptions.forEach(p => {
-                aPrimaryOptions.push({ key: p.key, text: p.text });
-            });
-            oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
-
             const oDraft = oModel.getProperty("/newConflictDraft") || {};
-            const sCurrentRole1 = oDraft.role1 || "";
+            const sDraftSys = (oDraft.system || "").trim();
 
-            // 3rd dropdown excludes selected persona from 2nd dropdown
-            const aConflictingOptions = [
-                { key: "", text: "-Select-" }
-            ];
-            aPersonaDropdownOptions.forEach(p => {
-                if (!sCurrentRole1 || p.key !== sCurrentRole1) {
-                    aConflictingOptions.push({ key: p.key, text: p.text });
-                }
-            });
-            oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+            if (sDraftSys) {
+                // If a system is chosen in the Conflict Builder, refresh based on that system!
+                this._refreshCustomConflictOptions(oModel, sDraftSys);
+            } else {
+                oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
+                const aPrimaryOptions = [
+                    { key: "", text: "-Select-" },
+                    ...aPersonaDropdownOptions
+                ];
+                oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
+                const sCurrentRole1 = oDraft.role1 || "";
+                const aConflictingOptions = [
+                    { key: "", text: "-Select-" },
+                    ...aPersonaDropdownOptions.filter(p => !sCurrentRole1 || p.key !== sCurrentRole1)
+                ];
+                oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+            }
 
             if (oDraft.role2 && oDraft.role1 && oDraft.role2 === oDraft.role1) {
                 oDraft.role2 = "";
@@ -16163,7 +16335,22 @@ sap.ui.define([
             }
 
             oModel.setProperty("/selectedAdminSystemName", sSystemName);
-            oModel.setProperty("/adminCustomizationStep", 2);
+            this._adminLiveSystemActive = sSystemName;
+
+            // If already cached in memory, apply immediately without showing loading indicator
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sSystemName] && this._dynamicCatalogs[sSystemName].ok) {
+                const data = this._dynamicCatalogs[sSystemName];
+                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+                oModel.setProperty("/adminServicesAll", aLiveServices);
+                oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+                this._syncAdminConfigToLiveAddAccess(oModel, true);
+                return;
+            }
+
+            // Display loading screen for initial load
+            sap.ui.core.BusyIndicator.show(0);
 
             try {
                 const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
@@ -16171,44 +16358,54 @@ sap.ui.define([
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ targetSystem: sSystemName })
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.ok) {
-                        const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
-                        const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
 
-                        oModel.setProperty("/adminServicesAll", aLiveServices);
-                        oModel.setProperty("/adminServices", aLiveServices.slice());
-                        oModel.setProperty("/activeAdminServices", aLiveServices.slice());
-                        oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+                sap.ui.core.BusyIndicator.hide();
 
-                        if (aLiveServices.length > 0) {
-                            const firstSvc = aLiveServices[0].serviceName;
-                            oModel.setProperty("/selectedAdminServiceName", firstSvc);
-                            const aTeams = oLiveDetailsMap[firstSvc] || [];
-                            const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
-                            oModel.setProperty("/adminClassifications", aTeamsCopy);
-                            oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
-                        } else {
-                            oModel.setProperty("/selectedAdminServiceName", "");
-                            oModel.setProperty("/adminClassifications", []);
-                            oModel.setProperty("/selectedAdminClassification", null);
-                        }
-                    }
-                } else {
-                    this._ensureSystemServicesPopulated(oModel, sSystemName);
+                if (!res.ok) {
+                    sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    return;
                 }
-            } catch (err) {
-                console.warn("[ADMIN SYSTEM TO SERVICES] Error loading live catalog for " + sSystemName, err);
-                this._ensureSystemServicesPopulated(oModel, sSystemName);
-            }
 
-            setTimeout(() => {
-                this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
-            }, 60);
+                const data = await res.json();
+                if (!data || !data.ok) {
+                    sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    return;
+                }
+
+                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+
+                oModel.setProperty("/adminServicesAll", aLiveServices);
+                oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
+                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+
+                if (aLiveServices.length > 0) {
+                    const firstSvc = aLiveServices[0].serviceName;
+                    oModel.setProperty("/selectedAdminServiceName", firstSvc);
+                    const aTeams = oLiveDetailsMap[firstSvc] || [];
+                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
+                    oModel.setProperty("/adminClassifications", aTeamsCopy);
+                    oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+                } else {
+                    oModel.setProperty("/selectedAdminServiceName", "");
+                    oModel.setProperty("/adminClassifications", []);
+                    oModel.setProperty("/selectedAdminClassification", null);
+                }
+
+                oModel.setProperty("/adminCustomizationStep", 2);
+                setTimeout(() => {
+                    this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
+                }, 60);
+            } catch (err) {
+                sap.ui.core.BusyIndicator.hide();
+                console.error("[ADMIN SYSTEM TO SERVICES] Error loading live catalog for " + sSystemName, err);
+                sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+            }
         },
 
         onBackToAdminSystems() {
+            this._adminLiveSystemActive = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/adminCustomizationStep", 1);
@@ -20022,12 +20219,11 @@ sap.ui.define([
             if (!oModel) oModel = this.getView() && this.getView().getModel("accessModel");
             if (!oModel) return;
 
-            // 1. Target System dropdown: Latest updated, currently available & active systems ONLY
+            // 1. Target System dropdown: Latest updated, currently available & active systems ONLY (No "All Systems")
             const aSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
             const aActiveSystems = aSystems.filter(s => s && s.status !== "Inactive");
             const aSystemOpts = [
-                { key: "", text: "-Select-" },
-                { key: "All Systems", text: "All Systems" }
+                { key: "", text: "-Select-" }
             ];
             const oSeenSys = new Set(["", "All Systems"]);
             aActiveSystems.forEach(s => {
@@ -20037,7 +20233,7 @@ sap.ui.define([
                     aSystemOpts.push({ key: sName, text: sName });
                 }
             });
-            if (aSystemOpts.length === 2 && aSystems.length > 0) {
+            if (aSystemOpts.length === 1 && aSystems.length > 0) {
                 aSystems.forEach(s => {
                     const sName = (s.systemName || "").trim();
                     if (sName && !oSeenSys.has(sName)) {
@@ -20070,65 +20266,107 @@ sap.ui.define([
                 return Array.from(rcs);
             };
 
-            const aActiveSysNames = aActiveSystems.map(s => s.systemName).filter(Boolean);
-
-            // Fetch any missing catalogs for active systems
-            const systemsToFetch = (sChosenSys && sChosenSys !== "All Systems") ? [sChosenSys] : aActiveSysNames;
-            for (const sysName of systemsToFetch) {
-                if (!this._dynamicCatalogs[sysName]) {
-                    try {
-                        const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ targetSystem: sysName })
-                        });
-                        if (res.ok) {
-                            const data = await res.json();
-                            if (data && data.ok) {
-                                this._dynamicCatalogs[sysName] = data;
-                            }
-                        }
-                    } catch (e) {
-                        console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sysName, e);
-                    }
-                }
-            }
-
             const aAllRcs = new Set();
-            if (!sChosenSys || sChosenSys === "All Systems") {
-                // Collect across all active systems
-                aActiveSysNames.forEach(sysName => {
-                    const cat = this._dynamicCatalogs[sysName];
-                    if (cat && cat.serviceDetailsMapJson) {
-                        const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
-                        extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
-                    }
-                });
-                // Also check current adminServiceDetailsMap
-                const currentMap = oModel.getProperty("/adminServiceDetailsMap");
-                extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
-            } else {
-                // Specific system selected
-                const cat = this._dynamicCatalogs[sChosenSys];
-                if (cat && cat.serviceDetailsMapJson) {
-                    const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
+
+            if (sChosenSys) {
+                // If already cached in memory, use cached data directly without any loading screen or re-fetch!
+                const cachedCat = this._dynamicCatalogs[sChosenSys] || (oModel.getProperty("/selectedAdminSystemName") === sChosenSys ? {
+                    serviceDetailsMapJson: oModel.getProperty("/adminServiceDetailsMap")
+                } : null);
+
+                if (cachedCat && cachedCat.serviceDetailsMapJson) {
+                    const map = typeof cachedCat.serviceDetailsMapJson === "string" ? JSON.parse(cachedCat.serviceDetailsMapJson) : cachedCat.serviceDetailsMapJson;
                     extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
-                } else if (oModel.getProperty("/selectedAdminSystemName") === sChosenSys) {
-                    const currentMap = oModel.getProperty("/adminServiceDetailsMap");
-                    extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
+                    if (cachedCat.teamPersonasMapJson) {
+                        const tpMap = typeof cachedCat.teamPersonasMapJson === "string" ? JSON.parse(cachedCat.teamPersonasMapJson) : cachedCat.teamPersonasMapJson;
+                        Object.values(tpMap).forEach(arr => {
+                            (arr || []).forEach(item => {
+                                const name = (typeof item === "string" ? item : (item.text || item.key || item.name || "")).trim();
+                                if (name) aAllRcs.add(name);
+                            });
+                        });
+                    }
+                    const aSortedOptions = Array.from(aAllRcs).sort().map(rc => ({ key: rc, text: rc }));
+                    oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aSortedOptions);
+                    oModel.setProperty("/adminPrimaryPersonaOptions", [
+                        { key: "", text: "-Select-" },
+                        ...aSortedOptions
+                    ]);
+                    const sCurRole1 = oDraft.role1 || "";
+                    oModel.setProperty("/adminConflictingPersonaOptions", [
+                        { key: "", text: "-Select-" },
+                        ...aSortedOptions.filter(p => !sCurRole1 || p.key !== sCurRole1)
+                    ]);
+                    oModel.setProperty("/isConflictOptionsLoading", false);
+                    return;
+                }
+
+                // Cold load: Display loading screen while fetching live data from SAP BTP Cockpit
+                sap.ui.core.BusyIndicator.show(0);
+                oModel.setProperty("/isConflictOptionsLoading", true);
+
+                // Clear previous selections and show temporary loading state in dropdowns
+                oDraft.role1 = "";
+                oDraft.role2 = "";
+                oModel.setProperty("/newConflictDraft/role1", "");
+                oModel.setProperty("/newConflictDraft/role2", "");
+                oModel.setProperty("/adminPrimaryPersonaOptions", [
+                    { key: "", text: "Loading live data..." }
+                ]);
+                oModel.setProperty("/adminConflictingPersonaOptions", [
+                    { key: "", text: "Loading live data..." }
+                ]);
+
+                try {
+                    const startTime = Date.now();
+                    const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ targetSystem: sChosenSys })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            this._dynamicCatalogs[sChosenSys] = data;
+                        } else {
+                            sap.m.MessageBox.warning(data && data.message ? data.message : "Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                        }
+                    } else {
+                        sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
+                    }
+
+                    // Ensure minimum 350ms display so the user gets clear visual confirmation of live loading
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed < 350) {
+                        await new Promise(resolve => setTimeout(resolve, 350 - elapsed));
+                    }
+
+                    const cat = this._dynamicCatalogs[sChosenSys] || (oModel.getProperty("/selectedAdminSystemName") === sChosenSys ? {
+                        serviceDetailsMapJson: oModel.getProperty("/adminServiceDetailsMap")
+                    } : null);
+
+                    if (cat) {
+                        if (cat.serviceDetailsMapJson) {
+                            const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
+                            extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                        }
+                        if (cat.teamPersonasMapJson) {
+                            const tpMap = typeof cat.teamPersonasMapJson === "string" ? JSON.parse(cat.teamPersonasMapJson) : cat.teamPersonasMapJson;
+                            Object.values(tpMap).forEach(arr => {
+                                (arr || []).forEach(item => {
+                                    const name = (typeof item === "string" ? item : (item.text || item.key || item.name || "")).trim();
+                                    if (name) aAllRcs.add(name);
+                                });
+                            });
+                        }
+                    }
+                } catch (e) {
+                    console.warn("[CONFLICT OPTIONS] Failed to load catalog for " + sChosenSys, e);
+                } finally {
+                    sap.ui.core.BusyIndicator.hide();
+                    oModel.setProperty("/isConflictOptionsLoading", false);
                 }
             }
-
-            // Ensure existing custom conflicts have their roles/personas available
-            const aConflictsAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-            aConflictsAll.forEach(c => {
-                if (c.role1 && (!sChosenSys || sChosenSys === "All Systems" || c.system === sChosenSys || c.system === "All Systems")) {
-                    aAllRcs.add(c.role1.trim());
-                }
-                if (c.role2 && (!sChosenSys || sChosenSys === "All Systems" || c.system === sChosenSys || c.system === "All Systems")) {
-                    aAllRcs.add(c.role2.trim());
-                }
-            });
 
             const aSortedOptions = Array.from(aAllRcs).sort().map(rc => ({ key: rc, text: rc }));
             oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aSortedOptions);
@@ -22474,13 +22712,13 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp1.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 1 Email Integration Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• Designation: " + (oApp1.name || "IAM Approver 1 (Security Lead)") + "\n" +
-                    "• Notification Email: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + "\n" +
-                    "• Dispatch Mode: " + (oApp1.notificationMode || "Consolidated Batch Notification") + "\n" +
-                    "• Delivery Service: " + (oApp1.deliveryService || "AWS SNS Email Topic") + "\n" +
-                    "• SLA Window: " + (oApp1.slaWindow || "24h") + "\n" +
+                    "IAM Approver 1 Email Integration Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• Designation: " + (oApp1.name || "IAM Approver 1 (Security Lead)") + "\r\n" +
+                    "• Notification Email: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + "\r\n" +
+                    "• Dispatch Mode: " + (oApp1.notificationMode || "Consolidated Batch Notification") + "\r\n" +
+                    "• Delivery Service: " + (oApp1.deliveryService || "AWS SNS Email Topic") + "\r\n" +
+                    "• SLA Window: " + (oApp1.slaWindow || "24h") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 1 Verified" }
                 );
@@ -22536,13 +22774,13 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp1.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 1 Cloud Console Integration Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
-                    "• User ARN / Principal ID: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
-                    "• Notification Endpoint: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
-                    "• Region / Realm: " + (oApp1.region || "us-east-1") + "\n" +
-                    "• Approval Engine: " + (oApp1.approvalEngine || "Cloud Governance Engine") + "\n" +
+                    "IAM Approver 1 Cloud Console Integration Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\r\n" +
+                    "• User ARN / Principal ID: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\r\n" +
+                    "• Notification Endpoint: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\r\n" +
+                    "• Region / Realm: " + (oApp1.region || "us-east-1") + "\r\n" +
+                    "• Approval Engine: " + (oApp1.approvalEngine || "Cloud Governance Engine") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 1 Console Verified" }
                 );
@@ -22583,12 +22821,12 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp2.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 2 Email Integration Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• Designation: " + (oApp2.name || "IAM Approver 2 (Cloud Platform Owner)") + "\n" +
-                    "• Notification Email: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + "\n" +
-                    "• Routing Trigger: " + (oApp2.routingTrigger || "Sequential - Dispatch upon Approver 1 Approval") + "\n" +
-                    "• Final Provisioning Action: " + (oApp2.finalAction || "Trigger Automated Live SCIM Role Provisioning into SAP BTP") + "\n" +
+                    "IAM Approver 2 Email Integration Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• Designation: " + (oApp2.name || "IAM Approver 2 (Cloud Platform Owner)") + "\r\n" +
+                    "• Notification Email: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + "\r\n" +
+                    "• Routing Trigger: " + (oApp2.routingTrigger || "Sequential - Dispatch upon Approver 1 Approval") + "\r\n" +
+                    "• Final Provisioning Action: " + (oApp2.finalAction || "Trigger Automated Live SCIM Role Provisioning into SAP BTP") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 2 Verified" }
                 );
@@ -22629,14 +22867,14 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp2.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 2 Cloud Console & Provisioning Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
-                    "• User ARN / Principal ID: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
-                    "• Notification Endpoint: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
-                    "• Region / Realm: " + (oApp2.region || "us-east-1") + "\n" +
-                    "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\n" +
-                    "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\n" +
+                    "IAM Approver 2 Cloud Console & Provisioning Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\r\n" +
+                    "• User ARN / Principal ID: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\r\n" +
+                    "• Notification Endpoint: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\r\n" +
+                    "• Region / Realm: " + (oApp2.region || "us-east-1") + "\r\n" +
+                    "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\r\n" +
+                    "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 2 Console Verified" }
                 );
@@ -22693,12 +22931,12 @@ sap.ui.define([
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/emailGateway/testStatus", "Verified Active ✓");
                 sap.m.MessageBox.success(
-                    "Email Gateway & Approver Dispatch Verification Succeeded!\n\n" +
-                    "• Service Provider: " + (oEmailGateway.provider || "AWS SNS Email Topic") + "\n" +
-                    "• Sender Address: " + (oEmailGateway.fromAddress || "no-reply-governance@kyra-portal.com") + "\n" +
-                    "• Approver 1 Target: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + " (" + (oApp1.name || "IAM Approver 1") + ")\n" +
-                    "• Approver 2 Target: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + " (" + (oApp2.name || "IAM Approver 2") + ")\n" +
-                    "• Review Webhook: " + (oEmailGateway.webhookUrl || "Active AWS Lambda Function URL") + "\n" +
+                    "Email Gateway & Approver Dispatch Verification Succeeded!\r\n\r\n" +
+                    "• Service Provider: " + (oEmailGateway.provider || "AWS SNS Email Topic") + "\r\n" +
+                    "• Sender Address: " + (oEmailGateway.fromAddress || "no-reply-governance@kyra-portal.com") + "\r\n" +
+                    "• Approver 1 Target: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + " (" + (oApp1.name || "IAM Approver 1") + ")\r\n" +
+                    "• Approver 2 Target: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + " (" + (oApp2.name || "IAM Approver 2") + ")\r\n" +
+                    "• Review Webhook: " + (oEmailGateway.webhookUrl || "Active AWS Lambda Function URL") + "\r\n" +
                     "• Dispatch Mode: Batch Notification (Consolidated 1 Email per Batch)",
                     {
                         title: "Email Approver Gateway Verified"
@@ -22734,15 +22972,15 @@ sap.ui.define([
                 oModel.setProperty("/iamApproverConfig/awsConfig/connected", true);
                 oModel.setProperty("/iamApproverConfig/awsConfig/statusText", "AWS Connected & IAM Verified ✓");
                 sap.m.MessageBox.success(
-                    "AWS IAM Approver Governance Connection Successful!\n\n" +
-                    "• AWS Region: " + (oAws.region || "us-east-1") + "\n" +
-                    "• AWS Account: " + (oAws.accountId || "197009134141") + "\n" +
-                    "• Native Approval Engine: AWS Systems Manager (SSM) Change Manager\n" +
-                    "• IAM Approver 1 User: " + (oAws1.iamUser || "iam-approver-1") + "\n" +
-                    "• IAM Approver 2 User: " + (oAws2.iamUser || "iam-approver-2") + "\n" +
-                    "• Level 1 SNS Topic: " + (oAws1.snsTopicArn || "kyra-iam-approver-1") + "\n" +
-                    "• Level 2 SNS Topic: " + (oAws2.snsTopicArn || "kyra-iam-approver-2") + "\n" +
-                    "• Lambda Webhook: " + (oAws.lambdaUrl || "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/") + "\n" +
+                    "AWS IAM Approver Governance Connection Successful!\r\n\r\n" +
+                    "• AWS Region: " + (oAws.region || "us-east-1") + "\r\n" +
+                    "• AWS Account: " + (oAws.accountId || "197009134141") + "\r\n" +
+                    "• Native Approval Engine: AWS Systems Manager (SSM) Change Manager\r\n" +
+                    "• IAM Approver 1 User: " + (oAws1.iamUser || "iam-approver-1") + "\r\n" +
+                    "• IAM Approver 2 User: " + (oAws2.iamUser || "iam-approver-2") + "\r\n" +
+                    "• Level 1 SNS Topic: " + (oAws1.snsTopicArn || "kyra-iam-approver-1") + "\r\n" +
+                    "• Level 2 SNS Topic: " + (oAws2.snsTopicArn || "kyra-iam-approver-2") + "\r\n" +
+                    "• Lambda Webhook: " + (oAws.lambdaUrl || "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/") + "\r\n" +
                     "• Target SCIM Binding: " + (oProv.targetSystem || "SAP BTP Subaccount") + " (" + (oProv.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + ")",
                     {
                         title: "AWS IAM Integration Verified"

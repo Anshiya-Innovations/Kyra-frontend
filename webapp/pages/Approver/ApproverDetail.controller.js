@@ -1135,28 +1135,21 @@ sap.ui.define([
                 const normTargetTeam = normalizeForMatching(parsedTarget.team);
                 const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-                // Case 1: Target specifically designates a Persona with Team (e.g. "Backend & Systems Developer (IT Developers)")
-                if (parsedTarget.team && parsedTarget.persona !== parsedTarget.team) {
-                    const bPersMatch = (normItemPers === normTargetPers) ||
-                        (normItemPers && normTargetPers && (normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers)));
-                    if (!bPersMatch) return false;
-
-                    if (normTargetTeam && normItemRole) {
-                        const bTeamMatch = (normItemRole === normTargetTeam) ||
-                            (normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole));
-                        if (!bTeamMatch) return false;
-                    }
-                    return true;
+                // Case 1: Target specifically designates a Persona with Team (e.g. "Persona (Team)")
+                if (normTargetTeam) {
+                    if (normItemPers && (normItemPers === normTargetPers || normItemPers === normTargetRaw)) return true;
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole === normTargetPers || normItemRole === normTargetRaw)) return true;
                 }
 
-                // Case 2: Target is just a Persona or Role Name without parentheses
-                if (normTargetPers && normTargetPers.length > 0) {
-                    if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
-                        return true;
-                    }
-                    if (normItemRole && (normItemRole === normTargetPers || normItemRole.includes(normTargetPers) || normTargetPers.includes(normItemRole))) {
-                        return true;
-                    }
+                // Case 2: Target is a Persona or Role Name (EXACT MATCH ONLY - no substring false positives)
+                if (normTargetPers) {
+                    if (normItemPers && normItemPers === normTargetPers) return true;
+                    if (normItemRole && normItemRole === normTargetPers) return true;
+                }
+
+                if (normTargetRaw) {
+                    if (normItemPers && normItemPers === normTargetRaw) return true;
+                    if (normItemRole && normItemRole === normTargetRaw) return true;
                 }
                 if (normTargetTeam && normTargetTeam.length > 0) {
                     if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
@@ -1642,9 +1635,82 @@ sap.ui.define([
 
             oModel.setProperty("/duplicateRoles", aDuplicateRoles);
 
+            // Evaluate Threshold Limits across:
+            // 1) Current request items
+            // 2) Requester's active approved accesses
+            // 3) Requester's other in-flight pending accesses
+            const aThresholdLimits = [];
+            const oSystemEntitlementSets = {};
+            const oSystemSectorMap = {};
+
+            const getThreshEntKey = (sys, role, persona) => {
+                const sSys = isSameSysHelper(sys, "btp") ? "btp" : String(sys || "").toLowerCase();
+                const sRole = cleanPersonaName(role).toLowerCase();
+                const sPers = cleanPersonaName(persona || role).toLowerCase();
+                return `${sSys}:::${sRole}:::${sPers}`;
+            };
+
+            // 1. Current request items
+            aItems.forEach(item => {
+                const sSys = item.system || item.target_system || item.systemName || "SAP Business Technology Platform";
+                const sRole = item.team || item.teamName || item.roleName || item.roleTitle || "";
+                const sPersona = item.persona || item.selectedPersona || sRole;
+                if (!oSystemEntitlementSets[sSys]) oSystemEntitlementSets[sSys] = new Set();
+                if (!oSystemSectorMap[sSys]) {
+                    oSystemSectorMap[sSys] = item.businessSector || item.sector || oRequest.businessSector || "Information Technology & Security";
+                }
+                oSystemEntitlementSets[sSys].add(getThreshEntKey(sSys, sRole, sPersona));
+            });
+
+            // 2. Requester's active accesses
+            (aAllLive || []).forEach(rec => {
+                const rUser = (rec.requester_username || "").toLowerCase();
+                if (!sRequesterUsername || rUser !== sRequesterUsername.toLowerCase()) return;
+                const rStat = (rec.status || rec.db_status || "").toUpperCase();
+                const rType = (rec.access_type || rec.request_type || "").toUpperCase();
+                const isRev = rType.includes("REV") || rStat.includes("REVOKE");
+                if (isRev) return;
+
+                const sSys = rec.target_system || rec.system || "";
+                const sRole = rec.role_name || rec.roleName || rec.team || "";
+                const sPersona = rec.selected_persona || rec.persona || sRole;
+
+                Object.keys(oSystemEntitlementSets).forEach(reqSys => {
+                    if (isSameSysHelper(sSys, reqSys)) {
+                        oSystemEntitlementSets[reqSys].add(getThreshEntKey(reqSys, sRole, sPersona));
+                    }
+                });
+            });
+
+            // 3. Compare count against configured limit in adminSystemsAll
+            const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
+
+            Object.keys(oSystemEntitlementSets).forEach(sSys => {
+                const iCount = oSystemEntitlementSets[sSys].size;
+                const oSysCfg = aAdminSystems.find(s => s && isSameSysHelper(s.systemName || s.system_name, sSys));
+                let iSysLimit = 5;
+                if (oSysCfg && oSysCfg.thresholdLimit) {
+                    const parsed = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
+                    if (!isNaN(parsed) && parsed > 0) iSysLimit = parsed;
+                }
+
+                if (iCount > iSysLimit) {
+                    const iPct = Math.round((iCount / iSysLimit) * 100);
+                    aThresholdLimits.push({
+                        system: sSys,
+                        sector: oSystemSectorMap[sSys] || "Information Technology & Security",
+                        thresholdLimit: String(iSysLimit),
+                        actualCount: iCount,
+                        limit: `${iCount}/${iSysLimit}`,
+                        excessivePercentage: `${iPct}%`,
+                        status: "Excessive",
+                        state: "Warning",
+                        statusState: "Warning"
+                    });
+                }
+            });
+
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
-            oModel.setProperty("/thresholdLimitsCount", aThresholdLimits ? aThresholdLimits.length : 0);
-            oModel.setProperty("/hasThresholdLimits", aThresholdLimits && aThresholdLimits.length > 0);
             oModel.setProperty("/thresholdLimitsCount", aThresholdLimits ? aThresholdLimits.length : 0);
             oModel.setProperty("/hasThresholdLimits", aThresholdLimits && aThresholdLimits.length > 0);
         },

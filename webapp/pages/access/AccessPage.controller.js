@@ -1679,13 +1679,11 @@ sap.ui.define([
                 window.addEventListener("storage", this._fnStorageHandler);
             }
 
-            // 4. Tab Focus Visibility Change Sync
+            // 4. Tab Focus Visibility Change Sync (silent request update only, no admin reload)
             if (!this._fnVisibilityHandler) {
                 this._fnVisibilityHandler = () => {
                     if (!document.hidden) {
                         this._loadSubmittedRequests(oModel, true);
-                        this._loadCustomAccessAndConflictConfig(oModel);
-                        this._loadBackendSoDMatrix();
                     }
                 };
                 document.addEventListener("visibilitychange", this._fnVisibilityHandler);
@@ -8950,21 +8948,35 @@ sap.ui.define([
             const oModel = this.getView().getModel("accessModel");
             if (!oModel || !aSummaryItems) return;
 
-            const canonicalSys = (s) => {
-                const str = String(s || "").trim().toLowerCase();
-                if (!str) return "";
-                if (str.includes("btp") || str.includes("business technology platform")) return "btp";
-                if (str.includes("s/4") || str.includes("s4") || str.includes("hana")) return "s4hana";
-                if (str.includes("successfactors") || str.includes("success factors")) return "successfactors";
-                if (str.includes("ariba")) return "ariba";
-                if (str.includes("active directory") || str.includes("iam")) return "iam";
-                if (str.includes("governance") || str.includes("kyra")) return "governance";
-                return str.replace(/[^a-z0-9]/g, "");
+            const getCanonicalSystemKey = (itemOrSys, maybeReg) => {
+                let sSys = typeof itemOrSys === "object" && itemOrSys !== null ? (itemOrSys.system || itemOrSys.target_system || itemOrSys.targetSystem || itemOrSys.systemName || "") : String(itemOrSys || "");
+                let sReg = typeof itemOrSys === "object" && itemOrSys !== null ? (itemOrSys.region || itemOrSys.operating_region || itemOrSys.operatingRegion || maybeReg || "") : "";
+                const strSys = sSys.trim().toLowerCase();
+                const strReg = sReg.trim().toLowerCase();
+                if (!strSys && !strReg) return "";
+                let baseSys = "other";
+                if (strSys.includes("btp") || strSys.includes("business technology platform")) baseSys = "btp";
+                else if (strSys.includes("s/4") || strSys.includes("s4") || strSys.includes("hana")) baseSys = "s4hana";
+                else if (strSys.includes("successfactors") || strSys.includes("success factors")) baseSys = "successfactors";
+                else if (strSys.includes("ariba")) baseSys = "ariba";
+                else if (strSys.includes("active directory") || strSys.includes("iam")) baseSys = "iam";
+                else if (strSys.includes("governance") || strSys.includes("kyra")) baseSys = "governance";
+                else baseSys = strSys.replace(/[^a-z0-9]/g, "");
+
+                let region = "";
+                if (strSys.includes("singapore") || strSys.includes("ap21") || (strReg.includes("singapore") || (strReg.includes("asia") && !strReg.includes("north america")))) {
+                    region = "singapore";
+                } else if (strSys.includes("us east") || strSys.includes("virginia") || strSys.includes("us10") || (strReg.includes("us east") || strReg.includes("virginia") || (strReg.includes("north america") && !strReg.includes("asia")))) {
+                    region = "us";
+                }
+                return region ? `${baseSys}___${region}` : baseSys;
             };
 
+            const canonicalSys = (s) => getCanonicalSystemKey(s);
+
             const isSameSys = (sysA, sysB) => {
-                const cA = canonicalSys(sysA);
-                const cB = canonicalSys(sysB);
+                const cA = getCanonicalSystemKey(sysA);
+                const cB = getCanonicalSystemKey(sysB);
                 return !!(cA && cB && cA === cB);
             };
 
@@ -9462,15 +9474,10 @@ sap.ui.define([
             }
             const aUserPendingRequests = oModel.getProperty("/myPendingRequests") || [];
             
-            let aCustomAll = oModel.getProperty("/adminCustomConflictsAll") || [];
-            if (!aCustomAll || aCustomAll.length === 0) {
-                try {
-                    const sStored = localStorage.getItem("kyra_custom_sod_matrix") || localStorage.getItem("kyra_custom_access_config");
-                    if (sStored) {
-                        const parsed = JSON.parse(sStored);
-                        aCustomAll = Array.isArray(parsed) ? parsed : (parsed.adminCustomConflictsAll || []);
-                    }
-                } catch(e) {}
+            // PostgreSQL access_management.role_conflicts is the authoritative source
+            let aCustomAll = oModel.getProperty("/adminCustomConflictsAll");
+            if (!Array.isArray(aCustomAll) || aCustomAll.length === 0) {
+                aCustomAll = oModel.getProperty("/sodMatrix") || [];
             }
             const aModelSod = oModel.getProperty("/sodMatrix") || [];
 
@@ -9614,40 +9621,26 @@ sap.ui.define([
 
                 const normItemPers = normalizeForMatching(itemPersona);
                 const normItemRole = normalizeForMatching(itemRole);
-                const normItemSvc = normalizeForMatching(itemServices);
                 const normTargetPers = normalizeForMatching(parsedTarget.persona);
                 const normTargetTeam = normalizeForMatching(parsedTarget.team);
                 const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-                // Direct Persona match (e.g. "Subaccount Administrator" or "Usage and Cost Viewer")
-                if (normItemPers && normTargetPers && (
-                    normItemPers === normTargetPers ||
-                    normItemPers.includes(normTargetPers) ||
-                    normTargetPers.includes(normItemPers)
-                )) {
-                    return true;
+                // Exact match when rule specifies both Persona and Team: Persona (Team)
+                if (normTargetTeam) {
+                    if (normItemPers && (normItemPers === normTargetPers || normItemPers === normTargetRaw)) return true;
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole === normTargetPers || normItemRole === normTargetRaw)) return true;
                 }
 
-                // Match against raw full string (e.g. "Subaccount Administrator (CloudManagement_Admin)")
+                // Exact match on Persona (Role Collection)
+                if (normTargetPers) {
+                    if (normItemPers && normItemPers === normTargetPers) return true;
+                    if (normItemRole && normItemRole === normTargetPers) return true;
+                }
+
+                // Exact match on raw string
                 if (normTargetRaw) {
-                    if (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) return true;
-                    if (normItemRole && (normItemRole === normTargetRaw || normItemRole.includes(normTargetRaw) || normTargetRaw.includes(normItemRole))) return true;
-                }
-
-                // Match Target Team against Item Role or Persona
-                if (normTargetTeam && normTargetTeam.length > 0) {
-                    if (normItemRole && normItemRole.length > 0 && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) return true;
-                    if (normItemPers && normItemPers.length > 0 && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) return true;
-                }
-
-                // Match Target Persona against Item Role
-                if (normTargetPers && normItemRole && (normItemRole === normTargetPers || normItemRole.includes(normTargetPers) || normTargetPers.includes(normItemRole))) {
-                    return true;
-                }
-
-                // Service topic match
-                if (normTargetTeam && normItemSvc && (normItemSvc.includes(normTargetTeam) || normTargetTeam.includes(normItemSvc))) {
-                    return true;
+                    if (normItemPers && normItemPers === normTargetRaw) return true;
+                    if (normItemRole && normItemRole === normTargetRaw) return true;
                 }
 
                 return false;
@@ -16344,7 +16337,19 @@ sap.ui.define([
             oModel.setProperty("/selectedAdminSystemName", sSystemName);
             this._adminLiveSystemActive = sSystemName;
 
-            // Display loading screen
+            // If already cached in memory, apply immediately without showing loading indicator
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sSystemName] && this._dynamicCatalogs[sSystemName].ok) {
+                const data = this._dynamicCatalogs[sSystemName];
+                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
+                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+                oModel.setProperty("/adminServicesAll", aLiveServices);
+                oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
+                this._syncAdminConfigToLiveAddAccess(oModel, true);
+                return;
+            }
+
+            // Display loading screen for initial load
             sap.ui.core.BusyIndicator.show(0);
 
             try {
@@ -20264,7 +20269,39 @@ sap.ui.define([
             const aAllRcs = new Set();
 
             if (sChosenSys) {
-                // Display loading screen while fetching live data from SAP BTP Cockpit
+                // If already cached in memory, use cached data directly without any loading screen or re-fetch!
+                const cachedCat = this._dynamicCatalogs[sChosenSys] || (oModel.getProperty("/selectedAdminSystemName") === sChosenSys ? {
+                    serviceDetailsMapJson: oModel.getProperty("/adminServiceDetailsMap")
+                } : null);
+
+                if (cachedCat && cachedCat.serviceDetailsMapJson) {
+                    const map = typeof cachedCat.serviceDetailsMapJson === "string" ? JSON.parse(cachedCat.serviceDetailsMapJson) : cachedCat.serviceDetailsMapJson;
+                    extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                    if (cachedCat.teamPersonasMapJson) {
+                        const tpMap = typeof cachedCat.teamPersonasMapJson === "string" ? JSON.parse(cachedCat.teamPersonasMapJson) : cachedCat.teamPersonasMapJson;
+                        Object.values(tpMap).forEach(arr => {
+                            (arr || []).forEach(item => {
+                                const name = (typeof item === "string" ? item : (item.text || item.key || item.name || "")).trim();
+                                if (name) aAllRcs.add(name);
+                            });
+                        });
+                    }
+                    const aSortedOptions = Array.from(aAllRcs).sort().map(rc => ({ key: rc, text: rc }));
+                    oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aSortedOptions);
+                    oModel.setProperty("/adminPrimaryPersonaOptions", [
+                        { key: "", text: "-Select-" },
+                        ...aSortedOptions
+                    ]);
+                    const sCurRole1 = oDraft.role1 || "";
+                    oModel.setProperty("/adminConflictingPersonaOptions", [
+                        { key: "", text: "-Select-" },
+                        ...aSortedOptions.filter(p => !sCurRole1 || p.key !== sCurRole1)
+                    ]);
+                    oModel.setProperty("/isConflictOptionsLoading", false);
+                    return;
+                }
+
+                // Cold load: Display loading screen while fetching live data from SAP BTP Cockpit
                 sap.ui.core.BusyIndicator.show(0);
                 oModel.setProperty("/isConflictOptionsLoading", true);
 
