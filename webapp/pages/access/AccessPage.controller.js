@@ -8154,7 +8154,7 @@ sap.ui.define([
                                 text: sPersLabel,
                                 rawName: sPersName,
                                 icon: "sap-icon://person-placeholder",
-                                accessPrivilege: p.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted")
+                                accessPrivilege: p.accessPrivilege || ("Not restricted")
                             };
                         });
 
@@ -14770,27 +14770,7 @@ sap.ui.define([
         },
 
         _isDefaultRestrictedPersona(sName) {
-            const sClean = this._cleanPersonaForComparison(sName);
-            const aAllowedRestrictedPersonas = [
-                "cloud infrastructure administrator",
-                "database iam administrator",
-                "database & iam administrator",
-                "devops platform lead",
-                "devops & platform lead",
-                "cybersecurity operations",
-                "identity management specialist",
-                "solution architecture owner",
-                "integration engineering lead",
-                "subaccount administrator",
-                "security administrator",
-                "user and role administrator",
-                "identity services administrator",
-                "identity services user administrator",
-                "credentialstore operator",
-                "useraccount admin",
-                "data privacy officer"
-            ];
-            return aAllowedRestrictedPersonas.some(r => this._cleanPersonaForComparison(r) === sClean || sClean.includes(this._cleanPersonaForComparison(r)));
+            return false;
         },
 
         _isRestrictedPersona(sPers, oItem) {
@@ -14805,30 +14785,29 @@ sap.ui.define([
             const sTargetClean = this._cleanPersonaForComparison(sPers || (oItem && (oItem.persona || oItem.selectedPersona)));
             if (!sTargetClean) return false;
 
-            // 2. Check dynamic adminServiceDetailsMap configuration (or fallback to default map)
+            // 2. Check dynamic adminServiceDetailsMap configuration
             if (oModel) {
-                let oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
-                if (!oDetailsMap || Object.keys(oDetailsMap).length === 0) {
-                    oDetailsMap = this._getDefaultAdminServiceDetailsMap();
-                }
-                for (const sSrv of Object.keys(oDetailsMap)) {
-                    const aTeams = oDetailsMap[sSrv] || [];
-                    for (const oTeam of aTeams) {
-                        const aSubs = (oTeam && oTeam.subClassifications) || [];
-                        for (const oSub of aSubs) {
-                            if (!oSub || !oSub.name) continue;
-                            const sSubClean = this._cleanPersonaForComparison(oSub.name);
-                            if (sSubClean === sTargetClean || sSubClean.includes(sTargetClean) || sTargetClean.includes(sSubClean)) {
-                                if (oSub.accessPrivilege === "Restricted") return true;
-                                if (oSub.accessPrivilege === "Not restricted") return false;
+                const oDetailsMap = oModel.getProperty("/adminServiceDetailsMap");
+                if (oDetailsMap) {
+                    for (const sSrv of Object.keys(oDetailsMap)) {
+                        const aTeams = oDetailsMap[sSrv] || [];
+                        for (const oTeam of aTeams) {
+                            const aSubs = (oTeam && oTeam.subClassifications) || [];
+                            for (const oSub of aSubs) {
+                                if (!oSub || !oSub.name) continue;
+                                const sSubClean = this._cleanPersonaForComparison(oSub.name);
+                                if (sSubClean === sTargetClean || sSubClean.includes(sTargetClean) || sTargetClean.includes(sSubClean)) {
+                                    if (oSub.accessPrivilege === "Restricted") return true;
+                                    if (oSub.accessPrivilege === "Not restricted") return false;
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // 3. Fallback to default check
-            return this._isDefaultRestrictedPersona(sTargetClean);
+            // 3. Baseline integration: clean default is Not restricted
+            return false;
         },
 
         _ensureAdminSnapshots(oModel) {
@@ -14973,8 +14952,8 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Security Administrator", status: "Active", accessPrivilege: "Restricted" },
-        { name: "User and Role Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Security Administrator", status: "Active", accessPrivilege: "Not restricted" },
+        { name: "User and Role Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -14982,7 +14961,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15000,7 +14979,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services User Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Identity Services User Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15008,7 +14987,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15016,7 +14995,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Restricted" },
+        { name: "Identity Services Administrator", status: "Active", accessPrivilege: "Not restricted" },
         { name: "Corporate IdP Specialist", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
@@ -15027,7 +15006,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "CredentialStore_Operator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "CredentialStore_Operator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15063,7 +15042,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "UserAccount_Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "UserAccount_Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15081,7 +15060,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Data_Privacy_Officer", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Data_Privacy_Officer", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15099,7 +15078,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Destination Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Destination Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15115,8 +15094,8 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Connectivity and Destination Administrator", status: "Active", accessPrivilege: "Restricted" },
-        { name: "Cloud Connector Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Connectivity and Destination Administrator", status: "Active", accessPrivilege: "Not restricted" },
+        { name: "Cloud Connector Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -15126,7 +15105,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "PI_Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "PI_Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15160,7 +15139,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SAP Graph Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SAP Graph Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15178,7 +15157,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Service Manager Operator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Service Manager Operator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15194,7 +15173,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SaaS Application Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SaaS Application Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -15204,7 +15183,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Master Data Integration Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Master Data Integration Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15222,7 +15201,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15246,7 +15225,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "APIManagement.Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     }
   ],
@@ -15256,8 +15235,8 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Launchpad_Admin", status: "Active", accessPrivilege: "Restricted" },
-        { name: "Workzone_Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Launchpad_Admin", status: "Active", accessPrivilege: "Not restricted" },
+        { name: "Workzone_Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15283,7 +15262,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "HTML5AppsRepoAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "HTML5AppsRepoAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15301,7 +15280,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Theme_Designer_Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Theme_Designer_Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15319,7 +15298,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SAP HANA Cloud Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SAP HANA Cloud Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15327,7 +15306,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "SAP HANA Cloud Security Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SAP HANA Cloud Security Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15345,7 +15324,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper_DB (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SpaceDeveloper_DB (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15363,7 +15342,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SpaceDeveloper_Cache (CF Space)", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SpaceDeveloper_Cache (CF Space)", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15381,7 +15360,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "ProcessAutomationAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "ProcessAutomationAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15407,7 +15386,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Document Information Extraction Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Document Information Extraction Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15425,7 +15404,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "AI Core Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "AI Core Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15451,7 +15430,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "ABAP Cloud Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "ABAP Cloud Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15477,7 +15456,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Mobile Service Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Mobile Service Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15495,7 +15474,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "JobScheduler_Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "JobScheduler_Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15519,7 +15498,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Application_Autoscaler_Operator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Application_Autoscaler_Operator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15537,7 +15516,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Application Logging Admin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Application Logging Admin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15553,7 +15532,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "AlertNotificationAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "AlertNotificationAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15571,7 +15550,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "Cloud Transport Management Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Cloud Transport Management Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15595,7 +15574,7 @@ sap.ui.define([
       selected: false,
       status: "Active",
       subClassifications: [
-        { name: "Feature Flags Administrator", status: "Active", accessPrivilege: "Restricted" }
+        { name: "Feature Flags Administrator", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15613,7 +15592,7 @@ sap.ui.define([
       selected: true,
       status: "Active",
       subClassifications: [
-        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Restricted" }
+        { name: "SubaccountSecurityAdmin", status: "Active", accessPrivilege: "Not restricted" }
       ]
     },
     {
@@ -15681,7 +15660,7 @@ sap.ui.define([
                     (oMap[sSrv] || []).forEach(oTeam => {
                         (oTeam.subClassifications || []).forEach(oSub => {
                             if (!oSub.accessPrivilege) {
-                                oSub.accessPrivilege = this._isDefaultRestrictedPersona(oSub.name) ? "Restricted" : "Not restricted";
+                                oSub.accessPrivilege = "Not restricted";
                             }
                         });
                     });
@@ -15970,7 +15949,7 @@ sap.ui.define([
                         // Only add Personas that are currently active and available in Add Access!
                         if (bTeamActive && oPers.status !== "Inactive" && !oSeenPersonaList.has(sNormPers)) {
                             oSeenPersonaList.add(sNormPers);
-                            const sPriv = oPers.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted");
+                            const sPriv = oPers.accessPrivilege || ("Not restricted");
                             aPersonasList.push({
                                 key: sPersName,
                                 text: sPersName,
