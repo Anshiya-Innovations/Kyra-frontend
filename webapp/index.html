@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" spellcheck="false">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,8 +39,62 @@
     ></script>
     <script src="lib/xlsx.full.min.js"></script>
     <script src="model/KyraLoader.js"></script>
+
+    <!-- Global Spellcheck Suppressor: Prevents Red Underlines on Enterprise Inputs -->
+    <script>
+        (function() {
+            function disableSpellcheck(root) {
+                try {
+                    var els = (root || document).querySelectorAll('input, textarea, .sapMInputBaseInner, .sapMTextAreaInner, [contenteditable="true"]');
+                    for (var i = 0; i < els.length; i++) {
+                        els[i].setAttribute('spellcheck', 'false');
+                        els[i].setAttribute('autocomplete', 'off');
+                        els[i].setAttribute('autocorrect', 'off');
+                        els[i].setAttribute('autocapitalize', 'off');
+                    }
+                } catch (e) {}
+            }
+
+            document.addEventListener('focusin', function(e) {
+                if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || (e.target.classList && e.target.classList.contains('sapMInputBaseInner')))) {
+                    e.target.setAttribute('spellcheck', 'false');
+                    e.target.setAttribute('autocomplete', 'off');
+                    e.target.setAttribute('autocorrect', 'off');
+                    e.target.setAttribute('autocapitalize', 'off');
+                }
+            }, true);
+
+            if (window.MutationObserver) {
+                var observer = new MutationObserver(function(mutations) {
+                    for (var m = 0; m < mutations.length; m++) {
+                        var added = mutations[m].addedNodes;
+                        for (var n = 0; n < added.length; n++) {
+                            var node = added[n];
+                            if (node.nodeType === 1) {
+                                if (node.tagName === 'INPUT' || node.tagName === 'TEXTAREA') {
+                                    node.setAttribute('spellcheck', 'false');
+                                } else if (node.querySelectorAll) {
+                                    disableSpellcheck(node);
+                                }
+                            }
+                        }
+                    }
+                });
+                if (document.body) {
+                    observer.observe(document.body, { childList: true, subtree: true });
+                    disableSpellcheck(document.body);
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        observer.observe(document.body, { childList: true, subtree: true });
+                        disableSpellcheck(document.body);
+                    });
+                }
+            }
+        })();
+    </script>
+
 </head>
-<body class="sapUiBody sapUiSizeCompact" id="content">
+<body class="sapUiBody sapUiSizeCompact" id="content" spellcheck="false">
     <div
         data-sap-ui-component
         data-name="kyra001"

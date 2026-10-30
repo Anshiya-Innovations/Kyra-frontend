@@ -2260,13 +2260,7 @@
 
                                 <!-- Top Navigation Bar: Back Button + Title + Close Button -->
                                 <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraIamTitleRow sapUiSmallMarginBottom">
-                                    <HBox alignItems="Center" gap="14px">
-                                        <Button
-                                            id="btnBackToIamCardsTop"
-                                            icon="sap-icon://nav-back"
-                                            text="Back to Approvers"
-                                            press=".onBackToIamApproverCards"
-                                            class="kyraSecondaryBtn" />
+                                    <HBox alignItems="Center" gap="14px" class="kyraIamTitleLeftBlock">
                                         <HBox class="kyraIamTitleVerticalBar" />
                                         <VBox class="kyraIamTitleTextBox">
                                             <Title text="{= ${accessModel>/selectedIamApprover} === 'approver1' ? 'IAM Approver 1 Integration Settings' : 'IAM Approver 2 Integration Settings' }" level="H3" class="kyraIamSlideTitle" />
@@ -2462,13 +2456,6 @@
                                                 press=".onSaveApprover1Email"
                                                 type="Emphasized"
                                                 class="kyraApproverSaveBtn" />
-                                            <Button
-                                                icon="sap-icon://navigation-right-arrow"
-                                                iconFirst="false"
-                                                text="Next: Console Integration"
-                                                type="Default"
-                                                press=".onGoToApprover1Console"
-                                                class="kyraSecondaryBtn" />
                                         </HBox>
                                     </VBox>
                                 </VBox>
@@ -2851,13 +2838,6 @@
                                                 press=".onSaveApprover2Email"
                                                 type="Emphasized"
                                                 class="kyraApproverSaveBtn" />
-                                            <Button
-                                                icon="sap-icon://navigation-right-arrow"
-                                                iconFirst="false"
-                                                text="Next: Console Integration"
-                                                type="Default"
-                                                press=".onGoToApprover2Console"
-                                                class="kyraSecondaryBtn" />
                                         </HBox>
                                     </VBox>
                                 </VBox>
@@ -3057,26 +3037,15 @@
                                 </VBox>
                             </VBox>
 
-                            <!-- Bottom Divider & Action Bar -->
-                                <HBox class="kyraCardDivider sapUiSmallMarginTop sapUiSmallMarginBottom" />
-                                <HBox justifyContent="SpaceBetween" alignItems="Center" width="100%" class="kyraDarkBottomBar">
+                            <!-- Bottom Action Bar -->
+                                <HBox justifyContent="Start" alignItems="Center" width="100%" class="kyraDarkBottomBar kyraIamSlideBottomBar">
                                     <Button
                                         id="btnBackToIamCardsBottom"
                                         icon="sap-icon://nav-back"
-                                        text="Back to Approver Cards"
+                                        text="Back"
                                         type="Default"
                                         press=".onBackToIamApproverCards"
                                         class="kyraSecondaryBtn" />
-                                    <HBox alignItems="Center" class="kyraDarkPromptBox">
-                                        <Text text="Active Approver Scope: " class="kyraDarkPromptHint" />
-                                        <Text text="{= ${accessModel>/selectedIamApprover} === 'approver2' ? 'IAM Approver 2 (Level 2 Final Reviewer)' : 'IAM Approver 1 (Level 1 Reviewer)' }" class="kyraDarkPromptTarget" />
-                                    </HBox>
-                                    <Button
-                                        text="Close Section"
-                                        icon="sap-icon://decline"
-                                        type="Transparent"
-                                        press=".onCloseAdminSection"
-                                        class="kyraDarkBackLinkBtn" />
                                 </HBox>
                             </VBox>
                         </VBox>
@@ -3102,7 +3071,7 @@
 
                         <!-- DUAL-MODE TAB / SEGMENTED SWITCHER (EXACT IMAGE 2 MATCH) -->
                         <HBox alignItems="Center" class="kyraPersonaSwitchContainer sapUiMediumMarginBottom">
-                            <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="kyraPersonaSegmentedBtnImage2">
+                            <SegmentedButton id="adminPersonaConversionModeSwitch" selectedKey="{accessModel>/personaConversionMode}" selectionChange=".onPersonaConversionModeChange" class="kyraPersonaSegmentedBtn">
                                 <items>
                                     <SegmentedButtonItem key="single" icon="sap-icon://person-placeholder" text="Single User Conversion" />
                                     <SegmentedButtonItem key="department" icon="sap-icon://group" text="Department-Wide Conversion" />

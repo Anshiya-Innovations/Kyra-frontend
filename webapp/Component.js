@@ -23,8 +23,55 @@ sap.ui.define([
         },
 
         init() {
+
             // call the base component's init function
             UIComponent.prototype.init.apply(this, arguments);
+
+            // Global Spellcheck Suppressor: Eliminates red squiggly spellcheck underlines across all inputs
+            const fnDisableGlobalSpellcheck = function(oNode) {
+                try {
+                    const aElements = (oNode || document).querySelectorAll ? (oNode || document).querySelectorAll("input, textarea, .sapMInputBaseInner, .sapMTextAreaInner, [contenteditable='true']") : [];
+                    for (let i = 0; i < aElements.length; i++) {
+                        const el = aElements[i];
+                        el.setAttribute("spellcheck", "false");
+                        el.setAttribute("autocomplete", "off");
+                        el.setAttribute("autocorrect", "off");
+                        el.setAttribute("autocapitalize", "off");
+                    }
+                } catch(e) {}
+            };
+
+            document.addEventListener("focusin", function(e) {
+                if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || (e.target.classList && e.target.classList.contains("sapMInputBaseInner")))) {
+                    e.target.setAttribute("spellcheck", "false");
+                    e.target.setAttribute("autocomplete", "off");
+                    e.target.setAttribute("autocorrect", "off");
+                    e.target.setAttribute("autocapitalize", "off");
+                }
+            }, true);
+
+            if (window.MutationObserver) {
+                const oSpellObserver = new MutationObserver(function(mutations) {
+                    for (let m = 0; m < mutations.length; m++) {
+                        const added = mutations[m].addedNodes;
+                        for (let n = 0; n < added.length; n++) {
+                            const node = added[n];
+                            if (node.nodeType === 1) {
+                                if (node.tagName === "INPUT" || node.tagName === "TEXTAREA") {
+                                    node.setAttribute("spellcheck", "false");
+                                } else if (node.querySelectorAll) {
+                                    fnDisableGlobalSpellcheck(node);
+                                }
+                            }
+                        }
+                    }
+                });
+                if (document.body) {
+                    oSpellObserver.observe(document.body, { childList: true, subtree: true });
+                    fnDisableGlobalSpellcheck(document.body);
+                }
+            }
+
 
             // set the device model
             this.setModel(models.createDeviceModel(), "device");

@@ -63763,7 +63763,7 @@ html body [id$="cardSubIamIntegration"].kyraIntegrationListItemActive {
 .kyraPersonaSegmentedBtn.sapMSegB,
 .kyraPersonaSegmentedBtn,
 html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn,
-html body [id$="adminPersonaConversionModeSwitch"] {
+{
     background: #F1F5F9 !important;
     background-color: #F1F5F9 !important;
     border: 1.5px solid #CBD5E1 !important;
@@ -66436,4 +66436,458 @@ html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete:hover .sapMBtnInner
     border-color: #94A3B8 !important;
     box-shadow: none !important;
     transform: none !important;
+}
+
+/* ========================================================================= */
+/* KYRA IAM APPROVER SLIDE 2: POLISHED BOTTOM BAR (SINGLE DIVIDER & ALIGNED) */
+/* ========================================================================= */
+.kyraIamSlideBottomBar,
+.sapMFlexBox.kyraIamSlideBottomBar,
+html body .sapUiTheme-sap_horizon .kyraIamSlideBottomBar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    margin-top: 24px !important;
+    padding-top: 18px !important;
+    padding-bottom: 4px !important;
+    border-top: 1px solid #E2E8F0 !important;
+    box-sizing: border-box !important;
+}
+
+#btnBackToIamCardsBottom,
+.kyraIamSlideBottomBar #btnBackToIamCardsBottom,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom {
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+}
+
+#btnBackToIamCardsBottom .sapMBtnInner,
+.kyraIamSlideBottomBar #btnBackToIamCardsBottom .sapMBtnInner,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom .sapMBtnInner {
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    color: #008C9C !important;
+    padding: 0 18px !important;
+    min-width: 95px !important;
+    height: 38px !important;
+    line-height: 35px !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+#btnBackToIamCardsBottom .sapUiIcon,
+#btnBackToIamCardsBottom .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    margin-right: 8px !important;
+}
+
+#btnBackToIamCardsBottom .sapMBtnText,
+#btnBackToIamCardsBottom bdi,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom .sapMBtnText {
+    color: #008C9C !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+}
+
+#btnBackToIamCardsBottom:hover .sapMBtnInner,
+.kyraIamSlideBottomBar #btnBackToIamCardsBottom:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom:hover .sapMBtnInner {
+    background: #008C9C !important;
+    border-color: #008C9C !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 2px 8px rgba(0, 140, 156, 0.25) !important;
+}
+
+#btnBackToIamCardsBottom:hover .sapUiIcon,
+#btnBackToIamCardsBottom:hover .sapMBtnIcon,
+#btnBackToIamCardsBottom:hover .sapMBtnText,
+#btnBackToIamCardsBottom:hover bdi {
+    color: #FFFFFF !important;
+}
+
+/* ========================================================================= */
+/* KYRA FIX 1: SEGMENTED BUTTON STYLING (IMAGE 1 FIX - ZERO BLUE, ZERO BRACKETS) */
+/* ========================================================================= */
+.kyraPersonaSegmentedBtnImage2,
+.sapMSegB.kyraPersonaSegmentedBtnImage2,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 {
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    height: 42px !important;
+    padding: 0 !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn {
+    border: none !important;
+    height: 100% !important;
+    min-height: 40px !important;
+    line-height: 40px !important;
+    padding: 0 20px !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Remove all focus rectangles, brackets, ::before, ::after pseudo-elements */
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn::before,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn::after,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtnInner::before,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtnInner::after,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtnTxt::before,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtnTxt::after,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn::before,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn::after,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtnInner::before,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtnInner::after {
+    display: none !important;
+    content: none !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Unselected items: Clean dark slate text, slate icon, no blue */
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]),
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]),
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) bdi,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]):focus .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]):focus bdi,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) bdi,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]):focus .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]):focus bdi {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    outline: none !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMBtnIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]):focus .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMBtnIcon {
+    color: #475569 !important;
+    font-size: 15px !important;
+    margin-right: 8px !important;
+    outline: none !important;
+}
+
+/* Selected item: Solid Kyra Teal (#008C9C), Pure White Text & Icon, ZERO Blue, ZERO Outlines across all states */
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"],
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus-visible,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus-visible,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"],
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus .sapMSegBBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #FFFFFF !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel bdi,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] bdi,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus bdi,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus bdi,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus-visible .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus-visible bdi,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel bdi,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] bdi,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus bdi,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus .sapMSegBBtnTxt,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus bdi {
+    color: #FFFFFF !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMBtnIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMBtnIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus .sapUiIcon,
+.kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"] .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn.sapMSegBBtnSel:focus .sapUiIcon,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtnImage2 .sapMSegBBtn[aria-checked="true"]:focus .sapUiIcon {
+    color: #FFFFFF !important;
+    font-size: 15px !important;
+    margin-right: 8px !important;
+    outline: none !important;
+}
+
+/* ========================================================================= */
+/* KYRA FIX 2: BACK BUTTON EXACT IMAGE 2 DESIGN (SOFT CYAN TINT #F0FDFA)     */
+/* ========================================================================= */
+#btnBackToIamCardsBottom,
+.kyraIamSlideBottomBar #btnBackToIamCardsBottom,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom {
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    outline: none !important;
+}
+
+#btnBackToIamCardsBottom .sapMBtnInner,
+.kyraIamSlideBottomBar #btnBackToIamCardsBottom .sapMBtnInner,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom .sapMBtnInner {
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    color: #008C9C !important;
+    padding: 0 18px !important;
+    min-width: 90px !important;
+    height: 38px !important;
+    line-height: 35px !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    box-shadow: 0 1px 2px rgba(0, 140, 156, 0.08) !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    outline: none !important;
+}
+
+#btnBackToIamCardsBottom .sapUiIcon,
+#btnBackToIamCardsBottom .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    margin-right: 8px !important;
+}
+
+#btnBackToIamCardsBottom .sapMBtnText,
+#btnBackToIamCardsBottom bdi,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom .sapMBtnText {
+    color: #008C9C !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+}
+
+#btnBackToIamCardsBottom:hover .sapMBtnInner,
+.kyraIamSlideBottomBar #btnBackToIamCardsBottom:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon #btnBackToIamCardsBottom:hover .sapMBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    border-color: #008C9C !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 3px 10px rgba(0, 140, 156, 0.28) !important;
+}
+
+#btnBackToIamCardsBottom:hover .sapUiIcon,
+#btnBackToIamCardsBottom:hover .sapMBtnIcon,
+#btnBackToIamCardsBottom:hover .sapMBtnText,
+#btnBackToIamCardsBottom:hover bdi {
+    color: #FFFFFF !important;
+}
+
+/* ========================================================================= */
+/* KYRA FIX 3: GLOBAL SPELLCHECK SUPPRESSION ACROSS ALL INPUT CONTROLS       */
+/* ========================================================================= */
+input, textarea, .sapMInputBaseInner, .sapMTextAreaInner, [contenteditable="true"] {
+    spellcheck: false !important;
+    -webkit-spellcheck: false !important;
+}
+
+
+/* ========================================================================= */
+/* KYRA SIMPLE PROPER SWITCH BUTTON (FLAT, CLEAN, ZERO NESTING, ZERO ARTIFACTS) */
+/* ========================================================================= */
+#adminPersonaConversionModeSwitch,
+.kyraPersonaSegmentedBtn,
+.sapMSegB.kyraPersonaSegmentedBtn,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn,
+html body [id$="adminPersonaConversionModeSwitch"] {
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    height: 40px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: stretch !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn,
+.kyraPersonaSegmentedBtn .sapMSegBBtn,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn,
+html body [id$="adminPersonaConversionModeSwitch"] .sapMSegBBtn {
+    height: 100% !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 1 auto !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon .kyraPersonaSegmentedBtn .sapMSegBBtn .sapMSegBBtnInner,
+html body [id$="adminPersonaConversionModeSwitch"] .sapMSegBBtn .sapMSegBBtnInner {
+    height: 100% !important;
+    line-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 22px !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+/* Remove all pseudo elements, focus rings, brackets */
+#adminPersonaConversionModeSwitch *::before,
+#adminPersonaConversionModeSwitch *::after,
+.kyraPersonaSegmentedBtn *::before,
+.kyraPersonaSegmentedBtn *::after {
+    display: none !important;
+    content: none !important;
+    outline: none !important;
+    border: none !important;
+}
+
+/* Selected state: Full Solid Kyra Teal fill, Pure White Text and Icon */
+#adminPersonaConversionModeSwitch .sapMSegBBtn.sapMSegBBtnSel,
+#adminPersonaConversionModeSwitch .sapMSegBBtn[aria-checked="true"],
+#adminPersonaConversionModeSwitch .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+#adminPersonaConversionModeSwitch .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel,
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"],
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon #adminPersonaConversionModeSwitch .sapMSegBBtn.sapMSegBBtnSel .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon #adminPersonaConversionModeSwitch .sapMSegBBtn[aria-checked="true"] .sapMSegBBtnInner {
+    background: #008C9C !important;
+    background-color: #008C9C !important;
+    color: #FFFFFF !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn.sapMSegBBtnSel *,
+#adminPersonaConversionModeSwitch .sapMSegBBtn[aria-checked="true"] *,
+.kyraPersonaSegmentedBtn .sapMSegBBtn.sapMSegBBtnSel *,
+.kyraPersonaSegmentedBtn .sapMSegBBtn[aria-checked="true"] *,
+html body .sapUiTheme-sap_horizon #adminPersonaConversionModeSwitch .sapMSegBBtn.sapMSegBBtnSel *,
+html body .sapUiTheme-sap_horizon #adminPersonaConversionModeSwitch .sapMSegBBtn[aria-checked="true"] * {
+    color: #FFFFFF !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-weight: 600 !important;
+}
+
+/* Unselected state: Crisp dark text, slate icon, no blue */
+#adminPersonaConversionModeSwitch .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner,
+html body .sapUiTheme-sap_horizon #adminPersonaConversionModeSwitch .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    outline: none !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnTxt,
+#adminPersonaConversionModeSwitch .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) bdi,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) bdi {
+    color: #0F172A !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapUiIcon {
+    color: #475569 !important;
+    font-size: 15px !important;
+    margin-right: 8px !important;
+}
+
+/* Hover on unselected */
+#adminPersonaConversionModeSwitch .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnInner {
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnTxt,
+#adminPersonaConversionModeSwitch .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) bdi,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapMSegBBtnTxt,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) bdi {
+    color: #008C9C !important;
+}
+
+#adminPersonaConversionModeSwitch .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapUiIcon,
+.kyraPersonaSegmentedBtn .sapMSegBBtn:hover:not(.sapMSegBBtnSel):not([aria-checked="true"]) .sapUiIcon {
+    color: #008C9C !important;
 }
