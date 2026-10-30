@@ -66975,35 +66975,38 @@ html body .sapUiTheme-sap_horizon .kyraIamSlideBottomBar {
     box-sizing: border-box !important;
 }
 
-
 /* ========================================================================= */
-/* KYRA PIXEL-PERFECT SEAMLESS SWITCH BUTTON GROUP (PROPER, CLEAR, ZERO BLUE) */
+/* KYRA COMPACT CONNECTED SEGMENTED CONTROL (NO OUTER BOX, ZERO GAP)         */
 /* ========================================================================= */
 .kyraSwitchGroup,
 .sapMFlexBox.kyraSwitchGroup,
 html body .sapUiTheme-sap_horizon .kyraSwitchGroup {
     display: inline-flex !important;
+    width: auto !important;
+    max-width: fit-content !important;
     align-items: center !important;
-    border: 1.5px solid #CBD5E1 !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    background: #FFFFFF !important;
-    background-color: #FFFFFF !important;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
     padding: 0 !important;
     margin-top: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     margin-bottom: 16px !important;
-    height: 40px !important;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
-    box-sizing: border-box !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
 }
 
+/* Base button reset */
 .kyraSwitchBtn,
 .sapMBtn.kyraSwitchBtn,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtn {
-    height: 38px !important;
-    min-height: 38px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    width: auto !important;
+    min-width: unset !important;
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
@@ -67011,42 +67014,55 @@ html body .sapUiTheme-sap_horizon .kyraSwitchBtn {
     box-shadow: none !important;
     background: transparent !important;
     background-color: transparent !important;
-    border-radius: 0 !important;
     cursor: pointer !important;
+    position: relative !important;
 }
 
 .kyraSwitchBtn .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtn .sapMBtnInner {
-    height: 38px !important;
-    line-height: 36px !important;
-    padding: 0 22px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    line-height: 34px !important;
+    padding: 0 16px !important;
     margin: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
     outline: none !important;
     box-shadow: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    box-sizing: border-box !important;
     transition: none !important;
     -webkit-transition: none !important;
-    background: transparent !important;
 }
 
-/* Dividing line between left and right switch buttons */
+/* OUTSIDE EDGES ROUNDED ONLY */
+.kyraSwitchBtnLeft,
+.kyraSwitchBtnLeft .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSwitchBtnLeft,
+html body .sapUiTheme-sap_horizon .kyraSwitchBtnLeft .sapMBtnInner {
+    border-top-left-radius: 6px !important;
+    border-bottom-left-radius: 6px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
 .kyraSwitchBtnRight,
 .sapMBtn.kyraSwitchBtnRight,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnRight {
-    border-left: 1px solid #CBD5E1 !important;
+    margin-left: -1px !important;
 }
 
-.kyraSwitchBtnRight.kyraSwitchBtnActive,
-.sapMBtn.kyraSwitchBtnRight.kyraSwitchBtnActive,
-html body .sapUiTheme-sap_horizon .kyraSwitchBtnRight.kyraSwitchBtnActive {
-    border-left: 1px solid #008C9C !important;
+.kyraSwitchBtnRight,
+.kyraSwitchBtnRight .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSwitchBtnRight,
+html body .sapUiTheme-sap_horizon .kyraSwitchBtnRight .sapMBtnInner {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
 }
 
-/* Spacing between icon and text */
+/* Icon & text layout */
 .kyraSwitchBtn .sapUiIcon,
 .kyraSwitchBtn .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtn .sapUiIcon,
@@ -67060,17 +67076,20 @@ html body .sapUiTheme-sap_horizon .kyraSwitchBtn .sapMBtnIcon {
     display: inline-block !important;
 }
 
-/* ACTIVE BUTTON: SOLID KYRA TEAL, CRISP BOLD WHITE TEXT & ICON */
+/* ACTIVE BUTTON: TEAL BACKGROUND (#008C9C) WITH WHITE ICON AND TEXT */
 .kyraSwitchBtnActive,
 .sapMBtn.kyraSwitchBtnActive,
-html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive,
+html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive {
+    z-index: 2 !important;
+}
+
 .kyraSwitchBtnActive .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive:hover .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive:focus .sapMBtnInner {
     background: #008C9C !important;
     background-color: #008C9C !important;
-    border: none !important;
+    border: 1px solid #008C9C !important;
     outline: none !important;
     box-shadow: none !important;
 }
@@ -67092,21 +67111,24 @@ html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive:focus .sapMBtnContent,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive:focus bdi,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnActive:focus .sapUiIcon {
     color: #FFFFFF !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
     font-size: 13.5px !important;
     outline: none !important;
 }
 
-/* INACTIVE BUTTON: CLEAN WHITE, DARK SLATE TEXT, SLATE ICON - STRICTLY NO BLUE */
+/* INACTIVE BUTTON: WHITE BACKGROUND WITH DARK TEXT, DARK ICON, AND SUBTLE LIGHT-GRAY BORDER */
 .kyraSwitchBtnInactive,
 .sapMBtn.kyraSwitchBtnInactive,
-html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive,
+html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive {
+    z-index: 1 !important;
+}
+
 .kyraSwitchBtnInactive .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive .sapMBtnInner,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive:focus .sapMBtnInner {
     background: #FFFFFF !important;
     background-color: #FFFFFF !important;
-    border: none !important;
+    border: 1px solid #CBD5E1 !important;
     outline: none !important;
     box-shadow: none !important;
 }
@@ -67131,7 +67153,7 @@ html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive .sapMBtnIcon,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive:focus .sapUiIcon,
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive:focus .sapMBtnIcon {
-    color: #475569 !important;
+    color: #334155 !important;
     outline: none !important;
 }
 
@@ -67140,6 +67162,7 @@ html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive:focus .sapMBtnIcon {
 html body .sapUiTheme-sap_horizon .kyraSwitchBtnInactive:hover .sapMBtnInner {
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
+    border-color: #94A3B8 !important;
 }
 
 .kyraSwitchBtnInactive:hover .sapMBtnContent,
