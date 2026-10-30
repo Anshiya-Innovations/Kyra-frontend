@@ -5126,7 +5126,7 @@
                                             type="Default"
                                             press=".onEditTargetSystemsSelection"
                                             visible="{accessModel>/isTargetSystemsConfirmed}"
-                                            class="kyraSecondaryBtn" />
+                                            class="kyraSapEditBtn" />
                                         <Button
                                             id="btnConfirmTargetSystems"
                                             text="Confirm"
