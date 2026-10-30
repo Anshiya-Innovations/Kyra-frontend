@@ -7357,8 +7357,13 @@ sap.ui.define([
                 return;
             }
 
-            // Single loading screen for all selected systems
-            sap.ui.core.BusyIndicator.show(0);
+            // Project-related KyraLoader loading screen
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Confirming Target Systems",
+                    text: "Loading catalog and entitlements for selected systems..."
+                });
+            }
 
             this._dynamicCatalogs = this._dynamicCatalogs || {};
 
@@ -7390,7 +7395,14 @@ sap.ui.define([
             });
 
             await Promise.all(aFetchPromises);
-            sap.ui.core.BusyIndicator.hide();
+
+            // Proper smooth timing (minimum 700ms) so loader transitions naturally without flicker
+            await new Promise(resolve => setTimeout(resolve, 700));
+
+            // Hide project loader
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            }
 
             // Preserve configurations for existing systems; only delete configs for removed systems
             const oSlideConfigsMap = oModel.getProperty("/addAccessSystemSlideConfigs") || {};
@@ -7663,8 +7675,13 @@ sap.ui.define([
                 return;
             }
 
-            // Display loading indicator while fetching live data from SAP BTP
-            sap.ui.core.BusyIndicator.show(0);
+            // Display project-related KyraLoader while fetching live data from SAP BTP
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading SAP BTP Catalog",
+                    text: "Retrieving services and role collections..."
+                });
+            }
 
             try {
                 const res = await fetch("/odata/v4/admin-portal/getDynamicSubaccountCatalog", {
@@ -7673,7 +7690,9 @@ sap.ui.define([
                     body: JSON.stringify({ targetSystem: sTarget })
                 });
 
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                    window.KyraLoader.hide();
+                }
 
                 if (res.ok) {
                     const data = await res.json();
@@ -7688,7 +7707,7 @@ sap.ui.define([
                     sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
                 }
             } catch (err) {
-                sap.ui.core.BusyIndicator.hide();
+                if (window.KyraLoader) window.KyraLoader.hide();
                 console.warn("[DYNAMIC CATALOG] Live fetch failed:", err);
                 sap.m.MessageBox.warning("Unable to reach live SAP BTP Cockpit. Please verify network connection or credentials");
             }

@@ -467,11 +467,23 @@
                     oBI._kyraPatched = true;
                     const fnOrigShow = oBI.show;
                     oBI.show = function(iDelay) {
-                        // Suppress native UI5 BusyIndicator when KyraLoader is active or request submit is in flight
-                        if (KyraLoader.isShowing() || window._kyraSubmittingAddAccess || window._kyraSubmittingRequest || window._kyraLoginTransition) {
-                            return;
+                        // Suppress native UI5 3-blue-dots BusyIndicator completely and redirect to KyraLoader
+                        if (KyraLoader && typeof KyraLoader.show === "function") {
+                            KyraLoader.show({
+                                title: "Loading...",
+                                text: "Please wait while we process your request..."
+                            });
                         }
-                        return fnOrigShow.apply(this, arguments);
+                        return;
+                    };
+                    const fnOrigHide = oBI.hide;
+                    oBI.hide = function() {
+                        if (KyraLoader && typeof KyraLoader.hide === "function") {
+                            KyraLoader.hide();
+                        }
+                        try {
+                            fnOrigHide.apply(this, arguments);
+                        } catch(e) {}
                     };
                 }
             }

@@ -67166,3 +67166,83 @@ html body .sapUiTheme-sap_horizon .kyraPersonaSwitchBar .kyraTabPillBtn *::after
     box-shadow: none !important;
     border: none !important;
 }
+
+
+/* ========================================================================= */
+/* TARGET SYSTEMS & PROCESS SELECTION (ROW ALIGNMENT & BUTTON DESIGN)        */
+/* ========================================================================= */
+.kyraTargetSystemsContainer {
+    margin-bottom: 16px !important;
+}
+
+.kyraTargetSystemsTitle {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+    font-size: 14.5px !important;
+}
+
+.kyraTargetSystemsLabel {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+}
+
+.kyraTargetSystemsRow {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+}
+
+.kyraTargetSystemsSelect,
+.sapMMultiComboBox.kyraTargetSystemsSelect {
+    width: 460px !important;
+    max-width: 460px !important;
+}
+
+.kyraTargetSystemsSelect .sapMInputBaseInner {
+    height: 38px !important;
+    min-height: 38px !important;
+    border-radius: 8px !important;
+    font-size: 13.5px !important;
+}
+
+.kyraTargetSystemsActionBtns {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    height: 38px !important;
+}
+
+.kyraTargetSystemsActionBtns .sapMBtn {
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+}
+
+.kyraTargetSystemsActionBtns .sapMBtn .sapMBtnInner {
+    height: 38px !important;
+    min-height: 38px !important;
+    line-height: 36px !important;
+    border-radius: 8px !important;
+    padding: 0 16px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* UNIVERSAL SUPPRESSION OF DEFAULT UI5 3-BLUE-DOTS BUSY INDICATOR DIALOG */
+.sapUiBusy,
+.sapMBusyDialog,
+.sapUiLocalBusy,
+.sapUiBusyAnimation,
+.sapUiBusyIndicator,
+html body .sapUiBusy,
+html body .sapMBusyDialog {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

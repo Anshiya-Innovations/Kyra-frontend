@@ -5098,18 +5098,12 @@
                                     class="kyraPrimaryBtn sapUiSmallMarginBottom" />
                             </VBox>
 
-                            <form:SimpleForm
-                                editable="false"
-                                layout="ColumnLayout"
-                                columnsM="2"
-                                columnsL="2"
-                                singleContainerFullWidth="false"
-                                visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }"
-                                class="sapUiSmallMarginBottom">
-                                <form:content>
-                                    <core:Title text="Target Systems &amp; Process Selection" />
-                                    
-                                    <Label text="Select Target Systems &amp; Processes" required="true" />
+                            <VBox visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }" class="sapUiSmallMarginBottom kyraTargetSystemsContainer">
+                                <Title text="Target Systems &amp; Process Selection" level="H5" class="kyraTargetSystemsTitle sapUiTinyMarginBottom" />
+                                
+                                <Label text="Select Target Systems &amp; Processes" required="true" class="kyraTargetSystemsLabel sapUiTinyMarginBottom" labelFor="inPageSystemsMultiSelect" />
+                                
+                                <HBox alignItems="Center" gap="12px" class="kyraTargetSystemsRow">
                                     <MultiComboBox
                                         id="inPageSystemsMultiSelect"
                                         selectedKeys="{accessModel>/addAccessSelectedSystems}"
@@ -5117,33 +5111,33 @@
                                         selectionFinish=".onInPageTargetSystemsSelectionChange"
                                         items="{accessModel>/activeAdminSystems}"
                                         placeholder="Select target system processes..."
-                                        width="100%"
+                                        width="460px"
                                         enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
-                                        class="fioriFormSelect">
+                                        class="fioriFormSelect kyraTargetSystemsSelect">
                                         <core:Item key="{accessModel>systemName}" text="{accessModel>systemName}" />
                                     </MultiComboBox>
-                                </form:content>
-                            </form:SimpleForm>
 
-                            <!-- TARGET SYSTEMS CONFIRM &amp; EDIT ACTION ROW (Right bottom corner of Target Systems section) -->
-                            <HBox justifyContent="End" alignItems="Center" class="sapUiTinyMarginTop sapUiSmallMarginBottom" visible="{= !${accessModel>/isEditingFromSummary} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }">
-                                <Button
-                                    id="btnEditTargetSystems"
-                                    text="Edit"
-                                    icon="sap-icon://edit"
-                                    type="Default"
-                                    press=".onEditTargetSystemsSelection"
-                                    visible="{accessModel>/isTargetSystemsConfirmed}"
-                                    class="kyraSecondaryBtn sapUiSmallMarginEnd" />
-                                <Button
-                                    id="btnConfirmTargetSystems"
-                                    text="Confirm"
-                                    icon="sap-icon://accept"
-                                    type="Emphasized"
-                                    press=".onConfirmTargetSystemsSelection"
-                                    enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
-                                    class="kyraPrimaryBtn" />
-                            </HBox>
+                                    <!-- ACTION BUTTONS ALIGNED RIGHT NEXT TO THE DROPDOWN -->
+                                    <HBox alignItems="Center" gap="8px" class="kyraTargetSystemsActionBtns">
+                                        <Button
+                                            id="btnEditTargetSystems"
+                                            text="Edit"
+                                            icon="sap-icon://edit"
+                                            type="Default"
+                                            press=".onEditTargetSystemsSelection"
+                                            visible="{accessModel>/isTargetSystemsConfirmed}"
+                                            class="kyraSecondaryBtn" />
+                                        <Button
+                                            id="btnConfirmTargetSystems"
+                                            text="Confirm"
+                                            icon="sap-icon://accept"
+                                            type="Emphasized"
+                                            press=".onConfirmTargetSystemsSelection"
+                                            enabled="{= !${accessModel>/isTargetSystemsConfirmed} }"
+                                            class="kyraPrimaryBtn" />
+                                    </HBox>
+                                </HBox>
+                            </VBox>
 
                             <!-- PER-TARGET SYSTEM SLIDE CARD -->
                             <VBox id="targetSystemSlideCard" visible="{= !!${accessModel>/isTargetSystemsConfirmed} &amp;&amp; ${accessModel>/hasRegionalSystems} !== false }" class="fioriTableCard sapUiResponsivePadding sapUiSmallMarginBottom">
