@@ -66397,3 +66397,43 @@ html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete:hover .sapMBtnInner
 .kyraSapManageActionDelete:hover .sapMBtnIcon {
     color: #B91C1C !important;
 }
+
+
+/* Delete Confirmation Modal Action Button & Type-to-Confirm Input */
+.kyra-del-confirm-input {
+    width: 100% !important;
+    height: 38px !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    padding: 0 12px !important;
+    font-size: 13.5px !important;
+    font-family: inherit !important;
+    color: #0F172A !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    background: #FFFFFF !important;
+    transition: all 0.15s ease !important;
+}
+
+.kyra-del-confirm-input:focus {
+    border-color: #EF4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.kyra-del-confirm-input.is-valid {
+    border-color: #10B981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+
+.kyra-del-confirm-btn:disabled,
+.kyra-del-confirm-btn[disabled],
+.kyra-del-confirm-btn.is-disabled {
+    opacity: 0.45 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background: #94A3B8 !important;
+    background-color: #94A3B8 !important;
+    border-color: #94A3B8 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}

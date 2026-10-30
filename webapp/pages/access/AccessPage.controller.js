@@ -17156,10 +17156,16 @@ sap.ui.define([
                             <p style="margin: 0; font-size: 14px; color: #334155; line-height: 1.55;">
                                 Are you sure you want to delete <strong style="color: #0F172A; font-weight: 700;">${sItemName}</strong>? It will be permanently removed from this configuration.
                             </p>
+                            <div class="kyra-del-type-box" style="margin-top: 16px; padding-top: 14px; border-top: 1px solid #F1F5F9;">
+                                <label style="display: block; font-size: 13px; font-weight: 500; color: #475569; margin-bottom: 8px;">
+                                    To confirm, please type <strong style="color: #DC2626; font-family: monospace; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; border: 1px solid #FECACA; font-size: 13px;">delete</strong> below:
+                                </label>
+                                <input type="text" class="kyra-del-confirm-input" placeholder="Type delete to confirm" autocomplete="off" spellcheck="false" />
+                            </div>
                         </div>
                         <div class="kyra-system-modal-footer" style="padding: 16px 24px 20px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #F1F5F9; background: #FAFBFD;">
                             <button type="button" class="kyraSecondaryBtn kyra-system-modal-cancel-btn kyra-del-cancel-btn">Cancel</button>
-                            <button type="button" class="kyra-del-confirm-btn">Delete ${sItemType}</button>
+                            <button type="button" class="kyra-del-confirm-btn" disabled style="opacity: 0.45; cursor: not-allowed; pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);">Confirm Delete</button>
                         </div>
                     </div>
                 `;
@@ -17175,20 +17181,7 @@ sap.ui.define([
                     afterOpen: () => {
                         const oDom = oDialog.getDomRef();
                         if (!oDom) return;
-                        const closeX = oDom.querySelector(".kyra-del-close-btn");
-                        const cancelBtn = oDom.querySelector(".kyra-del-cancel-btn");
-                        const confirmBtn = oDom.querySelector(".kyra-del-confirm-btn");
-                        const closeFn = () => oDialog.close();
-                        if (closeX) closeX.onclick = closeFn;
-                        if (cancelBtn) cancelBtn.onclick = closeFn;
-                        if (confirmBtn) {
-                            confirmBtn.onclick = () => {
-                                closeFn();
-                                if (typeof onConfirmFn === "function") {
-                                    onConfirmFn();
-                                }
-                            };
-                        }
+                        that._bindDeleteModalEvents(oDom, oDialog, onConfirmFn);
                     },
                     afterClose: () => oDialog.destroy()
                 });
@@ -17200,26 +17193,84 @@ sap.ui.define([
                 setTimeout(() => {
                     const oDom = oDialog.getDomRef();
                     if (!oDom) return;
-                    const closeFn = () => oDialog.close();
-                    const closeX = oDom.querySelector(".kyra-del-close-btn");
-                    const cancelBtn = oDom.querySelector(".kyra-del-cancel-btn");
-                    const confirmBtn = oDom.querySelector(".kyra-del-confirm-btn");
-                    if (closeX && !closeX.onclick) closeX.onclick = closeFn;
-                    if (cancelBtn && !cancelBtn.onclick) cancelBtn.onclick = closeFn;
-                    if (confirmBtn && !confirmBtn.onclick) {
-                        confirmBtn.onclick = (ev) => {
-                            if (ev) { ev.preventDefault(); ev.stopPropagation(); }
-                            closeFn();
-                            if (typeof onConfirmFn === "function") {
-                                onConfirmFn();
-                            }
-                        };
-                    }
+                    that._bindDeleteModalEvents(oDom, oDialog, onConfirmFn);
                 }, 40);
             });
         },
 
-        
+        _bindDeleteModalEvents(oDom, oDialog, onConfirmFn) {
+            if (!oDom || oDom._kyraDeleteBound) return;
+            oDom._kyraDeleteBound = true;
+
+            const closeFn = () => oDialog.close();
+            const closeX = oDom.querySelector(".kyra-del-close-btn");
+            const cancelBtn = oDom.querySelector(".kyra-del-cancel-btn");
+            const confirmBtn = oDom.querySelector(".kyra-del-confirm-btn");
+            const confirmInput = oDom.querySelector(".kyra-del-confirm-input");
+
+            if (closeX) closeX.onclick = closeFn;
+            if (cancelBtn) cancelBtn.onclick = closeFn;
+
+            const updateConfirmState = () => {
+                if (!confirmInput || !confirmBtn) return;
+                const val = (confirmInput.value || "").trim().toLowerCase();
+                const isValid = (val === "delete");
+                if (isValid) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.removeAttribute("disabled");
+                    confirmBtn.classList.remove("is-disabled");
+                    confirmBtn.style.opacity = "1";
+                    confirmBtn.style.pointerEvents = "auto";
+                    confirmBtn.style.cursor = "pointer";
+                    confirmBtn.style.background = "#EF4444";
+                    confirmBtn.style.borderColor = "#DC2626";
+                    confirmInput.classList.add("is-valid");
+                    confirmInput.style.borderColor = "#10B981";
+                } else {
+                    confirmBtn.disabled = true;
+                    confirmBtn.setAttribute("disabled", "disabled");
+                    confirmBtn.classList.add("is-disabled");
+                    confirmBtn.style.opacity = "0.45";
+                    confirmBtn.style.pointerEvents = "none";
+                    confirmBtn.style.cursor = "not-allowed";
+                    confirmBtn.style.background = "#94A3B8";
+                    confirmBtn.style.borderColor = "#94A3B8";
+                    confirmInput.classList.remove("is-valid");
+                    confirmInput.style.borderColor = (val.length > 0) ? "#EF4444" : "#CBD5E1";
+                }
+            };
+
+            if (confirmInput) {
+                confirmInput.oninput = updateConfirmState;
+                confirmInput.onkeydown = (ev) => {
+                    if (ev.key === "Enter") {
+                        const val = (confirmInput.value || "").trim().toLowerCase();
+                        if (val === "delete" && confirmBtn && !confirmBtn.disabled) {
+                            ev.preventDefault();
+                            confirmBtn.click();
+                        }
+                    }
+                };
+                setTimeout(() => {
+                    try { confirmInput.focus(); } catch (e) {}
+                }, 100);
+            }
+
+            if (confirmBtn) {
+                confirmBtn.onclick = (ev) => {
+                    if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+                    if (confirmInput) {
+                        const val = (confirmInput.value || "").trim().toLowerCase();
+                        if (val !== "delete") return;
+                    }
+                    closeFn();
+                    if (typeof onConfirmFn === "function") {
+                        onConfirmFn();
+                    }
+                };
+            }
+        },
+
         _enhanceModalDropdowns(oDomRef) {
             if (!oDomRef) return;
             const aSelects = oDomRef.querySelectorAll("select.kyra-system-modal-select");
