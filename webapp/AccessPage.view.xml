@@ -3064,21 +3064,21 @@
                         </HBox>
 
                         <!-- DUAL-MODE TAB / SEGMENTED SWITCHER (EXACT IMAGE 2 MATCH) -->
-                        <HBox alignItems="Center" class="kyraSwitchGroup sapUiMediumMarginBottom">
+                        <HBox class="kyraAccessRevokeBar kyraPersonaSwitchBar sapUiMediumMarginBottom" alignItems="Center">
                             <Button
                                 id="btnSingleUserMode"
                                 text="Single User Conversion"
                                 icon="sap-icon://person-placeholder"
-                                type="Default"
+                                type="{= ${accessModel>/personaConversionMode} !== 'department' ? 'Emphasized' : 'Transparent' }"
                                 press=".onSelectSingleUserMode"
-                                class="{= ${accessModel>/personaConversionMode} !== 'department' ? 'kyraSwitchBtn kyraSwitchBtnActive kyraSwitchBtnLeft' : 'kyraSwitchBtn kyraSwitchBtnInactive kyraSwitchBtnLeft' }" />
+                                class="kyraTabPillBtn kyraSwitchBtn" />
                             <Button
                                 id="btnDepartmentMode"
                                 text="Department-Wide Conversion"
                                 icon="sap-icon://group"
-                                type="Default"
+                                type="{= ${accessModel>/personaConversionMode} === 'department' ? 'Emphasized' : 'Transparent' }"
                                 press=".onSelectDepartmentMode"
-                                class="{= ${accessModel>/personaConversionMode} === 'department' ? 'kyraSwitchBtn kyraSwitchBtnActive kyraSwitchBtnRight' : 'kyraSwitchBtn kyraSwitchBtnInactive kyraSwitchBtnRight' }" />
+                                class="kyraTabPillBtn kyraSwitchBtn" />
                         </HBox>
 
                         <!-- ============================================================================== -->

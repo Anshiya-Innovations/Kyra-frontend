@@ -1,14 +1,11 @@
 const fs = require('fs');
-
-const xml = fs.readFileSync('webapp/pages/access/AccessPage.view.xml', 'utf8');
-
-const regex = /class="\{=([^"]+)\}"/g;
-let match;
+const c = fs.readFileSync('webapp/pages/access/AccessPage.view.xml', 'utf8');
+const lines = c.split('\n');
 let count = 0;
-while ((match = regex.exec(xml)) !== null) {
+lines.forEach((l, i) => {
+  if (l.includes('class="{=')) {
+    console.log(`Line ${i+1}: ${l.trim()}`);
     count++;
-    if (count <= 10) {
-        console.log('Match ' + count + ':', match[0]);
-    }
-}
-console.log('Total matches of class="{= ... }":', count);
+  }
+});
+console.log('Total:', count);
