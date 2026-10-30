@@ -24039,10 +24039,11 @@ async onTestCloudConnection() {
         },
 
         
-        onSelectSingleUserMode() {
+                onSelectSingleUserMode() {
             const oModel = this.getView().getModel("accessModel");
             if (!oModel) return;
             oModel.setProperty("/personaConversionMode", "single");
+            this._updateSwitchButtonVisuals();
         },
 
         onSelectDepartmentMode() {
@@ -24050,15 +24051,31 @@ async onTestCloudConnection() {
             if (!oModel) return;
             oModel.setProperty("/personaConversionMode", "department");
             this._loadAvailableDepartments();
+            this._updateSwitchButtonVisuals();
         },
 
-        onPersonaConversionModeChange(oEvent) {
+        _updateSwitchButtonVisuals() {
             const oModel = this.getView().getModel("accessModel");
-            if (!oModel) return;
-            const sKey = (oEvent && oEvent.getParameter("item")) ? oEvent.getParameter("item").getKey() : "single";
-            oModel.setProperty("/personaConversionMode", sKey);
-            if (sKey === "department") {
-                this._loadAvailableDepartments();
+            const sMode = oModel ? oModel.getProperty("/personaConversionMode") : "single";
+            const oBtnSingle = this.byId("btnSingleUserMode");
+            const oBtnDept = this.byId("btnDepartmentMode");
+            if (oBtnSingle) {
+                if (sMode !== "department") {
+                    oBtnSingle.removeStyleClass("kyraSwitchBtnInactive");
+                    oBtnSingle.addStyleClass("kyraSwitchBtnActive");
+                } else {
+                    oBtnSingle.removeStyleClass("kyraSwitchBtnActive");
+                    oBtnSingle.addStyleClass("kyraSwitchBtnInactive");
+                }
+            }
+            if (oBtnDept) {
+                if (sMode === "department") {
+                    oBtnDept.removeStyleClass("kyraSwitchBtnInactive");
+                    oBtnDept.addStyleClass("kyraSwitchBtnActive");
+                } else {
+                    oBtnDept.removeStyleClass("kyraSwitchBtnActive");
+                    oBtnDept.addStyleClass("kyraSwitchBtnInactive");
+                }
             }
         },
 
