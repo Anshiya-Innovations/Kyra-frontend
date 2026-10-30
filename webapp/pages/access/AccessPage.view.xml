@@ -1565,9 +1565,6 @@
                                         <Select
                                             id="adProviderSelect"
                                             selectedKey="{accessModel>/adGroupIntegration/directoryProvider}"
-                                            valueState="{accessModel>/adGroupIntegration/providerState}"
-                                            valueStateText="{accessModel>/adGroupIntegration/providerStateText}"
-                                            showValueStateMessage="false"
                                             change=".onAdProviderChange"
                                             width="100%"
                                             class="kyraDarkSelect">
