@@ -1762,6 +1762,12 @@ sap.ui.define([
                 } catch (e) {}
                 this._oProfilePopover = null;
             }
+            if (this._oSapManagePopover) {
+                try {
+                    this._oSapManagePopover.destroy();
+                } catch (e) {}
+                this._oSapManagePopover = null;
+            }
             if (document.body.classList.contains("kyra-add-access-open")) {
                 document.body.classList.remove("kyra-add-access-open");
             }
@@ -16421,6 +16427,121 @@ sap.ui.define([
             setTimeout(() => {
                 this._smoothScrollTo("sapIntegrationConfigContainer", 40);
             }, 40);
+        },
+
+        onOpenManageSapPopover(oEvent) {
+            if (oEvent) {
+                if (typeof oEvent.stopPropagation === "function") oEvent.stopPropagation();
+                if (typeof oEvent.preventDefault === "function") oEvent.preventDefault();
+                if (oEvent.cancelBubble !== undefined) oEvent.cancelBubble = true;
+            }
+            const oSource = oEvent.getSource();
+            if (!oSource) return;
+
+            if (this._oSapManagePopover) {
+                try {
+                    this._oSapManagePopover.close();
+                    this._oSapManagePopover.destroy();
+                } catch (e) {}
+                this._oSapManagePopover = null;
+            }
+
+            const that = this;
+            sap.ui.require(["sap/m/Popover", "sap/m/HBox", "sap/m/Button"], (Popover, HBox, Button) => {
+                const oPopover = new Popover({
+                    showHeader: false,
+                    placement: "Bottom",
+                    contentWidth: "auto",
+                    contentHeight: "auto",
+                    verticalScrolling: false,
+                    horizontalScrolling: false,
+                    content: [
+                        new HBox({
+                            alignItems: "Center",
+                            gap: "8px",
+                            items: [
+                                new Button({
+                                    icon: "sap-icon://edit",
+                                    text: "Edit",
+                                    type: "Default",
+                                    press: () => {
+                                        oPopover.close();
+                                        that.onEditSapIntegrationItem(oEvent);
+                                    }
+                                }).addStyleClass("kyraSapManageActionEdit"),
+                                new Button({
+                                    icon: "sap-icon://delete",
+                                    text: "Delete",
+                                    type: "Default",
+                                    press: () => {
+                                        oPopover.close();
+                                        that.onDeleteSapIntegrationItem(oEvent);
+                                    }
+                                }).addStyleClass("kyraSapManageActionDelete")
+                            ]
+                        }).addStyleClass("kyraSapManageActionContainer")
+                    ],
+                    afterClose: () => {
+                        if (that._oSapManagePopover === oPopover) {
+                            that._oSapManagePopover = null;
+                        }
+                        oPopover.destroy();
+                    }
+                });
+
+                oPopover.addStyleClass("kyraSapManagePopover");
+                that.getView().addDependent(oPopover);
+                that._oSapManagePopover = oPopover;
+                oPopover.openBy(oSource);
+            });
+        },
+
+        onDeleteSapIntegrationItem(oEvent) {
+            if (oEvent) {
+                if (typeof oEvent.stopPropagation === "function") oEvent.stopPropagation();
+                if (typeof oEvent.preventDefault === "function") oEvent.preventDefault();
+                if (oEvent.cancelBubble !== undefined) oEvent.cancelBubble = true;
+            }
+            const oModel = this.getView().getModel("accessModel");
+            if (!oModel) return;
+
+            let oItemData = null;
+            if (oEvent && typeof oEvent.getSource === "function") {
+                const oCtx = oEvent.getSource().getBindingContext("accessModel");
+                if (oCtx) {
+                    oItemData = oCtx.getObject();
+                }
+            }
+            if (!oItemData) {
+                const aList = oModel.getProperty("/sapIntegrationsList") || [];
+                oItemData = aList.find(i => (i.subdomain && i.subdomain.includes("singapore")) || (i.appName && i.appName.includes("singapore"))) || aList[0];
+            }
+            if (!oItemData) return;
+
+            const sDisplayName = oItemData.displayName || "SAP Business Technology Platform (Singapore)";
+            const that = this;
+
+            this._confirmDelete("Delete Integration", sDisplayName, "Integration", () => {
+                let aList = (oModel.getProperty("/sapIntegrationsList") || []).filter(item => {
+                    if (oItemData.id && item.id && item.id === oItemData.id) return false;
+                    if (oItemData.subdomain && item.subdomain && item.subdomain === oItemData.subdomain) return false;
+                    return true;
+                });
+                oModel.setProperty("/sapIntegrationsList", aList);
+                if (aList.length === 0) {
+                    oModel.setProperty("/sapIntegration/connected", false);
+                    oModel.setProperty("/sapIntegration/statusText", "Not Connected");
+                }
+                let aSystems = (oModel.getProperty("/adminSystemsAll") || []).filter(s => s && s.systemName !== sDisplayName);
+                oModel.setProperty("/adminSystemsAll", aSystems);
+                oModel.setProperty("/adminSystems", aSystems.slice());
+                oModel.setProperty("/activeAdminSystems", aSystems.slice());
+
+                if (typeof that._showSlideNotification === "function") {
+                    that._showSlideNotification("Integration Deleted", "Integration '" + sDisplayName + "' removed.", "delete");
+                }
+                sap.m.MessageToast.show("Integration '" + sDisplayName + "' deleted.");
+            });
         },
 
         onEditSapIntegrationItem(oEvent) {

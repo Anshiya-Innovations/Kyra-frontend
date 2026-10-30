@@ -66187,3 +66187,213 @@ button.kyraSecondaryBtn:active {
     border: 1.5px solid #CBD5E1 !important;
     box-shadow: none !important;
 }
+
+/* =========================================================================
+   KYRA SAP CARD: MANAGE BUTTON & POPUP (EDIT & DELETE ACTIONS)
+   ========================================================================= */
+
+/* Manage Button - Clean, compact, consistent with existing KYRA UI (no dropdown arrow or icon) */
+.kyraSapManageBtn,
+.kyraSapManageBtn.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapManageBtn {
+    background: transparent !important;
+    border: none !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapManageBtn .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapManageBtn .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    border-radius: 8px !important;
+    height: 36px !important;
+    padding: 0 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: none !important;
+}
+
+.kyraSapManageBtn .sapMBtnText,
+.kyraSapManageBtn bdi,
+html body .sapUiTheme-sap_horizon .kyraSapManageBtn .sapMBtnText {
+    color: #0F172A !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.1px !important;
+}
+
+.kyraSapManageBtn:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapManageBtn:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #008C9C !important;
+}
+
+.kyraSapManageBtn:hover .sapMBtnText,
+.kyraSapManageBtn:hover bdi {
+    color: #008C9C !important;
+}
+
+/* Floating Popup Container */
+.kyraSapManagePopover.sapMPopover {
+    border-radius: 12px !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.kyraSapManagePopover .sapMPopoverWrapper {
+    border-radius: 12px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+    overflow: hidden !important;
+}
+
+.kyraSapManagePopover .sapMPopoverCont {
+    padding: 8px 10px !important;
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+.kyraSapManagePopover .sapMPopoverScroll {
+    overflow: visible !important;
+}
+
+.kyraSapManagePopover .sapMPopoverArr,
+.kyraSapManagePopover .sapMPopoverArrUp,
+.kyraSapManagePopover .sapMPopoverArrDown {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.kyraSapManageActionContainer {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Edit action button (Teal #008C9C accent) */
+.kyraSapManageActionEdit,
+.kyraSapManageActionEdit.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionEdit {
+    background: transparent !important;
+    border: none !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapManageActionEdit .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionEdit .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #008C9C !important;
+    border-radius: 8px !important;
+    height: 34px !important;
+    padding: 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraSapManageActionEdit .sapUiIcon,
+.kyraSapManageActionEdit .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionEdit .sapUiIcon {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    margin-right: 6px !important;
+}
+
+.kyraSapManageActionEdit .sapMBtnText,
+.kyraSapManageActionEdit bdi,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionEdit .sapMBtnText {
+    color: #008C9C !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.kyraSapManageActionEdit:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionEdit:hover .sapMBtnInner {
+    background: #F0FDFA !important;
+    background-color: #F0FDFA !important;
+    border-color: #007583 !important;
+}
+
+.kyraSapManageActionEdit:hover .sapMBtnText,
+.kyraSapManageActionEdit:hover bdi,
+.kyraSapManageActionEdit:hover .sapUiIcon,
+.kyraSapManageActionEdit:hover .sapMBtnIcon {
+    color: #007583 !important;
+}
+
+/* Delete action button (Red #DC2626 accent) */
+.kyraSapManageActionDelete,
+.kyraSapManageActionDelete.sapMBtn,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete {
+    background: transparent !important;
+    border: none !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.kyraSapManageActionDelete .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete .sapMBtnInner {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    border: 1.5px solid #FCA5A5 !important;
+    border-radius: 8px !important;
+    height: 34px !important;
+    padding: 0 14px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+.kyraSapManageActionDelete .sapUiIcon,
+.kyraSapManageActionDelete .sapMBtnIcon,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete .sapUiIcon {
+    color: #DC2626 !important;
+    font-size: 13px !important;
+    margin-right: 6px !important;
+}
+
+.kyraSapManageActionDelete .sapMBtnText,
+.kyraSapManageActionDelete bdi,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete .sapMBtnText {
+    color: #DC2626 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+.kyraSapManageActionDelete:hover .sapMBtnInner,
+html body .sapUiTheme-sap_horizon .kyraSapManageActionDelete:hover .sapMBtnInner {
+    background: #FEF2F2 !important;
+    background-color: #FEF2F2 !important;
+    border-color: #DC2626 !important;
+}
+
+.kyraSapManageActionDelete:hover .sapMBtnText,
+.kyraSapManageActionDelete:hover bdi,
+.kyraSapManageActionDelete:hover .sapUiIcon,
+.kyraSapManageActionDelete:hover .sapMBtnIcon {
+    color: #B91C1C !important;
+}

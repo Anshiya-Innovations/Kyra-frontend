@@ -1259,13 +1259,12 @@
                                                 </HBox>
                                                 <HBox alignItems="Center" gap="8px" class="kyraSapActionBtnRow">
                                                     <Button
-                                                        id="btnEditSapIntegrationItem"
-                                                        icon="sap-icon://edit"
-                                                        text="Edit"
+                                                        id="btnManageSapIntegrationItem"
+                                                        text="Manage"
                                                         type="Default"
-                                                        press=".onEditSapIntegrationItem"
-                                                        class="kyraSapAppActionBtn kyraSapEditBtn"
-                                                        tooltip="Edit SAP Integration Configuration" />
+                                                        press=".onOpenManageSapPopover"
+                                                        class="kyraSapAppActionBtn kyraSapManageBtn"
+                                                        tooltip="Manage SAP Integration" />
                                                     <Button
                                                         text="{= ${accessModel>isAppExpanded} ? 'Hide Live Resource Quotas ▲' : 'Click to View Live Resource Quotas ▼' }"
                                                         type="Default"
