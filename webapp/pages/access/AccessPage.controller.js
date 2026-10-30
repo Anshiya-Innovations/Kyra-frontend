@@ -5904,7 +5904,7 @@ sap.ui.define([
                 if (oMsg) oMsg.setValueState("None");
 
                 const sTicket = "TKT-" + Math.floor(100000 + Math.random() * 900000);
-                MessageBox.success(`Your IT support request has been submitted successfully!\n\nTicket Reference: ${sTicket}\nOur IT support team will respond within 24 hours.`, {
+                MessageBox.success(`Your IT support request has been submitted successfully!\r\n\r\nTicket Reference: ${sTicket}\r\nOur IT support team will respond within 24 hours.`, {
                     title: "Request Submitted",
                     onClose: () => {
                         if (oEmail) oEmail.setValue("");
@@ -7596,15 +7596,19 @@ sap.ui.define([
                     roleCollections: data.totalRoleCollections
                 });
 
-                // Populate distinct live role templates
+                // Populate distinct live role templates (strictly deduplicated & clean)
                 const aAllRoles = [];
                 const oSeenRoles = new Set();
                 Object.keys(oLiveDetailsMap).forEach(sSvc => {
                     const aTeams = oLiveDetailsMap[sSvc] || [];
                     aTeams.forEach(t => {
-                        if (t && t.name && !oSeenRoles.has(t.name)) {
-                            oSeenRoles.add(t.name);
-                            aAllRoles.push({ key: t.name, text: t.name, icon: "sap-icon://user-settings" });
+                        if (t && t.name) {
+                            const sCleanName = t.name.replace(/\s*\([^)]*\)$/, "").trim();
+                            const sNorm = sCleanName.toLowerCase();
+                            if (sCleanName && !oSeenRoles.has(sNorm)) {
+                                oSeenRoles.add(sNorm);
+                                aAllRoles.push({ key: sCleanName, text: sCleanName, icon: "sap-icon://user-settings" });
+                            }
                         }
                     });
                 });
@@ -7999,21 +8003,15 @@ sap.ui.define([
             Object.keys(oServicesRolesMap).forEach(sServiceKey => {
                 (oServicesRolesMap[sServiceKey] || []).forEach(r => {
                     const sRawKey = (r.key || r.text || "").trim();
-                    const sNorm = sRawKey.toLowerCase();
-                    const sUniqueKey = sServiceKey + '::' + sNorm;
-                    if (!oSeenAllRoles.has(sUniqueKey)) {
-                        oSeenAllRoles.add(sUniqueKey);
-                        const bDuplicate = aAllSubRoles.some(existing => (existing.key || existing.text || '').trim().toLowerCase() === sNorm);
-                        if (bDuplicate) {
-                            const sSvcShort = sServiceKey.split(' ')[0];
-                            aAllSubRoles.push({
-                                key: `${sRawKey} (${sSvcShort})`,
-                                text: `${sRawKey} (${sSvcShort})`,
-                                icon: r.icon || 'sap-icon://user-settings'
-                            });
-                        } else {
-                            aAllSubRoles.push(r);
-                        }
+                    const sCleanRole = sRawKey.replace(/\s*\([^)]*\)$/, "").trim();
+                    const sNorm = sCleanRole.toLowerCase();
+                    if (sCleanRole && !oSeenAllRoles.has(sNorm)) {
+                        oSeenAllRoles.add(sNorm);
+                        aAllSubRoles.push({
+                            key: sCleanRole,
+                            text: sCleanRole,
+                            icon: r.icon || 'sap-icon://user-settings'
+                        });
                     }
                 });
             });
@@ -8036,21 +8034,15 @@ sap.ui.define([
                 const aRolesForSvc = oServicesRolesMap[sServiceKey] || oServicesRolesMap[sServiceKey.split(' ')[0]] || [];
                 aRolesForSvc.forEach(r => {
                     const sRawKey = (r.key || r.text || "").trim();
-                    const sNorm = sRawKey.toLowerCase();
-                    const sUniqueKey = sServiceKey + '::' + sNorm;
-                    if (!oSeenCombRoles.has(sUniqueKey)) {
-                        oSeenCombRoles.add(sUniqueKey);
-                        const bDuplicate = aCombinedRoles.some(existing => (existing.key || existing.text || '').trim().toLowerCase() === sNorm);
-                        if (bDuplicate) {
-                            const sSvcShort = sServiceKey.split(' ')[0];
-                            aCombinedRoles.push({
-                                key: `${sRawKey} (${sSvcShort})`,
-                                text: `${sRawKey} (${sSvcShort})`,
-                                icon: r.icon || 'sap-icon://user-settings'
-                            });
-                        } else {
-                            aCombinedRoles.push(r);
-                        }
+                    const sCleanRole = sRawKey.replace(/\s*\([^)]*\)$/, "").trim();
+                    const sNorm = sCleanRole.toLowerCase();
+                    if (sCleanRole && !oSeenCombRoles.has(sNorm)) {
+                        oSeenCombRoles.add(sNorm);
+                        aCombinedRoles.push({
+                            key: sCleanRole,
+                            text: sCleanRole,
+                            icon: r.icon || 'sap-icon://user-settings'
+                        });
                     }
                 });
             });
@@ -8112,8 +8104,8 @@ sap.ui.define([
                 const aTeams = oDetailsMap[sServiceKey] || [];
                 aTeams.forEach(oTeam => {
                     if (!oTeam || !oTeam.name || oTeam.status === "Inactive") return;
-                    const sTeamName = oTeam.name.trim();
-                    const sCleanTeamShort = sTeamName.replace(/\s*\([^)]*\)/g, "").trim();
+                    const sRawTeamName = oTeam.name.trim();
+                    const sCleanTeamShort = sRawTeamName.replace(/\s*\([^)]*\)/g, "").trim();
                     const aActivePersonas = (oTeam.subClassifications || [])
                         .filter(p => p && p.name && p.status !== "Inactive")
                         .map(p => {
@@ -8125,7 +8117,23 @@ sap.ui.define([
                                 accessPrivilege: p.accessPrivilege || (this._isDefaultRestrictedPersona(sPersName) ? "Restricted" : "Not restricted")
                             };
                         });
-                    oTeamPersonasMap[sTeamName] = aActivePersonas;
+
+                    // MERGE into oTeamPersonasMap across services instead of overwriting!
+                    const aKeys = [sRawTeamName, sCleanTeamShort, sRawTeamName.toLowerCase(), sCleanTeamShort.toLowerCase()];
+                    aKeys.forEach(k => {
+                        if (!k) return;
+                        if (!oTeamPersonasMap[k]) {
+                            oTeamPersonasMap[k] = [];
+                        }
+                        const seenInTeam = new Set(oTeamPersonasMap[k].map(p => (p.key || p.text || '').toLowerCase()));
+                        aActivePersonas.forEach(p => {
+                            const pNorm = (p.key || p.text || '').toLowerCase();
+                            if (!seenInTeam.has(pNorm)) {
+                                seenInTeam.add(pNorm);
+                                oTeamPersonasMap[k].push(p);
+                            }
+                        });
+                    });
                 });
             });
 
@@ -8151,11 +8159,11 @@ sap.ui.define([
             let aCombinedPersonas = [];
             const oSeenCombPers = new Set();
             aSelectedRoles.forEach(sRoleKey => {
-                let aTargetPersonas = oTeamPersonasMap[sRoleKey];
+                const sClean = (sRoleKey || "").replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
+                let aTargetPersonas = oTeamPersonasMap[sRoleKey] || oTeamPersonasMap[sClean];
                 if (!aTargetPersonas) {
-                    const sRoleShort = sRoleKey.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase();
                     const sMatchedKey = Object.keys(oTeamPersonasMap).find(k =>
-                        k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sRoleShort
+                        k.replace(/\s*\([^)]*\)/g, "").trim().toLowerCase() === sClean
                     );
                     if (sMatchedKey) {
                         aTargetPersonas = oTeamPersonasMap[sMatchedKey];
@@ -9347,8 +9355,8 @@ sap.ui.define([
 
             const result = [];
             groupedMap.forEach(entry => {
-                const joinedPersA = Array.from(entry.personasA).join("\n");
-                const joinedPersB = Array.from(entry.personasB).join("\n");
+                const joinedPersA = Array.from(entry.personasA).join("\r\n");
+                const joinedPersB = Array.from(entry.personasB).join("\r\n");
 
                 result.push({
                     system: entry.system,
@@ -10184,7 +10192,7 @@ sap.ui.define([
                     if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
                         sap.ui.core.BusyIndicator.hide();
                     }
-                    MessageBox.error("Database Conflict / Error:\n\n" + sErrMsg);
+                    MessageBox.error("Database Conflict / Error:\r\n\r\n" + sErrMsg);
                     return;
                 }
 
@@ -14453,7 +14461,7 @@ sap.ui.define([
                                     `Audit Compliance:    100% Audit Verified`,
                                     `Export Timestamp:    ${new Date().toLocaleString()}`,
                                     "=================================================="
-                                ].join("\n");
+                                ].join("\r\n");
                                 const blob = new Blob([sExportData], { type: "text/plain;charset=utf-8" });
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement("a");
@@ -15599,8 +15607,9 @@ sap.ui.define([
                 oModel.setProperty("/adminSystems", aSys.slice());
             }
             const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
-            const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
             const sSelectedAdminSys = oModel.getProperty("/selectedAdminSystemName") || "";
+            const isBtpSys = (s) => typeof s === "string" && (s.includes("SAP Business Technology Platform") || s.includes("SAP BTP"));
+            const bCurrentIsBtpSubaccount = isBtpSys(sCurSlideSys) || isBtpSys(sSelectedAdminSys) || isBtpSys(this._adminLiveSystemActive);
 
             if (!bCurrentIsBtpSubaccount) {
                 if (Array.isArray(oParsed.adminServicesAll) && oParsed.adminServicesAll.length > 0) {
@@ -15835,7 +15844,9 @@ sap.ui.define([
                 oModel.setProperty("/activeAdminSystems", aActiveSystems);
             }
             const sCurSlideSys = oModel.getProperty("/currentSystemSlideName") || oModel.getProperty("/dynamicCatalogTargetSystem") || "";
-            const bCurrentIsBtpSubaccount = sCurSlideSys.includes("SAP Business Technology Platform") || sCurSlideSys.includes("SAP BTP");
+            const sSelectedAdminSys = oModel.getProperty("/selectedAdminSystemName") || "";
+            const isBtpSys = (s) => typeof s === "string" && (s.includes("SAP Business Technology Platform") || s.includes("SAP BTP"));
+            const bCurrentIsBtpSubaccount = isBtpSys(sCurSlideSys) || isBtpSys(sSelectedAdminSys) || isBtpSys(this._adminLiveSystemActive);
 
             if (!bCurrentIsBtpSubaccount || (oModel.getProperty("/activeAdminServices") || []).length === 0) {
                 oModel.setProperty("/activeAdminServices", aActiveServices);
@@ -15940,29 +15951,26 @@ sap.ui.define([
                 this._updateSubRolesList(true);
                 this._updatePersonasList(true);
             }
-            oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
-
-            const aPrimaryOptions = [
-                { key: "", text: "-Select-" }
-            ];
-            aPersonaDropdownOptions.forEach(p => {
-                aPrimaryOptions.push({ key: p.key, text: p.text });
-            });
-            oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
-
             const oDraft = oModel.getProperty("/newConflictDraft") || {};
-            const sCurrentRole1 = oDraft.role1 || "";
+            const sDraftSys = (oDraft.system || "").trim();
 
-            // 3rd dropdown excludes selected persona from 2nd dropdown
-            const aConflictingOptions = [
-                { key: "", text: "-Select-" }
-            ];
-            aPersonaDropdownOptions.forEach(p => {
-                if (!sCurrentRole1 || p.key !== sCurrentRole1) {
-                    aConflictingOptions.push({ key: p.key, text: p.text });
-                }
-            });
-            oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+            if (sDraftSys) {
+                // If a system is chosen in the Conflict Builder, refresh based on that system!
+                this._refreshCustomConflictOptions(oModel, sDraftSys);
+            } else {
+                oModel.setProperty("/adminAllConfiguredRolesAndPersonas", aPersonaDropdownOptions);
+                const aPrimaryOptions = [
+                    { key: "", text: "-Select-" },
+                    ...aPersonaDropdownOptions
+                ];
+                oModel.setProperty("/adminPrimaryPersonaOptions", aPrimaryOptions);
+                const sCurrentRole1 = oDraft.role1 || "";
+                const aConflictingOptions = [
+                    { key: "", text: "-Select-" },
+                    ...aPersonaDropdownOptions.filter(p => !sCurrentRole1 || p.key !== sCurrentRole1)
+                ];
+                oModel.setProperty("/adminConflictingPersonaOptions", aConflictingOptions);
+            }
 
             if (oDraft.role2 && oDraft.role1 && oDraft.role2 === oDraft.role1) {
                 oDraft.role2 = "";
@@ -16308,6 +16316,7 @@ sap.ui.define([
             }
 
             oModel.setProperty("/selectedAdminSystemName", sSystemName);
+            this._adminLiveSystemActive = sSystemName;
 
             // Display loading screen
             sap.ui.core.BusyIndicator.show(0);
@@ -16365,6 +16374,7 @@ sap.ui.define([
         },
 
         onBackToAdminSystems() {
+            this._adminLiveSystemActive = null;
             const oModel = this.getView().getModel("accessModel");
             if (oModel) {
                 oModel.setProperty("/adminCustomizationStep", 1);
@@ -20085,13 +20095,24 @@ sap.ui.define([
                     }
                 }
 
-                const cat = this._dynamicCatalogs[sChosenSys];
-                if (cat && cat.serviceDetailsMapJson) {
-                    const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
-                    extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
-                } else if (oModel.getProperty("/selectedAdminSystemName") === sChosenSys) {
-                    const currentMap = oModel.getProperty("/adminServiceDetailsMap");
-                    extractRoleCollections(currentMap).forEach(rc => aAllRcs.add(rc));
+                const cat = this._dynamicCatalogs[sChosenSys] || (oModel.getProperty("/selectedAdminSystemName") === sChosenSys ? {
+                    serviceDetailsMapJson: oModel.getProperty("/adminServiceDetailsMap")
+                } : null);
+
+                if (cat) {
+                    if (cat.serviceDetailsMapJson) {
+                        const map = typeof cat.serviceDetailsMapJson === "string" ? JSON.parse(cat.serviceDetailsMapJson) : cat.serviceDetailsMapJson;
+                        extractRoleCollections(map).forEach(rc => aAllRcs.add(rc));
+                    }
+                    if (cat.teamPersonasMapJson) {
+                        const tpMap = typeof cat.teamPersonasMapJson === "string" ? JSON.parse(cat.teamPersonasMapJson) : cat.teamPersonasMapJson;
+                        Object.values(tpMap).forEach(arr => {
+                            (arr || []).forEach(item => {
+                                const name = (typeof item === "string" ? item : (item.text || item.key || item.name || "")).trim();
+                                if (name) aAllRcs.add(name);
+                            });
+                        });
+                    }
                 }
             }
 
@@ -22439,13 +22460,13 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp1.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 1 Email Integration Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• Designation: " + (oApp1.name || "IAM Approver 1 (Security Lead)") + "\n" +
-                    "• Notification Email: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + "\n" +
-                    "• Dispatch Mode: " + (oApp1.notificationMode || "Consolidated Batch Notification") + "\n" +
-                    "• Delivery Service: " + (oApp1.deliveryService || "AWS SNS Email Topic") + "\n" +
-                    "• SLA Window: " + (oApp1.slaWindow || "24h") + "\n" +
+                    "IAM Approver 1 Email Integration Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• Designation: " + (oApp1.name || "IAM Approver 1 (Security Lead)") + "\r\n" +
+                    "• Notification Email: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + "\r\n" +
+                    "• Dispatch Mode: " + (oApp1.notificationMode || "Consolidated Batch Notification") + "\r\n" +
+                    "• Delivery Service: " + (oApp1.deliveryService || "AWS SNS Email Topic") + "\r\n" +
+                    "• SLA Window: " + (oApp1.slaWindow || "24h") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 1 Verified" }
                 );
@@ -22501,13 +22522,13 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp1.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 1 Cloud Console Integration Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\n" +
-                    "• User ARN / Principal ID: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\n" +
-                    "• Notification Endpoint: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\n" +
-                    "• Region / Realm: " + (oApp1.region || "us-east-1") + "\n" +
-                    "• Approval Engine: " + (oApp1.approvalEngine || "Cloud Governance Engine") + "\n" +
+                    "IAM Approver 1 Cloud Console Integration Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• IAM User: " + (oApp1.iamUser || "iam-approver-1") + "\r\n" +
+                    "• User ARN / Principal ID: " + (oApp1.userArn || "arn:aws:iam::197009134141:user/iam-approver-1") + "\r\n" +
+                    "• Notification Endpoint: " + (oApp1.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-1") + "\r\n" +
+                    "• Region / Realm: " + (oApp1.region || "us-east-1") + "\r\n" +
+                    "• Approval Engine: " + (oApp1.approvalEngine || "Cloud Governance Engine") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 1 Console Verified" }
                 );
@@ -22548,12 +22569,12 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp2.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 2 Email Integration Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• Designation: " + (oApp2.name || "IAM Approver 2 (Cloud Platform Owner)") + "\n" +
-                    "• Notification Email: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + "\n" +
-                    "• Routing Trigger: " + (oApp2.routingTrigger || "Sequential - Dispatch upon Approver 1 Approval") + "\n" +
-                    "• Final Provisioning Action: " + (oApp2.finalAction || "Trigger Automated Live SCIM Role Provisioning into SAP BTP") + "\n" +
+                    "IAM Approver 2 Email Integration Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• Designation: " + (oApp2.name || "IAM Approver 2 (Cloud Platform Owner)") + "\r\n" +
+                    "• Notification Email: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + "\r\n" +
+                    "• Routing Trigger: " + (oApp2.routingTrigger || "Sequential - Dispatch upon Approver 1 Approval") + "\r\n" +
+                    "• Final Provisioning Action: " + (oApp2.finalAction || "Trigger Automated Live SCIM Role Provisioning into SAP BTP") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 2 Verified" }
                 );
@@ -22594,14 +22615,14 @@ sap.ui.define([
                 };
                 const sProvName = mProviderNames[oApp2.provider || "aws"] || "Cloud IAM Provider";
                 sap.m.MessageBox.success(
-                    "IAM Approver 2 Cloud Console & Provisioning Verified!\n\n" +
-                    "• IAM Provider: " + sProvName + "\n" +
-                    "• IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\n" +
-                    "• User ARN / Principal ID: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\n" +
-                    "• Notification Endpoint: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\n" +
-                    "• Region / Realm: " + (oApp2.region || "us-east-1") + "\n" +
-                    "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\n" +
-                    "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\n" +
+                    "IAM Approver 2 Cloud Console & Provisioning Verified!\r\n\r\n" +
+                    "• IAM Provider: " + sProvName + "\r\n" +
+                    "• IAM User: " + (oApp2.iamUser || "iam-approver-2") + "\r\n" +
+                    "• User ARN / Principal ID: " + (oApp2.userArn || "arn:aws:iam::197009134141:user/iam-approver-2") + "\r\n" +
+                    "• Notification Endpoint: " + (oApp2.snsTopicArn || "arn:aws:sns:us-east-1:197009134141:kyra-iam-approver-2") + "\r\n" +
+                    "• Region / Realm: " + (oApp2.region || "us-east-1") + "\r\n" +
+                    "• Target Platform: " + (oApp2.targetSystem || "SAP Business Technology Platform") + "\r\n" +
+                    "• Target Subaccount ID: " + (oApp2.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + "\r\n" +
                     "• Status: Connected ✓",
                     { title: "IAM Approver 2 Console Verified" }
                 );
@@ -22658,12 +22679,12 @@ sap.ui.define([
                 sap.ui.core.BusyIndicator.hide();
                 oModel.setProperty("/iamApproverConfig/emailGateway/testStatus", "Verified Active ✓");
                 sap.m.MessageBox.success(
-                    "Email Gateway & Approver Dispatch Verification Succeeded!\n\n" +
-                    "• Service Provider: " + (oEmailGateway.provider || "AWS SNS Email Topic") + "\n" +
-                    "• Sender Address: " + (oEmailGateway.fromAddress || "no-reply-governance@kyra-portal.com") + "\n" +
-                    "• Approver 1 Target: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + " (" + (oApp1.name || "IAM Approver 1") + ")\n" +
-                    "• Approver 2 Target: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + " (" + (oApp2.name || "IAM Approver 2") + ")\n" +
-                    "• Review Webhook: " + (oEmailGateway.webhookUrl || "Active AWS Lambda Function URL") + "\n" +
+                    "Email Gateway & Approver Dispatch Verification Succeeded!\r\n\r\n" +
+                    "• Service Provider: " + (oEmailGateway.provider || "AWS SNS Email Topic") + "\r\n" +
+                    "• Sender Address: " + (oEmailGateway.fromAddress || "no-reply-governance@kyra-portal.com") + "\r\n" +
+                    "• Approver 1 Target: " + (oApp1.email || "kyra-iam-approver-1@kyra-governance.com") + " (" + (oApp1.name || "IAM Approver 1") + ")\r\n" +
+                    "• Approver 2 Target: " + (oApp2.email || "kyra-iam-approver-2@kyra-governance.com") + " (" + (oApp2.name || "IAM Approver 2") + ")\r\n" +
+                    "• Review Webhook: " + (oEmailGateway.webhookUrl || "Active AWS Lambda Function URL") + "\r\n" +
                     "• Dispatch Mode: Batch Notification (Consolidated 1 Email per Batch)",
                     {
                         title: "Email Approver Gateway Verified"
@@ -22699,15 +22720,15 @@ sap.ui.define([
                 oModel.setProperty("/iamApproverConfig/awsConfig/connected", true);
                 oModel.setProperty("/iamApproverConfig/awsConfig/statusText", "AWS Connected & IAM Verified ✓");
                 sap.m.MessageBox.success(
-                    "AWS IAM Approver Governance Connection Successful!\n\n" +
-                    "• AWS Region: " + (oAws.region || "us-east-1") + "\n" +
-                    "• AWS Account: " + (oAws.accountId || "197009134141") + "\n" +
-                    "• Native Approval Engine: AWS Systems Manager (SSM) Change Manager\n" +
-                    "• IAM Approver 1 User: " + (oAws1.iamUser || "iam-approver-1") + "\n" +
-                    "• IAM Approver 2 User: " + (oAws2.iamUser || "iam-approver-2") + "\n" +
-                    "• Level 1 SNS Topic: " + (oAws1.snsTopicArn || "kyra-iam-approver-1") + "\n" +
-                    "• Level 2 SNS Topic: " + (oAws2.snsTopicArn || "kyra-iam-approver-2") + "\n" +
-                    "• Lambda Webhook: " + (oAws.lambdaUrl || "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/") + "\n" +
+                    "AWS IAM Approver Governance Connection Successful!\r\n\r\n" +
+                    "• AWS Region: " + (oAws.region || "us-east-1") + "\r\n" +
+                    "• AWS Account: " + (oAws.accountId || "197009134141") + "\r\n" +
+                    "• Native Approval Engine: AWS Systems Manager (SSM) Change Manager\r\n" +
+                    "• IAM Approver 1 User: " + (oAws1.iamUser || "iam-approver-1") + "\r\n" +
+                    "• IAM Approver 2 User: " + (oAws2.iamUser || "iam-approver-2") + "\r\n" +
+                    "• Level 1 SNS Topic: " + (oAws1.snsTopicArn || "kyra-iam-approver-1") + "\r\n" +
+                    "• Level 2 SNS Topic: " + (oAws2.snsTopicArn || "kyra-iam-approver-2") + "\r\n" +
+                    "• Lambda Webhook: " + (oAws.lambdaUrl || "https://happfsy5vp6ff3ru6z2xrwrtny0jkqao.lambda-url.us-east-1.on.aws/") + "\r\n" +
                     "• Target SCIM Binding: " + (oProv.targetSystem || "SAP BTP Subaccount") + " (" + (oProv.subaccountId || "33d545ed-34b8-4d60-8789-38e9f943e8ad") + ")",
                     {
                         title: "AWS IAM Integration Verified"
