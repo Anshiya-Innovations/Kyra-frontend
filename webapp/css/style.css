@@ -22772,18 +22772,34 @@ tr:last-child td {
    Remove Notification Bell, Sign Out, and Profile Avatar buttons
    specifically when viewing Request Tracking / Details.
    ========================================================================= */
-/* Top Three Header Action Buttons (Bell, Sign Out, Profile Avatar) - Always Visible */
+/* Top Three Header Action Buttons (Bell, Sign Out, Profile Avatar) - Visible in all views except inside Add Access */
 .kyraNotificationBellWrapper,
 .kyraSignOutHeaderBtn,
 #kyraHeaderProfileAvatar,
 .kyraHeaderProfileAvatar,
 .sapFShellBarProfile,
 .sapFShellBarAdditionalContent {
-    /* Always keep top navigation header action buttons visible across all views */
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
+}
+
+/* Hide top three buttons ONLY when inside Add Access flow */
+body.kyra-add-access-open .kyraNotificationBellWrapper,
+body.kyra-add-access-open .kyraSignOutHeaderBtn,
+body.kyra-add-access-open #kyraHeaderProfileAvatar,
+body.kyra-add-access-open .kyraHeaderProfileAvatar,
+body.kyra-add-access-open .sapFShellBarProfile,
+body.kyra-add-access-open .sapFShellBarAdditionalContent {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .kyraRequestDetailsPageContainer {
