@@ -436,40 +436,45 @@ sap.ui.define([
                             const sRawRole = ent.roleName || ent.roleTitle || oRequest.roleName || "System Entitlement";
                             const sService = getCleanServiceTopic(ent) || getCleanServiceTopic(oRequest);
                             const sTeam = cleanRole(sRawRole);
-                            const sPersona = cleanPersonaName(ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "");
+                            const sRawPersona = ent.selectedPersona || ent.selected_persona || ent.persona || oRequest.selectedPersona || oRequest.persona || "";
                             const sSys = ent.system || oRequest.system || "SAP System";
 
-                            const sEntUniqueKey = `${sItemReqId}:::${sSys}:::${sTeam}:::${sPersona}`;
-                            if (seenEntKeys.has(sEntUniqueKey)) return;
-                            seenEntKeys.add(sEntUniqueKey);
+                            const aSubPersonas = sRawPersona.includes(",") ? sRawPersona.split(",").map(p => p.trim()).filter(Boolean) : [sRawPersona];
+                            aSubPersonas.forEach((subP, subIdx) => {
+                                const sPersona = cleanPersonaName(subP);
+                                const sSubId = aSubPersonas.length > 1 ? `${getBaseReqId(sItemReqId)}-${String(subIdx + 1).padStart(2, "0")}` : sItemReqId;
+                                const sEntUniqueKey = `${sSubId}:::${sSys}:::${sTeam}:::${sPersona}`;
+                                if (seenEntKeys.has(sEntUniqueKey)) return;
+                                seenEntKeys.add(sEntUniqueKey);
 
-                            const sInitStatus = (ent.status === "Approved" || ent.status === "Rejected") ? ent.status : "Pending";
-                            const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
-                            const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
+                                const sInitStatus = (ent.status === "Approved" || ent.status === "Rejected") ? ent.status : "Pending";
+                                const sInitState = sInitStatus === "Approved" ? "Success" : (sInitStatus === "Rejected" ? "Error" : "Warning");
+                                const sInitIcon = sInitStatus === "Approved" ? "sap-icon://sys-enter-2" : (sInitStatus === "Rejected" ? "sap-icon://error" : "sap-icon://pending");
 
-                            let sApproverRemark = "";
-                            if (isCompliancePersona) {
-                                sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
-                            }
+                                let sApproverRemark = "";
+                                if (isCompliancePersona) {
+                                    sApproverRemark = ent.approverRemark || ent.approver_comment || ent.managerRemark || oRequest.approverRemark || oRequest.approver_comment || oRequest.managerRemark || oRequest.comments || "";
+                                }
 
-                            aEntList.push({
-                                requestId: sItemReqId,
-                                system: sSys,
-                                services: sService,
-                                serviceTopic: sService,
-                                service: sService,
-                                team: sTeam,
-                                teamName: sTeam,
-                                roleName: sTeam,
-                                selectedPersona: sPersona,
-                                persona: sPersona,
-                                grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
-                                expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
-                                status: sInitStatus,
-                                statusState: sInitState,
-                                statusIcon: sInitIcon,
-                                approverRemark: sApproverRemark,
-                                comment: ent.comment || ""
+                                aEntList.push({
+                                    requestId: sSubId,
+                                    system: sSys,
+                                    services: sService,
+                                    serviceTopic: sService,
+                                    service: sService,
+                                    team: sTeam,
+                                    teamName: sTeam,
+                                    roleName: sTeam,
+                                    selectedPersona: sPersona,
+                                    persona: sPersona,
+                                    grantedDate: ent.grantedDate || oRequest.submissionDate || new Date().toISOString().split("T")[0],
+                                    expiryDate: ent.expiryDate || oRequest.duration || "Permanent",
+                                    status: sInitStatus,
+                                    statusState: sInitState,
+                                    statusIcon: sInitIcon,
+                                    approverRemark: sApproverRemark,
+                                    comment: ent.comment || ""
+                                });
                             });
                         });
                     } else {
@@ -485,26 +490,31 @@ sap.ui.define([
                         const sRawRole = oRequest.roleName || oRequest.serviceAndRole || "System Role";
                         const sService = getCleanServiceTopic(oRequest);
                         const sTeam = cleanRole(sRawRole);
-                        const sPersona = cleanPersonaName(oRequest.selectedPersona || oRequest.persona || "");
+                        const sRawPersona = oRequest.selectedPersona || oRequest.persona || "";
+                        const aSubPersonas = sRawPersona.includes(",") ? sRawPersona.split(",").map(p => p.trim()).filter(Boolean) : [sRawPersona];
 
-                        aEntList.push({
-                            requestId: oRequest.requestId,
-                            system: oRequest.system || "SAP System",
-                            services: sService,
-                            serviceTopic: sService,
-                            service: sService,
-                            team: sTeam,
-                            teamName: sTeam,
-                            roleName: sTeam,
-                            selectedPersona: sPersona,
-                            persona: sPersona,
-                            grantedDate: oRequest.submissionDate || new Date().toISOString().split("T")[0],
-                            expiryDate: oRequest.duration || "Permanent",
-                            status: sInitStatus,
-                            statusState: sInitState,
-                            statusIcon: sInitIcon,
-                            approverRemark: sApproverRemark,
-                            comment: oRequest.comment || ""
+                        aSubPersonas.forEach((subP, subIdx) => {
+                            const sPersona = cleanPersonaName(subP);
+                            const sSubId = aSubPersonas.length > 1 ? `${getBaseReqId(oRequest.requestId)}-${String(subIdx + 1).padStart(2, "0")}` : oRequest.requestId;
+                            aEntList.push({
+                                requestId: sSubId,
+                                system: oRequest.system || "SAP System",
+                                services: sService,
+                                serviceTopic: sService,
+                                service: sService,
+                                team: sTeam,
+                                teamName: sTeam,
+                                roleName: sTeam,
+                                selectedPersona: sPersona,
+                                persona: sPersona,
+                                grantedDate: oRequest.submissionDate || new Date().toISOString().split("T")[0],
+                                expiryDate: oRequest.duration || "Permanent",
+                                status: sInitStatus,
+                                statusState: sInitState,
+                                statusIcon: sInitIcon,
+                                approverRemark: sApproverRemark,
+                                comment: oRequest.comment || ""
+                            });
                         });
                     }
 
@@ -1342,6 +1352,19 @@ sap.ui.define([
         async _evaluateThresholdAndRestrictedForRequest(oRequest, aEntList, oModel, liveData) {
             if (!oModel || !oRequest) return;
 
+            let aAllLive = (liveData && Array.isArray(liveData.value)) ? liveData.value : [];
+            if (!aAllLive || aAllLive.length === 0) {
+                try {
+                    const respLive = await fetch("/odata/v4/admin-portal/GovernanceHistory");
+                    if (respLive.ok) {
+                        const j = await respLive.json();
+                        aAllLive = (j && j.value) || [];
+                    }
+                } catch(e) {
+                    console.warn("Could not fetch GovernanceHistory for threshold:", e);
+                }
+            }
+
             const aItems = (aEntList && aEntList.length > 0) ? aEntList : [oRequest];
             const sRequesterUsername = (oRequest.requesterId || oRequest.requesterUsername || "").trim();
 
@@ -1360,6 +1383,30 @@ sap.ui.define([
                 str = str.replace(/\bpersona\b/gi, "").trim();
                 str = str.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
                 return str;
+            };
+
+            const isSameSysHelper = (a, b) => {
+                const getK = (it) => {
+                    const itSys = typeof it === "object" && it !== null ? (it.system || it.target_system || it.systemName || it.targetSystem || "") : String(it || "");
+                    const itReg = typeof it === "object" && it !== null ? (it.region || it.operating_region || it.operatingRegion || "") : "";
+                    const sS = itSys.toLowerCase();
+                    const sR = itReg.toLowerCase();
+                    let bS = "other";
+                    if (sS.includes("btp") || sS.includes("business technology platform")) bS = "btp";
+                    else if (sS.includes("s/4") || sS.includes("s4") || sS.includes("hana")) bS = "s4hana";
+                    else if (sS.includes("successfactors") || sS.includes("success factors")) bS = "successfactors";
+                    else if (sS.includes("ariba")) bS = "ariba";
+                    else if (sS.includes("iam") || sS.includes("active directory")) bS = "iam";
+                    else bS = sS.replace(/[^a-z0-9]/g, "");
+
+                    let reg = "";
+                    if (sS.includes("singapore") || sS.includes("ap21") || (sR.includes("singapore") || (sR.includes("asia") && !sR.includes("north america")))) reg = "singapore";
+                    else if (sS.includes("us east") || sS.includes("virginia") || sS.includes("us10") || (sR.includes("us east") || sR.includes("virginia") || (sR.includes("north america") && !sR.includes("asia")))) reg = "us";
+                    return reg ? `${bS}___${reg}` : bS;
+                };
+                const kA = getK(a);
+                const kB = getK(b);
+                return !!(kA && kB && kA === kB);
             };
 
             const aAllowedRestrictedPersonas = [
@@ -1402,7 +1449,6 @@ sap.ui.define([
                     }
                 }
 
-                // Match comprehensive admin, privileged, and governance roles
                 const aKeywords = ["admin", "lead", "architect", "security", "infra", "iam", "privileged", "privilege", "restricted", "specialist", "engineer", "controller", "operations", "governance"];
                 if (aKeywords.some(k => sTargetClean.includes(k))) return true;
 
@@ -1483,146 +1529,160 @@ sap.ui.define([
                 }
             });
 
-            // Safeguard: Ensure Restricted Records table always displays properly for requested roles
-            if (aRestrictedRecords.length === 0 && aItems && aItems.length > 0) {
-                aItems.forEach((item, idx) => {
-                    const sSys = item.system || item.target_system || item.systemName || "SAP BTP Cloud Platform";
-                    let sServices = item.services || item.serviceTopic || item.service || "System Administrator";
-                    let sTeam = cleanPersonaName(item.team || item.teamName || item.roleName || item.roleTitle || "Technical Specialist");
-                    const sPersona = item.persona || item.selectedPersona || "Privileged Access Persona";
-                    const sPersonaClean = cleanPersonaName(sPersona) || "Privileged Access Persona";
+            // Derive Duplicate Roles for this request (region-aware)
+            const aDuplicateRoles = [];
+            const seenDupKeys = new Set();
+            aItems.forEach(item => {
+                const sSys = item.system || item.target_system || item.systemName || "";
+                const sServices = item.services || item.serviceTopic || item.service || "System Administrator";
+                const sTeam = cleanPersonaName(item.team || item.teamName || item.roleName || item.roleTitle || "");
+                const sPersona = cleanPersonaName(item.persona || item.selectedPersona || "");
+                const sSecGrp = item.securityGroup || item.selectedSecurityGroups || "SEC-PRIVILEGED-ACCESS";
+                const sAdGrp = item.adGroupName || item.adGroup || "AD-KYRA-PRIVILEGED-GRP";
 
-                    let sSecGroup = item.securityGroup || item.selectedSecurityGroups || "SEC-PRIVILEGED-ACCESS";
-                    let sAdGroup = item.adGroupName || item.adGroup || "AD-KYRA-PRIVILEGED-GRP";
+                (aAllLive || []).forEach(rec => {
+                    const rUser = (rec.requester_username || rec.requesterUsername || "").toLowerCase();
+                    if (!sRequesterUsername || rUser !== sRequesterUsername.toLowerCase()) return;
 
-                    aRestrictedRecords.push({
-                        id: "RR-" + (idx + 1),
-                        system: sSys,
-                        systemName: sSys,
-                        services: sServices,
-                        serviceTopic: sServices,
-                        team: sTeam,
-                        teamName: sTeam,
-                        roleName: sTeam,
-                        roleTitle: sTeam,
-                        persona: sPersonaClean,
-                        selectedPersona: sPersonaClean,
-                        securityGroup: sSecGroup,
-                        selectedSecurityGroups: sSecGroup,
-                        adGroup: sAdGroup,
-                        restrictedLimit: (() => {
-                            const v = item.restrictedLimit != null ? item.restrictedLimit : (item.limit != null ? item.limit : 5);
-                            const num = parseInt(v, 10);
-                            if (!isNaN(num) && num >= 0 && num <= 10) {
-                                return String(num);
-                            }
-                            return "5";
-                        })()
-                    });
-                });
-            }
+                    const rReqNum = (rec.request_number || "").trim().toUpperCase();
+                    const sCurReqNum = (oRequest.requestId || "").trim().toUpperCase();
+                    const sCurBase = (typeof getBaseReqId === "function" ? getBaseReqId(sCurReqNum) : sCurReqNum).toUpperCase();
+                    if (rReqNum === sCurReqNum || (sCurBase && rReqNum.startsWith(sCurBase))) return;
 
-            oModel.setProperty("/restrictedRecords", aRestrictedRecords);
-            setTimeout(() => this._applyRestrictedLimitPickerStyles(), 100);
+                    if (!isSameSysHelper(rec, item)) return;
 
-            // Derive Threshold Limits
-            let aAllLive = (liveData && liveData.value) || [];
-            if (aAllLive.length === 0) {
-                try {
-                    const resp = await fetch("/odata/v4/admin-portal/GovernanceHistory");
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        if (data && data.value) {
-                            aAllLive = data.value;
-                        }
+                    const rRole = cleanPersonaName(rec.role_name || rec.roleName || rec.team || "");
+                    const rPers = cleanPersonaName(rec.selected_persona || rec.persona || "");
+
+                    const bMatch = (rPers && sPersona && rPers.toLowerCase() === sPersona.toLowerCase()) ||
+                                   (rRole && sTeam && rRole.toLowerCase() === sTeam.toLowerCase());
+                    if (!bMatch) return;
+
+                    const rStatus = (rec.status || rec.db_status || "").toUpperCase();
+                    const rType = (rec.access_type || rec.request_type || "").toUpperCase();
+                    const isRev = rType.includes("REV") || rStatus.includes("REVOKE");
+
+                    let existingStatus = "Already Active";
+                    let statusType = "existing";
+                    if (isRev) {
+                        existingStatus = "Revoke in Pending";
+                        statusType = "revoke_pending";
+                    } else if (rStatus.startsWith("PENDING")) {
+                        existingStatus = "Already in Pending";
+                        statusType = "pending";
                     }
-                } catch(e) {}
-            }
 
-            const isSameSys = (sysA, sysB) => {
-                if (!sysA || !sysB) return false;
-                const normA = String(sysA).toLowerCase().replace(/[^a-z0-9]/g, "");
-                const normB = String(sysB).toLowerCase().replace(/[^a-z0-9]/g, "");
-                return normA === normB || normA.includes(normB) || normB.includes(normA);
+                    const k = `${sSys}:::${sTeam}:::${sPersona}:::${existingStatus}`;
+                    if (!seenDupKeys.has(k)) {
+                        seenDupKeys.add(k);
+                        aDuplicateRoles.push({
+                            id: "DUP-" + (aDuplicateRoles.length + 1),
+                            system: sSys,
+                            systemName: sSys,
+                            services: sServices,
+                            serviceTopic: sServices,
+                            team: sTeam,
+                            teamName: sTeam,
+                            roleName: sTeam,
+                            roleTitle: sTeam,
+                            persona: sPersona,
+                            selectedPersona: sPersona,
+                            securityGroup: sSecGrp,
+                            selectedSecurityGroups: sSecGrp,
+                            adGroup: sAdGrp,
+                            adGroupName: sAdGrp,
+                            existingRoles: existingStatus.toLowerCase(),
+                            existingStatus: existingStatus,
+                            statusType: statusType
+                        });
+                    }
+                });
+            });
+
+            oModel.setProperty("/duplicateRoles", aDuplicateRoles);
+
+            // Evaluate Threshold Limits across:
+            // 1) Current request items
+            // 2) Requester's active approved accesses
+            // 3) Requester's other in-flight pending accesses
+            const aThresholdLimits = [];
+            const oSystemEntitlementSets = {};
+            const oSystemSectorMap = {};
+
+            const getThreshEntKey = (sys, role, persona) => {
+                const sSys = isSameSysHelper(sys, "btp") ? "btp" : String(sys || "").toLowerCase();
+                const sRole = cleanPersonaName(role).toLowerCase();
+                const sPers = cleanPersonaName(persona || role).toLowerCase();
+                return `${sSys}:::${sRole}:::${sPers}`;
             };
 
-            const targetSystems = new Set();
+            // 1. Current request items
             aItems.forEach(item => {
-                const s = item.system || item.target_system || item.systemName;
-                if (s) targetSystems.add(s);
+                const sSys = item.system || item.target_system || item.systemName || "SAP Business Technology Platform";
+                const sRole = item.team || item.teamName || item.roleName || item.roleTitle || "";
+                const sPersona = item.persona || item.selectedPersona || sRole;
+                if (!oSystemEntitlementSets[sSys]) oSystemEntitlementSets[sSys] = new Set();
+                if (!oSystemSectorMap[sSys]) {
+                    oSystemSectorMap[sSys] = item.businessSector || item.sector || oRequest.businessSector || oRequest.sector || "Human Capital Management (HCM)";
+                }
+                if (sPersona && sPersona.includes(",")) {
+                    sPersona.split(",").forEach(p => {
+                        const cleanP = cleanPersonaName(p);
+                        if (cleanP) oSystemEntitlementSets[sSys].add(getThreshEntKey(sSys, sRole, cleanP));
+                    });
+                } else {
+                    oSystemEntitlementSets[sSys].add(getThreshEntKey(sSys, sRole, sPersona));
+                }
             });
-            if (targetSystems.size === 0 && oRequest.system) {
-                targetSystems.add(oRequest.system);
-            }
 
-            const aThresholdLimits = [];
-            const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [
-                { systemName: "SAP BTP Cloud Platform", thresholdLimit: "5" },
-                { systemName: "SAP S/4HANA Enterprise", thresholdLimit: "8" },
-                { systemName: "KYRA Central Governance", thresholdLimit: "4" },
-                { systemName: "Active Directory / IAM", thresholdLimit: "5" },
-                { systemName: "SAP SuccessFactors", thresholdLimit: "8" },
-                { systemName: "SAP Ariba Supply Network", thresholdLimit: "5" }
-            ];
+            // 2. Requester's active & pending accesses in the database
+            const sReqUserClean = (sRequesterUsername || "").toLowerCase();
+            (aAllLive || []).forEach(rec => {
+                const rUser = (rec.requester_username || rec.requesterUsername || rec.requesterId || "").toLowerCase();
+                if (!sReqUserClean || rUser !== sReqUserClean) return;
+                const rStat = (rec.status || rec.db_status || "").toUpperCase();
+                const rType = (rec.access_type || rec.request_type || "").toUpperCase();
+                const isRev = rType.includes("REV") || rStat.includes("REVOKE") || rStat === "REJECTED";
+                if (isRev) return;
 
-            const sSector = oRequest.businessSector || oRequest.sector || "Global Supply Chain & Logistics";
+                const sSys = rec.target_system || rec.system || "";
+                const sRole = rec.role_name || rec.roleName || rec.team || "";
+                const sPersona = rec.selected_persona || rec.persona || sRole;
 
-            targetSystems.forEach(sSys => {
-                const oSysCfg = aAdminSystems.find(s => isSameSys(s.systemName, sSys));
+                Object.keys(oSystemEntitlementSets).forEach(reqSys => {
+                    if (isSameSysHelper(sSys, reqSys)) {
+                        if (sPersona && sPersona.includes(",")) {
+                            sPersona.split(",").forEach(p => {
+                                const cleanP = cleanPersonaName(p);
+                                if (cleanP) oSystemEntitlementSets[reqSys].add(getThreshEntKey(reqSys, sRole, cleanP));
+                            });
+                        } else {
+                            oSystemEntitlementSets[reqSys].add(getThreshEntKey(reqSys, sRole, sPersona));
+                        }
+                    }
+                });
+            });
+
+            // 3. Compare count against configured limit in adminSystemsAll
+            const aAdminSystems = oModel.getProperty("/adminSystemsAll") || oModel.getProperty("/adminSystems") || [];
+
+            Object.keys(oSystemEntitlementSets).forEach(sSys => {
+                const iCount = oSystemEntitlementSets[sSys].size;
+                const oSysCfg = aAdminSystems.find(s => s && isSameSysHelper(s.systemName || s.system_name, sSys));
                 let iSysLimit = 5;
                 if (oSysCfg && oSysCfg.thresholdLimit) {
-                    const parsedLimit = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
-                    if (!isNaN(parsedLimit) && parsedLimit > 0) {
-                        iSysLimit = parsedLimit;
-                    }
+                    const parsed = parseInt(String(oSysCfg.thresholdLimit).replace(/[^0-9]/g, ""), 10);
+                    if (!isNaN(parsed) && parsed > 0) iSysLimit = parsed;
                 }
 
-                const uniqueEntitlements = new Set();
-
-                aAllLive.forEach(rec => {
-                    const rUser = (rec.requester_username || "").toLowerCase();
-                    if (sRequesterUsername && rUser === sRequesterUsername.toLowerCase()) {
-                        const recSys = rec.system || rec.target_system || "";
-                        if (isSameSys(recSys, sSys)) {
-                            const recStatus = (rec.status || rec.db_status || "").toUpperCase();
-                            const recType = (rec.access_type || rec.request_type || "").toUpperCase();
-                            if (!recType.includes("REV") || recStatus === "APPROVED" || recStatus === "ACTIVE" || recStatus.startsWith("PENDING")) {
-                                const k = rec.request_number || `${recSys}:::${rec.role_name}:::${rec.selected_persona || rec.persona || rec.id}`;
-                                uniqueEntitlements.add(k);
-                            }
-                        }
-                    }
-                });
-
-                aItems.forEach(item => {
-                    const itemSys = item.system || item.target_system || item.systemName || "";
-                    if (isSameSys(itemSys, sSys)) {
-                        const k = item.requestId || `${itemSys}:::${item.team || item.roleName}:::${item.selectedPersona || item.persona}`;
-                        uniqueEntitlements.add(k);
-                    }
-                });
-
-                if (uniqueEntitlements.size === 0) {
-                    const aMemAccess = (oModel.getProperty("/userAccessList") || oModel.getProperty("/activeRoles") || []);
-                    aMemAccess.forEach(acc => {
-                        const accSys = acc.system || acc.target_system || "";
-                        if (isSameSys(accSys, sSys)) {
-                            const k = acc.id || `${accSys}:::${acc.roleName || acc.team}:::${acc.persona || acc.selectedPersona}`;
-                            uniqueEntitlements.add(k);
-                        }
-                    });
-                }
-
-                const iTotalCount = uniqueEntitlements.size;
-
-                if (iTotalCount > iSysLimit) {
-                    const iPct = Math.round((iTotalCount / iSysLimit) * 100);
+                if (iCount > iSysLimit) {
+                    const iPct = Math.round((iCount / iSysLimit) * 100);
                     aThresholdLimits.push({
                         system: sSys,
-                        sector: sSector,
+                        sector: oSystemSectorMap[sSys] || oRequest.businessSector || oRequest.sector || "Human Capital Management (HCM)",
                         thresholdLimit: String(iSysLimit),
-                        actualCount: iTotalCount,
-                        limit: `${iTotalCount}/${iSysLimit}`,
+                        actualCount: iCount,
+                        limit: `${iCount}/${iSysLimit}`,
                         excessivePercentage: `${iPct}%`,
                         status: "Excessive",
                         state: "Warning",
@@ -1632,6 +1692,8 @@ sap.ui.define([
             });
 
             oModel.setProperty("/thresholdLimits", aThresholdLimits);
+            oModel.setProperty("/thresholdLimitsCount", aThresholdLimits ? aThresholdLimits.length : 0);
+            oModel.setProperty("/hasThresholdLimits", aThresholdLimits && aThresholdLimits.length > 0);
         },
 
         onSelectApproverSodExisting() {

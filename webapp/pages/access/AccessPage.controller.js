@@ -3835,7 +3835,26 @@ sap.ui.define([
                     return;
                 }
                 if (data && data.value) {
-                    const rawList = Array.isArray(data.value) ? data.value : [];
+                    const rawListInput = Array.isArray(data.value) ? data.value : [];
+                    const rawList = [];
+                    rawListInput.forEach(r => {
+                        const sPersona = r.selected_persona || r.persona || "";
+                        if (sPersona.includes(",")) {
+                            const parts = sPersona.split(",").map(p => p.trim()).filter(Boolean);
+                            const baseNum = typeof getBaseReqId === "function" ? getBaseReqId(r.request_number || r.requestId || "") : "";
+                            parts.forEach((p, idx) => {
+                                const newNum = (parts.length > 1 && baseNum) ? `${baseNum}-${String(idx + 1).padStart(2, "0")}` : (r.request_number || r.requestId);
+                                rawList.push(Object.assign({}, r, {
+                                    request_number: newNum,
+                                    requestId: newNum,
+                                    selected_persona: p,
+                                    persona: p
+                                }));
+                            });
+                        } else {
+                            rawList.push(r);
+                        }
+                    });
                     const seenRawReqs = new Set();
                     aRawDbRequests = rawList.filter(r => {
                         const sNum = (r.request_number || r.requestId || ("REQ-" + r.ID) || "").trim();
@@ -4152,7 +4171,8 @@ sap.ui.define([
 
                 const bIsUserMatch = !!(r.requester_username && sActiveUser && r.requester_username.toLowerCase() === sActiveUser.toLowerCase());
                 if (bIsUserMatch) {
-                    const sRoleOnlyKey = (r.target_system || "").trim().toLowerCase() + ":::" + sCleanItemRole.trim().toLowerCase();
+                    const sCleanItemPersonaKey = (sCleanItemPersona || "").trim().toLowerCase();
+                    const sRoleOnlyKey = (r.target_system || "").trim().toLowerCase() + ":::" + sCleanItemRole.trim().toLowerCase() + (sCleanItemPersonaKey ? ":::" + sCleanItemPersonaKey : "");
                     const sKey = sRoleOnlyKey;
 
                     if (isExpiredReq) {
@@ -4388,7 +4408,8 @@ sap.ui.define([
                         if (!r) return;
                         const matchSys = (r.target_system || "") === inflight.system;
                         const matchRole = cleanRoleStr(r.role_name) === inflight.roleName;
-                        if (matchSys && matchRole) {
+                        const matchPersona = !inflight.persona || cleanPersonaStr(r.selected_persona || r.persona) === cleanPersonaStr(inflight.persona);
+                        if (matchSys && matchRole && matchPersona) {
                             if (state.status !== 'REVOKED' && state.status !== 'ACTIVE') {
                                 state.status = 'REVOKE_PENDING';
                             }
@@ -4396,7 +4417,7 @@ sap.ui.define([
                         }
                     });
 
-                    const alreadyPending = aMyPending.some(p => p.system === inflight.system && cleanRoleStr(p.roleName) === inflight.roleName);
+                    const alreadyPending = aMyPending.some(p => p.system === inflight.system && cleanRoleStr(p.roleName) === inflight.roleName && (!inflight.persona || cleanPersonaStr(p.persona || p.selectedPersona) === cleanPersonaStr(inflight.persona)));
                     if (!alreadyPending && bMatchedState) {
                         const oInflightReqObj = {
                             requestId: inflight.requestId,
@@ -9201,6 +9222,14 @@ sap.ui.define([
             });
 
             // 2. Add Active and Pending unique entitlements for each target system being requested
+            const sActiveUser = (oModel.getProperty("/activeUser") || sessionStorage.getItem("kyra_active_user") || "").trim().toLowerCase();
+            let aCachedLive = this._cachedDbRequests || [];
+            if (!aCachedLive || aCachedLive.length === 0) {
+                try {
+                    aCachedLive = JSON.parse(sessionStorage.getItem("kyra_cached_gov_requests") || "[]");
+                } catch(e) {}
+            }
+
             Object.keys(oSystemUniqueSets).forEach(sSys => {
                 const uniqueSet = oSystemUniqueSets[sSys];
 
@@ -9210,7 +9239,11 @@ sap.ui.define([
                     if (isSameSys(sysAcc, sSys)) {
                         const sRole = acc.roleName || acc.role_name || acc.roleTitle || acc.team || "";
                         const sPers = acc.persona || acc.selected_persona || sRole;
-                        uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                        if (sPers && sPers.includes(",")) {
+                            sPers.split(",").forEach(p => uniqueSet.add(getEntitlementKey(sSys, sRole, p.trim())));
+                        } else {
+                            uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                        }
                     }
                 });
 
@@ -9222,7 +9255,11 @@ sap.ui.define([
                             if (isSameSys(sysE, sSys)) {
                                 const sRole = e.roleName || e.role_name || e.roleTitle || e.team || "";
                                 const sPers = e.persona || e.selected_persona || e.selectedPersona || sRole;
-                                uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                                if (sPers && sPers.includes(",")) {
+                                    sPers.split(",").forEach(subP => uniqueSet.add(getEntitlementKey(sSys, sRole, subP.trim())));
+                                } else {
+                                    uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                                }
                             }
                         });
                     } else {
@@ -9230,6 +9267,30 @@ sap.ui.define([
                         if (isSameSys(sysP, sSys)) {
                             const sRole = p.roleName || p.role_name || p.roleTitle || p.team || "";
                             const sPers = p.persona || p.selected_persona || p.selectedPersona || sRole;
+                            if (sPers && sPers.includes(",")) {
+                                sPers.split(",").forEach(subP => uniqueSet.add(getEntitlementKey(sSys, sRole, subP.trim())));
+                            } else {
+                                uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
+                            }
+                        }
+                    }
+                });
+
+                // Scan live cached database requests for this active user
+                (aCachedLive || []).forEach(r => {
+                    const rUser = (r.requester_username || r.requesterUsername || "").trim().toLowerCase();
+                    if (sActiveUser && rUser && rUser !== sActiveUser) return;
+                    const rStat = (r.status || r.db_status || "").toUpperCase();
+                    const rType = (r.access_type || r.request_type || "").toUpperCase();
+                    if (rType.includes("REV") || rStat.includes("REVOKE") || rStat === "REJECTED") return;
+
+                    const sysR = r.target_system || r.system || "";
+                    if (isSameSys(sysR, sSys)) {
+                        const sRole = r.role_name || r.roleName || r.team || "";
+                        const sPers = r.selected_persona || r.persona || sRole;
+                        if (sPers && sPers.includes(",")) {
+                            sPers.split(",").forEach(subP => uniqueSet.add(getEntitlementKey(sSys, sRole, subP.trim())));
+                        } else {
                             uniqueSet.add(getEntitlementKey(sSys, sRole, sPers));
                         }
                     }

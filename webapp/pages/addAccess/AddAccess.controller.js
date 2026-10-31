@@ -1216,13 +1216,9 @@ sap.ui.define([
                         }
                     }
 
-                    // Deduplicate by target system + role name to ensure 1-to-1 matching with active entitlements
-                    const sRoleSysKey = (sSys || "").trim().toLowerCase() + ":::" + (sRole || "").trim().toLowerCase();
+                    // Each persona must be its own independent row in the summary table and requests list
+                    const sRoleSysKey = (sSys || "").trim().toLowerCase() + ":::" + (sRole || "").trim().toLowerCase() + ":::" + (sPersonaKey || "").trim().toLowerCase();
                     if (seenRoleSystemKeys.has(sRoleSysKey)) {
-                        const existing = seenRoleSystemKeys.get(sRoleSysKey);
-                        if (existing && sPersonaKey && !existing.persona.includes(sPersonaKey)) {
-                            existing.persona = existing.persona + ", " + sPersonaKey;
-                        }
                         return;
                     }
 
