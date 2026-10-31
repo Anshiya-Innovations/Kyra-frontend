@@ -464,6 +464,7 @@ sap.ui.define([
                 activeRoles: [],
                 userAccessList: [],
                 displayedUserAccessList: [],
+                showAllActiveEntitlements: true,
 
                 // 2. Add Access Form State
                 newRequest: {
@@ -4623,9 +4624,7 @@ sap.ui.define([
             this._setSmartProperty(oModel, "/requestHistory", aDisplayedHistory);
             this._setSmartProperty(oModel, "/myHistoryRequests", aDisplayedHistory);
             this._setSmartProperty(oModel, "/userAccessList", aUniqueUserAccessList);
-            const aInitialDisplayedAccess = (!oModel.getProperty("/showAllActiveEntitlements") && aUniqueUserAccessList.length > 5)
-                ? aUniqueUserAccessList.slice(0, 5)
-                : aUniqueUserAccessList;
+            const aInitialDisplayedAccess = aUniqueUserAccessList;
             this._setSmartProperty(oModel, "/displayedUserAccessList", aInitialDisplayedAccess);
             this._setSmartProperty(oModel, "/activeRoles", aActiveRolesList);
 
@@ -11658,8 +11657,6 @@ sap.ui.define([
                     const sStat = (item.status || "").toLowerCase();
                     return sSys.includes(sQuery) || sServ.includes(sQuery) || sRole.includes(sQuery) || sPers.includes(sQuery) || sStat.includes(sQuery);
                 });
-            } else if (!bShowAll) {
-                aList = aAll.slice(0, 5);
             }
 
             this._setSmartProperty(oModel, "/displayedUserAccessList", aList);

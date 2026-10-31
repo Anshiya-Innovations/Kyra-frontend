@@ -30562,6 +30562,65 @@ th .sapMText,
    KYRA ACTIVE ENTITLEMENTS TABLE: CLEAN, OPEN, BORDERLESS MODERN DESIGN
    ========================================================================= */
 
+/* Scrollable Container with custom modern vertical scrollbar for Active Entitlements */
+.kyraActiveEntitlementsScrollContainer,
+.kyraActiveEntitlementsScrollContainer.sapMScrollCont {
+    max-height: 335px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin !important;
+    scrollbar-color: #94A3B8 #F1F5F9 !important;
+}
+
+.kyraActiveEntitlementsScrollContainer::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+
+.kyraActiveEntitlementsScrollContainer::-webkit-scrollbar-track {
+    background: #F1F5F9 !important;
+    border-radius: 9999px !important;
+    margin: 4px 0 !important;
+}
+
+.kyraActiveEntitlementsScrollContainer::-webkit-scrollbar-thumb {
+    background: #94A3B8 !important;
+    border-radius: 9999px !important;
+}
+
+.kyraActiveEntitlementsScrollContainer::-webkit-scrollbar-thumb:hover {
+    background: #64748B !important;
+}
+
+/* Remove outer border and shadow on table when inside scroll container */
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMListTbl,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMTable {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Sticky table header so columns stay visible when scrolling entitlements */
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable thead,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable .sapMListTblHeader,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable th,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable .sapMListTblHeaderCell {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+}
+
 /* 1. Outer Container: Subtle rounded boundary, no internal grid lines */
 .kyraActiveEntitlementsTable,
 .kyraActiveEntitlementsTable.sapMListTbl,

@@ -4255,7 +4255,7 @@
                             <VBox class="kyraCardHeaderTextCol">
                                 <Title text="{= 'Active Entitlements (' + (${accessModel>/userAccessList} ? ${accessModel>/userAccessList}.length : 0) + ')' }" level="H4" class="fioriCardHeaderTitle" />
                                 
-                                <Text text="{= ${accessModel>/showAllActiveEntitlements} ? 'All active entitlements and granted role assignments.' : 'First 5 active entitlements and granted role assignments.' }" class="fioriDescriptionText" />
+                                <Text text="All active entitlements and granted role assignments." class="fioriDescriptionText" />
                             </VBox>
                         </HBox>
                         <HBox alignItems="Center" class="kyraEntitlementsSearchGroup">
@@ -4275,13 +4275,20 @@
                         </HBox>
                     </HBox>
 
+                                        <ScrollContainer
+                        height="335px"
+                        vertical="true"
+                        horizontal="false"
+                        focusable="false"
+                        class="kyraActiveEntitlementsScrollContainer"
+                        visible="{= !!${accessModel>/displayedUserAccessList} &amp;&amp; ${accessModel>/displayedUserAccessList}.length &gt; 0 }">
                     <Table
+                        sticky="ColumnHeaders"
                         id="myAccessTable"
                         fixedLayout="true"
                         items="{accessModel>/displayedUserAccessList}"
                         itemPress=".onViewAccessDetails"
                         noDataText="No Data"
-                        visible="{= !!${accessModel>/displayedUserAccessList} &amp;&amp; ${accessModel>/displayedUserAccessList}.length &gt; 0 }"
                         class="sapUiNoMargin kyraActiveEntitlementsTable">
                         <noData>
                             <VBox class="kyraTableEmptyBox" width="100%" alignItems="Center" justifyContent="Center">
@@ -4324,6 +4331,7 @@
                             </ColumnListItem>
                         </items>
                     </Table>
+                    </ScrollContainer>
 
                     <!-- EMPTY STATE WHEN NO DATA (MATCHING IMAGE 2 DESIGN) -->
                     <VBox class="kyraValEmptyStateBox" alignItems="Center" justifyContent="Center" visible="{= !${accessModel>/displayedUserAccessList} || ${accessModel>/displayedUserAccessList}.length === 0 }">
