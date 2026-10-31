@@ -1349,9 +1349,7 @@ sap.ui.define([
             const fnOrigSetProperty = oModel.setProperty.bind(oModel);
             oModel.setProperty = function(sPath, oValue, oContext, bAsyncUpdate) {
                 const res = fnOrigSetProperty(sPath, oValue, oContext, bAsyncUpdate);
-                if (sPath === "/showAddAccessSector" || sPath === "showAddAccessSector") {
-                    document.body.classList.toggle("kyra-add-access-open", !!oValue);
-                }
+                // showAddAccessSector toggle
                 return res;
             };
 
@@ -6809,7 +6807,7 @@ sap.ui.define([
             const bAdd = !!oModel.getProperty("/showAddAccessSector");
             const bRemove = !!oModel.getProperty("/showRemoveAccessSector");
 
-            document.body.classList.toggle("kyra-add-access-open", bAdd);
+            // document.body.classList.toggle("kyra-add-access-open", bAdd);
 
             const oArrowPending = this.byId("arrowPendingRequests");
             if (oArrowPending) {
