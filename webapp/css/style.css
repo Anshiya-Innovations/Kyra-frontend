@@ -22376,9 +22376,9 @@ html body .sapUiTheme-sap_horizon .sapMMultiComboBoxPicker {
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
 
-.kyraActiveEntitlementsTable,
-.kyraActiveEntitlementsTable.sapMListTbl,
-.kyraActiveEntitlementsTable.sapMTable {
+.kyraActiveEntitlementsTable:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMListTbl:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMTable:not(.kyraActiveEntitlementsScrollContainer *) {
     table-layout: fixed !important;
     width: 100% !important;
     min-width: 0 !important;
@@ -30600,31 +30600,96 @@ th .sapMText,
     background: #64748B !important;
 }
 
-/* Remove outer border and shadow on table when inside scroll container */
-.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable,
-.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMListTbl,
-.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMTable {
+/* Ensure inner scroll area has no padding/margin/borders */
+.kyraActiveEntitlementsScrollContainer .sapMScrollContScroll,
+.kyraActiveEntitlementsScrollContainer.sapMScrollCont > .sapMScrollContScroll {
+    margin: 0 !important;
+    padding: 0 !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* FULLY REMOVE inner table box and margins inside scroll container - ONLY the outer scroll container displays as the box */
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMListTbl,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMTable,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMList,
+.kyraActiveEntitlementsScrollContainer #myAccessTable,
+.kyraActiveEntitlementsScrollContainer #myAccessTable.sapMListTbl,
+.kyraActiveEntitlementsScrollContainer #myAccessTable.sapMTable,
+.kyraActiveEntitlementsScrollContainer #myAccessTable.sapMList,
+.kyraActiveEntitlementsScrollContainer .sapMList,
+.kyraActiveEntitlementsScrollContainer .sapMTable,
+.kyraActiveEntitlementsScrollContainer .sapMListTbl,
+.kyraActiveEntitlementsScrollContainer .sapMListUl,
+.kyraActiveEntitlementsScrollContainer .sapMListTblCntWrp,
+.kyraActiveEntitlementsScrollContainer .sapMListTblCnt,
+.kyraActiveEntitlementsScrollContainer .sapMTableCnt,
+.kyraActiveEntitlementsScrollContainer #myAccessTable .sapMListTblCnt,
+.kyraActiveEntitlementsScrollContainer #myAccessTable .sapMListTblCntWrp,
+.kyraActiveEntitlementsScrollContainer table {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    overflow: visible !important;
 }
 
 /* Sticky table header so columns stay visible when scrolling entitlements */
+.kyraActiveEntitlementsScrollContainer thead,
+.kyraActiveEntitlementsScrollContainer thead.sapMTableTHead,
+.kyraActiveEntitlementsScrollContainer thead.sapMListTblHeader,
+.kyraActiveEntitlementsScrollContainer tr.sapMListTblHeader,
 .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable thead,
-.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable .sapMListTblHeader,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable .sapMListTblHeader {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 25 !important;
+    background: #F8FAFC !important;
+    background-color: #F8FAFC !important;
+    border: none !important;
+}
+
+.kyraActiveEntitlementsScrollContainer th,
+.kyraActiveEntitlementsScrollContainer th.sapMListTblHeaderCell,
 .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable th,
 .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable .sapMListTblHeaderCell {
     position: sticky !important;
     top: 0 !important;
-    z-index: 20 !important;
+    z-index: 30 !important;
     background: #F8FAFC !important;
     background-color: #F8FAFC !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1.5px solid #CBD5E1 !important;
+    box-sizing: border-box !important;
 }
 
-/* 1. Outer Container: Subtle rounded boundary, no internal grid lines */
-.kyraActiveEntitlementsTable,
-.kyraActiveEntitlementsTable.sapMListTbl,
-.kyraActiveEntitlementsTable.sapMTable {
+.kyraActiveEntitlementsScrollContainer th:first-child,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable th:first-child {
+    border-top-left-radius: 11px !important;
+}
+
+.kyraActiveEntitlementsScrollContainer th:last-child,
+.kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable th:last-child {
+    border-top-right-radius: 11px !important;
+}
+
+/* 1. Outer Container: Subtle rounded boundary, only for standalone tables (NOT inside scroll container) */
+.kyraActiveEntitlementsTable:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMListTbl:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMTable:not(.kyraActiveEntitlementsScrollContainer *) {
     table-layout: fixed !important;
     width: 100% !important;
     border-collapse: separate !important;
@@ -31050,10 +31115,10 @@ td.sapMListNoDataCell {
 /* =========================================================================
    ACTIVE ENTITLEMENTS TABLE: VISIBLE ROW DIVIDER LINES (REFERENCE STYLE)
    ========================================================================= */
-/* Outer table border */
-.kyraActiveEntitlementsTable,
-.kyraActiveEntitlementsTable.sapMListTbl,
-.kyraActiveEntitlementsTable.sapMTable {
+/* Outer table border for standalone tables only */
+.kyraActiveEntitlementsTable:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMListTbl:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMTable:not(.kyraActiveEntitlementsScrollContainer *) {
     border: 1px solid #E2E8F0 !important;
     border-radius: 8px !important;
     overflow: hidden !important;
@@ -31111,9 +31176,9 @@ td.sapMListNoDataCell {
 .kyraApproverTable,
 .kyraApproverTable.sapMListTbl,
 .kyraApproverTable.sapMTable,
-.kyraActiveEntitlementsTable,
-.kyraActiveEntitlementsTable.sapMListTbl,
-.kyraActiveEntitlementsTable.sapMTable {
+.kyraActiveEntitlementsTable:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMListTbl:not(.kyraActiveEntitlementsScrollContainer *),
+.kyraActiveEntitlementsTable.sapMTable:not(.kyraActiveEntitlementsScrollContainer *) {
     table-layout: fixed !important;
     width: 100% !important;
     min-width: 1080px !important;
@@ -50033,7 +50098,7 @@ select option:hover,
 .fioriTableCard .sapMList,
 .sapMListTbl.kyraAdminCleanTable,
 .sapMListTbl.kyraDeptUsersTable,
-.sapMListTbl.kyraActiveEntitlementsTable,
+.sapMListTbl.kyraActiveEntitlementsTable:not(.kyraActiveEntitlementsScrollContainer *),
 .sapMListTbl.kyraApproverTable,
 .sapMListTbl.kyraHistoryTable,
 .sapMListTbl.kyraPendingRequestsTable {
@@ -67399,4 +67464,39 @@ html body .sapUiTheme-sap_horizon .kyraSapEditBtn:hover .sapMBtnInner {
 .kyraSapEditBtn .sapMFocus::after {
     outline: none !important;
     box-shadow: none !important;
+}
+
+
+/* =========================================================================
+   KYRA ACTIVE ENTITLEMENTS: SINGLE BOX FINAL AUTHORITATIVE OVERRIDE
+   Ensures ONLY the outer .kyraActiveEntitlementsScrollContainer box is shown.
+   Inner table has zero borders, zero border-radius, zero box-shadow, zero margin.
+   ========================================================================= */
+html body .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable,
+html body .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMListTbl,
+html body .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMTable,
+html body .kyraActiveEntitlementsScrollContainer .kyraActiveEntitlementsTable.sapMList,
+html body .kyraActiveEntitlementsScrollContainer #myAccessTable,
+html body .kyraActiveEntitlementsScrollContainer #myAccessTable.sapMListTbl,
+html body .kyraActiveEntitlementsScrollContainer #myAccessTable.sapMTable,
+html body .kyraActiveEntitlementsScrollContainer #myAccessTable.sapMList,
+html body .kyraActiveEntitlementsScrollContainer .sapMScrollContScroll,
+html body .kyraActiveEntitlementsScrollContainer .sapMList,
+html body .kyraActiveEntitlementsScrollContainer .sapMTable,
+html body .kyraActiveEntitlementsScrollContainer .sapMListTbl,
+html body .kyraActiveEntitlementsScrollContainer .sapMListUl,
+html body .kyraActiveEntitlementsScrollContainer .sapMListTblCntWrp,
+html body .kyraActiveEntitlementsScrollContainer .sapMListTblCnt,
+html body .kyraActiveEntitlementsScrollContainer .sapMTableCnt,
+html body .kyraActiveEntitlementsScrollContainer #myAccessTable .sapMListTblCnt,
+html body .kyraActiveEntitlementsScrollContainer #myAccessTable .sapMListTblCntWrp,
+html body .kyraActiveEntitlementsScrollContainer table {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
