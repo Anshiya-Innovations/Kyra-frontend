@@ -1365,31 +1365,50 @@ sap.ui.define([
                 });
             });
 
-            if (aActiveConflicts.length === 0) {
+            if (aActiveConflicts.length === 0 && aBatchConflicts.length === 0 && aPendingConflicts.length === 0) {
                 const confItem = (aEntList && aEntList.find(e => e.conflictingRole || e.conflicting_role)) || (aItemsToCheck && aItemsToCheck.find(e => e.conflictingRole || e.conflicting_role));
-                const sConfRole = (confItem && (confItem.conflictingRole || confItem.conflicting_role)) || oRequest.conflictingRole || oRequest.conflicting_role;
+                let sConfRole = (confItem && (confItem.conflictingRole || confItem.conflicting_role)) || oRequest.conflictingRole || oRequest.conflicting_role || "";
                 if (sConfRole) {
                     const item0 = confItem || aItemsToCheck[0] || oRequest;
                     const sys = item0.system || item0.target_system || item0.systemName || "SAP System";
                     const newRoleName = cleanPersonaName(item0.roleName || item0.role_name || item0.team || item0.teamName || "Requested Role");
                     const newPersName = cleanPersonaName(item0.selectedPersona || item0.persona || newRoleName);
-                    aActiveConflicts.push({
-                        system: sys,
-                        roleA: `${sys} — ${sConfRole}`,
-                        personaA: sConfRole,
-                        roleB: `${sys} — ${newRoleName}`,
-                        personaB: newPersName,
-                        existingRole: `${sys} — ${sConfRole}`,
-                        existingPersona: sConfRole,
-                        newRole: `${sys} — ${newRoleName}`,
-                        newPersona: newPersName,
-                        conflictTitle: "Segregation of Duties (SoD) Conflict",
-                        conflictDesc: "Segregation of Duties conflict detected with active role " + sConfRole + ".",
-                        requestedRequestId: item0.requestId || item0.request_number || "",
-                        requestedRoleName: newRoleName,
-                        requestedPersona: newPersName,
-                        requestedSystem: sys
-                    });
+
+                    // If sConfRole is the placeholder "SoD Conflict", resolve the actual conflicting persona/role from SoD rules
+                    if (sConfRole.toLowerCase() === "sod conflict") {
+                        const matchingRule = aSodRules.find(r => {
+                            const t1 = (r.role1 || r.role_a || r.roleA || "").toLowerCase();
+                            const t2 = (r.role2 || r.role_b || r.roleB || "").toLowerCase();
+                            const np = newPersName.toLowerCase();
+                            const nr = newRoleName.toLowerCase();
+                            return t1.includes(np) || t2.includes(np) || t1.includes(nr) || t2.includes(nr);
+                        });
+                        if (matchingRule) {
+                            const t1 = matchingRule.role1 || matchingRule.role_a || matchingRule.roleA || "";
+                            const t2 = matchingRule.role2 || matchingRule.role_b || matchingRule.roleB || "";
+                            sConfRole = (t1.toLowerCase().includes(newPersName.toLowerCase()) ? t2 : t1) || "";
+                        }
+                    }
+
+                    if (sConfRole && sConfRole.toLowerCase() !== "sod conflict") {
+                        aActiveConflicts.push({
+                            system: sys,
+                            roleA: `${sys} — ${sConfRole}`,
+                            personaA: sConfRole,
+                            roleB: `${sys} — ${newRoleName}`,
+                            personaB: newPersName,
+                            existingRole: `${sys} — ${sConfRole}`,
+                            existingPersona: sConfRole,
+                            newRole: `${sys} — ${newRoleName}`,
+                            newPersona: newPersName,
+                            conflictTitle: "Segregation of Duties (SoD) Conflict",
+                            conflictDesc: (confItem && (confItem.conflictReason || confItem.conflict_reason)) || oRequest.conflictReason || oRequest.conflict_reason || ("Segregation of Duties conflict detected with active role " + sConfRole + "."),
+                            requestedRequestId: item0.requestId || item0.request_number || "",
+                            requestedRoleName: newRoleName,
+                            requestedPersona: newPersName,
+                            requestedSystem: sys
+                        });
+                    }
                 }
             }
 
@@ -1607,11 +1626,40 @@ sap.ui.define([
 
                     if (!isSameSysHelper(rec, item)) return;
 
-                    const rRole = cleanPersonaName(rec.role_name || rec.roleName || rec.team || "");
-                    const rPers = cleanPersonaName(rec.selected_persona || rec.persona || "");
+                    const cleanToken = (s) => String(s || "")
+                        .replace(/\s*\([^)]*\)/g, "")
+                        .replace(/\s+persona\b/gi, "")
+                        .replace(/^sap\s+/gi, "")
+                        .replace(/administrator/gi, "admin")
+                        .replace(/[^a-zA-Z0-9]/g, "")
+                        .trim()
+                        .toLowerCase();
+                    const getTokens = (obj) => {
+                        const raw = obj.persona || obj.selected_persona || obj.selectedPersona || obj.roleName || obj.role_name || obj.team || "";
+                        if (!raw) return [];
+                        return String(raw).split(",").map(p => cleanToken(p)).filter(Boolean);
+                    };
 
-                    const bMatch = (rPers && sPersona && rPers.toLowerCase() === sPersona.toLowerCase()) ||
-                                   (rRole && sTeam && rRole.toLowerCase() === sTeam.toLowerCase());
+                    const rTokens = getTokens(rec);
+                    const sTokens = getTokens(item);
+                    let bMatch = false;
+
+                    for (const rt of rTokens) {
+                        for (const st of sTokens) {
+                            if (rt === st) { bMatch = true; break; }
+                            if (rt.length >= 5 && st.length >= 5 && (rt.includes(st) || st.includes(rt))) { bMatch = true; break; }
+                        }
+                        if (bMatch) break;
+                    }
+
+                    if (!bMatch) {
+                        const rRole = cleanToken(rec.role_name || rec.roleName || rec.team || "");
+                        const sRole = cleanToken(item.team || item.teamName || item.roleName || item.roleTitle || "");
+                        if (rRole && sRole && (rRole === sRole || rRole.includes(sRole) || sRole.includes(rRole))) {
+                            if (rTokens.length === 0 || sTokens.length === 0) bMatch = true;
+                        }
+                    }
+
                     if (!bMatch) return;
 
                     const rStatus = (rec.status || rec.db_status || "").toUpperCase();
@@ -2416,17 +2464,31 @@ sap.ui.define([
                     const c1Req = String(card.item1RequestId || "").trim().toUpperCase();
                     const c2Req = String(card.item2RequestId || "").trim().toUpperCase();
                     const rId = String(appr.requestId || appr.request_number || appr.id || "").trim().toUpperCase();
-                    const is1 = (c1Req && rId && c1Req === rId) || (card.item1RoleName && String(appr.roleName || appr.team || "").toLowerCase().includes(String(card.item1RoleName).toLowerCase()));
-                    const is2 = (c2Req && rId && c2Req === rId) || (card.item2RoleName && String(appr.roleName || appr.team || "").toLowerCase().includes(String(card.item2RoleName).toLowerCase()));
+                    const rRole = String(appr.roleName || appr.team || "").toLowerCase();
+                    const rPers = String(appr.selectedPersona || appr.persona || "").toLowerCase();
+
+                    const is1 = (c1Req && rId && c1Req === rId) || 
+                                (card.item1Persona && rPers.includes(String(card.item1Persona).toLowerCase())) ||
+                                (card.item1RoleName && rRole.includes(String(card.item1RoleName).toLowerCase()));
+                    const is2 = (c2Req && rId && c2Req === rId) || 
+                                (card.item2Persona && rPers.includes(String(card.item2Persona).toLowerCase())) ||
+                                (card.item2RoleName && rRole.includes(String(card.item2RoleName).toLowerCase()));
                     if (!is1 && !is2) return false;
+
                     // Check if other partner is in aApprovedList
                     const partnerIsApproved = aApprovedList.some(other => {
                         if (other === appr) return false;
                         const oId = String(other.requestId || other.request_number || other.id || "").trim().toUpperCase();
+                        const oRole = String(other.roleName || other.team || "").toLowerCase();
+                        const oPers = String(other.selectedPersona || other.persona || "").toLowerCase();
                         if (is1) {
-                            return (c2Req && oId && c2Req === oId) || (card.item2RoleName && String(other.roleName || other.team || "").toLowerCase().includes(String(card.item2RoleName).toLowerCase()));
+                            return (c2Req && oId && c2Req === oId) || 
+                                   (card.item2Persona && oPers.includes(String(card.item2Persona).toLowerCase())) ||
+                                   (card.item2RoleName && oRole.includes(String(card.item2RoleName).toLowerCase()));
                         } else {
-                            return (c1Req && oId && c1Req === oId) || (card.item1RoleName && String(other.roleName || other.team || "").toLowerCase().includes(String(card.item1RoleName).toLowerCase()));
+                            return (c1Req && oId && c1Req === oId) || 
+                                   (card.item1Persona && oPers.includes(String(card.item1Persona).toLowerCase())) ||
+                                   (card.item1RoleName && oRole.includes(String(card.item1RoleName).toLowerCase()));
                         }
                     });
                     return partnerIsApproved;

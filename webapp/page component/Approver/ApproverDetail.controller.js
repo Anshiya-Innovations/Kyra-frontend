@@ -100,6 +100,24 @@ sap.ui.define([
         return remainingDays + "/" + totalDays + " days left";
     }
 
+    function formatProperDateTime(dInput) {
+        if (!dInput) return "";
+        if (typeof dInput === "string" && /^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4},\s+\d{1,2}:\d{2}\s+(AM|PM)$/i.test(dInput.trim())) {
+            return dInput.trim();
+        }
+        try {
+            const d = (dInput instanceof Date) ? dInput : new Date(dInput);
+            if (isNaN(d.getTime())) return String(dInput);
+            if (typeof dInput === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dInput.trim())) {
+                return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            }
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + ", " +
+                   d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) {
+            return String(dInput);
+        }
+    }
+
     return Controller.extend("kyra001.pages.Approver.ApproverDetail", {
         onInit() {
             this._instanceId = "approver_detail_" + Date.now() + "_" + Math.random().toString(36).slice(2);
@@ -304,7 +322,14 @@ sap.ui.define([
             }
             window.scrollTo(0, 0);
 
-            // Review page loads instantly
+            const sArgReqId = (oEvent.getParameter("arguments") && oEvent.getParameter("arguments").requestId) || "";
+            if (window.KyraLoader && typeof window.KyraLoader.show === "function") {
+                window.KyraLoader.show({
+                    title: "Loading Request Details...",
+                    subtitle: sArgReqId ? `Retrieving request details and approval workflow for ${sArgReqId}...` : "Retrieving request details and approval workflow...",
+                    duration: 15000
+                });
+            }
 
             try {
                 const sReqId = oEvent.getParameter("arguments").requestId;
@@ -370,7 +395,7 @@ sap.ui.define([
                                 type: bIsRev ? "Revocation" : "Addition",
                                 requestType: bIsRev ? "Revocation" : "Addition",
                                 accessType: bIsRev ? "REVOCATION" : "ADDITION",
-                                submissionDate: first.created_at ? first.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                submissionDate: formatProperDateTime(first.created_at || first.createdAtRaw),
                                 duration: first.access_duration || "",
                                 sector: first.business_sector || "",
                                 businessSector: first.business_sector || "",
@@ -391,7 +416,7 @@ sap.ui.define([
                                     team: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     serviceTopic: deriveServiceTopicFromRole(m.role_name, m.service_topic || m.service),
                                     selectedPersona: cleanPersonaName(m.selected_persona || ""),
-                                    grantedDate: m.created_at ? m.created_at.split("T")[0] : new Date().toISOString().split("T")[0],
+                                    grantedDate: formatProperDateTime(m.created_at || m.createdAtRaw),
                                     expiryDate: m.access_duration || "Permanent",
                                     status: "Pending",
                                     statusState: "Warning",
@@ -552,7 +577,7 @@ sap.ui.define([
                                     if (firstMatchingDbRec.created_at) {
                                         oRequest.created_at = firstMatchingDbRec.created_at;
                                         oRequest.createdAtRaw = firstMatchingDbRec.created_at;
-                                        oRequest.submissionDate = firstMatchingDbRec.created_at.split("T")[0];
+                                        oRequest.submissionDate = formatProperDateTime(firstMatchingDbRec.created_at);
                                     }
                                     if (firstMatchingDbRec.has_conflict !== undefined) {
                                         oRequest.hasConflict = firstMatchingDbRec.has_conflict === true;
@@ -723,7 +748,7 @@ sap.ui.define([
                         businessFunction: sFinalFunction,
                         duration: sFinalDuration,
                         accessDuration: sFinalDuration,
-                        submissionDate: oRequest.submissionDate || (oRequest.created_at ? oRequest.created_at.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        submissionDate: formatProperDateTime(oRequest.submissionDate || oRequest.created_at || oRequest.createdAtRaw),
                         created_at: oRequest.created_at || oRequest.createdAtRaw || new Date().toISOString(),
                         createdAtRaw: oRequest.createdAtRaw || oRequest.created_at || new Date().toISOString(),
                         justification: oRequest.justification || "Business Access Entitlement",
@@ -1008,24 +1033,52 @@ sap.ui.define([
                 return str || s;
             };
 
-            const normalizeSystemName = (sys) => {
-                if (!sys) return "";
-                let s = String(sys).trim().toLowerCase();
-                if (s.includes("btp")) return "btp";
-                if (s.includes("s/4hana") || s.includes("s4hana")) return "s4hana";
-                if (s.includes("ariba")) return "ariba";
-                if (s.includes("successfactors") || s.includes("success factors")) return "successfactors";
-                if (s.includes("concur")) return "concur";
-                if (s.includes("analytics")) return "analytics";
-                if (s.includes("kyra") || s.includes("central governance")) return "kyra";
-                return s;
+            const getCanonicalSystemKey = (itemOrSys, maybeReg) => {
+                let sSys = "";
+                let sReg = "";
+                if (typeof itemOrSys === "object" && itemOrSys !== null) {
+                    sSys = itemOrSys.system || itemOrSys.target_system || itemOrSys.targetSystem || itemOrSys.systemName || "";
+                    sReg = itemOrSys.region || itemOrSys.operating_region || itemOrSys.operatingRegion || maybeReg || "";
+                } else {
+                    sSys = String(itemOrSys || "");
+                    sReg = String(maybeReg || "");
+                }
+                const strSys = sSys.trim().toLowerCase();
+                const strReg = sReg.trim().toLowerCase();
+                if (!strSys && !strReg) return "";
+
+                let baseSys = "other";
+                if (strSys.includes("btp") || strSys.includes("business technology platform")) baseSys = "btp";
+                else if (strSys.includes("s/4") || strSys.includes("s4") || strSys.includes("hana")) baseSys = "s4hana";
+                else if (strSys.includes("successfactors") || strSys.includes("success factors")) baseSys = "successfactors";
+                else if (strSys.includes("ariba")) baseSys = "ariba";
+                else if (strSys.includes("active directory") || strSys.includes("iam")) baseSys = "iam";
+                else if (strSys.includes("concur")) baseSys = "concur";
+                else if (strSys.includes("analytics")) baseSys = "analytics";
+                else if (strSys.includes("governance") || strSys.includes("kyra")) baseSys = "governance";
+                else baseSys = strSys.replace(/[^a-z0-9]/g, "");
+
+                let region = "";
+                if (strSys.includes("singapore") || strSys.includes("ap21") || strSys.includes("ap-southeast-1")) {
+                    region = "singapore";
+                } else if (strSys.includes("us east") || strSys.includes("virginia") || strSys.includes("us10") || strSys.includes("us-east-1") || strSys.includes("(us")) {
+                    region = "us";
+                } else if (strReg.includes("singapore") || strReg.includes("ap21") || (strReg.includes("asia") && !strReg.includes("north america"))) {
+                    region = "singapore";
+                } else if (strReg.includes("us east") || strReg.includes("virginia") || strReg.includes("us10") || (strReg.includes("north america") && !strReg.includes("asia"))) {
+                    region = "us";
+                }
+
+                return region ? `${baseSys}___${region}` : baseSys;
             };
+
+            const normalizeSystemName = (sys) => getCanonicalSystemKey(sys);
 
             const isSameSystem = (sysA, sysB) => {
                 if (!sysA || !sysB) return true;
-                const normA = normalizeSystemName(sysA);
-                const normB = normalizeSystemName(sysB);
-                return normA === normB || normA.includes(normB) || normB.includes(normA);
+                const normA = getCanonicalSystemKey(sysA);
+                const normB = getCanonicalSystemKey(sysB);
+                return normA === normB || (normA === "btp" && normB.startsWith("btp")) || (normB === "btp" && normA.startsWith("btp"));
             };
 
             const normalizeForMatching = (str) => {
@@ -1092,26 +1145,29 @@ sap.ui.define([
                 const normTargetTeam = normalizeForMatching(parsedTarget.team);
                 const normTargetRaw = normalizeForMatching(parsedTarget.raw);
 
-                // Case 1: Target specifically designates a Persona with Team (e.g. "Backend & Systems Developer (IT Developers)")
-                if (parsedTarget.team && parsedTarget.persona !== parsedTarget.team) {
-                    const bPersMatch = (normItemPers === normTargetPers) ||
-                        (normItemPers && normTargetPers && (normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers)));
-                    if (!bPersMatch) return false;
+                // Case 1: Target specifically designates a Persona with Team (e.g. "Persona (Team)")
+                if (normTargetTeam) {
+                    if (normItemPers && (normItemPers === normTargetPers || normItemPers === normTargetRaw)) return true;
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole === normTargetPers || normItemRole === normTargetRaw)) return true;
+                }
 
-                    if (normTargetTeam && normItemRole) {
-                        const bTeamMatch = (normItemRole === normTargetTeam) ||
-                            (normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole));
-                        if (!bTeamMatch) return false;
+                // Case 2: Target is a Persona or Role Name (EXACT MATCH ONLY - no substring false positives)
+                if (normTargetPers) {
+                    if (normItemPers && normItemPers === normTargetPers) return true;
+                    if (normItemRole && normItemRole === normTargetPers) return true;
+                }
+
+                if (normTargetRaw) {
+                    if (normItemPers && normItemPers === normTargetRaw) return true;
+                    if (normItemRole && normItemRole === normTargetRaw) return true;
+                }
+                if (normTargetTeam && normTargetTeam.length > 0) {
+                    if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
+                        return true;
                     }
-                    return true;
-                }
-
-                // Case 2: Target is just a Persona or Role Name without parentheses
-                if (normItemPers && (normItemPers === normTargetPers || normItemPers.includes(normTargetPers) || normTargetPers.includes(normItemPers))) {
-                    return true;
-                }
-                if (normItemRole && (normItemRole === normTargetTeam || normItemRole.includes(normTargetTeam) || normTargetTeam.includes(normItemRole))) {
-                    return true;
+                    if (normItemPers && (normItemPers === normTargetTeam || normItemPers.includes(normTargetTeam) || normTargetTeam.includes(normItemPers))) {
+                        return true;
+                    }
                 }
                 if (normTargetRaw && (
                     (normItemPers && (normItemPers === normTargetRaw || normItemPers.includes(normTargetRaw) || normTargetRaw.includes(normItemPers))) ||
@@ -1309,31 +1365,50 @@ sap.ui.define([
                 });
             });
 
-            if (aActiveConflicts.length === 0) {
+            if (aActiveConflicts.length === 0 && aBatchConflicts.length === 0 && aPendingConflicts.length === 0) {
                 const confItem = (aEntList && aEntList.find(e => e.conflictingRole || e.conflicting_role)) || (aItemsToCheck && aItemsToCheck.find(e => e.conflictingRole || e.conflicting_role));
-                const sConfRole = (confItem && (confItem.conflictingRole || confItem.conflicting_role)) || oRequest.conflictingRole || oRequest.conflicting_role;
+                let sConfRole = (confItem && (confItem.conflictingRole || confItem.conflicting_role)) || oRequest.conflictingRole || oRequest.conflicting_role || "";
                 if (sConfRole) {
                     const item0 = confItem || aItemsToCheck[0] || oRequest;
                     const sys = item0.system || item0.target_system || item0.systemName || "SAP System";
                     const newRoleName = cleanPersonaName(item0.roleName || item0.role_name || item0.team || item0.teamName || "Requested Role");
                     const newPersName = cleanPersonaName(item0.selectedPersona || item0.persona || newRoleName);
-                    aActiveConflicts.push({
-                        system: sys,
-                        roleA: `${sys} — ${sConfRole}`,
-                        personaA: sConfRole,
-                        roleB: `${sys} — ${newRoleName}`,
-                        personaB: newPersName,
-                        existingRole: `${sys} — ${sConfRole}`,
-                        existingPersona: sConfRole,
-                        newRole: `${sys} — ${newRoleName}`,
-                        newPersona: newPersName,
-                        conflictTitle: "Segregation of Duties (SoD) Conflict",
-                        conflictDesc: "Segregation of Duties conflict detected with active role " + sConfRole + ".",
-                        requestedRequestId: item0.requestId || item0.request_number || "",
-                        requestedRoleName: newRoleName,
-                        requestedPersona: newPersName,
-                        requestedSystem: sys
-                    });
+
+                    // If sConfRole is the placeholder "SoD Conflict", resolve the actual conflicting persona/role from SoD rules
+                    if (sConfRole.toLowerCase() === "sod conflict") {
+                        const matchingRule = aSodRules.find(r => {
+                            const t1 = (r.role1 || r.role_a || r.roleA || "").toLowerCase();
+                            const t2 = (r.role2 || r.role_b || r.roleB || "").toLowerCase();
+                            const np = newPersName.toLowerCase();
+                            const nr = newRoleName.toLowerCase();
+                            return t1.includes(np) || t2.includes(np) || t1.includes(nr) || t2.includes(nr);
+                        });
+                        if (matchingRule) {
+                            const t1 = matchingRule.role1 || matchingRule.role_a || matchingRule.roleA || "";
+                            const t2 = matchingRule.role2 || matchingRule.role_b || matchingRule.roleB || "";
+                            sConfRole = (t1.toLowerCase().includes(newPersName.toLowerCase()) ? t2 : t1) || "";
+                        }
+                    }
+
+                    if (sConfRole && sConfRole.toLowerCase() !== "sod conflict") {
+                        aActiveConflicts.push({
+                            system: sys,
+                            roleA: `${sys} — ${sConfRole}`,
+                            personaA: sConfRole,
+                            roleB: `${sys} — ${newRoleName}`,
+                            personaB: newPersName,
+                            existingRole: `${sys} — ${sConfRole}`,
+                            existingPersona: sConfRole,
+                            newRole: `${sys} — ${newRoleName}`,
+                            newPersona: newPersName,
+                            conflictTitle: "Segregation of Duties (SoD) Conflict",
+                            conflictDesc: (confItem && (confItem.conflictReason || confItem.conflict_reason)) || oRequest.conflictReason || oRequest.conflict_reason || ("Segregation of Duties conflict detected with active role " + sConfRole + "."),
+                            requestedRequestId: item0.requestId || item0.request_number || "",
+                            requestedRoleName: newRoleName,
+                            requestedPersona: newPersName,
+                            requestedSystem: sys
+                        });
+                    }
                 }
             }
 
@@ -1551,11 +1626,40 @@ sap.ui.define([
 
                     if (!isSameSysHelper(rec, item)) return;
 
-                    const rRole = cleanPersonaName(rec.role_name || rec.roleName || rec.team || "");
-                    const rPers = cleanPersonaName(rec.selected_persona || rec.persona || "");
+                    const cleanToken = (s) => String(s || "")
+                        .replace(/\s*\([^)]*\)/g, "")
+                        .replace(/\s+persona\b/gi, "")
+                        .replace(/^sap\s+/gi, "")
+                        .replace(/administrator/gi, "admin")
+                        .replace(/[^a-zA-Z0-9]/g, "")
+                        .trim()
+                        .toLowerCase();
+                    const getTokens = (obj) => {
+                        const raw = obj.persona || obj.selected_persona || obj.selectedPersona || obj.roleName || obj.role_name || obj.team || "";
+                        if (!raw) return [];
+                        return String(raw).split(",").map(p => cleanToken(p)).filter(Boolean);
+                    };
 
-                    const bMatch = (rPers && sPersona && rPers.toLowerCase() === sPersona.toLowerCase()) ||
-                                   (rRole && sTeam && rRole.toLowerCase() === sTeam.toLowerCase());
+                    const rTokens = getTokens(rec);
+                    const sTokens = getTokens(item);
+                    let bMatch = false;
+
+                    for (const rt of rTokens) {
+                        for (const st of sTokens) {
+                            if (rt === st) { bMatch = true; break; }
+                            if (rt.length >= 5 && st.length >= 5 && (rt.includes(st) || st.includes(rt))) { bMatch = true; break; }
+                        }
+                        if (bMatch) break;
+                    }
+
+                    if (!bMatch) {
+                        const rRole = cleanToken(rec.role_name || rec.roleName || rec.team || "");
+                        const sRole = cleanToken(item.team || item.teamName || item.roleName || item.roleTitle || "");
+                        if (rRole && sRole && (rRole === sRole || rRole.includes(sRole) || sRole.includes(rRole))) {
+                            if (rTokens.length === 0 || sTokens.length === 0) bMatch = true;
+                        }
+                    }
+
                     if (!bMatch) return;
 
                     const rStatus = (rec.status || rec.db_status || "").toUpperCase();
@@ -1712,6 +1816,9 @@ sap.ui.define([
 
         onCloseRequestSummaryView() {
             this._bIsDetailViewActive = false;
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            }
             try {
                 const oRouter = this.getOwnerComponent() && this.getOwnerComponent().getRouter();
                 if (oRouter) {
@@ -2167,9 +2274,6 @@ sap.ui.define([
             } else if (window.showKyraLoading) {
                 window.showKyraLoading("Submitting Access Decision...", "Recording decision and updating governance audit log...");
             }
-            if (typeof sap !== "undefined" && sap.ui && sap.ui.core && sap.ui.core.BusyIndicator) {
-                sap.ui.core.BusyIndicator.show(0);
-            }
 
             const sActiveRole = sessionStorage.getItem("kyra_active_role") || "Approver";
             const sActiveRoleLower = sActiveRole.toLowerCase();
@@ -2257,8 +2361,8 @@ sap.ui.define([
                 justification: oData.justification || "",
                 type: isReqRevocation ? "Revocation" : (oData.type || "Addition"),
                 serviceTopic: oData.serviceTopic || "",
-                decisionDate: sTodayStr,
-                submissionDate: oData.submissionDate || (oData.created_at ? String(oData.created_at).split("T")[0] : sTodayStr),
+                decisionDate: formatProperDateTime(new Date()),
+                submissionDate: formatProperDateTime(oData.submissionDate || oData.created_at || oData.createdAtRaw),
                 createdAtRaw: oData.createdAtRaw || oData.created_at || sNowIso,
                 created_at: oData.created_at || oData.createdAtRaw || sNowIso,
                 updatedAtRaw: sNowIso,
@@ -2360,17 +2464,31 @@ sap.ui.define([
                     const c1Req = String(card.item1RequestId || "").trim().toUpperCase();
                     const c2Req = String(card.item2RequestId || "").trim().toUpperCase();
                     const rId = String(appr.requestId || appr.request_number || appr.id || "").trim().toUpperCase();
-                    const is1 = (c1Req && rId && c1Req === rId) || (card.item1RoleName && String(appr.roleName || appr.team || "").toLowerCase().includes(String(card.item1RoleName).toLowerCase()));
-                    const is2 = (c2Req && rId && c2Req === rId) || (card.item2RoleName && String(appr.roleName || appr.team || "").toLowerCase().includes(String(card.item2RoleName).toLowerCase()));
+                    const rRole = String(appr.roleName || appr.team || "").toLowerCase();
+                    const rPers = String(appr.selectedPersona || appr.persona || "").toLowerCase();
+
+                    const is1 = (c1Req && rId && c1Req === rId) || 
+                                (card.item1Persona && rPers.includes(String(card.item1Persona).toLowerCase())) ||
+                                (card.item1RoleName && rRole.includes(String(card.item1RoleName).toLowerCase()));
+                    const is2 = (c2Req && rId && c2Req === rId) || 
+                                (card.item2Persona && rPers.includes(String(card.item2Persona).toLowerCase())) ||
+                                (card.item2RoleName && rRole.includes(String(card.item2RoleName).toLowerCase()));
                     if (!is1 && !is2) return false;
+
                     // Check if other partner is in aApprovedList
                     const partnerIsApproved = aApprovedList.some(other => {
                         if (other === appr) return false;
                         const oId = String(other.requestId || other.request_number || other.id || "").trim().toUpperCase();
+                        const oRole = String(other.roleName || other.team || "").toLowerCase();
+                        const oPers = String(other.selectedPersona || other.persona || "").toLowerCase();
                         if (is1) {
-                            return (c2Req && oId && c2Req === oId) || (card.item2RoleName && String(other.roleName || other.team || "").toLowerCase().includes(String(card.item2RoleName).toLowerCase()));
+                            return (c2Req && oId && c2Req === oId) || 
+                                   (card.item2Persona && oPers.includes(String(card.item2Persona).toLowerCase())) ||
+                                   (card.item2RoleName && oRole.includes(String(card.item2RoleName).toLowerCase()));
                         } else {
-                            return (c1Req && oId && c1Req === oId) || (card.item1RoleName && String(other.roleName || other.team || "").toLowerCase().includes(String(card.item1RoleName).toLowerCase()));
+                            return (c1Req && oId && c1Req === oId) || 
+                                   (card.item1Persona && oPers.includes(String(card.item1Persona).toLowerCase())) ||
+                                   (card.item1RoleName && oRole.includes(String(card.item1RoleName).toLowerCase()));
                         }
                     });
                     return partnerIsApproved;
@@ -3109,8 +3227,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            submissionDate: sDate,
-                            decisionDate: sDate,
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
+                            decisionDate: formatProperDateTime(r.updated_at || r.created_at),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -3163,8 +3281,8 @@ sap.ui.define([
                             justification: sJustification,
                             type: sType,
                             serviceTopic: sService,
-                            decisionDate: sDate,
-                            submissionDate: r.created_at ? r.created_at.split("T")[0] : sDate,
+                            decisionDate: formatProperDateTime(r.updated_at || r.iam_approver_2_decision_created_at || r.iam_approver_1_decision_created_at || r.compliance_decision_created_at || r.approver_decision_created_at || r.created_at),
+                            submissionDate: formatProperDateTime(r.created_at || r.createdAtRaw || r.submissionDate),
                             createdAtRaw: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             created_at: r.created_at || r.createdAtRaw || new Date().toISOString(),
                             updated_at: r.updated_at || r.created_at || new Date().toISOString(),
@@ -3277,7 +3395,7 @@ sap.ui.define([
                         persona: cleanPersonaName(item.persona || item.selectedPersona || ""),
                         selectedPersona: cleanPersonaName(item.selectedPersona || item.persona || ""),
                         accessDuration: item.accessDuration || "Permanent (Default)",
-                        submissionDate: item.submissionDate || (item.createdAtRaw ? item.createdAtRaw.split("T")[0] : new Date().toISOString().split("T")[0]),
+                        submissionDate: formatProperDateTime(item.submissionDate || item.createdAtRaw),
                         createdAtRaw: item.createdAtRaw || new Date().toISOString(),
                         approver: item.approver || "Line Manager / ISRM Team",
                         status: "Pending Approval",
@@ -3530,6 +3648,9 @@ sap.ui.define([
 
         onCancelRequestSummaryView() {
             this._bIsDetailViewActive = false;
+            if (window.KyraLoader && typeof window.KyraLoader.hide === "function") {
+                window.KyraLoader.hide();
+            }
             sessionStorage.setItem("kyra_scroll_to", "approverSectionView");
             this.getOwnerComponent().getRouter().navTo("AccessPage");
         }

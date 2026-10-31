@@ -10379,10 +10379,18 @@ sap.ui.define([
             const aPendingConflicts = oModel.getProperty("/pendingOnlySodConflictsList") || [];
             const aBatchConflicts = oModel.getProperty("/batchSodConflictsList") || [];
             const bHasConflict = (aActiveConflicts.length > 0 || aPendingConflicts.length > 0 || aBatchConflicts.length > 0);
-            const sSpecificConflictReason = (aBatchConflicts[0] && aBatchConflicts[0].conflictDesc) ||
-                (aActiveConflicts[0] && aActiveConflicts[0].conflictDesc) ||
-                (aPendingConflicts[0] && aPendingConflicts[0].conflictDesc) ||
-                "Segregation of Duties conflict detected";
+
+            const cleanMatchStr = (s) => String(s || "").toLowerCase().replace(/persona/gi, "").replace(/[^a-z0-9]/g, "");
+            const doesItemMatchCardSide = (item, roleStr, persStr) => {
+                const iRole = cleanMatchStr(item.roleName || item.team);
+                const iPers = cleanMatchStr(item.persona || item.selectedPersona);
+                const cRole = cleanMatchStr(roleStr);
+                const cPers = cleanMatchStr(persStr);
+                if (cPers && iPers && (cPers === iPers || cPers.includes(iPers) || iPers.includes(cPers))) return true;
+                if (cRole && iRole && (cRole === iRole || cRole.includes(iRole) || iRole.includes(cRole))) return true;
+                if (cRole && iPers && (cRole === iPers || cRole.includes(iPers) || iPers.includes(cRole))) return true;
+                return false;
+            };
 
             const aPayload = aValidItems.map((item, idx) => {
                 let sItemReqNum = item.requestId;
@@ -10399,6 +10407,47 @@ sap.ui.define([
                 const sCleanPersona = cleanPersonaStr(item.persona || item.selectedPersona || "");
                 const sCleanServiceTopic = String(item.topic || item.serviceTopic || "System Administrator").replace(/\s*\([^)]*\)/g, "").trim();
 
+                // Find specific conflict for THIS item
+                let bItemHasConflict = false;
+                let sItemConfRole = "";
+                let sItemConfReason = "";
+
+                // 1. Check Active conflicts (this item is Side B: newRole/newPersona; conflicting is Side A: existingRole/existingPersona)
+                const activeMatch = aActiveConflicts.find(c => doesItemMatchCardSide(item, c.newRole || c.roleB, c.newPersona || c.personaB));
+                if (activeMatch) {
+                    bItemHasConflict = true;
+                    sItemConfRole = (activeMatch.existingPersona || activeMatch.personaA || activeMatch.existingRole || activeMatch.roleA || "").replace(/^.*?—\s*/, "").trim();
+                    sItemConfReason = activeMatch.conflictDesc || activeMatch.description || "Segregation of Duties conflict detected with active entitlement.";
+                }
+
+                // 2. Check Pending conflicts
+                if (!bItemHasConflict) {
+                    const pendingMatch = aPendingConflicts.find(c => doesItemMatchCardSide(item, c.newRole || c.roleB, c.newPersona || c.personaB));
+                    if (pendingMatch) {
+                        bItemHasConflict = true;
+                        sItemConfRole = (pendingMatch.existingPersona || pendingMatch.personaA || pendingMatch.existingRole || pendingMatch.roleA || "").replace(/^.*?—\s*/, "").trim();
+                        sItemConfReason = pendingMatch.conflictDesc || pendingMatch.description || "Segregation of Duties conflict detected with pending request.";
+                    }
+                }
+
+                // 3. Check Batch intra-role conflicts (item could be Side A or Side B)
+                if (!bItemHasConflict) {
+                    const batchMatch = aBatchConflicts.find(c => 
+                        doesItemMatchCardSide(item, c.roleA, c.personaA) || doesItemMatchCardSide(item, c.roleB, c.personaB)
+                    );
+                    if (batchMatch) {
+                        bItemHasConflict = true;
+                        const isSideA = doesItemMatchCardSide(item, batchMatch.roleA, batchMatch.personaA);
+                        sItemConfRole = (isSideA ? (batchMatch.personaB || batchMatch.roleB) : (batchMatch.personaA || batchMatch.roleA) || "").replace(/^.*?—\s*/, "").trim();
+                        sItemConfReason = batchMatch.conflictDesc || batchMatch.description || "Segregation of Duties conflict detected between multiple roles in this request.";
+                    }
+                }
+
+                // Sanitize: never store generic placeholder "SoD Conflict" as the role name
+                if (sItemConfRole.toLowerCase() === "sod conflict" || (bItemHasConflict && !sItemConfRole)) {
+                    sItemConfRole = bItemHasConflict ? sCleanPersona : "";
+                }
+
                 return {
                     requestNumber: sItemReqNum,
                     requesterUsername: sActiveUser,
@@ -10413,9 +10462,9 @@ sap.ui.define([
                     operatingRegion: sRegion || "",
                     accessDuration: item.duration || sDuration || "Permanent (Default)",
                     justification: sJustification || "Access Request",
-                    hasConflict: bHasConflict || item.hasConflict || false,
-                    conflictingRole: bHasConflict ? "SoD Conflict" : (item.conflictingRole || ""),
-                    conflictReason: bHasConflict ? sSpecificConflictReason : (item.conflictReason || "")
+                    hasConflict: bItemHasConflict,
+                    conflictingRole: sItemConfRole,
+                    conflictReason: sItemConfReason
                 };
             });
 
@@ -16548,18 +16597,51 @@ sap.ui.define([
                 }
             }
 
+            // Canonical normalization for Singapore and US East systems
+            const sLowerSys = String(sSystemName || "").toLowerCase();
+            if (sLowerSys.includes("singapore") || sLowerSys.includes("ap21") || sLowerSys.includes("c47846a0")) {
+                sSystemName = "SAP Business Technology Platform (Singapore)";
+            } else if (sLowerSys.includes("us") || sLowerSys.includes("virginia") || sLowerSys.includes("us10") || sLowerSys.includes("559a77c6")) {
+                sSystemName = "SAP Business Technology Platform (US East VA)";
+            }
+
             oModel.setProperty("/selectedAdminSystemName", sSystemName);
             this._adminLiveSystemActive = sSystemName;
 
-            // If already cached in memory, apply immediately without showing loading indicator
-            if (this._dynamicCatalogs && this._dynamicCatalogs[sSystemName] && this._dynamicCatalogs[sSystemName].ok) {
-                const data = this._dynamicCatalogs[sSystemName];
+            const applyCatalogToAdminView = (data) => {
                 const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
                 const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
                 oModel.setProperty("/adminServicesAll", aLiveServices);
                 oModel.setProperty("/adminServices", aLiveServices.slice());
+                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
                 oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
-                this._syncAdminConfigToLiveAddAccess(oModel, true);
+
+                if (aLiveServices.length > 0) {
+                    const firstSvc = aLiveServices[0].serviceName;
+                    oModel.setProperty("/selectedAdminServiceName", firstSvc);
+                    const aTeams = oLiveDetailsMap[firstSvc] || [];
+                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
+                    oModel.setProperty("/adminClassifications", aTeamsCopy);
+                    oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
+                } else {
+                    oModel.setProperty("/selectedAdminServiceName", "");
+                    oModel.setProperty("/adminClassifications", []);
+                    oModel.setProperty("/selectedAdminClassification", null);
+                }
+
+                if (this._syncAdminConfigToLiveAddAccess) {
+                    this._syncAdminConfigToLiveAddAccess(oModel, true);
+                }
+
+                oModel.setProperty("/adminCustomizationStep", 2);
+                setTimeout(() => {
+                    this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
+                }, 60);
+            };
+
+            // If already cached in memory, apply immediately and transition to Step 2!
+            if (this._dynamicCatalogs && this._dynamicCatalogs[sSystemName] && this._dynamicCatalogs[sSystemName].ok) {
+                applyCatalogToAdminView(this._dynamicCatalogs[sSystemName]);
                 return;
             }
 
@@ -16586,31 +16668,10 @@ sap.ui.define([
                     return;
                 }
 
-                const aLiveServices = (typeof data.servicesJson === "string") ? JSON.parse(data.servicesJson || "[]") : (data.servicesJson || []);
-                const oLiveDetailsMap = (typeof data.serviceDetailsMapJson === "string") ? JSON.parse(data.serviceDetailsMapJson || "{}") : (data.serviceDetailsMapJson || {});
+                this._dynamicCatalogs = this._dynamicCatalogs || {};
+                this._dynamicCatalogs[sSystemName] = data;
 
-                oModel.setProperty("/adminServicesAll", aLiveServices);
-                oModel.setProperty("/adminServices", aLiveServices.slice());
-                oModel.setProperty("/activeAdminServices", aLiveServices.slice());
-                oModel.setProperty("/adminServiceDetailsMap", oLiveDetailsMap);
-
-                if (aLiveServices.length > 0) {
-                    const firstSvc = aLiveServices[0].serviceName;
-                    oModel.setProperty("/selectedAdminServiceName", firstSvc);
-                    const aTeams = oLiveDetailsMap[firstSvc] || [];
-                    const aTeamsCopy = JSON.parse(JSON.stringify(aTeams)).map((t, idx) => Object.assign({ status: t.status || "Active" }, t, { selected: idx === 0 }));
-                    oModel.setProperty("/adminClassifications", aTeamsCopy);
-                    oModel.setProperty("/selectedAdminClassification", aTeamsCopy.length > 0 ? JSON.parse(JSON.stringify(aTeamsCopy[0])) : null);
-                } else {
-                    oModel.setProperty("/selectedAdminServiceName", "");
-                    oModel.setProperty("/adminClassifications", []);
-                    oModel.setProperty("/selectedAdminClassification", null);
-                }
-
-                oModel.setProperty("/adminCustomizationStep", 2);
-                setTimeout(() => {
-                    this._smoothScrollTo("adminAccessCustomizationServicesStep", 40);
-                }, 60);
+                applyCatalogToAdminView(data);
             } catch (err) {
                 sap.ui.core.BusyIndicator.hide();
                 console.error("[ADMIN SYSTEM TO SERVICES] Error loading live catalog for " + sSystemName, err);
